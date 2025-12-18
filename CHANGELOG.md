@@ -23,9 +23,6 @@
 
 # Changelog
 
-## [TODO]
-- Split `./generic-git/docs/` to `./docs-example/docs/` and `./docs-example/docs-extended/` 
-
 ## [04.00.00] - 2025-12-18
 - `MokoDefaults` -> `MokoStandards`
 

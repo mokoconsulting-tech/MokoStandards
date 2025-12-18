@@ -16,9 +16,9 @@
  You should have received a copy of the GNU General Public License (./LICENSE.md).
 
  # FILE INFORMATION
- DEFGROUP:  MokoDefaults
+ DEFGROUP:  MokoStandards
  INGROUP:  Documentation
-	REPO: https://github.com/mokoconsulting-tech/MokoDefaults
+	REPO: https://github.com/mokoconsulting-tech/MokoStandards
  FILE:  style-compliance-checklist.md
  VERSION:  2.0
  BRIEF:  Style and Compliance Checklist Template
@@ -65,7 +65,7 @@ Include reviewers, approvers, and date of final acceptance.
 Ensure all documentation is compliant with organizational, regulatory, and technical standards prior to publication.
 
 ### Documentation Style Checklist
-- Formatting reviewed against MokoDefaults
+- Formatting reviewed against MokoStandards
 - Headings verified for correct structure (starting at h2 where applicable)
 - Metadata block present and accurate
 - Terminology validated against organizational glossary

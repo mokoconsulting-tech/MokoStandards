@@ -1,0 +1,80 @@
+name: Cleanup merged version branches
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * 0"
+    # Runs every Sunday at 03:00 UTC; adjust if needed.
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup-version-branches:
+    name: Delete merged version/* branches
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch all remote branches
+        run: |
+          git fetch --all --prune
+
+      - name: Identify merged version/* branches
+        id: find
+        run: |
+          # List remote version branches
+          REMOTE_BRANCHES=$(git branch -r --list "origin/version/*" | sed 's/^ *//')
+
+          if [ -z "$REMOTE_BRANCHES" ]; then
+            echo "No remote version/* branches found."
+            echo "branches=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "Found version branches:"
+          echo "$REMOTE_BRANCHES"
+
+          MERGED_BRANCHES=()
+
+          # Determine which are fully merged into origin/main
+          for RB in $REMOTE_BRANCHES; do
+            # Strip the 'origin/' prefix for local tracking
+            LB=${RB#origin/}
+
+            # Check merge status against origin/main
+            if git branch --remotes --merged origin/main | grep -q "$RB"; then
+              # Do not touch the currently checked out branch (defensive)
+              if [ "$LB" != "$GITHUB_REF_NAME" ]; then
+                MERGED_BRANCHES+=("$LB")
+              fi
+            fi
+          done
+
+          if [ "${#MERGED_BRANCHES[@]}" -eq 0 ]; then
+            echo "No merged version/* branches to delete."
+            echo "branches=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "Merged version branches to delete:"
+          printf '%s\n' "${MERGED_BRANCHES[@]}"
+
+          # Join into space-separated list for output
+          echo "branches=${MERGED_BRANCHES[*]}" >> "$GITHUB_OUTPUT"
+
+      - name: Delete merged version branches on origin
+        if: steps.find.outputs.branches != ''
+        env:
+          BRANCHES: ${{ steps.find.outputs.branches }}
+        run: |
+          echo "Deleting merged version branches: ${BRANCHES}"
+
+          for BR in ${BRANCHES}; do
+            echo "Deleting origin/${BR}"
+            git push origin --delete "${BR}" || echo "Failed to delete ${BR} (might already be gone)"
+          done

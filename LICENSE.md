@@ -11,9 +11,9 @@
 	You should have received a copy of the GNU General Public License (./LICENSE.md).
 
  # FILE INFORMATION
- DEFGROUP: MokoDefaults
- INGROUP: MokoDefaults.Documentation
- REPO: https://github.com/mokoconsulting-tech/MokoDefaults/
+ DEFGROUP: MokoStandards
+ INGROUP: MokoStandards.Documentation
+ REPO: https://github.com/mokoconsulting-tech/MokoStandards/
  VERSION: 03.00.00
  PATH: ./LICENSE.md
  BRIEF: Project license (GPL-3.0-or-later)

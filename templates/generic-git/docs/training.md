@@ -74,7 +74,7 @@ docs/training/materials/
 
 ### 3.3 Engineering
 
-* Coding standards (MokoDefaults)
+* Coding standards (MokoStandards)
 * Git workflows
 * Testing practices
 

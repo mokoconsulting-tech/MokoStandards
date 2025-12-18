@@ -11,7 +11,7 @@
 	You should have received a copy of the GNU General Public License (./LICENSE.md).
 
 	# FILE INFORMATION
-	DEFGROUP:  MokoDefaults
+	DEFGROUP:  MokoStandards
 	INGROUP:  Documentation
 	REPO:  
 	FILE:  change-management.md

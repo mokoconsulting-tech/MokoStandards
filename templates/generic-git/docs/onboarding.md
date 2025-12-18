@@ -98,7 +98,7 @@ These tasks validate access, tooling, and process understanding.
 
 Follow:
 
-* MokoDefaults
+* MokoStandards
 * Linting & formatting rules
 * Security practices
 

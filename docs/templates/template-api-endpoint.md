@@ -16,9 +16,9 @@
  You should have received a copy of the GNU General Public License (./LICENSE.md).
 
  # FILE INFORMATION
- DEFGROUP:  MokoDefaults
+ DEFGROUP:  MokoStandards
  INGROUP:  Documentation
-	REPO: https://github.com/mokoconsulting-tech/MokoDefaults
+	REPO: https://github.com/mokoconsulting-tech/MokoStandards
  FILE:  template-api-endpoint.md
  VERSION:  2.0
  BRIEF:  API Endpoint Template

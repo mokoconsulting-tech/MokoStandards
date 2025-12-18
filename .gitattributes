@@ -43,14 +43,9 @@
 .github/workflows/ export-ignore
 .gitlab/ export-ignore
 
-# Documentation
-docs/ export-ignore
-
 # Development and tooling
 tests/ export-ignore
 testing/ export-ignore
-scripts/ export-ignore
-build/ export-ignore
 tmp/ export-ignore
 docs-internal/ export-ignore
 tools/ export-ignore
@@ -108,7 +103,6 @@ less/ export-ignore
 */media_src/ export-ignore
 */scss/ export-ignore
 */less/ export-ignore
-*.md export-ignore
 *.min.* export-ignore
 
 # Prevent diff noise in compiled Joomla assets

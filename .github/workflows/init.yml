@@ -1,0 +1,23 @@
+- name: Initialize update server repository context
+  id: init
+  run: |
+    set -e
+
+    # Canonical repo identifiers
+    REPO_SLUG="${GITHUB_REPOSITORY}"                # owner/repo
+    REPO_NAME="${GITHUB_REPOSITORY##*/}"            # repo
+    SERVER_URL="${GITHUB_SERVER_URL:-https://github.com}"
+
+    # Update server XML source repository URL
+    UPDATE_XML_REPO_URL="${SERVER_URL}/${REPO_SLUG}"
+
+    echo "Resolved repository slug: ${REPO_SLUG}"
+    echo "Resolved repository name: ${REPO_NAME}"
+    echo "Resolved update XML repo URL: ${UPDATE_XML_REPO_URL}"
+
+    # Export for downstream steps
+    {
+      echo "repo_slug=${REPO_SLUG}"
+      echo "repo_name=${REPO_NAME}"
+      echo "update_xml_repo_url=${UPDATE_XML_REPO_URL}"
+    } >> "$GITHUB_OUTPUT"

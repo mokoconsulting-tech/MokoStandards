@@ -11,9 +11,9 @@
 	You should have received a copy of the GNU General Public License (./LICENSE.md).
 
 	# FILE INFORMATION
-	DEFGROUP:  MokoDefaults
+	DEFGROUP:  MokoStandards
 	INGROUP:  Documentation
-	REPO:  https://github.com/mokoconsulting-tech/MokoDefaults
+	REPO:  https://github.com/mokoconsulting-tech/MokoStandards
 	FILE:  contributing.md
 	VERSION:  2.0
 	BRIEF:  Contributor Guide
@@ -67,7 +67,7 @@ Default strategy:
 
 Standards must align with:
 
-* MokoDefaults
+* MokoStandards
 * Language-specific formatting rules
 * Required linting and static analysis
 

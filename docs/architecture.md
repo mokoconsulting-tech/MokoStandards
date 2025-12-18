@@ -13,7 +13,7 @@
 	# FILE INFORMATION
 	DEFGROUP:  MokoCoding Defaults
 	INGROUP:  Documentation
-	REPO:  https://github.com/mokoconsulting-tech/MokoDefaults
+	REPO:  https://github.com/mokoconsulting-tech/MokoStandards
 	FILE: 		  architecture.md 
 	VERSION:  2.0
 	BRIEF:  Architecture Guide

@@ -11,9 +11,9 @@
 	You should have received a copy of the GNU General Public License (./LICENSE.md).
 
 	# FILE INFORMATION
-	DEFGROUP:  MokoDefaults
+	DEFGROUP:  MokoStandards
 	INGROUP:  Documentation
-	REPO:  https://github.com/mokoconsulting-tech/MokoDefaults
+	REPO:  https://github.com/mokoconsulting-tech/MokoStandards
 	FILE:  onboarding.md
 	VERSION:  2.0
 	BRIEF:  Onboarding Guide
@@ -99,7 +99,7 @@ These tasks validate access, tooling, and process understanding.
 
 Follow:
 
-* MokoDefaults
+* MokoStandards
 * Linting & formatting rules
 * Security practices
 

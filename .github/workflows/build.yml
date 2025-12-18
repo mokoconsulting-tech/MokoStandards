@@ -1,0 +1,92 @@
+name: Build ZIP from src
+
+on:
+  release:
+    types: [prereleased, released]
+  workflow_dispatch:
+    inputs:
+      source_dir:
+        description: "Folder to zip (relative to repo root)"
+        required: false
+        default: "src"
+      zip_prefix:
+        description: "ZIP filename prefix (default repo name)"
+        required: false
+        default: ""
+      zip_name:
+        description: "Override full ZIP filename (without .zip)"
+        required: false
+        default: ""
+
+jobs:
+
+  build-zip:
+    name: Build ZIP from src
+    runs-on: ubuntu-latest
+
+    env:
+      DEFAULT_SOURCE_DIR: src
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Resolve build parameters
+        id: cfg
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.source_dir }}" ]; then
+            SRC_DIR="${{ github.event.inputs.source_dir }}"
+          else
+            SRC_DIR="${DEFAULT_SOURCE_DIR}"
+          fi
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.zip_prefix }}" ]; then
+            PREFIX="${{ github.event.inputs.zip_prefix }}"
+          else
+            PREFIX="${GITHUB_REPOSITORY##*/}"
+          fi
+
+          if [ "${{ github.event_name }}" = "release" ]; then
+            REF_NAME="${GITHUB_REF_NAME}"
+          else
+            REF_NAME="${GITHUB_SHA::7}"
+          fi
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.zip_name }}" ]; then
+            ZIP_NAME="${{ github.event.inputs.zip_name }}"
+          else
+            ZIP_NAME="${PREFIX}-${REF_NAME}"
+          fi
+
+          echo "src_dir=${SRC_DIR}" >> "$GITHUB_OUTPUT"
+          echo "zip_name=${ZIP_NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: Validate source directory
+        run: |
+          if [ ! -d "${{ steps.cfg.outputs.src_dir }}" ]; then
+            echo "Source directory '${{ steps.cfg.outputs.src_dir }}' does not exist."
+            exit 1
+          fi
+
+      - name: Prepare dist folder
+        run: |
+          mkdir -p dist
+
+      - name: Build ZIP from folder contents
+        run: |
+          cd "${{ steps.cfg.outputs.src_dir }}"
+          zip -r "../dist/${{ steps.cfg.outputs.zip_name }}.zip" .
+
+      - name: Upload artifact to workflow run
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.cfg.outputs.zip_name }}
+          path: dist/${{ steps.cfg.outputs.zip_name }}.zip
+
+      - name: Attach ZIP to GitHub Release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/${{ steps.cfg.outputs.zip_name }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

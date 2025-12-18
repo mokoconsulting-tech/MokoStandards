@@ -103,7 +103,7 @@ This section explains how documentation relates to real source code:
 
 * Where modules live
 * Source repository layout
-* Coding standards (via MokoDefaults)
+* Coding standards (via MokoStandards)
 * Integration points
 * Shared libraries and utilities
 * Module ownership

@@ -1,0 +1,227 @@
+name: Create version branch and bump versions
+
+on:
+  workflow_dispatch:
+    inputs:
+      new_version:
+        description: "New version (for example: 01.02.00). Leave blank to auto-increment from highest version/* branch."
+        required: false
+        default: ""
+      base_branch:
+        description: "Base branch to create version branch from"
+        required: false
+        default: "main"
+
+permissions:
+  contents: write
+
+jobs:
+  create-version-branch:
+    name: Create version branch and update versions
+    runs-on: ubuntu-latest
+
+    env:
+      BASE_BRANCH: ${{ github.event.inputs.base_branch }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ env.BASE_BRANCH }}
+
+      - name: Determine new version (input or auto-increment)
+        id: version
+        env:
+          INPUT_VERSION: ${{ github.event.inputs.new_version }}
+        run: |
+          python << 'PY'
+          import os
+          import re
+          import subprocess
+
+          input_version = os.environ.get("INPUT_VERSION", "").strip()
+
+          if input_version:
+              new_version = input_version
+          else:
+              completed = subprocess.run(
+                  ["git", "ls-remote", "--heads", "origin"],
+                  check=True,
+                  capture_output=True,
+                  text=True,
+              )
+
+              pattern = re.compile(r"refs/heads/version/([0-9]+\.[0-9]+\.[0-9]+)$")
+              versions = []
+
+              for line in completed.stdout.splitlines():
+                  parts = line.split()
+                  if len(parts) != 2:
+                      continue
+                  ref = parts[1]
+                  m = pattern.search(ref)
+                  if not m:
+                      continue
+
+                  v_str = m.group(1)
+                  try:
+                      major, minor, patch = map(int, v_str.split("."))
+                  except ValueError:
+                      continue
+                  versions.append((major, minor, patch))
+
+              if versions:
+                  major, minor, patch = max(versions)
+                  patch += 1
+              else:
+                  major, minor, patch = 1, 0, 0
+
+              new_version = f"{major:02d}.{minor:02d}.{patch:02d}"
+
+          print(f"Using version {new_version}")
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
+              fh.write(f"new_version={new_version}\n")
+          PY
+
+      - name: Compute branch name
+        id: branch
+        env:
+          NEW_VERSION: ${{ steps.version.outputs.new_version }}
+        run: |
+          SAFE_VERSION="${NEW_VERSION// /-}"
+          BRANCH_NAME="version/${SAFE_VERSION}"
+          echo "Using branch name: $BRANCH_NAME"
+          echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Create version branch from base
+        run: |
+          git checkout -b "${{ steps.branch.outputs.branch_name }}"
+
+      - name: Bump version strings across repo
+        env:
+          NEW_VERSION: ${{ steps.version.outputs.new_version }}
+        run: |
+          echo "Updating version strings to ${NEW_VERSION} across repository"
+
+          python << 'PY'
+          import os
+          import re
+          from pathlib import Path
+
+          new_version = os.environ["NEW_VERSION"]
+
+          targets = [
+              Path("src"),
+              Path("docs"),
+          ]
+
+          patterns = [
+              (re.compile(r"\(VERSION\s+[0-9]+\.[0-9]+\.[0-9]+\)"), lambda v: f"(VERSION {v})"),
+              (re.compile(r"(VERSION[:\s]+)([0-9]+\.[0-9]+\.[0-9]+)"), lambda v: r"\1" + v),
+              (re.compile(r"(<version>)([0-9]+\.[0-9]+\.[0-9]+)(</version>)"), lambda v: r"\1" + v + r"\3"),
+              (re.compile(r'(<extension\\b[^>]*\\bversion=")([0-9]+\.[0-9]+\.[0-9]+)(")'), lambda v: r"\1" + v + r"\3"),
+              (re.compile(r'(\"version\"\s*:\s*\")(\d+\.\d+\.\d+)(\")'), lambda v: r"\1" + v + r"\3"),
+          ]
+
+          def update_file(path: Path) -> bool:
+              try:
+                  text = path.read_text(encoding="utf-8")
+              except UnicodeDecodeError:
+                  return False
+
+              original = text
+              for regex, repl in patterns:
+                  text = regex.sub(lambda m, r=repl: r(m), text)
+
+              if text != original:
+                  path.write_text(text, encoding="utf-8")
+                  print(f"Updated version in {path}")
+                  return True
+
+              return False
+
+          for root in targets:
+              if not root.exists():
+                  continue
+
+              for path in root.rglob("*"):
+                  if not path.is_file():
+                      continue
+
+                  if path.suffix.lower() in {
+                      ".png", ".jpg", ".jpeg", ".gif", ".svg", ".ico",
+                      ".zip", ".pdf", ".tar", ".gz",
+                  }:
+                      continue
+
+                  update_file(path)
+
+          repo_root = Path(".").resolve()
+
+          def is_under_any_target(p: Path) -> bool:
+              for t in targets:
+                  if not t.exists():
+                      continue
+                  try:
+                      p.resolve().relative_to(t.resolve())
+                      return True
+                  except ValueError:
+                      continue
+              return False
+
+          # Explicitly update README.md and CHANGELOG.md
+          for fname in ["README.md", "CHANGELOG.md"]:
+              p = Path(fname)
+              if p.exists() and p.is_file():
+                  update_file(p)
+
+          # Update remaining markdown files outside src/docs
+          for path in repo_root.rglob("*.md"):
+              if not path.is_file():
+                  continue
+
+              if path.name.lower() in {"readme.md", "changelog.md"}:
+                  continue
+
+              if is_under_any_target(path):
+                  continue
+
+              update_file(path)
+          PY
+
+      - name: Update CHANGELOG using script
+        env:
+          NEW_VERSION: ${{ steps.version.outputs.new_version }}
+        run: |
+          if [ ! -f "scripts/update_changelog.sh" ]; then
+            echo "scripts/update_changelog.sh not found. Failing version branch creation."
+            exit 1
+          fi
+
+          chmod +x scripts/update_changelog.sh
+          ./scripts/update_changelog.sh "${NEW_VERSION}"
+
+      - name: Configure git user
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit version bump
+        env:
+          NEW_VERSION: ${{ steps.version.outputs.new_version }}
+        run: |
+          git status
+          if git diff --quiet; then
+            echo "No changes detected after version bump. Skipping commit."
+            exit 0
+          fi
+
+          git add -A
+
+          git commit -m "chore: bump version to ${NEW_VERSION}"
+
+      - name: Push version branch
+        run: |
+          git push -u origin "${{ steps.branch.outputs.branch_name }}"

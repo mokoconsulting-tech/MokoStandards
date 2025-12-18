@@ -14,12 +14,12 @@
  DEFGROUP: MokoStandards
  INGROUP: Documentation
  REPO: https://github.com/mokoconsulting-tech/MokoStandards/
- VERSION: 03.00.00
+ VERSION: 04.00.00
  PATH: ./README.md
  BRIEF: Reference and packaging repo for the Moko Consulting coding ecosystem
 -->
 
-# MokoStandards (VERSION: 03.00.00)
+# MokoStandards (VERSION: 04.00.00)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 ![Status](https://img.shields.io/badge/status-active-brightgreen)
 
@@ -185,7 +185,7 @@ GPL-3.0-or-later. See `LICENSE` for full text.
 * MAINTAINER: Moko Consulting Engineering
 * REPO: [https://github.com/mokoconsulting-tech/MokoStandards](https://github.com/mokoconsulting-tech/MokoStandards)
 * FILE: README.md
-* VERSION: 03.00.00
+* VERSION: 04.00.00
 * CLASSIFICATION: Public Open Source Standards
 * COMPLIANCE SCOPE: All Moko Consulting repositories
 

@@ -1,0 +1,69 @@
+name: Rebuild Documentation Indexes
+
+on:
+  pull_request:
+    paths:
+      - 'docs/**'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Run mode: check or write'
+        required: false
+        default: 'write'
+
+permissions:
+  contents: write
+
+jobs:
+  rebuild_indexes:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Run index generator in check mode (PR)
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/docs/rebuild_indexes.py --check
+
+      - name: Run index generator in write mode (workflow_dispatch)
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'write'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/docs/rebuild_indexes.py
+
+      - name: Commit and push changes (workflow_dispatch write mode only)
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'write'
+        shell: bash
+        run: |
+          set -euo pipefail
+          
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          if git diff --quiet; then
+            echo "No changes to commit"
+          else
+            git add docs/**/index.md
+            git commit -m "chore: regenerate documentation indexes"
+            git push
+          fi
+
+      - name: Run index generator in check mode (workflow_dispatch check mode)
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'check'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/docs/rebuild_indexes.py --check

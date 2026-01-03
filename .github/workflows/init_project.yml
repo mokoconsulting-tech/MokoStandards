@@ -214,14 +214,20 @@ jobs:
                 multiSelectOptions: (f.dataType === 'MULTI_SELECT' && f.options) ? f.options.map(o => ({ name: o })) : null,
               };
 
-              const createRes = await retry(() => graphql(createFieldMutation, vars));
-              core.info(`Create result (sanitized): ${JSON.stringify({
-                id: createRes.createProjectV2Field.projectV2Field.id,
-                name: createRes.createProjectV2Field.projectV2Field.name,
-                options: createRes.createProjectV2Field.projectV2Field.options ? createRes.createProjectV2Field.projectV2Field.options.map(o => ({ id: o.id, name: o.name })) : undefined
-              })}`);
-              createdCount++;
-              core.info(`Created field ${f.name}`);
+              try {
+                const createRes = await retry(() => graphql(createFieldMutation, vars));
+                const created = createRes && createRes.createProjectV2Field && createRes.createProjectV2Field.projectV2Field;
+                core.info(`Create result (sanitized): ${JSON.stringify({
+                  id: created && created.id,
+                  name: created && created.name,
+                  dataType: created && created.dataType,
+                  options: created && created.options ? created.options.map(o => ({ id: o.id, name: o.name })) : undefined
+                })}`);
+                createdCount++;
+                core.info(`Created field ${f.name}`);
+              } catch (e) {
+                core.info(`Failed to create field ${f.name}: ${e.message || e}`);
+              }
             }
 
             core.info(`Done — created ${createdCount} fields (skipped existing).`)

@@ -1,21 +1,12 @@
-# Docs Index: /docs/policy
+# Docs Index: /docs/checklist
 
 ## Purpose
 
 This index provides navigation to documentation within this folder.
 
-## Subfolders
-
-- [waas/](./waas/index.md)
-
 ## Documents
 
-- [change-management](./change-management.md)
-- [data-classification](./data-classification.md)
-- [document-formatting](./document-formatting.md)
-- [documentation-governance](./documentation-governance.md)
-- [risk-register](./risk-register.md)
-- [vendor-risk](./vendor-risk.md)
+- [release](./release.md)
 
 ## Metadata
 

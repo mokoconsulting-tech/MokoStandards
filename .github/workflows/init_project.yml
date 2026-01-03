@@ -76,7 +76,7 @@ jobs:
             if org and org.get("id"):
               owner_id = org["id"]
               owner_type = "organization"
-          except:
+          except Exception:
             pass  # Organization not found, try user
           
           # If not found as organization, try user
@@ -88,7 +88,7 @@ jobs:
               if usr and usr.get("id"):
                 owner_id = usr["id"]
                 owner_type = "user"
-            except:
+            except Exception:
               pass  # User not found either
           
           if not owner_id:

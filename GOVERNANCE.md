@@ -18,7 +18,7 @@ FILE INFORMATION
  DEFGROUP: MokoStandards
  INGROUP: MokoStandards.Documentation
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
- VERSION: 04.00.00
+ VERSION: 04.01.00
  PATH: ./GOVERNANCE.md
  BRIEF: Project governance rules and decision process, index policy, and standards documents
 -->

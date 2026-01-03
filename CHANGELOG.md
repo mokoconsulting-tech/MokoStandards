@@ -15,13 +15,20 @@
  DEFGROUP: MokoStandards
  INGROUP: MokoStandards.Documentation
  REPO: https://github.com/mokoconsulting-tech/MokoStandards/
- VERSION: 04.00.00
+ VERSION: 04.01.00
  PATH: ./CHANGELOG.md
  BRIEF: Version history using Keep a Changelog
  NOTE: Adheres to SemVer when applicable
  -->
 
 # Changelog
+
+## [UNRELEASED]
+
+## [04.01.00] - 2025-01-03
+- Created `/docs/policy/waas/..` stubs
+- Moved Documentation links to `/docs/index.md`
+- Created `/templates/..`
 
 ## [04.00.00] - 2025-12-18
 - `MokoDefaults` -> `MokoStandards`

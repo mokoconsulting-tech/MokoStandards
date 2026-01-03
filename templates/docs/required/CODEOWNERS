@@ -1,0 +1,37 @@
+# CODEOWNERS
+
+## Repository Ownership Matrix
+
+```
+# GLOBAL DEFAULT
+* @mokoconsulting-tech/maintainers
+
+# DOCUMENTATION SUITE
+/docs/ @mokoconsulting-tech/documentation
+/docs/templates/ @mokoconsulting-tech/documentation
+/docs/adr/ @mokoconsulting-tech/architecture
+/docs/diagrams/ @mokoconsulting-tech/architecture
+/docs/security/ @mokoconsulting-tech/security
+
+# ENGINEERING + CODE ASSETS
+/htdocs/ @mokoconsulting-tech/engineering
+/src/ @mokoconsulting-tech/engineering
+/api/ @mokoconsulting-tech/engineering
+
+# CI/CD WORKFLOWS
+/.github/workflows/ @mokoconsulting-tech/devops
+
+# ISSUE TEMPLATES
+/.github/ISSUE_TEMPLATE/ @mokoconsulting-tech/documentation
+
+# GOVERNANCE + OPERATIONAL FILES
+/CONTRIBUTING.md @mokoconsulting-tech/governance
+/GOVERNANCE.md @mokoconsulting-tech/governance
+/CODE_OF_CONDUCT.md @mokoconsulting-tech/governance
+
+# SECURITY
+/SECURITY.md @mokoconsulting-tech/security
+
+# TEMPLATE LIBRARY
+/docs/templates/ @mokoconsulting-tech/documentation
+```

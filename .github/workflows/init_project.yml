@@ -114,8 +114,10 @@ jobs:
                         id
                         name
                         dataType
-                        ... on ProjectV2SingleSelectField { options { id name } }
-                        ... on ProjectV2MultiSelectField  { options { id name } }
+                        configuration {
+                          ... on ProjectV2SingleSelectFieldConfiguration { options { id name } }
+                          ... on ProjectV2MultiSelectFieldConfiguration  { options { id name } }
+                        }
                       }
                     }
                   }
@@ -157,18 +159,26 @@ jobs:
 
             // Mutation to create a field (options are optional)
             const createFieldMutation = `
-              mutation($projectId:ID!,$name:String!,$dataType:ProjectV2CustomFieldType!,$singleSelectOptions:[ProjectV2SingleSelectFieldOptionInput!],$multiSelectOptions:[ProjectV2MultiSelectFieldOptionInput!]){
+              mutation(
+                $projectId: ID!,
+                $name: String!,
+                $dataType: ProjectV2CustomFieldType!,
+                $singleSelectOptions: [ProjectV2SingleSelectFieldOptionInput!],
+                $multiSelectOptions: [ProjectV2MultiSelectFieldOptionInput!]
+              ) {
                 createProjectV2Field(input:{
-                  projectId:$projectId,
-                  name:$name,
-                  dataType:$dataType,
-                  singleSelectOptions:$singleSelectOptions,
-                  multiSelectOptions:$multiSelectOptions
+                  projectId: $projectId,
+                  name: $name,
+                  dataType: $dataType,
+                  singleSelectOptions: $singleSelectOptions,
+                  multiSelectOptions: $multiSelectOptions
                 }){
-                  projectV2Field{
-                    ... on ProjectV2FieldCommon { id name dataType }
-                    ... on ProjectV2SingleSelectField { options { id name } }
-                    ... on ProjectV2MultiSelectField { options { id name } }
+                  projectV2Field {
+                    id
+                    name
+                    ... on ProjectV2FieldCommon { dataType }
+                    ... on ProjectV2SingleSelectFieldConfiguration { options { id name } }
+                    ... on ProjectV2MultiSelectFieldConfiguration { options { id name } }
                   }
                 }
               }
@@ -196,4 +206,4 @@ jobs:
               core.info(`Created field ${f.name}`);
             }
 
-            core.info(`Done — created ${createdCount} fields (skipped existing).`);
+            core.info(`Done — created ${createdCount} fields (skipped existing).`)

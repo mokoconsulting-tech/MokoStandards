@@ -14,6 +14,7 @@ on:
 
 permissions:
   contents: read
+  projects: write
 
 jobs:
   bootstrap_projectv2:
@@ -26,19 +27,29 @@ jobs:
           set -euo pipefail
           command -v gh >/dev/null 2>&1 || { echo "ERROR: GitHub CLI (gh) not found on runner"; exit 1; }
           command -v python3 >/dev/null 2>&1 || { echo "ERROR: python3 not found on runner"; exit 1; }
-          if [[ -z "${{ secrets.GH_PAT }}" ]]; then
-            echo "ERROR: Missing required secret GH_PAT (needs repo + project scopes)"
+
+          # Accept either a provided personal access token (GH_PAT) or the built-in GITHUB_TOKEN.
+          if [[ -z "${{ secrets.GH_PAT }}" && -z "${{ secrets.GITHUB_TOKEN }}" ]]; then
+            echo "ERROR: Missing required token. Set secrets.GH_PAT (recommended, with repo+project scopes) or rely on the built-in GITHUB_TOKEN."
             exit 1
           fi
 
       - name: Create ProjectV2 and Fields via GraphQL
         env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
+          GH_PAT: ${{ secrets.GH_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OWNER_LOGIN: ${{ inputs.owner_login }}
           PROJECT_TITLE: ${{ inputs.project_title }}
         shell: bash
         run: |
           set -euo pipefail
+
+          # Prefer explicit GH_PAT if provided, otherwise fall back to the built-in GITHUB_TOKEN
+          export GH_TOKEN="${GH_PAT:-$GITHUB_TOKEN}"
+          if [[ -z "${GH_TOKEN:-}" ]]; then
+            echo "ERROR: No token available in GH_PAT or GITHUB_TOKEN"
+            exit 1
+          fi
 
           python3 - <<'PY'
 import json
@@ -87,9 +98,7 @@ if not owner_id:
 # Create the ProjectV2
 q_create_project = """
 mutation($ownerId:ID!,$title:String!){
-  createProjectV2(input:{ownerId:$ownerId,title:$title}){
-    projectV2{ id number title }
-  }
+  createProjectV2(input:{ownerId:$ownerId,title:$title}){    projectV2{ id number title }  }
 }
 """
 proj_data = gh_graphql(q_create_project, {"ownerId": owner_id, "title": PROJECT_TITLE})
@@ -113,14 +122,14 @@ FIELDS = [
 
   # Governance
   {"name": "Owner Role", "dataType": "SINGLE_SELECT", "singleSelectOptions": [{"name": x} for x in ["Documentation Owner","Governance Owner","Security Owner","Operations Owner","Release Owner"]]},
-  {"name": "Approval Required", "dataType": "SINGLE_SELECT", "singleSelectOptions": [{"name": x} for x in ["Yes","No"]]},
-  {"name": "Evidence Required", "dataType": "SINGLE_SELECT", "singleSelectOptions": [{"name": x} for x in ["Yes","No"]]},
-  {"name": "Review Cycle", "dataType": "SINGLE_SELECT", "singleSelectOptions": [{"name": x} for x in ["Annual","Semiannual","Quarterly","Ad hoc"]]},
+  {"name": "Approval Required", "dataType": "SINGLE_SELECT", "singleSelectOptions": [{"name": x} for x in ["Yes","No"]}]},
+  {"name": "Evidence Required", "dataType": "SINGLE_SELECT", "singleSelectOptions": [{"name": x} for x in ["Yes","No"]}]},
+  {"name": "Review Cycle", "dataType": "SINGLE_SELECT", "singleSelectOptions": [{"name": x} for x in ["Annual","Semiannual","Quarterly","Ad hoc"]}]},
 
   # Compliance
-  {"name": "Compliance Tags", "dataType": "MULTI_SELECT", "multiSelectOptions": [{"name": x} for x in ["Governance","Audit","Security","Compliance","Operations","Release","Engineering"]]},
-  {"name": "Retention", "dataType": "SINGLE_SELECT", "singleSelectOptions": [{"name": x} for x in ["Indefinite","7 Years","5 Years","3 Years"]]},
-  {"name": "Evidence Artifacts", "dataType": "MULTI_SELECT", "multiSelectOptions": [{"name": x} for x in ["Pull Request","Review Approval","Published Document","Audit Record"]]},
+  {"name": "Compliance Tags", "dataType": "MULTI_SELECT", "multiSelectOptions": [{"name": x} for x in ["Governance","Audit","Security","Compliance","Operations","Release","Engineering"]}]},
+  {"name": "Retention", "dataType": "SINGLE_SELECT", "singleSelectOptions": [{"name": x} for x in ["Indefinite","7 Years","5 Years","3 Years"]}]},
+  {"name": "Evidence Artifacts", "dataType": "MULTI_SELECT", "multiSelectOptions": [{"name": x} for x in ["Pull Request","Review Approval","Published Document","Audit Record"]}]},
 
   # Structured text payload fields (store as TEXT for ProjectV2 compatibility)
   {"name": "Dependencies", "dataType": "TEXT"},

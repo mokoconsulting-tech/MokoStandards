@@ -28,13 +28,13 @@ jobs:
       - name: Create ProjectV2 and fields (idempotent)
         uses: actions/github-script@v7
         with:
-          # prefer a PAT in GH_PAT if provided, otherwise fallback to the workflow token
-          github-token: ${{ secrets.GH_PAT || github.token }}
+          # Prefer a PAT in GH_PAT if provided, otherwise fall back to the built-in token
+          github-token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
           script: |
+            // `core` and `github` are injected by actions/github-script
             const OWNER_LOGIN = '${{ inputs.owner_login }}';
             const PROJECT_TITLE = '${{ inputs.project_title }}';
             const graphql = github.graphql;
-            const core = require('@actions/core');
 
             function sleep(ms) { return new Promise(res => setTimeout(res, ms)); }
 
@@ -82,7 +82,7 @@ jobs:
             do {
               const res = await retry(() => graphql(listProjectsQuery, { ownerId, after }));
               const node = res.node;
-              const p = node && (node.projectsV2 || node.projectsV2);
+              const p = node && node.projectsV2;
               if (p && p.nodes) projects = projects.concat(p.nodes);
               after = p && p.pageInfo && p.pageInfo.hasNextPage ? p.pageInfo.endCursor : null;
             } while (after);
@@ -133,7 +133,7 @@ jobs:
             } while (after);
             core.info(`Project has ${fields.length} existing fields`);
 
-            // Desired canonical fields (match original list)
+            // Desired canonical fields
             const DESIRED_FIELDS = [
               { name: "Status", dataType: "SINGLE_SELECT", options: ["Planned","In Progress","In Review","Approved","Published","Blocked","Archived"] },
               { name: "Priority", dataType: "SINGLE_SELECT", options: ["High","Medium","Low"] },

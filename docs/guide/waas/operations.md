@@ -353,27 +353,33 @@ Create on-demand backups before:
 
 **Critical**
 
-- Response time: Immediate
+- Response time: Immediate (24/7 on-call)
 - Examples: Site down, database unavailable, security breach
 - Action: Page on-call staff, begin resolution immediately
+- Escalation: If not resolved within 1 hour, escalate to Operations Owner
 
 **High**
 
-- Response time: Within 15 minutes
+- Response time: Within 15 minutes (during business hours); within 1 hour (outside business hours)
 - Examples: Performance degradation, backup failure, high resource usage
 - Action: Investigate and begin resolution
+- Escalation: If not resolved within 4 hours, escalate to Operations Owner
 
 **Medium**
 
-- Response time: Within 1 hour
+- Response time: Within 1 hour (during business hours); next business day (outside business hours)
 - Examples: Non-critical errors, slow queries, certificate expiring soon
 - Action: Investigate and plan resolution
+- Escalation: If not resolved within 1 business day, escalate to team lead
 
 **Low**
 
 - Response time: Next business day
 - Examples: Informational alerts, minor warnings
 - Action: Review and address as needed
+- Escalation: Standard team escalation if persistent
+
+Business hours defined as: Monday-Friday, 8:00 AM - 6:00 PM local time (excluding holidays)
 
 #### Alert Response
 

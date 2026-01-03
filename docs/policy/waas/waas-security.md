@@ -136,14 +136,15 @@ WaaS platform MUST implement vulnerability management:
 
 #### Patch Management
 
-- Security patches applied within defined timeframes:
+- Security patches applied within defined timeframes (calendar days from availability):
   - Critical vulnerabilities: 24 hours
-  - High vulnerabilities: 7 days
-  - Medium vulnerabilities: 30 days
-  - Low vulnerabilities: 90 days
+  - High vulnerabilities: 7 calendar days
+  - Medium vulnerabilities: 30 calendar days
+  - Low vulnerabilities: 90 calendar days
 - Patch testing in non-production environment
 - Documented patch application procedures
 - Rollback capability for failed patches
+- Exception process for patches requiring extended testing or coordination
 
 #### WordPress Core and Plugin Updates
 

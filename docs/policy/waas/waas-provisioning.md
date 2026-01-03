@@ -120,16 +120,16 @@ Resources allocated per service tier:
 - Database storage: 25 GB
 - File storage: 50 GB
 - Bandwidth: 500 GB/month
-- CPU: Dedicated cores
-- Memory: Dedicated allocation
+- CPU: 2 dedicated CPU cores
+- Memory: 4 GB dedicated RAM
 
 **Premium Tier:**
 
 - Database storage: 100 GB
 - File storage: 200 GB
 - Bandwidth: 2 TB/month
-- CPU: Enhanced dedicated cores
-- Memory: Enhanced dedicated allocation
+- CPU: 4 dedicated CPU cores
+- Memory: 8 GB dedicated RAM
 
 Resource limits MUST be enforced to prevent resource exhaustion.
 

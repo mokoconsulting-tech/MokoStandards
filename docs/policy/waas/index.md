@@ -9,7 +9,7 @@
  DEFGROUP: MokoStandards.WaaS
  INGROUP: Documentation.Index
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
- PATH: /docs/policy/waas/README.md
+ PATH: /docs/policy/waas/index.md
  VERSION: 04.01.00
  BRIEF: Authoritative index for all WaaS governance, policy, and operational documents.
 -->

@@ -19,6 +19,9 @@ This index provides navigation to documentation within this folder.
 - [perfectpublisher-social-accounts](./perfectpublisher-social-accounts.md)
 - [provisioning-validation](./provisioning-validation.md)
 - [site-keys-and-licensing](./site-keys-and-licensing.md)
+- [waas-provisioning](./waas-provisioning.md)
+- [waas-security](./waas-security.md)
+- [waas-tenant-isolation](./waas-tenant-isolation.md)
 
 ## Metadata
 

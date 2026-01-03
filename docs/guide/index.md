@@ -4,8 +4,13 @@
 
 This index provides navigation to documentation within this folder.
 
+## Subfolders
+
+- [waas/](./waas/index.md)
+
 ## Documents
 
+- [audit-readiness](./audit-readiness.md)
 - [project-fields](./project-fields.md)
 - [project-views](./project-views.md)
 

@@ -14,7 +14,7 @@ on:
 
 permissions:
   contents: read
-  projects: write
+  repository-projects: write
 
 jobs:
   bootstrap_projectv2:
@@ -28,13 +28,13 @@ jobs:
       - name: Create ProjectV2 and fields (idempotent)
         uses: actions/github-script@v7
         with:
-          # Prefer a personal token if provided, otherwise use the built-in token.
-          github-token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+          # prefer a PAT in GH_PAT if provided, otherwise fallback to the workflow token
+          github-token: ${{ secrets.GH_PAT || github.token }}
           script: |
-            // Inputs (inlined from workflow_dispatch)
             const OWNER_LOGIN = '${{ inputs.owner_login }}';
             const PROJECT_TITLE = '${{ inputs.project_title }}';
             const graphql = github.graphql;
+            const core = require('@actions/core');
 
             function sleep(ms) { return new Promise(res => setTimeout(res, ms)); }
 
@@ -135,36 +135,25 @@ jobs:
 
             // Desired canonical fields (match original list)
             const DESIRED_FIELDS = [
-              // Execution
               { name: "Status", dataType: "SINGLE_SELECT", options: ["Planned","In Progress","In Review","Approved","Published","Blocked","Archived"] },
               { name: "Priority", dataType: "SINGLE_SELECT", options: ["High","Medium","Low"] },
               { name: "Risk Level", dataType: "SINGLE_SELECT", options: ["High","Medium","Low"] },
-
-              // Classification
               { name: "Document Type", dataType: "SINGLE_SELECT", options: ["overview","index","policy","guide","checklist"] },
               { name: "Document Subtype", dataType: "SINGLE_SELECT", options: ["core","waas","catalog","policy","guide"] },
               { name: "Document Path", dataType: "TEXT" },
-
-              // Governance
               { name: "Owner Role", dataType: "SINGLE_SELECT", options: ["Documentation Owner","Governance Owner","Security Owner","Operations Owner","Release Owner"] },
               { name: "Approval Required", dataType: "SINGLE_SELECT", options: ["Yes","No"] },
               { name: "Evidence Required", dataType: "SINGLE_SELECT", options: ["Yes","No"] },
               { name: "Review Cycle", dataType: "SINGLE_SELECT", options: ["Annual","Semiannual","Quarterly","Ad hoc"] },
-
-              // Compliance
               { name: "Compliance Tags", dataType: "MULTI_SELECT", options: ["Governance","Audit","Security","Compliance","Operations","Release","Engineering"] },
               { name: "Retention", dataType: "SINGLE_SELECT", options: ["Indefinite","7 Years","5 Years","3 Years"] },
               { name: "Evidence Artifacts", dataType: "MULTI_SELECT", options: ["Pull Request","Review Approval","Published Document","Audit Record"] },
-
-              // Structured text payload fields
               { name: "Dependencies", dataType: "TEXT" },
               { name: "Acceptance Criteria", dataType: "TEXT" },
               { name: "RACI", dataType: "TEXT" },
-
-              // KPIs
               { name: "KPI – Timeliness", dataType: "TEXT" },
               { name: "KPI – Quality", dataType: "TEXT" },
-              { name: "KPI – Compliance", dataType: "TEXT" },
+              { name: "KPI – Compliance", dataType: "TEXT" }
             ];
 
             // Mutation to create a field (options are optional)
@@ -191,9 +180,6 @@ jobs:
               const exists = fields.find(e => e.name === f.name && e.dataType === f.dataType);
               if (exists) {
                 core.info(`Field already exists: ${f.name} (${f.dataType}) — skipping creation`);
-                // Note: this workflow will not add missing select options to existing fields.
-                // Adding options to existing fields is possible via additional mutations but is intentionally omitted
-                // here to avoid accidental destructive updates. If you want that behavior, I can add it.
                 continue;
               }
 

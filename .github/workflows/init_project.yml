@@ -52,7 +52,7 @@ jobs:
               throw lastErr;
             }
 
-            // Resolve owner ID using repositoryOwner to avoid user/org resolution errors
+            // Resolve owner ID
             const ownerQuery = `
               query($login:String!) {
                 repositoryOwner(login:$login) { id login __typename }
@@ -63,7 +63,7 @@ jobs:
             if (!ownerId) throw new Error('Unable to resolve owner id for ' + OWNER_LOGIN);
             core.info(`Resolved owner id: ${ownerId} (type=${ownerRes.repositoryOwner.__typename})`);
 
-            // List projectsV2 for owner (supports paging)
+            // List projectsV2 for owner (paging)
             const listProjectsQuery = `
               query($ownerId:ID!,$after:String) {
                 node(id:$ownerId) {
@@ -104,7 +104,7 @@ jobs:
             }
 
             // Collect existing fields for the project (with paging)
-            // NOTE: configuration is a union; we must use inline fragments on concrete configuration types
+            // IMPORTANT: options are exposed on concrete field node types, so use inline fragments at the nodes level.
             const fieldsQuery = `
               query($projectId:ID!,$after:String) {
                 node(id:$projectId) {
@@ -112,15 +112,13 @@ jobs:
                     fields(first:100, after:$after) {
                       pageInfo { hasNextPage endCursor }
                       nodes {
+                        __typename
                         id
                         name
                         dataType
-                        configuration {
-                          __typename
-                          ... on ProjectV2SingleSelectFieldConfiguration { options { id name } }
-                          ... on ProjectV2MultiSelectFieldConfiguration  { options { id name } }
-                          # add other configuration fragments as needed (text/date/number/iteration)
-                        }
+                        ... on ProjectV2SingleSelectField { options { id name } }
+                        ... on ProjectV2MultiSelectField  { options { id name } }
+                        # For other concrete field types you can add fragments here as needed
                       }
                     }
                   }
@@ -137,14 +135,14 @@ jobs:
             } while (after);
             core.info(`Project has ${fields.length} existing fields`);
 
-            // Sanitize and log the shape we received so it's easy to inspect in the action logs
+            // Sanitize and log the shape we received
             try {
               const sanitized = fields.map(f => ({
                 id: f.id,
                 name: f.name,
                 dataType: f.dataType,
-                configurationType: f.configuration && f.configuration.__typename,
-                options: (f.configuration && f.configuration.options) ? f.configuration.options.map(o => ({ id: o.id, name: o.name })) : undefined
+                nodeType: f.__typename,
+                options: (f.options) ? f.options.map(o => ({ id: o.id, name: o.name })) : undefined
               }));
               core.info(`Existing fields (sanitized): ${JSON.stringify(sanitized, null, 2)}`);
             } catch (e) {
@@ -175,7 +173,7 @@ jobs:
             ];
 
             // Mutation to create a field (options are optional)
-            // Return the created field's configuration using inline fragments (do NOT select directly on the union)
+            // Return the created field with concrete-type fragments (options on the concrete nodes)
             const createFieldMutation = `
               mutation(
                 $projectId: ID!,
@@ -192,14 +190,11 @@ jobs:
                   multiSelectOptions: $multiSelectOptions
                 }){
                   projectV2Field {
+                    __typename
                     id
                     name
-                    # dataType is available on the common field shape; include configuration for options via fragments:
-                    configuration {
-                      __typename
-                      ... on ProjectV2SingleSelectFieldConfiguration { options { id name } }
-                      ... on ProjectV2MultiSelectFieldConfiguration  { options { id name } }
-                    }
+                    ... on ProjectV2SingleSelectField { options { id name } }
+                    ... on ProjectV2MultiSelectField  { options { id name } }
                   }
                 }
               }
@@ -207,9 +202,18 @@ jobs:
 
             let createdCount = 0;
             for (const f of DESIRED_FIELDS) {
+              // find exact match by name + dataType
               const exists = fields.find(e => e.name === f.name && e.dataType === f.dataType);
+              // find by name only (different data type)
+              const existsByName = fields.find(e => e.name === f.name && e.dataType !== f.dataType);
+
               if (exists) {
                 core.info(`Field already exists: ${f.name} (${f.dataType}) — skipping creation`);
+                continue;
+              }
+
+              if (existsByName) {
+                core.info(`A field with name "${f.name}" already exists with dataType=${existsByName.dataType}. Skipping to avoid conflict.`);
                 continue;
               }
 
@@ -228,13 +232,31 @@ jobs:
                 core.info(`Create result (sanitized): ${JSON.stringify({
                   id: created && created.id,
                   name: created && created.name,
-                  configurationType: created && created.configuration && created.configuration.__typename,
-                  options: created && created.configuration && created.configuration.options ? created.configuration.options.map(o => ({ id: o.id, name: o.name })) : undefined
+                  nodeType: created && created.__typename,
+                  options: created && created.options ? created.options.map(o => ({ id: o.id, name: o.name })) : undefined
                 })}`);
                 createdCount++;
                 core.info(`Created field ${f.name}`);
               } catch (e) {
-                core.info(`Failed to create field ${f.name}: ${e.message || e}`);
+                // Normalize message(s) from GraphQL response to detect duplicate/existing-field errors
+                let apiMessages = '';
+                try {
+                  if (e && e.response && Array.isArray(e.response.errors)) {
+                    apiMessages = e.response.errors.map(err => err && err.message ? String(err.message) : '').join(' ; ');
+                  }
+                } catch (inner) {
+                  // ignore
+                }
+                const topMessage = (e && e.message) ? String(e.message) : '';
+                const combined = `${topMessage} ${apiMessages}`.trim();
+
+                // If the error looks like a duplicate/existing-field error, treat it as non-fatal
+                if (/already|exists|duplicate|duplicate key/i.test(combined)) {
+                  core.info(`Create returned duplicate/existing error for "${f.name}": ${combined}. Treating as success and continuing.`);
+                  continue;
+                }
+
+                core.info(`Failed to create field ${f.name}: ${combined}`);
               }
             }
 

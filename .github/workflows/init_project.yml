@@ -65,7 +65,7 @@ jobs:
 
             // List projectsV2 for owner (supports paging)
             const listProjectsQuery = `
-              query($ownerId:ID!, $after:String) {
+              query($ownerId:ID!,$after:String) {
                 node(id:$ownerId) {
                   ... on Organization {
                     projectsV2(first:100, after:$after) { pageInfo { hasNextPage endCursor } nodes { id title number } }
@@ -104,8 +104,9 @@ jobs:
             }
 
             // Collect existing fields for the project (with paging)
+            // NOTE: configuration is a union; we must use inline fragments on concrete configuration types
             const fieldsQuery = `
-              query($projectId:ID!, $after:String) {
+              query($projectId:ID!,$after:String) {
                 node(id:$projectId) {
                   ... on ProjectV2 {
                     fields(first:100, after:$after) {
@@ -115,8 +116,10 @@ jobs:
                         name
                         dataType
                         configuration {
+                          __typename
                           ... on ProjectV2SingleSelectFieldConfiguration { options { id name } }
                           ... on ProjectV2MultiSelectFieldConfiguration  { options { id name } }
+                          # add other configuration fragments as needed (text/date/number/iteration)
                         }
                       }
                     }
@@ -140,6 +143,7 @@ jobs:
                 id: f.id,
                 name: f.name,
                 dataType: f.dataType,
+                configurationType: f.configuration && f.configuration.__typename,
                 options: (f.configuration && f.configuration.options) ? f.configuration.options.map(o => ({ id: o.id, name: o.name })) : undefined
               }));
               core.info(`Existing fields (sanitized): ${JSON.stringify(sanitized, null, 2)}`);
@@ -171,6 +175,7 @@ jobs:
             ];
 
             // Mutation to create a field (options are optional)
+            // Return the created field's configuration using inline fragments (do NOT select directly on the union)
             const createFieldMutation = `
               mutation(
                 $projectId: ID!,
@@ -189,9 +194,12 @@ jobs:
                   projectV2Field {
                     id
                     name
-                    ... on ProjectV2FieldCommon { dataType }
-                    ... on ProjectV2SingleSelectFieldConfiguration { options { id name } }
-                    ... on ProjectV2MultiSelectFieldConfiguration { options { id name } }
+                    # dataType is available on the common field shape; include configuration for options via fragments:
+                    configuration {
+                      __typename
+                      ... on ProjectV2SingleSelectFieldConfiguration { options { id name } }
+                      ... on ProjectV2MultiSelectFieldConfiguration  { options { id name } }
+                    }
                   }
                 }
               }
@@ -220,8 +228,8 @@ jobs:
                 core.info(`Create result (sanitized): ${JSON.stringify({
                   id: created && created.id,
                   name: created && created.name,
-                  dataType: created && created.dataType,
-                  options: created && created.options ? created.options.map(o => ({ id: o.id, name: o.name })) : undefined
+                  configurationType: created && created.configuration && created.configuration.__typename,
+                  options: created && created.configuration && created.configuration.options ? created.configuration.options.map(o => ({ id: o.id, name: o.name })) : undefined
                 })}`);
                 createdCount++;
                 core.info(`Created field ${f.name}`);

@@ -1,36 +1,81 @@
 # Documentation Governance Framework
 
-## Overview
-
-This documentation system operates under a governed documentation control framework. The **GitHub Project v2** serves as the **authoritative documentation register** for the MokoStandards repository and organization. All documentation artifacts must be registered, tracked, and maintained through this system to ensure compliance with organizational governance requirements.
-
 ## Purpose
 
-This framework establishes:
+This documentation system operates under a governed documentation control framework. The GitHub Project v2 serves as the authoritative documentation register for the MokoStandards repository and organization. All documentation artifacts must be registered, tracked, and maintained through this system to ensure compliance with organizational governance requirements.
 
-- **Centralized documentation governance** through GitHub Project v2
-- **Lifecycle management** for all documentation artifacts
-- **Compliance tracking** and evidence collection
-- **Ownership assignment** and accountability
-- **Review cycles** and approval workflows
-- **Risk assessment** and mitigation
+## Scope
 
-## Authoritative Documentation Register
+This framework applies to:
 
-The GitHub Project v2 titled "MokoStandards Documentation Control Register" is the single source of truth for:
+- All documentation artifacts within the MokoStandards repository
+- Documentation managed by the organization
+- All contributors, maintainers, and stakeholders
+- Governance, compliance, operational, and technical documentation
 
-- Documentation inventory
-- Document status and lifecycle
-- Ownership and accountability (RACI)
-- Compliance requirements
-- Review schedules
-- Risk levels
-- Evidence artifacts
-- Approval tracking
+This framework does not apply to:
 
-## Lifecycle Flow
+- Code comments within source files
+- Third-party documentation not controlled by the organization
+- Personal notes or draft materials not intended for publication
 
-All documentation follows a governed lifecycle tracked through the **Status** field in the Project:
+## Responsibilities
+
+### Documentation Owner
+
+Responsible for:
+
+- Creating and maintaining accurate, complete documentation
+- Advancing documentation through lifecycle stages
+- Collecting and attaching required evidence
+- Meeting review cycle deadlines
+- Responding to governance and compliance inquiries
+- Updating Project fields to reflect current status
+
+### Governance Owner
+
+Responsible for:
+
+- Assigning ownership and accountability
+- Validating compliance with governance requirements
+- Enforcing approval and evidence requirements
+- Conducting or coordinating reviews
+- Approving lifecycle transitions
+- Escalating high-risk items and blockers
+
+### Security Owner
+
+Responsible for:
+
+- Security-related documentation and controls
+- Security review and approval
+- Risk assessment for security documentation
+
+### Operations Owner
+
+Responsible for:
+
+- Operational procedures and guides
+- Operational documentation maintenance
+- Operations review and validation
+
+### Release Owner
+
+Responsible for:
+
+- Release and deployment documentation
+- Release checklist validation
+- Release process documentation
+
+## Governance Rules
+
+### Mandatory Registration
+
+All documentation artifacts must have a corresponding entry in the authoritative GitHub Project v2 register titled "MokoStandards Documentation Control Register". Documentation without a Project entry is considered noncompliant and may not be used for governance, compliance, or operational purposes.
+
+### Lifecycle Flow
+
+All documentation follows a governed lifecycle tracked through the Status field:
 
 1. **Planned** - Document identified, scope defined, not yet started
 2. **In Progress** - Active development or revision underway
@@ -40,70 +85,77 @@ All documentation follows a governed lifecycle tracked through the **Status** fi
 6. **Blocked** - Progress halted due to dependencies or issues
 7. **Archived** - Document retired or superseded, retained per policy
 
-Documents may only advance through these states following appropriate governance gates.
+### Approval Requirements
 
-## Compliance Declaration
+Approval requirements are determined by:
 
-### Mandatory Registration
+- **Document Type** - Policies require approval; guides may not
+- **Risk Level** - High-risk items require approval regardless of type
+- **Compliance Tags** - Items tagged with Governance, Audit, Security, or Compliance require approval
 
-All documentation artifacts within this repository **must** have a corresponding entry in the authoritative GitHub Project v2 register. Documents without Project entries are considered **noncompliant** and may not be used for governance, compliance, or operational purposes.
+### Evidence Requirements
 
-### Noncompliance Consequences
+Evidence collection is required for:
 
-Documentation that is not registered in the Project:
+- All policy documents
+- High-risk items
+- Items with Governance, Audit, Security, or Compliance tags
+- Items requiring formal approval
 
-- Is not recognized for governance purposes
-- Cannot satisfy compliance requirements
-- Will not be considered during audits
-- May be removed or archived without notice
+Required evidence artifacts include:
 
-### Registration Requirements
+- Pull Request with formal review and approval comments
+- Review Approval record attached to the Project item
+- Published Document with approval metadata
+- Audit Record documenting approval decision
 
-Each documentation entry must include:
+### Review Cycles
 
-- Document path and location
-- Document type and subtype classification
-- Owner role assignment
-- Priority and risk assessment
-- Approval and evidence requirements
-- Review cycle and retention policy
-- Compliance tags
+Documentation must be reviewed according to assigned review cycles:
 
-## Documentation Structure
+- **Annual** - Review at least once per calendar year
+- **Semiannual** - Review every six months
+- **Quarterly** - Review every three months
+- **Ad hoc** - Review triggered by events, changes, or governance requirements
 
-Documentation is organized under the following structure:
+## Dependencies
 
-```
-/docs/
-  README.md                         # This governance framework
-  /guide/                           # Operational guides
-    project-fields.md               # Project field definitions
-    project-views.md                # Project view configurations
-  /policy/                          # Governance policies
-    documentation-governance.md     # Governance policy
-    /waas/                          # WaaS-specific policies
-```
+This framework depends on:
 
-## Metadata Requirements
+- GitHub Project v2 titled "MokoStandards Documentation Control Register"
+- GitHub repository access and permissions
+- Documentation Governance Policy at /docs/policy/documentation-governance.md
+- Document Formatting Policy at /docs/policy/document-formatting.md
 
-All documentation files should include:
+## Acceptance Criteria
 
-- **Title** - Clear, descriptive document title
-- **Purpose** - Why this document exists
-- **Scope** - What is covered and what is excluded
-- **Owner** - Responsible party (aligned with Project Owner Role)
-- **Revision History** - Record of significant changes
+- All canonical documents exist at specified paths
+- All documents include required enterprise sections
+- All documents have corresponding Project entries
+- All documents maintain accurate metadata
+- All governance gates are enforced
+
+## Evidence Requirements
+
+- GitHub Project v2 register with all documentation entries
+- Pull requests demonstrating review and approval
+- Project field values reflecting current status
+- Evidence artifacts attached to Project items
 
 ## Metadata
 
 - **Document Type:** overview
 - **Document Subtype:** core
 - **Owner Role:** Documentation Owner
+- **Approval Required:** No
+- **Evidence Required:** Yes
+- **Review Cycle:** Quarterly
+- **Retention:** Indefinite
+- **Compliance Tags:** Governance
 - **Status:** Published
-- **Authoritative Register:** GitHub Project v2 - MokoStandards Documentation Control Register
 
 ## Revision History
 
-- Initial establishment of documentation governance framework
-- Definition of Project v2 as authoritative register
-- Documentation lifecycle and compliance requirements defined
+- Initial framework established
+- Governance rules and responsibilities defined
+- Lifecycle flow and approval requirements documented

@@ -134,6 +134,19 @@ jobs:
             } while (after);
             core.info(`Project has ${fields.length} existing fields`);
 
+            // Sanitize and log the shape we received so it's easy to inspect in the action logs
+            try {
+              const sanitized = fields.map(f => ({
+                id: f.id,
+                name: f.name,
+                dataType: f.dataType,
+                options: (f.configuration && f.configuration.options) ? f.configuration.options.map(o => ({ id: o.id, name: o.name })) : undefined
+              }));
+              core.info(`Existing fields (sanitized): ${JSON.stringify(sanitized, null, 2)}`);
+            } catch (e) {
+              core.info(`Failed to stringify fields for logging: ${e.message || e}`);
+            }
+
             // Desired canonical fields
             const DESIRED_FIELDS = [
               { name: "Status", dataType: "SINGLE_SELECT", options: ["Planned","In Progress","In Review","Approved","Published","Blocked","Archived"] },
@@ -201,7 +214,12 @@ jobs:
                 multiSelectOptions: (f.dataType === 'MULTI_SELECT' && f.options) ? f.options.map(o => ({ name: o })) : null,
               };
 
-              await retry(() => graphql(createFieldMutation, vars));
+              const createRes = await retry(() => graphql(createFieldMutation, vars));
+              core.info(`Create result (sanitized): ${JSON.stringify({
+                id: createRes.createProjectV2Field.projectV2Field.id,
+                name: createRes.createProjectV2Field.projectV2Field.name,
+                options: createRes.createProjectV2Field.projectV2Field.options ? createRes.createProjectV2Field.projectV2Field.options.map(o => ({ id: o.id, name: o.name })) : undefined
+              })}`);
               createdCount++;
               core.info(`Created field ${f.name}`);
             }

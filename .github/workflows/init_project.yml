@@ -1,14 +1,3 @@
-#!/usr/bin/env bash
-set -euo pipefail
-
-BRANCH="fix/init-project-workflow"
-FILE_PATH=".github/workflows/init_project.yml"
-
-git checkout -b "${BRANCH}"
-
-mkdir -p "$(dirname "${FILE_PATH}")"
-
-cat > "${FILE_PATH}" <<'YAML'
 name: Bootstrap ProjectV2 and Define Fields
 
 on:
@@ -39,8 +28,10 @@ jobs:
       - name: Create ProjectV2 and fields (idempotent)
         uses: actions/github-script@v7
         with:
+          # prefer a PAT in GH_PAT if provided, otherwise fall back to the built-in token
           github-token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
           script: |
+            // `core` and `github` are injected by actions/github-script
             const OWNER_LOGIN = '${{ inputs.owner_login }}';
             const PROJECT_TITLE = '${{ inputs.project_title }}';
             const graphql = github.graphql;
@@ -61,17 +52,18 @@ jobs:
               throw lastErr;
             }
 
+            // Resolve owner ID using repositoryOwner to avoid user/org resolution errors
             const ownerQuery = `
               query($login:String!) {
-                organization(login:$login) { id login }
-                user(login:$login) { id login }
+                repositoryOwner(login:$login) { id login __typename }
               }
             `;
             const ownerRes = await retry(() => graphql(ownerQuery, { login: OWNER_LOGIN }));
-            const ownerId = (ownerRes.organization && ownerRes.organization.id) || (ownerRes.user && ownerRes.user.id);
+            const ownerId = ownerRes && ownerRes.repositoryOwner && ownerRes.repositoryOwner.id;
             if (!ownerId) throw new Error('Unable to resolve owner id for ' + OWNER_LOGIN);
-            core.info(`Resolved owner id: ${ownerId}`);
+            core.info(`Resolved owner id: ${ownerId} (type=${ownerRes.repositoryOwner.__typename})`);
 
+            // List projectsV2 for owner (supports paging)
             const listProjectsQuery = `
               query($ownerId:ID!, $after:String) {
                 node(id:$ownerId) {
@@ -111,6 +103,7 @@ jobs:
               core.info(`Found existing ProjectV2 #${project.number}: ${project.title}`);
             }
 
+            // Collect existing fields for the project (with paging)
             const fieldsQuery = `
               query($projectId:ID!, $after:String) {
                 node(id:$projectId) {
@@ -139,6 +132,7 @@ jobs:
             } while (after);
             core.info(`Project has ${fields.length} existing fields`);
 
+            // Desired canonical fields
             const DESIRED_FIELDS = [
               { name: "Status", dataType: "SINGLE_SELECT", options: ["Planned","In Progress","In Review","Approved","Published","Blocked","Archived"] },
               { name: "Priority", dataType: "SINGLE_SELECT", options: ["High","Medium","Low"] },
@@ -161,6 +155,7 @@ jobs:
               { name: "KPI – Compliance", dataType: "TEXT" }
             ];
 
+            // Mutation to create a field (options are optional)
             const createFieldMutation = `
               mutation($projectId:ID!,$name:String!,$dataType:ProjectV2CustomFieldType!,$singleSelectOptions:[ProjectV2SingleSelectFieldOptionInput!],$multiSelectOptions:[ProjectV2MultiSelectFieldOptionInput!]){
                 createProjectV2Field(input:{
@@ -202,9 +197,3 @@ jobs:
             }
 
             core.info(`Done — created ${createdCount} fields (skipped existing).`);
-YAML
-
-git add "${FILE_PATH}"
-git commit -m "fix: bootstrap ProjectV2 workflow using actions/github-script and correct permissions"
-git push --set-upstream origin "${BRANCH}"
-echo "Branch ${BRANCH} pushed. Open a PR on GitHub to merge."

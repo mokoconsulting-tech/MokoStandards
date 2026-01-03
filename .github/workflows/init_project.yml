@@ -20,6 +20,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Guardrails
         shell: bash
         run: |
@@ -32,6 +35,7 @@ jobs:
           fi
 
       - name: Create ProjectV2 and Custom Fields
+        id: create_project
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
           OWNER_LOGIN: ${{ inputs.owner_login }}
@@ -277,4 +281,236 @@ jobs:
           print("Please configure colors manually in the GitHub web UI:")
           print("- Status: Planned (GRAY), In Progress (BLUE), In Review (YELLOW),")
           print("  Approved (GREEN), Published (PURPLE), Blocked (RED), Archived (GRAY)")
+          
+          # Output project info for next step
+          github_output = os.environ.get("GITHUB_OUTPUT")
+          if github_output:
+            with open(github_output, "a") as f:
+              f.write(f"project_id={project_id}\n")
+              f.write(f"project_number={project_number}\n")
+          EOF
+
+      - name: Create tasks for existing repository files
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          OWNER_LOGIN: ${{ inputs.owner_login }}
+          PROJECT_NUMBER: ${{ steps.create_project.outputs.project_number }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python3 - <<'EOF'
+          import json
+          import os
+          import subprocess
+          import sys
+          from pathlib import Path
+          from typing import Any, Dict, List, Optional
+
+          OWNER_LOGIN = os.environ["OWNER_LOGIN"]
+          PROJECT_NUMBER = int(os.environ.get("PROJECT_NUMBER", "0"))
+
+          def gh_graphql(query: str, variables: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+            args = ["gh", "api", "graphql", "-f", f"query={query}"]
+            if variables:
+              for k, v in variables.items():
+                if isinstance(v, (dict, list)):
+                  args += ["-F", f"{k}={json.dumps(v)}"]
+                else:
+                  args += ["-F", f"{k}={v}"]
+            p = subprocess.run(args, text=True, capture_output=True)
+            if p.returncode != 0:
+              print(p.stderr.strip(), file=sys.stderr)
+              raise SystemExit(1)
+            return json.loads(p.stdout)
+
+          # If PROJECT_NUMBER is not set, try to find the most recently created project
+          if PROJECT_NUMBER == 0:
+            print("WARNING: Project number not available from previous step")
+            print("Skipping task creation")
+            sys.exit(0)
+
+          # Resolve project
+          q_owner = "query($login:String!,$number:Int!){ organization(login:$login){ id projectV2(number:$number){ id title } } user(login:$login){ id projectV2(number:$number){ id title } } }"
+          owner_data = gh_graphql(q_owner, {"login": OWNER_LOGIN, "number": PROJECT_NUMBER})
+          org = (owner_data.get("data", {}) or {}).get("organization")
+          usr = (owner_data.get("data", {}) or {}).get("user")
+          project = (org or {}).get("projectV2") or (usr or {}).get("projectV2")
+          
+          if not project:
+            print(f"ERROR: Could not find ProjectV2 #{PROJECT_NUMBER} for {OWNER_LOGIN}", file=sys.stderr)
+            sys.exit(1)
+          
+          project_id = project["id"]
+          print(f"Adding tasks to ProjectV2: #{PROJECT_NUMBER} {project.get('title','')}")
+
+          # Fetch field definitions
+          q_fields = """
+          query($projectId:ID!){
+            node(id:$projectId){
+              ... on ProjectV2 {
+                fields(first:100){
+                  nodes{
+                    __typename
+                    ... on ProjectV2FieldCommon { id name dataType }
+                    ... on ProjectV2SingleSelectField { options { id name } }
+                    ... on ProjectV2MultiSelectField { options { id name } }
+                  }
+                }
+              }
+            }
+          }
+          """
+          fields_data = gh_graphql(q_fields, {"projectId": project_id})
+          field_nodes = (((fields_data.get("data", {}) or {}).get("node", {}) or {}).get("fields", {}) or {}).get("nodes", [])
+
+          field_map: Dict[str, Dict[str, Any]] = {}
+          for f in field_nodes:
+            if not f or not f.get("name"):
+              continue
+            info: Dict[str, Any] = {"id": f.get("id"), "name": f.get("name"), "dataType": f.get("dataType")}
+            opts = f.get("options") or []
+            if opts:
+              info["options_by_name"] = {o["name"]: o["id"] for o in opts if o.get("name") and o.get("id")}
+            field_map[info["name"]] = info
+
+          # Scan repository for files
+          repo_root = Path.cwd()
+          scan_dirs = ["docs", "templates", "scripts"]
+          files_to_add = []
+
+          for scan_dir in scan_dirs:
+            dir_path = repo_root / scan_dir
+            if not dir_path.exists():
+              continue
+            
+            for file_path in dir_path.rglob("*"):
+              if file_path.is_file() and not file_path.name.startswith('.'):
+                # Skip certain file types
+                if file_path.suffix in ['.pyc', '.pyo', '.so', '.dylib', '.dll']:
+                  continue
+                
+                rel_path = file_path.relative_to(repo_root)
+                files_to_add.append(str(rel_path))
+
+          print(f"\nFound {len(files_to_add)} files to add as tasks")
+
+          # Create draft items
+          q_add_draft = """
+          mutation($projectId:ID!,$title:String!,$body:String!){
+            addProjectV2DraftIssue(input:{projectId:$projectId,title:$title,body:$body}){
+              projectItem{ id }
+            }
+          }
+          """
+
+          q_set_field = """
+          mutation($projectId:ID!,$itemId:ID!,$fieldId:ID!,$value:ProjectV2FieldValue!){
+            updateProjectV2ItemFieldValue(input:{projectId:$projectId,itemId:$itemId,fieldId:$fieldId,value:$value}){
+              projectV2Item { id }
+            }
+          }
+          """
+
+          def set_text(item_id: str, field_name: str, text: str) -> None:
+            if field_name not in field_map:
+              return
+            fid = field_map[field_name]["id"]
+            gh_graphql(q_set_field, {"projectId": project_id, "itemId": item_id, "fieldId": fid, "value": {"text": text}})
+
+          def set_single(item_id: str, field_name: str, option_name: str) -> None:
+            if field_name not in field_map:
+              return
+            fm = field_map[field_name]
+            opt_id = (fm.get("options_by_name") or {}).get(option_name)
+            if not opt_id:
+              return
+            fid = fm["id"]
+            gh_graphql(q_set_field, {"projectId": project_id, "itemId": item_id, "fieldId": fid, "value": {"singleSelectOptionId": opt_id}})
+
+          def set_multi(item_id: str, field_name: str, option_names: List[str]) -> None:
+            if field_name not in field_map:
+              return
+            fm = field_map[field_name]
+            options = fm.get("options_by_name") or {}
+            opt_ids = [options.get(n) for n in option_names if options.get(n)]
+            if not opt_ids:
+              return
+            fid = fm["id"]
+            gh_graphql(q_set_field, {"projectId": project_id, "itemId": item_id, "fieldId": fid, "value": {"multiSelectOptionIds": opt_ids}})
+
+          # Determine document type and subtype based on path
+          def classify_file(file_path: str) -> tuple:
+            path_lower = file_path.lower()
+            
+            # Determine Document Type
+            if file_path.endswith('.md'):
+              if 'readme' in path_lower or file_path.endswith('index.md'):
+                doc_type = "overview"
+              elif '/policy/' in path_lower:
+                doc_type = "policy"
+              elif '/guide/' in path_lower:
+                doc_type = "guide"
+              else:
+                doc_type = "overview"
+            elif file_path.endswith('.py'):
+              doc_type = "guide"
+            else:
+              doc_type = "overview"
+            
+            # Determine Document Subtype
+            if '/waas/' in path_lower:
+              doc_subtype = "waas"
+            elif file_path.startswith('docs/policy'):
+              doc_subtype = "policy"
+            elif file_path.startswith('docs/guide'):
+              doc_subtype = "guide"
+            elif file_path.startswith('templates/'):
+              doc_subtype = "catalog"
+            elif file_path.startswith('scripts/'):
+              doc_subtype = "core"
+            else:
+              doc_subtype = "core"
+            
+            return doc_type, doc_subtype
+
+          created_count = 0
+          for file_path in files_to_add:
+            try:
+              doc_type, doc_subtype = classify_file(file_path)
+              
+              title = f"Document: {file_path}"
+              body = f"Existing repository file that should be documented in the governance register.\n\nFile path: /{file_path}"
+              
+              # Create draft item
+              add_result = gh_graphql(q_add_draft, {"projectId": project_id, "title": title, "body": body})
+              item_id = (((add_result.get("data", {}) or {}).get("addProjectV2DraftIssue", {}) or {}).get("projectItem", {}) or {}).get("id")
+              
+              if not item_id:
+                print(f"WARN: Failed to create item for {file_path}")
+                continue
+              
+              # Set fields
+              set_single(item_id, "Status", "Planned")
+              set_single(item_id, "Document Type", doc_type)
+              set_single(item_id, "Document Subtype", doc_subtype)
+              set_text(item_id, "Document Path", f"/{file_path}")
+              set_single(item_id, "Owner Role", "Documentation Owner")
+              set_single(item_id, "Priority", "Low")
+              set_single(item_id, "Risk Level", "Low")
+              set_single(item_id, "Approval Required", "No")
+              set_single(item_id, "Evidence Required", "No")
+              set_single(item_id, "Review Cycle", "Annual")
+              set_single(item_id, "Retention", "Indefinite")
+              set_multi(item_id, "Compliance Tags", ["Governance"])
+              
+              created_count += 1
+              if created_count % 10 == 0:
+                print(f"Created {created_count} tasks...")
+              
+            except Exception as e:
+              print(f"WARN: Failed to create task for {file_path}: {e}")
+              continue
+
+          print(f"\n✓ Created {created_count} tasks for existing repository files")
           EOF

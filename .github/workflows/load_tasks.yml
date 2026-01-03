@@ -85,199 +85,199 @@ jobs:
         run: |
           set -euo pipefail
 
-          python3 - <<'PY'
-import json
-import os
-import subprocess
-import sys
-from typing import Any, Dict, List, Optional
+          python3 - <<'EOF'
+          import json
+          import os
+          import subprocess
+          import sys
+          from typing import Any, Dict, List, Optional
 
-OWNER_LOGIN = os.environ["OWNER_LOGIN"]
-PROJECT_NUMBER = int(os.environ["PROJECT_NUMBER"])
-DRY_RUN = (os.environ.get("DRY_RUN") or "false").lower() == "true"
-TASKS_RAW = os.environ["HARD_CODED_TASKS_JSON"]
+          OWNER_LOGIN = os.environ["OWNER_LOGIN"]
+          PROJECT_NUMBER = int(os.environ["PROJECT_NUMBER"])
+          DRY_RUN = (os.environ.get("DRY_RUN") or "false").lower() == "true"
+          TASKS_RAW = os.environ["HARD_CODED_TASKS_JSON"]
 
-def gh_graphql(query: str, variables: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-  args = ["gh", "api", "graphql", "-f", f"query={query}"]
-  if variables:
-    for k, v in variables.items():
-      if isinstance(v, (dict, list)):
-        args += ["-F", f"{k}={json.dumps(v)}"]
-      else:
-        args += ["-F", f"{k}={v}"]
-  p = subprocess.run(args, text=True, capture_output=True)
-  if p.returncode != 0:
-    print(p.stderr.strip(), file=sys.stderr)
-    raise SystemExit(1)
-  return json.loads(p.stdout)
+          def gh_graphql(query: str, variables: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+            args = ["gh", "api", "graphql", "-f", f"query={query}"]
+            if variables:
+              for k, v in variables.items():
+                if isinstance(v, (dict, list)):
+                  args += ["-F", f"{k}={json.dumps(v)}"]
+                else:
+                  args += ["-F", f"{k}={v}"]
+            p = subprocess.run(args, text=True, capture_output=True)
+            if p.returncode != 0:
+              print(p.stderr.strip(), file=sys.stderr)
+              raise SystemExit(1)
+            return json.loads(p.stdout)
 
-def owner_query(login: str) -> Dict[str, Any]:
-  q = "query($login:String!){ organization(login:$login){ id projectV2(number:1){id} } user(login:$login){ id } }"
-  return gh_graphql(q, {"login": login})
+          def owner_query(login: str) -> Dict[str, Any]:
+            q = "query($login:String!){ organization(login:$login){ id projectV2(number:1){id} } user(login:$login){ id } }"
+            return gh_graphql(q, {"login": login})
 
-# Resolve owner ID and fetch project by number (org or user)
-q_owner = "query($login:String!,$number:Int!){ organization(login:$login){ id projectV2(number:$number){ id title } } user(login:$login){ id projectV2(number:$number){ id title } } }"
-owner_data = gh_graphql(q_owner, {"login": OWNER_LOGIN, "number": PROJECT_NUMBER})
-org = (owner_data.get("data", {}) or {}).get("organization")
-usr = (owner_data.get("data", {}) or {}).get("user")
-project = (org or {}).get("projectV2") or (usr or {}).get("projectV2")
-if not project:
-  print(f"ERROR: ProjectV2 #{PROJECT_NUMBER} not found for {OWNER_LOGIN}", file=sys.stderr)
-  raise SystemExit(1)
-project_id = project["id"]
-print(f"Target ProjectV2: #{PROJECT_NUMBER} {project.get('title','')}")
+          # Resolve owner ID and fetch project by number (org or user)
+          q_owner = "query($login:String!,$number:Int!){ organization(login:$login){ id projectV2(number:$number){ id title } } user(login:$login){ id projectV2(number:$number){ id title } } }"
+          owner_data = gh_graphql(q_owner, {"login": OWNER_LOGIN, "number": PROJECT_NUMBER})
+          org = (owner_data.get("data", {}) or {}).get("organization")
+          usr = (owner_data.get("data", {}) or {}).get("user")
+          project = (org or {}).get("projectV2") or (usr or {}).get("projectV2")
+          if not project:
+            print(f"ERROR: ProjectV2 #{PROJECT_NUMBER} not found for {OWNER_LOGIN}", file=sys.stderr)
+            raise SystemExit(1)
+          project_id = project["id"]
+          print(f"Target ProjectV2: #{PROJECT_NUMBER} {project.get('title','')}")
 
-# Load tasks
-try:
-  tasks = json.loads(TASKS_RAW)
-except Exception as e:
-  print(f"ERROR: HARD_CODED_TASKS_JSON invalid JSON: {e}", file=sys.stderr)
-  raise SystemExit(1)
+          # Load tasks
+          try:
+            tasks = json.loads(TASKS_RAW)
+          except Exception as e:
+            print(f"ERROR: HARD_CODED_TASKS_JSON invalid JSON: {e}", file=sys.stderr)
+            raise SystemExit(1)
 
-if not isinstance(tasks, list) or not tasks:
-  print("ERROR: tasks payload must be a non-empty JSON array", file=sys.stderr)
-  raise SystemExit(1)
+          if not isinstance(tasks, list) or not tasks:
+            print("ERROR: tasks payload must be a non-empty JSON array", file=sys.stderr)
+            raise SystemExit(1)
 
-# Fetch field definitions and option IDs
-q_fields = """
-query($projectId:ID!){
-  node(id:$projectId){
-    ... on ProjectV2 {
-      fields(first:100){
-        nodes{
-          __typename
-          ... on ProjectV2FieldCommon { id name dataType }
-          ... on ProjectV2SingleSelectField { options { id name } }
-          ... on ProjectV2MultiSelectField { options { id name } }
-        }
-      }
-    }
-  }
-}
-"""
-fields_data = gh_graphql(q_fields, {"projectId": project_id})
-field_nodes = (((fields_data.get("data", {}) or {}).get("node", {}) or {}).get("fields", {}) or {}).get("nodes", [])
+          # Fetch field definitions and option IDs
+          q_fields = """
+          query($projectId:ID!){
+            node(id:$projectId){
+              ... on ProjectV2 {
+                fields(first:100){
+                  nodes{
+                    __typename
+                    ... on ProjectV2FieldCommon { id name dataType }
+                    ... on ProjectV2SingleSelectField { options { id name } }
+                    ... on ProjectV2MultiSelectField { options { id name } }
+                  }
+                }
+              }
+            }
+          }
+          """
+          fields_data = gh_graphql(q_fields, {"projectId": project_id})
+          field_nodes = (((fields_data.get("data", {}) or {}).get("node", {}) or {}).get("fields", {}) or {}).get("nodes", [])
 
-field_map: Dict[str, Dict[str, Any]] = {}
-for f in field_nodes:
-  if not f or not f.get("name"):
-    continue
-  info: Dict[str, Any] = {"id": f.get("id"), "name": f.get("name"), "dataType": f.get("dataType"), "typename": f.get("__typename")}
-  opts = f.get("options") or []
-  if opts:
-    info["options_by_name"] = {o["name"]: o["id"] for o in opts if o.get("name") and o.get("id")}
-  field_map[info["name"]] = info
+          field_map: Dict[str, Dict[str, Any]] = {}
+          for f in field_nodes:
+            if not f or not f.get("name"):
+              continue
+            info: Dict[str, Any] = {"id": f.get("id"), "name": f.get("name"), "dataType": f.get("dataType"), "typename": f.get("__typename")}
+            opts = f.get("options") or []
+            if opts:
+              info["options_by_name"] = {o["name"]: o["id"] for o in opts if o.get("name") and o.get("id")}
+            field_map[info["name"]] = info
 
-required_fields = ["Status","Document Type","Document Subtype","Document Path","Owner Role","Priority","Risk Level","Approval Required","Evidence Required","Review Cycle","Compliance Tags","Retention","Evidence Artifacts","Dependencies","Acceptance Criteria","RACI","KPI – Timeliness","KPI – Quality","KPI – Compliance"]
-missing = [x for x in required_fields if x not in field_map]
-if missing:
-  print("ERROR: Missing required Project fields:")
-  for m in missing:
-    print(f"- {m}")
-  raise SystemExit(1)
+          required_fields = ["Status","Document Type","Document Subtype","Document Path","Owner Role","Priority","Risk Level","Approval Required","Evidence Required","Review Cycle","Compliance Tags","Retention","Evidence Artifacts","Dependencies","Acceptance Criteria","RACI","KPI – Timeliness","KPI – Quality","KPI – Compliance"]
+          missing = [x for x in required_fields if x not in field_map]
+          if missing:
+            print("ERROR: Missing required Project fields:")
+            for m in missing:
+              print(f"- {m}")
+            raise SystemExit(1)
 
-q_add_draft = """
-mutation($projectId:ID!,$title:String!,$body:String!){
-  addProjectV2DraftIssue(input:{projectId:$projectId,title:$title,body:$body}){
-    projectItem{ id }
-  }
-}
-"""
+          q_add_draft = """
+          mutation($projectId:ID!,$title:String!,$body:String!){
+            addProjectV2DraftIssue(input:{projectId:$projectId,title:$title,body:$body}){
+              projectItem{ id }
+            }
+          }
+          """
 
-q_set_field = """
-mutation($projectId:ID!,$itemId:ID!,$fieldId:ID!,$value:ProjectV2FieldValue!){
-  updateProjectV2ItemFieldValue(input:{projectId:$projectId,itemId:$itemId,fieldId:$fieldId,value:$value}){
-    projectV2Item { id }
-  }
-}
-"""
+          q_set_field = """
+          mutation($projectId:ID!,$itemId:ID!,$fieldId:ID!,$value:ProjectV2FieldValue!){
+            updateProjectV2ItemFieldValue(input:{projectId:$projectId,itemId:$itemId,fieldId:$fieldId,value:$value}){
+              projectV2Item { id }
+            }
+          }
+          """
 
-def set_text(item_id: str, field_name: str, text: str) -> None:
-  fid = field_map[field_name]["id"]
-  gh_graphql(q_set_field, {"projectId": project_id, "itemId": item_id, "fieldId": fid, "value": {"text": text}})
+          def set_text(item_id: str, field_name: str, text: str) -> None:
+            fid = field_map[field_name]["id"]
+            gh_graphql(q_set_field, {"projectId": project_id, "itemId": item_id, "fieldId": fid, "value": {"text": text}})
 
-def set_single(item_id: str, field_name: str, option_name: str) -> None:
-  fm = field_map[field_name]
-  opt_id = (fm.get("options_by_name") or {}).get(option_name)
-  if not opt_id:
-    print(f"WARN: Option not found for {field_name}: {option_name}")
-    return
-  fid = fm["id"]
-  gh_graphql(q_set_field, {"projectId": project_id, "itemId": item_id, "fieldId": fid, "value": {"singleSelectOptionId": opt_id}})
+          def set_single(item_id: str, field_name: str, option_name: str) -> None:
+            fm = field_map[field_name]
+            opt_id = (fm.get("options_by_name") or {}).get(option_name)
+            if not opt_id:
+              print(f"WARN: Option not found for {field_name}: {option_name}")
+              return
+            fid = fm["id"]
+            gh_graphql(q_set_field, {"projectId": project_id, "itemId": item_id, "fieldId": fid, "value": {"singleSelectOptionId": opt_id}})
 
-def set_multi(item_id: str, field_name: str, option_names: List[str]) -> None:
-  fm = field_map[field_name]
-  options = fm.get("options_by_name") or {}
-  opt_ids = [options.get(n) for n in option_names if options.get(n)]
-  if not opt_ids:
-    print(f"WARN: No valid options for {field_name}: {option_names}")
-    return
-  fid = fm["id"]
-  gh_graphql(q_set_field, {"projectId": project_id, "itemId": item_id, "fieldId": fid, "value": {"multiSelectOptionIds": opt_ids}})
+          def set_multi(item_id: str, field_name: str, option_names: List[str]) -> None:
+            fm = field_map[field_name]
+            options = fm.get("options_by_name") or {}
+            opt_ids = [options.get(n) for n in option_names if options.get(n)]
+            if not opt_ids:
+              print(f"WARN: No valid options for {field_name}: {option_names}")
+              return
+            fid = fm["id"]
+            gh_graphql(q_set_field, {"projectId": project_id, "itemId": item_id, "fieldId": fid, "value": {"multiSelectOptionIds": opt_ids}})
 
-# Import
-created = 0
-for t in tasks:
-  title = str(t.get("title") or "").strip()
-  body = str(t.get("body") or "").strip()
-  fields = t.get("fields") or {}
+          # Import
+          created = 0
+          for t in tasks:
+            title = str(t.get("title") or "").strip()
+            body = str(t.get("body") or "").strip()
+            fields = t.get("fields") or {}
 
-  if not title:
-    print("ERROR: Task missing title", file=sys.stderr)
-    raise SystemExit(1)
-  if not isinstance(fields, dict):
-    print(f"ERROR: Task fields must be object for: {title}", file=sys.stderr)
-    raise SystemExit(1)
+            if not title:
+              print("ERROR: Task missing title", file=sys.stderr)
+              raise SystemExit(1)
+            if not isinstance(fields, dict):
+              print(f"ERROR: Task fields must be object for: {title}", file=sys.stderr)
+              raise SystemExit(1)
 
-  # Validate required field keys exist in payload
-  for rf in required_fields:
-    if rf not in fields:
-      print(f"ERROR: Task missing required field '{rf}': {title}", file=sys.stderr)
-      raise SystemExit(1)
+            # Validate required field keys exist in payload
+            for rf in required_fields:
+              if rf not in fields:
+                print(f"ERROR: Task missing required field '{rf}': {title}", file=sys.stderr)
+                raise SystemExit(1)
 
-  if DRY_RUN:
-    print(f"DRY_RUN: validated {title}")
-    continue
+            if DRY_RUN:
+              print(f"DRY_RUN: validated {title}")
+              continue
 
-  add = gh_graphql(q_add_draft, {"projectId": project_id, "title": title, "body": body or "Document task"})
-  item_id = (((add.get("data", {}) or {}).get("addProjectV2DraftIssue", {}) or {}).get("projectItem", {}) or {}).get("id")
-  if not item_id:
-    print(f"ERROR: Failed to create draft item for {title}", file=sys.stderr)
-    raise SystemExit(1)
+            add = gh_graphql(q_add_draft, {"projectId": project_id, "title": title, "body": body or "Document task"})
+            item_id = (((add.get("data", {}) or {}).get("addProjectV2DraftIssue", {}) or {}).get("projectItem", {}) or {}).get("id")
+            if not item_id:
+              print(f"ERROR: Failed to create draft item for {title}", file=sys.stderr)
+              raise SystemExit(1)
 
-  # Single select fields
-  set_single(item_id, "Status", str(fields["Status"]))
-  set_single(item_id, "Document Type", str(fields["Document Type"]))
-  set_single(item_id, "Document Subtype", str(fields["Document Subtype"]))
-  set_single(item_id, "Owner Role", str(fields["Owner Role"]))
-  set_single(item_id, "Priority", str(fields["Priority"]))
-  set_single(item_id, "Risk Level", str(fields["Risk Level"]))
-  set_single(item_id, "Approval Required", str(fields["Approval Required"]))
-  set_single(item_id, "Evidence Required", str(fields["Evidence Required"]))
-  set_single(item_id, "Review Cycle", str(fields["Review Cycle"]))
-  set_single(item_id, "Retention", str(fields["Retention"]))
+            # Single select fields
+            set_single(item_id, "Status", str(fields["Status"]))
+            set_single(item_id, "Document Type", str(fields["Document Type"]))
+            set_single(item_id, "Document Subtype", str(fields["Document Subtype"]))
+            set_single(item_id, "Owner Role", str(fields["Owner Role"]))
+            set_single(item_id, "Priority", str(fields["Priority"]))
+            set_single(item_id, "Risk Level", str(fields["Risk Level"]))
+            set_single(item_id, "Approval Required", str(fields["Approval Required"]))
+            set_single(item_id, "Evidence Required", str(fields["Evidence Required"]))
+            set_single(item_id, "Review Cycle", str(fields["Review Cycle"]))
+            set_single(item_id, "Retention", str(fields["Retention"]))
 
-  # Text fields
-  set_text(item_id, "Document Path", str(fields["Document Path"]))
+            # Text fields
+            set_text(item_id, "Document Path", str(fields["Document Path"]))
 
-  deps = fields.get("Dependencies")
-  acc = fields.get("Acceptance Criteria")
-  raci = fields.get("RACI")
+            deps = fields.get("Dependencies")
+            acc = fields.get("Acceptance Criteria")
+            raci = fields.get("RACI")
 
-  set_text(item_id, "Dependencies", json.dumps(deps, ensure_ascii=False))
-  set_text(item_id, "Acceptance Criteria", json.dumps(acc, ensure_ascii=False))
-  set_text(item_id, "RACI", json.dumps(raci, ensure_ascii=False))
+            set_text(item_id, "Dependencies", json.dumps(deps, ensure_ascii=False))
+            set_text(item_id, "Acceptance Criteria", json.dumps(acc, ensure_ascii=False))
+            set_text(item_id, "RACI", json.dumps(raci, ensure_ascii=False))
 
-  set_text(item_id, "KPI – Timeliness", str(fields.get("KPI – Timeliness") or ""))
-  set_text(item_id, "KPI – Quality", str(fields.get("KPI – Quality") or ""))
-  set_text(item_id, "KPI – Compliance", str(fields.get("KPI – Compliance") or ""))
+            set_text(item_id, "KPI – Timeliness", str(fields.get("KPI – Timeliness") or ""))
+            set_text(item_id, "KPI – Quality", str(fields.get("KPI – Quality") or ""))
+            set_text(item_id, "KPI – Compliance", str(fields.get("KPI – Compliance") or ""))
 
-  # Multi select fields
-  set_multi(item_id, "Compliance Tags", list(fields.get("Compliance Tags") or []))
-  set_multi(item_id, "Evidence Artifacts", list(fields.get("Evidence Artifacts") or []))
+            # Multi select fields
+            set_multi(item_id, "Compliance Tags", list(fields.get("Compliance Tags") or []))
+            set_multi(item_id, "Evidence Artifacts", list(fields.get("Evidence Artifacts") or []))
 
-  created += 1
-  print(f"Created: {title}")
+            created += 1
+            print(f"Created: {title}")
 
-print(f"Done. Imported items: {created}")
-PY
+          print(f"Done. Imported items: {created}")
+          EOF

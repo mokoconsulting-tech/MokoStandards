@@ -65,17 +65,36 @@ jobs:
             return json.loads(p.stdout)
 
           # Resolve owner ID (org preferred, fallback to user)
-          q_owner = "query($login:String!){ organization(login:$login){ id } user(login:$login){ id } }"
-          owner_data = gh_graphql(q_owner, {"login": OWNER_LOGIN})
-          org = (owner_data.get("data", {}) or {}).get("organization")
-          usr = (owner_data.get("data", {}) or {}).get("user")
-          owner_id = (org or {}).get("id") or (usr or {}).get("id")
-
+          # Try organization first
+          owner_id = None
+          owner_type = None
+          
+          q_org = "query($login:String!){ organization(login:$login){ id } }"
+          try:
+            owner_data = gh_graphql(q_org, {"login": OWNER_LOGIN})
+            org = (owner_data.get("data", {}) or {}).get("organization")
+            if org and org.get("id"):
+              owner_id = org["id"]
+              owner_type = "organization"
+          except Exception:
+            pass  # Organization not found, try user
+          
+          # If not found as organization, try user
+          if not owner_id:
+            q_user = "query($login:String!){ user(login:$login){ id } }"
+            try:
+              owner_data = gh_graphql(q_user, {"login": OWNER_LOGIN})
+              usr = (owner_data.get("data", {}) or {}).get("user")
+              if usr and usr.get("id"):
+                owner_id = usr["id"]
+                owner_type = "user"
+            except Exception:
+              pass  # User not found either
+          
           if not owner_id:
             print(f"ERROR: Owner not found: {OWNER_LOGIN}", file=sys.stderr)
             raise SystemExit(1)
 
-          owner_type = "organization" if org else "user"
           print(f"Owner resolved: {OWNER_LOGIN} (type: {owner_type})")
 
           # Create ProjectV2

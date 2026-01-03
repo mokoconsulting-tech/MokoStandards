@@ -12,10 +12,10 @@
  You should have received a copy of the GNU General Public License (./LICENSE).
 
  # FILE INFORMATION
- DEFGROUP: MokoDefaults
- INGROUP: MokoDefaults.Documentation
- REPO: https://github.com/mokoconsulting-tech/MokoDefaults/
- VERSION: 03.00.00
+ DEFGROUP: MokoStandards
+ INGROUP: MokoStandards.Documentation
+ REPO: https://github.com/mokoconsulting-tech/MokoStandards/
+ VERSION: 04.00.00
  PATH: ./CHANGELOG.md
  BRIEF: Version history using Keep a Changelog
  NOTE: Adheres to SemVer when applicable
@@ -23,8 +23,8 @@
 
 # Changelog
 
-## [TODO]
-- Split `./generic-git/docs/` to `./docs-example/docs/` and `./docs-example/docs-extended/` 
+## [04.00.00] - 2025-12-18
+- `MokoDefaults` -> `MokoStandards`
 
 ## [03.00.00] - 2025-12-11
 ### Updated

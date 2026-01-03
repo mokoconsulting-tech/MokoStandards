@@ -1,0 +1,260 @@
+name: Version branch release pipeline
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  meta:
+    name: Derive version metadata from branch
+    runs-on: ubuntu-latest
+
+    outputs:
+      branch: ${{ steps.meta.outputs.branch }}
+      version: ${{ steps.meta.outputs.version }}
+      is_prerelease: ${{ steps.meta.outputs.is_prerelease }}
+
+    steps:
+      - name: Determine branch and version
+        id: meta
+        run: |
+          BRANCH="${GITHUB_REF_NAME}"
+
+          echo "Running on branch: $BRANCH"
+
+          # Allow version/X.Y.Z or version/X.Y.Z-suffix
+          if [[ ! "$BRANCH" =~ ^version\/[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9._]+)?$ ]]; then
+            echo "This workflow must be run on a branch named version/X.Y.Z or version/X.Y.Z-suffix"
+            exit 1
+          fi
+
+          VERSION="${BRANCH#version/}"
+
+          echo "Detected version: $VERSION"
+
+          # prerelease detection
+          if [[ "$VERSION" =~ -(alpha|beta|rc|pre|preview|dev|test) ]]; then
+            echo "Version is prerelease: $VERSION"
+            IS_PRERELEASE="true"
+          else:
+            echo "Version is stable: $VERSION"
+            IS_PRERELEASE="false"
+          fi
+
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "is_prerelease=$IS_PRERELEASE" >> "$GITHUB_OUTPUT"
+
+  build-and-test:
+    name: Build and test (sanity check)
+    runs-on: ubuntu-latest
+    needs: meta
+
+    steps:
+      - name: Check out version branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.meta.outputs.branch }}
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          coverage: none
+
+      - name: PHP lint under src (if present)
+        run: |
+          if [ -d "src" ]; then
+            echo "Running php -l against PHP files in src/"
+            find src -type f -name "*.php" -print0 | xargs -0 -n 1 -P 4 php -l
+          else
+            echo "No src directory found. Skipping PHP lint."
+          fi
+
+      - name: Install dependencies if composer.json exists
+        run: |
+          if [ -f "composer.json" ]; then
+            composer install --no-interaction --no-progress --prefer-dist
+          else
+            echo "No composer.json found. Skipping composer install."
+          fi
+
+      - name: Run Composer tests when defined
+        run: |
+          if [ ! -f "composer.json" ]; then
+            echo "No composer.json. Nothing to test."
+            exit 0
+          fi
+
+          if composer run -q | grep -q "^  test"; then
+            echo "Detected composer script 'test'. Running composer test."
+            composer test
+          else
+            echo "No 'test' script defined in composer.json. Skipping tests."
+          fi
+
+  changelog:
+    name: Update CHANGELOG.md on version branch
+    runs-on: ubuntu-latest
+    needs: [meta, build-and-test]
+
+    steps:
+      - name: Check out version branch with history
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.meta.outputs.branch }}
+          fetch-depth: 0
+
+      - name: Fetch main for comparison
+        run: |
+          git fetch origin main
+
+      - name: Generate or update CHANGELOG.md
+        env:
+          VERSION: ${{ needs.meta.outputs.version }}
+        run: |
+          RANGE="origin/main..HEAD"
+
+          echo "Building changelog for range: $RANGE"
+
+          if git rev-list --quiet $RANGE; then
+            COMMITS=$(git log --pretty=format:'- %s (%h)' $RANGE)
+          else
+            COMMITS=""
+          fi
+
+          if [ -z "$COMMITS" ]; then
+            echo "No commits found between main and this version branch. Skipping changelog update."
+            exit 0
+          fi
+
+          DATE=$(date -u +"%Y-%m-%d")
+          HEADER="## ${VERSION} - ${DATE}"
+
+          {
+            echo "${HEADER}"
+            echo ""
+            echo "${COMMITS}"
+            echo ""
+          } > .changelog.tmp
+
+          if [ -f "CHANGELOG.md" ]; then
+            echo "Updating existing CHANGELOG.md"
+            cat CHANGELOG.md >> .changelog.tmp
+          else
+            echo "# Changelog" >> .changelog.tmp
+          fi
+
+          mv .changelog.tmp CHANGELOG.md
+
+          echo "Updated CHANGELOG.md (first lines):"
+          head -n 40 CHANGELOG.md || true
+
+      - name: Commit CHANGELOG.md if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git diff --quiet; then
+            echo "No changelog changes to commit."
+            exit 0
+          fi
+
+          git add CHANGELOG.md
+          git commit -m "chore: update changelog for ${VERSION}"
+          git push origin HEAD
+
+  pr-merge-release:
+    name: PR, conditional squash, and GitHub release
+    runs-on: ubuntu-latest
+    needs: [meta, changelog]
+
+    steps:
+      - name: Check out version branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.meta.outputs.branch }}
+
+      - name: Create or reuse PR from version branch to main
+        id: cpr
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          head: ${{ needs.meta.outputs.branch }}
+          base: main
+          title: "Merge version ${{ needs.meta.outputs.version }} into main"
+          body: |
+            Automated PR to merge version **${{ needs.meta.outputs.version }}** into **main**.
+
+            - Branch: `${{ needs.meta.outputs.branch }}`
+            - Version: `${{ needs.meta.outputs.version }}`
+            - Prerelease: `${{ needs.meta.outputs.is_prerelease }}`
+
+            This PR was generated by the version branch release workflow.
+          labels: |
+            release
+            version-update
+
+      - name: Squash merge PR into main (stable only)
+        if: needs.meta.outputs.is_prerelease == 'false'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          VERSION: ${{ needs.meta.outputs.version }}
+          PR_NUMBER: ${{ steps.cpr.outputs.pull-request-number }}
+        run: |
+          if [ -z "$PR_NUMBER" ]; then
+            echo "No pull request number returned. Cannot squash merge."
+            exit 1
+          fi
+
+          echo "Performing squash merge PR #${PR_NUMBER} into main"
+
+          curl -sS -X PUT \
+            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${REPO}/pulls/${PR_NUMBER}/merge" \
+            -d "$(jq -n \
+              --arg method "squash" \
+              --arg title "Squash merge version ${VERSION} into main" \
+              '{merge_method: $method, commit_title: $title}')"
+
+      - name: Skip squash (prerelease detected)
+        if: needs.meta.outputs.is_prerelease == 'true'
+        run: |
+          echo "Prerelease version detected. PR created but squash merge intentionally skipped."
+
+      - name: Create GitHub Release (stable and prerelease)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.meta.outputs.version }}
+          IS_PRERELEASE: ${{ needs.meta.outputs.is_prerelease }}
+        run: |
+          PRERELEASE_FLAG="false"
+          if [ "$IS_PRERELEASE" = "true" ]; then
+            PRERELEASE_FLAG="true"
+          fi
+
+          echo "Creating GitHub release for ${VERSION} (prerelease=${PRERELEASE_FLAG})"
+
+          if [ "$PRERELEASE_FLAG" = "true" ]; then
+            gh release create "${VERSION}" \
+              --title "Version ${VERSION}" \
+              --notes "Release generated from branch version/${VERSION}." \
+              --prerelease
+          else
+            gh release create "${VERSION}" \
+              --title "Version ${VERSION}" \
+              --notes "Release generated from branch version/${VERSION}."
+          fi
+
+      - name: Optional delete version branch after merge (stable only)
+        if: needs.meta.outputs.is_prerelease == 'false'
+        env:
+          BRANCH: ${{ needs.meta.outputs.branch }}
+        run: |
+          echo "Deleting branch ${BRANCH} after squash merge and release"
+          git push origin --delete "${BRANCH}" || echo "Branch already deleted or cannot delete"

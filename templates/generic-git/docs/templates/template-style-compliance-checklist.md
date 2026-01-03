@@ -64,7 +64,7 @@ Include reviewers, approvers, and date of final acceptance.
 Ensure all documentation is compliant with organizational, regulatory, and technical standards prior to publication.
 
 ### Documentation Style Checklist
-- Formatting reviewed against MokoDefaults
+- Formatting reviewed against MokoStandards
 - Headings verified for correct structure (starting at h2 where applicable)
 - Metadata block present and accurate
 - Terminology validated against organizational glossary

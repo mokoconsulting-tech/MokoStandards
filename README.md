@@ -11,15 +11,15 @@
  You should have received a copy of the GNU General Public License (./LICENSE).
 
  # FILE INFORMATION
- DEFGROUP: MokoDefaults
+ DEFGROUP: MokoStandards
  INGROUP: Documentation
- REPO: https://github.com/mokoconsulting-tech/MokoDefaults/
- VERSION: 03.00.00
+ REPO: https://github.com/mokoconsulting-tech/MokoStandards/
+ VERSION: 04.00.00
  PATH: ./README.md
  BRIEF: Reference and packaging repo for the Moko Consulting coding ecosystem
 -->
 
-# MokoDefaults (VERSION: 03.00.00)
+# MokoStandards (VERSION: 04.00.00)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 ![Status](https://img.shields.io/badge/status-active-brightgreen)
 
@@ -47,7 +47,7 @@ The full documentation suite is available within the `docs/` directory of this r
 * [API Reference](./docs/docs-api-reference.md)
 * [Runbooks](./docs/docs-runbooks.md)
 
-MokoDefaults serves as the authoritative reference for development standards across all Moko Consulting repositories. It centralizes coding conventions, governance rules, scaffolds, templates, CI policies, accessibility requirements, and module registries for Dolibarr, Joomla, and supporting ecosystems.
+MokoStandards serves as the authoritative reference for development standards across all Moko Consulting repositories. It centralizes coding conventions, governance rules, scaffolds, templates, CI policies, accessibility requirements, and module registries for Dolibarr, Joomla, and supporting ecosystems.
 This repository is not a runtime codebase; it provides reusable standards intended to be applied across projects through submodules, overlays, or CI import.
 
 ## Features
@@ -67,14 +67,14 @@ Recommended consumption methods:
 ### Submodule (preferred)
 
 ```bash
-git submodule add https://github.com/mokoconsulting-tech/MokoDefaults .moko/defaults
+git submodule add https://github.com/mokoconsulting-tech/MokoStandards .moko/defaults
 git submodule update --init --recursive
 ```
 
 ### Remote include via CI
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/mokoconsulting-tech/MokoDefaults/main/.editorconfig -o .editorconfig
+curl -fsSL https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/.editorconfig -o .editorconfig
 ```
 
 ### Scaffold new projects
@@ -183,9 +183,9 @@ GPL-3.0-or-later. See `LICENSE` for full text.
 ## Metadata
 
 * MAINTAINER: Moko Consulting Engineering
-* REPO: [https://github.com/mokoconsulting-tech/MokoDefaults](https://github.com/mokoconsulting-tech/MokoDefaults)
+* REPO: [https://github.com/mokoconsulting-tech/MokoStandards](https://github.com/mokoconsulting-tech/MokoStandards)
 * FILE: README.md
-* VERSION: 03.00.00
+* VERSION: 04.00.00
 * CLASSIFICATION: Public Open Source Standards
 * COMPLIANCE SCOPE: All Moko Consulting repositories
 

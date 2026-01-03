@@ -37,7 +37,7 @@ Related documents:
 
 ## Roadmap Overview
 
-This roadmap provides a structured delivery plan for the documentation suite governed by MokoDefaults. The objective is to deliver a minimum viable documentation baseline quickly, then incrementally mature the ecosystem to support engineering, operations, governance, and audit readiness.
+This roadmap provides a structured delivery plan for the documentation suite governed by MokoStandards. The objective is to deliver a minimum viable documentation baseline quickly, then incrementally mature the ecosystem to support engineering, operations, governance, and audit readiness.
 
 The roadmap is grouped into phased workstreams. Within each phase, activities are categorized into high, medium, and low priority based on delivery risk, regulatory exposure, and operational dependency.
 
@@ -116,7 +116,7 @@ With Phase 3 complete, the documentation framework:
 
 * Roadmap review cadence: Quarterly review aligned with planning cycles.
 * Backlog refinement: Monthly grooming of documentation backlog with engineering and operations stakeholders.
-* Acceptance criteria: Each document is considered complete when it has a defined owner, conforms to MokoDefaults, and passes peer review.
+* Acceptance criteria: Each document is considered complete when it has a defined owner, conforms to MokoStandards, and passes peer review.
 
 ### Governance and Ownership
 
@@ -130,7 +130,7 @@ The following items are intentionally deferred and should be revisited as the ec
 
 * Alignment of documentation taxonomy with external knowledge bases and public portals.
 * Integration of documentation status with CI CD or project management tooling.
-* Automation for stub generation, header enforcement, and index rebuilding using MokoDefaults utilities.
+* Automation for stub generation, header enforcement, and index rebuilding using MokoStandards utilities.
 * Expansion of the roadmap to include product specific playbooks and line of business documentation.
 
 ## Metadata

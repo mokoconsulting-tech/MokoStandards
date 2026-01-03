@@ -11,10 +11,10 @@
 	You should have received a copy of the GNU General Public License (./LICENSE.md).
 
 	# FILE INFORMATION
-	DEFGROUP: MokoDefaults
-	INGROUP: MokoDefaults.Documentation
-	REPO: https://github.com/mokoconsulting-tech/MokoDefaults/
-  VERSION: 03.00.00 
+	DEFGROUP: MokoStandards
+	INGROUP: MokoStandards.Documentation
+	REPO: https://github.com/mokoconsulting-tech/MokoStandards/
+  VERSION: 04.00.00 
   PATH: ./CODE_OF_CONDUCT.md
   BRIEF: Community expectations and enforcement guidelines
   NOTE: Adapted with attribution from the Contributor Covenant v2.1

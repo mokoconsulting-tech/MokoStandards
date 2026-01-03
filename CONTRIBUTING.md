@@ -12,10 +12,10 @@
  You should have received a copy of the GNU General Public License (./LICENSE).
  
  # FILE INFORMATION
- DEFGROUP: MokoDefaults
- INGROUP: MokoDefaults.Documentation
- REPO: https://github.com/mokoconsulting-tech/MokoDefaults/
- VERSION: 03.00.00
+ DEFGROUP: MokoStandards
+ INGROUP: MokoStandards.Documentation
+ REPO: https://github.com/mokoconsulting-tech/MokoStandards/
+ VERSION: 04.00.00
  PATH: ./CONTRIBUTING.md
  BRIEF: How to contribute; commit, PR, testing and security policies
  NOTE: Short and practical; see README for overview
@@ -24,7 +24,7 @@
 
 Thank you for your interest in contributing. This document defines the baseline expectations, workflows, and quality gates for any change entering this repository.
 
-The objective is to keep contributions predictable, reviewable, and compliant with MokoDefaults while enabling a sustainable delivery pipeline.
+The objective is to keep contributions predictable, reviewable, and compliant with MokoStandards while enabling a sustainable delivery pipeline.
 
 ## Governance and scope
 
@@ -37,11 +37,11 @@ This CONTRIBUTING file operates alongside the following governance assets:
 
 In case of conflict, legal terms in `LICENSE` take precedence, followed by `GOVERNANCE.md` and then this document.
 
-## Alignment with MokoDefaults
+## Alignment with MokoStandards
 
-All Moko Consulting projects are expected to comply with the shared standards defined in the `MokoDefaults` repository.
+All Moko Consulting projects are expected to comply with the shared standards defined in the `MokoStandards` repository.
 
-* Source of truth: [https://github.com/mokoconsulting-tech/MokoDefaults](https://github.com/mokoconsulting-tech/MokoDefaults)
+* Source of truth: [https://github.com/mokoconsulting-tech/MokoStandards](https://github.com/mokoconsulting-tech/MokoStandards)
 * Areas covered: headers, licensing, coding style, documentation layout, and CI expectations
 
 Per project policy, this file should reference standards rather than redefining them. Any deviation must be explicitly documented in `GOVERNANCE.md` or an architecture decision record (ADR).
@@ -121,7 +121,7 @@ Release specific branching, hotfix flows, and environment promotion rules should
 
 ## Coding standards and file headers
 
-This project adheres to the coding conventions and header rules defined in MokoDefaults. At a minimum:
+This project adheres to the coding conventions and header rules defined in MokoStandards. At a minimum:
 
 * All source and configuration files must include the standard SPDX compatible header where applicable.
 * Language specific style guides (for example PHP, JavaScript, Python) must be followed.
@@ -129,7 +129,7 @@ This project adheres to the coding conventions and header rules defined in MokoD
 * CSS files must begin with `@charset "utf-8";`.
 * JSON files must not include license headers, but must remain valid JSON.
 
-Where a project introduces additional conventions, they should reference MokoDefaults and document only the incremental rules.
+Where a project introduces additional conventions, they should reference MokoStandards and document only the incremental rules.
 
 ## Commit message guidelines
 

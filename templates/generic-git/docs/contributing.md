@@ -66,7 +66,7 @@ Default strategy:
 
 Standards must align with:
 
-* MokoDefaults
+* MokoStandards
 * Language-specific formatting rules
 * Required linting and static analysis
 

@@ -189,7 +189,9 @@ jobs:
           q_create_single_select = """
           mutation($projectId:ID!,$name:String!,$options:[ProjectV2SingleSelectFieldOptionInput!]!){
             createProjectV2Field(input:{projectId:$projectId,dataType:SINGLE_SELECT,name:$name,singleSelectOptions:$options}){
-              projectV2Field { id name }
+              projectV2Field {
+                ... on ProjectV2FieldCommon { id name }
+              }
             }
           }
           """
@@ -197,7 +199,9 @@ jobs:
           q_create_multi_select = """
           mutation($projectId:ID!,$name:String!,$options:[ProjectV2SingleSelectFieldOptionInput!]!){
             createProjectV2Field(input:{projectId:$projectId,dataType:MULTI_SELECT,name:$name,multiSelectOptions:$options}){
-              projectV2Field { id name }
+              projectV2Field {
+                ... on ProjectV2FieldCommon { id name }
+              }
             }
           }
           """
@@ -205,7 +209,9 @@ jobs:
           q_create_text = """
           mutation($projectId:ID!,$name:String!){
             createProjectV2Field(input:{projectId:$projectId,dataType:TEXT,name:$name}){
-              projectV2Field { id name }
+              projectV2Field {
+                ... on ProjectV2FieldCommon { id name }
+              }
             }
           }
           """

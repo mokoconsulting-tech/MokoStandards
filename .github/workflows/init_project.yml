@@ -1,0 +1,169 @@
+name: Bootstrap ProjectV2 and Define Fields
+
+on:
+  workflow_dispatch:
+    inputs:
+      owner_login:
+        description: "GitHub org or user login (e.g., mokoconsulting-tech)"
+        required: true
+        default: "mokoconsulting-tech"
+      project_title:
+        description: "Project title"
+        required: true
+        default: "MokoStandards Documentation Control Register"
+
+permissions:
+  contents: read
+
+jobs:
+  bootstrap_projectv2:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Guardrails
+        shell: bash
+        run: |
+          set -euo pipefail
+          command -v gh >/dev/null 2>&1 || { echo "ERROR: GitHub CLI (gh) not found on runner"; exit 1; }
+          command -v python3 >/dev/null 2>&1 || { echo "ERROR: python3 not found on runner"; exit 1; }
+          if [[ -z "${{ secrets.GH_PAT }}" ]]; then
+            echo "ERROR: Missing required secret GH_PAT (needs repo + project scopes)"
+            exit 1
+          fi
+
+      - name: Create ProjectV2 and Fields via GraphQL
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          OWNER_LOGIN: ${{ inputs.owner_login }}
+          PROJECT_TITLE: ${{ inputs.project_title }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python3 - <<'PY'
+import json
+import os
+import subprocess
+import sys
+from typing import Any, Dict, List, Optional
+
+OWNER_LOGIN = os.environ["OWNER_LOGIN"]
+PROJECT_TITLE = os.environ["PROJECT_TITLE"]
+
+def gh_graphql(query: str, variables: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+  args = ["gh", "api", "graphql", "-f", f"query={query}"]
+  if variables:
+    for k, v in variables.items():
+      if isinstance(v, (dict, list)):
+        args += ["-F", f"{k}={json.dumps(v)}"]
+      else:
+        args += ["-F", f"{k}={v}"]
+  p = subprocess.run(args, text=True, capture_output=True)
+  if p.returncode != 0:
+    print(p.stderr.strip(), file=sys.stderr)
+    raise SystemExit(1)
+  try:
+    return json.loads(p.stdout)
+  except Exception:
+    print(p.stdout, file=sys.stderr)
+    raise
+
+def must(data: Dict[str, Any], path: List[str]) -> Any:
+  cur: Any = data
+  for k in path:
+    if k not in cur:
+      raise KeyError("Missing " + ".".join(path))
+    cur = cur[k]
+  return cur
+
+# Resolve owner ID (organization preferred, fallback to user)
+q_owner = "query($login:String!){ organization(login:$login){ id } user(login:$login){ id } }"
+owner_data = gh_graphql(q_owner, {"login": OWNER_LOGIN})
+owner_id = (owner_data.get("data", {}).get("organization") or {}).get("id") or (owner_data.get("data", {}).get("user") or {}).get("id")
+if not owner_id:
+  print(f"ERROR: Unable to resolve owner id for {OWNER_LOGIN}", file=sys.stderr)
+  raise SystemExit(1)
+
+# Create the ProjectV2
+q_create_project = """
+mutation($ownerId:ID!,$title:String!){
+  createProjectV2(input:{ownerId:$ownerId,title:$title}){
+    projectV2{ id number title }
+  }
+}
+"""
+proj_data = gh_graphql(q_create_project, {"ownerId": owner_id, "title": PROJECT_TITLE})
+project = must(proj_data, ["data", "createProjectV2", "projectV2"])
+project_id = project["id"]
+project_number = project["number"]
+
+print(f"Created ProjectV2 #{project_number}: {project['title']}")
+
+# Define canonical fields (Project V2 supports TEXT, SINGLE_SELECT, MULTI_SELECT, NUMBER, DATE, ITERATION)
+FIELDS = [
+  # Execution
+  {"name": "Status", "dataType": "SINGLE_SELECT", "singleSelectOptions": [{"name": x} for x in ["Planned","In Progress","In Review","Approved","Published","Blocked","Archived"]]},
+  {"name": "Priority", "dataType": "SINGLE_SELECT", "singleSelectOptions": [{"name": x} for x in ["High","Medium","Low"]]},
+  {"name": "Risk Level", "dataType": "SINGLE_SELECT", "singleSelectOptions": [{"name": x} for x in ["High","Medium","Low"]]},
+
+  # Classification
+  {"name": "Document Type", "dataType": "SINGLE_SELECT", "singleSelectOptions": [{"name": x} for x in ["overview","index","policy","guide","checklist"]]},
+  {"name": "Document Subtype", "dataType": "SINGLE_SELECT", "singleSelectOptions": [{"name": x} for x in ["core","waas","catalog","policy","guide"]]},
+  {"name": "Document Path", "dataType": "TEXT"},
+
+  # Governance
+  {"name": "Owner Role", "dataType": "SINGLE_SELECT", "singleSelectOptions": [{"name": x} for x in ["Documentation Owner","Governance Owner","Security Owner","Operations Owner","Release Owner"]]},
+  {"name": "Approval Required", "dataType": "SINGLE_SELECT", "singleSelectOptions": [{"name": x} for x in ["Yes","No"]]},
+  {"name": "Evidence Required", "dataType": "SINGLE_SELECT", "singleSelectOptions": [{"name": x} for x in ["Yes","No"]]},
+  {"name": "Review Cycle", "dataType": "SINGLE_SELECT", "singleSelectOptions": [{"name": x} for x in ["Annual","Semiannual","Quarterly","Ad hoc"]]},
+
+  # Compliance
+  {"name": "Compliance Tags", "dataType": "MULTI_SELECT", "multiSelectOptions": [{"name": x} for x in ["Governance","Audit","Security","Compliance","Operations","Release","Engineering"]]},
+  {"name": "Retention", "dataType": "SINGLE_SELECT", "singleSelectOptions": [{"name": x} for x in ["Indefinite","7 Years","5 Years","3 Years"]]},
+  {"name": "Evidence Artifacts", "dataType": "MULTI_SELECT", "multiSelectOptions": [{"name": x} for x in ["Pull Request","Review Approval","Published Document","Audit Record"]]},
+
+  # Structured text payload fields (store as TEXT for ProjectV2 compatibility)
+  {"name": "Dependencies", "dataType": "TEXT"},
+  {"name": "Acceptance Criteria", "dataType": "TEXT"},
+  {"name": "RACI", "dataType": "TEXT"},
+
+  # KPIs
+  {"name": "KPI – Timeliness", "dataType": "TEXT"},
+  {"name": "KPI – Quality", "dataType": "TEXT"},
+  {"name": "KPI – Compliance", "dataType": "TEXT"},
+]
+
+q_create_field = """
+mutation($projectId:ID!,$name:String!,$dataType:ProjectV2CustomFieldType!,$singleSelectOptions:[ProjectV2SingleSelectFieldOptionInput!],$multiSelectOptions:[ProjectV2MultiSelectFieldOptionInput!]){
+  createProjectV2Field(input:{
+    projectId:$projectId,
+    name:$name,
+    dataType:$dataType,
+    singleSelectOptions:$singleSelectOptions,
+    multiSelectOptions:$multiSelectOptions
+  }){
+    projectV2Field{
+      ... on ProjectV2FieldCommon { id name dataType }
+      ... on ProjectV2SingleSelectField { options { id name } }
+      ... on ProjectV2MultiSelectField { options { id name } }
+    }
+  }
+}
+"""
+
+created_fields: List[Dict[str, Any]] = []
+for f in FIELDS:
+  vars: Dict[str, Any] = {
+    "projectId": project_id,
+    "name": f["name"],
+    "dataType": f["dataType"],
+    "singleSelectOptions": f.get("singleSelectOptions"),
+    "multiSelectOptions": f.get("multiSelectOptions"),
+  }
+  out = gh_graphql(q_create_field, vars)
+  field = must(out, ["data", "createProjectV2Field", "projectV2Field"])
+  created_fields.append({"name": field["name"], "id": field["id"], "dataType": field["dataType"]})
+
+print(f"Created {len(created_fields)} fields")
+print("ProjectV2 bootstrap complete")
+PY

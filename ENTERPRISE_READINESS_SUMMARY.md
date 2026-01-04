@@ -84,13 +84,13 @@ This document summarizes the enterprise-ready enhancements made to the MokoStand
 
 ### 2. Workflow Template Consolidation
 
-#### Centralized Workflow Templates (`.github/workflows/templates/`)
+#### Centralized Workflow Templates (`templates/workflows/`)
 
 **Purpose**: Single source of truth for reusable CI/CD workflows
 
 **Structure**:
 ```
-.github/workflows/templates/
+templates/workflows/
 ├── README.md           # Template documentation
 ├── joomla/            # Joomla-specific workflows
 │   ├── ci.yml
@@ -101,7 +101,7 @@ This document summarizes the enterprise-ready enhancements made to the MokoStand
 ```
 
 **Before**: Workflows scattered across multiple template repo subdirectories
-**After**: Centralized in main .github/workflows/templates/
+**After**: Centralized in templates/workflows/
 
 **Benefits**:
 - Easy discovery and comparison of workflow patterns
@@ -280,17 +280,17 @@ This document summarizes the enterprise-ready enhancements made to the MokoStand
 - `docs/policy/security-scanning.md` - Security policy
 - `docs/policy/dependency-management.md` - Dependency policy
 - `docs/guide/repository-split-plan.md` - Architecture guide
-- `.github/workflows/templates/README.md` - Template docs
+- `templates/workflows/README.md` - Template docs
 - `ENTERPRISE_READINESS_SUMMARY.md` - This document
 
 **Automation Scripts**:
 - `scripts/sync_file_to_project.py` - Project sync automation
 
 **Workflow Templates**:
-- `.github/workflows/templates/joomla/ci.yml`
-- `.github/workflows/templates/joomla/repo_health.yml`
-- `.github/workflows/templates/joomla/version_branch.yml`
-- `.github/workflows/templates/generic/repo_health.yml`
+- `templates/workflows/joomla/ci.yml`
+- `templates/workflows/joomla/repo_health.yml`
+- `templates/workflows/joomla/version_branch.yml`
+- `templates/workflows/generic/repo_health.yml`
 
 ### Files Removed
 

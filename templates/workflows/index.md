@@ -1,15 +1,17 @@
-# Docs Index: /templates
+# Docs Index: /templates/workflows
 
 ## Purpose
 
 This index provides navigation to documentation within this folder.
 
+## Files
+
+- [README.md](./README.md) - GitHub Workflow Templates documentation
+
 ## Subfolders
 
-- [docs/](./docs/index.md)
-- [repos/](./repos/index.md)
-- [scripts/](./scripts/index.md)
-- [workflows/](./workflows/index.md)
+- [generic/](./generic/) - Generic/platform-agnostic workflow templates
+- [joomla/](./joomla/) - Joomla-specific workflow templates
 
 ## Metadata
 

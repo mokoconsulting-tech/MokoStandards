@@ -183,7 +183,7 @@ This repository is organized to separate enforceable standards from reusable tem
 
 ### GitHub templates and workflows
 
-* **Public workflow templates**: [`.github/workflows/templates/`](.github/workflows/templates/README.md)
+* **Public workflow templates**: [`templates/workflows/`](templates/workflows/README.md)
 
   * CI/CD workflow templates for Joomla and generic projects
   * Repository health monitoring workflows

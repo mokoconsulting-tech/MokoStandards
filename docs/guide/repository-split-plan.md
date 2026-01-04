@@ -97,12 +97,11 @@ This document defines the recommended split between the public **mokoconsulting-
    ✅ rebuild_docs_indexes.yml - Documentation automation
    ✅ repo_health.yml - Repository health checks
    
-✅ .github/workflows/templates/ - Reusable workflow templates
+✅ templates/workflows/ - Reusable workflow templates (moved from .github/)
    ✅ joomla/ - Joomla-specific workflows
    ✅ generic/ - Platform-agnostic workflows
    ✅ README.md - Template documentation
    
-✅ .github/workflow-templates/ - GitHub workflow starter templates
 ✅ .github/dependabot.yml - Dependency scanning config
 ✅ .github/settings.yml - Repository settings template (anonymized)
 

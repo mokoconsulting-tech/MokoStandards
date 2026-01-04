@@ -1,0 +1,132 @@
+# Copyright (C) 2025 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.Settings
+# INGROUP: MokoStandards.Configuration
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/settings.yml
+# VERSION: 01.00.00
+# BRIEF: GitHub repository settings configuration for merge strategy and PR behavior
+# NOTE: Configures squash merge as the only allowed merge method to maintain clean history
+
+# Repository settings
+repository:
+  # Repository name
+  name: MokoStandards
+  
+  # Repository description
+  description: Coding standards hub and cross repository index for the MokoStandards ecosystem
+  
+  # Repository homepage
+  homepage: https://github.com/mokoconsulting-tech/MokoStandards
+  
+  # Repository topics
+  topics:
+    - standards
+    - coding-standards
+    - governance
+    - documentation
+  
+  # Repository visibility (public or private)
+  private: false
+  
+  # Enable or disable wiki
+  has_wiki: false
+  
+  # Enable or disable issues
+  has_issues: true
+  
+  # Enable or disable projects
+  has_projects: true
+  
+  # Default branch
+  default_branch: main
+  
+  # Allow squash merge (REQUIRED)
+  allow_squash_merge: true
+  
+  # Allow merge commits (DISABLED - squash only)
+  allow_merge_commit: false
+  
+  # Allow rebase merge (DISABLED - squash only)
+  allow_rebase_merge: false
+  
+  # Automatically delete head branches after PRs are merged
+  delete_branch_on_merge: true
+  
+  # Allow auto-merge
+  allow_auto_merge: true
+  
+  # Require PRs to be up to date before merging
+  allow_update_branch: true
+  
+  # Squash merge commit title format
+  # Options: PR_TITLE, COMMIT_OR_PR_TITLE
+  squash_merge_commit_title: PR_TITLE
+  
+  # Squash merge commit message format
+  # Options: PR_BODY, COMMIT_MESSAGES, BLANK
+  squash_merge_commit_message: PR_BODY
+
+# Branch protection rules for main branch
+branches:
+  - name: main
+    protection:
+      # Require pull request reviews before merging
+      required_pull_request_reviews:
+        # Require at least 1 approval
+        required_approving_review_count: 1
+        # Dismiss stale reviews when new commits are pushed
+        dismiss_stale_reviews: true
+        # Require review from code owners
+        require_code_owner_reviews: false
+        # Restrict who can dismiss reviews
+        dismissal_restrictions: {}
+      
+      # Require status checks to pass before merging
+      required_status_checks:
+        # Require branches to be up to date before merging
+        strict: true
+        # List of required status checks (add your CI checks here)
+        contexts: []
+      
+      # Enforce all configured restrictions for administrators
+      enforce_admins: false
+      
+      # Require signed commits
+      required_signatures: false
+      
+      # Require linear history (forces squash or rebase)
+      required_linear_history: true
+      
+      # Allow force pushes
+      allow_force_pushes: false
+      
+      # Allow deletions
+      allow_deletions: false
+      
+      # Require conversation resolution before merging
+      required_conversation_resolution: true
+      
+      # Lock branch (prevent all pushes)
+      lock_branch: false
+      
+      # Allow fork syncing
+      allow_fork_syncing: true

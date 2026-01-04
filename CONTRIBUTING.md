@@ -109,6 +109,19 @@ Standard workflow:
 
 PRs must pass automated checks before they will be considered for review. The maintainer team reserves the right to request revisions, split changes, or defer work that does not align with the current release plan.
 
+## Merge strategy
+
+This repository uses **squash merge** as the only permitted merge method for pull requests to the main branch. This ensures a clean, linear git history where each commit represents a complete, reviewed change.
+
+Key implications for contributors:
+
+* **PR Title is Important**: The PR title becomes the commit message subject. Make it clear and descriptive.
+* **PR Description is Important**: The PR description becomes the commit message body. Include rationale and summary of changes.
+* **Automatic Cleanup**: Branches are automatically deleted after merge.
+* **No Merge Commits**: Regular merge commits and rebase merges are disabled.
+
+For complete details, see the [Merge Strategy Policy](docs/policy/merge-strategy.md).
+
 ## Branching and versioning
 
 Unless specified otherwise in `GOVERNANCE.md` or a dedicated versioning policy:

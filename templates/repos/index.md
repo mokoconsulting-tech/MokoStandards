@@ -1,4 +1,4 @@
-# Docs Index: /templates/repos
+# Docs Index: /repos
 
 ## Purpose
 

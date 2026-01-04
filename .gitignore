@@ -1,59 +1,59 @@
 # ============================================================
-.env
-.env.local
-.env.*.local
-*.local.php
-*.secret.php
-
+# Temporary Files
 # ============================================================
-# Logs, dumps & databases
-# ============================================================
+*.tmp
 *.log
-*.pid
-*.seed
-*.sql
-*.sql.gz
-*.sqlite
-*.sqlite3
-*.db
-*.db-journal
-
-# ============================================================
-# OS / Editor / IDE cruft
-# ============================================================
+*.bak
+*.swp
 .DS_Store
 Thumbs.db
-desktop.ini
-# Windows artifacts
-Thumbs.db:encryptable
-ehthumbs.db
-ehthumbs_vista.db
-$RECYCLE.BIN/
-System Volume Information/
-*.lnk
-Icon?
-.idea/
+
+# ============================================================
+# Editor and IDE
+# ============================================================
 .vscode/
-*.code-workspace
+.idea/
 *.sublime-project
 *.sublime-workspace
 .project
+.classpath
 .settings/
-.buildpath
 
 # ============================================================
-# Dev scripts & scratch
+# Environment and Secrets
 # ============================================================
-TODO
+.env
+.env.local
+.env.*.local
+
+# ============================================================
+# Build Artifacts
+# ============================================================
+node_modules/
+vendor/
+*.zip
+*.tar.gz
+*.rar
+
+# ============================================================
+# Documentation (do not ignore docs/ or templates/)
+# ============================================================
+.mkdocs-build/
+site/
+
+# ============================================================
+# Planning and Notes
+# ============================================================
 TODO.md
 
 # ============================================================
-# Python
+# Python artifacts
 # ============================================================
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
+*.pyc
 .Python
 build/
 develop-eggs/
@@ -61,8 +61,8 @@ dist/
 downloads/
 eggs/
 .eggs/
-/lib/
-/lib64/
+lib/
+lib64/
 parts/
 sdist/
 var/
@@ -75,25 +75,4 @@ MANIFEST
 # ============================================================
 # Maps & compiled asset helpers
 # ============================================================
-*.css.map
-*.js.map
-
-# ============================================================
-# SFTP / sync tools
-# ============================================================
-sftp-config*.json
-sync.ffs_db
-*.ffs_gui
-
-# ============================================================
-# Replit / cloud IDE
-# ============================================================
-.replit
-replit.md
-
-# ============================================================
-# Keep-empty folders helper
-# ============================================================
-!.gitkeep
-__pycache__/
-*.pyc
+*.map

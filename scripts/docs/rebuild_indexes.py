@@ -5,9 +5,9 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
-# This program is free software; you can redistribute it and/or modify
+# This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
+# the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -16,18 +16,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# (./LICENSE.md).
-#
-# FILE INFORMATION
-# DEFGROUP: MokoStandards.Scripts
-# INGROUP: MokoStandards.Documentation
-# REPO: https://github.com/mokoconsulting-tech/MokoStandards
-# FILE: scripts/docs/rebuild_indexes.py
-# VERSION: 04.01.00
-# BRIEF: Documentation index generator - scans docs and generates index.md files
-# PATH: /scripts/docs/rebuild_indexes.py
-# NOTE: Automatically generates navigation indexes for documentation folders
-
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 """
 Documentation Index Generator
 

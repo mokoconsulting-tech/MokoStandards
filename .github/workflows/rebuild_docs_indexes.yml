@@ -4,9 +4,9 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
-# This program is free software; you can redistribute it and/or modify
+# This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
+# the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -15,17 +15,16 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# (./LICENSE.md).
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
 # FILE INFORMATION
-# DEFGROUP: MokoStandards.Workflows
-# INGROUP: MokoStandards.CI
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.Documentation
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
-# FILE: .github/workflows/rebuild_docs_indexes.yml
-# VERSION: 04.01.00
-# BRIEF: GitHub Actions workflow - rebuilds documentation indexes on docs changes
 # PATH: /.github/workflows/rebuild_docs_indexes.yml
-# NOTE: Runs in check mode for PRs, write mode for workflow_dispatch
+# VERSION: 01.00.00
+# BRIEF: Automatically rebuilds documentation index files when documentation changes
+# NOTE: Runs in check mode on PRs, write mode on workflow_dispatch
 
 name: Rebuild Documentation Indexes
 

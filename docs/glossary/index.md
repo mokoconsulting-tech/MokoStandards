@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Glossary
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/glossary/index.md
-VERSION: 01.00.00
+VERSION: 05.00.00
 BRIEF: Master glossary index for MokoStandards terminology
 -->
 

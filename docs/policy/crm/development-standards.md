@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.CRM
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/crm/development-standards.md
-VERSION: 01.00.00
+VERSION: 05.00.00
 BRIEF: Development standards for MokoCRM based on Dolibarr platform
 -->
 
@@ -893,4 +893,4 @@ This policy depends on:
 
 | Date       | Version  | Author          | Notes                                 |
 | ---------- | -------- | --------------- | ------------------------------------- |
-| 2026-01-04 | 01.00.00 | Moko Consulting | Initial MokoCRM development standards |
+| 2026-01-04 | 05.00.00 | Moko Consulting | Initial MokoCRM development standards |

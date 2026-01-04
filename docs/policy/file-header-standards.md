@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/file-header-standards.md
-VERSION: 01.00.00
+VERSION: 05.00.00
 BRIEF: Standards for copyright headers, file information, and document metadata
 -->
 
@@ -310,7 +310,7 @@ BRIEF: Brief description of file purpose
 
 | Date       | Version  | Author          | Notes                        |
 | ---------- | -------- | --------------- | ---------------------------- |
-| 2026-01-04 | 01.00.00 | Moko Consulting | Initial document creation    |
+| 2026-01-04 | 05.00.00 | Moko Consulting | Initial document creation    |
 ```
 
 **For Policy Documents, add additional metadata fields:**
@@ -337,7 +337,7 @@ BRIEF: Brief description of file purpose
 ```markdown
 | Date       | Version  | Author          | Notes                           |
 | ---------- | -------- | --------------- | ------------------------------- |
-| 2026-01-04 | 01.00.00 | Moko Consulting | Initial document creation       |
+| 2026-01-04 | 05.00.00 | Moko Consulting | Initial document creation       |
 | 2026-01-15 | 01.01.00 | John Doe        | Added security requirements     |
 | 2026-02-01 | 02.00.00 | Jane Smith      | Major restructuring             |
 ```
@@ -619,4 +619,4 @@ This policy requires:
 
 | Date       | Version  | Author          | Notes                                 |
 | ---------- | -------- | --------------- | ------------------------------------- |
-| 2026-01-04 | 01.00.00 | Moko Consulting | Initial file header standards policy  |
+| 2026-01-04 | 05.00.00 | Moko Consulting | Initial file header standards policy  |

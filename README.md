@@ -23,13 +23,13 @@
  INGROUP: MokoStandards
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  FILE: README.md
- VERSION: 04.01.00
+ VERSION: 05.00.00
  BRIEF: Coding standards hub and cross repository index for the MokoStandards ecosystem.
  PATH: /README.md
  NOTE: Repository rebaselined to standards first, decoupled from specific template or scaffold repositories.
 -->
 
-# MokoStandards (VERSION: 04.01.00)
+# MokoStandards (VERSION: 05.00.00)
 
 MokoStandards is the authoritative control plane for coding standards across the Moko Consulting ecosystem. This repository defines how code is formatted, structured, reviewed, tested, packaged, and released.
 
@@ -271,3 +271,4 @@ See the authoritative roadmap document: [`/docs/ROADMAP.md`](docs/ROADMAP.md).
 | -------- | ---------- | ------------------------------- | ---------------------------------------------------------------- |
 | 01.00.00 | 2025-12-17 | Jonathan Miller (@jmiller-moko) | Initial standards first rebaseline and ecosystem linking.        |
 | 04.01.00 | 2026-01-03 | Jonathan Miller (@jmiller-moko) | Version alignment with current MokoStandards standards baseline. |
+| 05.00.00 | 2026-01-04 | Jonathan Miller (@jmiller-moko) | Enterprise readiness: security automation, workflow consolidation, complete public/private separation. |

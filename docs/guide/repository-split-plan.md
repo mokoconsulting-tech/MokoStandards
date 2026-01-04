@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Architecture
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/guide/repository-split-plan.md
-VERSION: 01.00.00
+VERSION: 05.00.00
 BRIEF: Architecture plan for splitting public and private repository content
 -->
 

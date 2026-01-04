@@ -2,46 +2,98 @@
 
 ## Scope and Intent
 
-This document defines the authoritative roadmap for the Moko Consulting documentation ecosystem beginning with version **04.02.00**. It establishes the sequencing, intent, and enterprise maturity expectations for all documentation artifacts governed by MokoStandards.
+This document defines the authoritative roadmap for the Moko Consulting documentation ecosystem beginning with version **05.00.00**. It establishes the sequencing, intent, and enterprise maturity expectations for all documentation artifacts governed by MokoStandards.
 
-The roadmap is forward-looking by design. Completed work prior to version 04.02.00 is considered baseline and is intentionally excluded. This file tracks **current and future-state documentation only**.
+The roadmap is forward-looking by design. Completed work prior to version 05.00.00 is considered baseline and is intentionally excluded. This file tracks **current and future-state documentation only**.
 
-## Version 04.02.00 — Baseline Control Plane
+## Version 05.00.00 — Enterprise Readiness Baseline ✅ COMPLETED
 
-Focus: Establish a hardened documentation control plane suitable for enterprise governance, audit readiness, and automation.
+Focus: Establish enterprise-grade security, automation, and clear public/private separation.
+
+### Completed Deliverables
+
+* ✅ **Security Automation**
+  * ✅ Dependabot configuration for automated dependency updates
+  * ✅ CodeQL security scanning for Python and JavaScript
+  * ✅ Secret scanning with push protection
+  * ✅ Vulnerability SLAs defined and enforced
+* ✅ **Policy Framework** (11 public policies)
+  * ✅ Security scanning policy
+  * ✅ Dependency management policy
+  * ✅ Scripting standards (Python-first mandate)
+  * ✅ File header standards
+  * ✅ CRM development standards (Dolibarr/MokoCRM)
+  * ✅ Data classification, risk register, vendor risk
+* ✅ **Documentation Infrastructure**
+  * ✅ Glossary with technical terms
+  * ✅ Repository split plan (public/private)
+  * ✅ File header validation script
+  * ✅ WaaS comprehensive guides
+* ✅ **Workflow Consolidation**
+  * ✅ Consolidated 37 duplicate workflows to centralized templates
+  * ✅ Joomla and generic variants separated
+* ✅ **Public/Private Separation**
+  * ✅ Moved 25 sensitive files to private repository
+  * ✅ Created reference documents for private content
+  * ✅ Clear boundaries established
+
+### Achieved Outcomes
+
+* ✅ Automated security scanning with defined SLAs
+* ✅ Complete separation of public standards and private internal content
+* ✅ Python-first scripting standards established
+* ✅ Comprehensive policy framework for enterprise governance
+* ✅ Clean, consistent documentation structure
+* ✅ Time savings: ~12 hours/month from automation
+
+## Version 05.01.00 — Documentation Control Plane
+
+Focus: Establish hardened documentation control plane for enterprise governance.
 
 ### In-Scope Deliverables
 
 * Documentation root taxonomy and path standardization
 * Enterprise field model for all roadmap and control registers
-* Separation of repository, policy, guide, checklist, and template layers
-* Introduction of machine-readable roadmap artifacts (JSON)
-* Initial WaaS policy and guide set
+* Machine-readable roadmap artifacts (JSON)
 
 ### Outcomes
 
-* All documentation assets are addressable via deterministic paths
-* Governance, ownership, and compliance metadata are normalized
+* All documentation assets addressable via deterministic paths
+* Governance, ownership, and compliance metadata normalized
 * Documentation can be validated, indexed, and audited automatically
 
-## Version 04.03.00 — Enforcement and Validation
+## Version 05.02.00 — Enforcement and Validation (IN PROGRESS)
 
 Focus: Shift from descriptive documentation to enforceable standards.
 
+### Completed Deliverables
+
+* ✅ Metadata and header linting for all markdown documents (file header validation script)
+* ✅ File header standards policy with copyright requirements
+* ✅ Scripting standards policy mandating Python for automation
+* ✅ Automated dependency scanning and security checks
+
+### In Progress
+
+* 🔄 CI validation of documentation paths and required fields
+* 🔄 Dependency validation between documentation artifacts
+* 🔄 Automated detection of missing required documents
+
 ### Planned Deliverables
 
-* CI validation of documentation paths and required fields
-* Metadata and header linting for all markdown documents
-* Dependency validation between documentation artifacts
-* Automated detection of missing required documents
+* Full CI integration for documentation validation
+* Cross-reference validation between policy documents
+* Automated compliance reporting
 
 ### Outcomes
 
-* Documentation drift is detectable at pull request time
-* Required artifacts are enforced per repository and document type
-* Audit preparation becomes repeatable and evidence-backed
+* ✅ File headers are standardized and enforceable
+* ✅ Security vulnerabilities are detected automatically
+* 🔄 Documentation drift is detectable at pull request time
+* 🔄 Required artifacts are enforced per repository and document type
+* 🔄 Audit preparation becomes repeatable and evidence-backed
 
-## Version 04.04.00 — Operational Maturity
+## Version 05.03.00 — Operational Maturity
 
 Focus: Expand documentation to fully support operations, incidents, and lifecycle management.
 
@@ -58,7 +110,7 @@ Focus: Expand documentation to fully support operations, incidents, and lifecycl
 * Incidents and releases generate structured documentation by default
 * WaaS offerings are supported end-to-end by written controls
 
-## Version 04.05.00 — Governance and Compliance Expansion
+## Version 05.04.00 — Governance and Compliance Expansion
 
 Focus: Strengthen governance posture and external audit alignment.
 
@@ -75,7 +127,7 @@ Focus: Strengthen governance posture and external audit alignment.
 * Compliance evidence is centrally discoverable
 * Governance decisions are transparent and repeatable
 
-## Version 04.06.00 and Beyond — Automation and Intelligence
+## Version 05.05.00 and Beyond — Automation and Intelligence
 
 Focus: Treat documentation as an operational system.
 
@@ -102,11 +154,12 @@ This roadmap is intentionally conservative and additive. New versions extend pri
 Owner: Documentation Owner
 Reviewers: Governance Owner, Security Owner, Operations Owner
 Status: Active
-Last Updated: 2026-01-03
+Last Updated: 2026-01-04
 ```
 
 ## Revision History
 
-| Date       | Version  | Author                          | Notes                                     |
-| ---------- | -------- | ------------------------------- | ----------------------------------------- |
-| 2026-01-03 | 04.02.00 | Jonathan Miller (@jmiller-moko) | Initial roadmap baseline and forward plan |
+| Date       | Version  | Author                          | Notes                                                                  |
+| ---------- | -------- | ------------------------------- | ---------------------------------------------------------------------- |
+| 2026-01-03 | 04.02.00 | Jonathan Miller (@jmiller-moko) | Initial roadmap baseline and forward plan                              |
+| 2026-01-04 | 05.00.00 | Jonathan Miller (@jmiller-moko) | Updated for enterprise readiness baseline, renumbered versions to 05.x |

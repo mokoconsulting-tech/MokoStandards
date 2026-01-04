@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Security
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/dependency-management.md
-VERSION: 01.00.00
+VERSION: 05.00.00
 BRIEF: Dependency management policy for third-party libraries and packages
 -->
 
@@ -365,4 +365,4 @@ This policy depends on:
 
 | Date       | Version  | Author          | Notes                                    |
 | ---------- | -------- | --------------- | ---------------------------------------- |
-| 2026-01-04 | 01.00.00 | Moko Consulting | Initial dependency management policy |
+| 2026-01-04 | 05.00.00 | Moko Consulting | Initial dependency management policy |

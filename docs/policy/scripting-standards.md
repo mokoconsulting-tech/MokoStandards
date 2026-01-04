@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Development
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/scripting-standards.md
-VERSION: 01.00.00
+VERSION: 05.00.00
 BRIEF: Standards and requirements for automation scripts and tooling
 -->
 
@@ -622,7 +622,7 @@ DEFGROUP: MokoStandards.Scripts
 INGROUP: MokoStandards.Automation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /scripts/my_script.py
-VERSION: 01.00.00
+VERSION: 05.00.00
 BRIEF: Brief description of script purpose
 """
 ```
@@ -772,4 +772,4 @@ This policy depends on:
 
 | Date       | Version  | Author          | Notes                                  |
 | ---------- | -------- | --------------- | -------------------------------------- |
-| 2026-01-04 | 01.00.00 | Moko Consulting | Initial scripting standards policy |
+| 2026-01-04 | 05.00.00 | Moko Consulting | Initial scripting standards policy |

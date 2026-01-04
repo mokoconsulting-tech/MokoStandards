@@ -10,7 +10,7 @@
  INGROUP: Policy.Decommissioning
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  PATH: /docs/policy/waas/decommissioning.md
- VERSION: 04.01.00
+ VERSION: 05.00.00
  BRIEF: Policy governing secure decommissioning and client exit procedures for WaaS sites.
 -->
 

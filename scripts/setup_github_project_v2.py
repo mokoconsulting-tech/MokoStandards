@@ -167,6 +167,41 @@ class GitHubProjectV2Setup:
                     print(f"   Error: {error.get('message', error)}")
             return False
 
+    @staticmethod
+    def get_option_color(option_name: str) -> str:
+        """Get appropriate color for an option based on its name."""
+        # Color mapping for common option values
+        color_map = {
+            # Status colors
+            "planned": "GRAY",
+            "in progress": "BLUE",
+            "in review": "YELLOW",
+            "approved": "GREEN",
+            "published": "GREEN",
+            "blocked": "RED",
+            "archived": "GRAY",
+            # Priority colors
+            "high": "RED",
+            "medium": "YELLOW",
+            "low": "GRAY",
+            # Yes/No colors
+            "yes": "GREEN",
+            "no": "GRAY",
+            # Review cycle colors
+            "annual": "BLUE",
+            "semiannual": "BLUE",
+            "quarterly": "YELLOW",
+            "ad hoc": "GRAY",
+            # Retention colors
+            "indefinite": "PURPLE",
+            "7 years": "BLUE",
+            "5 years": "BLUE",
+            "3 years": "BLUE",
+        }
+        
+        # Default color if not found
+        return color_map.get(option_name.lower(), "GRAY")
+
     def create_single_select_field(self, name: str, options: List[str]) -> Optional[str]:
         """Create a single-select field."""
         mutation = """
@@ -191,7 +226,14 @@ class GitHubProjectV2Setup:
         }
         """
         
-        option_list = [{"name": opt} for opt in options]
+        option_list = [
+            {
+                "name": opt,
+                "color": self.get_option_color(opt),
+                "description": opt  # Use the option name as description
+            }
+            for opt in options
+        ]
         
         result = self.run_graphql(mutation, {
             "projectId": self.project_id,

@@ -687,12 +687,14 @@ This index helps navigate the documentation structure and locate relevant docume
         doc_path = doc_info["path"]
         doc_name = Path(doc_path).stem
         
-        # Check if task already exists
-        if doc_name in self.existing_items:
-            self.updated_tasks.append(doc_path)
-            return True
+        # Use full document path as title for clarity
+        title = doc_path
         
-        title = doc_name
+        # Check if task already exists
+        if title in self.existing_items:
+            self.updated_tasks.append(doc_path)
+            print(f"  ℹ️  Task already exists for {doc_path}, skipping creation", file=sys.stderr)
+            return True
         body = f"""Document Path: {doc_path}
 Purpose: {doc_info['type'].title()} document tracking
 Acceptance Criteria:

@@ -301,7 +301,8 @@ class GitHubProjectV2Populator:
 
     def create_project_item(self, file_path: Path, purpose: str) -> bool:
         """Create a project item for a document."""
-        title = f"{file_path.parent.name}/{file_path.stem}" if file_path.parent.name != "." else file_path.stem
+        # Use full file path as title for clarity
+        title = str(file_path)
         
         doc_type = self.infer_document_type(file_path)
         doc_subtype = self.infer_document_subtype(file_path, doc_type)

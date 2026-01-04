@@ -14,6 +14,7 @@ This index provides navigation to documentation within this folder.
 - [data-classification](./data-classification.md)
 - [document-formatting](./document-formatting.md)
 - [documentation-governance](./documentation-governance.md)
+- [merge-strategy](./merge-strategy.md)
 - [risk-register](./risk-register.md)
 - [vendor-risk](./vendor-risk.md)
 

@@ -20,7 +20,7 @@ import json
 import os
 import subprocess
 import sys
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 
 
 # View configurations based on docs/guide/project-views.md

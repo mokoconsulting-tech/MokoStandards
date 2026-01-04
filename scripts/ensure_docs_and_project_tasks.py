@@ -17,7 +17,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Optional
 
 
 # Canonical Document List - Mandatory deliverables with enterprise field specifications
@@ -341,7 +341,8 @@ class DocumentationManager:
                 if result and "data" in result and result["data"].get("viewer"):
                     print(f"✅ Authenticated as: {result['data']['viewer']['login']}")
                     return True
-            except:
+            except Exception:
+                # Silently handle authentication failures - we'll report the overall result
                 pass
             print("❌ Token authentication failed")
             return False
@@ -351,7 +352,8 @@ class DocumentationManager:
                 if result.returncode == 0:
                     print("✅ GitHub CLI authenticated")
                     return True
-            except:
+            except Exception:
+                # Silently handle gh CLI errors - we'll report the overall result
                 pass
             print("❌ GitHub CLI not authenticated")
             return False

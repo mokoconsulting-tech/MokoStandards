@@ -3,8 +3,6 @@
 Generate canonical documents configuration from enterprise JSON specification
 """
 
-import json
-
 # Enterprise JSON specification
 ENTERPRISE_SPEC = [
     {

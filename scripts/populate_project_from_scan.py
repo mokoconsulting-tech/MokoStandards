@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
 """
-GitHub Project v2 Setup Script
-Creates a GitHub Project v2 and populates it with documentation tasks.
+GitHub Project v2 Population Script
+Populates an existing GitHub Project v2 with documentation tasks from docs/ and templates/.
 
 Usage:
     export GH_PAT="your_personal_access_token"
-    python3 scripts/setup_github_project_v2.py
+    python3 scripts/populate_project_from_scan.py --project-number 7
 
 Or use gh CLI authentication:
     gh auth login
-    python3 scripts/setup_github_project_v2.py
+    python3 scripts/populate_project_from_scan.py --project-number 7
 """
 
+import argparse
 import json
 import os
 import subprocess
@@ -20,15 +21,14 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 
-class GitHubProjectV2Setup:
-    """Handles GitHub Project v2 creation and population."""
+class GitHubProjectV2Populator:
+    """Handles GitHub Project v2 population with scanned documents."""
 
-    def __init__(self, org: str, project_title: str, token: Optional[str] = None):
+    def __init__(self, org: str, project_number: int, token: Optional[str] = None):
         self.org = org
-        self.project_title = project_title
+        self.project_number = project_number
         self.token = token
         self.project_id = None
-        self.project_number = None
         self.field_ids = {}
         self.field_option_ids = {}
         self.created_items = []
@@ -56,7 +56,16 @@ class GitHubProjectV2Setup:
                     timeout=30
                 )
                 response.raise_for_status()
-                return response.json()
+                result = response.json()
+                
+                if "errors" in result:
+                    error_details = "; ".join([err.get("message", str(err)) for err in result["errors"]])
+                    error_msg = f"GraphQL API returned errors: {error_details}"
+                    self.errors.append(error_msg)
+                    print(f"❌ ERROR: {error_msg}", file=sys.stderr)
+                    return {}
+                
+                return result
             else:
                 # Use gh CLI
                 cmd = ["gh", "api", "graphql", "-f", f"query={query}"]
@@ -64,7 +73,11 @@ class GitHubProjectV2Setup:
                     for key, value in variables.items():
                         if isinstance(value, (list, dict)):
                             cmd.extend(["-F", f"{key}={json.dumps(value)}"])
+                        elif isinstance(value, (int, float, bool)):
+                            # Use -F for numbers and booleans to preserve type
+                            cmd.extend(["-F", f"{key}={value}"])
                         else:
+                            # Use -f for strings
                             cmd.extend(["-f", f"{key}={value}"])
                 
                 result = subprocess.run(
@@ -75,14 +88,24 @@ class GitHubProjectV2Setup:
                 )
                 return json.loads(result.stdout)
         except subprocess.CalledProcessError as e:
-            error_msg = f"GraphQL error: {e.stderr}"
+            error_msg = f"gh CLI command failed (exit code {e.returncode})"
+            if e.stderr:
+                error_msg += f": {e.stderr.strip()}"
             self.errors.append(error_msg)
-            print(f"ERROR: {error_msg}", file=sys.stderr)
+            print(f"❌ ERROR: {error_msg}", file=sys.stderr)
+            print(f"   Command: {' '.join(e.cmd)}", file=sys.stderr)
+            return {}
+        except json.JSONDecodeError as e:
+            error_msg = f"Failed to parse JSON response: {e}"
+            self.errors.append(error_msg)
+            print(f"❌ ERROR: {error_msg}", file=sys.stderr)
             return {}
         except Exception as e:
-            error_msg = f"Error: {e}"
+            error_msg = f"Unexpected error: {type(e).__name__}: {e}"
             self.errors.append(error_msg)
-            print(f"ERROR: {error_msg}", file=sys.stderr)
+            print(f"❌ ERROR: {error_msg}", file=sys.stderr)
+            import traceback
+            print(f"   Traceback: {traceback.format_exc()}", file=sys.stderr)
             return {}
 
     def verify_auth(self) -> bool:
@@ -120,199 +143,99 @@ class GitHubProjectV2Setup:
                 print(f"❌ Error checking auth: {e}")
                 return False
 
-    def get_org_id(self) -> Optional[str]:
-        """Get organization ID."""
+    def get_project_id(self) -> Optional[str]:
+        """Get project ID from project number."""
         query = """
-        query($org: String!) {
+        query($org: String!, $number: Int!) {
             organization(login: $org) {
-                id
-            }
-        }
-        """
-        result = self.run_graphql(query, {"org": self.org})
-        if result and "data" in result and result["data"].get("organization"):
-            org_id = result["data"]["organization"]["id"]
-            print(f"✅ Organization ID: {org_id}")
-            return org_id
-        else:
-            print(f"❌ Failed to get organization ID")
-            return None
-
-    def create_project(self, org_id: str) -> bool:
-        """Create GitHub Project v2."""
-        mutation = """
-        mutation($orgId: ID!, $title: String!) {
-            createProjectV2(input: {ownerId: $orgId, title: $title}) {
-                projectV2 {
+                projectV2(number: $number) {
                     id
-                    number
                     title
                     url
                 }
             }
         }
         """
-        result = self.run_graphql(mutation, {"orgId": org_id, "title": self.project_title})
-        
-        if result and "data" in result and result["data"].get("createProjectV2"):
-            project = result["data"]["createProjectV2"]["projectV2"]
+        result = self.run_graphql(query, {"org": self.org, "number": self.project_number})
+        if result and "data" in result and result["data"].get("organization", {}).get("projectV2"):
+            project = result["data"]["organization"]["projectV2"]
             self.project_id = project["id"]
-            self.project_number = project["number"]
-            print(f"✅ Created Project: {project['title']}")
+            print(f"✅ Found Project: {project['title']}")
             print(f"   Project Number: {self.project_number}")
             print(f"   Project ID: {self.project_id}")
             print(f"   URL: {project.get('url', 'N/A')}")
-            return True
+            return self.project_id
         else:
-            print(f"❌ Failed to create project")
-            if result and "errors" in result:
-                for error in result["errors"]:
-                    print(f"   Error: {error.get('message', error)}")
-            return False
+            print(f"❌ Failed to find project #{self.project_number}")
+            return None
 
-    def create_single_select_field(self, name: str, options: List[str]) -> Optional[str]:
-        """Create a single-select field."""
-        mutation = """
-        mutation($projectId: ID!, $name: String!, $options: [ProjectV2SingleSelectFieldOptionInput!]!) {
-            createProjectV2Field(input: {
-                projectId: $projectId,
-                dataType: SINGLE_SELECT,
-                name: $name,
-                singleSelectOptions: $options
-            }) {
-                projectV2Field {
-                    ... on ProjectV2SingleSelectField {
-                        id
-                        name
-                        options {
-                            id
-                            name
+    def get_project_fields(self) -> bool:
+        """Get existing project fields."""
+        query = """
+        query($org: String!, $number: Int!) {
+            organization(login: $org) {
+                projectV2(number: $number) {
+                    fields(first: 50) {
+                        nodes {
+                            ... on ProjectV2Field {
+                                id
+                                name
+                                dataType
+                            }
+                            ... on ProjectV2SingleSelectField {
+                                id
+                                name
+                                dataType
+                                options {
+                                    id
+                                    name
+                                }
+                            }
                         }
                     }
                 }
             }
         }
         """
+        result = self.run_graphql(query, {"org": self.org, "number": self.project_number})
         
-        option_list = [{"name": opt} for opt in options]
-        
-        result = self.run_graphql(mutation, {
-            "projectId": self.project_id,
-            "name": name,
-            "options": option_list
-        })
-        
-        if result and "data" in result and result["data"].get("createProjectV2Field"):
-            field_data = result["data"]["createProjectV2Field"]["projectV2Field"]
-            field_id = field_data["id"]
-            
-            # Store option IDs for later use
-            if "options" in field_data:
-                self.field_option_ids[name] = {
-                    opt["name"]: opt["id"] for opt in field_data["options"]
-                }
-            
-            print(f"  ✅ Created field: {name} ({len(options)} options)")
-            return field_id
-        else:
-            print(f"  ❌ Failed to create field: {name}")
-            if result and "errors" in result:
-                for error in result["errors"]:
-                    print(f"     Error: {error.get('message', error)}")
-            return None
-
-    def create_text_field(self, name: str) -> Optional[str]:
-        """Create a text field."""
-        mutation = """
-        mutation($projectId: ID!, $name: String!) {
-            createProjectV2Field(input: {
-                projectId: $projectId,
-                dataType: TEXT,
-                name: $name
-            }) {
-                projectV2Field {
-                    ... on ProjectV2Field {
-                        id
-                        name
+        if result and "data" in result:
+            fields = result["data"]["organization"]["projectV2"]["fields"]["nodes"]
+            for field in fields:
+                field_name = field.get("name")
+                field_id = field.get("id")
+                self.field_ids[field_name] = field_id
+                
+                # Store option IDs for single-select fields
+                if "options" in field:
+                    self.field_option_ids[field_name] = {
+                        opt["name"]: opt["id"] for opt in field["options"]
                     }
-                }
-            }
-        }
-        """
-        
-        result = self.run_graphql(mutation, {
-            "projectId": self.project_id,
-            "name": name
-        })
-        
-        if result and "data" in result and result["data"].get("createProjectV2Field"):
-            field_id = result["data"]["createProjectV2Field"]["projectV2Field"]["id"]
-            print(f"  ✅ Created field: {name}")
-            return field_id
+            
+            print(f"✅ Retrieved {len(self.field_ids)} existing fields")
+            return True
         else:
-            print(f"  ❌ Failed to create field: {name}")
-            if result and "errors" in result:
-                for error in result["errors"]:
-                    print(f"     Error: {error.get('message', error)}")
-            return None
+            print(f"⚠️  Could not retrieve project fields")
+            return False
 
-    def create_all_fields(self) -> bool:
-        """Create all custom fields."""
-        print("\n📋 Creating custom fields...")
-        
-        # Single-select fields (as per requirements)
-        single_select_fields = {
-            "Status": ["Planned", "In Progress", "In Review", "Approved", "Published", "Blocked", "Archived"],
-            "Priority": ["High", "Medium", "Low"],
-            "Risk Level": ["High", "Medium", "Low"],
-            "Document Type": ["policy", "guide", "checklist", "overview", "index"],
-            "Document Subtype": ["core", "waas", "catalog", "guide", "policy"],
-            "Owner Role": ["Documentation Owner", "Governance Owner", "Security Owner", "Operations Owner", "Release Owner"],
-            "Approval Required": ["Yes", "No"],
-            "Evidence Required": ["Yes", "No"],
-            "Review Cycle": ["Annual", "Semiannual", "Quarterly", "Ad hoc"],
-            "Retention": ["Indefinite", "7 Years", "5 Years", "3 Years"],
-        }
-        
-        for field_name, options in single_select_fields.items():
-            field_id = self.create_single_select_field(field_name, options)
-            if field_id:
-                self.field_ids[field_name] = field_id
-            else:
-                print(f"❌ STOP: Failed to create field '{field_name}'")
-                return False
-        
-        # Text fields (as per requirements)
-        text_fields = [
-            "Document Path",
-            "Dependencies",
-            "Acceptance Criteria",
-            "RACI",
-            "KPIs"
-        ]
-        
-        for field_name in text_fields:
-            field_id = self.create_text_field(field_name)
-            if field_id:
-                self.field_ids[field_name] = field_id
-            else:
-                print(f"❌ STOP: Failed to create field '{field_name}'")
-                return False
-        
-        print(f"\n✅ Created {len(self.field_ids)} custom fields")
-        print("\n⚠️  Note: Multi-select fields (Compliance Tags, Evidence Artifacts)")
-        print("   must be created manually via UI as they are not fully supported via API")
-        
-        return True
+    def list_subdirectories(self, base_path: Path, relative_to: Path) -> List[Path]:
+        """List all subdirectories recursively."""
+        subdirs = []
+        for item in base_path.rglob("*"):
+            if item.is_dir():
+                rel_path = item.relative_to(relative_to)
+                subdirs.append(rel_path)
+        return sorted(subdirs)
 
-    def scan_repository(self, repo_path: Path) -> List[Tuple[Path, str]]:
-        """Scan repository for documentation files."""
+    def scan_repository(self, repo_path: Path) -> Tuple[List[Tuple[Path, str]], List[Path]]:
+        """Scan repository for documentation files and subdirectories."""
         print("\n🔍 Scanning repository...")
         
         docs_path = repo_path / "docs"
         templates_path = repo_path / "templates"
         
         files = []
+        subdirs = []
         
         # Scan docs directory
         if docs_path.exists():
@@ -325,9 +248,22 @@ class GitHubProjectV2Setup:
             for md_file in templates_path.rglob("*.md"):
                 rel_path = md_file.relative_to(repo_path)
                 files.append((rel_path, "Template"))
+            
+            # List subdirectories in templates/
+            subdirs = self.list_subdirectories(templates_path, repo_path)
         
         print(f"✅ Found {len(files)} documents")
-        return sorted(files)
+        print(f"✅ Found {len(subdirs)} subdirectories in templates/")
+        
+        return sorted(files), subdirs
+
+    def print_subdirectories(self, subdirs: List[Path]):
+        """Print list of subdirectories."""
+        print("\n📁 Subdirectories in templates/:")
+        print("="*70)
+        for subdir in subdirs:
+            print(f"  {subdir}")
+        print("="*70)
 
     def infer_document_type(self, path: Path) -> str:
         """Infer document type from path."""
@@ -365,7 +301,7 @@ class GitHubProjectV2Setup:
 
     def create_project_item(self, file_path: Path, purpose: str) -> bool:
         """Create a project item for a document."""
-        title = file_path.stem
+        title = f"{file_path.parent.name}/{file_path.stem}" if file_path.parent.name != "." else file_path.stem
         
         doc_type = self.infer_document_type(file_path)
         doc_subtype = self.infer_document_subtype(file_path, doc_type)
@@ -399,8 +335,9 @@ Source: Imported from repository scan"""
             item_id = result["data"]["addProjectV2DraftIssue"]["projectItem"]["id"]
             self.created_items.append(str(file_path))
             
-            # Set field values for the item
-            self.set_item_fields(item_id, file_path, doc_type, doc_subtype, approval_required)
+            # Set field values for the item if fields exist
+            if self.field_ids:
+                self.set_item_fields(item_id, file_path, doc_type, doc_subtype, approval_required)
             
             return True
         else:
@@ -490,7 +427,10 @@ Source: Imported from repository scan"""
         """Populate project with documentation items."""
         print("\n📝 Creating project items...")
         
-        files = self.scan_repository(repo_path)
+        files, subdirs = self.scan_repository(repo_path)
+        
+        # Print subdirectories
+        self.print_subdirectories(subdirs)
         
         total = len(files)
         for idx, (file_path, purpose) in enumerate(files, 1):
@@ -511,10 +451,57 @@ Source: Imported from repository scan"""
         print("\n" + "="*70)
         print("SUMMARY REPORT")
         print("="*70)
-        print(f"\n📊 Project: {self.project_title}")
-        print(f"   Number: {self.project_number}")
+        print(f"\n📊 Project Configuration:")
+        print(f"   Project Number: #{self.project_number}")
         print(f"   Organization: {self.org}")
-        print(f"\n📋 Custom Fields: {len(self.field_ids)} created")
+        print(f"   Project ID: {self.project_id if self.project_id else 'Not retrieved'}")
+        
+        print(f"\n📋 Custom Fields:")
+        print(f"   Fields retrieved: {len(self.field_ids)}")
+        if self.field_ids:
+            print(f"   Available fields: {', '.join(list(self.field_ids.keys())[:5])}")
+            if len(self.field_ids) > 5:
+                print(f"   ... and {len(self.field_ids) - 5} more")
+        
+        print(f"\n📄 Document Scanning:")
+        total_docs = len(self.created_items) + len(self.skipped_items)
+        print(f"   Documents scanned: {total_docs}")
+        print(f"   ✅ Tasks created: {len(self.created_items)}")
+        if self.skipped_items:
+            print(f"   ⚠️  Items skipped: {len(self.skipped_items)}")
+            print(f"      First few skipped:")
+            for item in self.skipped_items[:3]:
+                print(f"      - {item}")
+            if len(self.skipped_items) > 3:
+                print(f"      ... and {len(self.skipped_items) - 3} more")
+        
+        if self.errors:
+            print(f"\n❌ Errors Encountered: {len(self.errors)}")
+            print("   " + "-"*66)
+            for idx, error in enumerate(self.errors, 1):
+                print(f"   {idx}. {error}")
+                if idx >= 10:
+                    remaining = len(self.errors) - 10
+                    if remaining > 0:
+                        print(f"   ... and {remaining} more errors")
+                    break
+            print("   " + "-"*66)
+        else:
+            print("\n✅ No errors encountered")
+        
+        print("\n📖 Next Steps:")
+        if self.errors:
+            print("   1. Review errors above and address any issues")
+            print("   2. Check authentication if API calls failed")
+            print("   3. Verify project permissions")
+        else:
+            print("   1. Review created tasks in the project")
+            print(f"   2. Visit: https://github.com/orgs/{self.org}/projects/{self.project_number}")
+            print("   3. Configure task fields as needed")
+        
+        print("\n" + "="*70)
+        print(f"   Organization: {self.org}")
+        print(f"\n📋 Custom Fields: {len(self.field_ids)} found")
         print(f"📄 Documents Scanned: {len(self.created_items) + len(self.skipped_items)}")
         print(f"✅ Project Items Created: {len(self.created_items)}")
         
@@ -535,64 +522,73 @@ Source: Imported from repository scan"""
 
 def main():
     """Main execution function."""
+    parser = argparse.ArgumentParser(
+        description="Populate GitHub Project v2 with documentation tasks"
+    )
+    parser.add_argument(
+        "--project-number",
+        type=int,
+        default=7,
+        help="GitHub Project number (default: 7)"
+    )
+    parser.add_argument(
+        "--org",
+        type=str,
+        default="mokoconsulting-tech",
+        help="GitHub organization (default: mokoconsulting-tech)"
+    )
+    parser.add_argument(
+        "--repo-path",
+        type=Path,
+        default=Path("/home/runner/work/MokoStandards/MokoStandards"),
+        help="Repository path"
+    )
+    
+    args = parser.parse_args()
+    
     print("="*70)
-    print("GitHub Project v2 Setup")
+    print("GitHub Project v2 Population Script")
     print("MokoStandards Documentation Control Register")
     print("="*70)
-    
-    # Configuration
-    ORG = "mokoconsulting-tech"
-    PROJECT_TITLE = "MokoStandards Documentation Control Register"
-    REPO_PATH = Path("/home/runner/work/MokoStandards/MokoStandards")
     
     # Get token from environment (GH_PAT secret)
     token = os.environ.get("GH_PAT")
     
-    # Initialize setup
-    setup = GitHubProjectV2Setup(ORG, PROJECT_TITLE, token)
+    # Initialize populator
+    populator = GitHubProjectV2Populator(args.org, args.project_number, token)
     
     # Step 1: Verify authentication
     print("\n🔐 Step 1: Verifying authentication...")
-    if not setup.verify_auth():
+    if not populator.verify_auth():
         print("\n❌ STOP: Authentication required")
         print("\nPlease either:")
         print("  1. Set GH_PAT environment variable: export GH_PAT='your_token'")
         print("  2. Authenticate gh CLI: gh auth login")
         sys.exit(1)
     
-    # Step 2: Get organization ID
-    print("\n🏢 Step 2: Getting organization ID...")
-    org_id = setup.get_org_id()
-    if not org_id:
-        print("\n❌ STOP: Failed to get organization ID")
-        print("Ensure the token has 'read:org' permission")
+    # Step 2: Get project
+    print(f"\n📁 Step 2: Getting Project #{args.project_number}...")
+    if not populator.get_project_id():
+        print("\n❌ STOP: Failed to find project")
+        print(f"Ensure Project #{args.project_number} exists in {args.org}")
         sys.exit(1)
     
-    # Step 3: Create project
-    print("\n📁 Step 3: Creating GitHub Project v2...")
-    if not setup.create_project(org_id):
-        print("\n❌ STOP: Failed to create project")
-        print("Ensure the token has 'project' (write) permission")
-        sys.exit(1)
+    # Step 3: Get project fields
+    print("\n🔧 Step 3: Retrieving project fields...")
+    populator.get_project_fields()
     
-    # Step 4: Create custom fields
-    print("\n🔧 Step 4: Creating custom fields...")
-    if not setup.create_all_fields():
-        print("\n❌ STOP: Failed to create custom fields")
-        sys.exit(1)
-    
-    # Step 5: Scan and populate
-    print("\n📚 Step 5: Scanning repository and creating items...")
-    if not setup.populate_project(REPO_PATH):
+    # Step 4: Scan and populate
+    print("\n📚 Step 4: Scanning repository and creating items...")
+    if not populator.populate_project(args.repo_path):
         print("\n❌ STOP: Failed to populate project")
         sys.exit(1)
     
     # Print summary
-    setup.print_summary()
+    populator.print_summary()
     
-    print("\n✅ Project v2 setup completed successfully!")
+    print("\n✅ Project population completed successfully!")
     print(f"\nView your project at:")
-    print(f"https://github.com/orgs/{ORG}/projects/{setup.project_number}")
+    print(f"https://github.com/orgs/{args.org}/projects/{args.project_number}")
 
 
 if __name__ == "__main__":

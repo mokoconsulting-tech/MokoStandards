@@ -70,3 +70,5 @@ replit.md
 # Keep-empty folders helper
 # ============================================================
 !.gitkeep
+__pycache__/
+*.pyc

@@ -13,7 +13,7 @@ This directory contains automation scripts for managing the GitHub Project v2 "M
 
 ## Available Scripts
 
-### 1. `setup_github_project_v2.py` - Create New Project
+### 1. `setup_github_project_v2.py` - Create New Project ⭐ ENHANCED
 
 Creates a brand new GitHub Project v2 and populates it with documentation tasks.
 
@@ -21,7 +21,45 @@ Creates a brand new GitHub Project v2 and populates it with documentation tasks.
 ```bash
 export GH_PAT="your_personal_access_token"
 python3 scripts/setup_github_project_v2.py
+
+# With verbose logging
+python3 scripts/setup_github_project_v2.py --verbose
+
+# Skip view documentation
+python3 scripts/setup_github_project_v2.py --skip-views
 ```
+
+**New Features:**
+- ✅ `--verbose` flag for detailed error logging and debug output
+- ✅ Enhanced error messages with stack traces
+- ✅ Verbose logging for GraphQL queries and responses
+- ✅ Structured error context and details
+- ✅ Automatic view documentation (Board, Table, Roadmap)
+- ✅ `--skip-views` flag to skip view documentation
+
+### 1b. `setup_project_7.py` - Create or Update Project #7 ⭐ NEW
+
+Creates or updates GitHub Project #7 specifically with version tracking.
+
+**Usage:**
+```bash
+export GH_PAT="your_personal_access_token"
+python3 scripts/setup_project_7.py --target-version "1.0.0"
+
+# With verbose logging
+python3 scripts/setup_project_7.py --verbose --target-version "2.0.0"
+
+# Skip view documentation
+python3 scripts/setup_project_7.py --skip-views --target-version "1.0.0"
+```
+
+**Features:**
+- ✅ Targets specific project number (#7)
+- ✅ Adds "Target Version Number" custom field
+- ✅ Checks for existing project to avoid duplicates
+- ✅ All items tagged with target version
+- ✅ Verbose error handling
+- ✅ View documentation
 
 ### 2. `populate_project_from_scan.py` - Populate Existing Project
 
@@ -79,6 +117,46 @@ python3 scripts/setup_project_views.py --project-number 7
   - High Risk and Blockers (executive dashboard)
 - Links to `/docs/guide/project-views.md` for complete specifications
 - Works in documentation mode without authentication
+
+## GitHub Actions Workflows ⭐ NEW
+
+### Workflow 1: `setup_project_v2.yml` - Automated Project Setup
+
+Automates the creation of new GitHub Projects v2 via GitHub Actions.
+
+**How to use:**
+1. Go to Actions tab in GitHub
+2. Select "Setup GitHub Project v2" workflow
+3. Click "Run workflow"
+4. Optionally enable verbose logging
+5. Optionally skip view documentation
+
+**Inputs:**
+- `verbose` (boolean): Enable verbose logging
+- `skip_views` (boolean): Skip view documentation
+
+**Requirements:**
+- `GH_PAT` secret must be configured in repository secrets
+
+### Workflow 2: `setup_project_7.yml` - Automated Project #7 Setup
+
+Automates the creation or update of Project #7 with version tracking.
+
+**How to use:**
+1. Go to Actions tab in GitHub
+2. Select "Setup Project 7" workflow
+3. Click "Run workflow"
+4. Enter target version (e.g., "1.0.0")
+5. Optionally enable verbose logging
+6. Optionally skip view documentation
+
+**Inputs:**
+- `target_version` (string, required): Target version number for documentation
+- `verbose` (boolean): Enable verbose logging
+- `skip_views` (boolean): Skip view documentation
+
+**Requirements:**
+- `GH_PAT` secret must be configured in repository secrets
 
 ## Authentication
 

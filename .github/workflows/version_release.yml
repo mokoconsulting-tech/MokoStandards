@@ -113,12 +113,11 @@ jobs:
             ### Changes
             - ✅ Moved UNRELEASED items to version ${{ inputs.version }} in CHANGELOG.md
             ${{ inputs.update_files && '- ✅ Updated VERSION header in all repository files' || '' }}
-            ${{ inputs.create_release && format('- ⏳ GitHub release will be created after merge (tag: v{0})', inputs.version) || '' }}
 
             ### Next Steps
             1. Review the changelog and version updates
             2. Merge this PR to complete the release
-            ${{ inputs.create_release && '3. GitHub release will be automatically created with tag v' || '' }}${{ inputs.create_release && inputs.version || '' }}
+            ${{ inputs.create_release && format('3. After merge, create GitHub release using script or gh CLI (see comment below for instructions)', inputs.version) || '' }}
 
             ### Release Notes
             See CHANGELOG.md for detailed release notes.
@@ -139,52 +138,30 @@ jobs:
                 issue_number: prNumber,
                 body: `### GitHub Release Instructions
 
-                After merging this PR, the GitHub release will be created automatically:
+                After merging this PR, create the GitHub release by running:
 
-                **Tag**: \`v${{ inputs.version }}\`
-                **Title**: Release ${{ inputs.version }}
-                **Notes**: Extracted from CHANGELOG.md
-
-                Alternatively, you can manually create the release by running:
+                **Option 1 - Using the script**:
                 \`\`\`bash
-                gh release create v${{ inputs.version }} --title "Release ${{ inputs.version }}" --notes-file <(sed -n '/## \\[${{ inputs.version }}\\]/,/## \\[/p' CHANGELOG.md | sed '1d;$d')
+                # Checkout main branch after merge
+                git checkout main
+                git pull
+
+                # Create GitHub release with extracted notes
+                python3 scripts/release_version.py --version ${{ inputs.version }} --create-release
                 \`\`\`
+
+                **Option 2 - Using gh CLI directly**:
+                \`\`\`bash
+                gh release create v${{ inputs.version }} \\
+                  --title "Release ${{ inputs.version }}" \\
+                  --notes-file <(sed -n '/## \\[${{ inputs.version }}\\]/,/## \\[/p' CHANGELOG.md | sed '1d;$d')
+                \`\`\`
+
+                **Option 3 - Manually via GitHub UI**:
+                1. Go to Releases → Draft a new release
+                2. Tag: \`v${{ inputs.version }}\`
+                3. Title: \`Release ${{ inputs.version }}\`
+                4. Copy release notes from CHANGELOG.md section \`[${{ inputs.version }}]\`
                 `
               });
             }
-
-  create-github-release:
-    needs: release
-    if: inputs.create_release && github.event.pull_request.merged == true
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.merge_commit_sha }}
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Extract release notes
-        id: extract_notes
-        run: |
-          python3 scripts/release_version.py \
-            --version "${{ inputs.version }}" \
-            --create-release
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: v${{ inputs.version }}
-          name: Release ${{ inputs.version }}
-          body_path: RELEASE_NOTES.md
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

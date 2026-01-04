@@ -108,14 +108,24 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const res = await github.rest.repos.getCollaboratorPermissionLevel({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              username: context.actor,
-            });
-
-            const permission = (res?.data?.permission || "unknown").toLowerCase();
-            const allowed = permission === "admin";
+            let permission = "unknown";
+            let allowed = false;
+            
+            try {
+              const res = await github.rest.repos.getCollaboratorPermissionLevel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                username: context.actor,
+              });
+              
+              permission = (res?.data?.permission || "unknown").toLowerCase();
+              allowed = permission === "admin";
+            } catch (error) {
+              // Handle cases where actor is not a valid user (e.g., bot accounts)
+              core.warning(`Could not fetch permissions for actor '${context.actor}': ${error.message}`);
+              permission = "unknown";
+              allowed = false;
+            }
 
             core.setOutput("permission", permission);
             core.setOutput("allowed", allowed ? "true" : "false");

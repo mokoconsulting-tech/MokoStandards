@@ -167,6 +167,51 @@ class GitHubProjectV2Setup:
                     print(f"   Error: {error.get('message', error)}")
             return False
 
+    def get_existing_fields(self) -> Dict[str, Dict]:
+        """Get existing fields in the project."""
+        query = """
+        query($projectId: ID!) {
+            node(id: $projectId) {
+                ... on ProjectV2 {
+                    fields(first: 100) {
+                        nodes {
+                            ... on ProjectV2Field {
+                                id
+                                name
+                                dataType
+                            }
+                            ... on ProjectV2SingleSelectField {
+                                id
+                                name
+                                dataType
+                                options {
+                                    id
+                                    name
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        """
+        
+        result = self.run_graphql(query, {"projectId": self.project_id})
+        
+        existing_fields = {}
+        if result and "data" in result and result["data"].get("node"):
+            fields_data = result["data"]["node"].get("fields", {}).get("nodes", [])
+            for field in fields_data:
+                if field and "name" in field:
+                    field_name = field["name"]
+                    existing_fields[field_name] = {
+                        "id": field["id"],
+                        "dataType": field.get("dataType"),
+                        "options": field.get("options", [])
+                    }
+        
+        return existing_fields
+
     @staticmethod
     def get_option_color(option_name: str) -> str:
         """Get appropriate color for an option based on its name."""
@@ -202,8 +247,22 @@ class GitHubProjectV2Setup:
         # Default color if not found
         return color_map.get(option_name.lower(), "GRAY")
 
-    def create_single_select_field(self, name: str, options: List[str]) -> Optional[str]:
-        """Create a single-select field."""
+    def create_single_select_field(self, name: str, options: List[str], existing_fields: Dict[str, Dict] = None) -> Optional[str]:
+        """Create a single-select field or return existing field ID if it already exists."""
+        # Check if field already exists
+        if existing_fields and name in existing_fields:
+            field_info = existing_fields[name]
+            print(f"  ℹ️  Field '{name}' already exists, using existing field")
+            
+            # Store option IDs for later use
+            if "options" in field_info and field_info["options"]:
+                self.field_option_ids[name] = {
+                    opt["name"]: opt["id"] for opt in field_info["options"]
+                }
+            
+            return field_info["id"]
+        
+        # Field doesn't exist, create it
         mutation = """
         mutation($projectId: ID!, $name: String!, $options: [ProjectV2SingleSelectFieldOptionInput!]!) {
             createProjectV2Field(input: {
@@ -260,8 +319,15 @@ class GitHubProjectV2Setup:
                     print(f"     Error: {error.get('message', error)}")
             return None
 
-    def create_text_field(self, name: str) -> Optional[str]:
-        """Create a text field."""
+    def create_text_field(self, name: str, existing_fields: Dict[str, Dict] = None) -> Optional[str]:
+        """Create a text field or return existing field ID if it already exists."""
+        # Check if field already exists
+        if existing_fields and name in existing_fields:
+            field_info = existing_fields[name]
+            print(f"  ℹ️  Field '{name}' already exists, using existing field")
+            return field_info["id"]
+        
+        # Field doesn't exist, create it
         mutation = """
         mutation($projectId: ID!, $name: String!) {
             createProjectV2Field(input: {
@@ -299,6 +365,12 @@ class GitHubProjectV2Setup:
         """Create all custom fields."""
         print("\n📋 Creating custom fields...")
         
+        # Get existing fields first
+        print("  🔍 Checking for existing fields...")
+        existing_fields = self.get_existing_fields()
+        if existing_fields:
+            print(f"  ℹ️  Found {len(existing_fields)} existing fields")
+        
         # Single-select fields (as per requirements)
         single_select_fields = {
             "Status": ["Planned", "In Progress", "In Review", "Approved", "Published", "Blocked", "Archived"],
@@ -314,7 +386,7 @@ class GitHubProjectV2Setup:
         }
         
         for field_name, options in single_select_fields.items():
-            field_id = self.create_single_select_field(field_name, options)
+            field_id = self.create_single_select_field(field_name, options, existing_fields)
             if field_id:
                 self.field_ids[field_name] = field_id
             else:
@@ -331,14 +403,14 @@ class GitHubProjectV2Setup:
         ]
         
         for field_name in text_fields:
-            field_id = self.create_text_field(field_name)
+            field_id = self.create_text_field(field_name, existing_fields)
             if field_id:
                 self.field_ids[field_name] = field_id
             else:
                 print(f"❌ STOP: Failed to create field '{field_name}'")
                 return False
         
-        print(f"\n✅ Created {len(self.field_ids)} custom fields")
+        print(f"\n✅ Created/verified {len(self.field_ids)} custom fields")
         print("\n⚠️  Note: Multi-select fields (Compliance Tags, Evidence Artifacts)")
         print("   must be created manually via UI as they are not fully supported via API")
         

@@ -1,0 +1,325 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.Quality
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /templates/workflows/generic/code-quality.yml
+# VERSION: 01.00.00
+# BRIEF: Comprehensive code quality analysis workflow
+# NOTE: Supports multiple linters, formatters, and static analysis tools
+
+name: Code Quality
+
+on:
+  push:
+    branches:
+      - main
+      - dev/**
+  pull_request:
+    branches:
+      - main
+      - dev/**
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+  security-events: write
+
+jobs:
+  lint:
+    name: Linting & Formatting
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Detect project type
+        id: detect
+        run: |
+          if [ -f "package.json" ]; then
+            echo "type=nodejs" >> $GITHUB_OUTPUT
+          elif [ -f "requirements.txt" ] || [ -f "setup.py" ]; then
+            echo "type=python" >> $GITHUB_OUTPUT
+          elif [ -f "composer.json" ]; then
+            echo "type=php" >> $GITHUB_OUTPUT
+          elif [ -f "go.mod" ]; then
+            echo "type=go" >> $GITHUB_OUTPUT
+          elif [ -f "Cargo.toml" ]; then
+            echo "type=rust" >> $GITHUB_OUTPUT
+          else
+            echo "type=unknown" >> $GITHUB_OUTPUT
+          fi
+
+      # Node.js linting
+      - name: Setup Node.js
+        if: steps.detect.outputs.type == 'nodejs'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install Node dependencies
+        if: steps.detect.outputs.type == 'nodejs'
+        run: npm ci
+
+      - name: Run ESLint
+        if: steps.detect.outputs.type == 'nodejs'
+        run: |
+          npm run lint || npx eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0 || true
+        continue-on-error: true
+
+      - name: Run Prettier
+        if: steps.detect.outputs.type == 'nodejs'
+        run: |
+          npx prettier --check . || true
+        continue-on-error: true
+
+      # Python linting
+      - name: Setup Python
+        if: steps.detect.outputs.type == 'python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python linters
+        if: steps.detect.outputs.type == 'python'
+        run: |
+          pip install flake8 black isort mypy pylint bandit
+
+      - name: Run Flake8
+        if: steps.detect.outputs.type == 'python'
+        run: |
+          flake8 . --count --statistics --show-source
+        continue-on-error: true
+
+      - name: Run Black
+        if: steps.detect.outputs.type == 'python'
+        run: |
+          black --check .
+        continue-on-error: true
+
+      - name: Run isort
+        if: steps.detect.outputs.type == 'python'
+        run: |
+          isort --check-only .
+        continue-on-error: true
+
+      - name: Run Pylint
+        if: steps.detect.outputs.type == 'python'
+        run: |
+          pylint **/*.py || true
+        continue-on-error: true
+
+      # PHP linting
+      - name: Setup PHP
+        if: steps.detect.outputs.type == 'php'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer, phpcs, php-cs-fixer, phpstan, psalm
+
+      - name: Install PHP dependencies
+        if: steps.detect.outputs.type == 'php'
+        run: composer install --prefer-dist
+
+      - name: Run PHP_CodeSniffer
+        if: steps.detect.outputs.type == 'php'
+        run: |
+          phpcs --standard=PSR12 --report=summary . || true
+        continue-on-error: true
+
+      - name: Run PHP-CS-Fixer
+        if: steps.detect.outputs.type == 'php'
+        run: |
+          php-cs-fixer fix --dry-run --diff . || true
+        continue-on-error: true
+
+      # Go linting
+      - name: Setup Go
+        if: steps.detect.outputs.type == 'go'
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Run golangci-lint
+        if: steps.detect.outputs.type == 'go'
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+
+      - name: Run go fmt
+        if: steps.detect.outputs.type == 'go'
+        run: |
+          if [ -n "$(gofmt -l .)" ]; then
+            echo "Go files are not formatted:"
+            gofmt -l .
+            exit 1
+          fi
+
+      # Rust linting
+      - name: Setup Rust
+        if: steps.detect.outputs.type == 'rust'
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          components: clippy, rustfmt
+
+      - name: Run cargo fmt
+        if: steps.detect.outputs.type == 'rust'
+        run: cargo fmt --all -- --check
+
+      - name: Run cargo clippy
+        if: steps.detect.outputs.type == 'rust'
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+  static-analysis:
+    name: Static Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run CodeQL Analysis
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript, python, go
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+  dependency-check:
+    name: Dependency Security Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Snyk Security Check
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Run npm audit
+        if: hashFiles('package-lock.json') != ''
+        run: npm audit --audit-level=moderate || true
+
+      - name: Run pip safety check
+        if: hashFiles('requirements.txt') != ''
+        run: |
+          pip install safety
+          safety check -r requirements.txt || true
+
+  complexity:
+    name: Code Complexity Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install radon
+        run: pip install radon
+
+      - name: Calculate cyclomatic complexity
+        run: |
+          if [ -d "src" ] || [ -d "lib" ]; then
+            radon cc . -a -nb || true
+          fi
+
+      - name: Calculate maintainability index
+        run: |
+          if [ -d "src" ] || [ -d "lib" ]; then
+            radon mi . -nb || true
+          fi
+
+  coverage:
+    name: Code Coverage Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Detect project type
+        id: detect
+        run: |
+          if [ -f "package.json" ]; then
+            echo "type=nodejs" >> $GITHUB_OUTPUT
+          elif [ -f "requirements.txt" ]; then
+            echo "type=python" >> $GITHUB_OUTPUT
+          elif [ -f "go.mod" ]; then
+            echo "type=go" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup and run coverage
+        run: |
+          TYPE="${{ steps.detect.outputs.type }}"
+          
+          case $TYPE in
+            nodejs)
+              npm ci
+              npm test -- --coverage || true
+              ;;
+            python)
+              pip install pytest pytest-cov
+              pytest --cov=. --cov-report=xml || true
+              ;;
+            go)
+              go test -coverprofile=coverage.out ./... || true
+              ;;
+          esac
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml,./coverage.out
+          flags: quality-check
+
+  summary:
+    name: Quality Summary
+    runs-on: ubuntu-latest
+    needs: [lint, static-analysis, dependency-check, complexity, coverage]
+    if: always()
+    
+    steps:
+      - name: Generate quality report
+        run: |
+          echo "### Code Quality Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Repository: $GITHUB_REPOSITORY" >> $GITHUB_STEP_SUMMARY
+          echo "- Branch: $GITHUB_REF_NAME" >> $GITHUB_STEP_SUMMARY
+          echo "- Commit: $GITHUB_SHA" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Quality checks completed:" >> $GITHUB_STEP_SUMMARY
+          echo "- Linting: ${{ needs.lint.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Static Analysis: ${{ needs.static-analysis.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Dependencies: ${{ needs.dependency-check.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Complexity: ${{ needs.complexity.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Coverage: ${{ needs.coverage.result }}" >> $GITHUB_STEP_SUMMARY

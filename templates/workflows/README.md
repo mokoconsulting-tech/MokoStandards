@@ -41,11 +41,20 @@ templates/workflows/
 ├── ci-joomla.yml         # Joomla CI workflow (for backward compatibility)
 ├── repo_health.yml       # Generic repo health workflow (for backward compatibility)
 ├── version_branch.yml    # Version branch workflow (for backward compatibility)
-├── joomla/               # Joomla-specific workflow templates (recommended)
+├── joomla/               # Joomla-specific workflow templates
 │   ├── ci.yml            # Continuous integration for Joomla projects
+│   ├── test.yml          # Testing workflow with PHPUnit and code quality
+│   ├── release.yml       # Automated release and package creation
 │   ├── repo_health.yml   # Repository health checks for Joomla
 │   └── version_branch.yml # Version branch automation
-└── generic/              # Generic/platform-agnostic workflow templates (recommended)
+├── dolibarr/             # Dolibarr-specific workflow templates
+│   ├── ci.yml            # Continuous integration for Dolibarr modules
+│   └── test.yml          # Testing workflow for Dolibarr modules
+└── generic/              # Generic/platform-agnostic workflow templates
+    ├── ci.yml            # Multi-language CI (Node.js, Python, PHP, Go, Ruby, Rust)
+    ├── test.yml          # Comprehensive testing (unit, integration, e2e)
+    ├── deploy.yml        # Deployment workflow for multiple environments
+    ├── code-quality.yml  # Code quality, linting, and static analysis
     └── repo_health.yml   # Repository health checks for generic projects
 ```
 
@@ -58,13 +67,26 @@ templates/workflows/
 Workflow templates specifically designed for Joomla extensions (components, modules, plugins, libraries, packages, templates):
 
 - **ci.yml** - Continuous integration workflow with PHP validation, XML checking, and manifest verification
+- **test.yml** - Comprehensive testing with PHPUnit, code quality checks, and integration tests
+- **release.yml** - Automated release workflow for creating and publishing Joomla extension packages
 - **repo_health.yml** - Repository health monitoring including documentation checks and standards validation
 - **version_branch.yml** - Automated version branch management and release preparation
 
+### Dolibarr Templates (`dolibarr/`)
+
+Workflow templates specifically designed for Dolibarr ERP/CRM modules:
+
+- **ci.yml** - Continuous integration for Dolibarr modules with structure validation, PHP syntax checking, and security checks
+- **test.yml** - Automated testing workflow with PHPUnit tests and Dolibarr environment integration
+
 ### Generic Templates (`generic/`)
 
-Platform-agnostic workflow templates for non-Joomla projects:
+Platform-agnostic workflow templates for multi-language software development:
 
+- **ci.yml** - Multi-language continuous integration with automatic language detection (supports Node.js, Python, PHP, Go, Ruby, Rust)
+- **test.yml** - Comprehensive testing workflow supporting unit tests, integration tests, and end-to-end tests
+- **deploy.yml** - Deployment workflow for staging and production environments with rollback capabilities
+- **code-quality.yml** - Code quality analysis with linting, formatting, static analysis, dependency checks, and security scanning
 - **repo_health.yml** - Repository health monitoring for generic projects
 
 ## Available Templates
@@ -132,13 +154,154 @@ Automated version branching and version bumping workflow.
 **Usage:**
 Copy to your repository as `.github/workflows/version_branch.yml`. Run manually via workflow_dispatch.
 
+### joomla/test.yml
+Comprehensive testing workflow for Joomla extensions.
+
+**Features:**
+- PHPUnit tests across multiple PHP and Joomla versions
+- Code quality checks (PHPCS, PHPStan, Psalm)
+- Integration tests with MySQL database
+- Code coverage reporting with Codecov integration
+
+**Matrix Testing:**
+- PHP versions: 7.4, 8.0, 8.1, 8.2
+- Joomla versions: 4.4, 5.0
+
+**Usage:**
+Copy to your repository as `.github/workflows/test.yml`.
+
+### joomla/release.yml
+Automated release and package creation workflow for Joomla extensions.
+
+**Features:**
+- Builds release packages from tags or manual triggers
+- Updates version numbers in manifest files
+- Creates ZIP packages with proper structure
+- Generates checksums (SHA256 and MD5)
+- Creates GitHub releases with changelog extraction
+- Uploads release artifacts
+
+**Triggers:**
+- Push to tags matching `v*.*.*`
+- Manual workflow dispatch with version input
+
+**Usage:**
+Copy to your repository as `.github/workflows/release.yml`.
+
+### dolibarr/ci.yml
+Continuous integration workflow for Dolibarr modules.
+
+**Features:**
+- Module structure validation
+- PHP syntax checking across PHP 7.4-8.2 and Dolibarr 16.0-18.0
+- Dolibarr API usage validation
+- Database schema validation
+- License header compliance
+- Code quality checks (PHPCS, PHPStan)
+- Security scanning (hardcoded credentials, SQL injection, XSS)
+
+**Usage:**
+Copy to your repository as `.github/workflows/ci.yml`.
+
+### dolibarr/test.yml
+Testing workflow for Dolibarr modules with full environment setup.
+
+**Features:**
+- PHPUnit tests with Dolibarr environment
+- Automatic Dolibarr installation and configuration
+- MySQL database integration
+- Module linking and installation
+- Integration tests support
+- Code coverage reporting
+
+**Usage:**
+Copy to your repository as `.github/workflows/test.yml`.
+
+### generic/ci.yml
+Multi-language continuous integration workflow with automatic language detection.
+
+**Features:**
+- Automatic project language detection (Node.js, Python, PHP, Go, Ruby, Rust)
+- Parallel testing across language matrices
+- Language-specific linting and code quality checks
+- Security scanning with Trivy
+- Comprehensive test execution
+
+**Supported Languages:**
+- Node.js (16.x, 18.x, 20.x)
+- Python (3.8, 3.9, 3.10, 3.11)
+- PHP (7.4, 8.0, 8.1, 8.2)
+- Go (1.20, 1.21, 1.22)
+- Ruby (2.7, 3.0, 3.1, 3.2)
+- Rust (stable, beta)
+
+**Usage:**
+Copy to your repository as `.github/workflows/ci.yml`.
+
+### generic/test.yml
+Comprehensive testing workflow supporting unit, integration, and end-to-end tests.
+
+**Features:**
+- Automatic project type detection
+- Unit tests with coverage reporting
+- Integration tests with PostgreSQL and Redis
+- End-to-end tests with Playwright
+- Codecov integration
+- Test result summaries
+
+**Usage:**
+Copy to your repository as `.github/workflows/test.yml`.
+
+### generic/deploy.yml
+Deployment workflow for multiple environments with rollback capabilities.
+
+**Features:**
+- Automatic environment detection (staging, production, development)
+- Multi-language build support
+- Separate staging and production deployment jobs
+- Smoke tests after deployment
+- Automatic rollback on failure
+- Deployment notifications
+
+**Triggers:**
+- Push to main or staging branches
+- Release publication
+- Manual workflow dispatch
+
+**Usage:**
+Copy to your repository as `.github/workflows/deploy.yml`. Configure deployment commands for your infrastructure.
+
+### generic/code-quality.yml
+Comprehensive code quality analysis workflow.
+
+**Features:**
+- Multi-language linting and formatting
+  - JavaScript/TypeScript: ESLint, Prettier
+  - Python: Flake8, Black, isort, Pylint, Bandit
+  - PHP: PHPCS, PHP-CS-Fixer, PHPStan, Psalm
+  - Go: golangci-lint, go fmt
+  - Rust: cargo fmt, cargo clippy
+- Static analysis with CodeQL
+- Dependency security checks (Snyk, npm audit, pip safety)
+- Code complexity analysis with radon
+- Code coverage analysis
+
+**Usage:**
+Copy to your repository as `.github/workflows/code-quality.yml`.
+
 ## Usage
 
 ### For New Projects
 
-1. Choose the appropriate template directory for your project type (joomla or generic)
+1. Choose the appropriate template directory for your project type:
+   - **Joomla extensions** → `joomla/`
+   - **Dolibarr modules** → `dolibarr/`
+   - **Other projects** → `generic/`
 2. Copy the relevant workflow files to your project's `.github/workflows/` directory
-3. Customize the workflow parameters as needed for your specific project
+3. Customize the workflow parameters as needed for your specific project:
+   - Update FILE INFORMATION headers with correct paths
+   - Adjust branch patterns to match your branching strategy
+   - Configure environment-specific settings (deployment URLs, secrets, etc.)
 4. Commit and push to enable the workflows
 
 ### For Existing Projects
@@ -175,10 +338,53 @@ When copying templates to your repository:
 
 ## Workflow Dependencies
 
-### ci-joomla.yml requires:
+### Joomla Workflows
+
+**ci.yml requires:**
 - `scripts/validate/manifest.sh`
 - `scripts/validate/xml_wellformed.sh`
 - Optional validation scripts in `scripts/validate/`
+
+**test.yml requires:**
+- PHPUnit configuration (`phpunit.xml` or `phpunit.xml.dist`)
+- Composer for dependency management
+- Optional: PHPCS, PHPStan, Psalm configurations
+
+**release.yml requires:**
+- Git tags following semver pattern (`v*.*.*`)
+- XML manifest files for version updates
+- Optional: CHANGELOG.md for release notes
+
+### Dolibarr Workflows
+
+**ci.yml requires:**
+- Module descriptor in `core/modules/modMyModule.class.php`
+- Proper Dolibarr module directory structure
+- Optional: `scripts/validate/` directory for custom validation
+
+**test.yml requires:**
+- PHPUnit configuration
+- MySQL database (provided by GitHub Actions services)
+- Dolibarr installation (automated in workflow)
+
+### Generic Workflows
+
+**ci.yml requires:**
+- Language-specific package managers (npm, pip, composer, go, bundler, cargo)
+- Test configurations for your language
+
+**test.yml requires:**
+- Test framework configuration (Jest, pytest, PHPUnit, etc.)
+- Optional: PostgreSQL and Redis (provided by services)
+- Optional: Playwright for E2E tests
+
+**deploy.yml requires:**
+- Environment secrets configured in GitHub repository settings
+- Deployment target configuration (servers, cloud platforms, etc.)
+
+**code-quality.yml requires:**
+- Optional: Snyk token for security scanning
+- Language-specific linter configurations
 
 ### repo_health.yml requires:
 - Python 3.x (for JSON processing)
@@ -193,13 +399,20 @@ When copying templates to your repository:
 All MokoStandards-governed repositories MUST implement:
 
 1. **CI workflow** - For build validation and testing
+   - Use `joomla/ci.yml` for Joomla extensions
+   - Use `dolibarr/ci.yml` for Dolibarr modules
+   - Use `generic/ci.yml` for other projects
 2. **Repository health workflow** - For ongoing compliance monitoring
 
 Optional but recommended:
 
-3. **Version branch workflow** - For repositories using version-based branching
-4. **Security scanning** - CodeQL or equivalent (now in main .github/workflows/)
-5. **Dependency updates** - Dependabot (configured in .github/dependabot.yml)
+3. **Test workflow** - For comprehensive automated testing
+4. **Release workflow** - For automated release management (Joomla projects)
+5. **Deploy workflow** - For automated deployments (web applications)
+6. **Code quality workflow** - For advanced code analysis
+7. **Version branch workflow** - For repositories using version-based branching
+8. **Security scanning** - CodeQL or equivalent (now in main .github/workflows/)
+9. **Dependency updates** - Dependabot (configured in .github/dependabot.yml)
 
 ## Standards Compliance
 
@@ -252,6 +465,11 @@ The separation allows:
 3. **Review step summaries** in GitHub Actions UI after runs
 4. **Use workflow concurrency** to prevent simultaneous runs
 5. **Set appropriate timeouts** for long-running operations
+6. **Configure secrets properly** - Use GitHub repository secrets for sensitive data
+7. **Start with basic workflows** - Begin with CI and testing, then add advanced workflows
+8. **Monitor workflow costs** - Be aware of GitHub Actions minutes usage
+9. **Use matrix strategies** - Test across multiple versions when appropriate
+10. **Document customizations** - Add comments explaining any deviations from templates
 
 ## Support and Feedback
 
@@ -297,6 +515,7 @@ Use of these templates helps ensure:
 | -------- | ---------- | ------------------------------------------------ |
 | 01.00.00 | 2026-01-04 | Initial workflow templates for MokoStandards     |
 | 01.00.01 | 2026-01-04 | Consolidated templates to /templates/workflows/  |
+| 01.01.00 | 2026-01-04 | Added comprehensive development workflow templates |
 
 ## Revision History
 
@@ -304,3 +523,4 @@ Use of these templates helps ensure:
 | ---------- | --------------------------------------------------- | --------------- |
 | 2026-01-04 | Initial creation with consolidated workflow templates | Moko Consulting |
 | 2026-01-04 | Moved to /templates/workflows/ directory            | Moko Consulting |
+| 2026-01-04 | Added Joomla test.yml, release.yml; Dolibarr ci.yml, test.yml; Generic ci.yml, test.yml, deploy.yml, code-quality.yml | Moko Consulting |

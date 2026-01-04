@@ -2,7 +2,15 @@
 
 ## Purpose
 
-This index provides navigation to documentation within this folder.
+This directory contains GitHub Actions workflow templates specifically designed for Joomla extension development.
+
+## Available Templates
+
+- **ci.yml** - Continuous integration workflow with PHP validation, XML checking, and manifest verification
+- **test.yml** - Comprehensive testing workflow with PHPUnit, code quality checks, and integration tests
+- **release.yml** - Automated release workflow for creating and publishing Joomla extension packages
+- **repo_health.yml** - Repository health monitoring including documentation checks and standards validation
+- **version_branch.yml** - Automated version branch management and release preparation
 
 ## Metadata
 

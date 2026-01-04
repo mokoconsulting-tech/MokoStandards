@@ -2,16 +2,17 @@
 
 ## Purpose
 
-This index provides navigation to documentation within this folder.
+This index provides navigation to GitHub Actions workflow templates organized by project type.
 
 ## Subfolders
 
-- [generic/](./generic/index.md)
-- [joomla/](./joomla/index.md)
+- [dolibarr/](./dolibarr/index.md) - Workflow templates for Dolibarr ERP/CRM modules
+- [generic/](./generic/index.md) - Multi-language workflow templates for generic projects
+- [joomla/](./joomla/index.md) - Workflow templates for Joomla extensions
 
 ## Documents
 
-- [README](./README.md)
+- [README](./README.md) - Comprehensive documentation for all workflow templates
 
 ## Metadata
 

@@ -2,7 +2,15 @@
 
 ## Purpose
 
-This index provides navigation to documentation within this folder.
+This directory contains GitHub Actions workflow templates for generic software development projects supporting multiple programming languages.
+
+## Available Templates
+
+- **ci.yml** - Multi-language continuous integration workflow with automatic language detection (Node.js, Python, PHP, Go, Ruby, Rust)
+- **test.yml** - Comprehensive testing workflow supporting unit tests, integration tests, and end-to-end tests
+- **deploy.yml** - Deployment workflow for staging and production environments with rollback capabilities
+- **code-quality.yml** - Code quality analysis with linting, formatting, static analysis, and security checks
+- **repo_health.yml** - Repository health monitoring for generic projects
 
 ## Metadata
 

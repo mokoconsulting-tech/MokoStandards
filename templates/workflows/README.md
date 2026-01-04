@@ -38,16 +38,18 @@ This directory contains consolidated GitHub Actions workflow templates for use a
 ```
 templates/workflows/
 ├── README.md              # This file
-├── ci-joomla.yml         # Joomla CI workflow (legacy location)
-├── repo_health.yml       # Generic repo health workflow (legacy location)
-├── version_branch.yml    # Version branch workflow (legacy location)
-├── joomla/               # Joomla-specific workflow templates
+├── ci-joomla.yml         # Joomla CI workflow (for backward compatibility)
+├── repo_health.yml       # Generic repo health workflow (for backward compatibility)
+├── version_branch.yml    # Version branch workflow (for backward compatibility)
+├── joomla/               # Joomla-specific workflow templates (recommended)
 │   ├── ci.yml            # Continuous integration for Joomla projects
 │   ├── repo_health.yml   # Repository health checks for Joomla
 │   └── version_branch.yml # Version branch automation
-└── generic/              # Generic/platform-agnostic workflow templates
+└── generic/              # Generic/platform-agnostic workflow templates (recommended)
     └── repo_health.yml   # Repository health checks for generic projects
 ```
+
+**Note**: The files in the root directory (ci-joomla.yml, repo_health.yml, version_branch.yml) are kept for backward compatibility with existing references. New projects should use the organized structure in the `joomla/` and `generic/` subdirectories.
 
 ## Template Categories
 

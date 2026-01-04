@@ -58,17 +58,14 @@ class GitHubProjectV2Setup:
                 response.raise_for_status()
                 return response.json()
             else:
-                # Use gh CLI
-                cmd = ["gh", "api", "graphql", "-f", f"query={query}"]
+                # Use gh CLI with --input flag for proper JSON handling
+                payload = {"query": query}
                 if variables:
-                    for key, value in variables.items():
-                        if isinstance(value, (list, dict)):
-                            cmd.extend(["-F", f"{key}={json.dumps(value)}"])
-                        else:
-                            cmd.extend(["-f", f"{key}={value}"])
+                    payload["variables"] = variables
                 
                 result = subprocess.run(
-                    cmd,
+                    ["gh", "api", "graphql", "--input", "-"],
+                    input=json.dumps(payload),
                     capture_output=True,
                     text=True,
                     check=True

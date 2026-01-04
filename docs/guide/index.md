@@ -11,6 +11,7 @@ This index provides navigation to documentation within this folder.
 ## Documents
 
 - [audit-readiness](./audit-readiness.md)
+- [conflict-resolution](./conflict-resolution.md)
 - [project-fields](./project-fields.md)
 - [project-views](./project-views.md)
 

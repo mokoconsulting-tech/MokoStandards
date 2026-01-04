@@ -20,45 +20,107 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 
-# Canonical Document List - Mandatory deliverables
+# Canonical Document List - Mandatory deliverables with enterprise field specifications
 CANONICAL_DOCUMENTS = {
     # Repository-Level
     "README.md": {
         "path": "README.md",
-        "type": "index",
+        "title": "Repository README",
+        "type": "overview",
         "subtype": "core",
         "priority": "High",
+        "risk_level": "Low",
         "approval": "Yes",
+        "evidence": "Yes",
+        "review_cycle": "Annual",
+        "retention": "Indefinite",
+        "compliance_tags": ["Governance"],
+        "evidence_artifacts": ["Pull Request", "Review Approval", "Published Document"],
+        "dependencies": "/docs/readme.md",
+        "acceptance_criteria": "States repository purpose, links to /docs/readme.md and /docs/docs-index.md, and references governance entry points.",
+        "raci": "Responsible: Documentation Owner\nAccountable: Governance Owner\nConsulted: Security Owner, Operations Owner\nInformed: Stakeholders",
+        "kpis": "KPI – Timeliness: Updated within review cycle\nKPI – Quality: Passes documentation review\nKPI – Compliance: Aligns to governance and documentation policies",
+        "purpose": "Define repository scope, entry points, governance references, and documentation navigation links."
     },
     "CHANGELOG.md": {
         "path": "CHANGELOG.md",
+        "title": "Repository CHANGELOG",
         "type": "index",
         "subtype": "core",
-        "priority": "High",
+        "priority": "Medium",
+        "risk_level": "Low",
         "approval": "No",
+        "evidence": "Yes",
+        "review_cycle": "Annual",
+        "retention": "Indefinite",
+        "compliance_tags": ["Release"],
+        "evidence_artifacts": ["Pull Request", "Published Document"],
+        "dependencies": "/README.md",
+        "acceptance_criteria": "Uses a consistent changelog format, captures notable changes, and aligns versions with releases.",
+        "raci": "Responsible: Release Owner\nAccountable: Governance Owner\nConsulted: Operations Owner\nInformed: Stakeholders",
+        "kpis": "KPI – Timeliness: Updated per release\nKPI – Quality: Entries are complete and specific\nKPI – Compliance: Supports release evidence",
+        "purpose": "Track notable changes and releases using a consistent versioned log.",
+        "owner_role": "Release Owner"
     },
     "LICENSE.md": {
         "path": "LICENSE.md",
+        "title": "Repository LICENSE",
         "type": "policy",
         "subtype": "core",
         "priority": "High",
+        "risk_level": "Medium",
         "approval": "Yes",
+        "evidence": "Yes",
+        "review_cycle": "Ad hoc",
+        "retention": "Indefinite",
+        "compliance_tags": ["Governance", "Audit"],
+        "evidence_artifacts": ["Published Document"],
+        "dependencies": "",
+        "acceptance_criteria": "Contains the correct license text and is aligned to repository SPDX expectations.",
+        "raci": "Responsible: Governance Owner\nAccountable: Governance Owner\nConsulted: Legal\nInformed: Contributors",
+        "kpis": "KPI – Timeliness: Present prior to first release\nKPI – Quality: License text verified\nKPI – Compliance: Meets open source governance requirements",
+        "purpose": "Define the legal license governing repository contents and redistribution.",
+        "owner_role": "Governance Owner"
     },
     
     # Documentation Root and Index
     "docs/readme.md": {
         "path": "docs/readme.md",
-        "type": "index",
+        "title": "Documentation README",
+        "type": "overview",
         "subtype": "core",
         "priority": "High",
-        "approval": "No",
+        "risk_level": "Low",
+        "approval": "Yes",
+        "evidence": "Yes",
+        "review_cycle": "Annual",
+        "retention": "Indefinite",
+        "compliance_tags": ["Governance"],
+        "evidence_artifacts": ["Pull Request", "Published Document"],
+        "dependencies": "",
+        "acceptance_criteria": "Defines documentation layout, links to /docs/docs-index.md, and describes how policies, guides, and checklists are organized.",
+        "raci": "Responsible: Documentation Owner\nAccountable: Governance Owner\nConsulted: Operations Owner\nInformed: Stakeholders",
+        "kpis": "KPI – Timeliness: Updated within review cycle\nKPI – Quality: Navigation links verified\nKPI – Compliance: Conforms to formatting policy",
+        "purpose": "Define documentation taxonomy, folder expectations, and navigation entry points."
     },
     "docs/index.md": {
         "path": "docs/index.md",
+        "title": "Documentation Index",
         "type": "index",
-        "subtype": "core",
+        "subtype": "catalog",
         "priority": "High",
-        "approval": "No",
+        "risk_level": "Low",
+        "approval": "Yes",
+        "evidence": "Yes",
+        "review_cycle": "Annual",
+        "retention": "Indefinite",
+        "compliance_tags": ["Governance", "Audit"],
+        "evidence_artifacts": ["Pull Request", "Review Approval", "Published Document"],
+        "dependencies": "/docs/readme.md",
+        "acceptance_criteria": "Lists every documentation artifact, groups by document type, and ensures all links resolve.",
+        "raci": "Responsible: Documentation Owner\nAccountable: Governance Owner\nConsulted: Compliance\nInformed: Stakeholders",
+        "kpis": "KPI – Timeliness: Updated as docs change\nKPI – Quality: Complete and accurate catalog\nKPI – Compliance: Supports audit navigation",
+        "purpose": "Provide the canonical catalog of all documentation with working links."
     },
     
     # Core Policies
@@ -131,22 +193,22 @@ CANONICAL_DOCUMENTS = {
     },
     
     # WaaS Guides
-    "docs/guide/waas/architecture.md": {
-        "path": "docs/guide/waas/architecture.md",
+    "docs/guide/waas/waas-architecture.md": {
+        "path": "docs/guide/waas/waas-architecture.md",
         "type": "guide",
         "subtype": "waas",
         "priority": "Medium",
         "approval": "No",
     },
-    "docs/guide/waas/operations.md": {
-        "path": "docs/guide/waas/operations.md",
+    "docs/guide/waas/waas-operations.md": {
+        "path": "docs/guide/waas/waas-operations.md",
         "type": "guide",
         "subtype": "waas",
         "priority": "Medium",
         "approval": "No",
     },
-    "docs/guide/waas/client-onboarding.md": {
-        "path": "docs/guide/waas/client-onboarding.md",
+    "docs/guide/waas/waas-client-onboarding.md": {
+        "path": "docs/guide/waas/waas-client-onboarding.md",
         "type": "guide",
         "subtype": "waas",
         "priority": "Medium",

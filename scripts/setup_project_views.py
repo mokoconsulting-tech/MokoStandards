@@ -243,6 +243,46 @@ class ProjectViewsSetup:
                 print(f"❌ Error checking auth: {type(e).__name__}: {e}")
                 return False
 
+    def get_existing_views(self) -> Dict[str, str]:
+        """Get existing views in the project."""
+        print(f"  🔍 Checking for existing views...", file=sys.stderr)
+        query = """
+        query($org: String!, $number: Int!) {
+            organization(login: $org) {
+                projectV2(number: $number) {
+                    views(first: 20) {
+                        nodes {
+                            id
+                            name
+                            layout
+                        }
+                    }
+                }
+            }
+        }
+        """
+        result = self.run_graphql(query, {"org": self.org, "number": self.project_number})
+        
+        existing_views = {}
+        if result and "data" in result:
+            views = result["data"]["organization"]["projectV2"]["views"]["nodes"]
+            for view in views:
+                view_name = view.get("name")
+                view_id = view.get("id")
+                view_layout = view.get("layout")
+                existing_views[view_name] = {"id": view_id, "layout": view_layout}
+            
+            if existing_views:
+                print(f"✅ Found {len(existing_views)} existing views")
+                for name in existing_views.keys():
+                    print(f"   • {name}")
+            else:
+                print(f"ℹ️  No existing views found")
+        else:
+            print(f"⚠️  Could not retrieve existing views")
+        
+        return existing_views
+
     def get_project_id(self) -> Optional[str]:
         """Get project ID from project number."""
         print(f"  🔍 Looking up project #{self.project_number}...", file=sys.stderr)
@@ -307,25 +347,45 @@ class ProjectViewsSetup:
             return True
         return False
 
-    def create_views(self) -> bool:
-        """Create all required views."""
-        print("\n📋 Creating project views...")
+    def create_views(self, existing_views: Dict[str, Dict]) -> bool:
+        """Create all required views or note which exist."""
+        print("\n📋 Processing project views...")
         print("="*70)
+        
+        views_to_create = []
+        views_to_update = []
         
         for idx, view_config in enumerate(VIEW_CONFIGURATIONS, 1):
             view_name = view_config["name"]
-            print(f"\n[{idx}/{len(VIEW_CONFIGURATIONS)}] Creating view: {view_name}")
-            print(f"   Layout: {view_config['layout']}")
+            print(f"\n[{idx}/{len(VIEW_CONFIGURATIONS)}] Processing view: {view_name}")
+            print(f"   Layout: {view_config['layout'].replace('_LAYOUT', '').title()}")
             print(f"   Description: {view_config['description']}")
             
-            # Note: GitHub's GraphQL API has limited support for creating views programmatically
+            if view_name in existing_views:
+                print(f"   ✅ View already exists (ID: {existing_views[view_name]['id']})")
+                print(f"   📝 Recommend updating configuration via UI")
+                views_to_update.append(view_name)
+            else:
+                print(f"   ℹ️  View does not exist - needs creation via UI")
+                views_to_create.append(view_name)
+            
+            # Note: GitHub's GraphQL API has limited support for creating/updating views programmatically
             # Most view configurations must be done manually via the UI
             # This script documents the configuration requirements
             
             self.created_views.append(view_name)
-            print(f"   ℹ️  View configuration documented (manual UI setup required)")
         
         print("\n" + "="*70)
+        print(f"\n📊 View Status Summary:")
+        print(f"   Views to create: {len(views_to_create)}")
+        if views_to_create:
+            for name in views_to_create:
+                print(f"      • {name}")
+        print(f"   Views to update: {len(views_to_update)}")
+        if views_to_update:
+            for name in views_to_update:
+                print(f"      • {name}")
+        print("="*70)
         return True
 
     def print_manual_instructions(self):
@@ -334,18 +394,32 @@ class ProjectViewsSetup:
         print("MANUAL VIEW SETUP INSTRUCTIONS")
         print("="*70)
         print("""
-GitHub Project v2 views must be created manually via the web interface.
+GitHub Project v2 views must be created/updated manually via the web interface.
 The GraphQL API does not currently support programmatic view creation with
 full configuration (filters, sorts, grouping).
 
-To create each view:
+To create a new view:
 
 1. Navigate to your project:
    https://github.com/orgs/{}/projects/{}
 
 2. Click "+ New view" in the view tabs
 
-3. Configure each view according to the specifications below:
+3. Select the layout type (Table, Board, etc.)
+
+4. Name the view and configure according to specifications below
+
+To update an existing view:
+
+1. Navigate to the view in your project
+
+2. Click the view menu (⋯) and select "Settings"
+
+3. Update fields, filters, sorts, and grouping as needed
+
+4. Save changes
+
+View Configurations:
 
 """.format(self.org, self.project_number))
         
@@ -461,6 +535,7 @@ def main():
         print("     2. Or authenticate gh CLI: gh auth login")
     
     # Step 2: Get project (if authenticated)
+    existing_views = {}
     if token or setup.verify_auth():
         print(f"\n📁 Step 2: Getting Project #{args.project_number}...")
         if not setup.get_project_id():
@@ -469,10 +544,14 @@ def main():
             # Step 3: Get project fields
             print("\n🔧 Step 3: Retrieving project fields...")
             setup.get_project_fields()
+            
+            # Step 3.5: Get existing views
+            print("\n🔍 Step 3.5: Checking existing views...")
+            existing_views = setup.get_existing_views()
     
     # Step 4: Document view configurations
     print("\n📚 Step 4: Documenting view configurations...")
-    setup.create_views()
+    setup.create_views(existing_views)
     
     # Print manual instructions
     setup.print_manual_instructions()

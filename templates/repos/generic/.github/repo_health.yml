@@ -36,7 +36,7 @@ env:
   # Scripts governance policy
   # Note: directories listed without a trailing slash.
   SCRIPTS_REQUIRED_DIRS:
-  SCRIPTS_ALLOWED_DIRS: scripts,scripts/fix,scripts/lib,scripts/release,scripts/run,scripts/validate
+  SCRIPTS_ALLOWED_DIRS: scripts,scripts/docs,scripts/fix,scripts/lib,scripts/release,scripts/run,scripts/validate
 
   # Repo health policy
   # Files are listed as-is; directories must end with a trailing slash.

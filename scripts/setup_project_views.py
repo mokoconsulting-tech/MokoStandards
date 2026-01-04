@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """
 GitHub Project v2 Views Setup Script
-Creates the required views in Project #7 according to the project-views.md specification.
+Documents the required views for Project #7 according to the project-views.md specification.
+
+NOTE: GitHub's Projects v2 GraphQL API does not currently support programmatic view creation.
+This script provides detailed configuration specifications for manual view setup.
 
 Usage:
-    export GH_PAT="your_personal_access_token"
+    export GH_PAT="your_personal_access_token"  # Optional, for checking existing views
     python3 scripts/setup_project_views.py --project-number 7
 
 Or use gh CLI authentication:
@@ -288,43 +291,17 @@ class ProjectViewsSetup:
         return existing_views
 
     def create_project_view(self, view_name: str, layout: str) -> Optional[str]:
-        """Create a new project view via GraphQL API."""
-        print(f"  🔨 Creating view '{view_name}'...", file=sys.stderr)
-        
-        mutation = """
-        mutation($projectId: ID!, $name: String!, $layout: ProjectV2ViewLayout!) {
-            createProjectV2View(input: {
-                projectId: $projectId
-                name: $name
-                layout: $layout
-            }) {
-                projectV2View {
-                    id
-                    name
-                    layout
-                }
-            }
-        }
         """
+        Attempt to create a project view.
         
-        variables = {
-            "projectId": self.project_id,
-            "name": view_name,
-            "layout": layout
-        }
+        NOTE: GitHub's Projects v2 GraphQL API does not currently support
+        programmatic view creation. Views must be created manually via the UI.
         
-        result = self.run_graphql(mutation, variables)
-        
-        if result and "data" in result and result["data"].get("createProjectV2View"):
-            view_data = result["data"]["createProjectV2View"]["projectV2View"]
-            view_id = view_data.get("id")
-            print(f"  ✅ Created view: {view_name} (ID: {view_id})")
-            return view_id
-        else:
-            error_msg = f"Failed to create view '{view_name}'"
-            self.errors.append(error_msg)
-            print(f"  ❌ {error_msg}", file=sys.stderr)
-            return None
+        This method exists as a placeholder for future API support.
+        """
+        print(f"  ⚠️  Cannot create view '{view_name}' programmatically", file=sys.stderr)
+        print(f"     GitHub's API does not support view creation", file=sys.stderr)
+        return None
 
     def get_project_id(self) -> Optional[str]:
         """Get project ID from project number."""
@@ -391,69 +368,48 @@ class ProjectViewsSetup:
         return False
 
     def create_views(self, existing_views: Dict[str, Dict]) -> bool:
-        """Create all required views programmatically."""
-        print("\n📋 Creating/Updating project views...")
+        """Document view configurations (API creation not supported by GitHub)."""
+        print("\n📋 Processing project views...")
+        print("="*70)
+        print("\n⚠️  NOTE: GitHub's Projects v2 API does not support programmatic view creation.")
+        print("   Views must be created manually via the web interface.")
+        print("   This script provides detailed configuration specifications for each view.")
         print("="*70)
         
-        views_created = []
         views_existing = []
-        views_failed = []
+        views_to_create = []
         
         for idx, view_config in enumerate(VIEW_CONFIGURATIONS, 1):
             view_name = view_config["name"]
             view_layout = view_config["layout"]
             
-            print(f"\n[{idx}/{len(VIEW_CONFIGURATIONS)}] Processing view: {view_name}")
+            print(f"\n[{idx}/{len(VIEW_CONFIGURATIONS)}] {view_name}")
             print(f"   Layout: {view_layout.replace('_LAYOUT', '').title()}")
             print(f"   Description: {view_config['description']}")
             
             if view_name in existing_views:
                 print(f"   ✅ View already exists (ID: {existing_views[view_name]['id']})")
-                print(f"   ℹ️  Skipping creation - view already configured")
                 views_existing.append(view_name)
-                self.created_views.append(view_name)
             else:
-                # Attempt to create the view
-                if self.project_id:
-                    view_id = self.create_project_view(view_name, view_layout)
-                    if view_id:
-                        views_created.append(view_name)
-                        self.created_views.append(view_name)
-                        print(f"   ℹ️  Note: Advanced configuration (filters, sorts, grouping) must be done manually")
-                    else:
-                        views_failed.append(view_name)
-                else:
-                    print(f"   ⚠️  Cannot create view - project ID not available")
-                    print(f"   💡 Authenticate to create views programmatically")
-                    views_failed.append(view_name)
+                print(f"   📝 View needs to be created manually")
+                views_to_create.append(view_name)
+            
+            self.created_views.append(view_name)
         
         print("\n" + "="*70)
-        print(f"\n📊 View Creation Summary:")
-        print(f"   ✅ Views created: {len(views_created)}")
-        if views_created:
-            for name in views_created:
-                print(f"      • {name}")
+        print(f"\n📊 View Status Summary:")
         print(f"   ℹ️  Views already exist: {len(views_existing)}")
         if views_existing:
             for name in views_existing:
                 print(f"      • {name}")
-        if views_failed:
-            print(f"   ❌ Views failed: {len(views_failed)}")
-            for name in views_failed:
+        print(f"   📝 Views to create manually: {len(views_to_create)}")
+        if views_to_create:
+            for name in views_to_create:
                 print(f"      • {name}")
         print("="*70)
         
-        # If views were created, print note about manual configuration
-        if views_created:
-            print(f"\n📝 Important: Views have been created with basic configuration.")
-            print(f"   Advanced settings (filters, sorts, field visibility) require manual setup:")
-            print(f"   1. Visit: https://github.com/orgs/{self.org}/projects/{self.project_number}")
-            print(f"   2. Click on each view")
-            print(f"   3. Use view menu (⋯) → Settings to configure:")
-            print(f"      - Field visibility")
-            print(f"      - Filters")
-            print(f"      - Sort order")
-            print(f"      - Grouping (for Board views)")
+        if views_to_create:
+            print(f"\n💡 Follow the manual setup instructions below to create these views.")
         
         return True
 
@@ -555,20 +511,10 @@ View Configurations:
             print("\n✅ No errors encountered")
         
         print("\n📖 Next Steps:")
-        if self.project_id and len(self.created_views) > 0:
-            print("   1. Visit your project to see the newly created views")
-            print(f"      https://github.com/orgs/{self.org}/projects/{self.project_number}")
-            print("   2. Configure advanced settings for each view:")
-            print("      - Field visibility and order")
-            print("      - Filters")
-            print("      - Sort order")
-            print("      - Grouping (for Board views)")
-            print("   3. Refer to /docs/guide/project-views.md for detailed specifications")
-        else:
-            print("   1. Authenticate with GitHub (set GH_PAT or run 'gh auth login')")
-            print("   2. Run this script again to create views programmatically")
-            print(f"   3. Visit: https://github.com/orgs/{self.org}/projects/{self.project_number}")
-            print("   4. Review the manual setup instructions above")
+        print("   1. Follow the manual setup instructions above")
+        print(f"   2. Visit: https://github.com/orgs/{self.org}/projects/{self.project_number}")
+        print("   3. Click '+ New view' for each view that doesn't exist")
+        print("   4. Configure each view according to the specifications")
         print("   5. Refer to /docs/guide/project-views.md for complete details")
         
         print("\n" + "="*70)
@@ -629,20 +575,19 @@ def main():
             print("\n🔍 Step 3.5: Checking existing views...")
             existing_views = setup.get_existing_views()
     
-    # Step 4: Create/document view configurations
-    print("\n📚 Step 4: Creating project views...")
+    # Step 4: Document view configurations
+    print("\n📚 Step 4: Documenting view configurations...")
     setup.create_views(existing_views)
     
-    # Print manual instructions (for advanced configuration)
+    # Print manual instructions
     setup.print_manual_instructions()
     
     # Print summary
     setup.print_summary()
     
-    if setup.project_id and len(setup.created_views) > 0:
-        print("\n✅ View creation complete!")
-    else:
-        print("\n✅ View configuration documentation complete!")
+    print("\n✅ View configuration documentation complete!")
+    print("\n⚠️  REMINDER: Views must be created manually via GitHub's web interface")
+    print("   GitHub's API does not support programmatic view creation at this time.")
 
 
 if __name__ == "__main__":

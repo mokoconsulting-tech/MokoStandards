@@ -37,6 +37,12 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
+# Import requests for API calls with try/except for clearer error messaging
+try:
+    import requests
+except ImportError:
+    requests = None  # Will be checked when needed
+
 
 class GitHubProjectV2Setup:
     """Handles GitHub Project v2 creation and population."""
@@ -58,7 +64,12 @@ class GitHubProjectV2Setup:
         try:
             if self.token:
                 # Use direct API call with token
-                import requests
+                if requests is None:
+                    error_msg = "requests library is required for token authentication. Install it with: pip install requests"
+                    self.errors.append(error_msg)
+                    print(f"ERROR: {error_msg}", file=sys.stderr)
+                    return {}
+                
                 headers = {
                     "Authorization": f"Bearer {self.token}",
                     "Content-Type": "application/json"
@@ -561,7 +572,13 @@ def main():
     # Configuration
     ORG = "mokoconsulting-tech"
     PROJECT_TITLE = "MokoStandards Documentation Control Register"
-    REPO_PATH = Path("/home/runner/work/MokoStandards/MokoStandards")
+    
+    # Determine repository path (supports CI environments and local execution)
+    # Priority: GITHUB_WORKSPACE > current working directory
+    repo_path_str = os.environ.get("GITHUB_WORKSPACE", os.getcwd())
+    REPO_PATH = Path(repo_path_str).resolve()
+    
+    print(f"\n📂 Repository path: {REPO_PATH}")
     
     # Get token from environment (GH_PAT secret)
     token = os.environ.get("GH_PAT")

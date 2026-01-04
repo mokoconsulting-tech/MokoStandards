@@ -153,6 +153,7 @@ class ProjectViewsSetup:
                 if variables:
                     payload["variables"] = variables
                 
+                print(f"  🔄 Executing GraphQL query via API...", file=sys.stderr)
                 response = requests.post(
                     "https://api.github.com/graphql",
                     headers=headers,
@@ -160,7 +161,16 @@ class ProjectViewsSetup:
                     timeout=30
                 )
                 response.raise_for_status()
-                return response.json()
+                result = response.json()
+                
+                if "errors" in result:
+                    error_details = "; ".join([err.get("message", str(err)) for err in result["errors"]])
+                    error_msg = f"GraphQL API returned errors: {error_details}"
+                    self.errors.append(error_msg)
+                    print(f"❌ ERROR: {error_msg}", file=sys.stderr)
+                    return {}
+                
+                return result
             else:
                 cmd = ["gh", "api", "graphql", "-f", f"query={query}"]
                 if variables:
@@ -170,26 +180,46 @@ class ProjectViewsSetup:
                         else:
                             cmd.extend(["-f", f"{key}={value}"])
                 
+                print(f"  🔄 Executing GraphQL query via gh CLI...", file=sys.stderr)
                 result = subprocess.run(cmd, capture_output=True, text=True, check=True)
                 return json.loads(result.stdout)
-        except Exception as e:
-            error_msg = f"GraphQL error: {e}"
+        except subprocess.CalledProcessError as e:
+            error_msg = f"gh CLI command failed (exit code {e.returncode})"
+            if e.stderr:
+                error_msg += f": {e.stderr.strip()}"
             self.errors.append(error_msg)
-            print(f"ERROR: {error_msg}", file=sys.stderr)
+            print(f"❌ ERROR: {error_msg}", file=sys.stderr)
+            print(f"   Command: {' '.join(e.cmd)}", file=sys.stderr)
+            return {}
+        except json.JSONDecodeError as e:
+            error_msg = f"Failed to parse JSON response: {e}"
+            self.errors.append(error_msg)
+            print(f"❌ ERROR: {error_msg}", file=sys.stderr)
+            return {}
+        except Exception as e:
+            error_msg = f"Unexpected error during GraphQL query: {type(e).__name__}: {e}"
+            self.errors.append(error_msg)
+            print(f"❌ ERROR: {error_msg}", file=sys.stderr)
+            import traceback
+            print(f"   Traceback: {traceback.format_exc()}", file=sys.stderr)
             return {}
 
     def verify_auth(self) -> bool:
         """Verify GitHub CLI authentication or token."""
+        print("  🔐 Checking authentication...", file=sys.stderr)
         if self.token:
             try:
                 result = self.run_graphql("query { viewer { login } }")
                 if result and "data" in result and result["data"].get("viewer"):
-                    print(f"✅ Authenticated as: {result['data']['viewer']['login']}")
+                    username = result['data']['viewer']['login']
+                    print(f"✅ Authenticated as: {username}")
                     return True
-            except:
-                pass
-            print("❌ Token authentication failed")
-            return False
+                else:
+                    print("❌ Token authentication failed: No viewer data returned")
+                    return False
+            except Exception as e:
+                print(f"❌ Token verification failed: {type(e).__name__}: {e}")
+                return False
         else:
             try:
                 result = subprocess.run(
@@ -201,13 +231,21 @@ class ProjectViewsSetup:
                 if result.returncode == 0:
                     print("✅ GitHub CLI authenticated")
                     return True
-            except:
-                pass
-            print("❌ GitHub CLI not authenticated")
-            return False
+                else:
+                    print("❌ GitHub CLI not authenticated")
+                    if result.stderr:
+                        print(f"   Details: {result.stderr.strip()}")
+                    return False
+            except FileNotFoundError:
+                print("❌ GitHub CLI (gh) not found in PATH")
+                return False
+            except Exception as e:
+                print(f"❌ Error checking auth: {type(e).__name__}: {e}")
+                return False
 
     def get_project_id(self) -> Optional[str]:
         """Get project ID from project number."""
+        print(f"  🔍 Looking up project #{self.project_number}...", file=sys.stderr)
         query = """
         query($org: String!, $number: Int!) {
             organization(login: $org) {
@@ -226,7 +264,11 @@ class ProjectViewsSetup:
             print(f"✅ Found Project: {project['title']} (#{self.project_number})")
             print(f"   URL: {project.get('url', 'N/A')}")
             return self.project_id
-        return None
+        else:
+            error_msg = f"Project #{self.project_number} not found in organization {self.org}"
+            self.errors.append(error_msg)
+            print(f"❌ ERROR: {error_msg}", file=sys.stderr)
+            return None
 
     def get_project_fields(self) -> bool:
         """Get existing project fields for reference."""
@@ -342,24 +384,38 @@ To create each view:
         print("\n" + "="*70)
         print("SUMMARY REPORT")
         print("="*70)
-        print(f"\n📊 Project: #{self.project_number}")
+        print(f"\n📊 Project Configuration:")
+        print(f"   Project Number: #{self.project_number}")
         print(f"   Organization: {self.org}")
+        print(f"   Project ID: {self.project_id if self.project_id else 'Not retrieved'}")
+        
         print(f"\n📋 Views Documented: {len(self.created_views)}")
-        for view_name in self.created_views:
-            print(f"   • {view_name}")
+        for idx, view_name in enumerate(self.created_views, 1):
+            print(f"   {idx}. {view_name}")
+        
+        print(f"\n📈 Execution Summary:")
+        print(f"   Total views configured: {len(VIEW_CONFIGURATIONS)}")
+        print(f"   Documentation mode: {'Yes' if not self.project_id else 'No'}")
+        print(f"   Fields retrieved: {len(self.field_ids)}")
         
         if self.errors:
-            print(f"\n❌ Errors: {len(self.errors)}")
-            for error in self.errors[:5]:
-                print(f"   - {error}")
+            print(f"\n❌ Errors Encountered: {len(self.errors)}")
+            print("   " + "-"*66)
+            for idx, error in enumerate(self.errors, 1):
+                print(f"   {idx}. {error}")
+            print("   " + "-"*66)
+            print("\n   ⚠️  Script continued in documentation-only mode")
+            print("   💡 Tip: Set GH_PAT environment variable or run 'gh auth login'")
         else:
             print("\n✅ No errors encountered")
         
         print("\n📖 Next Steps:")
         print("   1. Review the manual setup instructions above")
-        print("   2. Create each view via the GitHub Project UI")
-        print("   3. Configure filters, sorts, and grouping as specified")
-        print("   4. Refer to /docs/guide/project-views.md for detailed specifications")
+        print("   2. Navigate to your project UI")
+        print(f"      https://github.com/orgs/{self.org}/projects/{self.project_number}")
+        print("   3. Create each view using '+ New view' button")
+        print("   4. Configure filters, sorts, and grouping as specified")
+        print("   5. Refer to /docs/guide/project-views.md for complete details")
         
         print("\n" + "="*70)
 

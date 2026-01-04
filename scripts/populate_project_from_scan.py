@@ -56,7 +56,16 @@ class GitHubProjectV2Populator:
                     timeout=30
                 )
                 response.raise_for_status()
-                return response.json()
+                result = response.json()
+                
+                if "errors" in result:
+                    error_details = "; ".join([err.get("message", str(err)) for err in result["errors"]])
+                    error_msg = f"GraphQL API returned errors: {error_details}"
+                    self.errors.append(error_msg)
+                    print(f"❌ ERROR: {error_msg}", file=sys.stderr)
+                    return {}
+                
+                return result
             else:
                 # Use gh CLI
                 cmd = ["gh", "api", "graphql", "-f", f"query={query}"]
@@ -75,14 +84,24 @@ class GitHubProjectV2Populator:
                 )
                 return json.loads(result.stdout)
         except subprocess.CalledProcessError as e:
-            error_msg = f"GraphQL error: {e.stderr}"
+            error_msg = f"gh CLI command failed (exit code {e.returncode})"
+            if e.stderr:
+                error_msg += f": {e.stderr.strip()}"
             self.errors.append(error_msg)
-            print(f"ERROR: {error_msg}", file=sys.stderr)
+            print(f"❌ ERROR: {error_msg}", file=sys.stderr)
+            print(f"   Command: {' '.join(e.cmd)}", file=sys.stderr)
+            return {}
+        except json.JSONDecodeError as e:
+            error_msg = f"Failed to parse JSON response: {e}"
+            self.errors.append(error_msg)
+            print(f"❌ ERROR: {error_msg}", file=sys.stderr)
             return {}
         except Exception as e:
-            error_msg = f"Error: {e}"
+            error_msg = f"Unexpected error: {type(e).__name__}: {e}"
             self.errors.append(error_msg)
-            print(f"ERROR: {error_msg}", file=sys.stderr)
+            print(f"❌ ERROR: {error_msg}", file=sys.stderr)
+            import traceback
+            print(f"   Traceback: {traceback.format_exc()}", file=sys.stderr)
             return {}
 
     def verify_auth(self) -> bool:
@@ -428,7 +447,55 @@ Source: Imported from repository scan"""
         print("\n" + "="*70)
         print("SUMMARY REPORT")
         print("="*70)
-        print(f"\n📊 Project Number: {self.project_number}")
+        print(f"\n📊 Project Configuration:")
+        print(f"   Project Number: #{self.project_number}")
+        print(f"   Organization: {self.org}")
+        print(f"   Project ID: {self.project_id if self.project_id else 'Not retrieved'}")
+        
+        print(f"\n📋 Custom Fields:")
+        print(f"   Fields retrieved: {len(self.field_ids)}")
+        if self.field_ids:
+            print(f"   Available fields: {', '.join(list(self.field_ids.keys())[:5])}")
+            if len(self.field_ids) > 5:
+                print(f"   ... and {len(self.field_ids) - 5} more")
+        
+        print(f"\n📄 Document Scanning:")
+        total_docs = len(self.created_items) + len(self.skipped_items)
+        print(f"   Documents scanned: {total_docs}")
+        print(f"   ✅ Tasks created: {len(self.created_items)}")
+        if self.skipped_items:
+            print(f"   ⚠️  Items skipped: {len(self.skipped_items)}")
+            print(f"      First few skipped:")
+            for item in self.skipped_items[:3]:
+                print(f"      - {item}")
+            if len(self.skipped_items) > 3:
+                print(f"      ... and {len(self.skipped_items) - 3} more")
+        
+        if self.errors:
+            print(f"\n❌ Errors Encountered: {len(self.errors)}")
+            print("   " + "-"*66)
+            for idx, error in enumerate(self.errors, 1):
+                print(f"   {idx}. {error}")
+                if idx >= 10:
+                    remaining = len(self.errors) - 10
+                    if remaining > 0:
+                        print(f"   ... and {remaining} more errors")
+                    break
+            print("   " + "-"*66)
+        else:
+            print("\n✅ No errors encountered")
+        
+        print("\n📖 Next Steps:")
+        if self.errors:
+            print("   1. Review errors above and address any issues")
+            print("   2. Check authentication if API calls failed")
+            print("   3. Verify project permissions")
+        else:
+            print("   1. Review created tasks in the project")
+            print(f"   2. Visit: https://github.com/orgs/{self.org}/projects/{self.project_number}")
+            print("   3. Configure task fields as needed")
+        
+        print("\n" + "="*70)
         print(f"   Organization: {self.org}")
         print(f"\n📋 Custom Fields: {len(self.field_ids)} found")
         print(f"📄 Documents Scanned: {len(self.created_items) + len(self.skipped_items)}")

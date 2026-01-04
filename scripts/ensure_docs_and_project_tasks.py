@@ -287,7 +287,16 @@ class DocumentationManager:
                     timeout=30
                 )
                 response.raise_for_status()
-                return response.json()
+                result = response.json()
+                
+                if "errors" in result:
+                    error_details = "; ".join([err.get("message", str(err)) for err in result["errors"]])
+                    error_msg = f"GraphQL API returned errors: {error_details}"
+                    self.errors.append(error_msg)
+                    print(f"❌ ERROR: {error_msg}", file=sys.stderr)
+                    return {}
+                
+                return result
             else:
                 cmd = ["gh", "api", "graphql", "-f", f"query={query}"]
                 if variables:
@@ -299,10 +308,25 @@ class DocumentationManager:
                 
                 result = subprocess.run(cmd, capture_output=True, text=True, check=True)
                 return json.loads(result.stdout)
-        except Exception as e:
-            error_msg = f"GraphQL error: {e}"
+        except subprocess.CalledProcessError as e:
+            error_msg = f"gh CLI command failed (exit code {e.returncode})"
+            if e.stderr:
+                error_msg += f": {e.stderr.strip()}"
             self.errors.append(error_msg)
-            print(f"ERROR: {error_msg}", file=sys.stderr)
+            print(f"❌ ERROR: {error_msg}", file=sys.stderr)
+            print(f"   Command: {' '.join(e.cmd)}", file=sys.stderr)
+            return {}
+        except json.JSONDecodeError as e:
+            error_msg = f"Failed to parse JSON response: {e}"
+            self.errors.append(error_msg)
+            print(f"❌ ERROR: {error_msg}", file=sys.stderr)
+            return {}
+        except Exception as e:
+            error_msg = f"Unexpected error: {type(e).__name__}: {e}"
+            self.errors.append(error_msg)
+            print(f"❌ ERROR: {error_msg}", file=sys.stderr)
+            import traceback
+            print(f"   Traceback: {traceback.format_exc()}", file=sys.stderr)
             return {}
 
     def verify_auth(self) -> bool:

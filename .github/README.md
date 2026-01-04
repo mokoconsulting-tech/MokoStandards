@@ -4,6 +4,17 @@
 
 This directory contains GitHub-specific configuration files for the MokoStandards repository.
 
+## Private Repository Templates
+
+**Note:** Private/internal GitHub templates (CODEOWNERS, issue templates, pull request templates) are maintained in a separate private repository: **mokoconsulting-tech/MokoStandards-github-private**
+
+This separation ensures:
+- Sensitive organizational information is not publicly exposed
+- Internal workflow templates remain confidential
+- Public repository focuses on coding standards and public-facing policies
+
+Public workflow templates for CI/CD are available in `.github/workflows/templates/` in this repository.
+
 ## Files
 
 ### settings.yml

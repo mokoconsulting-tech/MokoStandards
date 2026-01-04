@@ -164,6 +164,22 @@ This repository is organized to separate enforceable standards from reusable tem
   * Scripts are designed to be portable and adaptable.
   * Downstream repositories may vendor, mirror, or reimplement these scripts as needed.
 
+### GitHub templates and workflows
+
+* **Public workflow templates**: [`.github/workflows/templates/`](.github/workflows/templates/README.md)
+
+  * CI/CD workflow templates for Joomla and generic projects
+  * Repository health monitoring workflows
+  * Version branch automation
+
+* **Private GitHub templates**: Maintained in separate repository `mokoconsulting-tech/MokoStandards-github-private`
+
+  * CODEOWNERS files
+  * Issue templates
+  * Pull request templates
+  * Internal workflow configurations
+  * Separation ensures confidential organizational templates remain private
+
 ### Repository reference layouts
 
 * [`templates/repos/joomla/component/`](templates/repos/joomla/component/index.md)

@@ -164,27 +164,24 @@ The scripts identify and list all subdirectories:
 
 ```
 templates
-templates/.github
-templates/.github/ISSUE_TEMPLATE
 templates/docs
 templates/docs/extra
 templates/docs/required
 templates/repos
 templates/repos/generic
-templates/repos/generic/.github
 templates/repos/generic/docs
 templates/repos/generic/docs/templates
 templates/repos/generic/scripts
 templates/repos/generic/src
 templates/repos/joomla
 templates/repos/joomla/component
-templates/repos/joomla/component/.github
-templates/repos/joomla/component/.github/workflows
 templates/repos/joomla/component/docs
 templates/repos/joomla/component/scripts
 templates/repos/joomla/component/src
 templates/scripts
 ```
+
+Note: GitHub workflow templates are now consolidated in /.github/workflows/templates/ with subdirectories for joomla and generic variants.
 
 Total: 21 subdirectories in templates/
 

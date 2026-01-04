@@ -1,4 +1,4 @@
-# Docs Index: /repos/generic/scripts
+# Docs Index: /templates/repos/generic/scripts
 
 ## Purpose
 

@@ -4,14 +4,14 @@
 
 This index provides navigation to documentation within this folder.
 
-## Files
-
-- [README.md](./README.md) - GitHub Workflow Templates documentation
-
 ## Subfolders
 
-- [generic/](./generic/) - Generic/platform-agnostic workflow templates
-- [joomla/](./joomla/) - Joomla-specific workflow templates
+- [generic/](./generic/index.md)
+- [joomla/](./joomla/index.md)
+
+## Documents
+
+- [README](./README.md)
 
 ## Metadata
 

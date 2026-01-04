@@ -1,4 +1,4 @@
-# Docs Index: /repos/generic/src
+# Docs Index: /templates/repos/generic/src
 
 ## Purpose
 

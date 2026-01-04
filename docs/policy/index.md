@@ -6,6 +6,7 @@ This index provides navigation to documentation within this folder.
 
 ## Subfolders
 
+- [crm/](./crm/index.md)
 - [waas/](./waas/index.md)
 
 ## Documents
@@ -16,6 +17,7 @@ This index provides navigation to documentation within this folder.
 - [dependency-management](./dependency-management.md)
 - [document-formatting](./document-formatting.md)
 - [documentation-governance](./documentation-governance.md)
+- [file-header-standards](./file-header-standards.md)
 - [merge-strategy](./merge-strategy.md)
 - [risk-register](./risk-register.md)
 - [scripting-standards](./scripting-standards.md)

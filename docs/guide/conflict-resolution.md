@@ -116,9 +116,11 @@ scripts/analyze_pr_conflicts.py
 
 Analyzes all open PRs and identifies conflicts with recommendations.
 
-### Conflict Resolution Guide
+### Conflict Resolution Resources
 
-See [`CONFLICT_RESOLUTION_GUIDE.md`](../../CONFLICT_RESOLUTION_GUIDE.md) in the repository root for detailed step-by-step instructions for each specific PR.
+For Moko Consulting internal users, detailed step-by-step instructions for specific PRs are available in the private repository. See [PRIVATE_REPOSITORY_REFERENCE.md](../../PRIVATE_REPOSITORY_REFERENCE.md) for access information.
+
+External users should follow the general conflict resolution steps outlined in this guide.
 
 ### Useful Git Commands
 

@@ -6,17 +6,21 @@ This index provides navigation to documentation within this folder.
 
 ## Subfolders
 
+- [crm/](./crm/index.md)
 - [waas/](./waas/index.md)
 
 ## Documents
 
 - [change-management](./change-management.md)
-- [copilot-prompt-projectv2-joomla-template](./copilot-prompt-projectv2-joomla-template.md)
 - [data-classification](./data-classification.md)
+- [dependency-management](./dependency-management.md)
 - [document-formatting](./document-formatting.md)
 - [documentation-governance](./documentation-governance.md)
+- [file-header-standards](./file-header-standards.md)
 - [merge-strategy](./merge-strategy.md)
 - [risk-register](./risk-register.md)
+- [scripting-standards](./scripting-standards.md)
+- [security-scanning](./security-scanning.md)
 - [vendor-risk](./vendor-risk.md)
 
 ## Metadata

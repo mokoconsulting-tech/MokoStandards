@@ -1,0 +1,167 @@
+# Changelog Management Workflows
+#
+# Copyright (C) 2025 Moko Consulting <hello@mokoconsulting.tech>
+# SPDX-LICENSE-IDENTIFIER: GPL-3.0-or-later
+#
+# FILE INFORMATION
+# VERSION: 05.00.00
+# PATH: .github/workflows/version_release.yml
+# BRIEF: Workflow to release a version and create GitHub release
+
+name: Release Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (XX.YY.ZZ format, e.g., 05.01.00)'
+        required: true
+        type: string
+      date:
+        description: 'Release date (YYYY-MM-DD, leave empty for today)'
+        required: false
+        type: string
+      update_files:
+        description: 'Update VERSION in all files'
+        required: true
+        type: boolean
+        default: true
+      create_release:
+        description: 'Create GitHub release'
+        required: true
+        type: boolean
+        default: true
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Validate version format
+        run: |
+          if ! echo "${{ inputs.version }}" | grep -qE '^[0-9]{2}\.[0-9]{2}\.[0-9]{2}$'; then
+            echo "Error: Invalid version format. Must be XX.YY.ZZ (e.g., 05.01.00)"
+            exit 1
+          fi
+
+      - name: Release version in CHANGELOG
+        run: |
+          if [ -n "${{ inputs.date }}" ]; then
+            python3 scripts/release_version.py \
+              --version "${{ inputs.version }}" \
+              --date "${{ inputs.date }}"
+          else
+            python3 scripts/release_version.py \
+              --version "${{ inputs.version }}"
+          fi
+
+      - name: Update VERSION in files
+        if: inputs.update_files
+        run: |
+          python3 scripts/release_version.py \
+            --version "${{ inputs.version }}" \
+            --update-files
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit changes
+        run: |
+          git add .
+          git commit -m "release: version ${{ inputs.version }}
+
+          - Move UNRELEASED items to version ${{ inputs.version }}
+          ${{ inputs.update_files && '- Update VERSION in all files' || '' }}
+          - Prepare for release
+
+          Co-authored-by: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>"
+
+      - name: Create and push release branch
+        run: |
+          BRANCH_NAME="release/v${{ inputs.version }}"
+          git checkout -b "$BRANCH_NAME"
+          git push origin "$BRANCH_NAME"
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+
+      - name: Create Pull Request
+        id: create_pr
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: release/v${{ inputs.version }}
+          delete-branch: false
+          title: "Release version ${{ inputs.version }}"
+          body: |
+            ## Release Version ${{ inputs.version }}
+
+            This PR prepares the repository for version ${{ inputs.version }} release.
+
+            ### Changes
+            - ✅ Moved UNRELEASED items to version ${{ inputs.version }} in CHANGELOG.md
+            ${{ inputs.update_files && '- ✅ Updated VERSION header in all repository files' || '' }}
+
+            ### Next Steps
+            1. Review the changelog and version updates
+            2. Merge this PR to complete the release
+            ${{ inputs.create_release && format('3. After merge, create GitHub release using script or gh CLI (see comment below for instructions)', inputs.version) || '' }}
+
+            ### Release Notes
+            See CHANGELOG.md for detailed release notes.
+          labels: |
+            release
+            version-bump
+
+      - name: Add release instructions comment
+        if: inputs.create_release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = ${{ steps.create_pr.outputs.pull-request-number }};
+            if (prNumber) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: `### GitHub Release Instructions
+
+                After merging this PR, create the GitHub release by running:
+
+                **Option 1 - Using the script**:
+                \`\`\`bash
+                # Checkout main branch after merge
+                git checkout main
+                git pull
+
+                # Create GitHub release with extracted notes
+                python3 scripts/release_version.py --version ${{ inputs.version }} --create-release
+                \`\`\`
+
+                **Option 2 - Using gh CLI directly**:
+                \`\`\`bash
+                gh release create v${{ inputs.version }} \\
+                  --title "Release ${{ inputs.version }}" \\
+                  --notes-file <(sed -n '/## \\[${{ inputs.version }}\\]/,/## \\[/p' CHANGELOG.md | sed '1d;$d')
+                \`\`\`
+
+                **Option 3 - Manually via GitHub UI**:
+                1. Go to Releases → Draft a new release
+                2. Tag: \`v${{ inputs.version }}\`
+                3. Title: \`Release ${{ inputs.version }}\`
+                4. Copy release notes from CHANGELOG.md section \`[${{ inputs.version }}]\`
+                `
+              });
+            }

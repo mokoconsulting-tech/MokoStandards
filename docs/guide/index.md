@@ -14,6 +14,7 @@ This index provides navigation to documentation within this folder.
 - [conflict-resolution](./conflict-resolution.md)
 - [project-fields](./project-fields.md)
 - [project-views](./project-views.md)
+- [repository-split-plan](./repository-split-plan.md)
 
 ## Metadata
 

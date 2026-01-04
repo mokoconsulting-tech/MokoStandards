@@ -152,6 +152,33 @@ For repositories adopting MokoStandards:
 * Scan for vulnerabilities in dependencies
 * Audit third-party actions and tools
 
+#### Automated Security Scanning
+
+All repositories MUST implement:
+
+**CodeQL Analysis**:
+* Enabled for all supported languages (Python, JavaScript, TypeScript, Java, C/C++, C#, Go, Ruby)
+* Runs on: push to main, pull requests, weekly schedule
+* Query sets: `security-extended` and `security-and-quality`
+* Configuration: `.github/workflows/codeql-analysis.yml`
+
+**Dependabot Security Updates**:
+* Weekly scans for vulnerable dependencies
+* Automated pull requests for security patches
+* Configuration: `.github/dependabot.yml`
+
+**Secret Scanning**:
+* Enabled by default with push protection
+* Prevents accidental credential commits
+* Partner patterns enabled
+
+**Dependency Review**:
+* Required for all pull requests
+* Blocks introduction of known vulnerable dependencies
+* Automatic license compliance checking
+
+See [Security Scanning Policy](docs/policy/security-scanning.md) for detailed requirements.
+
 ### Dependency Management
 
 * Keep dependencies up to date

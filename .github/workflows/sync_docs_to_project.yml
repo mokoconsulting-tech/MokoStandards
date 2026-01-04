@@ -1,0 +1,212 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.Automation
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/sync_docs_to_project.yml
+# VERSION: 01.00.00
+# BRIEF: Automatically sync created/updated docs and templates to GitHub Project
+# NOTE: Creates or updates project tasks when files are added or modified
+
+name: Sync Docs to Project
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/**/*.md'
+      - 'templates/**/*.md'
+      - 'docs/**'
+      - 'templates/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'docs/**/*.md'
+      - 'templates/**/*.md'
+      - 'docs/**'
+      - 'templates/**'
+  workflow_dispatch:
+    inputs:
+      file_path:
+        description: 'Specific file or folder path to sync'
+        required: false
+        type: string
+      project_number:
+        description: 'Project number to sync to'
+        required: false
+        default: '7'
+        type: string
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+
+jobs:
+  sync-to-project:
+    name: Sync Files to Project
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      
+      - name: Install GitHub CLI
+        run: |
+          type -p gh >/dev/null || (curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+          sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+          sudo apt update
+          sudo apt install gh -y)
+      
+      - name: Authenticate GitHub CLI
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+      
+      - name: Get changed files
+        id: changed-files
+        if: github.event_name != 'workflow_dispatch'
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            # For pull requests, get files changed in PR
+            FILES=$(gh pr view ${{ github.event.pull_request.number }} --json files --jq '.files[].path' | grep -E '^(docs|templates)/')
+          else
+            # For push events, get files changed in the commit
+            if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
+              # New branch, compare with main
+              FILES=$(git diff --name-only origin/main HEAD | grep -E '^(docs|templates)/')
+            else
+              # Existing branch, compare with previous commit
+              FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -E '^(docs|templates)/')
+            fi
+          fi
+          
+          # Save files to output
+          echo "files<<EOF" >> $GITHUB_OUTPUT
+          echo "$FILES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+          # Also save count
+          COUNT=$(echo "$FILES" | grep -c . || echo "0")
+          echo "count=$COUNT" >> $GITHUB_OUTPUT
+      
+      - name: Get folders for new files
+        id: new-folders
+        if: github.event_name != 'workflow_dispatch'
+        run: |
+          # Get all unique parent folders of changed files
+          FOLDERS=$(echo "${{ steps.changed-files.outputs.files }}" | xargs -I {} dirname {} | sort -u | grep -E '^(docs|templates)/')
+          
+          # Save folders to output
+          echo "folders<<EOF" >> $GITHUB_OUTPUT
+          echo "$FOLDERS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      
+      - name: Sync changed files to project
+        if: github.event_name != 'workflow_dispatch' && steps.changed-files.outputs.count != '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Syncing ${{ steps.changed-files.outputs.count }} changed files..."
+          
+          # Make script executable
+          chmod +x scripts/sync_file_to_project.py
+          
+          # Process each changed file
+          echo "${{ steps.changed-files.outputs.files }}" | while IFS= read -r file; do
+            if [ -n "$file" ]; then
+              echo "Processing: $file"
+              
+              # Check if it's a markdown file
+              if [[ "$file" == *.md ]]; then
+                python3 scripts/sync_file_to_project.py "$file" 7 || echo "Warning: Failed to sync $file"
+              else
+                echo "Skipping non-markdown file: $file"
+              fi
+            fi
+          done
+      
+      - name: Sync folders to project
+        if: github.event_name != 'workflow_dispatch' && steps.new-folders.outputs.folders != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Syncing folders..."
+          
+          # Make script executable
+          chmod +x scripts/sync_file_to_project.py
+          
+          # Process each folder
+          echo "${{ steps.new-folders.outputs.folders }}" | while IFS= read -r folder; do
+            if [ -n "$folder" ] && [ -d "$folder" ]; then
+              echo "Processing folder: $folder"
+              python3 scripts/sync_file_to_project.py "$folder" 7 --folder || echo "Warning: Failed to sync folder $folder"
+            fi
+          done
+      
+      - name: Sync specific path (manual trigger)
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.file_path != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Syncing specific path: ${{ github.event.inputs.file_path }}"
+          
+          # Make script executable
+          chmod +x scripts/sync_file_to_project.py
+          
+          FILE_PATH="${{ github.event.inputs.file_path }}"
+          PROJECT_NUM="${{ github.event.inputs.project_number }}"
+          
+          if [ -f "$FILE_PATH" ]; then
+            python3 scripts/sync_file_to_project.py "$FILE_PATH" "$PROJECT_NUM"
+          elif [ -d "$FILE_PATH" ]; then
+            python3 scripts/sync_file_to_project.py "$FILE_PATH" "$PROJECT_NUM" --folder
+          else
+            echo "Error: Path does not exist: $FILE_PATH"
+            exit 1
+          fi
+      
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### Sync to Project Summary"
+            echo ""
+            echo "- Event: ${{ github.event_name }}"
+            echo "- Repository: ${{ github.repository }}"
+            echo "- Branch: ${{ github.ref_name }}"
+            
+            if [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
+              echo "- Files processed: ${{ steps.changed-files.outputs.count }}"
+            fi
+            
+            echo ""
+            echo "Tasks have been created or updated in Project #7"
+          } >> "$GITHUB_STEP_SUMMARY"

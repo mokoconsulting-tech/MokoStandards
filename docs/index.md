@@ -7,13 +7,13 @@ This index provides navigation to documentation within this folder.
 ## Subfolders
 
 - [checklist/](./checklist/index.md)
+- [glossary/](./glossary/index.md)
 - [guide/](./guide/index.md)
 - [policy/](./policy/index.md)
 
 ## Documents
 
 - [README](./README.md)
-- [readme](./readme.md)
 - [ROADMAP](./ROADMAP.md)
 
 ## Metadata

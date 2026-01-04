@@ -184,7 +184,7 @@ This policy depends on:
 - Document Formatting Policy at /docs/policy/document-formatting.md
 - GitHub branch protection configuration
 - GitHub Project v2 register
-- Pull request template at /templates/.github/pull_request_template.md
+- Pull request template at /.github/PULL_REQUEST_TEMPLATE.md
 
 ## Acceptance Criteria
 

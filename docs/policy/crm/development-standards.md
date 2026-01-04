@@ -1,0 +1,896 @@
+<!--
+Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+
+This file is part of a Moko Consulting project.
+
+SPDX-License-Identifier: GPL-3.0-or-later
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+# FILE INFORMATION
+DEFGROUP: MokoStandards.Policy
+INGROUP: MokoStandards.CRM
+REPO: https://github.com/mokoconsulting-tech/MokoStandards
+PATH: /docs/policy/crm/development-standards.md
+VERSION: 05.00.00
+BRIEF: Development standards for MokoCRM based on Dolibarr platform
+-->
+
+# MokoCRM Development Standards
+
+## Purpose
+
+This policy establishes development standards for MokoCRM, Moko Consulting's customer relationship management platform based on the Dolibarr ERP/CRM framework. It defines coding conventions, module development requirements, customization guidelines, and quality standards specific to the Dolibarr ecosystem.
+
+## Scope
+
+This policy applies to:
+
+- All MokoCRM custom modules and extensions
+- Dolibarr core customizations
+- MokoCRM API integrations
+- Database schema modifications
+- Custom workflows and business logic
+- UI/UX customizations
+- Third-party module integration
+
+This policy does not apply to:
+
+- Dolibarr core framework code (unless creating patches)
+- Standard Dolibarr modules without modifications
+- Infrastructure configuration (covered by operations policies)
+
+## Responsibilities
+
+### CRM Development Lead
+
+Accountable for:
+
+- Defining CRM development standards
+- Approving module architecture
+- Reviewing major customizations
+- Ensuring Dolibarr compatibility
+- Managing technical debt
+
+### CRM Developers
+
+Responsible for:
+
+- Following development standards
+- Writing maintainable custom modules
+- Testing customizations thoroughly
+- Documenting code and configurations
+- Maintaining upgrade compatibility
+
+### QA Team
+
+Responsible for:
+
+- Testing custom modules
+- Validating upgrade compatibility
+- Verifying performance impact
+- Ensuring data integrity
+- Documenting test results
+
+## Dolibarr Architecture Overview
+
+### Platform Characteristics
+
+**Framework**: Dolibarr ERP/CRM
+**Language**: PHP 7.4+
+**Database**: MySQL 5.7+ / MariaDB 10.3+
+**Architecture**: Modular, MVC-inspired
+**License**: GPL-3.0-or-later
+
+### MokoCRM Structure
+
+```
+htdocs/
+├── custom/                    # Custom modules directory
+│   ├── moko*/                # Moko-prefixed custom modules
+│   ├── custom_integrations/  # Third-party integrations
+│   └── custom_workflows/     # Business logic customizations
+├── conf/                     # Configuration files
+│   └── conf.php             # Main configuration
+└── dolibarr/                # Core Dolibarr files (do not modify)
+```
+
+## Module Development Standards
+
+### Module Naming Convention
+
+**All custom modules MUST use "moko" prefix:**
+
+```
+mokocrm_[feature]
+mokoinvoice_automation
+mokokpi_dashboard
+mokoworkflow_approval
+```
+
+**Rationale**:
+- Clear identification of custom vs core modules
+- Namespace isolation
+- Upgrade safety
+- Easier maintenance
+
+### Module Structure
+
+**Standard Dolibarr module structure:**
+
+```
+htdocs/custom/mokomodule/
+├── admin/                    # Module configuration pages
+│   ├── setup.php            # Module settings
+│   └── about.php            # Module information
+├── class/                    # PHP classes
+│   ├── mokoobject.class.php # Main object class
+│   └── api_mokomodule.class.php # API endpoints
+├── core/                     # Core module files
+│   ├── modules/             # Numbering modules
+│   ├── triggers/            # Event triggers
+│   └── boxes/               # Dashboard widgets
+├── css/                      # Custom stylesheets
+├── img/                      # Module images/icons
+├── js/                       # JavaScript files
+├── langs/                    # Translations
+│   └── en_US/
+│       └── mokomodule.lang
+├── lib/                      # Library functions
+│   └── mokomodule.lib.php
+├── sql/                      # Database scripts
+│   ├── llx_mokomodule.sql   # Table creation
+│   └── llx_mokomodule.key.sql # Indexes and keys
+├── mokomoduleindex.php      # Module main page
+└── core/
+    └── modules/
+        └── modMokoModule.class.php # Module descriptor
+```
+
+### Module Descriptor
+
+**Every module MUST have a descriptor class:**
+
+```php
+<?php
+// htdocs/custom/mokomodule/core/modules/modMokoModule.class.php
+
+dol_include_once('/core/modules/DolibarrModules.class.php');
+
+class modMokoModule extends DolibarrModules
+{
+    public function __construct($db)
+    {
+        global $langs, $conf;
+        
+        $this->db = $db;
+        
+        // Module identification
+        $this->numero = 500000; // Unique ID (500000+ for custom)
+        $this->rights_class = 'mokomodule';
+        
+        // Module information
+        $this->family = "moko";
+        $this->module_position = '90';
+        $this->name = preg_replace('/^mod/i', '', get_class($this));
+        $this->description = "MokoCRM custom module description";
+        
+        // Version
+        $this->version = '1.0.0';
+        $this->const_name = 'MAIN_MODULE_'.strtoupper($this->name);
+        
+        // Dependencies
+        $this->depends = array('modUser', 'modSociete');
+        $this->requiredby = array();
+        
+        // Config pages
+        $this->config_page_url = array('setup.php@mokomodule');
+        
+        // Constants to add
+        $this->const = array();
+        
+        // Boxes
+        $this->boxes = array();
+        
+        // Permissions
+        $this->rights = array();
+        $r = 0;
+        
+        $r++;
+        $this->rights[$r][0] = $this->numero + $r;
+        $this->rights[$r][1] = 'Read MokoModule objects';
+        $this->rights[$r][3] = 0;
+        $this->rights[$r][4] = 'read';
+        
+        // Database tables
+        $this->dictionaries = array();
+    }
+}
+```
+
+### Database Standards
+
+**Table Naming**:
+- Use `llx_` prefix (Dolibarr standard)
+- Add module prefix after: `llx_moko_tablename`
+- Use lowercase with underscores
+- Example: `llx_moko_workflow_tasks`
+
+**Required Columns**:
+```sql
+CREATE TABLE llx_moko_example (
+  rowid INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  entity INT(11) DEFAULT 1 NOT NULL,
+  
+  -- Audit fields (required)
+  datec DATETIME NOT NULL,
+  tms TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  fk_user_creat INT(11),
+  fk_user_modif INT(11),
+  
+  -- Custom fields
+  ref VARCHAR(30) NOT NULL,
+  label VARCHAR(255),
+  description TEXT,
+  
+  -- Status
+  status SMALLINT DEFAULT 0 NOT NULL,
+  
+  -- Soft delete
+  import_key VARCHAR(14)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+```
+
+**Indexes**:
+```sql
+ALTER TABLE llx_moko_example ADD INDEX idx_moko_example_entity (entity);
+ALTER TABLE llx_moko_example ADD INDEX idx_moko_example_ref (ref);
+ALTER TABLE llx_moko_example ADD UNIQUE INDEX uk_moko_example_ref (ref, entity);
+```
+
+### PHP Coding Standards
+
+**Follow Dolibarr coding standards:**
+
+```php
+<?php
+/* Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ */
+
+/**
+ * \file       mokomodule/class/mokoobject.class.php
+ * \ingroup    mokomodule
+ * \brief      File for MokoObject class
+ */
+
+require_once DOL_DOCUMENT_ROOT.'/core/class/commonobject.class.php';
+
+/**
+ * MokoObject class
+ */
+class MokoObject extends CommonObject
+{
+    /**
+     * @var string ID to identify managed object
+     */
+    public $element = 'mokoobject';
+    
+    /**
+     * @var string Name of table without prefix
+     */
+    public $table_element = 'moko_object';
+    
+    /**
+     * @var int Ref field ID
+     */
+    public $fk_element = 'fk_mokoobject';
+    
+    /**
+     * @var string Module part for upload dir
+     */
+    public $picto = 'mokomodule@mokomodule';
+    
+    /**
+     * Constructor
+     *
+     * @param DoliDB $db Database handler
+     */
+    public function __construct($db)
+    {
+        $this->db = $db;
+    }
+    
+    /**
+     * Create object in database
+     *
+     * @param  User $user User creating object
+     * @param  int  $notrigger 1=Disable triggers
+     * @return int  <0 if KO, >0 if OK
+     */
+    public function create($user, $notrigger = 0)
+    {
+        global $conf;
+        
+        $error = 0;
+        
+        // Clean parameters
+        $this->ref = trim($this->ref);
+        
+        $this->db->begin();
+        
+        $sql = "INSERT INTO ".MAIN_DB_PREFIX.$this->table_element;
+        $sql .= " (entity, ref, label, datec, fk_user_creat)";
+        $sql .= " VALUES (";
+        $sql .= " ".((int) $conf->entity).",";
+        $sql .= " '".$this->db->escape($this->ref)."',";
+        $sql .= " '".$this->db->escape($this->label)."',";
+        $sql .= " '".$this->db->idate(dol_now())."',";
+        $sql .= " ".((int) $user->id);
+        $sql .= ")";
+        
+        dol_syslog(__METHOD__, LOG_DEBUG);
+        $resql = $this->db->query($sql);
+        
+        if ($resql) {
+            $this->id = $this->db->last_insert_id(MAIN_DB_PREFIX.$this->table_element);
+            
+            if (!$error && !$notrigger) {
+                // Call trigger
+                $result = $this->call_trigger('MOKOOBJECT_CREATE', $user);
+                if ($result < 0) {
+                    $error++;
+                }
+            }
+            
+            if (!$error) {
+                $this->db->commit();
+                return $this->id;
+            } else {
+                $this->db->rollback();
+                return -1;
+            }
+        } else {
+            $this->error = $this->db->lasterror();
+            $this->db->rollback();
+            return -1;
+        }
+    }
+}
+```
+
+**Key Standards**:
+- Use Dolibarr's CommonObject base class
+- Implement standard CRUD methods
+- Use database transactions
+- Call triggers for events
+- Log with dol_syslog()
+- Escape all SQL parameters
+- Follow Dolibarr naming conventions
+
+### API Development
+
+**Create REST API endpoints:**
+
+```php
+<?php
+/* Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+ */
+
+/**
+ * \file    mokomodule/class/api_mokomodule.class.php
+ * \ingroup mokomodule
+ * \brief   REST API for MokoModule
+ */
+
+require_once DOL_DOCUMENT_ROOT.'/api/class/api.class.php';
+require_once DOL_DOCUMENT_ROOT.'/custom/mokomodule/class/mokoobject.class.php';
+
+/**
+ * API class for MokoModule
+ *
+ * @access protected
+ * @class  DolibarrApiAccess {@requires user,external}
+ */
+class MokoModuleApi extends DolibarrApi
+{
+    /**
+     * @var MokoObject $mokoobject {@type MokoObject}
+     */
+    public $mokoobject;
+    
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        global $db;
+        $this->db = $db;
+        $this->mokoobject = new MokoObject($this->db);
+    }
+    
+    /**
+     * Get properties of a MokoObject
+     *
+     * @param int $id ID of object
+     * @return array|mixed Data without useless information
+     *
+     * @url GET /mokoobject/{id}
+     *
+     * @throws RestException 401 Not allowed
+     * @throws RestException 404 Not found
+     */
+    public function get($id)
+    {
+        if (!DolibarrApiAccess::$user->rights->mokomodule->read) {
+            throw new RestException(401);
+        }
+        
+        $result = $this->mokoobject->fetch($id);
+        if (!$result) {
+            throw new RestException(404, 'MokoObject not found');
+        }
+        
+        if (!DolibarrApi::_checkAccessToResource('mokomodule', $this->mokoobject->id)) {
+            throw new RestException(401, 'Access forbidden');
+        }
+        
+        return $this->_cleanObjectDatas($this->mokoobject);
+    }
+    
+    /**
+     * Create MokoObject
+     *
+     * @param array $request_data Request data
+     * @return int  ID of created object
+     *
+     * @url POST /mokoobject
+     */
+    public function post($request_data = null)
+    {
+        if (!DolibarrApiAccess::$user->rights->mokomodule->write) {
+            throw new RestException(401);
+        }
+        
+        $this->mokoobject->ref = $request_data['ref'];
+        $this->mokoobject->label = $request_data['label'];
+        
+        if ($this->mokoobject->create(DolibarrApiAccess::$user) < 0) {
+            throw new RestException(500, 'Error creating object', array_merge(array($this->mokoobject->error), $this->mokoobject->errors));
+        }
+        
+        return $this->mokoobject->id;
+    }
+}
+```
+
+### Trigger Development
+
+**Event-driven customizations:**
+
+```php
+<?php
+/* Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+ */
+
+/**
+ * \file    mokomodule/core/triggers/interface_99_modMokoModule_MokoTriggers.class.php
+ * \ingroup mokomodule
+ * \brief   Trigger file for MokoModule events
+ */
+
+require_once DOL_DOCUMENT_ROOT.'/core/triggers/dolibarrtriggers.class.php';
+
+/**
+ * Class of triggers for MokoModule
+ */
+class InterfaceModMokoModuleMokoTriggers extends DolibarrTriggers
+{
+    /**
+     * Constructor
+     *
+     * @param DoliDB $db Database handler
+     */
+    public function __construct($db)
+    {
+        $this->db = $db;
+        
+        $this->name = preg_replace('/^Interface/i', '', get_class($this));
+        $this->family = "moko";
+        $this->description = "MokoModule triggers";
+        $this->version = '1.0.0';
+        $this->picto = 'mokomodule@mokomodule';
+    }
+    
+    /**
+     * Trigger function
+     *
+     * @param string $action Event action code
+     * @param Object $object Object
+     * @param User   $user   User
+     * @param Translate $langs Lang object
+     * @param conf   $conf   Conf object
+     * @return int <0 if KO, 0 if nothing done, >0 if OK
+     */
+    public function runTrigger($action, $object, User $user, Translate $langs, Conf $conf)
+    {
+        if (empty($conf->mokomodule->enabled)) {
+            return 0;
+        }
+        
+        // Put your code here
+        switch ($action) {
+            case 'COMPANY_CREATE':
+                dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->id);
+                // Custom logic when company is created
+                break;
+                
+            case 'MOKOOBJECT_CREATE':
+                dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->id);
+                // Custom logic when MokoObject is created
+                break;
+                
+            default:
+                dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->id);
+        }
+        
+        return 0;
+    }
+}
+```
+
+## Customization Guidelines
+
+### Core Modifications
+
+**NEVER modify Dolibarr core files directly.**
+
+**Alternatives**:
+1. Use hooks and triggers
+2. Create custom modules
+3. Override with custom classes
+4. Use extrafields for data
+5. Submit patches upstream if core change needed
+
+### Hooks Usage
+
+**Use Dolibarr hooks for UI customization:**
+
+```php
+<?php
+// In module descriptor, enable hooks
+$this->module_parts = array(
+    'hooks' => array('thirdpartycard', 'invoicecard')
+);
+
+// In custom module, implement hook
+function formObjectOptions($parameters, &$object, &$action, $hookmanager)
+{
+    global $langs;
+    
+    if (in_array('thirdpartycard', explode(':', $parameters['context']))) {
+        print '<tr><td>'.$langs->trans('MokoCustomField').'</td>';
+        print '<td>Custom content here</td></tr>';
+    }
+    
+    return 0;
+}
+```
+
+### Extrafields
+
+**Use extrafields for custom data:**
+
+```php
+<?php
+// In module descriptor
+$this->const = array(
+    array(
+        'MOKO_EXTRAFIELD_ENABLED',
+        'chaine',
+        '1',
+        'Enable custom extrafields',
+        0,
+        'current',
+        1
+    )
+);
+
+// Create extrafield programmatically
+require_once DOL_DOCUMENT_ROOT.'/core/class/extrafields.class.php';
+
+$extrafields = new ExtraFields($db);
+$extrafields->addExtraField(
+    'moko_custom_field',
+    'Moko Custom Field',
+    'varchar',
+    1,
+    50,
+    'thirdparty',
+    0,
+    0,
+    '',
+    '',
+    1,
+    '',
+    1
+);
+```
+
+## Security Standards
+
+### Input Validation
+
+**Always validate and sanitize input:**
+
+```php
+<?php
+// Use GETPOST() for all user input
+$id = GETPOST('id', 'int');
+$ref = GETPOST('ref', 'alpha');
+$action = GETPOST('action', 'aZ09');
+
+// Validate before use
+if (empty($id) || $id <= 0) {
+    setEventMessages($langs->trans('ErrorFieldRequired', $langs->transnoentities('Id')), null, 'errors');
+    header('Location: index.php');
+    exit;
+}
+
+// Use restrictedArea() for access control
+restrictedArea($user, 'mokomodule', $id, 'moko_object');
+```
+
+### Permission Checks
+
+**Always check permissions:**
+
+```php
+<?php
+// Check module permission
+if (!$user->rights->mokomodule->read) {
+    accessforbidden();
+}
+
+// Check object permission
+if (!$user->rights->mokomodule->write) {
+    setEventMessages($langs->trans('NotEnoughPermissions'), null, 'errors');
+    header('Location: index.php');
+    exit;
+}
+```
+
+### SQL Injection Prevention
+
+**Use prepared statements or escaping:**
+
+```php
+<?php
+// Use placeholders
+$sql = "SELECT * FROM ".MAIN_DB_PREFIX."moko_object";
+$sql .= " WHERE entity = ".((int) $conf->entity);
+$sql .= " AND ref = '".$db->escape($ref)."'";
+
+// Or use parameterized queries
+$sql = "SELECT * FROM ".MAIN_DB_PREFIX."moko_object WHERE rowid = ?";
+$resql = $db->query($sql, array($id));
+```
+
+## Testing Requirements
+
+### Unit Testing
+
+**Write PHPUnit tests for custom classes:**
+
+```php
+<?php
+use PHPUnit\Framework\TestCase;
+
+class MokoObjectTest extends TestCase
+{
+    private $db;
+    private $object;
+    
+    protected function setUp(): void
+    {
+        global $db;
+        $this->db = $db;
+        $this->object = new MokoObject($this->db);
+    }
+    
+    public function testCreate()
+    {
+        global $user;
+        
+        $this->object->ref = 'TEST001';
+        $this->object->label = 'Test Object';
+        
+        $result = $this->object->create($user);
+        
+        $this->assertGreaterThan(0, $result);
+        $this->assertGreaterThan(0, $this->object->id);
+    }
+}
+```
+
+### Integration Testing
+
+**Test with actual Dolibarr environment:**
+
+- Test module installation/uninstallation
+- Test database migrations
+- Test API endpoints
+- Test permissions
+- Test triggers
+- Test hooks
+
+### Upgrade Testing
+
+**Test compatibility with Dolibarr upgrades:**
+
+- Test on multiple Dolibarr versions
+- Verify database schema compatibility
+- Check deprecated function usage
+- Validate module still works after upgrade
+
+## Performance Standards
+
+### Database Optimization
+
+- Use indexes on foreign keys and search fields
+- Avoid SELECT * queries
+- Use JOINs instead of multiple queries
+- Implement pagination for large result sets
+- Cache frequently accessed data
+
+### Code Optimization
+
+- Use Dolibarr's caching mechanisms
+- Minimize database queries
+- Lazy load related objects
+- Optimize hook implementations
+- Profile slow pages
+
+## Documentation Requirements
+
+### Module Documentation
+
+**Every module MUST have**:
+
+1. README.md with installation instructions
+2. CHANGELOG.md with version history
+3. API documentation if exposing endpoints
+4. User guide for custom features
+5. Developer guide for customizations
+
+### Code Comments
+
+**Use Dolibarr documentation format:**
+
+```php
+/**
+ * Calculate total amount
+ *
+ * @param  float $subtotal Subtotal before tax
+ * @param  float $taxrate  Tax rate percentage
+ * @return float           Total amount with tax
+ */
+public function calculateTotal($subtotal, $taxrate)
+{
+    return $subtotal * (1 + $taxrate / 100);
+}
+```
+
+## Version Control
+
+### Branching Strategy
+
+- `main` - Production-ready code
+- `develop` - Integration branch
+- `feature/*` - New features
+- `hotfix/*` - Production fixes
+- `release/*` - Release preparation
+
+### Commit Messages
+
+```
+feat(mokomodule): add new workflow automation
+fix(mokoinvoice): correct tax calculation
+docs(mokocrm): update API documentation
+refactor(mokoworkflow): simplify approval logic
+```
+
+## Deployment Standards
+
+### Module Packaging
+
+**Create distribution package:**
+
+```
+mokomodule-1.0.0.zip
+├── mokomodule/           # Module files
+├── README.md
+├── CHANGELOG.md
+└── doc/
+    └── manual.pdf
+```
+
+### Installation Process
+
+1. Extract to htdocs/custom/
+2. Enable in Module Setup
+3. Run database migrations
+4. Configure module settings
+5. Set permissions
+6. Test functionality
+
+## Compliance and Governance
+
+### License Compliance
+
+- All custom modules: GPL-3.0-or-later
+- Include license headers in all files
+- Document third-party dependencies
+- Respect Dolibarr's GPL license
+
+### Code Review
+
+- All custom modules require review
+- Security review for sensitive operations
+- Performance review for database changes
+- Documentation review for user-facing features
+
+## Dependencies
+
+This policy depends on:
+
+- [Scripting Standards](../scripting-standards.md) - For automation scripts
+- [Security Scanning Policy](../security-scanning.md) - For vulnerability detection
+- [Dependency Management](../dependency-management.md) - For third-party modules
+- Dolibarr version 14.0+ installed
+
+## Acceptance Criteria
+
+- [ ] All custom modules use "moko" prefix
+- [ ] Module descriptors properly configured
+- [ ] Database tables follow naming convention
+- [ ] All code follows Dolibarr standards
+- [ ] Input validation implemented
+- [ ] Permission checks in place
+- [ ] API endpoints documented
+- [ ] Unit tests written
+- [ ] Module documentation complete
+- [ ] Upgrade compatibility verified
+
+## Metadata
+
+- **Document Type**: policy
+- **Document Subtype**: crm
+- **Owner Role**: CRM Development Lead
+- **Approval Required**: Yes
+- **Evidence Required**: Yes
+- **Review Cycle**: Semiannual
+- **Retention**: Indefinite
+- **Compliance Tags**: Development, CRM, Dolibarr
+- **Status**: Published
+
+## Revision History
+
+| Date       | Version  | Author          | Notes                                 |
+| ---------- | -------- | --------------- | ------------------------------------- |
+| 2026-01-04 | 05.00.00 | Moko Consulting | Initial MokoCRM development standards |

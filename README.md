@@ -23,13 +23,13 @@
  INGROUP: MokoStandards
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  FILE: README.md
- VERSION: 04.01.00
+ VERSION: 05.00.00
  BRIEF: Coding standards hub and cross repository index for the MokoStandards ecosystem.
  PATH: /README.md
  NOTE: Repository rebaselined to standards first, decoupled from specific template or scaffold repositories.
 -->
 
-# MokoStandards (VERSION: 04.01.00)
+# MokoStandards (VERSION: 05.00.00)
 
 MokoStandards is the authoritative control plane for coding standards across the Moko Consulting ecosystem. This repository defines how code is formatted, structured, reviewed, tested, packaged, and released.
 
@@ -53,6 +53,23 @@ Excluded:
 ## Ecosystem map
 
 This repository defines standards independently of any specific downstream implementation. Companion repositories may exist, but are not enumerated or coupled here.
+
+### Private Repository for Internal Use
+
+**For Moko Consulting Internal Users**: Sensitive files including internal automation scripts, proprietary AI prompts, and internal documentation have been moved to a private repository:
+
+**Repository**: `mokoconsulting-tech/.github-private` (internal access only)
+
+See [PRIVATE_REPOSITORY_REFERENCE.md](PRIVATE_REPOSITORY_REFERENCE.md) for:
+- Complete list of moved files
+- Access instructions for internal users
+- Public alternatives for external users
+- Guidance for creating your own internal automation
+
+This separation ensures:
+- Public standards remain open and shareable
+- Sensitive organizational information stays private
+- Clear boundaries between public and internal content
 
 ## Operating model
 
@@ -164,6 +181,22 @@ This repository is organized to separate enforceable standards from reusable tem
   * Scripts are designed to be portable and adaptable.
   * Downstream repositories may vendor, mirror, or reimplement these scripts as needed.
 
+### GitHub templates and workflows
+
+* **Public workflow templates**: [`.github/workflows/templates/`](.github/workflows/templates/README.md)
+
+  * CI/CD workflow templates for Joomla and generic projects
+  * Repository health monitoring workflows
+  * Version branch automation
+
+* **Private GitHub templates**: Maintained in separate repository `mokoconsulting-tech/MokoStandards-github-private`
+
+  * CODEOWNERS files
+  * Issue templates
+  * Pull request templates
+  * Internal workflow configurations
+  * Separation ensures confidential organizational templates remain private
+
 ### Repository reference layouts
 
 * [`templates/repos/joomla/component/`](templates/repos/joomla/component/index.md)
@@ -238,3 +271,4 @@ See the authoritative roadmap document: [`/docs/ROADMAP.md`](docs/ROADMAP.md).
 | -------- | ---------- | ------------------------------- | ---------------------------------------------------------------- |
 | 01.00.00 | 2025-12-17 | Jonathan Miller (@jmiller-moko) | Initial standards first rebaseline and ecosystem linking.        |
 | 04.01.00 | 2026-01-03 | Jonathan Miller (@jmiller-moko) | Version alignment with current MokoStandards standards baseline. |
+| 05.00.00 | 2026-01-04 | Jonathan Miller (@jmiller-moko) | Enterprise readiness: security automation, workflow consolidation, complete public/private separation. |

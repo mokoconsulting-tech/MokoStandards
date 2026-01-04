@@ -18,6 +18,7 @@ This index provides navigation to documentation within this folder.
 - [documentation-governance](./documentation-governance.md)
 - [merge-strategy](./merge-strategy.md)
 - [risk-register](./risk-register.md)
+- [scripting-standards](./scripting-standards.md)
 - [security-scanning](./security-scanning.md)
 - [vendor-risk](./vendor-risk.md)
 

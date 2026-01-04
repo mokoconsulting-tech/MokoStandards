@@ -1,17 +1,8 @@
-# Docs Index: /repos/joomla
+# Docs Index: /repos/joomla/template/scripts
 
 ## Purpose
 
 This index provides navigation to documentation within this folder.
-
-## Subfolders
-
-- [component/](./component/index.md)
-- [library/](./library/index.md)
-- [module/](./module/index.md)
-- [package/](./package/index.md)
-- [plugin/](./plugin/index.md)
-- [template/](./template/index.md)
 
 ## Metadata
 

@@ -14,7 +14,6 @@ This index provides navigation to documentation within this folder.
 ## Documents
 
 - [README](./README.md)
-- [readme](./readme.md)
 - [ROADMAP](./ROADMAP.md)
 
 ## Metadata

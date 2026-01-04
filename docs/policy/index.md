@@ -11,6 +11,7 @@ This index provides navigation to documentation within this folder.
 ## Documents
 
 - [change-management](./change-management.md)
+- [copilot-prompt-projectv2-joomla-template](./copilot-prompt-projectv2-joomla-template.md)
 - [data-classification](./data-classification.md)
 - [document-formatting](./document-formatting.md)
 - [documentation-governance](./documentation-governance.md)

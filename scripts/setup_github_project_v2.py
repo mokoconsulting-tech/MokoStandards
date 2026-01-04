@@ -1,0 +1,628 @@
+#!/usr/bin/env python3
+# Copyright (C) 2025 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# (./LICENSE.md).
+#
+# FILE INFORMATION
+# DEFGROUP: MokoStandards.Scripts
+# INGROUP: MokoStandards.Automation
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# FILE: scripts/setup_github_project_v2.py
+# VERSION: 04.01.00
+# BRIEF: GitHub Project v2 setup automation - creates documentation control register
+# PATH: /scripts/setup_github_project_v2.py
+# NOTE: Creates project, custom fields, and populates items from repository scan
+
+"""
+GitHub Project v2 Setup Script
+Creates a GitHub Project v2 and populates it with documentation tasks.
+
+Usage:
+    export GH_PAT="your_personal_access_token"
+    python3 scripts/setup_github_project_v2.py
+
+Or use gh CLI authentication:
+    gh auth login
+    python3 scripts/setup_github_project_v2.py
+"""
+
+import json
+import os
+import subprocess
+import sys
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple
+
+
+class GitHubProjectV2Setup:
+    """Handles GitHub Project v2 creation and population."""
+
+    def __init__(self, org: str, project_title: str, token: Optional[str] = None):
+        self.org = org
+        self.project_title = project_title
+        self.token = token
+        self.project_id = None
+        self.project_number = None
+        self.field_ids = {}
+        self.field_option_ids = {}
+        self.created_items = []
+        self.skipped_items = []
+        self.errors = []
+
+    def run_graphql(self, query: str, variables: Optional[Dict] = None) -> Dict:
+        """Execute a GraphQL query using gh CLI or direct API."""
+        try:
+            if self.token:
+                # Use direct API call with token
+                import requests
+                headers = {
+                    "Authorization": f"Bearer {self.token}",
+                    "Content-Type": "application/json"
+                }
+                payload = {"query": query}
+                if variables:
+                    payload["variables"] = variables
+                
+                response = requests.post(
+                    "https://api.github.com/graphql",
+                    headers=headers,
+                    json=payload,
+                    timeout=30
+                )
+                response.raise_for_status()
+                return response.json()
+            else:
+                # Use gh CLI
+                cmd = ["gh", "api", "graphql", "-f", f"query={query}"]
+                if variables:
+                    for key, value in variables.items():
+                        if isinstance(value, (list, dict)):
+                            cmd.extend(["-F", f"{key}={json.dumps(value)}"])
+                        else:
+                            cmd.extend(["-f", f"{key}={value}"])
+                
+                result = subprocess.run(
+                    cmd,
+                    capture_output=True,
+                    text=True,
+                    check=True
+                )
+                return json.loads(result.stdout)
+        except subprocess.CalledProcessError as e:
+            error_msg = f"GraphQL error: {e.stderr}"
+            self.errors.append(error_msg)
+            print(f"ERROR: {error_msg}", file=sys.stderr)
+            return {}
+        except Exception as e:
+            error_msg = f"Error: {e}"
+            self.errors.append(error_msg)
+            print(f"ERROR: {error_msg}", file=sys.stderr)
+            return {}
+
+    def verify_auth(self) -> bool:
+        """Verify GitHub CLI authentication or token."""
+        if self.token:
+            print(f"✅ Using GH_PAT token (length: {len(self.token)})")
+            # Verify token works
+            try:
+                result = self.run_graphql("query { viewer { login } }")
+                if result and "data" in result and result["data"].get("viewer"):
+                    print(f"✅ Authenticated as: {result['data']['viewer']['login']}")
+                    return True
+                else:
+                    print("❌ Token authentication failed")
+                    return False
+            except Exception as e:
+                print(f"❌ Token verification failed: {e}")
+                return False
+        else:
+            try:
+                result = subprocess.run(
+                    ["gh", "auth", "status"],
+                    capture_output=True,
+                    text=True,
+                    check=False
+                )
+                if result.returncode == 0:
+                    print("✅ GitHub CLI authenticated")
+                    return True
+                else:
+                    print("❌ GitHub CLI not authenticated")
+                    print("Please run: gh auth login OR set GH_PAT environment variable")
+                    return False
+            except Exception as e:
+                print(f"❌ Error checking auth: {e}")
+                return False
+
+    def get_org_id(self) -> Optional[str]:
+        """Get organization ID."""
+        query = """
+        query($org: String!) {
+            organization(login: $org) {
+                id
+            }
+        }
+        """
+        result = self.run_graphql(query, {"org": self.org})
+        if result and "data" in result and result["data"].get("organization"):
+            org_id = result["data"]["organization"]["id"]
+            print(f"✅ Organization ID: {org_id}")
+            return org_id
+        else:
+            print(f"❌ Failed to get organization ID")
+            return None
+
+    def create_project(self, org_id: str) -> bool:
+        """Create GitHub Project v2."""
+        mutation = """
+        mutation($orgId: ID!, $title: String!) {
+            createProjectV2(input: {ownerId: $orgId, title: $title}) {
+                projectV2 {
+                    id
+                    number
+                    title
+                    url
+                }
+            }
+        }
+        """
+        result = self.run_graphql(mutation, {"orgId": org_id, "title": self.project_title})
+        
+        if result and "data" in result and result["data"].get("createProjectV2"):
+            project = result["data"]["createProjectV2"]["projectV2"]
+            self.project_id = project["id"]
+            self.project_number = project["number"]
+            print(f"✅ Created Project: {project['title']}")
+            print(f"   Project Number: {self.project_number}")
+            print(f"   Project ID: {self.project_id}")
+            print(f"   URL: {project.get('url', 'N/A')}")
+            return True
+        else:
+            print(f"❌ Failed to create project")
+            if result and "errors" in result:
+                for error in result["errors"]:
+                    print(f"   Error: {error.get('message', error)}")
+            return False
+
+    def create_single_select_field(self, name: str, options: List[str]) -> Optional[str]:
+        """Create a single-select field."""
+        mutation = """
+        mutation($projectId: ID!, $name: String!, $options: [ProjectV2SingleSelectFieldOptionInput!]!) {
+            createProjectV2Field(input: {
+                projectId: $projectId,
+                dataType: SINGLE_SELECT,
+                name: $name,
+                singleSelectOptions: $options
+            }) {
+                projectV2Field {
+                    ... on ProjectV2SingleSelectField {
+                        id
+                        name
+                        options {
+                            id
+                            name
+                        }
+                    }
+                }
+            }
+        }
+        """
+        
+        option_list = [{"name": opt} for opt in options]
+        
+        result = self.run_graphql(mutation, {
+            "projectId": self.project_id,
+            "name": name,
+            "options": option_list
+        })
+        
+        if result and "data" in result and result["data"].get("createProjectV2Field"):
+            field_data = result["data"]["createProjectV2Field"]["projectV2Field"]
+            field_id = field_data["id"]
+            
+            # Store option IDs for later use
+            if "options" in field_data:
+                self.field_option_ids[name] = {
+                    opt["name"]: opt["id"] for opt in field_data["options"]
+                }
+            
+            print(f"  ✅ Created field: {name} ({len(options)} options)")
+            return field_id
+        else:
+            print(f"  ❌ Failed to create field: {name}")
+            if result and "errors" in result:
+                for error in result["errors"]:
+                    print(f"     Error: {error.get('message', error)}")
+            return None
+
+    def create_text_field(self, name: str) -> Optional[str]:
+        """Create a text field."""
+        mutation = """
+        mutation($projectId: ID!, $name: String!) {
+            createProjectV2Field(input: {
+                projectId: $projectId,
+                dataType: TEXT,
+                name: $name
+            }) {
+                projectV2Field {
+                    ... on ProjectV2Field {
+                        id
+                        name
+                    }
+                }
+            }
+        }
+        """
+        
+        result = self.run_graphql(mutation, {
+            "projectId": self.project_id,
+            "name": name
+        })
+        
+        if result and "data" in result and result["data"].get("createProjectV2Field"):
+            field_id = result["data"]["createProjectV2Field"]["projectV2Field"]["id"]
+            print(f"  ✅ Created field: {name}")
+            return field_id
+        else:
+            print(f"  ❌ Failed to create field: {name}")
+            if result and "errors" in result:
+                for error in result["errors"]:
+                    print(f"     Error: {error.get('message', error)}")
+            return None
+
+    def create_all_fields(self) -> bool:
+        """Create all custom fields."""
+        print("\n📋 Creating custom fields...")
+        
+        # Single-select fields (as per requirements)
+        single_select_fields = {
+            "Status": ["Planned", "In Progress", "In Review", "Approved", "Published", "Blocked", "Archived"],
+            "Priority": ["High", "Medium", "Low"],
+            "Risk Level": ["High", "Medium", "Low"],
+            "Document Type": ["policy", "guide", "checklist", "overview", "index"],
+            "Document Subtype": ["core", "waas", "catalog", "guide", "policy"],
+            "Owner Role": ["Documentation Owner", "Governance Owner", "Security Owner", "Operations Owner", "Release Owner"],
+            "Approval Required": ["Yes", "No"],
+            "Evidence Required": ["Yes", "No"],
+            "Review Cycle": ["Annual", "Semiannual", "Quarterly", "Ad hoc"],
+            "Retention": ["Indefinite", "7 Years", "5 Years", "3 Years"],
+        }
+        
+        for field_name, options in single_select_fields.items():
+            field_id = self.create_single_select_field(field_name, options)
+            if field_id:
+                self.field_ids[field_name] = field_id
+            else:
+                print(f"❌ STOP: Failed to create field '{field_name}'")
+                return False
+        
+        # Text fields (as per requirements)
+        text_fields = [
+            "Document Path",
+            "Dependencies",
+            "Acceptance Criteria",
+            "RACI",
+            "KPIs"
+        ]
+        
+        for field_name in text_fields:
+            field_id = self.create_text_field(field_name)
+            if field_id:
+                self.field_ids[field_name] = field_id
+            else:
+                print(f"❌ STOP: Failed to create field '{field_name}'")
+                return False
+        
+        print(f"\n✅ Created {len(self.field_ids)} custom fields")
+        print("\n⚠️  Note: Multi-select fields (Compliance Tags, Evidence Artifacts)")
+        print("   must be created manually via UI as they are not fully supported via API")
+        
+        return True
+
+    def scan_repository(self, repo_path: Path) -> List[Tuple[Path, str]]:
+        """Scan repository for documentation files."""
+        print("\n🔍 Scanning repository...")
+        
+        docs_path = repo_path / "docs"
+        templates_path = repo_path / "templates"
+        
+        files = []
+        
+        # Scan docs directory
+        if docs_path.exists():
+            for md_file in docs_path.rglob("*.md"):
+                rel_path = md_file.relative_to(repo_path)
+                files.append((rel_path, "Documentation"))
+        
+        # Scan templates directory
+        if templates_path.exists():
+            for md_file in templates_path.rglob("*.md"):
+                rel_path = md_file.relative_to(repo_path)
+                files.append((rel_path, "Template"))
+        
+        print(f"✅ Found {len(files)} documents")
+        return sorted(files)
+
+    def infer_document_type(self, path: Path) -> str:
+        """Infer document type from path."""
+        path_str = str(path).lower()
+        if "/policy/" in path_str:
+            return "policy"
+        elif "/guide/" in path_str:
+            return "guide"
+        elif "/checklist/" in path_str:
+            return "checklist"
+        elif path.name.lower() in ["index.md", "readme.md"]:
+            return "index"
+        elif "overview" in path_str:
+            return "overview"
+        else:
+            return "guide"
+
+    def infer_document_subtype(self, path: Path, doc_type: str) -> str:
+        """Infer document subtype from path."""
+        path_str = str(path).lower()
+        if "/waas/" in path_str:
+            return "waas"
+        elif "/templates/" in path_str:
+            return "catalog"
+        elif doc_type == "policy":
+            return "policy"
+        elif doc_type == "guide":
+            return "guide"
+        else:
+            return "core"
+
+    def get_approval_required(self, doc_type: str) -> str:
+        """Determine if approval is required."""
+        return "Yes" if doc_type == "policy" else "No"
+
+    def create_project_item(self, file_path: Path, purpose: str) -> bool:
+        """Create a project item for a document."""
+        title = file_path.stem
+        
+        doc_type = self.infer_document_type(file_path)
+        doc_subtype = self.infer_document_subtype(file_path, doc_type)
+        approval_required = self.get_approval_required(doc_type)
+        
+        body = f"""Document Path: {file_path}
+Purpose: {purpose} tracking
+Source: Imported from repository scan"""
+        
+        mutation = """
+        mutation($projectId: ID!, $title: String!, $body: String!) {
+            addProjectV2DraftIssue(input: {
+                projectId: $projectId,
+                title: $title,
+                body: $body
+            }) {
+                projectV2Item {
+                    id
+                }
+            }
+        }
+        """
+        
+        result = self.run_graphql(mutation, {
+            "projectId": self.project_id,
+            "title": title,
+            "body": body
+        })
+        
+        if result and "data" in result and result["data"].get("addProjectV2DraftIssue"):
+            item_id = result["data"]["addProjectV2DraftIssue"]["projectV2Item"]["id"]
+            self.created_items.append(str(file_path))
+            
+            # Set field values for the item
+            self.set_item_fields(item_id, file_path, doc_type, doc_subtype, approval_required)
+            
+            return True
+        else:
+            self.skipped_items.append(str(file_path))
+            return False
+
+    def set_item_fields(self, item_id: str, file_path: Path, doc_type: str, 
+                       doc_subtype: str, approval_required: str):
+        """Set field values for a project item."""
+        # Set Document Path (text field)
+        if "Document Path" in self.field_ids:
+            self.set_text_field(item_id, "Document Path", str(file_path))
+        
+        # Set single-select fields
+        field_values = {
+            "Status": "Planned",
+            "Priority": "Medium",
+            "Risk Level": "Low",
+            "Document Type": doc_type,
+            "Document Subtype": doc_subtype,
+            "Owner Role": "Documentation Owner",
+            "Approval Required": approval_required,
+            "Evidence Required": "Yes",
+            "Review Cycle": "Annual",
+            "Retention": "Indefinite"
+        }
+        
+        for field_name, value in field_values.items():
+            if field_name in self.field_ids and field_name in self.field_option_ids:
+                option_id = self.field_option_ids[field_name].get(value)
+                if option_id:
+                    self.set_single_select_field(item_id, field_name, option_id)
+
+    def set_text_field(self, item_id: str, field_name: str, value: str):
+        """Set a text field value."""
+        mutation = """
+        mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: String!) {
+            updateProjectV2ItemFieldValue(input: {
+                projectId: $projectId,
+                itemId: $itemId,
+                fieldId: $fieldId,
+                value: {
+                    text: $value
+                }
+            }) {
+                projectV2Item {
+                    id
+                }
+            }
+        }
+        """
+        
+        self.run_graphql(mutation, {
+            "projectId": self.project_id,
+            "itemId": item_id,
+            "fieldId": self.field_ids[field_name],
+            "value": value
+        })
+
+    def set_single_select_field(self, item_id: str, field_name: str, option_id: str):
+        """Set a single-select field value."""
+        mutation = """
+        mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
+            updateProjectV2ItemFieldValue(input: {
+                projectId: $projectId,
+                itemId: $itemId,
+                fieldId: $fieldId,
+                value: {
+                    singleSelectOptionId: $optionId
+                }
+            }) {
+                projectV2Item {
+                    id
+                }
+            }
+        }
+        """
+        
+        self.run_graphql(mutation, {
+            "projectId": self.project_id,
+            "itemId": item_id,
+            "fieldId": self.field_ids[field_name],
+            "optionId": option_id
+        })
+
+    def populate_project(self, repo_path: Path) -> bool:
+        """Populate project with documentation items."""
+        print("\n📝 Creating project items...")
+        
+        files = self.scan_repository(repo_path)
+        
+        total = len(files)
+        for idx, (file_path, purpose) in enumerate(files, 1):
+            success = self.create_project_item(file_path, purpose)
+            if success:
+                print(f"  [{idx}/{total}] ✅ {file_path}")
+            else:
+                print(f"  [{idx}/{total}] ⚠️  Skipped: {file_path}")
+        
+        print(f"\n✅ Created {len(self.created_items)} items")
+        if self.skipped_items:
+            print(f"⚠️  Skipped {len(self.skipped_items)} items")
+        
+        return True
+
+    def print_summary(self):
+        """Print summary report."""
+        print("\n" + "="*70)
+        print("SUMMARY REPORT")
+        print("="*70)
+        print(f"\n📊 Project: {self.project_title}")
+        print(f"   Number: {self.project_number}")
+        print(f"   Organization: {self.org}")
+        print(f"\n📋 Custom Fields: {len(self.field_ids)} created")
+        print(f"📄 Documents Scanned: {len(self.created_items) + len(self.skipped_items)}")
+        print(f"✅ Project Items Created: {len(self.created_items)}")
+        
+        if self.skipped_items:
+            print(f"⚠️  Items Skipped: {len(self.skipped_items)}")
+        
+        if self.errors:
+            print(f"\n❌ Errors Encountered: {len(self.errors)}")
+            for error in self.errors[:5]:  # Show first 5 errors
+                print(f"   - {error}")
+            if len(self.errors) > 5:
+                print(f"   ... and {len(self.errors) - 5} more")
+        else:
+            print("\n✅ No errors encountered")
+        
+        print("\n" + "="*70)
+
+
+def main():
+    """Main execution function."""
+    print("="*70)
+    print("GitHub Project v2 Setup")
+    print("MokoStandards Documentation Control Register")
+    print("="*70)
+    
+    # Configuration
+    ORG = "mokoconsulting-tech"
+    PROJECT_TITLE = "MokoStandards Documentation Control Register"
+    REPO_PATH = Path("/home/runner/work/MokoStandards/MokoStandards")
+    
+    # Get token from environment (GH_PAT secret)
+    token = os.environ.get("GH_PAT")
+    
+    # Initialize setup
+    setup = GitHubProjectV2Setup(ORG, PROJECT_TITLE, token)
+    
+    # Step 1: Verify authentication
+    print("\n🔐 Step 1: Verifying authentication...")
+    if not setup.verify_auth():
+        print("\n❌ STOP: Authentication required")
+        print("\nPlease either:")
+        print("  1. Set GH_PAT environment variable: export GH_PAT='your_token'")
+        print("  2. Authenticate gh CLI: gh auth login")
+        sys.exit(1)
+    
+    # Step 2: Get organization ID
+    print("\n🏢 Step 2: Getting organization ID...")
+    org_id = setup.get_org_id()
+    if not org_id:
+        print("\n❌ STOP: Failed to get organization ID")
+        print("Ensure the token has 'read:org' permission")
+        sys.exit(1)
+    
+    # Step 3: Create project
+    print("\n📁 Step 3: Creating GitHub Project v2...")
+    if not setup.create_project(org_id):
+        print("\n❌ STOP: Failed to create project")
+        print("Ensure the token has 'project' (write) permission")
+        sys.exit(1)
+    
+    # Step 4: Create custom fields
+    print("\n🔧 Step 4: Creating custom fields...")
+    if not setup.create_all_fields():
+        print("\n❌ STOP: Failed to create custom fields")
+        sys.exit(1)
+    
+    # Step 5: Scan and populate
+    print("\n📚 Step 5: Scanning repository and creating items...")
+    if not setup.populate_project(REPO_PATH):
+        print("\n❌ STOP: Failed to populate project")
+        sys.exit(1)
+    
+    # Print summary
+    setup.print_summary()
+    
+    print("\n✅ Project v2 setup completed successfully!")
+    print(f"\nView your project at:")
+    print(f"https://github.com/orgs/{ORG}/projects/{setup.project_number}")
+
+
+if __name__ == "__main__":
+    main()

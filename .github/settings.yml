@@ -38,7 +38,11 @@ repository:
   homepage: https://github.com/mokoconsulting-tech/MokoStandards
   
   # Repository topics
-  topics: standards, coding-standards, governance, documentation
+  topics:
+    - standards
+    - coding-standards
+    - governance
+    - documentation
   
   # Repository visibility (public or private)
   private: false

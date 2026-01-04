@@ -47,7 +47,7 @@ Violations of standards or the Code of Conduct may result in rejected PRs or acc
 
 - [SECURITY.md](SECURITY.md) — vulnerability reporting
 - [SUPPORT.md](SUPPORT.md) — support channels
-- [CONTRIBUTING.md](CONTRIBUTING.md) — contribution and branching strategy
+- [CONTRIBUTING.md](CONTRIBUTING.md) — contribution guidelines
 - [.github/PULL_REQUEST_TEMPLATE.md](.github/PULL_REQUEST_TEMPLATE.md) — PR checklist
 - [.github/ISSUE_TEMPLATE/bug_report.md](.github/ISSUE_TEMPLATE/bug_report.md) — bug template
 - [.github/ISSUE_TEMPLATE/feature_request.md](.github/ISSUE_TEMPLATE/feature_request.md) — feature template

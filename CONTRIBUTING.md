@@ -23,7 +23,7 @@ DEFGROUP: Documentation.Policy
 INGROUP: MokoStandards
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /CONTRIBUTING.md
-VERSION: 01.00.00
+VERSION: 04.01.00
 BRIEF: Contribution and branching governance policy.
 NOTE:
 -->

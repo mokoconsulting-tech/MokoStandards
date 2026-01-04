@@ -54,6 +54,23 @@ Excluded:
 
 This repository defines standards independently of any specific downstream implementation. Companion repositories may exist, but are not enumerated or coupled here.
 
+### Private Repository for Internal Use
+
+**For Moko Consulting Internal Users**: Sensitive files including internal automation scripts, proprietary AI prompts, and internal documentation have been moved to a private repository:
+
+**Repository**: `mokoconsulting-tech/.github-private` (internal access only)
+
+See [PRIVATE_REPOSITORY_REFERENCE.md](PRIVATE_REPOSITORY_REFERENCE.md) for:
+- Complete list of moved files
+- Access instructions for internal users
+- Public alternatives for external users
+- Guidance for creating your own internal automation
+
+This separation ensures:
+- Public standards remain open and shareable
+- Sensitive organizational information stays private
+- Clear boundaries between public and internal content
+
 ## Operating model
 
 ### Source of truth

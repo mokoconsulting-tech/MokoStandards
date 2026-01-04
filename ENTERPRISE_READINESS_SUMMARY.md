@@ -307,8 +307,8 @@ This document summarizes the enterprise-ready enhancements made to the MokoStand
 - `.github/README.md` - Added private repo reference
 - `docs/policy/index.md` - Added new policies
 - `docs/guide/index.md` - Added split plan guide
-- `IMPLEMENTATION_SUMMARY.md` - Updated structure references
 - `docs/policy/change-management.md` - Updated template paths
+- `PRIVATE_REPOSITORY_REFERENCE.md` - Reference to moved internal files
 
 ## Security Improvements
 

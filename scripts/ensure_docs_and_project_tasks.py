@@ -712,7 +712,7 @@ Source: Generated from canonical document list"""
                 title: $title,
                 body: $body
             }) {
-                projectV2Item {
+                projectItem {
                     id
                 }
             }
@@ -726,7 +726,7 @@ Source: Generated from canonical document list"""
         })
         
         if result and "data" in result and result["data"].get("addProjectV2DraftIssue"):
-            item_id = result["data"]["addProjectV2DraftIssue"]["projectV2Item"]["id"]
+            item_id = result["data"]["addProjectV2DraftIssue"]["projectItem"]["id"]
             self.created_tasks.append(doc_path)
             
             # Set field values
@@ -780,7 +780,7 @@ Source: Generated from canonical document list"""
                 fieldId: $fieldId,
                 value: { text: $value }
             }) {
-                projectV2Item { id }
+                projectItem { id }
             }
         }
         """
@@ -801,7 +801,7 @@ Source: Generated from canonical document list"""
                 fieldId: $fieldId,
                 value: { singleSelectOptionId: $optionId }
             }) {
-                projectV2Item { id }
+                projectItem { id }
             }
         }
         """

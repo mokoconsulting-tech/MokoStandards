@@ -382,7 +382,7 @@ Source: Imported from repository scan"""
                 title: $title,
                 body: $body
             }) {
-                projectV2Item {
+                projectItem {
                     id
                 }
             }
@@ -396,7 +396,7 @@ Source: Imported from repository scan"""
         })
         
         if result and "data" in result and result["data"].get("addProjectV2DraftIssue"):
-            item_id = result["data"]["addProjectV2DraftIssue"]["projectV2Item"]["id"]
+            item_id = result["data"]["addProjectV2DraftIssue"]["projectItem"]["id"]
             self.created_items.append(str(file_path))
             
             # Set field values for the item
@@ -446,7 +446,7 @@ Source: Imported from repository scan"""
                     text: $value
                 }
             }) {
-                projectV2Item {
+                projectItem {
                     id
                 }
             }
@@ -472,7 +472,7 @@ Source: Imported from repository scan"""
                     singleSelectOptionId: $optionId
                 }
             }) {
-                projectV2Item {
+                projectItem {
                     id
                 }
             }

@@ -42,7 +42,7 @@ Provides reusable utilities for:
 import os
 import sys
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional, Set, Union
 
 
 # ============================================================
@@ -208,8 +208,15 @@ def log_error(message: str) -> None:
     print(f"❌ {message}", file=sys.stderr)
 
 
-def log_debug(message: str, debug: bool = False) -> None:
-    """Print a debug message if debug mode is enabled."""
+def log_debug(message: str, debug: Optional[bool] = None) -> None:
+    """Print a debug message if debug mode is enabled.
+    
+    Args:
+        message: Debug message to print
+        debug: Override debug mode (default: check DEBUG environment variable)
+    """
+    if debug is None:
+        debug = os.environ.get('DEBUG', '').lower() in ('1', 'true', 'yes')
     if debug:
         print(f"🔍 {message}", file=sys.stderr)
 
@@ -341,7 +348,7 @@ def ensure_dir(dir_path: Union[str, Path], description: str = "Directory") -> Pa
     return path
 
 
-def is_excluded_path(path: Union[str, Path], exclusions: set) -> bool:
+def is_excluded_path(path: Union[str, Path], exclusions: Set[str]) -> bool:
     """
     Check if a path matches any exclusion pattern.
     

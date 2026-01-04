@@ -186,22 +186,25 @@ ensure_dir() {
     fi
 }
 
-# Check if a path should be excluded based on common patterns
-# Usage: is_excluded_path ".git" && echo "excluded"
+# Check if a path should be excluded based on patterns
+# Usage: is_excluded_path ".git" "exclusion1,exclusion2,..." && echo "excluded"
+# Second parameter is optional comma-separated exclusions, defaults to common patterns
 is_excluded_path() {
     local path="$1"
+    local exclusions="${2:-node_modules,vendor,dist,build,target,__pycache__}"
     local basename
     basename="$(basename "$path")"
     
     # Exclude hidden files/directories
     [[ "$basename" =~ ^\. ]] && return 0
     
-    # Exclude common build/vendor directories
-    case "$basename" in
-        node_modules|vendor|dist|build|target|__pycache__|*.egg-info)
+    # Check against exclusion list
+    IFS=',' read -ra EXCLUDE_ARRAY <<< "$exclusions"
+    for exclude_pattern in "${EXCLUDE_ARRAY[@]}"; do
+        if [[ "$basename" == "$exclude_pattern" ]] || [[ "$basename" == *".egg-info" ]]; then
             return 0
-            ;;
-    esac
+        fi
+    done
     
     return 1
 }
@@ -278,7 +281,7 @@ is_port_in_use() {
     if command -v lsof &> /dev/null; then
         lsof -i ":$port" &> /dev/null
     elif command -v netstat &> /dev/null; then
-        netstat -tuln | grep -q ":$port "
+        netstat -tuln | grep -q ":$port\( \|$\)"
     else
         log_warning "Cannot check port usage (lsof/netstat not available)"
         return 1

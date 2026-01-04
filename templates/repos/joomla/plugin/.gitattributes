@@ -1,0 +1,125 @@
+###############################################################################
+# Core normalization
+###############################################################################
+* text=auto eol=lf
+
+# Ensure consistent line endings for scripts
+*.sh text eol=lf
+*.bash text eol=lf
+*.ps1 text eol=lf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+###############################################################################
+# Binary handling
+###############################################################################
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.svg binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.tar binary
+*.tar.gz binary
+*.7z binary
+*.docx binary
+*.xlsx binary
+*.pptx binary
+*.mp3 binary
+*.mp4 binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+
+###############################################################################
+# Export control for GitHub Releases
+# These paths will NOT appear in generated release archives
+###############################################################################
+# CI and automation
+.github/ export-ignore
+.github/workflows/ export-ignore
+.gitlab/ export-ignore
+
+# Development and tooling
+tests/ export-ignore
+testing/ export-ignore
+tmp/ export-ignore
+docs-internal/ export-ignore
+tools/ export-ignore
+
+# Dependency folders that should not ship in release bundles
+node_modules/ export-ignore
+vendor-dev/ export-ignore
+
+# Local environment and editor configs
+*.local export-ignore
+*.env export-ignore
+*.env.example export-ignore
+*.code-workspace export-ignore
+
+# Project specific non release scaffolding
+dev-assets/ export-ignore
+analysis/ export-ignore
+research/ export-ignore
+
+###############################################################################
+# Linguistic settings for GitHub code statistics
+###############################################################################
+*.css linguist-language=CSS
+*.scss linguist-language=SCSS
+*.js linguist-language=JavaScript
+*.ts linguist-language=TypeScript
+*.php linguist-language=PHP
+*.xml linguist-language=XML
+*.json linguist-language=JSON
+*.ini linguist-language=INI
+*.sql linguist-language=SQL
+*.md linguist-language=Markdown
+
+###############################################################################
+# Prevent diff noise for vendor or minified content
+###############################################################################
+vendor/* -diff
+*.min.js -diff
+*.min.css -diff
+
+###############################################################################
+# Lockdown for generated files
+###############################################################################
+*.min.js linguist-generated=true
+*.min.css linguist-generated=true
+
+###############################################################################
+# Joomla Specific
+###############################################################################
+
+# Exclude template media sources not intended for production bundles
+media_src/ export-ignore
+scss/ export-ignore
+less/ export-ignore
+*/media_src/ export-ignore
+*/scss/ export-ignore
+*/less/ export-ignore
+*.min.* export-ignore
+
+# Prevent diff noise in compiled Joomla assets
+media/*.min.js -diff
+media/*.min.css -diff
+*/media/*.min.js -diff
+*/media/*.min.css -diff
+
+# Treat Joomla manifest and config files as XML for linguist
+*.xml linguist-language=XML
+
+# Ensure PHP files in tmpl layouts are recognized consistently
+html/**/*.php linguist-language=PHP
+*/html/**/*.php linguist-language=PHP
+
+# Exclude local override folders commonly used during site development
+html_overrides/ export-ignore
+local_templates/ export-ignore
+*/html_overrides/ export-ignore
+*/local_templates/ export-ignore

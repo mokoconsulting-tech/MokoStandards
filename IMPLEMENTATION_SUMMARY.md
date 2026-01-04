@@ -50,6 +50,27 @@ python3 scripts/ensure_docs_and_project_tasks.py
 - Contains full enterprise field model for all 21 canonical documents
 - Generates structured data for task creation
 
+#### `scripts/setup_project_views.py`
+- Sets up 6 required views for Project #7
+- Provides detailed manual configuration instructions
+- Documents view layouts, filters, sorts, and grouping
+- Based on `/docs/guide/project-views.md` specifications
+
+**Usage:**
+```bash
+export GH_PAT="your_token"
+python3 scripts/setup_project_views.py --project-number 7
+```
+
+**Views Created:**
+1. Master Register - Comprehensive table view
+2. Execution Kanban - Board view for active work
+3. Governance Gate - Items requiring approval
+4. Policy Register - Policy-specific view
+5. WaaS Portfolio - WaaS documentation view
+6. High Risk and Blockers - Executive dashboard
+- Generates structured data for task creation
+
 #### `scripts/test_dry_run.py`
 - Test script that works without GitHub authentication
 - Shows current status of all canonical documents

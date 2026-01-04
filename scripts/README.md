@@ -57,6 +57,29 @@ python3 scripts/ensure_docs_and_project_tasks.py
 - Uses strict enterprise field model
 - Provides detailed summary report
 
+### 4. `setup_project_views.py` - Configure Project Views
+
+Sets up the required views for Project #7 according to enterprise specifications.
+
+**Usage:**
+```bash
+export GH_PAT="your_personal_access_token"
+python3 scripts/setup_project_views.py --project-number 7
+```
+
+**Features:**
+- Documents 6 required project views
+- Provides detailed configuration instructions for manual setup
+- Views included:
+  - Master Register (comprehensive table view)
+  - Execution Kanban (board view for active work)
+  - Governance Gate (items requiring approval)
+  - Policy Register (policy-specific view)
+  - WaaS Portfolio (WaaS-specific documentation)
+  - High Risk and Blockers (executive dashboard)
+- Links to `/docs/guide/project-views.md` for complete specifications
+- Works in documentation mode without authentication
+
 ## Authentication
 
 ### Option 1: Using GH_PAT Repository Secret (Recommended)

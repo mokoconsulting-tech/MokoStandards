@@ -13,10 +13,12 @@ This index provides navigation to documentation within this folder.
 - [change-management](./change-management.md)
 - [copilot-prompt-projectv2-joomla-template](./copilot-prompt-projectv2-joomla-template.md)
 - [data-classification](./data-classification.md)
+- [dependency-management](./dependency-management.md)
 - [document-formatting](./document-formatting.md)
 - [documentation-governance](./documentation-governance.md)
 - [merge-strategy](./merge-strategy.md)
 - [risk-register](./risk-register.md)
+- [security-scanning](./security-scanning.md)
 - [vendor-risk](./vendor-risk.md)
 
 ## Metadata

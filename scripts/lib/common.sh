@@ -197,11 +197,14 @@ is_excluded_path() {
     
     # Exclude hidden files/directories
     [[ "$basename" =~ ^\. ]] && return 0
+
+    # Exclude Python egg-info metadata directories/files
+    [[ "$basename" == *".egg-info" ]] && return 0
     
     # Check against exclusion list
     IFS=',' read -ra EXCLUDE_ARRAY <<< "$exclusions"
     for exclude_pattern in "${EXCLUDE_ARRAY[@]}"; do
-        if [[ "$basename" == "$exclude_pattern" ]] || [[ "$basename" == *".egg-info" ]]; then
+        if [[ "$basename" == "$exclude_pattern" ]]; then
             return 0
         fi
     done

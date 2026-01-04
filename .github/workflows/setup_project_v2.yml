@@ -1,0 +1,84 @@
+name: Setup GitHub Project v2
+
+on:
+  workflow_dispatch:
+    inputs:
+      verbose:
+        description: 'Enable verbose logging'
+        required: false
+        type: boolean
+        default: false
+      skip_views:
+        description: 'Skip creating project views'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  setup_project:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          pip install requests
+
+      - name: Run project setup script
+        shell: bash
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          set -euo pipefail
+          
+          # Build command with optional flags
+          CMD="python3 scripts/setup_github_project_v2.py"
+          
+          if [ "${{ inputs.verbose }}" = "true" ]; then
+            CMD="$CMD --verbose"
+            echo "Running with verbose logging enabled"
+          fi
+          
+          if [ "${{ inputs.skip_views }}" = "true" ]; then
+            CMD="$CMD --skip-views"
+            echo "Running with view creation skipped"
+          fi
+          
+          echo "Executing: $CMD"
+          $CMD
+
+      - name: Summary
+        if: always()
+        shell: bash
+        run: |
+          echo "## GitHub Project v2 Setup" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ job.status }}" = "success" ]; then
+            echo "✅ Project setup completed successfully" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Project setup failed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Please check the logs above for error details." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Tip:** Re-run the workflow with 'verbose' enabled for detailed debugging information." >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Configuration" >> $GITHUB_STEP_SUMMARY
+          echo "- Verbose logging: ${{ inputs.verbose }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Skip views: ${{ inputs.skip_views }}" >> $GITHUB_STEP_SUMMARY

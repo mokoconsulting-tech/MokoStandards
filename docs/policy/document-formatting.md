@@ -1,214 +1,181 @@
+<!--
+Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+
+This file is part of a Moko Consulting project.
+
+SPDX-License-Identifier: GPL-3.0-or-later
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+# FILE INFORMATION
+DEFGROUP: Documentation.Policy
+INGROUP: MokoStandards
+REPO: https://github.com/mokoconsulting-tech/MokoStandards
+PATH: /docs/policy/document-formatting.md
+VERSION: 01.00.00
+BRIEF: Authoritative document formatting policy for markdown policy documents.
+NOTE:
+-->
+
 # Document Formatting Policy
 
 ## Purpose
 
-This policy establishes mandatory formatting standards for all documentation within the MokoStandards repository. It defines the required structure, sections, metadata, and conventions that ensure consistency, discoverability, and compliance across all documentation artifacts.
+This policy defines the mandatory and authoritative document structure and formatting standards for all markdown policy documents produced within the Moko Consulting ecosystem. The objective is to ensure consistency, auditability, readability, and long term maintainability across repositories, platforms, and delivery channels.
+
+## Authority
+
+This document is designated as the authoritative source of truth for markdown policy document structure. It supersedes all prior, parallel, or conflicting guidance related to markdown policy formatting and structure across Moko Consulting repositories.
+
+In the event of conflict between this policy and any other document, standard, or historical practice, this policy shall prevail unless a formal exception is explicitly approved, documented, and recorded.
 
 ## Scope
 
-This policy applies to:
+This policy applies to all markdown documents classified as policies, standards, guidance, templates, governance artifacts, and operational documentation. It applies across all repositories owned, operated, or governed by Moko Consulting and its affiliated projects.
 
-- All documentation files under /docs directory
-- All template files under /templates/docs directory
-- All markdown documentation files in the repository
-- All index and overview documents
-- All policy, guide, and checklist documents
+## Authoritative Format
 
-This policy does not apply to:
+Markdown is the authoritative format for documentation unless explicitly overridden by an approved exception. Markdown files must be UTF-8 encoded and compatible with GitHub rendering and automated validation tooling.
 
-- Source code comments
-- README files in non-documentation directories
-- Third-party documentation
-- Generated documentation output
+## Structural Requirements
 
-## Responsibilities
+All documents must follow a predictable and standardized structure to support automation, review workflows, compliance validation, and long term maintenance.
 
-### Documentation Owner
+### Headings
 
-Responsible for:
+* The document title must be a level one heading.
+* Primary sections must begin at level two headings.
+* Heading levels must not be skipped.
 
-- Creating documents that comply with formatting requirements
-- Including all mandatory sections in correct order
-- Maintaining accurate metadata
-- Updating revision history
-- Ensuring professional, clear language
+### Section Ordering
 
-### Governance Owner
+Unless otherwise specified by a document type specific policy, documents must follow this order.
 
-Accountable for:
+1. Title
+2. Purpose
+3. Authority, if applicable
+4. Scope
+5. Body sections relevant to the document intent
+6. Metadata
+7. Revision History
 
-- Enforcing formatting policy compliance
-- Reviewing documents for structural compliance
-- Approving policy documents
-- Escalating noncompliance issues
+## Content Formatting Rules
 
-### Technical Reviewer
+### Language and Tone
 
-Consulted for:
+* Language must be clear, direct, and professional.
+* Ambiguity should be avoided.
+* Marketing language is prohibited in policy documents.
 
-- Technical accuracy validation
-- Content review
-- Acceptance criteria verification
+### Lists
 
-## Governance Rules
+* Use unordered lists for descriptive groupings.
+* Use ordered lists only where sequence or precedence is required.
 
-### Mandatory Sections for /docs Documents
+### Tables
 
-All documents under /docs MUST include these sections in order:
+* Tables should be used for structured data and registers.
+* Tables must include headers.
 
-1. **Purpose** - Clear statement of document objective
-2. **Scope** - What is included and excluded
-3. **Responsibilities** - Owner and stakeholder responsibilities
-4. **Governance Rules** or **Operational Rules** - Normative requirements
-5. **Dependencies** - Related documents and systems
-6. **Acceptance Criteria** - Objectively verifiable success criteria
-7. **Evidence Requirements** - Required artifacts and records
-8. **Metadata** - Structured classification and governance fields
-9. **Revision History** - Change tracking without dates or versions
+### Links
 
-### Mandatory Sections for /templates Documents
+* Links must be explicit and descriptive.
+* Internal links must use relative paths where possible.
 
-All template documents MUST include:
+## File and Naming Conventions
 
-1. **Purpose** - Template objective
-2. **Intended Use** - When and how to use
-3. **Instructions** - Step-by-step usage guidance
-4. **Required Fields** - Fields that must be completed
-5. **Example Usage** - Explicitly marked examples
-6. **Metadata** - Classification and governance fields
-7. **Revision History** - Change tracking without dates or versions
+* Filenames must be lowercase.
+* Words must be separated using hyphens.
+* Filenames must align with approved document intent prefixes.
 
-### Type-Specific Requirements
+## Metadata Field Definitions
 
-#### Policy Documents
+This section defines each required Metadata field, its purpose, and permitted values. These definitions are authoritative for all markdown policy documents.
 
-- Use normative language (MUST, SHALL, REQUIRED, SHALL NOT, MAY)
-- Include enforcement provisions
-- Require approval before publication
-- Document approval authority
-- Specify compliance requirements
+| Field         | Description                                                    | Allowed Values / Format                   |
+| ------------- | -------------------------------------------------------------- | ----------------------------------------- |
+| Document Name | Human readable title of the document. Must match the H1 title. | Free text                                 |
+| Path          | Repository relative file path where the document resides.      | Absolute repo path starting with `/docs/` |
+| Repo          | Canonical source repository for the document.                  | HTTPS Git repository URL                  |
+| Owner         | Accountable owner or governing entity.                         | Team name or organization                 |
+| Status        | Governance state of the document.                              | Draft, Active, Authoritative, Deprecated  |
+| Last Reviewed | Date the document was last formally reviewed.                  | YYYY-MM-DD                                |
 
-#### Guide Documents
+## Combined Markdown Sample
 
-- Use procedural, instructional language
-- Include step-by-step procedures
-- Provide examples where appropriate
-- Require evidence but not approval
-- Document operational procedures
+The following sample demonstrates the required formatting, structure, and conventions defined by this policy.
 
-#### Checklist Documents
+```md
+# Example Policy Title
 
-- Use binary verification items
-- Ensure objective verifiability
-- Provide clear completion criteria
-- Include acceptance gates
-- Support audit verification
+## Purpose
+This document defines an example policy used to demonstrate formatting standards.
 
-#### Index and Overview Documents
+## Authority
+This document is the authoritative source of truth for the example policy domain.
 
-- Provide navigation only
-- List child documents and folders
-- Use deterministic ordering
-- Include brief descriptions
-- Link to actual content
+## Scope
+This policy applies to all example documentation within the repository.
 
-### Metadata Requirements
+## Policy Statements
+- All documents must follow the approved structure.
+- Metadata and revision history are mandatory.
 
-All documents MUST include metadata with these fields:
+## Reference Table
 
-- **Document Type:** policy, guide, checklist, overview, or index
-- **Document Subtype:** waas, catalog, core, guide, or policy (as applicable)
-- **Owner Role:** Documentation Owner, Governance Owner, Security Owner, Operations Owner, or Release Owner
-- **Approval Required:** Yes or No
-- **Evidence Required:** Yes or No
-- **Review Cycle:** Annual, Semiannual, Quarterly, or Ad hoc
-- **Retention:** Indefinite, 7 Years, 5 Years, or 3 Years
-- **Compliance Tags:** Governance, Compliance, Audit, Security (as applicable)
-- **Status:** Planned, In Progress, In Review, Approved, Published, Blocked, or Archived
+| Field | Description |
+|------|-------------|
+| Name | Document name |
+| Owner | Responsible party |
 
-### Path Conventions
-
-All documentation files MUST follow one of these patterns:
-
-- Core or overview: `/docs/<name>.md`
-- Type: `/docs/<type>/<name>.md`
-- Subtyped: `/docs/<type>/<subtype>/<name>.md`
-
-Where:
-- `<type>` ∈ {policy, guide, checklist, overview, index}
-- `<subtype>` ∈ {waas, catalog, core, guide, policy}
-
-No alternative paths are permitted.
-
-### Structure Rules
-
-- Markdown only
-- Clear, professional section headers
-- No embedded TODO lists except in checklists
-- No dates in document content
-- No version numbers in document content
-- Index and overview documents contain navigation only
-- Use consistent heading hierarchy
-
-### Language Requirements
-
-- Professional, clear, concise language
-- No informal language or slang
-- No assumptions about reader knowledge level
-- Define technical terms where appropriate
-- Use active voice
-- Avoid ambiguity
-
-### Revision History Requirements
-
-Revision history MUST:
-
-- Track changes without dates
-- Track changes without version numbers
-- Describe substantive changes
-- List major revisions
-- Avoid trivial change tracking
-
-## Dependencies
-
-This policy depends on:
-
-- Documentation Governance Policy at /docs/policy/documentation-governance.md
-- GitHub Project v2 field definitions
-- Repository path structure
-
-## Acceptance Criteria
-
-- All documents include all mandatory sections in correct order
-- All metadata fields are populated correctly
-- All documents follow path conventions
-- All type-specific requirements are met
-- All language and structure rules are followed
-- Documents pass format validation review
-
-## Evidence Requirements
-
-- Pull request demonstrating format compliance review
-- Governance Owner approval for policy documents
-- Project entry with accurate metadata
-- Format validation checklist completion
+For contribution rules, see the [Contributing Policy](../CONTRIBUTING.md).
 
 ## Metadata
 
-- **Document Type:** policy
-- **Document Subtype:** core
-- **Owner Role:** Governance Owner
-- **Approval Required:** Yes
-- **Evidence Required:** Yes
-- **Review Cycle:** Annual
-- **Retention:** Indefinite
-- **Compliance Tags:** Governance, Compliance
-- **Status:** Published
+| Field | Value |
+|------|------|
+| Document Name | Example Policy |
+| Path | /docs/policy/example-policy.md |
+| Repo | https://github.com/mokoconsulting-tech/MokoStandards |
+| Owner | Moko Consulting |
+| Status | Active |
+| Last Reviewed | 2026-01-03 |
 
 ## Revision History
 
-- Initial policy established
-- Mandatory section requirements defined
-- Type-specific formatting rules documented
-- Path conventions and structure rules established
-- Metadata requirements specified
+| Date | Description | Author |
+|------|-------------|--------|
+| 2026-01-03 | Initial policy creation | Moko Consulting |
+```
+
+## Compliance and Enforcement
+
+Documents that do not conform to this policy may be flagged by automated validation, blocked from release pipelines, or returned for remediation. Exceptions require explicit approval and documented justification.
+
+## Metadata
+
+| Field         | Value                                                                                                        |
+| ------------- | ------------------------------------------------------------------------------------------------------------ |
+| Document Name | Document Formatting Policy                                                                                   |
+| Path          | /docs/policy/document-formatting-policy.md                                                                   |
+| Repo          | [https://github.com/mokoconsulting-tech/MokoStandards](https://github.com/mokoconsulting-tech/MokoStandards) |
+| Owner         | Moko Consulting                                                                                              |
+| Status        | Authoritative                                                                                                |
+| Last Reviewed | 2026-01-03                                                                                                   |
+
+## Revision History
+
+| Date       | Description                                       | Author          |
+| ---------- | ------------------------------------------------- | --------------- |
+| 2026-01-03 | Initial policy creation and authority designation | Moko Consulting |

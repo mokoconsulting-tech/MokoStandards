@@ -10,10 +10,21 @@ The scripts are organized according to MokoStandards governance policy:
   - `rebuild_indexes.py` - Generates index.md files for documentation folders
 - **`run/`** - Operational scripts for repository setup and maintenance
   - `setup_github_project_v2.py` - Sets up GitHub Project v2 for documentation control
-- **`lib/`** - Shared library code (reserved for future use)
+- **`lib/`** - Shared library code
+  - `common.py` - Python utility functions
+  - `common.sh` - Shell utility functions
 - **`fix/`** - Repository repair scripts (reserved for future use)
 - **`release/`** - Release automation scripts (reserved for future use)
 - **`validate/`** - Validation and linting scripts (reserved for future use)
+
+## Requirements
+
+- Python 3.7+
+- `requests` library (for API access with token)
+- GitHub Personal Access Token with permissions:
+  - `project` (read and write)
+  - `read:org` (organization read)
+  - `repo` (repository access)
 
 ## Scripts Overview
 
@@ -41,98 +52,141 @@ python3 scripts/docs/rebuild_indexes.py --root path/to/docs
 - Maintains consistent structure across documentation
 - Supports check mode for CI/CD validation
 
-### Operational Scripts (`run/`)
+### GitHub Project v2 Automation Scripts
 
-#### setup_github_project_v2.py
+This section covers scripts for managing the GitHub Project v2 "MokoStandards Documentation Control Register".
 
-Sets up GitHub Project v2 "MokoStandards Documentation Control Register" with custom fields and items.
+#### 1. `setup_github_project_v2.py` - Create New Project ⭐ ENHANCED
 
-**Requirements:**
-- Python 3.7+
-- `requests` library (for API access with token)
-- GitHub Personal Access Token with permissions:
-  - `project` (read and write)
-  - `read:org` (organization read)
-  - `repo` (repository access)
+Creates a brand new GitHub Project v2 and populates it with documentation tasks.
 
 **Usage:**
-
-Option 1: Using GH_PAT environment variable (Recommended)
 ```bash
 export GH_PAT="your_personal_access_token"
-python3 scripts/run/setup_github_project_v2.py
+python3 scripts/setup_github_project_v2.py
+
+# With verbose logging
+python3 scripts/setup_github_project_v2.py --verbose
+
+# Skip view documentation
+python3 scripts/setup_github_project_v2.py --skip-views
 ```
 
-Option 2: Using GitHub CLI
+**New Features:**
+- ✅ `--verbose` flag for detailed error logging and debug output
+- ✅ Enhanced error messages with stack traces
+- ✅ Verbose logging for GraphQL queries and responses
+- ✅ Structured error context and details
+- ✅ Automatic view documentation (Board, Table, Roadmap)
+- ✅ `--skip-views` flag to skip view documentation
+
+#### 1b. `setup_project_7.py` - Create or Update Project #7 ⭐ NEW
+
+Creates or updates GitHub Project #7 specifically with version tracking.
+
+**Usage:**
+```bash
+export GH_PAT="your_personal_access_token"
+python3 scripts/setup_project_7.py --target-version "1.0.0"
+
+# With verbose logging
+python3 scripts/setup_project_7.py --verbose --target-version "2.0.0"
+
+# Skip view documentation
+python3 scripts/setup_project_7.py --skip-views --target-version "1.0.0"
+```
+
+**Features:**
+- ✅ Targets specific project number (#7)
+- ✅ Adds "Target Version Number" custom field
+- ✅ Checks for existing project to avoid duplicates
+- ✅ All items tagged with target version
+- ✅ Verbose error handling
+- ✅ View documentation
+
+#### 2. `populate_project_from_scan.py` - Populate Existing Project
+
+Scans docs/ and templates/ directories and populates an existing project with tasks.
+
+**Usage:**
+```bash
+export GH_PAT="your_personal_access_token"
+python3 scripts/populate_project_from_scan.py --project-number 7
+```
+
+**Features:**
+- Works with existing Project #7
+- Lists all subdirectories in templates/
+- Scans all .md files in docs/ and templates/
+- Creates tasks for each document
+- Infers metadata from file paths and names
+
+#### 3. `setup_project_views.py` - Configure Views
+
+Creates standardized views for your GitHub Project v2.
+
+**Usage:**
+```bash
+export GH_PAT="your_personal_access_token"
+python3 scripts/setup_project_views.py --project-number 7
+
+# With verbose logging
+python3 scripts/setup_project_views.py --verbose --project-number 7
+```
+
+**Features:**
+- ✅ Creates 3 standard views: Board, Table, Roadmap
+- ✅ Configures fields, grouping, and sorting
+- ✅ Checks for existing views before creating
+- ✅ Verbose error handling
+- ✅ View-specific documentation
+
+## Library Functions (`lib/`)
+
+### common.py
+
+Python utility functions for common operations.
+
+### common.sh
+
+Shell utility functions for common operations.
+
+## Authentication
+
+All scripts support two authentication methods:
+
+**Option 1: GH_PAT environment variable (Recommended)**
+```bash
+export GH_PAT="your_personal_access_token"
+python3 scripts/<script_name>.py
+```
+
+**Option 2: GitHub CLI**
 ```bash
 gh auth login
-python3 scripts/run/setup_github_project_v2.py
+python3 scripts/<script_name>.py
 ```
 
-**What it does:**
-1. Verifies authentication (GH_PAT token or gh CLI)
-2. Gets organization ID for mokoconsulting-tech
-3. Creates "MokoStandards Documentation Control Register" project
-4. Creates 15 custom fields (10 single-select, 5 text)
-5. Scans repository for .md files in `docs/` and `templates/`
-6. Creates project items with inferred metadata
-7. Generates summary report
+## Common Flags
 
-**Expected Results:**
-- Project created with project number
-- 15 custom fields (Status, Priority, Risk Level, etc.)
-- ~62 project items (38 docs + 24 templates)
-- Field values automatically set based on document paths
+Most scripts support:
+- `--verbose` - Enable detailed logging
+- `--dry-run` - Preview changes without executing
+- `--help` - Show help message
 
-**Troubleshooting:**
+## Troubleshooting
 
-Authentication issues:
-- Ensure GH_PAT is set: `echo $GH_PAT`
-- Or authenticate gh CLI: `gh auth login`
+### Authentication Issues
+- Verify your token has required permissions
+- Check token hasn't expired
+- Ensure `GH_PAT` is exported, not just set
 
-Organization access:
-- Ensure token has `read:org` permission
-- Verify access to mokoconsulting-tech organization
+### GraphQL Errors
+- Use `--verbose` flag to see full error details
+- Check API rate limits
+- Verify field names match project schema
 
-Project creation:
-- Ensure token has `project` write permission
-- Verify project creation rights in organization
-
-Field creation failures:
-- Check API response for error messages
-- Verify project was created successfully
-
-## Integration with Workflows
-
-These scripts are integrated with GitHub Actions workflows:
-
-- `.github/workflows/rebuild_docs_indexes.yml` - Runs `docs/rebuild_indexes.py` on documentation changes
-- Template workflows in `templates/repos/` demonstrate CI/CD integration patterns
-
-## Governance Compliance
-
-This scripts directory structure complies with MokoStandards Scripts Governance Policy, which defines:
-
-- **Required directories**: (none currently enforced)
-- **Allowed directories**: `scripts`, `scripts/fix`, `scripts/lib`, `scripts/release`, `scripts/run`, `scripts/validate`, `scripts/docs`
-- **Enforcement mode**: Advisory (scripts folder is optional)
-
-For more details, see `.github/workflows/repo_health.yml`
-
-## Contributing
-
-When adding new scripts:
-
-1. Place scripts in the appropriate subdirectory based on their purpose
-2. Add documentation to this README
-3. Follow Python coding standards (PEP 8)
-4. Include SPDX license headers
-5. Add error handling and user-friendly messages
-6. Update workflows if scripts need CI/CD integration
-
-## Notes
-
-- Multi-select fields in GitHub Projects v2 must be created manually via UI
-- Scripts use conservative default values for safety
-- All scripts include comprehensive error handling and logging
-- Scripts stop immediately on critical failures to prevent partial states
+### Missing Dependencies
+```bash
+pip install requests
+```

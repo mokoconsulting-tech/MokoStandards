@@ -45,14 +45,11 @@ Violations of standards or the Code of Conduct may result in rejected PRs or acc
 
 # Project Policies Index
 
-- [Reference/Governance/SECURITY.md](Reference/Governance/SECURITY.md) — vulnerability reporting
-- [Reference/Governance/SUPPORT.md](Reference/Governance/SUPPORT.md) — support channels
-- [Reference/Governance/RELEASE_PROCESS.md](Reference/Governance/RELEASE_PROCESS.md) — release workflow
-- [Reference/Governance/VERSIONING.md](Reference/Governance/VERSIONING.md) — SemVer policy
-- [Reference/Governance/BRANCHING.md(Reference/Governance/BRANCHING.md) — branching strategy
-- (Reference/Governance/COMMIT_CONVENTIONS.md) — commit rules
-- (.github/PULL_REQUEST_TEMPLATE.md) — PR checklist
-- (.github/ISSUE_TEMPLATE/bug_report.md) — bug template
-- (.github/ISSUE_TEMPLATE/feature_request.md) — feature template
-- (.github/ISSUE_TEMPLATE/chore.md) — chore template
-- (Reference/Governance/CODING_STANDARDS.md) — universal standards
+- [SECURITY.md](SECURITY.md) — vulnerability reporting
+- [SUPPORT.md](SUPPORT.md) — support channels
+- [CONTRIBUTING.md](CONTRIBUTING.md) — contribution guidelines
+- [.github/PULL_REQUEST_TEMPLATE.md](.github/PULL_REQUEST_TEMPLATE.md) — PR checklist
+- [.github/ISSUE_TEMPLATE/bug_report.md](.github/ISSUE_TEMPLATE/bug_report.md) — bug template
+- [.github/ISSUE_TEMPLATE/feature_request.md](.github/ISSUE_TEMPLATE/feature_request.md) — feature template
+- [docs/policy/](docs/policy/index.md) — coding standards and policies
+- [docs/ROADMAP.md](docs/ROADMAP.md) — versioning and release planning

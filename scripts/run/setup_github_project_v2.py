@@ -5,9 +5,15 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
+<<<<<<<< HEAD:scripts/setup_github_project_v2.py
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+========
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
+>>>>>>>> pr-27:scripts/run/setup_github_project_v2.py
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -16,7 +22,22 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
+<<<<<<<< HEAD:scripts/setup_github_project_v2.py
+# (./LICENSE.md).
+#
+# FILE INFORMATION
+# DEFGROUP: MokoStandards.Scripts
+# INGROUP: MokoStandards.Automation
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# FILE: scripts/setup_github_project_v2.py
+# VERSION: 04.01.00
+# BRIEF: GitHub Project v2 setup automation - creates documentation control register
+# PATH: /scripts/setup_github_project_v2.py
+# NOTE: Creates project, custom fields, and populates items from repository scan
+
+========
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
+>>>>>>>> pr-27:scripts/run/setup_github_project_v2.py
 """
 GitHub Project v2 Setup Script
 Creates a GitHub Project v2 and populates it with documentation tasks.
@@ -25,15 +46,23 @@ Usage:
     export GH_PAT="your_personal_access_token"
     python3 scripts/run/setup_github_project_v2.py
 
+    With verbose logging:
+    python3 scripts/setup_github_project_v2.py --verbose
+
+    Skip view creation:
+    python3 scripts/setup_github_project_v2.py --skip-views
+
 Or use gh CLI authentication:
     gh auth login
     python3 scripts/run/setup_github_project_v2.py
 """
 
+import argparse
 import json
 import os
 import subprocess
 import sys
+import traceback
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -47,10 +76,11 @@ except ImportError:
 class GitHubProjectV2Setup:
     """Handles GitHub Project v2 creation and population."""
 
-    def __init__(self, org: str, project_title: str, token: Optional[str] = None):
+    def __init__(self, org: str, project_title: str, token: Optional[str] = None, verbose: bool = False):
         self.org = org
         self.project_title = project_title
         self.token = token
+        self.verbose = verbose
         self.project_id = None
         self.project_number = None
         self.field_ids = {}
@@ -58,9 +88,19 @@ class GitHubProjectV2Setup:
         self.created_items = []
         self.skipped_items = []
         self.errors = []
+        self.view_ids = {}
+    
+    def log_verbose(self, message: str):
+        """Print verbose log message."""
+        if self.verbose:
+            print(f"[VERBOSE] {message}")
 
     def run_graphql(self, query: str, variables: Optional[Dict] = None) -> Dict:
         """Execute a GraphQL query using gh CLI or direct API."""
+        self.log_verbose("Executing GraphQL query...")
+        if variables and self.verbose:
+            self.log_verbose(f"Variables: {json.dumps(variables, indent=2)}")
+        
         try:
             if self.token:
                 # Use direct API call with token
@@ -78,14 +118,23 @@ class GitHubProjectV2Setup:
                 if variables:
                     payload["variables"] = variables
                 
+                self.log_verbose("Making API request to GitHub GraphQL endpoint...")
+                
                 response = requests.post(
                     "https://api.github.com/graphql",
                     headers=headers,
                     json=payload,
                     timeout=30
                 )
+                
+                self.log_verbose(f"Response status code: {response.status_code}")
                 response.raise_for_status()
-                return response.json()
+                result = response.json()
+                
+                if "errors" in result and self.verbose:
+                    self.log_verbose(f"GraphQL errors in response: {json.dumps(result['errors'], indent=2)}")
+                
+                return result
             else:
                 # Use gh CLI
                 cmd = ["gh", "api", "graphql", "-f", f"query={query}"]
@@ -96,22 +145,46 @@ class GitHubProjectV2Setup:
                         else:
                             cmd.extend(["-f", f"{key}={value}"])
                 
+                self.log_verbose("Running gh CLI command...")
+                
                 result = subprocess.run(
                     cmd,
                     capture_output=True,
                     text=True,
                     check=True
                 )
-                return json.loads(result.stdout)
+                
+                response_data = json.loads(result.stdout)
+                
+                if "errors" in response_data and self.verbose:
+                    self.log_verbose(f"GraphQL errors in response: {json.dumps(response_data['errors'], indent=2)}")
+                
+                return response_data
         except subprocess.CalledProcessError as e:
-            error_msg = f"GraphQL error: {e.stderr}"
-            self.errors.append(error_msg)
+            error_msg = f"GraphQL subprocess error: {e.stderr}"
+            error_details = {
+                "command": e.cmd,
+                "return_code": e.returncode,
+                "stderr": e.stderr,
+                "stdout": e.stdout
+            }
+            self.errors.append(error_details)
             print(f"ERROR: {error_msg}", file=sys.stderr)
+            if self.verbose:
+                self.log_verbose(f"Error details: {json.dumps(error_details, indent=2)}")
             return {}
         except Exception as e:
-            error_msg = f"Error: {e}"
-            self.errors.append(error_msg)
+            error_msg = f"Unexpected error: {type(e).__name__}: {str(e)}"
+            error_details = {
+                "error_type": type(e).__name__,
+                "error_message": str(e),
+                "query_snippet": query[:200] + "..." if len(query) > 200 else query
+            }
+            self.errors.append(error_details)
             print(f"ERROR: {error_msg}", file=sys.stderr)
+            if self.verbose:
+                self.log_verbose(f"Error details: {json.dumps(error_details, indent=2)}")
+                self.log_verbose(f"Traceback:\n{traceback.format_exc()}")
             return {}
 
     def verify_auth(self) -> bool:
@@ -411,7 +484,7 @@ Source: Imported from repository scan"""
                 title: $title,
                 body: $body
             }) {
-                projectV2Item {
+                projectItem {
                     id
                 }
             }
@@ -425,7 +498,7 @@ Source: Imported from repository scan"""
         })
         
         if result and "data" in result and result["data"].get("addProjectV2DraftIssue"):
-            item_id = result["data"]["addProjectV2DraftIssue"]["projectV2Item"]["id"]
+            item_id = result["data"]["addProjectV2DraftIssue"]["projectItem"]["id"]
             self.created_items.append(str(file_path))
             
             # Set field values for the item
@@ -475,7 +548,7 @@ Source: Imported from repository scan"""
                     text: $value
                 }
             }) {
-                projectV2Item {
+                projectItem {
                     id
                 }
             }
@@ -501,7 +574,7 @@ Source: Imported from repository scan"""
                     singleSelectOptionId: $optionId
                 }
             }) {
-                projectV2Item {
+                projectItem {
                     id
                 }
             }
@@ -528,11 +601,63 @@ Source: Imported from repository scan"""
                 print(f"  [{idx}/{total}] ✅ {file_path}")
             else:
                 print(f"  [{idx}/{total}] ⚠️  Skipped: {file_path}")
+                self.log_verbose(f"Skipped item details: {file_path}")
         
         print(f"\n✅ Created {len(self.created_items)} items")
         if self.skipped_items:
             print(f"⚠️  Skipped {len(self.skipped_items)} items")
+            if self.verbose:
+                self.log_verbose("Skipped items list:")
+                for item in self.skipped_items:
+                    self.log_verbose(f"  - {item}")
         
+        return True
+
+    def create_project_views(self) -> bool:
+        """Create project views (Board, Table, Roadmap).
+        
+        Note: GitHub Projects v2 API has limitations for view creation.
+        This method documents the views that should be created manually.
+        """
+        print("\n👁️  Creating project views...")
+        print("⚠️  Note: GitHub Projects v2 API has limited support for programmatic view creation.")
+        print("   The following views should be created manually in the GitHub UI:")
+        
+        views_to_document = [
+            {
+                "name": "Documentation Board",
+                "layout": "BOARD",
+                "description": "Board view organized by status for visual task management",
+                "group_by": "Status"
+            },
+            {
+                "name": "Documentation Table",
+                "layout": "TABLE",
+                "description": "Table view with all fields for detailed overview",
+                "fields": "All custom fields"
+            },
+            {
+                "name": "Documentation Roadmap",
+                "layout": "ROADMAP",
+                "description": "Roadmap view for timeline planning",
+                "date_field": "Review Cycle or custom date field"
+            }
+        ]
+        
+        for idx, view_config in enumerate(views_to_document, 1):
+            print(f"\n  {idx}. {view_config['name']}")
+            print(f"     Layout: {view_config['layout']}")
+            print(f"     Description: {view_config['description']}")
+            if "group_by" in view_config:
+                print(f"     Group by: {view_config['group_by']}")
+            if "fields" in view_config:
+                print(f"     Fields: {view_config['fields']}")
+            if "date_field" in view_config:
+                print(f"     Date field: {view_config['date_field']}")
+            self.view_ids[view_config['name']] = "manual_creation_required"
+        
+        print(f"\n✅ Documented {len(self.view_ids)} views for manual creation")
+        print("   See: https://docs.github.com/en/issues/planning-and-tracking-with-projects/customizing-views-in-your-project")
         return True
 
     def print_summary(self):
@@ -544,6 +669,7 @@ Source: Imported from repository scan"""
         print(f"   Number: {self.project_number}")
         print(f"   Organization: {self.org}")
         print(f"\n📋 Custom Fields: {len(self.field_ids)} created")
+        print(f"👁️  Views: {len(self.view_ids)} documented (manual creation required)")
         print(f"📄 Documents Scanned: {len(self.created_items) + len(self.skipped_items)}")
         print(f"✅ Project Items Created: {len(self.created_items)}")
         
@@ -552,10 +678,22 @@ Source: Imported from repository scan"""
         
         if self.errors:
             print(f"\n❌ Errors Encountered: {len(self.errors)}")
-            for error in self.errors[:5]:  # Show first 5 errors
-                print(f"   - {error}")
-            if len(self.errors) > 5:
-                print(f"   ... and {len(self.errors) - 5} more")
+            if self.verbose:
+                for idx, error in enumerate(self.errors[:10], 1):
+                    if isinstance(error, dict):
+                        print(f"   {idx}. {json.dumps(error, indent=6)}")
+                    else:
+                        print(f"   {idx}. {error}")
+                if len(self.errors) > 10:
+                    print(f"   ... and {len(self.errors) - 10} more")
+            else:
+                for error in self.errors[:5]:  # Show first 5 errors
+                    if isinstance(error, dict):
+                        print(f"   - {error.get('error_message', str(error)[:100])}")
+                    else:
+                        print(f"   - {str(error)[:100]}")
+                if len(self.errors) > 5:
+                    print(f"   ... and {len(self.errors) - 5} more (use --verbose for full details)")
         else:
             print("\n✅ No errors encountered")
         
@@ -564,10 +702,29 @@ Source: Imported from repository scan"""
 
 def main():
     """Main execution function."""
+    parser = argparse.ArgumentParser(
+        description='Setup GitHub Project v2 for MokoStandards Documentation Control'
+    )
+    parser.add_argument(
+        '--verbose',
+        action='store_true',
+        help='Enable verbose error logging and debug output'
+    )
+    parser.add_argument(
+        '--skip-views',
+        action='store_true',
+        help='Skip creating project views (Board, Table, Roadmap)'
+    )
+    
+    args = parser.parse_args()
+    
     print("="*70)
     print("GitHub Project v2 Setup")
     print("MokoStandards Documentation Control Register")
     print("="*70)
+    
+    if args.verbose:
+        print("\n[VERBOSE MODE ENABLED]")
     
     # Configuration
     ORG = "mokoconsulting-tech"
@@ -583,8 +740,11 @@ def main():
     # Get token from environment (GH_PAT secret)
     token = os.environ.get("GH_PAT")
     
+    if args.verbose and token:
+        print(f"[VERBOSE] GH_PAT token found (length: {len(token)})")
+    
     # Initialize setup
-    setup = GitHubProjectV2Setup(ORG, PROJECT_TITLE, token)
+    setup = GitHubProjectV2Setup(ORG, PROJECT_TITLE, token, verbose=args.verbose)
     
     # Step 1: Verify authentication
     print("\n🔐 Step 1: Verifying authentication...")
@@ -621,6 +781,13 @@ def main():
     if not setup.populate_project(REPO_PATH):
         print("\n❌ STOP: Failed to populate project")
         sys.exit(1)
+    
+    # Step 6: Document views (unless skipped)
+    if not args.skip_views:
+        print("\n👁️  Step 6: Documenting project views...")
+        setup.create_project_views()
+    else:
+        print("\n⏭️  Step 6: Skipping view documentation (--skip-views flag)")
     
     # Print summary
     setup.print_summary()

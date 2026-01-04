@@ -6,9 +6,9 @@ This index provides navigation to documentation within this folder.
 
 ## Documents
 
-- [architecture](./architecture.md)
-- [client-onboarding](./client-onboarding.md)
-- [operations](./operations.md)
+- [waas-architecture](./waas-architecture.md)
+- [waas-client-onboarding](./waas-client-onboarding.md)
+- [waas-operations](./waas-operations.md)
 
 ## Metadata
 

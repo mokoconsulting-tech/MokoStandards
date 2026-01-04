@@ -303,7 +303,11 @@ class DocumentationManager:
                     for key, value in variables.items():
                         if isinstance(value, (list, dict)):
                             cmd.extend(["-F", f"{key}={json.dumps(value)}"])
+                        elif isinstance(value, (int, float, bool)):
+                            # Use -F for numbers and booleans to preserve type
+                            cmd.extend(["-F", f"{key}={value}"])
                         else:
+                            # Use -f for strings
                             cmd.extend(["-f", f"{key}={value}"])
                 
                 result = subprocess.run(cmd, capture_output=True, text=True, check=True)

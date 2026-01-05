@@ -219,6 +219,21 @@ class modMokoModule extends DolibarrModules
 }
 ```
 
+### Module Number Registry
+
+**Reserved Module Numbers**:
+
+Dolibarr module numbers **185051 to 185099** are reserved for Moko Consulting use.
+
+**Current Dolibarr Extensions in Development**:
+
+| Module Name | Module Number | Status | Description | Repository |
+|-------------|---------------|--------|-------------|------------|
+| MokoDoliUpdates | 185051 | In Development | Automated update management for Dolibarr installations | TBD |
+| Reserved | 185052-185099 | Reserved | Reserved for future Moko Consulting modules | - |
+
+**Note**: When creating a new Moko Consulting Dolibarr module, allocate the next available module number from the reserved range (185051-185099) and update this table.
+
 ### Database Standards
 
 **Table Naming**:

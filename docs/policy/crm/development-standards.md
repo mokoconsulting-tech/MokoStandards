@@ -871,6 +871,76 @@ mokomodule-1.0.0.zip
 5. Set permissions
 6. Test functionality
 
+### Automatic Updates Deployment
+
+**All Dolibarr and Joomla extensions MUST use Akeeba Release System (ARS) for automatic updates:**
+
+- **Distribution**: All production releases must be published through Akeeba Release System
+- **Update Streams**: Configure proper update streams for stable, beta, and alpha releases
+- **Version Management**: Follow semantic versioning (MAJOR.MINOR.PATCH) in ARS releases
+- **Download IDs**: Each deployment must use unique download IDs for tracking
+- **Update Server**: Extensions must include proper update XML configuration pointing to ARS
+
+**Dolibarr Module Updates**:
+```php
+// In module descriptor (modMokoModule.class.php)
+$this->module_parts = array(
+    'updateserver' => array(
+        'url' => 'https://releases.mokoconsulting.tech/dolibarr/updates/mokomodule.xml'
+    )
+);
+```
+
+**Joomla Extension Updates**:
+```xml
+<!-- In extension manifest XML -->
+<updateservers>
+    <server type="extension" priority="1" name="MokoExtension Updates">
+        https://releases.mokoconsulting.tech/joomla/updates/mokoextension.xml
+    </server>
+</updateservers>
+```
+
+### User Key Requirements
+
+**All Moko Consulting extensions MUST require a valid user key/license key to function:**
+
+**Implementation Requirements**:
+
+1. **Key Validation**: Extensions must validate user key before enabling functionality
+2. **Key Storage**: Store encrypted keys in configuration (never plain text)
+3. **Grace Period**: Provide 14-day grace period for key entry after installation
+4. **Key Format**: Use format `MOKO-{PRODUCT}-{XXXX}-{XXXX}-{XXXX}` where X is alphanumeric
+5. **Validation Endpoint**: Validate keys against `https://license.mokoconsulting.tech/validate`
+6. **Offline Mode**: Support offline validation with cached validation results (max 7 days)
+
+**Dolibarr Implementation**:
+```php
+// In module setup page
+if (!$this->validateUserKey($conf->global->MOKOMODULE_LICENSE_KEY)) {
+    setEventMessages($langs->trans('InvalidLicenseKey'), null, 'errors');
+    $this->disabled = true;
+}
+```
+
+**Joomla Implementation**:
+```php
+// In extension installation script
+public function preflight($type, $parent) {
+    $licenseKey = $this->params->get('license_key');
+    if (!$this->validateLicenseKey($licenseKey)) {
+        throw new RuntimeException('Valid license key required');
+    }
+}
+```
+
+**Key Management**:
+- Users obtain keys from Moko Consulting customer portal
+- Each deployment requires unique key (no key sharing)
+- Keys are tied to domain/installation URL
+- Automatic deactivation after 90 days of failed validation attempts
+- Support team can issue temporary keys for troubleshooting
+
 ## Compliance and Governance
 
 ### License Compliance

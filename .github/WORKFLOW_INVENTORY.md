@@ -17,23 +17,216 @@ This document provides a complete inventory of all GitHub Actions workflows in t
 
 ## Workflow Summary
 
-| # | Workflow | LOC | Complexity | Secrets Used | Migration Priority |
+| # | Workflow | LOC | Complexity | Secrets Used | Migration Decision |
 |---|----------|-----|------------|--------------|-------------------|
-| 1 | ci.yml | 98 | Low | None | Standard |
-| 2 | repo_health.yml | 651 | High | GH_PAT | High |
-| 3 | codeql-analysis.yml | 93 | Low | None | Standard |
-| 4 | changelog_update.yml | 76 | Medium | GH_PAT | Standard |
-| 5 | version_release.yml | 169 | High | GH_PAT | High |
-| 6 | rebuild_docs_indexes.yml | 92 | Medium | GH_PAT | Standard |
-| 7 | setup_project_v2.yml | 72 | Medium | GH_PAT | High |
-| 8 | setup_project_7.yml | 92 | Medium | GH_PAT | High |
-| 9 | sync_docs_to_project.yml | 225 | High | GH_PAT | High |
+| 1 | php_quality.yml | TBD | Medium | Org Secrets | **Centralize to .github-private** |
+| 2 | release_pipeline.yml | TBD | High | Org Secrets | **Centralize to .github-private** |
+| 3 | deploy_staging.yml | TBD | High | Org Secrets | **Centralize to .github-private** |
+| 4 | joomla_testing.yml | TBD | Medium | Org Secrets | **Centralize to .github-private** |
+| 5 | ci.yml | 98 | Low | None | **Keep Local** |
+| 6 | repo_health.yml | 651 | High | GH_PAT | **Keep Local** |
+| 7 | version_branch.yml | TBD | Medium | GH_PAT | **Keep Local** |
+| 8 | codeql-analysis.yml | 93 | Low | None | Keep Local (security) |
+| 9 | changelog_update.yml | 76 | Medium | GH_PAT | Evaluate |
+| 10 | version_release.yml | 169 | High | GH_PAT | Evaluate |
+| 11 | rebuild_docs_indexes.yml | 92 | Medium | GH_PAT | Evaluate |
+| 12 | setup_project_v2.yml | 72 | Medium | GH_PAT | Evaluate |
+| 13 | setup_project_7.yml | 92 | Medium | GH_PAT | Evaluate |
+| 14 | sync_docs_to_project.yml | 225 | High | GH_PAT | Evaluate |
 
-**Total:** 9 workflows, ~1,568 lines of YAML
+**Decision Summary:**
+- **Centralize (4):** php_quality.yml, release_pipeline.yml, deploy_staging.yml, joomla_testing.yml
+- **Keep Local (3):** ci.yml, repo_health.yml, version_branch.yml
+- **Other (7):** Existing workflows to evaluate separately
+
+## Shared Scripts
+
+The following Python scripts will be shared across repositories via `.github-private`:
+
+| Script | Purpose | Current Location | Target Location |
+|--------|---------|------------------|-----------------|
+| `extension_utils.py` | Joomla extension utilities | Repository-specific | `.github-private/scripts/` |
+| `common.py` | Common helper functions | Repository-specific | `.github-private/scripts/` |
+
+These scripts will be:
+- Versioned and maintained centrally
+- Imported via GitHub Actions checkout from `.github-private`
+- Available to all workflows with organization access
+- Documented with clear API contracts
+
+## Secret Configuration
+
+All secrets are configured at **organization level** with inheritance:
+
+| Secret Type | Scope | Usage |
+|-------------|-------|-------|
+| Deployment Keys | Organization | All deployment workflows |
+| API Tokens | Organization | Release and quality workflows |
+| Registry Credentials | Organization | Docker/package publishing |
+| Service Accounts | Organization | External integrations |
+
+**Inheritance Pattern:**
+```yaml
+jobs:
+  deploy:
+    uses: mokoconsulting-tech/.github-private/.github/workflows/reusable/deploy-staging.yml@main
+    secrets: inherit  # All org secrets automatically available
+```
 
 ## Detailed Workflow Analysis
 
-### 1. ci.yml - Continuous Integration
+### Workflows to Centralize to .github-private
+
+### 1. php_quality.yml - PHP Code Quality Analysis
+
+**Purpose:** Automated PHP code quality checks including linting, static analysis, and coding standards
+
+**Triggers:**
+- Push to main and development branches
+- Pull requests to main
+
+**Jobs:**
+- PHP syntax validation
+- PHP_CodeSniffer (PHPCS) compliance
+- PHPStan static analysis
+- Psalm type checking
+- Mess Detector checks
+
+**Dependencies:**
+- PHP 7.4-8.2
+- Composer
+- Quality tools (phpcs, phpstan, psalm)
+- `extension_utils.py` for Joomla-specific checks
+
+**Migration Type:** Convert to reusable workflow in `.github-private`
+
+**Proposed Location:** `.github-private/.github/workflows/reusable/php-quality.yml`
+
+**Migration Complexity:** Medium - Requires PHP tool setup and shared script integration
+
+**Secrets Required:**
+- Organization-level secrets for package registries (if using private dependencies)
+
+**Shared Scripts:** `extension_utils.py`, `common.py`
+
+---
+
+### 2. release_pipeline.yml - Automated Release Management
+
+**Purpose:** Complete release automation including building, testing, packaging, and publishing
+
+**Triggers:**
+- Manual workflow_dispatch with version input
+- Tag creation matching release pattern
+
+**Jobs:**
+- Version validation
+- Build artifacts (ZIP packages for Joomla/Dolibarr)
+- Generate checksums (SHA256)
+- Create GitHub Release
+- Publish to marketplaces
+- Update documentation
+- Notify stakeholders
+
+**Dependencies:**
+- Build tools (zip, tar)
+- Checksum utilities
+- GitHub CLI
+- Marketplace APIs
+- `extension_utils.py` for package creation
+
+**Migration Type:** Convert to reusable workflow in `.github-private`
+
+**Proposed Location:** `.github-private/.github/workflows/reusable/release-pipeline.yml`
+
+**Migration Complexity:** High - Complex multi-step process with external integrations
+
+**Secrets Required:**
+- Marketplace API tokens (organization-level)
+- Signing keys for packages
+- Release notification webhooks
+
+**Shared Scripts:** `extension_utils.py`, `common.py`
+
+---
+
+### 3. deploy_staging.yml - Staging Environment Deployment
+
+**Purpose:** Automated deployment to staging environments for testing before production
+
+**Triggers:**
+- Push to develop branch
+- Manual workflow_dispatch
+- Successful completion of quality checks
+
+**Jobs:**
+- Build deployment package
+- Deploy to staging server
+- Run smoke tests
+- Health check validation
+- Rollback on failure
+
+**Dependencies:**
+- SSH/SFTP access to staging
+- Deployment scripts
+- Health check endpoints
+- `common.py` for deployment utilities
+
+**Migration Type:** Convert to reusable workflow in `.github-private`
+
+**Proposed Location:** `.github-private/.github/workflows/reusable/deploy-staging.yml`
+
+**Migration Complexity:** High - Requires secure credential handling and deployment logic
+
+**Secrets Required:**
+- Staging server credentials (organization-level)
+- Deployment keys
+- Notification webhooks
+
+**Shared Scripts:** `common.py`
+
+---
+
+### 4. joomla_testing.yml - Joomla Extension Testing
+
+**Purpose:** Comprehensive testing for Joomla extensions across multiple PHP and Joomla versions
+
+**Triggers:**
+- Push to main and development branches
+- Pull requests
+- Schedule: Nightly
+
+**Jobs:**
+- Unit tests with PHPUnit
+- Integration tests with Joomla instances
+- Matrix testing (PHP 7.4-8.2 × Joomla 4.4-5.1)
+- Code coverage reporting
+- Extension installation tests
+
+**Dependencies:**
+- PHP 7.4-8.2
+- MySQL/MariaDB
+- Joomla CMS installations
+- PHPUnit
+- `extension_utils.py` for installation testing
+
+**Migration Type:** Convert to reusable workflow in `.github-private`
+
+**Proposed Location:** `.github-private/.github/workflows/reusable/joomla-testing.yml`
+
+**Migration Complexity:** High - Complex test matrix and Joomla setup
+
+**Secrets Required:**
+- Code coverage service tokens (organization-level)
+- Test environment credentials
+
+**Shared Scripts:** `extension_utils.py`, `common.py`
+
+---
+
+### Workflows to Keep Local
+
+### 5. ci.yml - Continuous Integration
 
 **Purpose:** Validate repository standards and run compliance checks
 
@@ -51,15 +244,17 @@ This document provides a complete inventory of all GitHub Actions workflows in t
 - Python 3.x
 - ShellCheck
 
-**Migration Type:** Convert to reusable workflow
+**Decision:** **Keep Local**
 
-**Proposed Location:** `.github-private/.github/workflows/reusable/ci-validation.yml`
-
-**Migration Complexity:** Low - No sensitive logic, straightforward conversion
+**Rationale:** 
+- Repository-specific validation rules
+- No sensitive proprietary logic in this workflow
+- Fast iteration without cross-repo dependencies
+- Public transparency for CI process
 
 ---
 
-### 2. repo_health.yml - Repository Health & Governance
+### 6. repo_health.yml - Repository Health & Governance
 
 **Purpose:** Comprehensive repository health checks and governance validation
 
@@ -81,19 +276,48 @@ This document provides a complete inventory of all GitHub Actions workflows in t
 - ShellCheck
 - Various governance artifacts
 
-**Migration Type:** Convert to reusable workflow with profile parameter
+**Decision:** **Keep Local**
 
-**Proposed Location:** `.github-private/.github/workflows/reusable/repo-health-check.yml`
+**Rationale:**
+- Repository governance is repo-specific
+- Complex proprietary validation logic best maintained locally
+- Frequent updates needed for repository-specific rules
+- Admin-only execution gate works better locally
 
-**Migration Complexity:** High - Complex logic, multiple execution paths
-
-**Sensitive Content:** 
-- Proprietary governance rules
-- Organization-specific validation logic
+**Note:** While this contains proprietary governance logic, keeping it local allows for repository-specific customization and faster iteration.
 
 ---
 
-### 3. codeql-analysis.yml - Security Code Scanning
+### 7. version_branch.yml - Version Branch Management
+
+**Purpose:** Automated creation and management of version-specific branches
+
+**Triggers:**
+- Manual workflow_dispatch with version parameters
+- Release creation events
+
+**Jobs:**
+- Version branch creation
+- Branch protection setup
+- Documentation updates
+- Changelog initialization
+
+**Dependencies:**
+- Git operations
+- Branch protection API
+- Documentation generator
+
+**Decision:** **Keep Local**
+
+**Rationale:**
+- Repository-specific branching strategies
+- Different versioning schemes per repository
+- Fast iteration on branching logic
+- No sensitive deployment credentials
+
+---
+
+### 8. codeql-analysis.yml - Security Code Scanning
 
 **Purpose:** Automated security vulnerability detection using CodeQL
 
@@ -110,17 +334,19 @@ This document provides a complete inventory of all GitHub Actions workflows in t
 - GitHub CodeQL action
 - Language detection
 
-**Migration Type:** Keep local (standard GitHub security feature)
+**Decision:** **Keep Local** (security best practice)
 
-**Proposed Location:** Stay in `.github/workflows/` (public best practice)
-
-**Migration Complexity:** N/A - Should remain local
-
-**Note:** CodeQL workflows typically stay in public repositories for transparency
+**Rationale:**
+- Standard GitHub security feature
+- Public transparency for security scanning
+- Best practice to keep in public repositories
+- No customization needed
 
 ---
 
-### 4. changelog_update.yml - Changelog Management
+### Other Existing Workflows (To Evaluate Separately)
+
+### 9. changelog_update.yml - Changelog Management
 
 **Purpose:** Automated CHANGELOG.md updates and validation
 
@@ -137,15 +363,11 @@ This document provides a complete inventory of all GitHub Actions workflows in t
 - Python 3.x
 - GH_PAT secret
 
-**Migration Type:** Convert to reusable workflow
-
-**Proposed Location:** `.github-private/.github/workflows/reusable/changelog-management.yml`
-
-**Migration Complexity:** Medium - Requires GH_PAT handling
+**Decision:** Evaluate - May keep local or integrate with release_pipeline.yml
 
 ---
 
-### 5. version_release.yml - Version Management
+### 10. version_release.yml - Version Management
 
 **Purpose:** Automated version bumping and release creation
 
@@ -164,19 +386,11 @@ This document provides a complete inventory of all GitHub Actions workflows in t
 - GH_PAT secret
 - Multiple governance artifacts
 
-**Migration Type:** Convert to reusable workflow
-
-**Proposed Location:** `.github-private/.github/workflows/reusable/version-management.yml`
-
-**Migration Complexity:** High - Complex version logic, governance checks
-
-**Sensitive Content:**
-- Version bumping strategy
-- Release process automation
+**Decision:** Evaluate - May integrate with release_pipeline.yml or keep local
 
 ---
 
-### 6. rebuild_docs_indexes.yml - Documentation Index Generation
+### 11. rebuild_docs_indexes.yml - Documentation Index Generation
 
 **Purpose:** Automatically rebuild documentation index files
 
@@ -194,15 +408,11 @@ This document provides a complete inventory of all GitHub Actions workflows in t
 - `scripts/docs/rebuild_indexes.py`
 - GH_PAT secret
 
-**Migration Type:** Convert to reusable workflow
-
-**Proposed Location:** `.github-private/.github/workflows/reusable/docs-automation.yml`
-
-**Migration Complexity:** Low - Simple script execution
+**Decision:** Evaluate - Repository-specific documentation may warrant keeping local
 
 ---
 
-### 7. setup_project_v2.yml - GitHub Projects v2 Setup
+### 12. setup_project_v2.yml - GitHub Projects v2 Setup
 
 **Purpose:** Automated GitHub Projects v2 creation and configuration
 
@@ -220,19 +430,11 @@ This document provides a complete inventory of all GitHub Actions workflows in t
 - GH_PAT secret
 - Project setup scripts
 
-**Migration Type:** Convert to reusable workflow
-
-**Proposed Location:** `.github-private/.github/workflows/reusable/project-automation.yml`
-
-**Migration Complexity:** High - API interactions, complex setup logic
-
-**Sensitive Content:**
-- Project templates
-- Field configurations
+**Decision:** Evaluate - Project automation may benefit from centralization
 
 ---
 
-### 8. setup_project_7.yml - Project #7 Specific Setup
+### 13. setup_project_7.yml - Project #7 Specific Setup
 
 **Purpose:** Specialized setup for Project #7 with version tracking
 
@@ -250,15 +452,11 @@ This document provides a complete inventory of all GitHub Actions workflows in t
 - GH_PAT secret
 - `scripts/setup_project_7.py`
 
-**Migration Type:** Merge with setup_project_v2.yml into unified workflow
-
-**Proposed Location:** `.github-private/.github/workflows/reusable/project-automation.yml`
-
-**Migration Complexity:** Medium - Can be consolidated
+**Decision:** Evaluate - May merge with setup_project_v2.yml
 
 ---
 
-### 9. sync_docs_to_project.yml - Documentation Project Sync
+### 14. sync_docs_to_project.yml - Documentation Project Sync
 
 **Purpose:** Sync documentation files to GitHub Project items
 
@@ -278,78 +476,122 @@ This document provides a complete inventory of all GitHub Actions workflows in t
 - GH_PAT secret
 - `scripts/sync_file_to_project.py`
 
-**Migration Type:** Convert to reusable workflow
-
-**Proposed Location:** `.github-private/.github/workflows/reusable/docs-automation.yml`
-
-**Migration Complexity:** High - Complex GraphQL operations
-
-**Sensitive Content:**
-- Project sync logic
-- Field mappings
+**Decision:** Evaluate - Project sync may benefit from centralization
 
 ---
 
 ## Secret Dependencies
 
-| Secret Name | Used By | Purpose | Migration Impact |
-|-------------|---------|---------|------------------|
-| GH_PAT | repo_health.yml | Push to repository | Must be org secret |
-| GH_PAT | changelog_update.yml | Commit changes | Must be org secret |
-| GH_PAT | version_release.yml | Create branches/tags | Must be org secret |
-| GH_PAT | rebuild_docs_indexes.yml | Commit indexes | Must be org secret |
-| GH_PAT | setup_project_v2.yml | GraphQL API access | Must be org secret |
-| GH_PAT | setup_project_7.yml | GraphQL API access | Must be org secret |
-| GH_PAT | sync_docs_to_project.yml | GraphQL API access | Must be org secret |
+### Organization-Level Secrets (Configured)
 
-**Note:** All workflows using GH_PAT should migrate to use `secrets: inherit` pattern
+All secrets are configured at **organization level** with automatic inheritance to workflows:
+
+| Secret Category | Specific Secrets | Used By | Purpose |
+|-----------------|------------------|---------|---------|
+| **Deployment** | STAGING_SSH_KEY, STAGING_HOST | deploy_staging.yml | Staging deployment |
+| **Releases** | MARKETPLACE_TOKEN, JED_API_KEY | release_pipeline.yml | Marketplace publishing |
+| **Quality** | CODECOV_TOKEN, SONAR_TOKEN | php_quality.yml, joomla_testing.yml | Code coverage/quality |
+| **Testing** | TEST_DB_PASSWORD | joomla_testing.yml | Test database setup |
+| **General** | GH_PAT | Various | GitHub API access |
+
+### Inheritance Pattern
+
+Workflows use `secrets: inherit` to access all organization secrets:
+
+```yaml
+jobs:
+  quality:
+    uses: mokoconsulting-tech/.github-private/.github/workflows/reusable/php-quality.yml@main
+    secrets: inherit  # Automatically inherits all org secrets
+```
+
+**Benefits:**
+- Single source of truth for secrets
+- No per-repository secret configuration
+- Automatic rotation across all repositories
+- Centralized access control
 
 ## Script Dependencies
 
+### Shared Scripts (Move to .github-private)
+
+| Script | Used By | Purpose | Target Location |
+|--------|---------|---------|-----------------|
+| **extension_utils.py** | php_quality.yml, joomla_testing.yml, release_pipeline.yml | Joomla extension operations | `.github-private/scripts/` |
+| **common.py** | All centralized workflows | Common utilities | `.github-private/scripts/` |
+
+**Usage Pattern in Workflows:**
+```yaml
+- name: Checkout shared scripts
+  uses: actions/checkout@v4
+  with:
+    repository: mokoconsulting-tech/.github-private
+    path: .github-private
+    token: ${{ secrets.GH_PAT }}
+
+- name: Use shared scripts
+  run: |
+    python .github-private/scripts/extension_utils.py
+```
+
+### Repository-Specific Scripts (Keep Local)
+
 | Script | Used By | Migration Action |
 |--------|---------|------------------|
-| `scripts/validate/*` | ci.yml | Keep in repository |
+| `scripts/validate/*` | ci.yml | Keep in repository (repo-specific) |
 | `scripts/docs/rebuild_indexes.py` | rebuild_docs_indexes.yml | Keep in repository |
-| `scripts/setup_project_v2.py` | setup_project_v2.yml | Consider moving to .github-private |
-| `scripts/setup_project_7.py` | setup_project_7.yml | Consider moving to .github-private |
-| `scripts/sync_file_to_project.py` | sync_docs_to_project.yml | Consider moving to .github-private |
+| `scripts/setup_project_v2.py` | setup_project_v2.yml | Evaluate for centralization |
+| `scripts/setup_project_7.py` | setup_project_7.yml | Evaluate for centralization |
+| `scripts/sync_file_to_project.py` | sync_docs_to_project.yml | Evaluate for centralization |
 
 ## Migration Priority Matrix
 
-### High Priority (Week 2-3)
-1. **repo_health.yml** - Contains proprietary governance logic
-2. **version_release.yml** - Sensitive release automation
-3. **setup_project_v2.yml** - Project template exposure
-4. **setup_project_7.yml** - Can be consolidated with v2
-5. **sync_docs_to_project.yml** - Complex proprietary sync logic
+### Centralize to .github-private (Priority 1)
+1. **php_quality.yml** - PHP code quality analysis with shared scripts
+2. **release_pipeline.yml** - Release automation with marketplace integration
+3. **deploy_staging.yml** - Staging deployment with sensitive credentials
+4. **joomla_testing.yml** - Comprehensive Joomla testing matrix
 
-### Standard Priority (Week 3-4)
-6. **ci.yml** - Standard validation, can migrate for consistency
-7. **changelog_update.yml** - Simple automation
-8. **rebuild_docs_indexes.yml** - Simple automation
+### Keep Local (Decided)
+5. **ci.yml** - Repository-specific validation
+6. **repo_health.yml** - Repository governance (proprietary but repo-specific)
+7. **version_branch.yml** - Repository-specific branching
+8. **codeql-analysis.yml** - Security best practice (keep public)
 
-### Keep Local
-9. **codeql-analysis.yml** - Security best practice to keep public
+### Evaluate Later
+9. **changelog_update.yml** - May integrate with release_pipeline.yml
+10. **version_release.yml** - May integrate with release_pipeline.yml  
+11. **rebuild_docs_indexes.yml** - Repository-specific documentation
+12. **setup_project_v2.yml** - Project automation
+13. **setup_project_7.yml** - Project automation
+14. **sync_docs_to_project.yml** - Project sync
 
 ## Reusable Workflow Structure
 
-### Proposed .github-private Layout
+### Finalized .github-private Layout
 
 ```
 .github-private/
-└── .github/
-    └── workflows/
-        ├── reusable/
-        │   ├── ci-validation.yml          (from ci.yml)
-        │   ├── repo-health-check.yml      (from repo_health.yml)
-        │   ├── version-management.yml     (from version_release.yml)
-        │   ├── project-automation.yml     (from setup_project_*.yml)
-        │   ├── docs-automation.yml        (from rebuild + sync)
-        │   └── changelog-management.yml   (from changelog_update.yml)
-        └── templates/
-            ├── standard-ci.yml
-            ├── standard-release.yml
-            └── standard-health.yml
+├── .github/
+│   └── workflows/
+│       ├── reusable/
+│       │   ├── php-quality.yml           (php_quality.yml)
+│       │   ├── release-pipeline.yml      (release_pipeline.yml)
+│       │   ├── deploy-staging.yml        (deploy_staging.yml)
+│       │   └── joomla-testing.yml        (joomla_testing.yml)
+│       └── templates/
+│           ├── php-quality-template.yml
+│           ├── release-template.yml
+│           ├── deploy-template.yml
+│           └── testing-template.yml
+├── scripts/
+│   ├── extension_utils.py                (shared across repos)
+│   ├── common.py                         (shared across repos)
+│   └── README.md
+└── docs/
+    ├── README.md
+    ├── workflow-usage.md
+    └── script-api.md
 ```
 
 ## Migration Checklist

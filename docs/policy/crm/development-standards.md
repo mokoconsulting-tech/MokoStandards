@@ -230,7 +230,10 @@ Dolibarr module numbers **185051 to 185099** are reserved for Moko Consulting us
 | Module Name | Module Number | Status | Description | Repository |
 |-------------|---------------|--------|-------------|------------|
 | MokoDoliTools | 185051 | Active | Core utilities and admin toolkit for Dolibarr with curated defaults, UI enhancements, and entity-aware operations | [mokoconsulting-tech/MokoDoliTools](https://github.com/mokoconsulting-tech/MokoDoliTools) |
-| Reserved | 185052-185099 | Reserved | Reserved for future Moko Consulting modules | - |
+| MokoDoliSign | 185052 | Reserved | Digital signature and document signing module | TBD |
+| MokoCRM Mobile | 185053 | Reserved | Mobile application for MokoCRM | TBD |
+| MokoDoliChimp | 185054 | Reserved | MailChimp integration for Dolibarr | TBD |
+| Reserved | 185055-185099 | Reserved | Reserved for future Moko Consulting modules | - |
 
 **Note**: When creating a new Moko Consulting Dolibarr module, allocate the next available module number from the reserved range (185051-185099) and update this table.
 

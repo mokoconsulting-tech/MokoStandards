@@ -235,7 +235,21 @@ Dolibarr module numbers **185051 to 185099** are reserved for Moko Consulting us
 | MokoDoliChimp | 185054 | Reserved | MailChimp integration for Dolibarr | TBD |
 | Reserved | 185055-185099 | Reserved | Reserved for future Moko Consulting modules | - |
 
-**Note**: When creating a new Moko Consulting Dolibarr module, allocate the next available module number from the reserved range (185051-185099) and update this table.
+**Module ID Reservation Process**:
+
+To reserve a Dolibarr module ID from the Moko Consulting range (185051-185099):
+
+1. **Create a Pull Request** to this repository
+2. **Update this table** with:
+   - Module name
+   - Next available module number from the reserved range
+   - Status: "Reserved"
+   - Brief description of the module's purpose
+   - Repository link (use "TBD" if not yet created)
+3. **Get approval** from the CRM Development Lead before merging
+4. **Merge the PR** to officially reserve the module ID
+
+**Important**: Module IDs MUST be reserved through a pull request. Direct commits to reserve module IDs are not permitted.
 
 ### Database Standards
 

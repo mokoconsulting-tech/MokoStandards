@@ -1,4 +1,4 @@
-# Docs Index: /docs
+# Docs Index: /docs/products
 
 ## Purpose
 
@@ -6,16 +6,8 @@ This index provides navigation to documentation within this folder.
 
 ## Subfolders
 
-- [checklist/](./checklist/index.md)
-- [glossary/](./glossary/index.md)
-- [guide/](./guide/index.md)
-- [policy/](./policy/index.md)
-- [products/](./products/index.md)
-
-## Documents
-
-- [README](./README.md)
-- [ROADMAP](./ROADMAP.md)
+- [mokocrm/](./mokocrm/index.md)
+- [mokowaas/](./mokowaas/index.md)
 
 ## Metadata
 

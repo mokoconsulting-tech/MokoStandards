@@ -927,7 +927,8 @@ if (!$this->validateUserKey($conf->global->MOKOMODULE_LICENSE_KEY)) {
 ```php
 // In extension installation script
 public function preflight($type, $parent) {
-    $licenseKey = $this->params->get('license_key');
+    $params = JComponentHelper::getParams('com_mokoextension');
+    $licenseKey = $params->get('license_key');
     if (!$this->validateLicenseKey($licenseKey)) {
         throw new RuntimeException('Valid license key required');
     }
@@ -938,7 +939,7 @@ public function preflight($type, $parent) {
 - Users obtain keys from Moko Consulting customer portal
 - Each deployment requires unique key (no key sharing)
 - Keys are tied to domain/installation URL
-- Automatic deactivation after 90 days of failed validation attempts
+- Extensions become non-functional after 7 days of failed validation attempts (matching offline cache period)
 - Support team can issue temporary keys for troubleshooting
 
 ## Compliance and Governance

@@ -233,7 +233,7 @@ Dolibarr module numbers **185051 to 185099** are reserved for Moko Consulting us
 | MokoDoliSign | 185052 | Reserved | Digital signature and document signing module | TBD |
 | MokoCRM Mobile | 185053 | Reserved | Mobile application for MokoCRM | TBD |
 | MokoDoliChimp | 185054 | Reserved | MailChimp integration for Dolibarr | TBD |
-| Reserved | 185055-185099 | Reserved | Reserved for future Moko Consulting modules | - |
+| Available for Assignment | 185055-185099 | Reserved | Reserved for future Moko Consulting modules | - |
 
 **Module ID Reservation Process**:
 
@@ -883,12 +883,19 @@ mokomodule-1.0.0.zip
 
 **Dolibarr Module Updates**:
 ```php
-// In module descriptor (modMokoModule.class.php)
-$this->module_parts = array(
-    'updateserver' => array(
-        'url' => 'https://releases.mokoconsulting.tech/dolibarr/updates/mokomodule.xml'
-    )
-);
+// Dolibarr does not have native automatic update support via module_parts
+// Implement custom update checking mechanism:
+// 1. Create an admin page that checks for updates from ARS
+// 2. Parse update XML from: https://releases.mokoconsulting.tech/dolibarr/updates/mokomodule.xml
+// 3. Display update notification and download link to administrators
+// 4. Provide manual update instructions or one-click update if feasible
+//
+// Example update check in admin page:
+$updateXmlUrl = 'https://releases.mokoconsulting.tech/dolibarr/updates/mokomodule.xml';
+$latestVersion = $this->checkForUpdates($updateXmlUrl);
+if (version_compare($latestVersion, $this->version, '>')) {
+    print '<div class="info">Update available: ' . $latestVersion . '</div>';
+}
 ```
 
 **Joomla Extension Updates**:
@@ -909,23 +916,36 @@ $this->module_parts = array(
 
 1. **Key Validation**: Extensions must validate user key before enabling functionality
 2. **Key Storage**: Store encrypted keys in configuration (never plain text)
+   - Use AES-256-GCM for at-rest encryption of license keys
+   - Encryption keys MUST NOT be stored in the same location as encrypted license keys
+   - Use platform-specific secure storage APIs or environment variables for encryption key management
+   - Use established cryptographic libraries (OpenSSL, libsodium, or framework-specific APIs)
 3. **Grace Period**: Provide 14-day grace period for key entry after installation
-4. **Key Format**: Use format `MOKO-{PRODUCT}-{XXXX}-{XXXX}-{XXXX}` where X is alphanumeric
+4. **Key Format**: Use format `MOKO-PRODUCT-XXXX-XXXX-XXXX`, where `PRODUCT` is the extension code (e.g., `DOLITOOLS`) and each `XXXX` segment is exactly 4 alphanumeric characters (example: `MOKO-DOLITOOLS-A1B2-C3D4-E5F6`)
 5. **Validation Endpoint**: Validate keys against `https://license.mokoconsulting.tech/validate`
-6. **Offline Mode**: Support offline validation with cached validation results (max 7 days)
+   - **HTTP Method**: POST
+   - **Request Headers**: `Content-Type: application/json`, `X-Extension-Version: {version}`
+   - **Request Body**: `{"license_key": "MOKO-...", "domain": "example.com", "installation_id": "..."}`
+   - **Success Response**: `{"valid": true, "expires": "2026-12-31", "features": []}`
+   - **Error Response**: `{"valid": false, "error": "INVALID_KEY|EXPIRED|DOMAIN_MISMATCH"}`
+6. **Offline Mode**: Support offline validation with cached validation results
+   - Successful validations are cached for up to 7 consecutive days to allow offline operation
+   - If no successful validation occurs within a rolling 7-day period, extensions become non-functional until validation succeeds
 
 **Dolibarr Implementation**:
 ```php
 // In module setup page
+// Note: Implement validateUserKey() method in your module class
 if (!$this->validateUserKey($conf->global->MOKOMODULE_LICENSE_KEY)) {
     setEventMessages($langs->trans('InvalidLicenseKey'), null, 'errors');
-    $this->disabled = true;
+    // Disable module functionality (implement appropriate checks throughout module)
 }
 ```
 
 **Joomla Implementation**:
 ```php
 // In extension installation script
+// Note: Implement validateLicenseKey() method in your extension class
 public function preflight($type, $parent) {
     $params = JComponentHelper::getParams('com_mokoextension');
     $licenseKey = $params->get('license_key');
@@ -939,7 +959,7 @@ public function preflight($type, $parent) {
 - Users obtain keys from Moko Consulting customer portal
 - Each deployment requires unique key (no key sharing)
 - Keys are tied to domain/installation URL
-- Extensions become non-functional after 7 days of failed validation attempts (matching offline cache period)
+- Extensions become non-functional if validation fails for 7 consecutive days
 - Support team can issue temporary keys for troubleshooting
 
 ## Compliance and Governance

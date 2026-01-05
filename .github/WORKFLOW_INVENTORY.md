@@ -15,6 +15,22 @@ BRIEF: Complete inventory of GitHub Actions workflows for migration planning
 
 This document provides a complete inventory of all GitHub Actions workflows in the MokoStandards repository, prepared for migration to `.github-private` repository.
 
+### Repository Architecture
+
+Moko Consulting maintains a dual-repository strategy:
+
+- **`MokoStandards`** - **Public Central Repository**
+  - Public standards, templates, and documentation
+  - Community-accessible workflow templates
+  - Open-source best practices
+  
+- **`.github-private`** - **Private and Secure Centralization**
+  - Proprietary workflow implementations
+  - Organization-specific CI/CD pipelines
+  - Sensitive automation and deployment logic
+
+This inventory identifies which workflows stay in the public `MokoStandards` repository and which migrate to the private `.github-private` repository for secure centralization.
+
 ## Workflow Summary
 
 | # | Workflow | LOC | Complexity | Secrets Used | Migration Decision |

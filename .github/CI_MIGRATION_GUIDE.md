@@ -13,12 +13,35 @@ BRIEF: Guide for migrating CI workflows to .github-private repository
 
 ## Overview
 
-This guide documents the process for migrating GitHub Actions CI workflows from the public MokoStandards repository to a private `.github-private` repository. This approach allows for:
+This guide documents the process for migrating GitHub Actions CI workflows from the public MokoStandards repository to a private `.github-private` repository.
 
-- **Security**: Keep sensitive workflow logic private
-- **Centralization**: Single source of truth for organization workflows
-- **Reusability**: Share workflows across multiple repositories
-- **Control**: Manage workflow updates independently
+### Repository Architecture
+
+Moko Consulting uses a dual-repository strategy for centralized standards and workflows:
+
+- **`MokoStandards`** (Public Central Repository)
+  - Public standards, templates, and documentation
+  - Workflow templates for community use
+  - Project configuration templates
+  - Public best practices and guides
+  - Product documentation (MokoCRM, MokoWaaS)
+  
+- **`.github-private`** (Private and Secure Centralization)
+  - Proprietary workflow implementations
+  - Sensitive automation logic
+  - Organization-specific CI/CD pipelines
+  - Internal deployment scripts
+  - Confidential configurations
+
+### Migration Benefits
+
+This dual-repository approach provides:
+
+- **Security**: Keep sensitive workflow logic and proprietary automation private
+- **Centralization**: Single source of truth for organization workflows across all repositories
+- **Reusability**: Share private workflows across multiple internal repositories
+- **Control**: Manage workflow updates independently from public standards
+- **Transparency**: Public templates remain accessible while protecting proprietary implementations
 
 ## Current CI Workflows
 

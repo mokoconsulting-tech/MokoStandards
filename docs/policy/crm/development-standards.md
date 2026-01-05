@@ -177,7 +177,7 @@ class modMokoModule extends DolibarrModules
         $this->db = $db;
         
         // Module identification
-        $this->numero = 500000; // Unique ID (500000+ for custom)
+        $this->numero = 185051; // Unique ID (Moko Consulting reserved: 185051-185099)
         $this->rights_class = 'mokomodule';
         
         // Module information

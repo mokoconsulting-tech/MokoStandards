@@ -1,4 +1,4 @@
-# Docs Index: /repos/joomla/library
+# Docs Index: /templates/repos/joomla/library
 
 ## Purpose
 

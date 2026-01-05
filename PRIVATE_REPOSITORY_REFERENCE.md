@@ -33,11 +33,28 @@ BRIEF: Reference to sensitive items moved to private repository
 
 This document references sensitive files and internal documentation that have been moved from this public repository to the private **mokoconsulting-tech/.github-private** repository for security and confidentiality reasons.
 
+### Dual-Repository Architecture
+
+Moko Consulting uses a dual-repository strategy:
+
+- **`MokoStandards`** - **Public Central Repository** (this repository)
+  - Public standards, templates, and documentation
+  - Community-accessible workflow templates
+  - Open-source best practices and governance policies
+  
+- **`.github-private`** - **Private and Secure Centralization**
+  - Proprietary workflow implementations
+  - Sensitive automation and deployment logic
+  - Organization-specific CI/CD pipelines
+  - Internal scripts and configurations
+
 ## Private Repository Location
 
 **Repository**: `https://github.com/mokoconsulting-tech/.github-private` (internal access only)
 
 **Access**: Restricted to Moko Consulting organization members
+
+**Purpose**: Secure centralization of proprietary workflows and sensitive automation
 
 ## Files Moved to Private Repository
 

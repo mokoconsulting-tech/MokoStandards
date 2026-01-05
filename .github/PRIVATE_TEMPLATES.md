@@ -89,12 +89,12 @@ If you are adopting MokoStandards for your own organization:
 
 Public, reusable templates are available in this repository:
 
-- **Workflow Templates**: [.github/workflows/templates/](workflows/templates/)
+- **Workflow Templates**: [../templates/workflows/](../templates/workflows/)
   - Joomla CI/CD workflows
   - Generic repository health workflows
   - Version branch automation
 
-- **Documentation Templates**: [templates/docs/](../templates/docs/)
+- **Documentation Templates**: [../templates/docs/](../templates/docs/)
   - Policy document templates
   - Guide document templates
   - Checklist templates

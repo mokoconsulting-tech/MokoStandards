@@ -1,0 +1,202 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.Release
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /templates/workflows/joomla/release.yml
+# VERSION: 01.00.00
+# BRIEF: Automated release workflow for Joomla extensions
+# NOTE: Creates release packages and publishes to GitHub Releases
+
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 1.0.0)'
+        required: true
+        type: string
+      prerelease:
+        description: 'Mark as pre-release'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Release Package
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mbstring, xml, zip
+          tools: composer:v2
+
+      - name: Get version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            VERSION="${{ inputs.version }}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/v}
+          fi
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Building version: ${VERSION}"
+
+      - name: Install dependencies
+        run: |
+          if [ -f "composer.json" ]; then
+            composer install --no-dev --optimize-autoloader
+          fi
+
+      - name: Update version in manifest
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          # Update version in XML manifest files
+          find . -name "*.xml" -type f -exec sed -i "s/<version>.*<\/version>/<version>${VERSION}<\/version>/g" {} \;
+
+      - name: Create package structure
+        run: |
+          mkdir -p build/package
+          
+          # Copy extension files (excluding development files)
+          rsync -av --exclude='build' \
+                    --exclude='tests' \
+                    --exclude='.git*' \
+                    --exclude='composer.json' \
+                    --exclude='composer.lock' \
+                    --exclude='phpunit.xml*' \
+                    --exclude='phpcs.xml*' \
+                    --exclude='phpstan.neon*' \
+                    --exclude='psalm.xml*' \
+                    --exclude='node_modules' \
+                    --exclude='.github' \
+                    . build/package/
+
+      - name: Create ZIP package
+        run: |
+          cd build/package
+          EXTENSION_NAME=$(basename $GITHUB_REPOSITORY | sed 's/^joomla-//' | sed 's/^mod_//' | sed 's/^com_//' | sed 's/^plg_//')
+          VERSION="${{ steps.version.outputs.version }}"
+          ZIP_NAME="${EXTENSION_NAME}-${VERSION}.zip"
+          zip -r "../${ZIP_NAME}" .
+          cd ../..
+          echo "ZIP_NAME=${ZIP_NAME}" >> $GITHUB_ENV
+          echo "Created package: ${ZIP_NAME}"
+
+      - name: Generate checksums
+        run: |
+          cd build
+          sha256sum "${ZIP_NAME}" > "${ZIP_NAME}.sha256"
+          md5sum "${ZIP_NAME}" > "${ZIP_NAME}.md5"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-package
+          path: |
+            build/*.zip
+            build/*.sha256
+            build/*.md5
+
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-package
+          path: ./artifacts
+
+      - name: Get version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            VERSION="${{ inputs.version }}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/v}
+          fi
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Extract changelog
+        id: changelog
+        run: |
+          if [ -f "CHANGELOG.md" ]; then
+            # Extract changelog for this version
+            VERSION="${{ steps.version.outputs.version }}"
+            awk "/## \[${VERSION}\]/,/## \[/{if(/## \[${VERSION}\]/)print;else if(/## \[/)exit;else print}" CHANGELOG.md > release_notes.md
+            
+            if [ ! -s release_notes.md ]; then
+              echo "No specific changelog found for version ${VERSION}" > release_notes.md
+              echo "" >> release_notes.md
+              echo "Please refer to the full CHANGELOG.md for details." >> release_notes.md
+            fi
+          else
+            echo "Release version ${{ steps.version.outputs.version }}" > release_notes.md
+          fi
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Release ${{ steps.version.outputs.version }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: ${{ inputs.prerelease || false }}
+          files: |
+            artifacts/*.zip
+            artifacts/*.sha256
+            artifacts/*.md5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Release summary
+        run: |
+          echo "### Release Created Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Version: ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Repository: $GITHUB_REPOSITORY" >> $GITHUB_STEP_SUMMARY
+          echo "- Tag: v${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Pre-release: ${{ inputs.prerelease || false }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Package files:" >> $GITHUB_STEP_SUMMARY
+          ls -lh artifacts/ >> $GITHUB_STEP_SUMMARY

@@ -45,7 +45,7 @@
   - File header validation script (Python)
   - Comprehensive WaaS guides (architecture, operations, onboarding)
 - **Workflow Templates**
-  - Consolidated workflow templates to `.github/workflows/templates/`
+  - Consolidated workflow templates to `templates/workflows/`
   - Joomla-specific variants (ci.yml, repo_health.yml, version_branch.yml)
   - Generic variants (repo_health.yml)
 - **Project Automation**

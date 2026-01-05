@@ -54,22 +54,37 @@ Excluded:
 
 This repository defines standards independently of any specific downstream implementation. Companion repositories may exist, but are not enumerated or coupled here.
 
-### Private Repository for Internal Use
+### Dual-Repository Architecture
 
-**For Moko Consulting Internal Users**: Sensitive files including internal automation scripts, proprietary AI prompts, and internal documentation have been moved to a private repository:
+Moko Consulting uses a dual-repository strategy for centralized standards and workflows:
 
-**Repository**: `mokoconsulting-tech/.github-private` (internal access only)
+#### `MokoStandards` - **Public Central Repository** (this repository)
+- Public standards, templates, and documentation
+- Workflow templates for community use
+- Project configuration templates
+- Public best practices and guides
+- Product documentation (MokoCRM, MokoWaaS)
+- Open-source coding standards and governance policies
 
-See [PRIVATE_REPOSITORY_REFERENCE.md](PRIVATE_REPOSITORY_REFERENCE.md) for:
-- Complete list of moved files
+#### `.github-private` - **Private and Secure Centralization**
+- Proprietary workflow implementations
+- Sensitive automation logic and internal scripts
+- Organization-specific CI/CD pipelines
+- Internal deployment procedures
+- Confidential configurations and credentials
+- Proprietary AI prompts and automation
+
+**For Moko Consulting Internal Users**: See [PRIVATE_REPOSITORY_REFERENCE.md](PRIVATE_REPOSITORY_REFERENCE.md) for:
+- Complete list of files in private repository
 - Access instructions for internal users
 - Public alternatives for external users
 - Guidance for creating your own internal automation
 
-This separation ensures:
+**Benefits**:
 - Public standards remain open and shareable
 - Sensitive organizational information stays private
 - Clear boundaries between public and internal content
+- Secure centralization of proprietary workflows
 
 ## Operating model
 
@@ -183,7 +198,7 @@ This repository is organized to separate enforceable standards from reusable tem
 
 ### GitHub templates and workflows
 
-* **Public workflow templates**: [`.github/workflows/templates/`](.github/workflows/templates/README.md)
+* **Public workflow templates**: [`templates/workflows/`](templates/workflows/README.md)
 
   * CI/CD workflow templates for Joomla and generic projects
   * Repository health monitoring workflows

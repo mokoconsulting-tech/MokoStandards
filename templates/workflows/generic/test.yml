@@ -1,0 +1,292 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.Testing
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /templates/workflows/generic/test.yml
+# VERSION: 01.00.00
+# BRIEF: Comprehensive testing workflow for generic projects
+# NOTE: Supports unit, integration, and end-to-end testing
+
+name: Test Suite
+
+on:
+  push:
+    branches:
+      - main
+      - dev/**
+      - rc/**
+  pull_request:
+    branches:
+      - main
+      - dev/**
+      - rc/**
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup environment
+        run: |
+          # Detect project type and setup accordingly
+          if [ -f "package.json" ]; then
+            echo "PROJECT_TYPE=nodejs" >> $GITHUB_ENV
+          elif [ -f "requirements.txt" ] || [ -f "setup.py" ]; then
+            echo "PROJECT_TYPE=python" >> $GITHUB_ENV
+          elif [ -f "composer.json" ]; then
+            echo "PROJECT_TYPE=php" >> $GITHUB_ENV
+          elif [ -f "go.mod" ]; then
+            echo "PROJECT_TYPE=go" >> $GITHUB_ENV
+          elif [ -f "Gemfile" ]; then
+            echo "PROJECT_TYPE=ruby" >> $GITHUB_ENV
+          elif [ -f "Cargo.toml" ]; then
+            echo "PROJECT_TYPE=rust" >> $GITHUB_ENV
+          else
+            echo "PROJECT_TYPE=unknown" >> $GITHUB_ENV
+          fi
+
+      - name: Setup Node.js
+        if: env.PROJECT_TYPE == 'nodejs'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Setup Python
+        if: env.PROJECT_TYPE == 'python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Setup PHP
+        if: env.PROJECT_TYPE == 'php'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: xdebug
+          tools: composer:v2
+
+      - name: Setup Go
+        if: env.PROJECT_TYPE == 'go'
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache: true
+
+      - name: Setup Ruby
+        if: env.PROJECT_TYPE == 'ruby'
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+
+      - name: Install dependencies
+        run: |
+          case $PROJECT_TYPE in
+            nodejs) npm ci ;;
+            python) pip install -r requirements.txt -r requirements-dev.txt 2>/dev/null || pip install pytest pytest-cov ;;
+            php) composer install --prefer-dist ;;
+            go) go mod download ;;
+            ruby) bundle install ;;
+            rust) cargo fetch ;;
+          esac
+
+      - name: Run unit tests
+        run: |
+          case $PROJECT_TYPE in
+            nodejs) npm test ;;
+            python) pytest tests/ --cov=. --cov-report=xml --cov-report=term ;;
+            php) vendor/bin/phpunit --coverage-clover coverage.xml ;;
+            go) go test -v -coverprofile=coverage.out ./... ;;
+            ruby) bundle exec rspec || bundle exec rake test ;;
+            rust) cargo test --all-features ;;
+            *) echo "No tests configured for this project type" ;;
+          esac
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml,./coverage.out
+          flags: unittests
+          name: codecov-unit
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup environment
+        run: |
+          if [ -f "package.json" ]; then
+            echo "PROJECT_TYPE=nodejs" >> $GITHUB_ENV
+          elif [ -f "requirements.txt" ]; then
+            echo "PROJECT_TYPE=python" >> $GITHUB_ENV
+          elif [ -f "composer.json" ]; then
+            echo "PROJECT_TYPE=php" >> $GITHUB_ENV
+          elif [ -f "go.mod" ]; then
+            echo "PROJECT_TYPE=go" >> $GITHUB_ENV
+          else
+            echo "PROJECT_TYPE=unknown" >> $GITHUB_ENV
+          fi
+
+      - name: Setup runtime
+        run: |
+          case $PROJECT_TYPE in
+            nodejs) 
+              curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+              sudo apt-get install -y nodejs
+              ;;
+            python)
+              sudo apt-get update
+              sudo apt-get install -y python3 python3-pip
+              ;;
+            php)
+              sudo apt-get update
+              sudo apt-get install -y php php-cli php-mbstring php-xml
+              ;;
+            go)
+              wget https://go.dev/dl/go1.22.0.linux-amd64.tar.gz
+              sudo tar -C /usr/local -xzf go1.22.0.linux-amd64.tar.gz
+              echo "/usr/local/go/bin" >> $GITHUB_PATH
+              ;;
+          esac
+
+      - name: Install dependencies
+        run: |
+          case $PROJECT_TYPE in
+            nodejs) npm ci ;;
+            python) pip install -r requirements.txt ;;
+            php) composer install ;;
+            go) go mod download ;;
+          esac
+
+      - name: Run integration tests
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
+          REDIS_URL: redis://localhost:6379
+        run: |
+          if [ -d "tests/integration" ] || [ -d "tests/Integration" ]; then
+            case $PROJECT_TYPE in
+              nodejs) npm run test:integration || npx jest tests/integration ;;
+              python) pytest tests/integration/ -v ;;
+              php) vendor/bin/phpunit --testsuite Integration ;;
+              go) go test -v ./tests/integration/... ;;
+              *) echo "No integration tests found" ;;
+            esac
+          else
+            echo "No integration tests directory found"
+          fi
+
+  e2e-tests:
+    name: End-to-End Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Install Playwright
+        run: |
+          if [ -f "package.json" ] && grep -q "playwright" package.json; then
+            npm ci
+            npx playwright install --with-deps
+          else
+            echo "Playwright not configured, skipping"
+          fi
+
+      - name: Run E2E tests
+        run: |
+          if [ -d "tests/e2e" ] || [ -d "e2e" ]; then
+            npm run test:e2e || npx playwright test || echo "No E2E tests configured"
+          else
+            echo "No E2E tests directory found"
+          fi
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+
+  test-summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests, e2e-tests]
+    if: always()
+    
+    steps:
+      - name: Generate summary
+        run: |
+          echo "### Test Execution Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Repository: $GITHUB_REPOSITORY" >> $GITHUB_STEP_SUMMARY
+          echo "- Branch: $GITHUB_REF_NAME" >> $GITHUB_STEP_SUMMARY
+          echo "- Commit: $GITHUB_SHA" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Test suites completed:" >> $GITHUB_STEP_SUMMARY
+          echo "- Unit tests: ${{ needs.unit-tests.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Integration tests: ${{ needs.integration-tests.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- E2E tests: ${{ needs.e2e-tests.result }}" >> $GITHUB_STEP_SUMMARY

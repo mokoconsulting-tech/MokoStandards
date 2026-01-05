@@ -19,7 +19,7 @@ This separation ensures:
 - Internal workflow templates remain confidential
 - Public repository focuses on coding standards and public-facing policies
 
-Public workflow templates for CI/CD are available in `.github/workflows/templates/` in this repository.
+Public workflow templates for CI/CD are available in `templates/workflows/` in this repository.
 
 ## Files
 

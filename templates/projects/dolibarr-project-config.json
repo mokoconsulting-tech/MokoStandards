@@ -1,0 +1,296 @@
+{
+  "project": {
+    "name": "Dolibarr Module Project",
+    "description": "Standard project template for Dolibarr ERP/CRM module development",
+    "visibility": "private",
+    "readme": "https://github.com/mokoconsulting-tech/MokoStandards/blob/main/templates/projects/README.md",
+    "type": "dolibarr"
+  },
+  "custom_fields": [
+    {
+      "name": "Status",
+      "type": "single_select",
+      "description": "Current lifecycle state of the task",
+      "options": [
+        "Backlog",
+        "Todo",
+        "In Progress",
+        "In Review",
+        "Testing",
+        "Done",
+        "Blocked",
+        "Cancelled"
+      ]
+    },
+    {
+      "name": "Priority",
+      "type": "single_select",
+      "description": "Urgency and importance of the task",
+      "options": [
+        "Critical",
+        "High",
+        "Medium",
+        "Low"
+      ]
+    },
+    {
+      "name": "Size/Effort",
+      "type": "single_select",
+      "description": "Estimated complexity and work effort",
+      "options": [
+        "XS - 1-2 hours",
+        "S - 2-4 hours",
+        "M - 1-2 days",
+        "L - 3-5 days",
+        "XL - 1-2 weeks",
+        "XXL - 2+ weeks"
+      ]
+    },
+    {
+      "name": "Sprint",
+      "type": "text",
+      "description": "Sprint or iteration identifier"
+    },
+    {
+      "name": "Target Version",
+      "type": "text",
+      "description": "Target release version (semantic versioning)"
+    },
+    {
+      "name": "Blocked Reason",
+      "type": "text",
+      "description": "Description of what is blocking progress"
+    },
+    {
+      "name": "Acceptance Criteria",
+      "type": "text",
+      "description": "List of criteria that must be met for task completion"
+    },
+    {
+      "name": "Dolibarr Version",
+      "type": "single_select",
+      "description": "Target Dolibarr version for compatibility",
+      "options": [
+        "16.0",
+        "17.0",
+        "18.0",
+        "19.0",
+        "20.0",
+        "Multiple"
+      ]
+    },
+    {
+      "name": "Module Number",
+      "type": "number",
+      "description": "Unique Dolibarr module number (100000-999999)"
+    },
+    {
+      "name": "Database Changes",
+      "type": "single_select",
+      "description": "Type of database changes required",
+      "options": [
+        "None",
+        "Schema Only",
+        "Data Migration",
+        "Both",
+        "TBD"
+      ]
+    },
+    {
+      "name": "Module Descriptor",
+      "type": "text",
+      "description": "Path to module descriptor file (modMyModule.class.php)"
+    },
+    {
+      "name": "Module Version",
+      "type": "text",
+      "description": "Current module version number (semantic versioning)"
+    },
+    {
+      "name": "PHP Minimum",
+      "type": "single_select",
+      "description": "Minimum PHP version required",
+      "options": [
+        "7.4",
+        "8.0",
+        "8.1",
+        "8.2",
+        "8.3"
+      ]
+    },
+    {
+      "name": "Requires Sudo",
+      "type": "single_select",
+      "description": "Does installation/upgrade require sudo privileges?",
+      "options": [
+        "Yes",
+        "No",
+        "Optional"
+      ]
+    },
+    {
+      "name": "Module Family",
+      "type": "single_select",
+      "description": "Dolibarr module family/category",
+      "options": [
+        "CRM",
+        "Financial",
+        "HR",
+        "Projects",
+        "Products/Services",
+        "Interfaces",
+        "Other"
+      ]
+    },
+    {
+      "name": "Has Triggers",
+      "type": "single_select",
+      "description": "Does the module implement triggers?",
+      "options": [
+        "Yes",
+        "No"
+      ]
+    },
+    {
+      "name": "Has Hooks",
+      "type": "single_select",
+      "description": "Does the module use hooks?",
+      "options": [
+        "Yes",
+        "No"
+      ]
+    },
+    {
+      "name": "Has Widgets",
+      "type": "single_select",
+      "description": "Does the module provide dashboard widgets?",
+      "options": [
+        "Yes",
+        "No"
+      ]
+    },
+    {
+      "name": "Migration Script",
+      "type": "text",
+      "description": "Path to migration/upgrade SQL scripts"
+    }
+  ],
+  "views": [
+    {
+      "name": "Master Backlog",
+      "layout": "table",
+      "description": "Comprehensive view of all items",
+      "group_by": null,
+      "sort_by": ["Priority", "Status"],
+      "filters": [],
+      "columns": ["Title", "Status", "Priority", "Size/Effort", "Assignees", "Sprint", "Dolibarr Version", "Module Family"]
+    },
+    {
+      "name": "Sprint Board",
+      "layout": "board",
+      "description": "Kanban board for current sprint",
+      "group_by": "Status",
+      "sort_by": ["Priority"],
+      "filters": [
+        {
+          "field": "Sprint",
+          "operator": "is_not_empty",
+          "value": ""
+        }
+      ],
+      "columns": ["Title", "Priority", "Size/Effort", "Assignees", "Dolibarr Version"]
+    },
+    {
+      "name": "Release Roadmap",
+      "layout": "roadmap",
+      "description": "Timeline view of module releases",
+      "group_by": "Target Version",
+      "sort_by": ["Target Version"],
+      "filters": [
+        {
+          "field": "Status",
+          "operator": "not_equals",
+          "value": "Cancelled"
+        }
+      ],
+      "columns": ["Title", "Status", "Priority", "Module Family"]
+    },
+    {
+      "name": "Blocked Items",
+      "layout": "table",
+      "description": "All blocked items requiring attention",
+      "group_by": null,
+      "sort_by": ["Priority"],
+      "filters": [
+        {
+          "field": "Status",
+          "operator": "equals",
+          "value": "Blocked"
+        }
+      ],
+      "columns": ["Title", "Priority", "Blocked Reason", "Assignees", "Sprint"]
+    },
+    {
+      "name": "Module Compatibility Matrix",
+      "layout": "table",
+      "description": "View by Dolibarr version compatibility",
+      "group_by": "Dolibarr Version",
+      "sort_by": ["Module Family", "Priority"],
+      "filters": [],
+      "columns": ["Title", "Module Family", "Status", "Module Version", "PHP Minimum"]
+    },
+    {
+      "name": "Database Migration Tracker",
+      "layout": "table",
+      "description": "Track database schema changes and data migrations",
+      "group_by": "Database Changes",
+      "sort_by": ["Priority"],
+      "filters": [
+        {
+          "field": "Database Changes",
+          "operator": "not_equals",
+          "value": "None"
+        }
+      ],
+      "columns": ["Title", "Database Changes", "Status", "Migration Script", "Target Version"]
+    }
+  ],
+  "workflows": [
+    {
+      "name": "Auto-status on PR creation",
+      "trigger": "pull_request.opened",
+      "actions": [
+        "set_status:In Review"
+      ]
+    },
+    {
+      "name": "Auto-status on PR merge",
+      "trigger": "pull_request.merged",
+      "actions": [
+        "set_status:Testing"
+      ]
+    },
+    {
+      "name": "Update Module Version on release",
+      "trigger": "release.published",
+      "actions": [
+        "extract_version_from_tag",
+        "set_field:Module Version"
+      ]
+    },
+    {
+      "name": "Database changes validation",
+      "trigger": "field_update:Database Changes",
+      "actions": [
+        "check_migration_script_exists",
+        "notify_if_missing"
+      ]
+    }
+  ],
+  "metadata": {
+    "version": "1.0.0",
+    "created": "2026-01-04",
+    "author": "Moko Consulting",
+    "license": "GPL-3.0-or-later"
+  }
+}

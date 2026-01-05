@@ -9,6 +9,7 @@ This index provides navigation to documentation within this folder.
 - [docs/](./docs/index.md)
 - [repos/](./repos/index.md)
 - [scripts/](./scripts/index.md)
+- [workflows/](./workflows/index.md)
 
 ## Metadata
 

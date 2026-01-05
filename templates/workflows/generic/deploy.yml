@@ -1,0 +1,282 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.Deploy
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /templates/workflows/generic/deploy.yml
+# VERSION: 01.00.00
+# BRIEF: Deployment workflow for various environments
+# NOTE: Supports staging, production, and other custom environments
+
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+          - development
+      version:
+        description: 'Version to deploy (optional)'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  deployments: write
+
+jobs:
+  prepare:
+    name: Prepare Deployment
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.determine-env.outputs.environment }}
+      version: ${{ steps.determine-version.outputs.version }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine environment
+        id: determine-env
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            ENV="${{ inputs.environment }}"
+          elif [ "${{ github.event_name }}" == "release" ]; then
+            ENV="production"
+          elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            ENV="production"
+          elif [ "${{ github.ref }}" == "refs/heads/staging" ]; then
+            ENV="staging"
+          else
+            ENV="development"
+          fi
+          echo "environment=${ENV}" >> $GITHUB_OUTPUT
+          echo "Deploying to: ${ENV}"
+
+      - name: Determine version
+        id: determine-version
+        run: |
+          if [ "${{ inputs.version }}" != "" ]; then
+            VERSION="${{ inputs.version }}"
+          elif [ "${{ github.event_name }}" == "release" ]; then
+            VERSION="${{ github.event.release.tag_name }}"
+          else
+            VERSION="$(git describe --tags --always)"
+          fi
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Version: ${VERSION}"
+
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    needs: prepare
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup build environment
+        run: |
+          if [ -f "package.json" ]; then
+            echo "BUILD_TYPE=nodejs" >> $GITHUB_ENV
+          elif [ -f "requirements.txt" ]; then
+            echo "BUILD_TYPE=python" >> $GITHUB_ENV
+          elif [ -f "go.mod" ]; then
+            echo "BUILD_TYPE=go" >> $GITHUB_ENV
+          elif [ -f "Cargo.toml" ]; then
+            echo "BUILD_TYPE=rust" >> $GITHUB_ENV
+          else
+            echo "BUILD_TYPE=generic" >> $GITHUB_ENV
+          fi
+
+      - name: Setup Node.js
+        if: env.BUILD_TYPE == 'nodejs'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Setup Python
+        if: env.BUILD_TYPE == 'python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Setup Go
+        if: env.BUILD_TYPE == 'go'
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Build application
+        run: |
+          case $BUILD_TYPE in
+            nodejs)
+              npm ci
+              npm run build
+              ;;
+            python)
+              pip install -r requirements.txt
+              python setup.py build 2>/dev/null || echo "No setup.py found"
+              ;;
+            go)
+              go build -o app ./...
+              ;;
+            rust)
+              cargo build --release
+              ;;
+            generic)
+              echo "Generic build - no specific build steps"
+              ;;
+          esac
+
+      - name: Create deployment package
+        run: |
+          mkdir -p dist
+          
+          case $BUILD_TYPE in
+            nodejs)
+              if [ -d "build" ]; then cp -r build/* dist/; fi
+              if [ -d "dist" ]; then cp -r dist/* dist/; fi
+              ;;
+            python)
+              if [ -d "build" ]; then cp -r build/* dist/; fi
+              ;;
+            go)
+              if [ -f "app" ]; then cp app dist/; fi
+              ;;
+            rust)
+              if [ -f "target/release/app" ]; then cp target/release/app dist/; fi
+              ;;
+          esac
+          
+          # Add version file
+          echo "${{ needs.prepare.outputs.version }}" > dist/VERSION
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-package
+          path: dist/
+          retention-days: 7
+
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [prepare, build]
+    if: needs.prepare.outputs.environment == 'staging' || needs.prepare.outputs.environment == 'development'
+    environment:
+      name: staging
+      url: https://staging.example.com
+    
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: deployment-package
+          path: ./dist
+
+      - name: Deploy to staging
+        run: |
+          echo "Deploying version ${{ needs.prepare.outputs.version }} to staging"
+          # Add your staging deployment commands here
+          # Examples:
+          # - rsync to staging server
+          # - kubectl apply for Kubernetes
+          # - aws s3 sync for S3
+          # - heroku git:remote for Heroku
+          echo "Deployment completed"
+
+      - name: Run smoke tests
+        run: |
+          echo "Running smoke tests on staging..."
+          # Add smoke test commands here
+          # curl https://staging.example.com/health || exit 1
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [prepare, build]
+    if: needs.prepare.outputs.environment == 'production'
+    environment:
+      name: production
+      url: https://example.com
+    
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: deployment-package
+          path: ./dist
+
+      - name: Deploy to production
+        run: |
+          echo "Deploying version ${{ needs.prepare.outputs.version }} to production"
+          # Add your production deployment commands here
+          echo "Deployment completed"
+
+      - name: Run smoke tests
+        run: |
+          echo "Running smoke tests on production..."
+          # Add smoke test commands here
+
+      - name: Notify deployment
+        run: |
+          echo "### Deployment Successful! 🚀" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Environment: production" >> $GITHUB_STEP_SUMMARY
+          echo "- Version: ${{ needs.prepare.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- URL: https://example.com" >> $GITHUB_STEP_SUMMARY
+          echo "- Deployed by: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+
+  rollback:
+    name: Rollback on Failure
+    runs-on: ubuntu-latest
+    needs: [deploy-staging, deploy-production]
+    if: failure()
+    
+    steps:
+      - name: Rollback deployment
+        run: |
+          echo "Deployment failed. Initiating rollback..."
+          # Add rollback commands here
+          echo "Rollback completed"
+
+      - name: Notify failure
+        run: |
+          echo "### Deployment Failed ❌" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Rollback has been initiated." >> $GITHUB_STEP_SUMMARY
+          echo "Please check the logs for more details." >> $GITHUB_STEP_SUMMARY

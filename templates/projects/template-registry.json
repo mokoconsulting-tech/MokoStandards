@@ -1,0 +1,62 @@
+{
+  "templates": [
+    {
+      "id": "moko-joomla-v1",
+      "name": "Joomla Extension Project",
+      "description": "Standard project for Joomla extension development (components, modules, plugins, libraries, packages, templates)",
+      "version": "1.0.0",
+      "url": "https://github.com/mokoconsulting-tech/MokoStandards/raw/main/templates/projects/joomla-project-config.json",
+      "type": "joomla",
+      "tags": ["joomla", "extension", "development", "cms"],
+      "author": "Moko Consulting",
+      "license": "GPL-3.0-or-later",
+      "created": "2026-01-04",
+      "updated": "2026-01-04"
+    },
+    {
+      "id": "moko-dolibarr-v1",
+      "name": "Dolibarr Module Project",
+      "description": "Standard project for Dolibarr ERP/CRM module development",
+      "version": "1.0.0",
+      "url": "https://github.com/mokoconsulting-tech/MokoStandards/raw/main/templates/projects/dolibarr-project-config.json",
+      "type": "dolibarr",
+      "tags": ["dolibarr", "module", "erp", "crm", "mokocrm"],
+      "author": "Moko Consulting",
+      "license": "GPL-3.0-or-later",
+      "created": "2026-01-04",
+      "updated": "2026-01-04"
+    },
+    {
+      "id": "moko-generic-v1",
+      "name": "Generic Development Project",
+      "description": "General-purpose project for multi-language software development",
+      "version": "1.0.0",
+      "url": "https://github.com/mokoconsulting-tech/MokoStandards/raw/main/templates/projects/generic-project-config.json",
+      "type": "generic",
+      "tags": ["generic", "development", "multi-language", "agnostic"],
+      "author": "Moko Consulting",
+      "license": "GPL-3.0-or-later",
+      "created": "2026-01-04",
+      "updated": "2026-01-04"
+    },
+    {
+      "id": "moko-documentation-v1",
+      "name": "Documentation Governance Project",
+      "description": "Control register for documentation artifacts, policies, and compliance tracking",
+      "version": "1.0.0",
+      "url": "https://github.com/mokoconsulting-tech/MokoStandards/raw/main/templates/projects/documentation-project-config.json",
+      "type": "documentation",
+      "tags": ["documentation", "governance", "compliance", "policy"],
+      "author": "Moko Consulting",
+      "license": "GPL-3.0-or-later",
+      "created": "2026-01-04",
+      "updated": "2026-01-04"
+    }
+  ],
+  "metadata": {
+    "registry_version": "1.0.0",
+    "last_updated": "2026-01-04",
+    "maintainer": "Moko Consulting",
+    "repository": "https://github.com/mokoconsulting-tech/MokoStandards"
+  }
+}

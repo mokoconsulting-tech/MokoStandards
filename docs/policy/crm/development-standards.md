@@ -235,7 +235,8 @@ Dolibarr module numbers **185051 to 185099** are reserved for Moko Consulting us
 | MokoDoliChimp | 185054 | Reserved | MailChimp integration for Dolibarr | TBD |
 | MokoDoliPasskey | 185055 | Reserved | WebAuthn/Passkey authentication module for Dolibarr | TBD |
 | MokoDoliForm | 185056 | Reserved | Advanced form builder and workflow module for Dolibarr | TBD |
-| Available for Assignment | 185057-185099 | Reserved | Reserved for future Moko Consulting modules | - |
+| MokoDoliG | 185057 | Reserved | Google Workspace integration module for Dolibarr | TBD |
+| Available for Assignment | 185058-185099 | Reserved | Reserved for future Moko Consulting modules | - |
 
 **Module ID Reservation Process**:
 

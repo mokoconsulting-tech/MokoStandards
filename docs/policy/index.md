@@ -11,7 +11,9 @@ This index provides navigation to documentation within this folder.
 
 ## Documents
 
+- [branching-strategy](./branching-strategy.md)
 - [change-management](./change-management.md)
+- [coding-style-guide](./coding-style-guide.md)
 - [data-classification](./data-classification.md)
 - [dependency-management](./dependency-management.md)
 - [document-formatting](./document-formatting.md)

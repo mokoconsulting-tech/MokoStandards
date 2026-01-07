@@ -1,12 +1,172 @@
 # GitHub Workflow Templates Documentation
 
-**Status**: Active | **Version**: 01.00.00 | **Effective**: 2026-01-07
+**Status**: Active | **Version**: 02.00.00 | **Effective**: 2026-01-07
 
 ## Overview
 
-This document provides comprehensive documentation for MokoStandards workflow templates available in `/templates/workflows/`. These templates provide standardized CI/CD configurations that ensure consistency, security, and compliance across all Moko Consulting repositories.
+This document provides comprehensive documentation for MokoStandards workflow templates. These templates provide standardized CI/CD configurations that ensure consistency, security, and compliance across all Moko Consulting repositories.
 
-## Available Workflow Templates
+### Workflow Template Locations
+
+MokoStandards provides workflow templates in two locations:
+
+1. **`.github/workflow-templates/`** - **Public workflow templates** for community adoption
+   - `build-universal.yml` - Universal build workflow with automatic project detection
+   - `release-cycle.yml` - Automated release management workflow
+   - `codeql-analysis.yml` - Security scanning with CodeQL
+   - `dependency-review.yml` - Dependency vulnerability scanning
+   - `standards-compliance.yml` - MokoStandards compliance validation
+
+2. **`templates/workflows/`** - Platform-specific workflow examples
+   - `joomla/` - Joomla extension workflows
+   - `dolibarr/` - Dolibarr module workflows
+   - `generic/` - Generic project workflows
+
+### Quick Start
+
+To adopt MokoStandards workflows in your repository:
+
+```bash
+# Copy universal build workflow
+cp .github/workflow-templates/build-universal.yml .github/workflows/build.yml
+
+# Copy release management workflow
+cp .github/workflow-templates/release-cycle.yml .github/workflows/release.yml
+
+# Copy security scanning workflows
+cp .github/workflow-templates/codeql-analysis.yml .github/workflows/
+cp .github/workflow-templates/dependency-review.yml .github/workflows/
+
+# Copy standards compliance workflow
+cp .github/workflow-templates/standards-compliance.yml .github/workflows/
+```
+
+Then customize the workflows for your project as needed.
+
+## Public Workflow Templates (`.github/workflow-templates/`)
+
+### 1. Build Universal (`build-universal.yml`)
+
+**Location**: `.github/workflow-templates/build-universal.yml`
+
+Universal build workflow with automatic project type detection and Makefile precedence system.
+
+**Features**:
+- **Automatic project detection** - Detects Joomla, Dolibarr, or Generic projects
+- **Makefile precedence system** - Repository Makefile → MokoStandards Makefile → Default builds
+- **Multi-language support** - PHP, Node.js, and mixed projects
+- **Build artifacts** - Automatic artifact upload
+- **Customizable** - Extensive inline documentation for customization
+
+**Trigger Patterns**:
+```yaml
+on:
+  push:
+    branches: [main, dev/**, rc/**, version/**]
+  pull_request:
+    branches: [main, dev/**, rc/**]
+  workflow_dispatch:
+```
+
+**Usage**: Copy to `.github/workflows/build.yml` and customize as needed.
+
+See [Build System Documentation](../build-system/README.md) for details on the Makefile precedence system.
+
+### 2. Release Cycle (`release-cycle.yml`)
+
+**Location**: `.github/workflow-templates/release-cycle.yml`
+
+Automated release management workflow implementing the MokoStandards release cycle: main → dev → rc → version → main.
+
+**Features**:
+- **Semantic versioning** - Automatic validation of version format
+- **Branch management** - Automated branch creation and merging
+- **Release actions** - start-release, create-rc, finalize-release, hotfix
+- **Release notes** - Automated generation from commits
+- **GitHub releases** - Automatic creation with artifacts
+
+**Actions**:
+- `start-release` - Create development branch and update version
+- `create-rc` - Create release candidate from dev branch
+- `finalize-release` - Create version branch, merge to main, create release
+- `hotfix` - Create hotfix branch for emergency fixes
+
+**Trigger Pattern**:
+```yaml
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        type: choice
+        options: [start-release, create-rc, finalize-release, hotfix]
+      version:
+        type: string
+        required: true
+```
+
+**Usage**: Copy to `.github/workflows/release.yml` for automated release management.
+
+See [Release Management Documentation](../release-management/README.md) for complete release procedures.
+
+### 3. Dependency Review (`dependency-review.yml`)
+
+**Location**: `.github/workflow-templates/dependency-review.yml`
+
+Comprehensive dependency vulnerability scanning for pull requests.
+
+**Features**:
+- **GitHub Dependency Review** - Scans dependencies in PRs
+- **npm audit** - Node.js dependency security checks
+- **Composer audit** - PHP dependency security checks
+- **Python Safety** - Python dependency vulnerability scanning
+- **License compliance** - Validates dependency licenses
+
+**Trigger Pattern**:
+```yaml
+on:
+  pull_request:
+    branches: [main, dev/**, rc/**]
+```
+
+**Usage**: Copy to `.github/workflows/dependency-review.yml` to enable dependency scanning on PRs.
+
+### 4. Standards Compliance (`standards-compliance.yml`)
+
+**Location**: `.github/workflow-templates/standards-compliance.yml`
+
+MokoStandards compliance validation workflow.
+
+**Features**:
+- **Repository structure** - Validates required directories and files
+- **Documentation quality** - Checks README, CHANGELOG, and other docs
+- **Coding standards** - Tab detection, encoding, line endings
+- **License compliance** - SPDX header validation
+- **Git hygiene** - .gitignore, large files, etc.
+- **Workflow validation** - YAML syntax and required workflows
+
+**Trigger Pattern**:
+```yaml
+on:
+  push:
+    branches: [main, dev/**, rc/**]
+  pull_request:
+    branches: [main, dev/**, rc/**]
+  workflow_dispatch:
+```
+
+**Usage**: Copy to `.github/workflows/standards-compliance.yml` to enable compliance checks.
+
+### 5. CodeQL Analysis (`codeql-analysis.yml`)
+
+**Location**: `.github/workflow-templates/codeql-analysis.yml`
+
+Security scanning with GitHub's CodeQL engine (also available in `.github/workflows/`).
+
+See section below for complete details.
+
+## Platform-Specific Workflow Templates (`templates/workflows/`)
+
+The following templates are organized by platform in `templates/workflows/`.
 
 ### 1. CI Template (`ci.yml`)
 
@@ -354,7 +514,7 @@ For issues with templates:
 | Repository | https://github.com/mokoconsulting-tech/MokoStandards |
 | Owner | Moko Consulting |
 | Status | Active |
-| Version | 01.00.00 |
+| Version | 02.00.00 |
 | Effective | 2026-01-07 |
 
 ## Version History
@@ -362,11 +522,15 @@ For issues with templates:
 | Version | Date | Changes |
 |---|---|---|
 | 01.00.00 | 2026-01-07 | Initial comprehensive workflow documentation |
+| 02.00.00 | 2026-01-07 | Added public workflow templates documentation (build-universal, release-cycle, dependency-review, standards-compliance) |
 
 ## See Also
 
+- [Build System Documentation](../build-system/README.md)
+- [Release Management Documentation](../release-management/README.md)
 - [Health Scoring System](../health-scoring.md)
 - [SFTP Deployment Guide](../deployment/sftp.md)
 - [Project Type Detection](../project-types.md)
 - [Repository Structure Schema](../guide/repository-structure-schema.md)
 - [Workflow Templates (Technical)](../../templates/workflows/README.md)
+- [Public Workflow Templates](../../.github/workflow-templates/)

@@ -1,0 +1,372 @@
+# GitHub Workflow Templates Documentation
+
+**Status**: Active | **Version**: 01.00.00 | **Effective**: 2026-01-07
+
+## Overview
+
+This document provides comprehensive documentation for MokoStandards workflow templates available in `/templates/workflows/`. These templates provide standardized CI/CD configurations that ensure consistency, security, and compliance across all Moko Consulting repositories.
+
+## Available Workflow Templates
+
+### 1. CI Template (`ci.yml`)
+
+**Location**: `.github/workflows/ci.yml` (MokoStandards root)
+
+Continuous Integration workflow that enforces repository standards through automated validation.
+
+**Features**:
+- **Manifest validation** - Validates project manifests (Joomla XML, Dolibarr descriptors)
+- **XML well-formedness** - Ensures all XML files are properly formatted
+- **PHP syntax validation** - Checks PHP code across multiple versions
+- **CHANGELOG structure** - Validates changelog formatting and completeness
+- **License headers** - Verifies SPDX headers in all source files
+- **Version alignment** - Ensures version numbers are consistent across files
+- **Path separator checks** - Validates file paths
+- **Tab detection** - Enforces space-over-tabs policy
+- **Secret scanning** - Prevents accidental secret commits
+
+**Trigger Patterns**:
+```yaml
+on:
+  push:
+    branches: [main, dev/**, rc/**, version/**]
+  pull_request:
+    branches: [main, dev/**, rc/**, version/**]
+```
+
+**Usage**: Copy from MokoStandards `.github/workflows/ci.yml` to your repository.
+
+### 2. CodeQL Analysis Template (`codeql-analysis.yml`)
+
+**Location**: `.github/workflows/codeql-analysis.yml` (MokoStandards root)
+
+Security scanning workflow using GitHub's CodeQL engine for vulnerability detection.
+
+**Features**:
+- **Multi-language support** - Analyzes Python, JavaScript, PHP, Go, etc.
+- **Security-extended queries** - Uses comprehensive security query packs
+- **Quality analysis** - Includes code quality checks
+- **Scheduled scans** - Weekly automated security scans (Monday 6:00 AM UTC)
+- **PR integration** - Scans all pull requests automatically
+
+**Trigger Patterns**:
+```yaml
+on:
+  push:
+    branches: [main, dev/**, rc/**]
+  pull_request:
+    branches: [main, dev/**, rc/**]
+  schedule:
+    - cron: '0 6 * * 1'  # Weekly Monday 6:00 AM UTC
+  workflow_dispatch:
+```
+
+**Usage**: Copy from MokoStandards `.github/workflows/codeql-analysis.yml` to your repository.
+
+### 3. Dependency Review
+
+**Purpose**: Automated dependency vulnerability scanning
+
+Dependency scanning in MokoStandards repositories is handled through:
+- **Dependabot configuration** - `.github/dependabot.yml` (configure for your project)
+- **CodeQL analysis** - Includes dependency checks
+- **Generic code quality workflow** - `templates/workflows/generic/code-quality.yml`
+
+**Recommended Approach**:
+1. Enable Dependabot in repository settings
+2. Create `.github/dependabot.yml` configuration
+3. Use CodeQL for comprehensive security analysis
+
+### 4. Standards Compliance Template (`repo_health.yml`)
+
+**Location**: `templates/workflows/generic/repo_health.yml`
+
+Repository health and governance validation workflow that enforces MokoStandards compliance.
+
+**Features**:
+- **Admin-only execution** - Requires admin permissions
+- **Release configuration checks** - Validates SFTP deployment variables
+- **SFTP connectivity testing** - Tests remote server access
+- **Scripts governance** - Validates script directory structure
+- **Repository artifacts** - Checks required files (README, LICENSE, CONTRIBUTING, etc.)
+- **Content heuristics** - Validates document content and structure
+- **Extended checks** (optional):
+  - CODEOWNERS presence
+  - Workflow action version pinning
+  - Documentation link integrity
+  - ShellCheck validation
+  - SPDX header compliance
+  - Git hygiene (stale branches)
+
+**Profiles**:
+- `all` - Run all checks (default)
+- `release` - Release configuration only
+- `scripts` - Scripts governance only
+- `repo` - Repository health only
+
+**Trigger Pattern**:
+```yaml
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        type: choice
+        options: [all, release, scripts, repo]
+```
+
+**Usage**: Copy from `templates/workflows/generic/repo_health.yml` and customize for your project.
+
+### 5. Platform-Specific Workflows
+
+#### Joomla Workflows (`templates/workflows/joomla/`)
+
+**ci.yml** - Joomla extension CI workflow:
+- Joomla manifest validation
+- Extension structure checks
+- PHP 7.4-8.2 compatibility
+- XML schema validation
+
+**test.yml** - Comprehensive Joomla testing:
+- PHPUnit tests with Joomla framework
+- Code quality (PHPCS, PHPStan, Psalm)
+- Matrix testing: PHP 7.4-8.2, Joomla 4.4-5.0
+- Code coverage with Codecov
+
+**release.yml** - Automated Joomla package creation:
+- Version bumping in manifests
+- ZIP package creation with proper structure
+- Checksum generation (SHA256, MD5)
+- GitHub release creation with changelog
+- Release artifact upload
+
+#### Dolibarr Workflows (`templates/workflows/dolibarr/`)
+
+**ci.yml** - Dolibarr module CI workflow:
+- Module structure validation
+- PHP syntax checking (7.4-8.2)
+- Dolibarr API usage validation (16.0-18.0)
+- Database schema validation
+- Security scanning (SQL injection, XSS, credentials)
+
+**test.yml** - Dolibarr module testing:
+- PHPUnit tests with Dolibarr environment
+- Automatic Dolibarr installation
+- MySQL database integration
+- Module linking and installation
+- Code coverage reporting
+
+#### Generic Workflows (`templates/workflows/generic/`)
+
+**ci.yml** - Multi-language CI with auto-detection:
+- Supports: Node.js, Python, PHP, Go, Ruby, Rust
+- Automatic language detection
+- Parallel testing across language matrices
+- Language-specific linting
+- Security scanning with Trivy
+
+**test.yml** - Comprehensive testing framework:
+- Unit tests with coverage
+- Integration tests (PostgreSQL, Redis)
+- End-to-end tests with Playwright
+- Codecov integration
+- Test result summaries
+
+**deploy.yml** - Multi-environment deployment:
+- Automatic environment detection
+- Multi-language build support
+- Staging and production deployment jobs
+- Smoke tests after deployment
+- Automatic rollback on failure
+- Deployment notifications
+
+**code-quality.yml** - Advanced code analysis:
+- Multi-language linting (ESLint, Flake8, PHPCS, golangci-lint, clippy)
+- Code formatting validation
+- Static analysis (CodeQL, PHPStan, Pylint)
+- Dependency security (Snyk, npm audit, pip safety)
+- Code complexity analysis
+
+## Platform Detection
+
+Workflows use automatic project type detection based on file presence. See [Project Type Detection](../project-types.md) for complete details.
+
+### Quick Reference
+
+- **Joomla**: Detected by `joomla.xml` manifest file
+- **Dolibarr**: Detected by `htdocs/` directory or `core/modules/` structure
+- **Generic**: Fallback for all other projects
+
+## Usage Instructions
+
+### For New Projects
+
+1. **Choose appropriate templates**:
+   - Joomla → `templates/workflows/joomla/`
+   - Dolibarr → `templates/workflows/dolibarr/`
+   - Other → `templates/workflows/generic/`
+
+2. **Copy workflow files**:
+   ```bash
+   mkdir -p .github/workflows
+   cp /path/to/MokoStandards/templates/workflows/joomla/ci.yml .github/workflows/
+   ```
+
+3. **Customize for your project**:
+   - Update FILE INFORMATION headers with correct paths
+   - Adjust branch patterns if needed
+   - Configure environment-specific settings
+   - Add/remove validation scripts as appropriate
+
+4. **Commit and enable**:
+   ```bash
+   git add .github/workflows/
+   git commit -m "Add MokoStandards workflows"
+   git push
+   ```
+
+### For Existing Projects
+
+1. Review current workflows against templates
+2. Identify gaps or outdated patterns
+3. Update workflows incrementally
+4. Test on feature branch before merging to main
+
+## Required Workflows
+
+All MokoStandards-governed repositories **MUST** implement:
+
+1. **CI workflow** - For build validation and testing
+2. **Security scanning** - CodeQL or equivalent
+
+Recommended workflows:
+- Repository health workflow
+- Platform-specific test workflows
+- Automated release workflows (for libraries/extensions)
+- Deployment workflows (for applications)
+- Code quality workflows
+
+## Workflow Dependencies
+
+### Common Requirements (All Workflows)
+
+- Git repository with proper branching structure
+- Python 3.x for validation scripts
+- Proper permissions configured in repository settings
+
+### CI Workflows Require
+
+**For Joomla**:
+- `scripts/validate/manifest.sh`
+- `scripts/validate/xml_wellformed.sh`
+- Joomla XML manifest file
+
+**For Dolibarr**:
+- Module descriptor (`core/modules/modMyModule.class.php`)
+- Proper Dolibarr directory structure
+
+**For Generic**:
+- Language-specific package managers (npm, pip, composer, etc.)
+- Test configurations
+
+### Test Workflows Require
+
+- Test framework configuration (Jest, pytest, PHPUnit, etc.)
+- Optional: Database services (configured in workflow)
+- Optional: Browser testing tools (Playwright)
+
+### Deployment Workflows Require
+
+- Environment secrets in GitHub repository settings
+- Deployment target configuration
+- For SFTP deployments: See [SFTP Deployment Guide](../deployment/sftp.md)
+
+## Standards Compliance
+
+All workflows follow MokoStandards requirements:
+
+- ✅ SPDX license headers (GPL-3.0-or-later)
+- ✅ Proper error handling and reporting
+- ✅ Step summaries for GitHub Actions UI
+- ✅ Audit trail generation
+- ✅ Secure secret handling
+- ✅ Versioned action dependencies
+
+## Best Practices
+
+1. **Pin action versions** - Use `@v4` not `@main`
+2. **Test in feature branches** - Never merge untested workflows
+3. **Use workflow concurrency** - Prevent duplicate runs
+4. **Set appropriate timeouts** - Avoid hanging workflows
+5. **Configure secrets properly** - Use GitHub repository secrets
+6. **Monitor costs** - Track GitHub Actions minutes usage
+7. **Document customizations** - Add comments for deviations
+8. **Review step summaries** - Check GitHub Actions UI after runs
+9. **Use matrix strategies** - Test across multiple versions
+10. **Keep workflows DRY** - Use reusable workflows when possible
+
+## Integration with Health Scoring
+
+These workflows contribute to the [Health Scoring System](../health-scoring.md):
+
+- **CI/CD Status**: 15 points - CI workflow passing
+- **Workflows**: 10 points - Required workflows present
+- **Security**: 15 points - CodeQL and dependency scanning enabled
+
+## Support and Troubleshooting
+
+### Common Issues
+
+**Workflow fails to find scripts**:
+- Ensure scripts exist in expected locations
+- Verify script permissions (`chmod +x`)
+- Check FILE INFORMATION paths match actual structure
+
+**SFTP connectivity fails**:
+- Verify all required secrets are configured
+- Test credentials manually
+- Check firewall/network access
+- See [SFTP Deployment Guide](../deployment/sftp.md)
+
+**CodeQL fails**:
+- Ensure language matrix includes project languages
+- Remove languages with no code to analyze
+- Review CodeQL queries configuration
+
+### Getting Help
+
+1. Review workflow logs in GitHub Actions UI
+2. Check step summaries for detailed errors
+3. Validate scripts locally before CI
+4. Refer to [Project Types Documentation](../project-types.md)
+5. Consult [SFTP Deployment Guide](../deployment/sftp.md)
+
+For issues with templates:
+- Open issue in MokoStandards repository
+- Tag with `workflow-template` label
+- Include workflow name and error details
+
+## Metadata
+
+| Field | Value |
+|---|---|
+| Document | Workflow Templates Documentation |
+| Path | /docs/workflows/README.md |
+| Repository | https://github.com/mokoconsulting-tech/MokoStandards |
+| Owner | Moko Consulting |
+| Status | Active |
+| Version | 01.00.00 |
+| Effective | 2026-01-07 |
+
+## Version History
+
+| Version | Date | Changes |
+|---|---|---|
+| 01.00.00 | 2026-01-07 | Initial comprehensive workflow documentation |
+
+## See Also
+
+- [Health Scoring System](../health-scoring.md)
+- [SFTP Deployment Guide](../deployment/sftp.md)
+- [Project Type Detection](../project-types.md)
+- [Repository Structure Schema](../guide/repository-structure-schema.md)
+- [Workflow Templates (Technical)](../../templates/workflows/README.md)

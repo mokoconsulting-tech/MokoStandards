@@ -92,6 +92,7 @@ Step-by-step tutorials and how-to documentation.
 - [project-fields](./guide/project-fields.md)
 - [project-views](./guide/project-views.md)
 - [repository-split-plan](./guide/repository-split-plan.md)
+- [repository-structure-schema](./guide/repository-structure-schema.md)
 
 ### CRM
 

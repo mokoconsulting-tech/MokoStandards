@@ -20,6 +20,7 @@ This index provides navigation to documentation within this folder.
 - [project-fields](./project-fields.md)
 - [project-views](./project-views.md)
 - [repository-split-plan](./repository-split-plan.md)
+- [repository-structure-schema](./repository-structure-schema.md)
 
 ## Metadata
 

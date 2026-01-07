@@ -318,7 +318,7 @@ db-install: ## Install database tables (requires DB credentials)
 	@echo "$(COLOR_BLUE)Installing database tables...$(COLOR_RESET)"
 	@if [ -z "$(DB_NAME)" ]; then \
 		echo "$(COLOR_RED)✗ DB_NAME not set$(COLOR_RESET)"; \
-		echo "Usage: make db-install DB_NAME=dolibarr DB_USER=root"; \
+		echo "Usage: make db-install DB_NAME=dolibarr DB_USER=root MYSQL_PWD=password"; \
 		exit 1; \
 	fi
 	@if [ ! -d "sql" ]; then \
@@ -328,7 +328,7 @@ db-install: ## Install database tables (requires DB credentials)
 	@for sql in sql/llx_$(MODULE_NAME)_*.sql 2>/dev/null; do \
 		if [ -f "$$sql" ]; then \
 			echo "Executing $$sql..."; \
-			mysql -u $(DB_USER) -p $(DB_NAME) < "$$sql"; \
+			mysql -u $(DB_USER) $(DB_NAME) < "$$sql"; \
 		fi; \
 	done
 	@echo "$(COLOR_GREEN)✓ Database tables installed$(COLOR_RESET)"
@@ -338,12 +338,12 @@ db-uninstall: ## Remove database tables (requires DB credentials)
 	@echo "$(COLOR_BLUE)Removing database tables...$(COLOR_RESET)"
 	@if [ -z "$(DB_NAME)" ]; then \
 		echo "$(COLOR_RED)✗ DB_NAME not set$(COLOR_RESET)"; \
-		echo "Usage: make db-uninstall DB_NAME=dolibarr DB_USER=root"; \
+		echo "Usage: make db-uninstall DB_NAME=dolibarr DB_USER=root MYSQL_PWD=password"; \
 		exit 1; \
 	fi
-	@mysql -u $(DB_USER) -p $(DB_NAME) -e "SHOW TABLES LIKE 'llx_$(MODULE_NAME)_%';" | tail -n +2 | while read table; do \
+	@mysql -u $(DB_USER) $(DB_NAME) -e "SHOW TABLES LIKE 'llx_$(MODULE_NAME)_%';" | tail -n +2 | while read table; do \
 		echo "Dropping $$table..."; \
-		mysql -u $(DB_USER) -p $(DB_NAME) -e "DROP TABLE IF EXISTS $$table;"; \
+		mysql -u $(DB_USER) $(DB_NAME) -e "DROP TABLE IF EXISTS $$table;"; \
 	done
 	@echo "$(COLOR_GREEN)✓ Database tables removed$(COLOR_RESET)"
 

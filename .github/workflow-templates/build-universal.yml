@@ -87,7 +87,7 @@ jobs:
               echo "extension_type=component" >> $GITHUB_OUTPUT
             fi
             
-            echo "✅ Detected Joomla project (type: $(cat $GITHUB_OUTPUT | grep extension_type | cut -d= -f2))" >> $GITHUB_STEP_SUMMARY
+            echo "✅ Detected Joomla project" >> $GITHUB_STEP_SUMMARY
             exit 0
           fi
           

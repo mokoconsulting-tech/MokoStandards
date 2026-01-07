@@ -151,22 +151,24 @@ Repositories are categorized into four health levels based on their total score:
 For repositories with deployment workflows (web applications, extensions):
 
 **Secret Configuration Levels**:
-- **Organization-Level Secrets** (⭐ Preferred): `FTP_HOST`, `FTP_PASSWORD`, `FTP_PATH` are typically configured at the organization level and automatically inherited by all repositories.
-- **Repository-Level**: `FTP_USERNAME` and `FTP_PATH_SUFFIX` may be repository-specific.
+- **Organization-Level Secrets** (⭐ Preferred): `FTP_HOST`, `FTP_USERNAME`, `FTP_PASSWORD`, `FTP_PATH`, and `FTP_PORT` are configured at the organization level and automatically inherited by all repositories.
+- **Repository-Level**: `FTP_PATH_SUFFIX` is repository-specific. `FTP_KEY` may be repository-specific if needed.
 
 | Secret/Variable | Points | Requirements | Configuration Level |
 |---|---|---|---|
-| FTP_HOST | 4 | Configured and accessible | **Organization** (inherited) |
-| FTP_USERNAME | 4 | Configured in repository secrets | Repository or Organization |
+| FTP_HOST | 3 | Configured and accessible | **Organization** (inherited) |
+| FTP_USERNAME | 3 | Configured and accessible | **Organization** (inherited) |
 | FTP_PASSWORD or FTP_KEY | 4 | Authentication method configured | **Organization** (inherited) |
-| FTP_PATH | 4 | Base deployment path configured | **Organization** (inherited) |
+| FTP_PATH | 3 | Base deployment path configured | **Organization** (inherited) |
+| FTP_PORT | 3 | Port configured (default: 22) | **Organization** (inherited) |
 | FTP_PATH_SUFFIX | 2 | Optional path suffix configured in variables | Repository (if needed) |
 | SFTP connectivity validated | 2 | Repo health workflow verifies connection | Tested automatically |
 
 **Important Notes**:
-- Organization-level secrets (`FTP_HOST`, `FTP_PASSWORD`, `FTP_PATH`) count toward the score even though they're not configured in the repository itself - they're inherited automatically.
-- Repositories automatically receive full points for organization secrets if they're accessible.
-- Only repository-specific secrets need to be configured at the repository level.
+- Organization-level secrets (`FTP_HOST`, `FTP_USERNAME`, `FTP_PASSWORD`, `FTP_PATH`, `FTP_PORT`) count toward the score even though they're not configured in the repository itself - they're inherited automatically.
+- Repositories automatically receive 16 points (out of 20) for organization secrets if they're accessible.
+- Only repository-specific configuration (`FTP_PATH_SUFFIX`) needs to be set at the repository level.
+- The remaining 4 points come from optional path suffix and connectivity validation.
 
 **For non-deployment repositories**, this category awards points based on appropriate alternatives (e.g., package registry credentials, cloud provider keys).
 

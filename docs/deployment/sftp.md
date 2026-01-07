@@ -32,16 +32,18 @@ All SFTP deployments require the following secrets to be configured. **Note**: M
 | Secret Name | Purpose | Example Value | Configured At |
 |---|---|---|---|
 | `FTP_HOST` | SFTP server hostname or IP | `sftp.example.com` | **Organization** |
+| `FTP_USERNAME` | SFTP authentication username | `deploy-user` | **Organization** |
 | `FTP_PASSWORD` | Password authentication | `secure-password-here` | **Organization** |
 | `FTP_PATH` | Base deployment path on server | `/var/www/releases` | **Organization** |
+| `FTP_PORT` | SFTP port (default: 22) | `22` or `2222` | **Organization** |
 
 ### Repository-Level Secrets
 
-The following secret may be repository-specific:
+The following secrets are typically repository-specific (if needed):
 
 | Secret Name | Purpose | Example Value | Configured At |
 |---|---|---|---|
-| `FTP_USERNAME` | SFTP authentication username | `deploy-user` | Repository or Organization |
+| `FTP_PATH_SUFFIX` | Additional path suffix for project | `/prod` or `/staging` | Repository |
 
 ### Optional Secrets/Variables
 
@@ -49,8 +51,6 @@ The following secret may be repository-specific:
 |---|---|---|---|
 | `FTP_KEY` | Secret | SSH private key for key-based auth | `-----BEGIN OPENSSH PRIVATE KEY-----...` | Organization or Repository |
 | `FTP_PROTOCOL` | Secret | Protocol to use (default: sftp) | `sftp` | Organization |
-| `FTP_PORT` | Secret | SFTP port (default: 22) | `22` or `2222` | Organization |
-| `FTP_PATH_SUFFIX` | Variable | Additional path suffix | `/prod` or `/staging` | Repository |
 
 ## Authentication Methods
 
@@ -58,11 +58,12 @@ The following secret may be repository-specific:
 
 **Recommended for**: Development, staging, simple setups
 
-Required secrets:
+Required secrets (all configured at organization level):
 - `FTP_HOST`
 - `FTP_USERNAME`
 - `FTP_PASSWORD`
 - `FTP_PATH`
+- `FTP_PORT` (optional, defaults to 22)
 
 **Pros**:
 - Simple to configure
@@ -78,11 +79,12 @@ Required secrets:
 
 **Recommended for**: Production, high-security environments
 
-Required secrets:
+Required secrets (configured at organization level):
 - `FTP_HOST`
 - `FTP_USERNAME`
 - `FTP_KEY` (OpenSSH private key)
 - `FTP_PATH`
+- `FTP_PORT` (optional, defaults to 22)
 
 Optional:
 - `FTP_PASSWORD` (if key is passphrase-protected)
@@ -129,9 +131,8 @@ Organization-level secrets include:
 **Purpose**: Project-specific configuration overrides
 
 Repository-level secrets/variables include:
-- `FTP_USERNAME` - May be project-specific if needed
 - `FTP_PATH_SUFFIX` - Project-specific path (e.g., `/staging`, `/prod`)
-- `FTP_KEY` - Project-specific SSH key if required
+- `FTP_KEY` - Project-specific SSH key if different from organization default (rare)
 
 **Note**: Repository secrets override organization secrets if both are defined.
 
@@ -155,9 +156,9 @@ Organization secrets are typically pre-configured by organization administrators
 Only configure repository-level secrets if your project needs custom settings:
 
 1. Navigate to repository Settings → Secrets and variables → Actions
-2. Add repository-specific secrets/variables:
-   - `FTP_PATH_SUFFIX` (variable) - Additional path for this project
-   - `FTP_USERNAME` (secret) - Only if different from organization default
+2. Add repository-specific secrets/variables (if needed):
+   - `FTP_PATH_SUFFIX` (variable) - Additional path for this project (e.g., `/staging`, `/prod`)
+   - `FTP_KEY` (secret) - Only if project requires a different SSH key than organization default
 
 ### Step 3: Generate SSH Key (for key-based auth)
 

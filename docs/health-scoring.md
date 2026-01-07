@@ -150,20 +150,32 @@ Repositories are categorized into four health levels based on their total score:
 
 For repositories with deployment workflows (web applications, extensions):
 
-| Secret/Variable | Points | Requirements |
-|---|---|---|
-| FTP_HOST | 4 | Configured in repository secrets |
-| FTP_USERNAME | 4 | Configured in repository secrets |
-| FTP_PASSWORD or FTP_KEY | 4 | Authentication method configured |
-| FTP_PATH | 4 | Base deployment path configured |
-| FTP_PATH_SUFFIX | 2 | Optional path suffix configured in variables |
-| SFTP connectivity validated | 2 | Repo health workflow verifies connection |
+**Secret Configuration Levels**:
+- **Organization-Level Secrets** (⭐ Preferred): `FTP_HOST`, `FTP_PASSWORD`, `FTP_PATH` are typically configured at the organization level and automatically inherited by all repositories.
+- **Repository-Level**: `FTP_USERNAME` and `FTP_PATH_SUFFIX` may be repository-specific.
 
-**Note**: For non-deployment repositories, this category awards points based on appropriate alternatives (e.g., package registry credentials, cloud provider keys).
+| Secret/Variable | Points | Requirements | Configuration Level |
+|---|---|---|---|
+| FTP_HOST | 4 | Configured and accessible | **Organization** (inherited) |
+| FTP_USERNAME | 4 | Configured in repository secrets | Repository or Organization |
+| FTP_PASSWORD or FTP_KEY | 4 | Authentication method configured | **Organization** (inherited) |
+| FTP_PATH | 4 | Base deployment path configured | **Organization** (inherited) |
+| FTP_PATH_SUFFIX | 2 | Optional path suffix configured in variables | Repository (if needed) |
+| SFTP connectivity validated | 2 | Repo health workflow verifies connection | Tested automatically |
 
-**Automated Check**: Secret presence check (via workflow), connectivity test
+**Important Notes**:
+- Organization-level secrets (`FTP_HOST`, `FTP_PASSWORD`, `FTP_PATH`) count toward the score even though they're not configured in the repository itself - they're inherited automatically.
+- Repositories automatically receive full points for organization secrets if they're accessible.
+- Only repository-specific secrets need to be configured at the repository level.
+
+**For non-deployment repositories**, this category awards points based on appropriate alternatives (e.g., package registry credentials, cloud provider keys).
+
+**Automated Check**: Secret accessibility check (via workflow), connectivity test
 **Manual Override**: N/A
-**Remediation**: Configure secrets in repository settings, run repo health workflow
+**Remediation**: 
+- Organization secrets: Contact organization administrators (no repository action needed)
+- Repository secrets: Configure in repository settings → Secrets and variables → Actions
+- Run repo health workflow to verify configuration
 
 ## Score Calculation Example
 

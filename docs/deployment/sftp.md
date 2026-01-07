@@ -23,25 +23,34 @@ This guide documents SFTP deployment procedures for MokoStandards-governed repos
 
 ## Required Secrets
 
-All SFTP deployments require the following secrets to be configured in repository settings:
+All SFTP deployments require the following secrets to be configured. **Note**: Most secrets are configured at the **organization level** and automatically inherited by all repositories.
 
-### Mandatory Secrets
+### Mandatory Secrets (Organization-Level)
 
-| Secret Name | Purpose | Example Value |
-|---|---|---|
-| `FTP_HOST` | SFTP server hostname or IP | `sftp.example.com` |
-| `FTP_USERNAME` | SFTP authentication username | `deploy-user` |
-| `FTP_PASSWORD` | Password authentication | `secure-password-here` |
-| `FTP_PATH` | Base deployment path on server | `/var/www/releases` |
+⚠️ **Organization Secrets**: The following secrets are configured at the GitHub organization level and are automatically available to all repositories:
+
+| Secret Name | Purpose | Example Value | Configured At |
+|---|---|---|---|
+| `FTP_HOST` | SFTP server hostname or IP | `sftp.example.com` | **Organization** |
+| `FTP_PASSWORD` | Password authentication | `secure-password-here` | **Organization** |
+| `FTP_PATH` | Base deployment path on server | `/var/www/releases` | **Organization** |
+
+### Repository-Level Secrets
+
+The following secret may be repository-specific:
+
+| Secret Name | Purpose | Example Value | Configured At |
+|---|---|---|---|
+| `FTP_USERNAME` | SFTP authentication username | `deploy-user` | Repository or Organization |
 
 ### Optional Secrets/Variables
 
-| Name | Type | Purpose | Example Value |
-|---|---|---|
-| `FTP_KEY` | Secret | SSH private key for key-based auth | `-----BEGIN OPENSSH PRIVATE KEY-----...` |
-| `FTP_PROTOCOL` | Secret | Protocol to use (default: sftp) | `sftp` |
-| `FTP_PORT` | Secret | SFTP port (default: 22) | `22` or `2222` |
-| `FTP_PATH_SUFFIX` | Variable | Additional path suffix | `/prod` or `/staging` |
+| Name | Type | Purpose | Example Value | Configured At |
+|---|---|---|---|
+| `FTP_KEY` | Secret | SSH private key for key-based auth | `-----BEGIN OPENSSH PRIVATE KEY-----...` | Organization or Repository |
+| `FTP_PROTOCOL` | Secret | Protocol to use (default: sftp) | `sftp` | Organization |
+| `FTP_PORT` | Secret | SFTP port (default: 22) | `22` or `2222` | Organization |
+| `FTP_PATH_SUFFIX` | Variable | Additional path suffix | `/prod` or `/staging` | Repository |
 
 ## Authentication Methods
 
@@ -93,9 +102,64 @@ Optional:
 - If passphrase-protected, provide `FTP_PASSWORD`
 - Public key must be added to server's `authorized_keys`
 
+## Secret Configuration Levels
+
+### Organization-Level Secrets (Centralized)
+
+**Configured by**: Organization administrators
+**Scope**: Available to all repositories in the organization
+**Purpose**: Centralized management of shared infrastructure
+
+Organization-level secrets include:
+- `FTP_HOST` - Shared deployment server
+- `FTP_PASSWORD` - Master deployment password
+- `FTP_PATH` - Base path for all deployments
+- `FTP_PROTOCOL`, `FTP_PORT` - Server connection settings
+
+**Advantages**:
+- Single point of configuration
+- Consistent across all repositories
+- Simplified secret rotation
+- Reduced management overhead
+
+### Repository-Level Secrets (Project-Specific)
+
+**Configured by**: Repository administrators
+**Scope**: Available only to specific repository
+**Purpose**: Project-specific configuration overrides
+
+Repository-level secrets/variables include:
+- `FTP_USERNAME` - May be project-specific if needed
+- `FTP_PATH_SUFFIX` - Project-specific path (e.g., `/staging`, `/prod`)
+- `FTP_KEY` - Project-specific SSH key if required
+
+**Note**: Repository secrets override organization secrets if both are defined.
+
 ## Configuration
 
-### Step 1: Generate SSH Key (for key-based auth)
+### Step 1: Verify Organization Secrets (Administrators Only)
+
+Organization secrets are typically pre-configured by organization administrators. To verify:
+
+1. Navigate to GitHub Organization Settings → Secrets and variables → Actions
+2. Verify the following organization secrets exist:
+   - `FTP_HOST`
+   - `FTP_PASSWORD`
+   - `FTP_PATH`
+3. Ensure secrets are visible to required repositories
+
+**Most developers do not need to configure these secrets** - they are inherited automatically.
+
+### Step 2: Configure Repository-Specific Settings (If Needed)
+
+Only configure repository-level secrets if your project needs custom settings:
+
+1. Navigate to repository Settings → Secrets and variables → Actions
+2. Add repository-specific secrets/variables:
+   - `FTP_PATH_SUFFIX` (variable) - Additional path for this project
+   - `FTP_USERNAME` (secret) - Only if different from organization default
+
+### Step 3: Generate SSH Key (for key-based auth)
 
 ```bash
 # Generate new SSH key pair

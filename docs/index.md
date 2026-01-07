@@ -30,6 +30,37 @@ Standards, requirements, and compliance documentation.
 - [client-deployment](./policy/crm/client-deployment.md)
 - [development-standards](./policy/crm/development-standards.md)
 
+### GOVERNANCE
+
+- [incident-management](./policy/governance/incident-management.md)
+
+### OPERATIONS
+
+- [api-standards-versioning](./policy/operations/api-standards-versioning.md)
+- [capacity-planning-scaling](./policy/operations/capacity-planning-scaling.md)
+- [database-management](./policy/operations/database-management.md)
+- [environment-management](./policy/operations/environment-management.md)
+- [infrastructure-as-code-standards](./policy/operations/infrastructure-as-code-standards.md)
+- [monitoring-alerting-standards](./policy/operations/monitoring-alerting-standards.md)
+- [performance-testing-standards](./policy/operations/performance-testing-standards.md)
+- [sla-policy](./policy/operations/sla-policy.md)
+
+### QUALITY
+
+- [quality-gates](./policy/quality/quality-gates.md)
+- [technical-debt-management](./policy/quality/technical-debt-management.md)
+- [testing-strategy-standards](./policy/quality/testing-strategy-standards.md)
+
+### SECURITY
+
+- [access-control-identity-management](./policy/security/access-control-identity-management.md)
+- [audit-logging-monitoring](./policy/security/audit-logging-monitoring.md)
+- [backup-recovery](./policy/security/backup-recovery.md)
+- [data-privacy-gdpr-compliance](./policy/security/data-privacy-gdpr-compliance.md)
+- [disaster-recovery-business-continuity](./policy/security/disaster-recovery-business-continuity.md)
+- [encryption-standards](./policy/security/encryption-standards.md)
+- [vulnerability-management](./policy/security/vulnerability-management.md)
+
 ### WAAS
 
 - [akeeba-and-panopticon](./policy/waas/akeeba-and-panopticon.md)
@@ -65,6 +96,13 @@ Step-by-step tutorials and how-to documentation.
 
 - [dolibarr-development-guide](./guide/crm/dolibarr-development-guide.md)
 
+### OPERATIONS
+
+- [backup-restore-procedures](./guide/operations/backup-restore-procedures.md)
+- [database-administration-guide](./guide/operations/database-administration-guide.md)
+- [disaster-recovery-procedures](./guide/operations/disaster-recovery-procedures.md)
+- [incident-response-runbooks](./guide/operations/incident-response-runbooks.md)
+
 ### WAAS
 
 - [joomla-development-guide](./guide/waas/joomla-development-guide.md)
@@ -74,7 +112,9 @@ Step-by-step tutorials and how-to documentation.
 
 ## Checklists
 
+- [pre-deployment](./checklist/pre-deployment.md)
 - [release](./checklist/release.md)
+- [security-review](./checklist/security-review.md)
 
 ## Glossaries
 

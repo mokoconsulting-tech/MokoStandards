@@ -1,4 +1,4 @@
-# Docs Index: /docs/checklist
+# Docs Index: /docs/policy/quality
 
 ## Purpose
 
@@ -6,9 +6,9 @@ This index provides navigation to documentation within this folder.
 
 ## Documents
 
-- [pre-deployment](./pre-deployment.md)
-- [release](./release.md)
-- [security-review](./security-review.md)
+- [quality-gates](./quality-gates.md)
+- [technical-debt-management](./technical-debt-management.md)
+- [testing-strategy-standards](./testing-strategy-standards.md)
 
 ## Metadata
 

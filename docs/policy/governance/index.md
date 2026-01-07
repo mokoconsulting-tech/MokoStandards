@@ -1,4 +1,4 @@
-# Docs Index: /docs/checklist
+# Docs Index: /docs/policy/governance
 
 ## Purpose
 
@@ -6,9 +6,7 @@ This index provides navigation to documentation within this folder.
 
 ## Documents
 
-- [pre-deployment](./pre-deployment.md)
-- [release](./release.md)
-- [security-review](./security-review.md)
+- [incident-management](./incident-management.md)
 
 ## Metadata
 

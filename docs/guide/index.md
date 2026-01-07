@@ -7,6 +7,9 @@ This index provides navigation to documentation within this folder.
 ## Subfolders
 
 - [crm/](./crm/index.md)
+- [development/](./development/index.md)
+- [onboarding/](./onboarding/index.md)
+- [operations/](./operations/index.md)
 - [waas/](./waas/index.md)
 
 ## Documents

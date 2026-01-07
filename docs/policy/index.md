@@ -7,6 +7,11 @@ This index provides navigation to documentation within this folder.
 ## Subfolders
 
 - [crm/](./crm/index.md)
+- [governance/](./governance/index.md)
+- [legal/](./legal/index.md)
+- [operations/](./operations/index.md)
+- [quality/](./quality/index.md)
+- [security/](./security/index.md)
 - [waas/](./waas/index.md)
 
 ## Documents

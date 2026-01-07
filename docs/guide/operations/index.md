@@ -1,4 +1,4 @@
-# Docs Index: /docs/checklist
+# Docs Index: /docs/guide/operations
 
 ## Purpose
 
@@ -6,9 +6,10 @@ This index provides navigation to documentation within this folder.
 
 ## Documents
 
-- [pre-deployment](./pre-deployment.md)
-- [release](./release.md)
-- [security-review](./security-review.md)
+- [backup-restore-procedures](./backup-restore-procedures.md)
+- [database-administration-guide](./database-administration-guide.md)
+- [disaster-recovery-procedures](./disaster-recovery-procedures.md)
+- [incident-response-runbooks](./incident-response-runbooks.md)
 
 ## Metadata
 

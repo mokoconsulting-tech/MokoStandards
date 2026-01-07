@@ -21,7 +21,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 # Build Templates
 
-This directory contains Makefile templates for automating common build and development tasks for Joomla extensions and Dolibarr modules.
+This directory contains Makefile templates for automating common build and development tasks for MokoWaaS extensions and MokoCRM modules.
 
 ## Overview
 
@@ -35,10 +35,10 @@ Makefiles provide a standardized way to:
 
 ## Available Templates
 
-### Dolibarr
+### MokoCRM (Dolibarr-based)
 
 #### `dolibarr/Makefile`
-Complete Makefile for Dolibarr custom modules.
+Complete Makefile for MokoCRM custom modules.
 
 **Features**:
 - PHP linting and validation
@@ -69,10 +69,10 @@ make dev-install       # Create development symlink
 make test              # Run tests
 ```
 
-### Joomla
+### MokoWaaS (Joomla-based)
 
 #### `joomla/Makefile.component`
-Comprehensive Makefile for Joomla components.
+Comprehensive Makefile for MokoWaaS components.
 
 **Features**:
 - PHP and JavaScript linting
@@ -103,7 +103,7 @@ make watch-assets      # Watch and rebuild assets
 ```
 
 #### `joomla/Makefile.module`
-Simplified Makefile for Joomla modules.
+Simplified Makefile for MokoWaaS modules.
 
 **Features**:
 - PHP validation
@@ -128,7 +128,7 @@ make dev-install       # Create symlink
 ```
 
 #### `joomla/Makefile.plugin`
-Simplified Makefile for Joomla plugins.
+Simplified Makefile for MokoWaaS plugins.
 
 **Features**:
 - PHP validation

@@ -76,6 +76,7 @@ find_makefile() {
     fi
     
     # Check for Joomla XML files
+    shopt -s nullglob  # Prevent glob expansion if no matches
     for xml in *.xml; do
         if [ -f "$xml" ]; then
             if grep -q 'type="component"' "$xml" 2>/dev/null; then
@@ -90,6 +91,7 @@ find_makefile() {
             fi
         fi
     done
+    shopt -u nullglob
     
     echo -e "${COLOR_RED}✗${COLOR_RESET} Could not detect project type" >&2
     return 1

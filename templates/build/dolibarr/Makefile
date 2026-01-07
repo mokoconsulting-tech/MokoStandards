@@ -147,6 +147,14 @@ install-local: build ## Install module to local Dolibarr instance
 .PHONY: uninstall-local
 uninstall-local: ## Uninstall module from local Dolibarr
 	@echo "$(COLOR_BLUE)Uninstalling module...$(COLOR_RESET)"
+	@if [ -z "$(DOLIBARR_CUSTOM)" ]; then \
+		echo "$(COLOR_RED)Error: DOLIBARR_CUSTOM not set$(COLOR_RESET)"; \
+		exit 1; \
+	fi
+	@if [ ! -d "$(DOLIBARR_ROOT)" ]; then \
+		echo "$(COLOR_RED)Error: Dolibarr root not found$(COLOR_RESET)"; \
+		exit 1; \
+	fi
 	rm -rf $(DOLIBARR_CUSTOM)
 	@echo "$(COLOR_GREEN)Module uninstalled!$(COLOR_RESET)"
 
@@ -189,13 +197,31 @@ release: validate test build ## Create a release package
 .PHONY: db-install
 db-install: ## Install database tables
 	@echo "$(COLOR_BLUE)Installing database tables...$(COLOR_RESET)"
-	mysql -u root -p $(DB_NAME) < sql/llx_$(MODULE_NAME)_*.sql
+	@if [ -z "$(DB_NAME)" ]; then \
+		echo "$(COLOR_RED)Error: DB_NAME not set$(COLOR_RESET)"; \
+		exit 1; \
+	fi
+	@if [ -z "$(DB_USER)" ]; then \
+		echo "$(COLOR_YELLOW)Warning: Using root user$(COLOR_RESET)"; \
+		mysql -u root -p $(DB_NAME) < sql/llx_$(MODULE_NAME)_*.sql; \
+	else \
+		mysql -u $(DB_USER) -p $(DB_NAME) < sql/llx_$(MODULE_NAME)_*.sql; \
+	fi
 	@echo "$(COLOR_GREEN)Database tables installed!$(COLOR_RESET)"
 
 .PHONY: db-uninstall
 db-uninstall: ## Remove database tables
 	@echo "$(COLOR_BLUE)Removing database tables...$(COLOR_RESET)"
-	mysql -u root -p $(DB_NAME) -e "DROP TABLE IF EXISTS llx_$(MODULE_NAME)_*"
+	@if [ -z "$(DB_NAME)" ]; then \
+		echo "$(COLOR_RED)Error: DB_NAME not set$(COLOR_RESET)"; \
+		exit 1; \
+	fi
+	@if [ -z "$(DB_USER)" ]; then \
+		echo "$(COLOR_YELLOW)Warning: Using root user$(COLOR_RESET)"; \
+		mysql -u root -p $(DB_NAME) -e "DROP TABLE IF EXISTS llx_$(MODULE_NAME)_*"; \
+	else \
+		mysql -u $(DB_USER) -p $(DB_NAME) -e "DROP TABLE IF EXISTS llx_$(MODULE_NAME)_*"; \
+	fi
 	@echo "$(COLOR_GREEN)Database tables removed!$(COLOR_RESET)"
 
 .PHONY: version

@@ -1,0 +1,110 @@
+#!/usr/bin/env bash
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Moko Build Wrapper
+# Automatically finds and uses appropriate Makefile from MokoStandards
+
+set -e
+
+# Colors
+COLOR_RESET="\033[0m"
+COLOR_GREEN="\033[32m"
+COLOR_BLUE="\033[34m"
+COLOR_RED="\033[31m"
+
+# Find MokoStandards root
+find_mokostandards() {
+    # Check environment variable
+    if [ -n "$MOKOSTANDARDS_ROOT" ] && [ -d "$MOKOSTANDARDS_ROOT/templates/build" ]; then
+        echo "$MOKOSTANDARDS_ROOT"
+        return 0
+    fi
+    
+    # Check adjacent directories
+    if [ -d "../MokoStandards/templates/build" ]; then
+        echo "$(cd ../MokoStandards && pwd)"
+        return 0
+    fi
+    
+    if [ -d "../../MokoStandards/templates/build" ]; then
+        echo "$(cd ../../MokoStandards && pwd)"
+        return 0
+    fi
+    
+    # Check home directory
+    if [ -d "$HOME/.mokostandards/templates/build" ]; then
+        echo "$HOME/.mokostandards"
+        return 0
+    fi
+    
+    # Check system location
+    if [ -d "/opt/mokostandards/templates/build" ]; then
+        echo "/opt/mokostandards"
+        return 0
+    fi
+    
+    return 1
+}
+
+# Find appropriate Makefile
+find_makefile() {
+    # Check for local Makefile
+    if [ -f "Makefile" ]; then
+        echo "Makefile"
+        return 0
+    fi
+    
+    # Check for .moko/Makefile
+    if [ -f ".moko/Makefile" ]; then
+        echo ".moko/Makefile"
+        return 0
+    fi
+    
+    # Find MokoStandards
+    MOKO_ROOT=$(find_mokostandards)
+    if [ $? -ne 0 ]; then
+        echo -e "${COLOR_RED}✗${COLOR_RESET} MokoStandards repository not found" >&2
+        echo -e "${COLOR_BLUE}Hint:${COLOR_RESET} Set MOKOSTANDARDS_ROOT or clone adjacent" >&2
+        return 1
+    fi
+    
+    # Detect project type
+    if [ -d "core/modules" ] && ls core/modules/mod*.class.php >/dev/null 2>&1; then
+        echo "$MOKO_ROOT/templates/build/dolibarr/Makefile"
+        return 0
+    fi
+    
+    # Check for Joomla XML files
+    for xml in *.xml; do
+        if [ -f "$xml" ]; then
+            if grep -q 'type="component"' "$xml" 2>/dev/null; then
+                echo "$MOKO_ROOT/templates/build/joomla/Makefile.component"
+                return 0
+            elif grep -q 'type="module"' "$xml" 2>/dev/null; then
+                echo "$MOKO_ROOT/templates/build/joomla/Makefile.module"
+                return 0
+            elif grep -q 'type="plugin"' "$xml" 2>/dev/null; then
+                echo "$MOKO_ROOT/templates/build/joomla/Makefile.plugin"
+                return 0
+            fi
+        fi
+    done
+    
+    echo -e "${COLOR_RED}✗${COLOR_RESET} Could not detect project type" >&2
+    return 1
+}
+
+# Main execution
+MAKEFILE=$(find_makefile)
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+
+# Show which Makefile we're using
+if [[ "$MAKEFILE" == *"MokoStandards"* ]] || [[ "$MAKEFILE" == *".mokostandards"* ]]; then
+    echo -e "${COLOR_BLUE}ℹ${COLOR_RESET} Using MokoStandards template"
+fi
+
+# Run make with the found Makefile
+exec make -f "$MAKEFILE" "$@"

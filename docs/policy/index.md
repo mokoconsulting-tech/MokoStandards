@@ -7,11 +7,18 @@ This index provides navigation to documentation within this folder.
 ## Subfolders
 
 - [crm/](./crm/index.md)
+- [governance/](./governance/index.md)
+- [legal/](./legal/index.md)
+- [operations/](./operations/index.md)
+- [quality/](./quality/index.md)
+- [security/](./security/index.md)
 - [waas/](./waas/index.md)
 
 ## Documents
 
+- [branching-strategy](./branching-strategy.md)
 - [change-management](./change-management.md)
+- [coding-style-guide](./coding-style-guide.md)
 - [data-classification](./data-classification.md)
 - [dependency-management](./dependency-management.md)
 - [document-formatting](./document-formatting.md)

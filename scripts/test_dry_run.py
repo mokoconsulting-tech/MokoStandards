@@ -10,7 +10,7 @@ from pathlib import Path
 CANONICAL_DOCUMENTS = {
     "README.md": {"type": "index", "subtype": "core", "priority": "High", "approval": "Yes"},
     "CHANGELOG.md": {"type": "index", "subtype": "core", "priority": "High", "approval": "No"},
-    "LICENSE.md": {"type": "policy", "subtype": "core", "priority": "High", "approval": "Yes"},
+    "LICENSE": {"type": "policy", "subtype": "core", "priority": "High", "approval": "Yes"},
     "docs/readme.md": {"type": "index", "subtype": "core", "priority": "High", "approval": "No"},
     "docs/index.md": {"type": "index", "subtype": "core", "priority": "High", "approval": "No"},
     "docs/policy/document-formatting.md": {"type": "policy", "subtype": "policy", "priority": "High", "approval": "Yes"},

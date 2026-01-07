@@ -6,6 +6,7 @@ This index provides navigation to documentation within this folder.
 
 ## Documents
 
+- [client-deployment](./client-deployment.md)
 - [development-standards](./development-standards.md)
 
 ## Metadata

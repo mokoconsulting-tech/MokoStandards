@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://mokoconsulting.com/schemas/repository-structure"
+           xmlns:rs="http://mokoconsulting.com/schemas/repository-structure"
+           elementFormDefault="qualified">
+
+  <!-- Root element for repository structure definition -->
+  <xs:element name="repository-structure">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="metadata" type="rs:MetadataType"/>
+        <xs:element name="structure" type="rs:StructureType"/>
+      </xs:sequence>
+      <xs:attribute name="version" type="xs:string" use="required"/>
+      <xs:attribute name="schema-version" type="xs:string" fixed="1.0"/>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Metadata about the repository structure -->
+  <xs:complexType name="MetadataType">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="description" type="xs:string"/>
+      <xs:element name="repository-type" type="rs:RepositoryTypeEnum"/>
+      <xs:element name="platform" type="rs:PlatformEnum"/>
+      <xs:element name="last-updated" type="xs:dateTime"/>
+      <xs:element name="maintainer" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Repository type enumeration -->
+  <xs:simpleType name="RepositoryTypeEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="standards"/>
+      <xs:enumeration value="waas-component"/>
+      <xs:enumeration value="waas-module"/>
+      <xs:enumeration value="waas-plugin"/>
+      <xs:enumeration value="waas-template"/>
+      <xs:enumeration value="waas-library"/>
+      <xs:enumeration value="waas-package"/>
+      <xs:enumeration value="crm-module"/>
+      <xs:enumeration value="crm-plugin"/>
+      <xs:enumeration value="application"/>
+      <xs:enumeration value="library"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Platform enumeration -->
+  <xs:simpleType name="PlatformEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="mokowaas"/>
+      <xs:enumeration value="mokokrm"/>
+      <xs:enumeration value="standards"/>
+      <xs:enumeration value="multi-platform"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Main structure definition -->
+  <xs:complexType name="StructureType">
+    <xs:sequence>
+      <xs:element name="root-files" type="rs:FilesType" minOccurs="0"/>
+      <xs:element name="directories" type="rs:DirectoriesType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Files collection -->
+  <xs:complexType name="FilesType">
+    <xs:sequence>
+      <xs:element name="file" type="rs:FileType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Individual file definition -->
+  <xs:complexType name="FileType">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="description" type="xs:string" minOccurs="0"/>
+      <xs:element name="required" type="xs:boolean" default="true"/>
+      <xs:element name="audience" type="rs:AudienceEnum" minOccurs="0"/>
+      <xs:element name="template" type="xs:string" minOccurs="0"/>
+      <xs:element name="stub-content" type="xs:string" minOccurs="0"/>
+      <xs:element name="validation-rules" type="rs:ValidationRulesType" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="extension" type="xs:string"/>
+  </xs:complexType>
+
+  <!-- Audience enumeration -->
+  <xs:simpleType name="AudienceEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="developer"/>
+      <xs:enumeration value="end-user"/>
+      <xs:enumeration value="administrator"/>
+      <xs:enumeration value="contributor"/>
+      <xs:enumeration value="general"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Directories collection -->
+  <xs:complexType name="DirectoriesType">
+    <xs:sequence>
+      <xs:element name="directory" type="rs:DirectoryType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Individual directory definition -->
+  <xs:complexType name="DirectoryType">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="description" type="xs:string" minOccurs="0"/>
+      <xs:element name="required" type="xs:boolean" default="true"/>
+      <xs:element name="purpose" type="xs:string" minOccurs="0"/>
+      <xs:element name="files" type="rs:FilesType" minOccurs="0"/>
+      <xs:element name="subdirectories" type="rs:DirectoriesType" minOccurs="0"/>
+      <xs:element name="validation-rules" type="rs:ValidationRulesType" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="path" type="xs:string"/>
+  </xs:complexType>
+
+  <!-- Validation rules -->
+  <xs:complexType name="ValidationRulesType">
+    <xs:sequence>
+      <xs:element name="rule" type="rs:ValidationRuleType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Individual validation rule -->
+  <xs:complexType name="ValidationRuleType">
+    <xs:sequence>
+      <xs:element name="type" type="rs:RuleTypeEnum"/>
+      <xs:element name="description" type="xs:string"/>
+      <xs:element name="pattern" type="xs:string" minOccurs="0"/>
+      <xs:element name="severity" type="rs:SeverityEnum" default="error"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Rule type enumeration -->
+  <xs:simpleType name="RuleTypeEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="naming-convention"/>
+      <xs:enumeration value="content-pattern"/>
+      <xs:enumeration value="file-exists"/>
+      <xs:enumeration value="directory-exists"/>
+      <xs:enumeration value="min-size"/>
+      <xs:enumeration value="max-size"/>
+      <xs:enumeration value="header-required"/>
+      <xs:enumeration value="license-required"/>
+      <xs:enumeration value="custom"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Severity enumeration -->
+  <xs:simpleType name="SeverityEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="error"/>
+      <xs:enumeration value="warning"/>
+      <xs:enumeration value="info"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

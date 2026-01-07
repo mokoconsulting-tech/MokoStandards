@@ -11,6 +11,7 @@ This index provides navigation to documentation within this folder.
 - [data-retention](./data-retention.md)
 - [decommissioning](./decommissioning.md)
 - [demo-baseline](./demo-baseline.md)
+- [development-standards](./development-standards.md)
 - [enterprise-governance](./enterprise-governance.md)
 - [enterprise-licensing-option](./enterprise-licensing-option.md)
 - [google-analytics](./google-analytics.md)

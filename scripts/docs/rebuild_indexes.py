@@ -82,8 +82,163 @@ def get_immediate_children(folder_path: Path) -> Tuple[List[Path], List[Path]]:
     return child_folders, child_files
 
 
+def generate_catalog_content(root_path: Path) -> str:
+    """Generate comprehensive catalog content for the root docs/index.md file."""
+    lines = [
+        "# MokoStandards Documentation Catalog",
+        "",
+        "This is a comprehensive catalog of all documentation in the MokoStandards repository.",
+        "",
+        "## Quick Links",
+        "",
+        "- [README](./README.md) - Documentation governance framework",
+        "- [ROADMAP](./ROADMAP.md) - Documentation roadmap and future plans",
+        "",
+    ]
+    
+    # Collect all documentation organized by category
+    categories = {
+        'Policies': [],
+        'Guides': [],
+        'Checklists': [],
+        'Glossaries': [],
+        'Product Documentation': []
+    }
+    
+    # Walk through all documentation
+    for dirpath, dirnames, filenames in os.walk(root_path):
+        # Filter out excluded directories
+        dirnames[:] = [d for d in dirnames if not is_excluded_dir(d)]
+        dirnames.sort()
+        
+        rel_path = Path(dirpath).relative_to(root_path)
+        
+        # Categorize files
+        for filename in sorted(filenames):
+            if filename.endswith('.md') and filename not in ['index.md', 'README.md', 'ROADMAP.md']:
+                file_path = Path(dirpath) / filename
+                rel_file_path = file_path.relative_to(root_path)
+                display_name = filename[:-3]  # Remove .md extension
+                
+                # Determine category based on path
+                path_str = str(rel_path)
+                if path_str.startswith('policy'):
+                    categories['Policies'].append((display_name, rel_file_path, path_str))
+                elif path_str.startswith('guide'):
+                    categories['Guides'].append((display_name, rel_file_path, path_str))
+                elif path_str.startswith('checklist'):
+                    categories['Checklists'].append((display_name, rel_file_path, path_str))
+                elif path_str.startswith('glossary'):
+                    categories['Glossaries'].append((display_name, rel_file_path, path_str))
+                elif path_str.startswith('products'):
+                    categories['Product Documentation'].append((display_name, rel_file_path, path_str))
+    
+    # Add Policies section
+    if categories['Policies']:
+        lines.append("## Policies")
+        lines.append("")
+        lines.append("Standards, requirements, and compliance documentation.")
+        lines.append("")
+        
+        # Group by subdirectory
+        policy_groups = {}
+        for name, path, dir_path in categories['Policies']:
+            if '/' in dir_path and dir_path != 'policy':
+                subdir = dir_path.split('/')[1] if len(dir_path.split('/')) > 1 else 'policy'
+            else:
+                subdir = 'General'
+            
+            if subdir not in policy_groups:
+                policy_groups[subdir] = []
+            policy_groups[subdir].append((name, path))
+        
+        for subdir in sorted(policy_groups.keys()):
+            if subdir != 'General':
+                lines.append(f"### {subdir.upper()}")
+                lines.append("")
+            for name, path in sorted(policy_groups[subdir]):
+                lines.append(f"- [{name}](./{path})")
+            lines.append("")
+    
+    # Add Guides section
+    if categories['Guides']:
+        lines.append("## Guides")
+        lines.append("")
+        lines.append("Step-by-step tutorials and how-to documentation.")
+        lines.append("")
+        
+        # Group by subdirectory
+        guide_groups = {}
+        for name, path, dir_path in categories['Guides']:
+            if '/' in dir_path and dir_path != 'guide':
+                subdir = dir_path.split('/')[1] if len(dir_path.split('/')) > 1 else 'guide'
+            else:
+                subdir = 'General'
+            
+            if subdir not in guide_groups:
+                guide_groups[subdir] = []
+            guide_groups[subdir].append((name, path))
+        
+        for subdir in sorted(guide_groups.keys()):
+            if subdir != 'General':
+                lines.append(f"### {subdir.upper()}")
+                lines.append("")
+            for name, path in sorted(guide_groups[subdir]):
+                lines.append(f"- [{name}](./{path})")
+            lines.append("")
+    
+    # Add other categories
+    for category_name, items in [
+        ('Checklists', categories['Checklists']),
+        ('Glossaries', categories['Glossaries']),
+        ('Product Documentation', categories['Product Documentation'])
+    ]:
+        if items:
+            lines.append(f"## {category_name}")
+            lines.append("")
+            for name, path, _ in sorted(items):
+                lines.append(f"- [{name}](./{path})")
+            lines.append("")
+    
+    # Add directory navigation
+    lines.extend([
+        "## Directory Structure",
+        "",
+        "Browse documentation by folder:",
+        "",
+        "- [checklist/](./checklist/index.md) - Checklists and procedures",
+        "- [glossary/](./glossary/index.md) - Terminology definitions",
+        "- [guide/](./guide/index.md) - How-to guides and tutorials",
+        "- [policy/](./policy/index.md) - Policies and standards",
+        "- [products/](./products/index.md) - Product-specific documentation",
+        "",
+    ])
+    
+    # Add metadata
+    lines.extend([
+        "## Metadata",
+        "",
+        "- **Document Type:** catalog",
+        "- **Auto-generated:** This file is automatically generated by rebuild_indexes.py",
+        "- **Last Updated:** This catalog is regenerated whenever documentation is added or removed",
+        "",
+        "## Revision History",
+        "",
+        "| Change | Notes | Author |",
+        "| --- | --- | --- |",
+        "| Automated update | Generated by documentation index automation | rebuild_indexes.py |",
+        ""
+    ])
+    
+    return '\n'.join(lines)
+
+
 def generate_index_content(folder_path: Path, root_path: Path) -> str:
     """Generate the content for an index.md file."""
+    # Special handling for root docs directory - generate full catalog
+    if folder_path == root_path:
+        return generate_catalog_content(root_path)
+    
     title = get_folder_context_title(folder_path, root_path)
     child_folders, child_files = get_immediate_children(folder_path)
     
@@ -144,25 +299,38 @@ def process_directory(folder_path: Path, root_path: Path, check_mode: bool = Fal
         True if changes were made (or would be made in check mode), False otherwise
     """
     index_file = folder_path / INDEX_FILENAME
-    new_content = generate_index_content(folder_path, root_path)
+    
+    try:
+        new_content = generate_index_content(folder_path, root_path)
+    except Exception as e:
+        print(f"ERROR: Failed to generate content for {folder_path}: {e}", file=sys.stderr)
+        return False
     
     # Check if file exists and compare content
-    if index_file.exists():
-        with open(index_file, 'r', encoding='utf-8') as f:
-            existing_content = f.read()
-        
-        if existing_content == new_content:
-            return False  # No changes needed
+    try:
+        if index_file.exists():
+            with open(index_file, 'r', encoding='utf-8') as f:
+                existing_content = f.read()
+            
+            if existing_content == new_content:
+                return False  # No changes needed
+    except (IOError, UnicodeDecodeError) as e:
+        print(f"WARNING: Error reading {index_file}: {e}", file=sys.stderr)
+        # Continue to try writing the new content
     
     # Changes needed
     if check_mode:
         print(f"Would update: {index_file.relative_to(root_path.parent)}")
         return True
     else:
-        print(f"Writing: {index_file.relative_to(root_path.parent)}")
-        with open(index_file, 'w', encoding='utf-8') as f:
-            f.write(new_content)
-        return True
+        try:
+            print(f"Writing: {index_file.relative_to(root_path.parent)}")
+            with open(index_file, 'w', encoding='utf-8') as f:
+                f.write(new_content)
+            return True
+        except (IOError, PermissionError) as e:
+            print(f"ERROR: Failed to write {index_file}: {e}", file=sys.stderr)
+            return False
 
 
 def scan_and_generate(root_path: Path, check_mode: bool = False) -> int:

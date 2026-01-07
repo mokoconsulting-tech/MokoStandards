@@ -6,6 +6,7 @@ This index provides navigation to documentation within this folder.
 
 ## Documents
 
+- [joomla-development-guide](./joomla-development-guide.md)
 - [waas-architecture](./waas-architecture.md)
 - [waas-client-onboarding](./waas-client-onboarding.md)
 - [waas-operations](./waas-operations.md)

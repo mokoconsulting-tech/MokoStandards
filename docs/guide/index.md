@@ -6,15 +6,21 @@ This index provides navigation to documentation within this folder.
 
 ## Subfolders
 
+- [crm/](./crm/index.md)
+- [development/](./development/index.md)
+- [onboarding/](./onboarding/index.md)
+- [operations/](./operations/index.md)
 - [waas/](./waas/index.md)
 
 ## Documents
 
 - [audit-readiness](./audit-readiness.md)
+- [branching-quick-reference](./branching-quick-reference.md)
 - [conflict-resolution](./conflict-resolution.md)
 - [project-fields](./project-fields.md)
 - [project-views](./project-views.md)
 - [repository-split-plan](./repository-split-plan.md)
+- [repository-structure-schema](./repository-structure-schema.md)
 
 ## Metadata
 

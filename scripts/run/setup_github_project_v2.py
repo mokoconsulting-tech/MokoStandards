@@ -23,7 +23,7 @@
 #
 # You should have received a copy of the GNU General Public License
 <<<<<<<< HEAD:scripts/setup_github_project_v2.py
-# (./LICENSE.md).
+# (./LICENSE).
 #
 # FILE INFORMATION
 # DEFGROUP: MokoStandards.Scripts

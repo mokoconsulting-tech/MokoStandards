@@ -16,7 +16,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# (./LICENSE.md).
+# (./LICENSE).
 #
 # FILE INFORMATION
 # DEFGROUP: MokoStandards.Scripts
@@ -107,7 +107,7 @@ def generate_python_header(
         "# GNU General Public License for more details.",
         "#",
         "# You should have received a copy of the GNU General Public License",
-        "# (./LICENSE.md).",
+        "# (./LICENSE).",
         "#",
         "# FILE INFORMATION",
         f"# DEFGROUP: {defgroup}",
@@ -166,7 +166,7 @@ def generate_shell_header(
         "# GNU General Public License for more details.",
         "#",
         "# You should have received a copy of the GNU General Public License",
-        "# (./LICENSE.md).",
+        "# (./LICENSE).",
         "#",
         "# FILE INFORMATION",
         f"# DEFGROUP: {defgroup}",

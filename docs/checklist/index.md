@@ -6,7 +6,9 @@ This index provides navigation to documentation within this folder.
 
 ## Documents
 
+- [pre-deployment](./pre-deployment.md)
 - [release](./release.md)
+- [security-review](./security-review.md)
 
 ## Metadata
 

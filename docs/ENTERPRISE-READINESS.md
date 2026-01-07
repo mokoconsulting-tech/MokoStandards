@@ -188,6 +188,7 @@ Recommended for mature organizations.
    - Release windows
    - Rollback procedures
    - Communication plan
+   - **Tools**: Akeeba release system for production deployments
 
 3. **Problem Management Policy**
    - Problem identification

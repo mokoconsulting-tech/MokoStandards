@@ -7,6 +7,7 @@ This index provides navigation to documentation within this folder.
 ## Documents
 
 - [incident-management](./incident-management.md)
+- [release-management](./release-management.md)
 
 ## Metadata
 

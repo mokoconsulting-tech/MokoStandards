@@ -18,11 +18,22 @@
 
 ## Purpose
 
-Defines mandatory controls for Akeeba licensing and Panopticon monitoring across WaaS client sites.
+Defines mandatory controls for Akeeba licensing, Panopticon monitoring, and release management across WaaS client sites.
 
 ## Scope
 
 Applies to all Joomla based WaaS deployments.
+
+## Akeeba Release System
+
+Akeeba serves as the **primary release and update management system** for all MokoWaaS production environments:
+
+* All updates and releases to live environments must be deployed through Akeeba
+* Provides package creation, versioning, and controlled deployment
+* Integrates with backup systems for rollback capability
+* Maintains audit trail of all production releases
+
+Reference: [Release Management Policy](../governance/release-management.md)
 
 ## Akeeba Licensing
 
@@ -51,4 +62,5 @@ Validated during provisioning and audits.
 
 | Date       | Change Description                         | Author          |
 | ---------- | ------------------------------------------ | --------------- |
+| 2026-01-07 | Added Akeeba release system role          | Copilot Agent   |
 | 2025-12-23 | Initial policy creation           | Moko Consulting |

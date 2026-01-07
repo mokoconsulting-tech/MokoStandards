@@ -253,9 +253,10 @@ Add these items to GitHub Project 7 to track the implementation of enterprise re
 
 34. **Release Management Process**
     - File: `docs/policy/governance/release-management.md`
-    - Status: NOT STARTED
+    - Status: DRAFT (Stub Created)
     - Owner: TBD
     - Labels: tier-3, standard, governance, phase-4
+    - Notes: Uses Akeeba release system for production deployments
 
 35. **Problem Management Policy**
     - File: `docs/policy/governance/problem-management.md`

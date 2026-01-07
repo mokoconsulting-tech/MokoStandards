@@ -33,6 +33,7 @@ Standards, requirements, and compliance documentation.
 ### GOVERNANCE
 
 - [incident-management](./policy/governance/incident-management.md)
+- [release-management](./policy/governance/release-management.md)
 
 ### OPERATIONS
 

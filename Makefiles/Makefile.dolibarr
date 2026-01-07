@@ -1,0 +1,402 @@
+# Makefile for Dolibarr Modules
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# This is a reference Makefile for building Dolibarr modules.
+# Copy this to your repository root as "Makefile" and customize as needed.
+
+# ==============================================================================
+# CONFIGURATION - Customize these for your module
+# ==============================================================================
+
+# Module Configuration
+MODULE_NAME := mokoexample
+MODULE_VERSION := 1.0.0
+MODULE_NUMBER := 500000
+# Module number should be unique (500000+ for custom modules)
+
+# Directories
+SRC_DIR := .
+BUILD_DIR := build
+DIST_DIR := dist
+DOCS_DIR := docs
+
+# Dolibarr Installation (for local testing - customize path)
+DOLIBARR_ROOT := /var/www/html/dolibarr
+DOLIBARR_CUSTOM := $(DOLIBARR_ROOT)/htdocs/custom/$(MODULE_NAME)
+
+# Tools
+PHP := php
+COMPOSER := composer
+PHPCS := vendor/bin/phpcs
+PHPCBF := vendor/bin/phpcbf
+PHPSTAN := vendor/bin/phpstan
+PHPUNIT := vendor/bin/phpunit
+MSGFMT := msgfmt
+
+# Coding Standards
+PHPCS_STANDARD := PSR12
+PHPSTAN_LEVEL := 5
+
+# Files to include in package (customize as needed)
+PACKAGE_FILES := admin class core img langs lib sql *.md *.php
+
+# Colors for output
+COLOR_RESET := \033[0m
+COLOR_GREEN := \033[32m
+COLOR_YELLOW := \033[33m
+COLOR_BLUE := \033[34m
+COLOR_RED := \033[31m
+
+# ==============================================================================
+# TARGETS
+# ==============================================================================
+
+.PHONY: help
+help: ## Show this help message
+	@echo "$(COLOR_BLUE)╔════════════════════════════════════════════════════════════╗$(COLOR_RESET)"
+	@echo "$(COLOR_BLUE)║            Dolibarr Module Makefile                        ║$(COLOR_RESET)"
+	@echo "$(COLOR_BLUE)╚════════════════════════════════════════════════════════════╝$(COLOR_RESET)"
+	@echo ""
+	@echo "Module: $(MODULE_NAME) v$(MODULE_VERSION) (#$(MODULE_NUMBER))"
+	@echo ""
+	@echo "$(COLOR_GREEN)Available targets:$(COLOR_RESET)"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(COLOR_BLUE)%-20s$(COLOR_RESET) %s\n", $$1, $$2}'
+	@echo ""
+	@echo "$(COLOR_YELLOW)Quick Start:$(COLOR_RESET)"
+	@echo "  1. make install-deps  # Install dependencies"
+	@echo "  2. make build         # Build module package"
+	@echo "  3. make test          # Run tests"
+	@echo ""
+
+.PHONY: install-deps
+install-deps: ## Install development dependencies
+	@echo "$(COLOR_BLUE)Installing dependencies...$(COLOR_RESET)"
+	@if [ -f "composer.json" ]; then \
+		$(COMPOSER) install; \
+		echo "$(COLOR_GREEN)✓ Composer dependencies installed$(COLOR_RESET)"; \
+	else \
+		echo "$(COLOR_YELLOW)⚠ No composer.json found$(COLOR_RESET)"; \
+	fi
+
+.PHONY: update-deps
+update-deps: ## Update dependencies
+	@echo "$(COLOR_BLUE)Updating dependencies...$(COLOR_RESET)"
+	@if [ -f "composer.json" ]; then \
+		$(COMPOSER) update; \
+		echo "$(COLOR_GREEN)✓ Composer dependencies updated$(COLOR_RESET)"; \
+	fi
+
+.PHONY: lint
+lint: ## Run PHP linter (syntax check)
+	@echo "$(COLOR_BLUE)Running PHP linter...$(COLOR_RESET)"
+	@find . -name "*.php" ! -path "./vendor/*" ! -path "./$(BUILD_DIR)/*" \
+		-exec $(PHP) -l {} \; | grep -v "No syntax errors" || true
+	@echo "$(COLOR_GREEN)✓ PHP linting complete$(COLOR_RESET)"
+
+.PHONY: phpcs
+phpcs: ## Run PHP CodeSniffer
+	@echo "$(COLOR_BLUE)Running PHP CodeSniffer...$(COLOR_RESET)"
+	@if [ -f "$(PHPCS)" ]; then \
+		$(PHPCS) --standard=$(PHPCS_STANDARD) --extensions=php --ignore=vendor,$(BUILD_DIR) .; \
+	else \
+		echo "$(COLOR_YELLOW)⚠ PHP CodeSniffer not installed. Run: make install-deps$(COLOR_RESET)"; \
+	fi
+
+.PHONY: phpcbf
+phpcbf: ## Fix coding standards automatically
+	@echo "$(COLOR_BLUE)Running PHP Code Beautifier...$(COLOR_RESET)"
+	@if [ -f "$(PHPCBF)" ]; then \
+		$(PHPCBF) --standard=$(PHPCS_STANDARD) --extensions=php --ignore=vendor,$(BUILD_DIR) .; \
+		echo "$(COLOR_GREEN)✓ Code formatting applied$(COLOR_RESET)"; \
+	else \
+		echo "$(COLOR_YELLOW)⚠ PHP Code Beautifier not installed. Run: make install-deps$(COLOR_RESET)"; \
+	fi
+
+.PHONY: phpstan
+phpstan: ## Run PHPStan static analysis
+	@echo "$(COLOR_BLUE)Running PHPStan...$(COLOR_RESET)"
+	@if [ -f "$(PHPSTAN)" ]; then \
+		$(PHPSTAN) analyse --level=$(PHPSTAN_LEVEL) --no-progress class admin core || true; \
+	else \
+		echo "$(COLOR_YELLOW)⚠ PHPStan not installed. Run: make install-deps$(COLOR_RESET)"; \
+	fi
+
+.PHONY: validate
+validate: lint phpcs ## Run all validation checks
+	@echo "$(COLOR_GREEN)✓ All validation checks passed$(COLOR_RESET)"
+
+.PHONY: test
+test: ## Run PHPUnit tests
+	@echo "$(COLOR_BLUE)Running tests...$(COLOR_RESET)"
+	@if [ -f "$(PHPUNIT)" ] && [ -f "phpunit.xml" ]; then \
+		$(PHPUNIT); \
+	else \
+		echo "$(COLOR_YELLOW)⚠ PHPUnit not configured$(COLOR_RESET)"; \
+	fi
+
+.PHONY: test-coverage
+test-coverage: ## Run tests with coverage report
+	@echo "$(COLOR_BLUE)Running tests with coverage...$(COLOR_RESET)"
+	@if [ -f "$(PHPUNIT)" ] && [ -f "phpunit.xml" ]; then \
+		$(PHPUNIT) --coverage-html $(BUILD_DIR)/coverage; \
+		echo "$(COLOR_GREEN)✓ Coverage report: $(BUILD_DIR)/coverage/index.html$(COLOR_RESET)"; \
+	else \
+		echo "$(COLOR_YELLOW)⚠ PHPUnit not configured$(COLOR_RESET)"; \
+	fi
+
+.PHONY: compile-translations
+compile-translations: ## Compile translation files (.po to .mo)
+	@echo "$(COLOR_BLUE)Compiling translation files...$(COLOR_RESET)"
+	@if command -v $(MSGFMT) >/dev/null 2>&1; then \
+		for po in langs/*/*.po 2>/dev/null; do \
+			if [ -f "$$po" ]; then \
+				mo=$${po%.po}.mo; \
+				$(MSGFMT) -o "$$mo" "$$po"; \
+				echo "  Compiled: $$po -> $$mo"; \
+			fi; \
+		done; \
+		echo "$(COLOR_GREEN)✓ Translation files compiled$(COLOR_RESET)"; \
+	else \
+		echo "$(COLOR_YELLOW)⚠ msgfmt not installed. Install: apt-get install gettext$(COLOR_RESET)"; \
+	fi
+
+.PHONY: validate-structure
+validate-structure: ## Validate Dolibarr module structure
+	@echo "$(COLOR_BLUE)Validating module structure...$(COLOR_RESET)"
+	@ERRORS=0; \
+	\
+	if [ ! -d "core/modules" ]; then \
+		echo "$(COLOR_RED)✗ Missing core/modules/ directory$(COLOR_RESET)"; \
+		ERRORS=$$((ERRORS + 1)); \
+	fi; \
+	\
+	if [ ! -f "core/modules/mod$(MODULE_NAME).class.php" ]; then \
+		echo "$(COLOR_YELLOW)⚠ Module descriptor not found: core/modules/mod$(MODULE_NAME).class.php$(COLOR_RESET)"; \
+	fi; \
+	\
+	if [ ! -d "admin" ]; then \
+		echo "$(COLOR_YELLOW)⚠ No admin/ directory (may be optional)$(COLOR_RESET)"; \
+	fi; \
+	\
+	if [ ! -d "class" ]; then \
+		echo "$(COLOR_YELLOW)⚠ No class/ directory (may be optional)$(COLOR_RESET)"; \
+	fi; \
+	\
+	if [ $$ERRORS -eq 0 ]; then \
+		echo "$(COLOR_GREEN)✓ Module structure appears valid$(COLOR_RESET)"; \
+	else \
+		echo "$(COLOR_RED)✗ Module structure validation failed$(COLOR_RESET)"; \
+		exit 1; \
+	fi
+
+.PHONY: check-migrations
+check-migrations: ## Check SQL migration files
+	@echo "$(COLOR_BLUE)Checking database migration files...$(COLOR_RESET)"
+	@if [ -d "sql" ]; then \
+		SQL_FILES=$$(find sql -name "*.sql" 2>/dev/null | wc -l); \
+		if [ $$SQL_FILES -gt 0 ]; then \
+			echo "$(COLOR_GREEN)✓ Found $$SQL_FILES SQL migration files$(COLOR_RESET)"; \
+			find sql -name "*.sql" -exec echo "  {}" \;; \
+		else \
+			echo "$(COLOR_YELLOW)⚠ No SQL migration files found$(COLOR_RESET)"; \
+		fi; \
+	else \
+		echo "$(COLOR_YELLOW)⚠ No sql/ directory$(COLOR_RESET)"; \
+	fi
+
+.PHONY: clean
+clean: ## Clean build artifacts
+	@echo "$(COLOR_BLUE)Cleaning build artifacts...$(COLOR_RESET)"
+	@rm -rf $(BUILD_DIR) $(DIST_DIR) vendor
+	@find . -name "*.log" -delete
+	@find . -name ".DS_Store" -delete
+	@echo "$(COLOR_GREEN)✓ Build artifacts cleaned$(COLOR_RESET)"
+
+.PHONY: build
+build: clean validate validate-structure compile-translations ## Build module package
+	@echo "$(COLOR_BLUE)Building Dolibarr module package...$(COLOR_RESET)"
+	@mkdir -p $(DIST_DIR) $(BUILD_DIR)/$(MODULE_NAME)
+	
+	# Copy files to build directory
+	@rsync -av --progress \
+		--exclude='$(BUILD_DIR)' \
+		--exclude='$(DIST_DIR)' \
+		--exclude='vendor' \
+		--exclude='.git*' \
+		--exclude='Makefile' \
+		--exclude='composer.json' \
+		--exclude='composer.lock' \
+		--exclude='phpunit.xml' \
+		--exclude='phpstan.neon' \
+		--exclude='tests/' \
+		$(PACKAGE_FILES) $(BUILD_DIR)/$(MODULE_NAME)/ 2>/dev/null || true
+	
+	# Create ZIP package
+	@cd $(BUILD_DIR) && zip -r ../$(DIST_DIR)/$(MODULE_NAME)-$(MODULE_VERSION).zip $(MODULE_NAME)
+	
+	@echo "$(COLOR_GREEN)✓ Package created: $(DIST_DIR)/$(MODULE_NAME)-$(MODULE_VERSION).zip$(COLOR_RESET)"
+
+.PHONY: package
+package: build ## Alias for build
+	@echo "$(COLOR_GREEN)✓ Package ready for distribution$(COLOR_RESET)"
+
+.PHONY: install-local
+install-local: build ## Install module to local Dolibarr
+	@echo "$(COLOR_BLUE)Installing module to local Dolibarr...$(COLOR_RESET)"
+	@if [ ! -d "$(DOLIBARR_ROOT)" ]; then \
+		echo "$(COLOR_RED)✗ Dolibarr root not found at $(DOLIBARR_ROOT)$(COLOR_RESET)"; \
+		echo "Update DOLIBARR_ROOT in Makefile"; \
+		exit 1; \
+	fi
+	
+	# Remove existing installation
+	@rm -rf $(DOLIBARR_CUSTOM)
+	
+	# Extract package
+	@mkdir -p $(DOLIBARR_ROOT)/htdocs/custom
+	@unzip -o $(DIST_DIR)/$(MODULE_NAME)-$(MODULE_VERSION).zip -d $(DOLIBARR_ROOT)/htdocs/custom/
+	
+	# Set permissions (if running as root/sudo)
+	@if [ "$$EUID" -eq 0 ]; then \
+		chown -R www-data:www-data $(DOLIBARR_CUSTOM); \
+		echo "$(COLOR_GREEN)✓ Permissions set$(COLOR_RESET)"; \
+	fi
+	
+	@echo "$(COLOR_GREEN)✓ Module installed at $(DOLIBARR_CUSTOM)$(COLOR_RESET)"
+	@echo "$(COLOR_YELLOW)Enable module at: Home → Setup → Modules/Applications$(COLOR_RESET)"
+
+.PHONY: uninstall-local
+uninstall-local: ## Uninstall module from local Dolibarr
+	@echo "$(COLOR_BLUE)Uninstalling module...$(COLOR_RESET)"
+	@if [ -d "$(DOLIBARR_CUSTOM)" ]; then \
+		rm -rf $(DOLIBARR_CUSTOM); \
+		echo "$(COLOR_GREEN)✓ Module uninstalled$(COLOR_RESET)"; \
+	else \
+		echo "$(COLOR_YELLOW)⚠ Module not installed at $(DOLIBARR_CUSTOM)$(COLOR_RESET)"; \
+	fi
+
+.PHONY: dev-install
+dev-install: ## Create symlink for development
+	@echo "$(COLOR_BLUE)Creating development symlink...$(COLOR_RESET)"
+	@if [ ! -d "$(DOLIBARR_ROOT)" ]; then \
+		echo "$(COLOR_RED)✗ Dolibarr root not found at $(DOLIBARR_ROOT)$(COLOR_RESET)"; \
+		echo "Update DOLIBARR_ROOT in Makefile"; \
+		exit 1; \
+	fi
+	
+	@rm -rf $(DOLIBARR_CUSTOM)
+	@mkdir -p $(DOLIBARR_ROOT)/htdocs/custom
+	@ln -s "$(PWD)" $(DOLIBARR_CUSTOM)
+	
+	@echo "$(COLOR_GREEN)✓ Development symlink created at $(DOLIBARR_CUSTOM)$(COLOR_RESET)"
+	@echo "$(COLOR_YELLOW)Enable module at: Home → Setup → Modules/Applications$(COLOR_RESET)"
+
+.PHONY: watch
+watch: ## Watch for changes and rebuild
+	@echo "$(COLOR_BLUE)Watching for changes...$(COLOR_RESET)"
+	@echo "$(COLOR_YELLOW)Press Ctrl+C to stop$(COLOR_RESET)"
+	@while true; do \
+		inotifywait -r -e modify,create,delete --exclude '($(BUILD_DIR)|$(DIST_DIR)|vendor)' . 2>/dev/null || \
+		(echo "$(COLOR_YELLOW)⚠ inotifywait not installed. Install: apt-get install inotify-tools$(COLOR_RESET)" && sleep 5); \
+		make validate; \
+	done
+
+.PHONY: docs
+docs: ## Generate documentation
+	@echo "$(COLOR_BLUE)Generating documentation...$(COLOR_RESET)"
+	@mkdir -p $(DOCS_DIR)
+	@if command -v phpdoc >/dev/null 2>&1; then \
+		phpdoc -d class,admin,core -t $(DOCS_DIR); \
+		echo "$(COLOR_GREEN)✓ Documentation generated in $(DOCS_DIR)$(COLOR_RESET)"; \
+	else \
+		echo "$(COLOR_YELLOW)⚠ phpDocumentor not installed$(COLOR_RESET)"; \
+	fi
+
+.PHONY: db-install
+db-install: ## Install database tables (requires DB credentials)
+	@echo "$(COLOR_BLUE)Installing database tables...$(COLOR_RESET)"
+	@if [ -z "$(DB_NAME)" ]; then \
+		echo "$(COLOR_RED)✗ DB_NAME not set$(COLOR_RESET)"; \
+		echo "Usage: make db-install DB_NAME=dolibarr DB_USER=root"; \
+		exit 1; \
+	fi
+	@if [ ! -d "sql" ]; then \
+		echo "$(COLOR_YELLOW)⚠ No sql/ directory found$(COLOR_RESET)"; \
+		exit 0; \
+	fi
+	@for sql in sql/llx_$(MODULE_NAME)_*.sql 2>/dev/null; do \
+		if [ -f "$$sql" ]; then \
+			echo "Executing $$sql..."; \
+			mysql -u $(DB_USER) -p $(DB_NAME) < "$$sql"; \
+		fi; \
+	done
+	@echo "$(COLOR_GREEN)✓ Database tables installed$(COLOR_RESET)"
+
+.PHONY: db-uninstall
+db-uninstall: ## Remove database tables (requires DB credentials)
+	@echo "$(COLOR_BLUE)Removing database tables...$(COLOR_RESET)"
+	@if [ -z "$(DB_NAME)" ]; then \
+		echo "$(COLOR_RED)✗ DB_NAME not set$(COLOR_RESET)"; \
+		echo "Usage: make db-uninstall DB_NAME=dolibarr DB_USER=root"; \
+		exit 1; \
+	fi
+	@mysql -u $(DB_USER) -p $(DB_NAME) -e "SHOW TABLES LIKE 'llx_$(MODULE_NAME)_%';" | tail -n +2 | while read table; do \
+		echo "Dropping $$table..."; \
+		mysql -u $(DB_USER) -p $(DB_NAME) -e "DROP TABLE IF EXISTS $$table;"; \
+	done
+	@echo "$(COLOR_GREEN)✓ Database tables removed$(COLOR_RESET)"
+
+.PHONY: tail-logs
+tail-logs: ## Tail Dolibarr error logs
+	@if [ -f "$(DOLIBARR_ROOT)/documents/dolibarr.log" ]; then \
+		tail -f $(DOLIBARR_ROOT)/documents/dolibarr.log; \
+	else \
+		echo "$(COLOR_YELLOW)⚠ Log file not found at $(DOLIBARR_ROOT)/documents/dolibarr.log$(COLOR_RESET)"; \
+	fi
+
+.PHONY: clear-cache
+clear-cache: ## Clear Dolibarr cache
+	@echo "$(COLOR_BLUE)Clearing cache...$(COLOR_RESET)"
+	@if [ -d "$(DOLIBARR_ROOT)/documents/temp" ]; then \
+		rm -rf $(DOLIBARR_ROOT)/documents/temp/*; \
+		echo "$(COLOR_GREEN)✓ Cache cleared$(COLOR_RESET)"; \
+	else \
+		echo "$(COLOR_YELLOW)⚠ Cache directory not found$(COLOR_RESET)"; \
+	fi
+
+.PHONY: version
+version: ## Display version information
+	@echo "$(COLOR_BLUE)Module Information:$(COLOR_RESET)"
+	@echo "  Name:    $(MODULE_NAME)"
+	@echo "  Version: $(MODULE_VERSION)"
+	@echo "  Number:  $(MODULE_NUMBER)"
+
+.PHONY: security-check
+security-check: ## Run security checks on dependencies
+	@echo "$(COLOR_BLUE)Running security checks...$(COLOR_RESET)"
+	@if [ -f "composer.json" ]; then \
+		$(COMPOSER) audit || echo "$(COLOR_YELLOW)⚠ Vulnerabilities found$(COLOR_RESET)"; \
+	fi
+
+.PHONY: release
+release: validate test build ## Create a release (validate + test + build)
+	@echo "$(COLOR_GREEN)✓ Release package ready$(COLOR_RESET)"
+	@echo ""
+	@echo "$(COLOR_BLUE)Release Checklist:$(COLOR_RESET)"
+	@echo "  [ ] Update CHANGELOG.md"
+	@echo "  [ ] Update version in module descriptor"
+	@echo "  [ ] Test installation in clean Dolibarr"
+	@echo "  [ ] Test database migrations"
+	@echo "  [ ] Tag release in git: git tag v$(MODULE_VERSION)"
+	@echo "  [ ] Push tags: git push --tags"
+	@echo "  [ ] Create GitHub release"
+	@echo ""
+	@echo "$(COLOR_GREEN)Package: $(DIST_DIR)/$(MODULE_NAME)-$(MODULE_VERSION).zip$(COLOR_RESET)"
+
+.PHONY: all
+all: install-deps validate test build ## Run complete build pipeline
+	@echo "$(COLOR_GREEN)✓ Complete build pipeline finished$(COLOR_RESET)"
+
+# Default target
+.DEFAULT_GOAL := help

@@ -57,7 +57,6 @@ EXEMPT_FILES = {
     '.gitattributes',
     '.editorconfig',
     'LICENSE',
-    'LICENSE.md',
 }
 
 # Patterns indicating generated files

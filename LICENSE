@@ -8,14 +8,14 @@
 
 	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License (./LICENSE.md).
+	You should have received a copy of the GNU General Public License (./LICENSE).
 
  # FILE INFORMATION
  DEFGROUP: MokoStandards
  INGROUP: MokoStandards.Documentation
  REPO: https://github.com/mokoconsulting-tech/MokoStandards/
  VERSION: 05.00.00
- PATH: ./LICENSE.md
+ PATH: ./LICENSE
  BRIEF: Project license (GPL-3.0-or-later)
  NOTE: Exact text fetched from gnu.org
 -->

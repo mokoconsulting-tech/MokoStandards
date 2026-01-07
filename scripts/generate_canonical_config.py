@@ -67,7 +67,7 @@ ENTERPRISE_SPEC = [
             "Retention": "Indefinite",
             "Compliance Tags": ["Governance", "Audit"],
             "Evidence Artifacts": ["Published Document"],
-            "Document Path": "/LICENSE.md",
+            "Document Path": "/LICENSE",
             "Dependencies": "",
             "Acceptance Criteria": "Contains the correct license text and is aligned to repository SPDX expectations.",
             "RACI": "Responsible: Governance Owner\nAccountable: Governance Owner\nConsulted: Legal\nInformed: Contributors",

@@ -58,12 +58,31 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Run index generator in check mode (PR)
+      - name: Run index generator and auto-fix (PR)
         if: github.event_name == 'pull_request'
         shell: bash
         run: |
           set -euo pipefail
-          python3 scripts/docs/rebuild_indexes.py --check
+          python3 scripts/docs/rebuild_indexes.py
+      
+      - name: Commit index changes if any (PR)
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+          
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          if git diff --quiet docs/**/index.md; then
+            echo "No index changes needed"
+          else
+            echo "Documentation indexes were out of date - auto-fixing"
+            git add docs/**/index.md
+            git commit -m "chore: auto-generate missing documentation indexes"
+            git push
+            echo "✅ Documentation indexes have been automatically updated"
+          fi
 
       - name: Run index generator in write mode (workflow_dispatch)
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'write'

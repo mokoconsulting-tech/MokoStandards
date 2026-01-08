@@ -23,13 +23,13 @@
  INGROUP: MokoStandards
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  FILE: README.md
- VERSION: 05.00.00
- BRIEF: Coding standards hub and cross repository index for the MokoStandards ecosystem.
+ VERSION: 06.00.00
+ BRIEF: Coding standards hub with public workflow templates, build system, and comprehensive documentation.
  PATH: /README.md
- NOTE: Repository rebaselined to standards first, decoupled from specific template or scaffold repositories.
+ NOTE: Added public workflow templates, Makefiles, and comprehensive build/release documentation.
 -->
 
-# MokoStandards (VERSION: 05.00.00)
+# MokoStandards (VERSION: 06.00.00)
 
 MokoStandards is the authoritative control plane for coding standards across the Moko Consulting ecosystem. This repository defines how code is formatted, structured, reviewed, tested, packaged, and released.
 
@@ -49,6 +49,102 @@ Excluded:
 * Full project scaffolds
 * Example extensions or templates
 * Repo specific workflows that only make sense inside a given scaffold repo
+
+## Quick Start
+
+### For New Projects
+
+Adopt MokoStandards in four steps:
+
+#### 1. Add Workflow Templates
+
+Copy workflow templates to your repository:
+
+```bash
+# Create workflows directory
+mkdir -p .github/workflows
+
+# Copy universal build workflow
+cp /path/to/MokoStandards/.github/workflow-templates/build-universal.yml .github/workflows/build.yml
+
+# Copy security scanning workflows
+cp /path/to/MokoStandards/.github/workflow-templates/codeql-analysis.yml .github/workflows/
+cp /path/to/MokoStandards/.github/workflow-templates/dependency-review.yml .github/workflows/
+
+# Copy standards compliance workflow
+cp /path/to/MokoStandards/.github/workflow-templates/standards-compliance.yml .github/workflows/
+
+# Optional: Copy release management workflow
+cp /path/to/MokoStandards/.github/workflow-templates/release-cycle.yml .github/workflows/
+```
+
+See [Workflow Templates Documentation](docs/workflows/README.md) for details.
+
+#### 2. Add Build Configuration (Optional)
+
+Adopt a MokoStandards Makefile for consistent builds:
+
+```bash
+# Create MokoStandards directory in your repository
+mkdir -p MokoStandards
+
+# Copy platform-specific Makefile:
+
+# For Joomla projects:
+cp /path/to/MokoStandards/Makefiles/Makefile.joomla MokoStandards/Makefile.joomla
+
+# For Dolibarr projects:
+cp /path/to/MokoStandards/Makefiles/Makefile.dolibarr MokoStandards/Makefile.dolibarr
+
+# For generic projects:
+cp /path/to/MokoStandards/Makefiles/Makefile.generic MokoStandards/Makefile.generic
+```
+
+Customize the configuration section for your project.
+
+See [Build System Documentation](docs/build-system/README.md) and [Makefile Guide](docs/build-system/makefile-guide.md).
+
+#### 3. Add Required Documentation
+
+Ensure your repository has required files:
+
+```bash
+# Required files (see templates/docs/required/):
+# - README.md
+# - LICENSE
+# - CONTRIBUTING.md
+# - SECURITY.md
+# - CHANGELOG.md
+# - .editorconfig
+```
+
+See [Repository Health Scoring](docs/health-scoring.md) for complete requirements.
+
+#### 4. Configure Repository Settings
+
+- Enable Dependabot security updates
+- Configure branch protection rules
+- Add CODEOWNERS file (if applicable)
+- Configure required status checks
+
+### For Existing Projects
+
+Review and update incrementally:
+
+1. **Assess Current State**: Run `standards-compliance.yml` workflow to see what's missing
+2. **Add Missing Workflows**: Start with build and security scanning
+3. **Update Documentation**: Ensure required files are present and complete
+4. **Adopt Build System**: Consider adding MokoStandards Makefile for consistency
+5. **Test Thoroughly**: Validate all workflows pass before merging
+
+### Key Resources
+
+- **[Workflow Templates](docs/workflows/README.md)** - CI/CD workflow documentation
+- **[Build System](docs/build-system/README.md)** - Universal build system with Makefile precedence
+- **[Release Management](docs/release-management/README.md)** - Release cycle and versioning
+- **[Project Types](docs/project-types.md)** - Automatic project detection (Joomla, Dolibarr, Generic)
+- **[Health Scoring](docs/health-scoring.md)** - Repository quality assessment (100-point scale)
+- **[Public Makefiles](Makefiles/)** - Platform-specific Makefile examples
 
 ## Ecosystem map
 
@@ -143,6 +239,50 @@ This repository is organized to separate enforceable standards from reusable tem
 
     * Domain specific standards grouped by subject area.
     * Intended long term home for language, platform, and tooling standards.
+
+  * [`docs/build-system/`](docs/build-system/README.md)
+
+    * Universal build system documentation.
+    * Makefile precedence system and best practices.
+    * Platform-specific build guidance.
+
+  * [`docs/release-management/`](docs/release-management/README.md)
+
+    * Release cycle documentation (main → dev → rc → version → main).
+    * Semantic versioning standards.
+    * Hotfix procedures and best practices.
+
+  * [`docs/workflows/`](docs/workflows/README.md)
+
+    * GitHub Actions workflow documentation.
+    * Workflow template usage and customization.
+    * CI/CD integration patterns.
+
+* [`Makefiles/`](Makefiles/)
+
+  * Public Makefile examples for common project types.
+  * Reference implementations demonstrating best practices.
+  * Copy to repository as `MokoStandards/Makefile.{platform}` for adoption.
+
+  #### Available Makefiles
+
+  * [`Makefile.joomla`](Makefiles/Makefile.joomla) - Joomla extension builds
+  * [`Makefile.dolibarr`](Makefiles/Makefile.dolibarr) - Dolibarr module builds
+  * [`Makefile.generic`](Makefiles/Makefile.generic) - Generic PHP/Node.js projects
+
+* [`.github/workflow-templates/`](.github/workflow-templates/)
+
+  * Public GitHub Actions workflow templates.
+  * Ready-to-use workflows for CI/CD, security, and compliance.
+  * Copy to your repository's `.github/workflows/` directory.
+
+  #### Available Workflow Templates
+
+  * [`build-universal.yml`](.github/workflow-templates/build-universal.yml) - Universal build with project detection
+  * [`release-cycle.yml`](.github/workflow-templates/release-cycle.yml) - Automated release management
+  * [`codeql-analysis.yml`](.github/workflow-templates/codeql-analysis.yml) - Security scanning
+  * [`dependency-review.yml`](.github/workflow-templates/dependency-review.yml) - Dependency vulnerability scanning
+  * [`standards-compliance.yml`](.github/workflow-templates/standards-compliance.yml) - Standards validation
 
 * [`templates/`](templates/index.md)
 
@@ -287,3 +427,4 @@ See the authoritative roadmap document: [`/docs/ROADMAP.md`](docs/ROADMAP.md).
 | 01.00.00 | 2025-12-17 | Jonathan Miller (@jmiller-moko) | Initial standards first rebaseline and ecosystem linking.        |
 | 04.01.00 | 2026-01-03 | Jonathan Miller (@jmiller-moko) | Version alignment with current MokoStandards standards baseline. |
 | 05.00.00 | 2026-01-04 | Jonathan Miller (@jmiller-moko) | Enterprise readiness: security automation, workflow consolidation, complete public/private separation. |
+| 06.00.00 | 2026-01-07 | GitHub Copilot                  | Added public workflow templates, Makefiles directory, build system documentation, release management docs, and comprehensive quick start guide. |

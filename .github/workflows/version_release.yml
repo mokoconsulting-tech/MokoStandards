@@ -127,7 +127,7 @@ jobs:
 
       - name: Add release instructions comment
         if: inputs.create_release
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const prNumber = ${{ steps.create_pr.outputs.pull-request-number }};

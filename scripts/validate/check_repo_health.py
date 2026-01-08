@@ -29,7 +29,7 @@ import re
 import sys
 import urllib.request
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict
 from xml.etree import ElementTree as ET
 
 

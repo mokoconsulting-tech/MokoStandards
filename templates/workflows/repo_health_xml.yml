@@ -232,17 +232,31 @@ jobs:
         run: |
           # Fail the workflow if health score is below 70% (Good threshold)
           if [ -f health-report.json ]; then
-            PERCENTAGE=$(python3 -c "import json; data=json.load(open('health-report.json')); print(data.get('percentage', 0))")
-            
-            echo "Health score: ${PERCENTAGE}%"
-            
-            if (( $(echo "${PERCENTAGE} < 70" | bc -l) )); then
-              echo "❌ Health score below threshold (70%). Current: ${PERCENTAGE}%"
-              echo "Please address the failed checks to improve repository health."
-              exit 1
-            else
-              echo "✅ Health score meets threshold. Current: ${PERCENTAGE}%"
-            fi
+            python3 - <<'EOF'
+import json
+import sys
+
+try:
+    with open('health-report.json', 'r') as f:
+        data = json.load(f)
+    
+    percentage = data.get('percentage', 0)
+    threshold = 70.0
+    
+    print(f"Health score: {percentage}%")
+    
+    if percentage < threshold:
+        print(f"❌ Health score below threshold ({threshold}%). Current: {percentage}%")
+        print("Please address the failed checks to improve repository health.")
+        sys.exit(1)
+    else:
+        print(f"✅ Health score meets threshold. Current: {percentage}%")
+        sys.exit(0)
+
+except Exception as e:
+    print(f"Error checking health threshold: {e}", file=sys.stderr)
+    sys.exit(1)
+EOF
           else
             echo "⚠️ Could not determine health score. Assuming failure."
             exit 1

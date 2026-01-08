@@ -39,6 +39,9 @@ REPO_HEALTH_NS = "http://mokoconsulting.com/schemas/repo-health"
 # Default remote configuration URL
 DEFAULT_REMOTE_CONFIG = "https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/schemas/repo-health-default.xml"
 
+# Default health threshold for pass/fail (percentage)
+DEFAULT_HEALTH_THRESHOLD = 70.0
+
 
 class RepoHealthChecker:
     """Performs repository health checks based on XML configuration."""
@@ -443,7 +446,7 @@ def main():
                 print(f"   {check['message']}")
 
     # Exit with appropriate code
-    sys.exit(0 if results["percentage"] >= 70 else 1)
+    sys.exit(0 if results["percentage"] >= DEFAULT_HEALTH_THRESHOLD else 1)
 
 
 if __name__ == "__main__":

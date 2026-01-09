@@ -258,6 +258,25 @@ This repository is organized to separate enforceable standards from reusable tem
     * Workflow template usage and customization.
     * CI/CD integration patterns.
 
+* [`schemas/`](schemas/)
+
+  * XML schemas and configurations for repository standards.
+  * Repository structure definitions for different project types.
+  * Repository health configuration and scoring system.
+
+  #### Repository Health Schema
+
+  * [`schemas/repo-health.xsd`](schemas/repo-health.xsd) - XML Schema Definition for health configuration
+  * [`schemas/repo-health-default.xml`](schemas/repo-health-default.xml) - Default health check configuration
+  * Remote config URL: `https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/schemas/repo-health-default.xml`
+  
+  The XML-based health system provides:
+  - Automated repository scoring (0-100 points)
+  - 8 health check categories
+  - Remote configuration support
+  - Customizable for organization-specific needs
+  - Integration with CI/CD workflows
+
 * [`Makefiles/`](Makefiles/)
 
   * Public Makefile examples for common project types.

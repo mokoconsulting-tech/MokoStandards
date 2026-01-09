@@ -955,7 +955,7 @@ public function validateUserKey($licenseKey)
     global $conf;
 
     // 1) Basic format validation
-    $pattern = '/^MOKO-[A-Z0-9]+-(?:[A-Z0-9]{4}-){2}[A-Z0-9]{4}$/i';
+    $pattern = '/^MOKO-[A-Z0-9]+-(?:[A-Z0-9]{4}-){2}[A-Z0-9]{4}$/';
     if (!preg_match($pattern, $licenseKey)) {
         return false;
     }
@@ -984,6 +984,8 @@ public function validateUserKey($licenseKey)
 
     // 4) Online validation against Moko license server
     $domain = (!empty($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'cli');
+    // Note: dol_hash with length 5 is a Dolibarr convention for installation IDs
+    // For production use, consider using a more robust unique identifier
     $installationId = !empty($conf->global->MAIN_INSTALL_ID) ? $conf->global->MAIN_INSTALL_ID : dol_hash($domain, 5);
 
     $payload = json_encode([
@@ -1008,7 +1010,8 @@ public function validateUserKey($licenseKey)
     $httpCode     = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
-    // If request failed, fall back to any still-valid cache (handled above). Here we fail closed.
+    // If request failed, fall back to any still-valid cache (handled above in step 3)
+    // If cache was also invalid/missing, we fail closed for security
     if ($responseBody === false || $httpCode !== 200) {
         return false;
     }

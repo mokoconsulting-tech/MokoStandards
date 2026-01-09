@@ -71,16 +71,18 @@ Repositories are classified by their relationship to MokoStandards:
 
 ### Extension Repositories
 
-| Repository | Status | Classification | Description | Primary Tech | Standards Compliance |
-|------------|--------|----------------|-------------|--------------|---------------------|
-| [MokoDoliTools](https://github.com/mokoconsulting-tech/MokoDoliTools) | Active | Extension | Core utilities and admin toolkit for Dolibarr with curated defaults, UI enhancements, and entity-aware operations | PHP | ✅ Full |
-| MokoDoliSign | Reserved | Extension | Digital signature and document signing module for Dolibarr | PHP | 🔄 Required |
-| MokoCRM Mobile | Reserved | Extension | Mobile application for MokoCRM | React Native | 🔄 Required |
-| MokoDoliChimp | Reserved | Extension | MailChimp integration for Dolibarr | PHP | 🔄 Required |
-| MokoDoliPasskey | Reserved | Extension | WebAuthn/Passkey authentication module for Dolibarr | PHP, JavaScript | 🔄 Required |
-| MokoDoliForm | Reserved | Extension | Advanced form builder and workflow module for Dolibarr | PHP, JavaScript | 🔄 Required |
-| MokoDoliG | Reserved | Extension | Google Workspace integration module for Dolibarr | PHP | 🔄 Required |
-| MokoDoliDeploy | Reserved | Extension | Deployment automation and management module for Dolibarr | PHP, Shell | 🔄 Required |
+| Repository | Status | Classification | Description | Module Number | Primary Tech | Standards Compliance |
+|------------|--------|----------------|-------------|---------------|--------------|---------------------|
+| [MokoDoliTools](https://github.com/mokoconsulting-tech/MokoDoliTools) | Active | Extension | Core utilities and admin toolkit for Dolibarr with curated defaults, UI enhancements, and entity-aware operations | 185051 | PHP | ✅ Full |
+| MokoDoliSign | Reserved | Extension | Digital signature and document signing module for Dolibarr | 185052 | PHP | 🔄 Required |
+| MokoCRM Mobile | Reserved | Extension | Mobile application for MokoCRM | 185053 | React Native | 🔄 Required |
+| MokoDoliChimp | Reserved | Extension | MailChimp integration for Dolibarr | 185054 | PHP | 🔄 Required |
+| MokoDoliPasskey | Reserved | Extension | WebAuthn/Passkey authentication module for Dolibarr | 185055 | PHP, JavaScript | 🔄 Required |
+| MokoDoliForm | Reserved | Extension | Advanced form builder and workflow module for Dolibarr | 185056 | PHP, JavaScript | 🔄 Required |
+| MokoDoliG | Reserved | Extension | Google Workspace integration module for Dolibarr | 185057 | PHP | 🔄 Required |
+| MokoDoliDeploy | Reserved | Extension | Deployment automation and management module for Dolibarr | 185058 | PHP, Shell | 🔄 Required |
+| MokoDoliMulti | Reserved | Extension | Multi-entity management module for Dolibarr | 185059 | PHP | 🔄 Required |
+| MokoDoliHRM | Reserved | Extension | Human Resource Management module for Dolibarr | 185060 | PHP | 🔄 Required |
 
 ### Documentation Repositories
 

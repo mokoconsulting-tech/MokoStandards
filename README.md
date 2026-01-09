@@ -29,6 +29,8 @@
  NOTE: Added public workflow templates, Makefiles, and comprehensive build/release documentation.
 -->
 
+![Moko Consulting](https://mokoconsulting.tech/images/branding/logo.png)
+
 # MokoStandards (VERSION: 06.00.00)
 
 MokoStandards is the authoritative control plane for coding standards across the Moko Consulting ecosystem. This repository defines how code is formatted, structured, reviewed, tested, packaged, and released.

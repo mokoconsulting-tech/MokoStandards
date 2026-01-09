@@ -94,6 +94,149 @@ Repositories are classified by their relationship to MokoStandards:
 |------------|--------|----------------|-------------|--------------|---------------------|
 | test-php-quality | Active | Internal | PHP code quality testing and validation | PHP | ✅ Full |
 
+## Workflow Templates
+
+MokoStandards provides reusable GitHub Actions workflow templates in `.github/workflow-templates/` that all organization repositories should adopt. These templates ensure consistent CI/CD, security scanning, and compliance validation across the ecosystem.
+
+### Available Workflow Templates
+
+| Template | Purpose | Status | Required | Description |
+|----------|---------|--------|----------|-------------|
+| `build-universal.yml` | Universal Build | ✅ Stable | Required | Automatically detects project type (Joomla, Dolibarr, Generic) and executes appropriate build, test, and validation steps using MokoStandards Makefiles |
+| `codeql-analysis.yml` | Security Scanning | ✅ Stable | Required | CodeQL security analysis for Python, JavaScript, and other languages to detect vulnerabilities and security issues |
+| `dependency-review.yml` | Dependency Security | ✅ Stable | Required | Scans pull requests for dependency vulnerabilities and licensing issues before merge |
+| `standards-compliance.yml` | Standards Validation | ✅ Stable | Required | Validates repository compliance with MokoStandards requirements including file headers, required files, and documentation structure |
+| `release-cycle.yml` | Release Automation | ✅ Stable | Optional | Manages the complete release cycle: main → dev → rc → version → main with automated changelog generation and version tagging |
+
+### Workflow Template Details
+
+#### build-universal.yml
+**Purpose**: Universal build system with automatic project detection
+
+**Features**:
+- Automatic project type detection (Joomla, Dolibarr, Generic)
+- Makefile-based builds using `MokoStandards/Makefile.{platform}`
+- Linting, testing, and validation
+- Build artifact generation
+- Multi-platform support
+
+**Usage**:
+```bash
+cp .github/workflow-templates/build-universal.yml .github/workflows/build.yml
+```
+
+**Triggers**: Push to main/dev branches, pull requests, manual dispatch
+
+#### codeql-analysis.yml
+**Purpose**: Security vulnerability scanning with CodeQL
+
+**Features**:
+- Multi-language support (Python, JavaScript, PHP via queries)
+- Automated security issue detection
+- Integration with GitHub Security tab
+- Configurable scan schedules
+
+**Usage**:
+```bash
+cp .github/workflow-templates/codeql-analysis.yml .github/workflows/
+```
+
+**Triggers**: Push, pull requests, weekly schedule
+
+#### dependency-review.yml
+**Purpose**: Dependency vulnerability and license compliance checking
+
+**Features**:
+- Scans new dependencies in pull requests
+- Checks for known vulnerabilities
+- Validates license compatibility
+- Prevents vulnerable dependencies from merging
+
+**Usage**:
+```bash
+cp .github/workflow-templates/dependency-review.yml .github/workflows/
+```
+
+**Triggers**: Pull requests only
+
+#### standards-compliance.yml
+**Purpose**: MokoStandards compliance validation
+
+**Features**:
+- File header validation
+- Required file presence checks
+- Documentation structure validation
+- Repository health scoring
+- Compliance reporting
+
+**Usage**:
+```bash
+cp .github/workflow-templates/standards-compliance.yml .github/workflows/
+```
+
+**Triggers**: Pull requests, manual dispatch
+
+#### release-cycle.yml
+**Purpose**: Automated release management
+
+**Features**:
+- Multi-stage release process (dev → rc → version → main)
+- Automatic changelog generation
+- Semantic versioning support
+- Branch protection integration
+- Release notes generation
+
+**Usage**:
+```bash
+cp .github/workflow-templates/release-cycle.yml .github/workflows/
+```
+
+**Triggers**: Manual dispatch with stage selection
+
+### Adopting Workflow Templates
+
+**For New Repositories**:
+```bash
+# Create workflows directory
+mkdir -p .github/workflows
+
+# Copy all required workflows
+cp /path/to/MokoStandards/.github/workflow-templates/build-universal.yml .github/workflows/build.yml
+cp /path/to/MokoStandards/.github/workflow-templates/codeql-analysis.yml .github/workflows/
+cp /path/to/MokoStandards/.github/workflow-templates/dependency-review.yml .github/workflows/
+cp /path/to/MokoStandards/.github/workflow-templates/standards-compliance.yml .github/workflows/
+
+# Optional: Copy release workflow if needed
+cp /path/to/MokoStandards/.github/workflow-templates/release-cycle.yml .github/workflows/
+```
+
+**For Existing Repositories**:
+1. Review current workflows for conflicts
+2. Back up existing workflows
+3. Copy MokoStandards templates
+4. Customize as needed (preserve repository-specific settings)
+5. Test workflows on a feature branch
+6. Merge after validation
+
+### Workflow Template Maintenance
+
+**Update Policy**:
+- Templates are versioned with MokoStandards releases
+- Breaking changes announced in CHANGELOG.md
+- Repositories should update templates quarterly
+- Security fixes require immediate updates
+
+**Customization Guidelines**:
+- Preserve core functionality
+- Add repository-specific steps as needed
+- Document customizations in repository README
+- Maintain compatibility with MokoStandards Makefiles
+
+**Support**:
+- Template documentation: [docs/workflows/README.md](workflows/README.md)
+- Issues: Open in MokoStandards repository
+- Updates: Watch MokoStandards releases
+
 ## Standards Compliance Requirements
 
 All repositories coupled to MokoStandards MUST meet these requirements:

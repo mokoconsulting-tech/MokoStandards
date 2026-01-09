@@ -38,9 +38,11 @@ def get_pr_limit() -> str:
             value = int(env_limit)
             if value > 0:
                 return str(value)
+            else:
+                print(f"Warning: PR_LIMIT={env_limit} is not positive, using default (100)", file=sys.stderr)
         except ValueError:
             # Fall back to default if env var is not a valid integer
-            pass
+            print(f"Warning: PR_LIMIT={env_limit} is not a valid integer, using default (100)", file=sys.stderr)
     # Default limit matches previous behavior
     return "100"
 
@@ -70,20 +72,21 @@ def get_open_prs() -> tuple[List[Dict], Dict | None]:
 
     return prs, None
 
+# Compile regex patterns once at module level for efficiency
+_TEMPLATE_PATTERN = re.compile(r'\btemplate(s)?\b')
+_HEADER_PATTERN = re.compile(r'\bheader(s)?\b')
+_AUTOMATION_PATTERN = re.compile(r'\bautomation\b')
+_SCRIPT_PATTERN = re.compile(r'\bscript(s)?\b')
+
 def classify_pr_conflict_types(pr: Dict) -> Dict[str, bool]:
     """Classify likely conflict types for a PR based on its title."""
     title = str(pr.get('title', '')).lower()
 
     # Use basic word-boundary-aware patterns to reduce accidental matches.
-    template_pattern = re.compile(r'\btemplate(s)?\b')
-    header_pattern = re.compile(r'\bheader(s)?\b')
-    automation_pattern = re.compile(r'\bautomation\b')
-    script_pattern = re.compile(r'\bscript(s)?\b')
-
     return {
-        'template': bool(template_pattern.search(title)),
-        'header': bool(header_pattern.search(title)),
-        'automation_or_script': bool(automation_pattern.search(title) or script_pattern.search(title)),
+        'template': bool(_TEMPLATE_PATTERN.search(title)),
+        'header': bool(_HEADER_PATTERN.search(title)),
+        'automation_or_script': bool(_AUTOMATION_PATTERN.search(title) or _SCRIPT_PATTERN.search(title)),
     }
 
 def analyze_pr_conflicts(pr: Dict) -> Dict:

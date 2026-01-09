@@ -36,8 +36,10 @@ import shutil
 import subprocess
 import sys
 import zipfile
+import hashlib
 from pathlib import Path
 from typing import Optional, Tuple
+import fnmatch
 
 
 class DolibarrReleaser:
@@ -65,12 +67,13 @@ class DolibarrReleaser:
             # Find mod*.class.php file
             for php_file in modules_dir.glob("mod*.class.php"):
                 # Extract module name from filename (e.g., modMyModule.class.php -> MyModule)
-                name = php_file.stem.replace("mod", "")
+                stem = php_file.stem
+                name = stem[3:] if stem.startswith("mod") else stem
                 if name:
                     return name
         
         # Fallback to directory name
-        return self.module_dir.name.replace("MokoDoli", "").replace("dolibarr-", "")
+        return self.module_dir.name.removeprefix("MokoDoli").removeprefix("dolibarr-")
 
     def update_version(self) -> bool:
         """Update version in module descriptor."""
@@ -112,25 +115,44 @@ class DolibarrReleaser:
         package_dir.mkdir(parents=True, exist_ok=True)
 
         # Exclusions for development files
-        exclusions = [
-            'build', 'tests', '.git', '.github', '.gitignore', '.gitattributes',
+        exclude_dirs = [
+            'build', 'tests', '.git', '.github',
+            'node_modules', '.pytest_cache', '.vscode', '.idea', '__pycache__'
+        ]
+        exclude_file_patterns = [
+            '*.pyc'
+        ]
+        exclude_names = [
+            '.gitignore', '.gitattributes',
             'composer.json', 'composer.lock', 'phpunit.xml', 'phpunit.xml.dist',
             'phpcs.xml', 'phpcs.xml.dist', 'phpstan.neon', 'psalm.xml',
-            'node_modules', 'package.json', 'package-lock.json', '.DS_Store',
-            '__pycache__', '*.pyc', '.pytest_cache', '.vscode', '.idea'
+            'package.json', 'package-lock.json', '.DS_Store'
         ]
+
+        def ignore_function(src: str, names: list[str]) -> set[str]:
+            """Custom ignore function to filter directories and file patterns."""
+            ignored: set[str] = set()
+            for name in names:
+                if name in exclude_dirs or name in exclude_names:
+                    ignored.add(name)
+                    continue
+                for pattern in exclude_file_patterns:
+                    if fnmatch.fnmatch(name, pattern):
+                        ignored.add(name)
+                        break
+            return ignored
 
         print(f"📦 Creating package for {self.module_name} v{self.version}...")
 
         # Copy files to package directory
         try:
             for item in self.module_dir.iterdir():
-                if item.name in exclusions:
+                if item.name in exclude_dirs or item.name in exclude_names:
                     continue
                 
                 dest = package_dir / item.name
                 if item.is_dir():
-                    shutil.copytree(item, dest, ignore=shutil.ignore_patterns(*exclusions))
+                    shutil.copytree(item, dest, ignore=ignore_function)
                 else:
                     shutil.copy2(item, dest)
             
@@ -147,7 +169,7 @@ class DolibarrReleaser:
             with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
                 for root, dirs, files in os.walk(package_dir):
                     # Filter out excluded directories
-                    dirs[:] = [d for d in dirs if d not in exclusions]
+                    dirs[:] = [d for d in dirs if d not in exclude_dirs]
                     
                     for file in files:
                         file_path = Path(root) / file
@@ -165,32 +187,29 @@ class DolibarrReleaser:
     def generate_checksums(self, zip_path: Path) -> bool:
         """Generate SHA256 and MD5 checksums for the package."""
         try:
-            # SHA256
-            sha256_path = zip_path.with_suffix(zip_path.suffix + '.sha256')
-            with open(sha256_path, 'w') as sha256_file:
-                subprocess.run(
-                    ['sha256sum', zip_path.name],
-                    cwd=zip_path.parent,
-                    check=True,
-                    capture_output=True,
-                    text=True,
-                    stdout=sha256_file
-                )
+            # Compute hashes by streaming the file to avoid loading it all in memory
+            sha256_hash = hashlib.sha256()
+            md5_hash = hashlib.md5()
+
+            with open(zip_path, "rb") as f:
+                for chunk in iter(lambda: f.read(8192), b""):
+                    sha256_hash.update(chunk)
+                    md5_hash.update(chunk)
+
+            sha256_digest = sha256_hash.hexdigest()
+            md5_digest = md5_hash.hexdigest()
+
+            # Write results in a format compatible with sha256sum/md5sum
+            sha256_path = zip_path.with_suffix(zip_path.suffix + ".sha256")
+            with open(sha256_path, "w", encoding="utf-8") as sha256_file:
+                sha256_file.write(f"{sha256_digest}  {zip_path.name}\n")
             print(f"✅ Generated SHA256 checksum")
 
-            # MD5
-            md5_path = zip_path.with_suffix(zip_path.suffix + '.md5')
-            with open(md5_path, 'w') as md5_file:
-                subprocess.run(
-                    ['md5sum', zip_path.name],
-                    cwd=zip_path.parent,
-                    check=True,
-                    capture_output=True,
-                    text=True,
-                    stdout=md5_file
-                )
+            md5_path = zip_path.with_suffix(zip_path.suffix + ".md5")
+            with open(md5_path, "w", encoding="utf-8") as md5_file:
+                md5_file.write(f"{md5_digest}  {zip_path.name}\n")
             print(f"✅ Generated MD5 checksum")
-            
+
             return True
         except Exception as e:
             print(f"Error generating checksums: {e}", file=sys.stderr)

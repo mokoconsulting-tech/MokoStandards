@@ -167,26 +167,28 @@ class DolibarrReleaser:
         try:
             # SHA256
             sha256_path = zip_path.with_suffix(zip_path.suffix + '.sha256')
-            subprocess.run(
-                ['sha256sum', zip_path.name],
-                cwd=zip_path.parent,
-                check=True,
-                capture_output=True,
-                text=True,
-                stdout=open(sha256_path, 'w')
-            )
+            with open(sha256_path, 'w') as sha256_file:
+                subprocess.run(
+                    ['sha256sum', zip_path.name],
+                    cwd=zip_path.parent,
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                    stdout=sha256_file
+                )
             print(f"✅ Generated SHA256 checksum")
 
             # MD5
             md5_path = zip_path.with_suffix(zip_path.suffix + '.md5')
-            subprocess.run(
-                ['md5sum', zip_path.name],
-                cwd=zip_path.parent,
-                check=True,
-                capture_output=True,
-                text=True,
-                stdout=open(md5_path, 'w')
-            )
+            with open(md5_path, 'w') as md5_file:
+                subprocess.run(
+                    ['md5sum', zip_path.name],
+                    cwd=zip_path.parent,
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                    stdout=md5_file
+                )
             print(f"✅ Generated MD5 checksum")
             
             return True

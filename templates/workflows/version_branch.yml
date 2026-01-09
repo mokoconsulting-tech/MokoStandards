@@ -568,6 +568,48 @@ jobs:
 
           git push --set-upstream origin "${BRANCH_NAME}"
 
+      - name: Create Pull Request for version branch
+        if: ${{ env.REPORT_ONLY != 'true' && github.event.inputs.commit_changes != 'false' }}
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: ${{ env.BRANCH_NAME }}
+          title: "Version branch: ${{ env.NEW_VERSION }}"
+          body: |
+            ## Version Branch: ${{ env.NEW_VERSION }}
+            
+            This PR creates a version branch for release ${{ env.NEW_VERSION }}.
+            
+            **Policy Requirement**: Version branches MUST be created with an accompanying Pull Request (per branching-strategy.md).
+            
+            ### Changes
+            - ✅ Version bumped to ${{ env.NEW_VERSION }} across all governed files
+            ${{ env.VERSION_TEXT && format('- ✅ Version label: {0}', env.VERSION_TEXT) || '' }}
+            - ✅ Manifest dates updated to current timestamp
+            
+            ### Required Review
+            - [ ] Verify version numbers are correct in all files
+            - [ ] Check CHANGELOG.md for version summary
+            - [ ] Validate manifest files and metadata
+            - [ ] Confirm breaking changes are documented
+            
+            ### Next Steps
+            1. Review version changes and file updates
+            2. Approve and merge this PR
+            3. Tag the release on main branch
+            4. Create GitHub release with notes from CHANGELOG
+            
+            ### Version Details
+            - **Version**: ${{ env.NEW_VERSION }}
+            - **Base Branch**: ${{ env.BASE_BRANCH }}
+            ${{ env.VERSION_TEXT && format('- **Label**: {0}', env.VERSION_TEXT) || '' }}
+            
+            See the version bump report in the workflow summary for detailed file changes.
+          labels: |
+            release
+            version-branch
+            automated
+          delete-branch: false
+
       - name: Publish audit trail
         if: always()
         run: |

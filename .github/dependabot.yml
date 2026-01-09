@@ -71,3 +71,55 @@ updates:
           - "*"
         update-types:
           - "patch"
+  
+  # Monitor npm dependencies for security updates
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "security"
+      - "automated"
+      - "javascript"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    reviewers:
+      - "mokoconsulting-tech/maintainers"
+    assignees:
+      - "jmiller-moko"
+    # Group all patch updates together
+    groups:
+      npm-patches:
+        patterns:
+          - "*"
+        update-types:
+          - "patch"
+  
+  # Monitor Composer dependencies for security updates
+  - package-ecosystem: "composer"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "security"
+      - "automated"
+      - "php"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    reviewers:
+      - "mokoconsulting-tech/maintainers"
+    assignees:
+      - "jmiller-moko"
+    # Group all patch updates together
+    groups:
+      composer-patches:
+        patterns:
+          - "*"
+        update-types:
+          - "patch"

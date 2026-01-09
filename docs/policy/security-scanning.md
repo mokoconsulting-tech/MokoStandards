@@ -291,7 +291,7 @@ This policy depends on:
 ## Acceptance Criteria
 
 - [ ] CodeQL enabled on all applicable repositories
-- [ ] Dependabot configured with weekly scans
+- [ ] Dependabot configured with monthly scans
 - [ ] Secret scanning with push protection enabled
 - [ ] Dependency review required for all PRs
 - [ ] Security alerts triaged within SLA

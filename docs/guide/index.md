@@ -16,6 +16,7 @@ This index provides navigation to documentation within this folder.
 
 - [audit-readiness](./audit-readiness.md)
 - [branching-quick-reference](./branching-quick-reference.md)
+- [bulk-repository-updates](./bulk-repository-updates.md)
 - [conflict-resolution](./conflict-resolution.md)
 - [project-fields](./project-fields.md)
 - [project-views](./project-views.md)

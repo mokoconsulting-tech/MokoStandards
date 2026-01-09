@@ -30,12 +30,12 @@ name: "CodeQL Security Scanning"
 
 on:
   push:
-    branches: 
+    branches:
       - main
       - dev/**
       - rc/**
   pull_request:
-    branches: 
+    branches:
       - main
       - dev/**
       - rc/**
@@ -54,7 +54,7 @@ jobs:
     name: CodeQL Analysis
     runs-on: ubuntu-latest
     timeout-minutes: 360
-    
+
     strategy:
       fail-fast: false
       matrix:

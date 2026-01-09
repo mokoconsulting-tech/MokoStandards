@@ -40,6 +40,7 @@ from typing import List, Tuple
 
 EXCLUDED_DIRS = {'.git', 'node_modules', 'vendor', 'dist', 'build'}
 INDEX_FILENAME = 'index.md'
+PROJECT_NAME = 'MokoStandards'
 
 
 def is_excluded_dir(dir_name: str) -> bool:
@@ -83,12 +84,55 @@ def get_immediate_children(folder_path: Path) -> Tuple[List[Path], List[Path]]:
     return child_folders, child_files
 
 
+def add_section_with_subdirs(
+    lines: List[str],
+    categories: dict,
+    category_key: str,
+    section_title: str,
+    section_description: str,
+) -> None:
+    """Append a section grouped by subdirectories to the lines list.
+
+    This groups entries in categories[category_key] by their directory path,
+    using 'General' for items not in a specific subdirectory, and then
+    renders an H2 section header, an optional description, and bullet links.
+    """
+    items = categories.get(category_key) or []
+    if not items:
+        return
+
+    lines.append(f"## {section_title}")
+    lines.append("")
+    if section_description:
+        lines.append(section_description)
+        lines.append("")
+
+    # Group by subdirectory
+    groups: dict = {}
+    for name, path, dir_path in items:
+        if "/" in dir_path and dir_path != category_key.lower():
+            parts = dir_path.split("/")
+            subdir = parts[1] if len(parts) > 1 else category_key.lower()
+        else:
+            subdir = "General"
+
+        groups.setdefault(subdir, []).append((name, path))
+
+    for subdir in sorted(groups.keys()):
+        if subdir != "General":
+            lines.append(f"### {subdir.upper()}")
+            lines.append("")
+        for name, path in sorted(groups[subdir]):
+            lines.append(f"- [{name}](./{path})")
+        lines.append("")
+
+
 def generate_catalog_content(root_path: Path) -> str:
     """Generate comprehensive catalog content for the root docs/index.md file."""
     lines = [
-        "# MokoStandards Documentation Catalog",
+        f"# {PROJECT_NAME} Documentation Catalog",
         "",
-        "This is a comprehensive catalog of all documentation in the MokoStandards repository.",
+        f"This is a comprehensive catalog of all documentation in the {PROJECT_NAME} repository.",
         "",
         "## Quick Links",
         "",
@@ -135,58 +179,22 @@ def generate_catalog_content(root_path: Path) -> str:
                     categories['Product Documentation'].append((display_name, rel_file_path, path_str))
     
     # Add Policies section
-    if categories['Policies']:
-        lines.append("## Policies")
-        lines.append("")
-        lines.append("Standards, requirements, and compliance documentation.")
-        lines.append("")
-        
-        # Group by subdirectory
-        policy_groups = {}
-        for name, path, dir_path in categories['Policies']:
-            if '/' in dir_path and dir_path != 'policy':
-                subdir = dir_path.split('/')[1] if len(dir_path.split('/')) > 1 else 'policy'
-            else:
-                subdir = 'General'
-            
-            if subdir not in policy_groups:
-                policy_groups[subdir] = []
-            policy_groups[subdir].append((name, path))
-        
-        for subdir in sorted(policy_groups.keys()):
-            if subdir != 'General':
-                lines.append(f"### {subdir.upper()}")
-                lines.append("")
-            for name, path in sorted(policy_groups[subdir]):
-                lines.append(f"- [{name}](./{path})")
-            lines.append("")
+    add_section_with_subdirs(
+        lines,
+        categories,
+        category_key="Policies",
+        section_title="Policies",
+        section_description="Standards, requirements, and compliance documentation.",
+    )
     
     # Add Guides section
-    if categories['Guides']:
-        lines.append("## Guides")
-        lines.append("")
-        lines.append("Step-by-step tutorials and how-to documentation.")
-        lines.append("")
-        
-        # Group by subdirectory
-        guide_groups = {}
-        for name, path, dir_path in categories['Guides']:
-            if '/' in dir_path and dir_path != 'guide':
-                subdir = dir_path.split('/')[1] if len(dir_path.split('/')) > 1 else 'guide'
-            else:
-                subdir = 'General'
-            
-            if subdir not in guide_groups:
-                guide_groups[subdir] = []
-            guide_groups[subdir].append((name, path))
-        
-        for subdir in sorted(guide_groups.keys()):
-            if subdir != 'General':
-                lines.append(f"### {subdir.upper()}")
-                lines.append("")
-            for name, path in sorted(guide_groups[subdir]):
-                lines.append(f"- [{name}](./{path})")
-            lines.append("")
+    add_section_with_subdirs(
+        lines,
+        categories,
+        category_key="Guides",
+        section_title="Guides",
+        section_description="Step-by-step tutorials and how-to documentation.",
+    )
     
     # Add other categories
     for category_name, items in [

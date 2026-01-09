@@ -6,7 +6,6 @@ This is a comprehensive catalog of all documentation in the MokoStandards reposi
 
 - [README](./README.md) - Documentation governance framework
 - [ROADMAP](./ROADMAP.md) - Documentation roadmap and future plans
-- [REPOSITORY_INVENTORY](./REPOSITORY_INVENTORY.md) - Complete inventory of all coupled organization repositories
 
 ## Policies
 
@@ -17,6 +16,7 @@ Standards, requirements, and compliance documentation.
 - [coding-style-guide](./policy/coding-style-guide.md)
 - [data-classification](./policy/data-classification.md)
 - [dependency-management](./policy/dependency-management.md)
+- [directory-index-requirements](./policy/directory-index-requirements.md)
 - [document-formatting](./policy/document-formatting.md)
 - [documentation-governance](./policy/documentation-governance.md)
 - [file-header-standards](./policy/file-header-standards.md)
@@ -89,6 +89,8 @@ Step-by-step tutorials and how-to documentation.
 
 - [audit-readiness](./guide/audit-readiness.md)
 - [branching-quick-reference](./guide/branching-quick-reference.md)
+- [bulk-repository-updates](./guide/bulk-repository-updates.md)
+- [changelog-synchronization](./guide/changelog-synchronization.md)
 - [conflict-resolution](./guide/conflict-resolution.md)
 - [project-fields](./guide/project-fields.md)
 - [project-views](./guide/project-views.md)

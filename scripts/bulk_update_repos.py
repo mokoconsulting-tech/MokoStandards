@@ -49,6 +49,7 @@ DEFAULT_FILES_TO_SYNC = {
     ".github/workflow-templates/codeql-analysis.yml": ".github/workflows/codeql-analysis.yml",
     ".github/workflow-templates/dependency-review.yml": ".github/workflows/dependency-review.yml",
     ".github/workflow-templates/standards-compliance.yml": ".github/workflows/standards-compliance.yml",
+    ".github/workflow-templates/code-quality.yml": ".github/workflows/code-quality.yml",
     ".github/workflow-templates/release-cycle.yml": ".github/workflows/release-cycle.yml",
     
     # Reusable workflows
@@ -58,6 +59,23 @@ DEFAULT_FILES_TO_SYNC = {
     
     # Automation workflows
     ".github/workflows/sync-changelogs.yml": ".github/workflows/sync-changelogs.yml",
+    
+    # Code quality configurations (optional - only copy if language is detected)
+    # PHP configurations
+    "templates/configs/phpcs.xml": "phpcs.xml",
+    "templates/configs/phpstan.neon": "phpstan.neon",
+    "templates/configs/psalm.xml": "psalm.xml",
+    
+    # JavaScript/TypeScript configurations
+    "templates/configs/.eslintrc.json": ".eslintrc.json",
+    "templates/configs/.prettierrc.json": ".prettierrc.json",
+    
+    # Python configurations
+    "templates/configs/.pylintrc": ".pylintrc",
+    "templates/configs/pyproject.toml": "pyproject.toml",
+    
+    # HTML configurations
+    "templates/configs/.htmlhintrc": ".htmlhintrc",
 }
 
 # Scripts to sync
@@ -65,6 +83,7 @@ DEFAULT_SCRIPTS_TO_SYNC = [
     "scripts/validate_file_headers.py",
     "scripts/update_changelog.py",
     "scripts/release_version.py",
+    "scripts/validate/validate_codeql_config.py",
 ]
 
 

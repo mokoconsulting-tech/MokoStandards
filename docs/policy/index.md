@@ -21,6 +21,7 @@ This index provides navigation to documentation within this folder.
 - [coding-style-guide](./coding-style-guide.md)
 - [data-classification](./data-classification.md)
 - [dependency-management](./dependency-management.md)
+- [directory-index-requirements](./directory-index-requirements.md)
 - [document-formatting](./document-formatting.md)
 - [documentation-governance](./documentation-governance.md)
 - [file-header-standards](./file-header-standards.md)

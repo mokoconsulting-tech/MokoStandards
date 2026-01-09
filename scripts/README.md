@@ -48,12 +48,18 @@ Bulk update script to push workflows, scripts, and configurations to multiple or
 # Exclude specific repos
 ./scripts/bulk_update_repos.py --exclude legacy-repo archived-repo
 
+# Automated execution (skip confirmation)
+./scripts/bulk_update_repos.py --yes
+
 # Only sync workflows (not scripts)
 ./scripts/bulk_update_repos.py --files-only
 
 # Only sync scripts (not workflows)
 ./scripts/bulk_update_repos.py --scripts-only
 ```
+
+**Automated Monthly Sync:**
+The repository includes `.github/workflows/bulk-repo-sync.yml` which automatically runs this script monthly on the 1st at 00:00 UTC. Can also be triggered manually via workflow_dispatch.
 
 **What it does:**
 - Clones target repositories

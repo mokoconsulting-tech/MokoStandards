@@ -120,6 +120,7 @@ For each repository, the script:
 | `--scripts-only` | Only sync scripts | Off |
 | `--dry-run` | Preview without changes | Off |
 | `--temp-dir` | Temporary clone directory | `/tmp/bulk-update-repos` |
+| `--yes`, `-y` | Skip confirmation prompt (for automation) | Off |
 
 ## Examples
 
@@ -195,14 +196,61 @@ The script will skip creating a new PR if one already exists for the branch.
 ## Safety Features
 
 - **Dry run mode**: Preview changes without modification
-- **Interactive confirmation**: Prompts before making changes (unless dry-run)
+- **Interactive confirmation**: Prompts before making changes (unless `--yes` flag used)
+- **Automated execution**: Use `--yes` flag to skip confirmation for CI/CD
 - **Skip empty commits**: Won't commit if no files were actually changed
 - **Exclude archived**: Automatically skips archived repositories
 - **Error handling**: Continues processing other repos if one fails
 
+## Automated Monthly Sync
+
+### GitHub Actions Workflow
+
+The repository includes a GitHub Actions workflow (`.github/workflows/bulk-repo-sync.yml`) that automatically runs the bulk update script monthly.
+
+**Schedule**: Runs on the 1st of each month at 00:00 UTC
+
+**Manual Trigger**: Can also be triggered manually via workflow_dispatch with options for:
+- Specific repositories to update
+- Repositories to exclude
+- Dry-run mode
+
+**Configuration**: Requires `ORG_ADMIN_TOKEN` secret with permissions:
+- `repo` - Full repository access
+- `workflow` - Workflow management
+- `admin:org` - Organization administration (for listing repos)
+
+### Setting Up the Workflow
+
+1. **Create Personal Access Token**:
+   - Go to GitHub Settings → Developer settings → Personal access tokens → Tokens (classic)
+   - Generate new token with required permissions
+   - Copy the token
+
+2. **Add Token as Secret**:
+   - Go to repository Settings → Secrets and variables → Actions
+   - Create new repository secret named `ORG_ADMIN_TOKEN`
+   - Paste the token value
+
+3. **Enable Workflow**:
+   - The workflow is automatically enabled when merged to main branch
+   - First run will occur on the 1st of the next month
+
+4. **Manual Execution**:
+   - Go to Actions tab → Bulk Repository Sync workflow
+   - Click "Run workflow"
+   - Configure options and run
+
+### Workflow Features
+
+- **Automatic Exclusions**: By default excludes `MokoStandards` and `MokoStandards-Private`
+- **Pull Request Creation**: Creates PRs for all changes for review
+- **Error Reporting**: Reports success/failure for each repository
+- **Manual Override**: Can specify custom repositories and exclusions
+
 ## Integration with CI/CD
 
-You can run this script as part of a scheduled workflow:
+You can also run this script as part of your own scheduled workflow:
 
 ```yaml
 name: Sync MokoStandards Updates
@@ -218,10 +266,12 @@ jobs:
       - uses: actions/checkout@v4
       - name: Sync to org repos
         run: |
-          ./scripts/bulk_update_repos.py --dry-run
+          ./scripts/bulk_update_repos.py --yes
         env:
           GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
 ```
+
+**Note**: Use `--yes` flag to skip interactive confirmation in automated workflows.
 
 ## Maintenance
 

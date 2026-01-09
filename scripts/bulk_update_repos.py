@@ -359,6 +359,12 @@ def main():
         default='/tmp/bulk-update-repos',
         help='Temporary directory for cloning repositories'
     )
+    parser.add_argument(
+        '--yes',
+        '-y',
+        action='store_true',
+        help='Skip confirmation prompt (use for automation)'
+    )
     
     args = parser.parse_args()
     
@@ -397,7 +403,7 @@ def main():
     for repo in repos:
         print(f"  - {repo}")
     
-    if not args.dry_run:
+    if not args.dry_run and not args.yes:
         response = input("\nContinue? (yes/no): ")
         if response.lower() not in ['yes', 'y']:
             print("Aborted")

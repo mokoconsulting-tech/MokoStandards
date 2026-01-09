@@ -1,0 +1,136 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflows
+# INGROUP: MokoStandards.Automation
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/bulk-repo-sync.yml
+# VERSION: 01.00.00
+# BRIEF: Monthly automation to sync workflows, scripts, and configurations to organization repositories
+# NOTE: Runs bulk_update_repos.py script to deploy MokoStandards to all org repos
+
+name: Bulk Repository Sync
+
+on:
+  # Run monthly on the 1st at 00:00 UTC
+  schedule:
+    - cron: '0 0 1 * *'
+  
+  # Allow manual triggering
+  workflow_dispatch:
+    inputs:
+      repos:
+        description: 'Specific repositories to update (space-separated, leave empty for all)'
+        required: false
+        type: string
+      exclude:
+        description: 'Repositories to exclude (space-separated)'
+        required: false
+        type: string
+      dry_run:
+        description: 'Dry run mode (preview changes without applying)'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  sync-repos:
+    name: Sync MokoStandards to Organization Repositories
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          
+      - name: Setup GitHub CLI
+        run: |
+          # GitHub CLI should be pre-installed on ubuntu-latest
+          gh --version
+          
+      - name: Authenticate GitHub CLI
+        env:
+          GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
+        run: |
+          echo "$GH_TOKEN" | gh auth login --with-token
+          gh auth status
+          
+      - name: Run bulk update script (dry-run)
+        if: github.event_name == 'workflow_dispatch' && inputs.dry_run == true
+        env:
+          GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
+        run: |
+          ARGS="--dry-run"
+          
+          if [ -n "${{ inputs.repos }}" ]; then
+            ARGS="$ARGS --repos ${{ inputs.repos }}"
+          fi
+          
+          if [ -n "${{ inputs.exclude }}" ]; then
+            ARGS="$ARGS --exclude ${{ inputs.exclude }}"
+          fi
+          
+          echo "Running bulk update in dry-run mode..."
+          python3 scripts/bulk_update_repos.py $ARGS
+          
+      - name: Run bulk update script
+        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.dry_run != true)
+        env:
+          GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
+        run: |
+          ARGS="--yes"
+          
+          # Default exclusions for scheduled runs
+          if [ "${{ github.event_name }}" == "schedule" ]; then
+            ARGS="$ARGS --exclude MokoStandards MokoStandards-Private"
+          fi
+          
+          # Add user-specified repos/exclusions for manual runs
+          if [ -n "${{ inputs.repos }}" ]; then
+            ARGS="$ARGS --repos ${{ inputs.repos }}"
+          fi
+          
+          if [ -n "${{ inputs.exclude }}" ]; then
+            ARGS="$ARGS --exclude ${{ inputs.exclude }}"
+          fi
+          
+          echo "Running bulk update script..."
+          echo "Arguments: $ARGS"
+          
+          # Run the script with automatic confirmation via --yes flag
+          python3 scripts/bulk_update_repos.py $ARGS
+          
+      - name: Report results
+        if: always()
+        run: |
+          echo "Bulk repository sync workflow completed"
+          echo "Event: ${{ github.event_name }}"
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "Dry run: ${{ inputs.dry_run }}"
+            echo "Repos: ${{ inputs.repos }}"
+            echo "Exclude: ${{ inputs.exclude }}"
+          fi

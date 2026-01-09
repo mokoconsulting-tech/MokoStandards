@@ -28,6 +28,48 @@ The scripts are organized according to MokoStandards governance policy:
 
 ## Scripts Overview
 
+### Repository Management Scripts
+
+#### bulk_update_repos.py ⭐ NEW
+
+Bulk update script to push workflows, scripts, and configurations to multiple organization repositories.
+
+**Usage:**
+```bash
+# Dry run (preview changes)
+./scripts/bulk_update_repos.py --dry-run
+
+# Update all non-archived repos
+./scripts/bulk_update_repos.py
+
+# Update specific repos
+./scripts/bulk_update_repos.py --repos repo1 repo2
+
+# Exclude specific repos
+./scripts/bulk_update_repos.py --exclude legacy-repo archived-repo
+
+# Only sync workflows (not scripts)
+./scripts/bulk_update_repos.py --files-only
+
+# Only sync scripts (not workflows)
+./scripts/bulk_update_repos.py --scripts-only
+```
+
+**What it does:**
+- Clones target repositories
+- Creates feature branches
+- Copies workflows, scripts, and configurations
+- Commits and pushes changes
+- Creates pull requests for review
+
+**What gets synced:**
+- Dependabot configuration (monthly schedule)
+- GitHub workflow templates (CI, CodeQL, build, release)
+- Reusable workflows
+- Maintenance scripts (validation, changelog, release)
+
+See [Bulk Repository Updates Guide](../docs/guide/bulk-repository-updates.md) for detailed documentation.
+
 ### Documentation Scripts (`docs/`)
 
 #### rebuild_indexes.py

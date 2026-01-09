@@ -96,15 +96,15 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             # For pull requests, get files changed in PR
-            FILES=$(gh pr view ${{ github.event.pull_request.number }} --json files --jq '.files[].path' | grep -E '^(docs|templates)/')
+            FILES=$(gh pr view ${{ github.event.pull_request.number }} --json files --jq '.files[].path' | grep -E '^(docs|templates)/' || true)
           else
             # For push events, get files changed in the commit
             if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
               # New branch, compare with main
-              FILES=$(git diff --name-only origin/main HEAD | grep -E '^(docs|templates)/')
+              FILES=$(git diff --name-only origin/main HEAD | grep -E '^(docs|templates)/' || true)
             else
               # Existing branch, compare with previous commit
-              FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -E '^(docs|templates)/')
+              FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -E '^(docs|templates)/' || true)
             fi
           fi
           
@@ -114,7 +114,11 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
           
           # Also save count
-          COUNT=$(echo "$FILES" | grep -c . || echo "0")
+          if [ -z "$FILES" ]; then
+            COUNT=0
+          else
+            COUNT=$(echo "$FILES" | grep -c . || echo "0")
+          fi
           echo "count=$COUNT" >> $GITHUB_OUTPUT
       
       - name: Get folders for new files
@@ -122,7 +126,12 @@ jobs:
         if: github.event_name != 'workflow_dispatch'
         run: |
           # Get all unique parent folders of changed files
-          FOLDERS=$(echo "${{ steps.changed-files.outputs.files }}" | xargs -I {} dirname {} | sort -u | grep -E '^(docs|templates)/')
+          FILES="${{ steps.changed-files.outputs.files }}"
+          if [ -n "$FILES" ]; then
+            FOLDERS=$(echo "$FILES" | xargs -I {} dirname {} | sort -u | grep -E '^(docs|templates)/' || true)
+          else
+            FOLDERS=""
+          fi
           
           # Save folders to output
           echo "folders<<EOF" >> $GITHUB_OUTPUT

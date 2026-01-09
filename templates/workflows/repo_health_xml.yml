@@ -90,6 +90,9 @@ jobs:
       - name: Download health checker script
         run: |
           echo "Downloading health checker from MokoStandards..."
+          # Note: Downloading and executing remote scripts poses a security risk.
+          # For production use, consider pinning to specific commit SHA or adding checksum verification.
+          # See SECURITY_NOTES_REPO_HEALTH.md for mitigation strategies.
           curl -sSL "${HEALTH_CHECKER_URL}" -o check_repo_health.py
           chmod +x check_repo_health.py
           
@@ -124,13 +127,17 @@ jobs:
           
           echo "Running health check with output format: ${OUTPUT_FORMAT}"
           
-          if [ "${OUTPUT_FORMAT}" = "json" ]; then
-            python3 check_repo_health.py \
-              --config "${{ steps.config.outputs.config_url }}" \
-              --repo-path . \
-              --output json \
-              --verbose | tee health-report.json
-          else
+          # Always generate JSON for artifact upload and summary generation
+          python3 check_repo_health.py \
+            --config "${{ steps.config.outputs.config_url }}" \
+            --repo-path . \
+            --output json \
+            --verbose > health-report.json
+          
+          # Also display human-readable output in logs if text format was requested
+          if [ "${OUTPUT_FORMAT}" = "text" ]; then
+            echo ""
+            echo "=== Human-readable health report ==="
             python3 check_repo_health.py \
               --config "${{ steps.config.outputs.config_url }}" \
               --repo-path . \

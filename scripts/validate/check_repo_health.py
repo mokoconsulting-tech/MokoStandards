@@ -24,12 +24,12 @@ Supports both local and remote XML configuration files.
 
 import argparse
 import json
-import os
 import re
 import sys
+import urllib.error
 import urllib.request
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List, Tuple
 from xml.etree import ElementTree as ET
 
 
@@ -149,12 +149,18 @@ class RepoHealthChecker:
         return path.read_bytes()
 
     def _load_from_url(self, url: str) -> bytes:
-        """Load XML content from URL."""
+        """Load XML content from URL with timeout protection."""
         try:
-            with urllib.request.urlopen(url) as response:
-                return response.read()
-        except Exception as e:
+            # Set 30 second timeout to prevent indefinite hangs
+            with urllib.request.urlopen(url, timeout=30) as response:
+                # Read response with size limit to prevent excessive memory use
+                return response.read(10 * 1024 * 1024)  # 10MB max
+        except urllib.error.URLError as e:
             raise Exception(f"Failed to load XML from URL {url}: {e}")
+        except urllib.error.HTTPError as e:
+            raise Exception(f"HTTP error loading XML from URL {url}: {e.code} {e.reason}")
+        except Exception as e:
+            raise Exception(f"Unexpected error loading XML from URL {url}: {e}")
 
     def _parse_categories(self, scoring: ET.Element) -> Dict:
         """Parse categories from scoring section."""
@@ -231,7 +237,13 @@ class RepoHealthChecker:
                 passed, message = self._check_branch_exists(parameters)
             else:
                 passed = False
-                message = f"Check type '{check_type}' not implemented"
+                message = (
+                    f"Check type '{check_type}' not implemented. "
+                    "This version supports: file-exists, directory-exists, file-content, "
+                    "file-size, workflow-exists, branch-exists. "
+                    "Check types workflow-passing, github-setting, secret-configured, and "
+                    "custom-script require GitHub API access or custom handlers."
+                )
         except Exception as e:
             passed = False
             message = f"Check failed with error: {str(e)}"
@@ -310,10 +322,15 @@ class RepoHealthChecker:
 
         try:
             content = full_path.read_text(encoding="utf-8", errors="ignore")
+            # Note: Regex patterns from XML config are used directly.
+            # For production use, consider adding pattern validation and timeout protection.
+            # See SECURITY_NOTES_REPO_HEALTH.md for mitigation strategies.
             if re.search(pattern, content, re.MULTILINE | re.DOTALL):
                 return True, f"Pattern found in {file_path}"
             else:
                 return False, f"Pattern not found in {file_path}"
+        except re.error as e:
+            return False, f"Invalid regex pattern: {str(e)}"
         except Exception as e:
             return False, f"Error reading file: {str(e)}"
 
@@ -350,8 +367,10 @@ class RepoHealthChecker:
 
     def _check_branch_exists(self, params: Dict) -> Tuple[bool, str]:
         """Check if a branch exists (requires git)."""
-        # This would require git commands, simplified for now
-        return True, "Branch check not fully implemented"
+        # This check requires git commands which are not yet fully implemented.
+        # Returning False to indicate the check cannot be performed rather than
+        # incorrectly passing all branch-exists checks.
+        return False, "Branch existence check not fully implemented (requires git integration)"
 
     def _determine_health_level(self, percentage: float, thresholds: List[Dict]) -> str:
         """Determine health level based on percentage and thresholds."""

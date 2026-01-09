@@ -24,6 +24,7 @@ Supports local files and remote URLs.
 
 import argparse
 import sys
+import urllib.error
 import urllib.request
 from pathlib import Path
 from typing import Optional, Tuple
@@ -96,12 +97,18 @@ class RepoHealthValidator:
         return path.read_bytes()
 
     def _load_from_url(self, url: str) -> bytes:
-        """Load XML content from URL."""
+        """Load XML content from URL with timeout protection."""
         try:
-            with urllib.request.urlopen(url) as response:
-                return response.read()
-        except Exception as e:
+            # Set 30 second timeout to prevent indefinite hangs
+            with urllib.request.urlopen(url, timeout=30) as response:
+                # Read response with size limit to prevent excessive memory use
+                return response.read(10 * 1024 * 1024)  # 10MB max
+        except urllib.error.URLError as e:
             raise Exception(f"Failed to load XML from URL {url}: {e}")
+        except urllib.error.HTTPError as e:
+            raise Exception(f"HTTP error loading XML from URL {url}: {e.code} {e.reason}")
+        except Exception as e:
+            raise Exception(f"Unexpected error loading XML from URL {url}: {e}")
 
     def _validate_structure(self, root: ET.Element):
         """Validate basic XML structure."""

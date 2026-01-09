@@ -124,7 +124,7 @@ Unknown or missing licenses require Security Owner approval.
 
 **Configuration**:
 - Dependabot MUST be enabled on all repositories
-- Updates checked weekly (Monday 9:00 AM)
+- Updates checked monthly
 - Security updates: Immediate pull request creation
 - Version updates: Grouped by update type
 
@@ -341,7 +341,7 @@ This policy depends on:
 
 ## Acceptance Criteria
 
-- [ ] Dependabot enabled with weekly scans
+- [ ] Dependabot enabled with monthly scans
 - [ ] Dependency review action required for PRs
 - [ ] All dependencies evaluated per selection criteria
 - [ ] No dependencies with incompatible licenses

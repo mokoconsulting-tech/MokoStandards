@@ -1,0 +1,258 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.Release
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /templates/workflows/dolibarr/release.yml
+# VERSION: 01.00.00
+# BRIEF: Automated release workflow for Dolibarr modules
+# NOTE: Creates release packages and publishes to GitHub Releases following main > dev > rc > version > main cycle
+
+name: Create Release
+
+on:
+  push:
+    branches:
+      - 'main'
+      - 'rc/**'
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 1.0.0)'
+        required: true
+        type: string
+      prerelease:
+        description: 'Mark as pre-release (use for RC releases)'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Release Package
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mbstring, xml, zip, gd, curl
+          tools: composer:v2
+
+      - name: Determine version and prerelease status
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            VERSION="${{ inputs.version }}"
+            PRERELEASE="${{ inputs.prerelease }}"
+          elif [ "${{ github.ref_type }}" == "tag" ]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+            # Check if it's an RC tag
+            if [[ "$VERSION" == *"-rc"* ]]; then
+              PRERELEASE="true"
+            else
+              PRERELEASE="false"
+            fi
+          elif [[ "${{ github.ref }}" == refs/heads/rc/* ]]; then
+            # RC branch push - mark as prerelease
+            VERSION=$(grep -oP 'VERSION:\s*\K[\d.]+' README.md || echo "0.0.0")
+            PRERELEASE="true"
+          else
+            # Main branch or other
+            VERSION=$(grep -oP 'VERSION:\s*\K[\d.]+' README.md || echo "0.0.0")
+            PRERELEASE="false"
+          fi
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "prerelease=${PRERELEASE}" >> $GITHUB_OUTPUT
+          echo "Building version: ${VERSION} (prerelease: ${PRERELEASE})"
+
+      - name: Install dependencies
+        run: |
+          if [ -f "composer.json" ]; then
+            composer install --no-dev --optimize-autoloader
+          fi
+
+      - name: Update version in module descriptor
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          # Update version in core/modules/mod*.class.php
+          if [ -d "core/modules" ]; then
+            find core/modules -name "mod*.class.php" -type f -exec sed -i "s/\$this->version = '[^']*'/\$this->version = '${VERSION}'/g" {} \;
+            echo "- ✅ Updated version in module descriptor" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Create package structure
+        run: |
+          mkdir -p build/package
+          
+          # Copy module files (excluding development files)
+          rsync -av --exclude='build' \
+                    --exclude='tests' \
+                    --exclude='.git*' \
+                    --exclude='composer.json' \
+                    --exclude='composer.lock' \
+                    --exclude='phpunit.xml*' \
+                    --exclude='phpcs.xml*' \
+                    --exclude='phpstan.neon*' \
+                    --exclude='psalm.xml*' \
+                    --exclude='node_modules' \
+                    --exclude='.github' \
+                    --exclude='package.json' \
+                    --exclude='package-lock.json' \
+                    . build/package/
+
+      - name: Determine module name
+        id: module
+        run: |
+          # Try to extract module name from module descriptor
+          if [ -d "core/modules" ]; then
+            MOD_FILE=$(find core/modules -name "mod*.class.php" -type f | head -1)
+            if [ -n "$MOD_FILE" ]; then
+              MODULE_NAME=$(basename "$MOD_FILE" .class.php | sed 's/^mod//')
+            else
+              MODULE_NAME=$(basename $GITHUB_REPOSITORY | sed 's/^MokoDoli//' | sed 's/^dolibarr-//')
+            fi
+          else
+            MODULE_NAME=$(basename $GITHUB_REPOSITORY | sed 's/^MokoDoli//' | sed 's/^dolibarr-//')
+          fi
+          echo "name=${MODULE_NAME}" >> $GITHUB_OUTPUT
+          echo "Module name: ${MODULE_NAME}"
+
+      - name: Create ZIP package
+        run: |
+          cd build/package
+          MODULE_NAME="${{ steps.module.outputs.name }}"
+          VERSION="${{ steps.version.outputs.version }}"
+          ZIP_NAME="${MODULE_NAME}-${VERSION}.zip"
+          zip -r "../${ZIP_NAME}" .
+          cd ../..
+          echo "ZIP_NAME=${ZIP_NAME}" >> $GITHUB_ENV
+          echo "Created package: ${ZIP_NAME}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Generate checksums
+        run: |
+          cd build
+          sha256sum "${ZIP_NAME}" > "${ZIP_NAME}.sha256"
+          md5sum "${ZIP_NAME}" > "${ZIP_NAME}.md5"
+          echo "- ✅ Generated checksums" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-package
+          path: |
+            build/*.zip
+            build/*.sha256
+            build/*.md5
+          retention-days: 90
+
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4.1.3
+        with:
+          name: release-package
+          path: ./artifacts
+
+      - name: Get version and prerelease status
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            VERSION="${{ inputs.version }}"
+            PRERELEASE="${{ inputs.prerelease }}"
+          elif [ "${{ github.ref_type }}" == "tag" ]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+            if [[ "$VERSION" == *"-rc"* ]]; then
+              PRERELEASE="true"
+            else
+              PRERELEASE="false"
+            fi
+          elif [[ "${{ github.ref }}" == refs/heads/rc/* ]]; then
+            VERSION=$(grep -oP 'VERSION:\s*\K[\d.]+' README.md || echo "0.0.0")
+            PRERELEASE="true"
+          else
+            VERSION=$(grep -oP 'VERSION:\s*\K[\d.]+' README.md || echo "0.0.0")
+            PRERELEASE="false"
+          fi
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "prerelease=${PRERELEASE}" >> $GITHUB_OUTPUT
+
+      - name: Extract changelog
+        id: changelog
+        run: |
+          if [ -f "CHANGELOG.md" ]; then
+            # Extract changelog for this version
+            VERSION="${{ steps.version.outputs.version }}"
+            awk "/## \[${VERSION}\]/,/## \[/{if(/## \[${VERSION}\]/)print;else if(/## \[/)exit;else print}" CHANGELOG.md > release_notes.md
+            
+            if [ ! -s release_notes.md ]; then
+              echo "Release ${VERSION}" > release_notes.md
+              echo "" >> release_notes.md
+              echo "See CHANGELOG.md for details." >> release_notes.md
+            fi
+          else
+            echo "Release ${VERSION}" > release_notes.md
+            echo "" >> release_notes.md
+            echo "Dolibarr module release package." >> release_notes.md
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Release ${{ steps.version.outputs.version }}
+          body_path: release_notes.md
+          files: |
+            artifacts/*.zip
+            artifacts/*.sha256
+            artifacts/*.md5
+          draft: false
+          prerelease: ${{ steps.version.outputs.prerelease }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Release Summary
+        run: |
+          echo "## 🎉 Release Created" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Pre-release:** ${{ steps.version.outputs.prerelease }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 Artifacts" >> $GITHUB_STEP_SUMMARY
+          ls -lh artifacts/ >> $GITHUB_STEP_SUMMARY

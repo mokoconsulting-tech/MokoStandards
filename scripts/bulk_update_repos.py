@@ -55,6 +55,9 @@ DEFAULT_FILES_TO_SYNC = {
     ".github/workflows/reusable-build.yml": ".github/workflows/reusable-build.yml",
     ".github/workflows/reusable-ci-validation.yml": ".github/workflows/reusable-ci-validation.yml",
     ".github/workflows/reusable-release.yml": ".github/workflows/reusable-release.yml",
+    
+    # Automation workflows
+    ".github/workflows/sync-changelogs.yml": ".github/workflows/sync-changelogs.yml",
 }
 
 # Scripts to sync

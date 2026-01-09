@@ -86,6 +86,7 @@ Preview what would be updated without making changes:
 - `.github/workflows/reusable-build.yml` → `.github/workflows/reusable-build.yml`
 - `.github/workflows/reusable-ci-validation.yml` → `.github/workflows/reusable-ci-validation.yml`
 - `.github/workflows/reusable-release.yml` → `.github/workflows/reusable-release.yml`
+- `.github/workflows/sync-changelogs.yml` → `.github/workflows/sync-changelogs.yml` (syncs root and src CHANGELOG files for Dolibarr modules)
 
 ### Scripts (Default)
 

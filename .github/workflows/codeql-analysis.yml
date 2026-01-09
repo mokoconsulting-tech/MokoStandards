@@ -65,188 +65,22 @@ jobs:
         # Only Python is configured as it's the only programming language present in this repository.
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
+    - name: Checkout repository
+      uses: actions/checkout@v6
 
-      - name: Detect PHP files
-        id: detect
-        run: |
-          if find . -name "*.php" -type f ! -path "*/vendor/*" \
-            ! -path "*/.git/*" | head -1 | grep -q .; then
-            echo "has_php=true" >> $GITHUB_OUTPUT
-            echo "✅ PHP files detected" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "has_php=false" >> $GITHUB_OUTPUT
-            echo "ℹ️ No PHP files detected, skipping PHP security scan" \
-              >> $GITHUB_STEP_SUMMARY
-          fi
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v4
+      with:
+        languages: ${{ matrix.language }}
+        # If you wish to specify custom queries, you can do so here or in a config file.
+        # By default, queries listed here will override any specified in a config file.
+        # Prefix the list here with "+" to use these queries and those in the config file.
 
-      - name: Setup PHP
-        if: steps.detect.outputs.has_php == 'true'
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
-          extensions: mbstring, xml
-          tools: composer:v2
-          coverage: none
+        # For more details on CodeQL's query packs, refer to: https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#using-queries-in-ql-packs
+        queries: +security-extended,security-and-quality
 
-      - name: Install PHP security scanning tools
-        if: steps.detect.outputs.has_php == 'true'
-        run: |
-          # Install security checker tools
-          composer global require enlightn/security-checker --quiet
-
-          # Add composer global bin to PATH
-          echo "$HOME/.composer/vendor/bin" >> $GITHUB_PATH
-
-      - name: Check for composer.json
-        if: steps.detect.outputs.has_php == 'true'
-        id: composer
-        run: |
-          if [ -f "composer.json" ]; then
-            echo "has_composer=true" >> $GITHUB_OUTPUT
-          else
-            echo "has_composer=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Install project dependencies
-        if: |
-          steps.detect.outputs.has_php == 'true' &&
-          steps.composer.outputs.has_composer == 'true'
-        run: |
-          composer install --prefer-dist --no-progress --no-interaction \
-            --no-dev
-
-      - name: Run Enlightn Security Checker
-        if: |
-          steps.detect.outputs.has_php == 'true' &&
-          steps.composer.outputs.has_composer == 'true'
-        continue-on-error: true
-        run: |
-          echo "### Enlightn Security Checker Results" \
-            >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-
-          if security-checker security:check composer.lock \
-            --format=json > security-report.json 2>&1; then
-            echo "✅ No known security vulnerabilities found" \
-              >> $GITHUB_STEP_SUMMARY
-          else
-            echo "⚠️ Security vulnerabilities detected:" \
-              >> $GITHUB_STEP_SUMMARY
-            echo "\`\`\`json" >> $GITHUB_STEP_SUMMARY
-            cat security-report.json >> $GITHUB_STEP_SUMMARY
-            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          fi
-
-      - name: Run PHPCS security ruleset
-        if: steps.detect.outputs.has_php == 'true'
-        continue-on-error: true
-        run: |
-          # Install PHP_CodeSniffer with security standards
-          composer global require squizlabs/php_codesniffer --quiet
-          composer global require phpcompatibility/php-compatibility \
-            --quiet
-          composer global require \
-            dealerdirect/phpcodesniffer-composer-installer --quiet
-          composer global require pheromone/phpcs-security-audit \
-            --quiet || true
-
-          echo "### PHP Security Code Analysis" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-
-          # Run security-focused checks
-          if phpcs --standard=Security --report=summary \
-            --report-width=120 . 2>/dev/null; then
-            echo "✅ No security issues found by PHPCS Security" \
-              >> $GITHUB_STEP_SUMMARY
-          else
-            echo "ℹ️ Running basic security checks" \
-              >> $GITHUB_STEP_SUMMARY
-            # Fallback to basic checks
-            phpcs --standard=PSR12 --report=summary --report-width=120 . \
-              || echo "ℹ️ Basic code style checks completed" \
-              >> $GITHUB_STEP_SUMMARY
-          fi
-
-      - name: Scan for common PHP vulnerabilities
-        if: steps.detect.outputs.has_php == 'true'
-        continue-on-error: true
-        run: |
-          echo "### PHP Vulnerability Pattern Scan" \
-            >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Scanning for common vulnerability patterns..." \
-            >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-
-          # Scan for common vulnerability patterns
-          ISSUES=0
-
-          # Check for unsafe functions (with better pattern)
-          echo "Checking for unsafe PHP functions..." \
-            >> $GITHUB_STEP_SUMMARY
-          if grep -rn \
-            "\\(eval\\|exec\\|system\\|passthru\\|shell_exec\\|assert\\)\\s*(" \
-            --include="*.php" . 2>/dev/null | head -5; then
-            echo "⚠️ Found potentially unsafe PHP functions" \
-              >> $GITHUB_STEP_SUMMARY
-            ISSUES=$((ISSUES + 1))
-          fi
-
-          # Check for preg_replace with /e modifier (more precise pattern)
-          if grep -rn \
-            'preg_replace\s*(\s*["\'"'"'][^"'"'"']*/[^"'"'"']*e' \
-            --include="*.php" . 2>/dev/null | head -5; then
-            echo "⚠️ Found deprecated preg_replace /e modifier" \
-              >> $GITHUB_STEP_SUMMARY
-            ISSUES=$((ISSUES + 1))
-          fi
-
-          # Check for potential SQL injection
-          # (basic pattern - may have false positives)
-          echo "Checking for potential SQL injection patterns..." \
-            >> $GITHUB_STEP_SUMMARY
-          if grep -rn \
-            '\$_\(GET\|POST\|REQUEST\)\[.*\].*\(mysql_query\|mysqli_query\)' \
-            --include="*.php" . 2>/dev/null \
-            | grep -v "mysqli_real_escape_string\|prepare" | head -5; then
-            echo "⚠️ Found potential SQL injection patterns" \
-              >> $GITHUB_STEP_SUMMARY
-            ISSUES=$((ISSUES + 1))
-          fi
-
-          # Check for potential XSS (basic pattern - may have false positives)
-          echo "Checking for potential XSS vulnerabilities..." \
-            >> $GITHUB_STEP_SUMMARY
-          if grep -rn '\(echo\|print\)\s*.*\$_\(GET\|POST\|REQUEST\)' \
-            --include="*.php" . 2>/dev/null \
-            | grep -v "htmlspecialchars\|htmlentities\|esc_html\|esc_attr" \
-            | head -5; then
-            echo "⚠️ Found potential XSS vulnerabilities" \
-              >> $GITHUB_STEP_SUMMARY
-            ISSUES=$((ISSUES + 1))
-          fi
-
-          echo "" >> $GITHUB_STEP_SUMMARY
-          if [ $ISSUES -eq 0 ]; then
-            echo "✅ No common vulnerability patterns detected" \
-              >> $GITHUB_STEP_SUMMARY
-          else
-            echo "⚠️ Found $ISSUES potential security issue types" \
-              >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "Note: These are basic pattern matches and may include" \
-              >> $GITHUB_STEP_SUMMARY
-            echo "false positives. Review the workflow logs for details" \
-              >> $GITHUB_STEP_SUMMARY
-            echo "and validate each finding." >> $GITHUB_STEP_SUMMARY
-          fi
-
-      - name: Security scan summary
-        if: always() && steps.detect.outputs.has_php == 'true'
-        run: |
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "---" >> $GITHUB_STEP_SUMMARY
-          echo "PHP Security Scan completed. Review the detailed findings" \
-            >> $GITHUB_STEP_SUMMARY
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v4
+      with:
+        category: "/language:${{matrix.language}}"
+        upload: true

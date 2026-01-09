@@ -72,8 +72,9 @@ def get_immediate_children(folder_path: Path) -> Tuple[List[Path], List[Path]]:
                 child_folders.append(item)
             elif item.is_file() and item.suffix == '.md' and item.name != INDEX_FILENAME:
                 child_files.append(item)
-    except PermissionError:
-        pass
+    except PermissionError as exc:
+        # Intentionally skip folders we cannot read; log for diagnostics.
+        print(f"Warning: cannot access directory '{folder_path}': {exc}", file=sys.stderr)
     
     # Sort alphabetically for deterministic output
     child_folders.sort(key=lambda p: p.name.lower())

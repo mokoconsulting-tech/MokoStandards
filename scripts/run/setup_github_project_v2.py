@@ -5,15 +5,9 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
-<<<<<<<< HEAD:scripts/setup_github_project_v2.py
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
-========
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
->>>>>>>> pr-27:scripts/run/setup_github_project_v2.py
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -22,22 +16,17 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-<<<<<<<< HEAD:scripts/setup_github_project_v2.py
-# (./LICENSE).
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
 # FILE INFORMATION
 # DEFGROUP: MokoStandards.Scripts
 # INGROUP: MokoStandards.Automation
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
-# FILE: scripts/setup_github_project_v2.py
+# FILE: scripts/run/setup_github_project_v2.py
 # VERSION: 04.01.00
 # BRIEF: GitHub Project v2 setup automation - creates documentation control register
-# PATH: /scripts/setup_github_project_v2.py
+# PATH: /scripts/run/setup_github_project_v2.py
 # NOTE: Creates project, custom fields, and populates items from repository scan
-
-========
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
->>>>>>>> pr-27:scripts/run/setup_github_project_v2.py
 """
 GitHub Project v2 Setup Script
 Creates a GitHub Project v2 and populates it with documentation tasks.
@@ -64,7 +53,42 @@ import subprocess
 import sys
 import traceback
 from pathlib import Path
+Creates a GitHub Project v2 and populates it with documentation tasks.
 from typing import Dict, List, Optional, Tuple
+Usage:
+    export GH_PAT="your_personal_access_token"
+    python3 scripts/run/setup_github_project_v2.py
+
+    With verbose logging:
+    python3 scripts/setup_github_project_v2.py --verbose
+
+    Skip view creation:
+    python3 scripts/setup_github_project_v2.py --skip-views
+
+Or use gh CLI authentication:
+    gh auth login
+    python3 scripts/run/setup_github_project_v2.py
+"""
+
+import argparse
+import json
+import os
+import subprocess
+import sys
+import traceback
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple
+
+# Import requests for API calls with try/except for clearer error messaging
+try:
+    import requests
+except ImportError:
+    requests = None  # Will be checked when needed
+
+
+class GitHubProjectV2Setup:
+    """Handles GitHub Project v2 creation and population."""
+
 
 # Import requests for API calls with try/except for clearer error messaging
 try:

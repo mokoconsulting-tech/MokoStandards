@@ -9,7 +9,7 @@ with the main branch and provides specific guidance for resolving them.
 import subprocess
 import json
 import sys
-from typing import List, Dict, Optional
+from typing import List, Dict
 
 def run_command(cmd: List[str]) -> tuple[int, str, str]:
     """Run a command and return exit code, stdout, stderr."""

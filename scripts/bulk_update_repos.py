@@ -103,7 +103,7 @@ def run_command(cmd: List[str], cwd: Optional[str] = None) -> Tuple[bool, str, s
 
 
 def get_org_repositories(org: str, exclude_archived: bool = True) -> List[str]:
-    """Get list of repositories in the organization."""
+    """Get list of repositories in the organization that begin with 'Moko'."""
     cmd = [
         "gh", "repo", "list", org,
         "--json", "name,isArchived",
@@ -119,7 +119,8 @@ def get_org_repositories(org: str, exclude_archived: bool = True) -> List[str]:
         repos = json.loads(stdout)
         if exclude_archived:
             repos = [r for r in repos if not r.get("isArchived", False)]
-        return [r["name"] for r in repos]
+        # Filter to only repositories beginning with "Moko"
+        return [r["name"] for r in repos if r["name"].startswith("Moko")]
     except json.JSONDecodeError as e:
         print(f"Error parsing repository list: {e}", file=sys.stderr)
         return []

@@ -34,12 +34,14 @@ The scripts are organized according to MokoStandards governance policy:
 
 Bulk update script to push workflows, scripts, and configurations to multiple organization repositories.
 
+**Important**: Only processes repositories whose names begin with "Moko".
+
 **Usage:**
 ```bash
 # Dry run (preview changes)
 ./scripts/bulk_update_repos.py --dry-run
 
-# Update all non-archived repos
+# Update all non-archived repos beginning with "Moko"
 ./scripts/bulk_update_repos.py
 
 # Update specific repos

@@ -139,6 +139,7 @@ Review and update incrementally:
 
 ### Key Resources
 
+- **[Repository Inventory](docs/REPOSITORY_INVENTORY.md)** - Complete list of all coupled organization repositories
 - **[Workflow Templates](docs/workflows/README.md)** - CI/CD workflow documentation
 - **[Build System](docs/build-system/README.md)** - Universal build system with Makefile precedence
 - **[Release Management](docs/release-management/README.md)** - Release cycle and versioning
@@ -148,7 +149,9 @@ Review and update incrementally:
 
 ## Ecosystem map
 
-This repository defines standards independently of any specific downstream implementation. Companion repositories may exist, but are not enumerated or coupled here.
+MokoStandards serves as the central governance repository for all Moko Consulting organization repositories. All active repositories in the `mokoconsulting-tech` organization are coupled to and governed by the standards, workflows, and requirements defined here.
+
+For a complete list of coupled repositories, compliance requirements, and coupling mechanisms, see [Repository Inventory](docs/REPOSITORY_INVENTORY.md).
 
 ### Dual-Repository Architecture
 

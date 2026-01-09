@@ -6,6 +6,7 @@ This is a comprehensive catalog of all documentation in the MokoStandards reposi
 
 - [README](./README.md) - Documentation governance framework
 - [ROADMAP](./ROADMAP.md) - Documentation roadmap and future plans
+- [REPOSITORY_INVENTORY](./REPOSITORY_INVENTORY.md) - Complete inventory of all coupled organization repositories
 
 ## Policies
 

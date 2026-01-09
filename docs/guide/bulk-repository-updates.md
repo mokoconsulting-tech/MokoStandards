@@ -19,7 +19,12 @@ This script helps maintain consistency across all organization repositories by:
 1. **GitHub CLI (`gh`)**: Install from https://cli.github.com/
 2. **Authentication**: Run `gh auth login` to authenticate
 3. **Permissions**: Must have write access to target repositories
-4. **Git**: Git must be installed and configured
+4. **Git**: Git must be installed and configured with user identity:
+   ```bash
+   git config --global user.email "your.email@example.com"
+   git config --global user.name "Your Name"
+   ```
+5. **Environment**: For CI/CD environments, ensure GH_TOKEN is properly configured
 
 ## Usage
 
@@ -182,9 +187,25 @@ Install GitHub CLI: https://cli.github.com/
 
 Run: `gh auth login`
 
+For CI/CD: Ensure `GH_TOKEN` environment variable is set with a valid GitHub token
+
 ### Error: Permission denied
 
 Ensure you have write access to target repositories.
+
+### Error: Author identity unknown
+
+Configure git user identity:
+```bash
+git config --global user.email "your.email@example.com"
+git config --global user.name "Your Name"
+```
+
+In CI/CD environments, this is automatically configured by the workflow.
+
+### Error: could not read Username for 'https://github.com'
+
+This error occurs when git clone fails to authenticate. The script now uses `gh repo clone` which handles authentication automatically through the GitHub CLI session.
 
 ### Error: Branch already exists
 
@@ -238,11 +259,17 @@ The repository includes a GitHub Actions workflow (`.github/workflows/bulk-repo-
    - Create new repository secret named `ORG_ADMIN_TOKEN`
    - Paste the token value
 
-3. **Enable Workflow**:
+3. **Configure Git Identity**:
+   - The workflow automatically configures git with:
+     - Email: `automation@mokoconsulting.tech`
+     - Name: `Moko Standards Bot`
+   - This ensures commits have proper author information
+
+4. **Enable Workflow**:
    - The workflow is automatically enabled when merged to main branch
    - First run will occur on the 1st of the next month
 
-4. **Manual Execution**:
+5. **Manual Execution**:
    - Go to Actions tab → Bulk Repository Sync workflow
    - Click "Run workflow"
    - Configure options and run

@@ -238,7 +238,8 @@ Dolibarr module numbers **185051 to 185099** are reserved for Moko Consulting us
 | MokoDoliG | 185057 | Reserved | Google Workspace integration module for Dolibarr | TBD |
 | MokoDoliDeploy | 185058 | Reserved | Deployment automation and management module for Dolibarr | TBD |
 | MokoDoliMulti | 185059 | Reserved | Multi-entity management module for Dolibarr | TBD |
-| Available for Assignment | 185060-185099 | Reserved | Reserved for future Moko Consulting modules | - |
+| MokoDoliHRM | 185060 | Reserved | Human Resource Management module for Dolibarr | TBD |
+| Available for Assignment | 185061-185099 | Reserved | Reserved for future Moko Consulting modules | - |
 
 **Module ID Reservation Process**:
 

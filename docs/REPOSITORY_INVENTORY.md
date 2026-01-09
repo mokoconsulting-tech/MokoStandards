@@ -82,6 +82,7 @@ Repositories are classified by their relationship to MokoStandards:
 | MokoDoliG | Reserved | Extension | Google Workspace integration module for Dolibarr | 185057 | PHP | 🔄 Required |
 | MokoDoliDeploy | Reserved | Extension | Deployment automation and management module for Dolibarr | 185058 | PHP, Shell | 🔄 Required |
 | MokoDoliMulti | Reserved | Extension | Multi-entity management module for Dolibarr | 185059 | PHP | 🔄 Required |
+| MokoDoliHRM | Reserved | Extension | Human Resource Management module for Dolibarr | 185060 | PHP | 🔄 Required |
 
 ### Documentation Repositories
 

@@ -20,13 +20,24 @@ This document describes the reusable GitHub Actions workflows available in MokoS
 
 ## Overview
 
-MokoStandards provides three reusable workflows that can be called from any repository in the organization:
+MokoStandards provides seven reusable workflows that can be called from any repository in the organization:
 
+### Quality & Testing Workflows
 1. **reusable-php-quality.yml** - PHP code quality analysis
 2. **reusable-joomla-testing.yml** - Joomla extension testing
 3. **reusable-ci-validation.yml** - Repository standards validation
 
+### Type-Aware Orchestration Workflows
+4. **reusable-project-detector.yml** - Automatic project type detection (Joomla, Dolibarr, Generic)
+5. **reusable-build.yml** - Type-aware build workflow
+6. **reusable-release.yml** - Type-aware release workflow with marketplace support
+7. **reusable-deploy.yml** - Type-aware deployment workflow
+
 These workflows follow the [GitHub Reusable Workflows](https://docs.github.com/en/actions/using-workflows/reusing-workflows) pattern and can be called from other workflows using the `workflow_call` trigger.
+
+## Type-Aware Workflows
+
+The type-aware workflows automatically detect whether your project is a Joomla extension, Dolibarr module, or generic application, and apply the appropriate build, release, and deployment steps. This enables a single workflow definition to work across all your repositories.
 
 ## Workflows
 
@@ -212,6 +223,203 @@ jobs:
 - Fails on any warnings
 - Strictest enforcement
 
+### 4. Project Type Detection (reusable-project-detector.yml)
+
+Automatically detects whether a repository is a Joomla extension, Dolibarr module, or generic application.
+
+#### Features
+- Automatic project type detection (Joomla, Dolibarr, Generic)
+- Extension type identification (component, module, plugin, etc.)
+- PHP and Node.js presence detection
+- Used as a foundation for other type-aware workflows
+
+#### Usage Example
+
+```yaml
+name: Detect Project
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  detect:
+    uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-project-detector.yml@main
+
+  show-results:
+    needs: detect
+    runs-on: ubuntu-latest
+    steps:
+      - name: Display detection results
+        run: |
+          echo "Project Type: ${{ needs.detect.outputs.project-type }}"
+          echo "Extension Type: ${{ needs.detect.outputs.extension-type }}"
+```
+
+#### Outputs
+
+| Output | Description |
+|--------|-------------|
+| `project-type` | Detected project type (joomla, dolibarr, generic) |
+| `extension-type` | Extension type (component, module, plugin, template, package, application) |
+| `has-php` | Whether project contains PHP files (true/false) |
+| `has-node` | Whether project contains package.json (true/false) |
+
+### 5. Type-Aware Build (reusable-build.yml)
+
+Universal build workflow that adapts to your project type automatically.
+
+#### Features
+- Automatic project type detection
+- Type-specific build steps (Joomla, Dolibarr, Generic)
+- Composer and npm dependency management
+- Build artifact caching
+- Automatic build output detection and upload
+
+#### Usage Example
+
+```yaml
+name: Build
+
+on:
+  push:
+    branches: [main, dev/**]
+
+jobs:
+  build:
+    uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-build.yml@main
+    with:
+      php-version: '8.1'
+      node-version: '20.x'
+      upload-artifacts: true
+```
+
+#### Inputs
+
+| Input | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `php-version` | string | No | `8.1` | PHP version for build |
+| `node-version` | string | No | `20.x` | Node.js version for build |
+| `working-directory` | string | No | `.` | Working directory |
+| `upload-artifacts` | boolean | No | `true` | Upload build artifacts |
+| `artifact-name` | string | No | `build-artifacts` | Artifact name |
+
+### 6. Type-Aware Release (reusable-release.yml)
+
+Creates releases with type-specific packaging for Joomla extensions, Dolibarr modules, and generic applications.
+
+#### Features
+- Automatic project type detection
+- Type-specific package creation (ZIP for Joomla/Dolibarr, TAR.GZ for generic)
+- Version updating in manifest files
+- Changelog extraction
+- Checksum generation (SHA256, MD5)
+- GitHub release creation
+- Marketplace publishing support (manual instructions)
+
+#### Usage Example
+
+```yaml
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  release:
+    uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-release.yml@main
+    with:
+      version: '1.0.0'
+      prerelease: false
+      create-github-release: true
+      publish-to-marketplace: false
+    permissions:
+      contents: write
+```
+
+#### Inputs
+
+| Input | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `version` | string | Yes | - | Release version (semver format) |
+| `prerelease` | boolean | No | `false` | Mark as pre-release |
+| `draft` | boolean | No | `false` | Create as draft |
+| `php-version` | string | No | `8.1` | PHP version for build |
+| `create-github-release` | boolean | No | `true` | Create GitHub release |
+| `publish-to-marketplace` | boolean | No | `false` | Publish to marketplace |
+| `working-directory` | string | No | `.` | Working directory |
+
+#### Secrets
+
+| Secret | Required | Description |
+|--------|----------|-------------|
+| `MARKETPLACE_TOKEN` | No | Marketplace API token (JED/Dolistore) |
+
+### 7. Type-Aware Deployment (reusable-deploy.yml)
+
+Deploys applications to staging or production with type-specific deployment logic.
+
+#### Features
+- Automatic project type detection
+- Multi-environment support (staging, production)
+- Multiple deployment methods (rsync, SSH, FTP, custom)
+- Health checks with configurable timeout
+- Automatic rollback on failure
+- Deployment status tracking
+
+#### Usage Example
+
+```yaml
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        options: [staging, production]
+
+jobs:
+  deploy:
+    uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-deploy.yml@main
+    with:
+      environment: staging
+      deployment-method: rsync
+      health-check-url: https://staging.example.com/health
+    secrets:
+      DEPLOY_HOST: ${{ secrets.STAGING_HOST }}
+      DEPLOY_USER: ${{ secrets.STAGING_USER }}
+      DEPLOY_KEY: ${{ secrets.STAGING_SSH_KEY }}
+      DEPLOY_PATH: ${{ secrets.STAGING_PATH }}
+    permissions:
+      contents: read
+      deployments: write
+```
+
+#### Inputs
+
+| Input | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `environment` | string | Yes | - | Target environment (staging, production) |
+| `version` | string | No | latest | Version to deploy |
+| `deployment-method` | string | No | `custom` | Method (rsync, ssh, ftp, kubernetes, custom) |
+| `health-check-url` | string | No | - | URL to check after deployment |
+| `health-check-timeout` | number | No | `300` | Health check timeout in seconds |
+| `working-directory` | string | No | `.` | Working directory |
+
+#### Secrets
+
+| Secret | Required | Description |
+|--------|----------|-------------|
+| `DEPLOY_HOST` | No | Deployment host/server |
+| `DEPLOY_USER` | No | Deployment user |
+| `DEPLOY_KEY` | No | SSH private key or credentials |
+| `DEPLOY_PATH` | No | Deployment path on server |
+
 ## Best Practices
 
 ### 1. Version Pinning
@@ -287,18 +495,176 @@ jobs:
       fail-on-warnings: true
 ```
 
-## Complete Example
+## Complete Examples
 
-Here's a complete workflow using all three reusable workflows:
+### Example 1: Basic CI/CD Pipeline
+
+Here's a complete workflow using the original three reusable workflows:
 
 ```yaml
-name: Complete CI/CD Pipeline
+name: CI/CD Pipeline
 
 on:
   push:
     branches: [main, dev/**]
   pull_request:
     branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  # Stage 1: Validation
+  validate:
+    uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-ci-validation.yml@main
+    with:
+      profile: 'full'
+      php-version: '8.1'
+      validate-security: true
+
+  # Stage 2: Quality Checks
+  quality:
+    needs: validate
+    uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-php-quality.yml@main
+    with:
+      php-versions: '["8.0", "8.1", "8.2"]'
+      tools: '["phpcs", "phpstan", "psalm"]'
+      phpstan-level: '6'
+
+  # Stage 3: Testing
+  test:
+    needs: quality
+    uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-joomla-testing.yml@main
+    with:
+      php-versions: '["8.0", "8.1", "8.2"]'
+      joomla-versions: '["4.4", "5.0"]'
+      coverage: true
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+```
+
+### Example 2: Type-Aware Full Pipeline
+
+Here's a complete type-aware pipeline that works for Joomla, Dolibarr, and generic projects:
+
+```yaml
+name: Type-Aware CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, staging, dev/**]
+  pull_request:
+    branches: [main]
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      deploy_environment:
+        type: choice
+        options: [staging, production]
+        default: staging
+
+permissions:
+  contents: write
+  deployments: write
+  pull-requests: write
+  checks: write
+
+jobs:
+  # Detect project type once
+  detect:
+    uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-project-detector.yml@main
+
+  # Validate code
+  validate:
+    needs: detect
+    uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-ci-validation.yml@main
+    with:
+      profile: 'full'
+
+  # Check code quality (if PHP project)
+  quality:
+    needs: detect
+    if: needs.detect.outputs.has-php == 'true'
+    uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-php-quality.yml@main
+    with:
+      php-versions: '["8.1", "8.2"]'
+
+  # Run tests (if Joomla)
+  test-joomla:
+    needs: [detect, quality]
+    if: needs.detect.outputs.project-type == 'joomla'
+    uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-joomla-testing.yml@main
+    with:
+      php-versions: '["8.1", "8.2"]'
+      joomla-versions: '["4.4", "5.0"]'
+      coverage: true
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  # Build application (type-aware)
+  build:
+    needs: [detect, validate, quality]
+    if: always() && (needs.validate.result == 'success')
+    uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-build.yml@main
+    with:
+      upload-artifacts: true
+
+  # Deploy to staging (on staging branch or manual trigger)
+  deploy-staging:
+    needs: [detect, build]
+    if: |
+      (github.ref == 'refs/heads/staging' || 
+       (github.event_name == 'workflow_dispatch' && inputs.deploy_environment == 'staging')) &&
+      needs.build.result == 'success'
+    uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-deploy.yml@main
+    with:
+      environment: staging
+      deployment-method: rsync
+      health-check-url: https://staging.example.com/health
+    secrets:
+      DEPLOY_HOST: ${{ secrets.STAGING_HOST }}
+      DEPLOY_USER: ${{ secrets.STAGING_USER }}
+      DEPLOY_KEY: ${{ secrets.STAGING_SSH_KEY }}
+      DEPLOY_PATH: ${{ secrets.STAGING_PATH }}
+
+  # Create release (on tag push)
+  release:
+    needs: [detect, validate, quality, build]
+    if: startsWith(github.ref, 'refs/tags/v')
+    uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-release.yml@main
+    with:
+      version: ${{ github.ref_name }}
+      prerelease: false
+      create-github-release: true
+      publish-to-marketplace: false
+
+  # Deploy to production (on release)
+  deploy-production:
+    needs: [release]
+    if: github.event_name == 'release'
+    uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-deploy.yml@main
+    with:
+      environment: production
+      version: ${{ github.event.release.tag_name }}
+      deployment-method: rsync
+      health-check-url: https://example.com/health
+    secrets:
+      DEPLOY_HOST: ${{ secrets.PRODUCTION_HOST }}
+      DEPLOY_USER: ${{ secrets.PRODUCTION_USER }}
+      DEPLOY_KEY: ${{ secrets.PRODUCTION_SSH_KEY }}
+      DEPLOY_PATH: ${{ secrets.PRODUCTION_PATH }}
+```
+
+This type-aware pipeline demonstrates:
+- Single workflow definition works for Joomla, Dolibarr, and generic projects
+- Automatic project type detection
+- Conditional job execution based on project type
+- Full CI/CD flow: validate → quality → test → build → deploy
+- Separate staging and production deployment paths
+- Release creation with type-specific packaging
 
 permissions:
   contents: read
@@ -418,4 +784,5 @@ For questions or issues with reusable workflows:
 
 | Version | Date | Changes |
 |---------|------|---------|
-| 01.00.00 | 2026-01-09 | Initial release of reusable workflows |
+| 02.00.00 | 2026-01-09 | Added type-aware orchestration workflows (project-detector, build, release, deploy) |
+| 01.00.00 | 2026-01-09 | Initial release of reusable workflows (php-quality, joomla-testing, ci-validation) |

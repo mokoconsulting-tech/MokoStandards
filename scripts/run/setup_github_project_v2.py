@@ -53,42 +53,7 @@ import subprocess
 import sys
 import traceback
 from pathlib import Path
-Creates a GitHub Project v2 and populates it with documentation tasks.
 from typing import Dict, List, Optional, Tuple
-Usage:
-    export GH_PAT="your_personal_access_token"
-    python3 scripts/run/setup_github_project_v2.py
-
-    With verbose logging:
-    python3 scripts/setup_github_project_v2.py --verbose
-
-    Skip view creation:
-    python3 scripts/setup_github_project_v2.py --skip-views
-
-Or use gh CLI authentication:
-    gh auth login
-    python3 scripts/run/setup_github_project_v2.py
-"""
-
-import argparse
-import json
-import os
-import subprocess
-import sys
-import traceback
-from pathlib import Path
-from typing import Dict, List, Optional, Tuple
-
-# Import requests for API calls with try/except for clearer error messaging
-try:
-    import requests
-except ImportError:
-    requests = None  # Will be checked when needed
-
-
-class GitHubProjectV2Setup:
-    """Handles GitHub Project v2 creation and population."""
-
 
 # Import requests for API calls with try/except for clearer error messaging
 try:

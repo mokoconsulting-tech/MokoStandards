@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This index provides navigation to documentation within this folder.
+This index provides navigation to validation and verification scripts and their documentation within this folder.
 
 ## Metadata
 

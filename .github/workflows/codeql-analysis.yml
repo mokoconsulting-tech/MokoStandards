@@ -63,6 +63,7 @@ jobs:
         # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
         # Note: This repository contains primarily documentation with Python scripts.
         # JavaScript and PHP are included for comprehensive scanning when present.
+        # Customize this list based on your repository's actual languages to avoid unnecessary runs.
 
     steps:
     - name: Checkout repository

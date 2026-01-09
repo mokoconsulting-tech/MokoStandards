@@ -9,50 +9,122 @@ with the main branch and provides specific guidance for resolving them.
 import subprocess
 import json
 import sys
+import os
 from typing import List, Dict
+import re
 
 def run_command(cmd: List[str]) -> tuple[int, str, str]:
-    """Run a command and return exit code, stdout, stderr."""
+    """Run a command and return exit code, stdout, stderr.
+
+    On failure, prints additional context (command, exit code, stderr) to stderr
+    to aid in diagnosing subprocess issues.
+    """
     result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode != 0:
+        # Provide meaningful error context while preserving existing behavior.
+        joined_cmd = " ".join(cmd)
+        print(
+            f"Command failed (exit code {result.returncode}): {joined_cmd}\n"
+            f"stderr:\n{result.stderr}",
+            file=sys.stderr,
+        )
     return result.returncode, result.stdout, result.stderr
 
-def get_open_prs() -> List[Dict]:
-    """Fetch list of open PRs using GitHub CLI."""
+def get_pr_limit() -> str:
+    """Return the PR fetch limit as a string, configurable via PR_LIMIT env var."""
+    env_limit = os.getenv("PR_LIMIT")
+    if env_limit is not None:
+        try:
+            value = int(env_limit)
+            if value > 0:
+                return str(value)
+            else:
+                print(f"Warning: PR_LIMIT={env_limit} is not positive, using default (100)", file=sys.stderr)
+        except ValueError:
+            # Fall back to default if env var is not a valid integer
+            print(f"Warning: PR_LIMIT={env_limit} is not a valid integer, using default (100)", file=sys.stderr)
+    # Default limit matches previous behavior
+    return "100"
+
+def get_open_prs() -> tuple[List[Dict], Dict | None]:
+    """Fetch list of open PRs using GitHub CLI.
+
+    Returns a tuple (prs, error_info) where prs is the list of PRs (possibly empty)
+    and error_info is a dict with keys 'exit_code' and 'stderr' if the command
+    failed, or None on success.
+    """
     code, stdout, stderr = run_command([
         'gh', 'pr', 'list',
         '--json', 'number,title,headRefName,baseRefName,mergeable,mergeStateStatus',
-        '--limit', '100'
+        '--limit', get_pr_limit()
     ])
-    
+
     if code != 0:
-        print(f"Error fetching PRs: {stderr}", file=sys.stderr)
-        return []
-    
-    return json.loads(stdout)
+        return [], {"exit_code": code, "stderr": stderr.strip()}
+
+    try:
+        prs = json.loads(stdout)
+    except json.JSONDecodeError as e:
+        return [], {
+            "exit_code": code,
+            "stderr": f"Failed to parse GitHub CLI output as JSON: {e}"
+        }
+
+    return prs, None
+
+# Compile regex patterns once at module level for efficiency
+_TEMPLATE_PATTERN = re.compile(r'\btemplate(s)?\b')
+_HEADER_PATTERN = re.compile(r'\bheader(s)?\b')
+_AUTOMATION_PATTERN = re.compile(r'\bautomation\b')
+_SCRIPT_PATTERN = re.compile(r'\bscript(s)?\b')
+
+def classify_pr_conflict_types(pr: Dict) -> Dict[str, bool]:
+    """Classify likely conflict types for a PR based on its title."""
+    title = str(pr.get('title', '')).lower()
+
+    # Use basic word-boundary-aware patterns to reduce accidental matches.
+    return {
+        'template': bool(_TEMPLATE_PATTERN.search(title)),
+        'header': bool(_HEADER_PATTERN.search(title)),
+        'automation_or_script': bool(_AUTOMATION_PATTERN.search(title) or _SCRIPT_PATTERN.search(title)),
+    }
 
 def analyze_pr_conflicts(pr: Dict) -> Dict:
     """Analyze a specific PR for conflicts."""
+    mergeable = pr.get('mergeable')
+    merge_state = pr.get('mergeStateStatus', 'UNKNOWN')
+
+    # Consider both the mergeable field and merge state status to detect conflicts.
+    # - mergeable can be 'CONFLICTING', 'MERGEABLE', or None (unknown/not computed).
+    # - merge_state may also indicate conflicts (e.g., 'CONFLICTING', 'DIRTY').
+    has_conflicts = (
+        mergeable == 'CONFLICTING'
+        or merge_state in ('CONFLICTING', 'DIRTY')
+    )
+
     analysis = {
         'pr_number': pr['number'],
         'title': pr['title'],
         'branch': pr['headRefName'],
         'base': pr['baseRefName'],
-        'has_conflicts': pr.get('mergeable') == 'CONFLICTING',
-        'merge_state': pr.get('mergeStateStatus', 'UNKNOWN'),
+        'has_conflicts': has_conflicts,
+        'merge_state': merge_state,
         'recommendations': []
     }
     
     # Add specific recommendations based on PR characteristics
     if analysis['has_conflicts']:
-        if 'template' in pr['title'].lower():
+        conflict_types = classify_pr_conflict_types(pr)
+
+        if conflict_types.get('template'):
             analysis['recommendations'].append(
                 "Template conflicts: Preserve new structures, merge documentation updates"
             )
-        if 'header' in pr['title'].lower():
+        if conflict_types.get('header'):
             analysis['recommendations'].append(
                 "File header conflicts: Keep new headers, preserve functional changes"
             )
-        if 'automation' in pr['title'].lower() or 'script' in pr['title'].lower():
+        if conflict_types.get('automation_or_script'):
             analysis['recommendations'].append(
                 "Script conflicts: Test automation after merge, regenerate indexes"
             )
@@ -119,16 +191,37 @@ def print_analysis(analyses: List[Dict]):
 def main():
     """Main entry point."""
     print("Fetching open pull requests...", file=sys.stderr)
-    
-    prs = get_open_prs()
-    if not prs:
-        print("No open PRs found or unable to fetch PRs.", file=sys.stderr)
-        print("Make sure GitHub CLI (gh) is installed and authenticated.", file=sys.stderr)
+
+    prs, error = get_open_prs()
+    if error is not None:
+        stderr_msg = error.get("stderr", "")
+        exit_code = error.get("exit_code")
+
+        # Try to provide more specific guidance based on the failure mode.
+        lower_err = stderr_msg.lower()
+        print("Unable to fetch open PRs from GitHub.", file=sys.stderr)
+        if "command not found" in lower_err or "executable file not found" in lower_err:
+            print("GitHub CLI (gh) does not appear to be installed. "
+                  "Install it and ensure it is on your PATH.", file=sys.stderr)
+        elif "authenticate" in lower_err or "authorization" in lower_err or "must be logged in" in lower_err:
+            print("GitHub CLI (gh) is not authenticated. Run 'gh auth login' and try again.",
+                  file=sys.stderr)
+        elif stderr_msg:
+            print(f"gh exited with code {exit_code}. Error output:", file=sys.stderr)
+            print(stderr_msg, file=sys.stderr)
+            print("This may be due to network issues, repository permissions, or GitHub API problems.",
+                  file=sys.stderr)
+        else:
+            print(f"gh exited with code {exit_code} with no additional error output.", file=sys.stderr)
         sys.exit(1)
-    
+
+    if not prs:
+        print("No open PRs found.", file=sys.stderr)
+        return
+
     print(f"Analyzing {len(prs)} pull requests...", file=sys.stderr)
     print()
-    
+
     analyses = [analyze_pr_conflicts(pr) for pr in prs]
     print_analysis(analyses)
 

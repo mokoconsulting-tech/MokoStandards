@@ -31,6 +31,7 @@ BRIEF: Bulk update script to push workflows, scripts, and configurations to orga
 import argparse
 import json
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -148,7 +149,6 @@ def copy_file(source_file: str, dest_dir: str, dest_path: str) -> bool:
     dest.parent.mkdir(parents=True, exist_ok=True)
     
     try:
-        import shutil
         shutil.copy2(source, dest)
         return True
     except Exception as e:

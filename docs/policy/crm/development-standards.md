@@ -261,13 +261,13 @@ To reserve a Dolibarr module ID from the Moko Consulting range (185051-185099):
 
 **Table Naming**:
 - Use `llx_` prefix (Dolibarr standard)
-- Add module prefix after: `llx_moko_tablename`
+- Add full module prefix after: `llx_mokocrm_workflow_tablename`
 - Use lowercase with underscores
-- Example: `llx_moko_workflow_tasks`
+- Example: `llx_mokocrm_workflow_tasks`
 
 **Required Columns**:
 ```sql
-CREATE TABLE llx_moko_example (
+CREATE TABLE llx_mokocrm_example (
   rowid INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
   entity INT(11) DEFAULT 1 NOT NULL,
   
@@ -292,9 +292,9 @@ CREATE TABLE llx_moko_example (
 
 **Indexes**:
 ```sql
-ALTER TABLE llx_moko_example ADD INDEX idx_moko_example_entity (entity);
-ALTER TABLE llx_moko_example ADD INDEX idx_moko_example_ref (ref);
-ALTER TABLE llx_moko_example ADD UNIQUE INDEX uk_moko_example_ref (ref, entity);
+ALTER TABLE llx_mokocrm_example ADD INDEX idx_mokocrm_example_entity (entity);
+ALTER TABLE llx_mokocrm_example ADD INDEX idx_mokocrm_example_ref (ref);
+ALTER TABLE llx_mokocrm_example ADD UNIQUE INDEX uk_mokocrm_example_ref (ref, entity);
 ```
 
 ### PHP Coding Standards
@@ -889,8 +889,8 @@ mokomodule-1.0.0.zip
 
 **Dolibarr Module Updates**:
 ```php
-// Dolibarr does not have native automatic update support via module_parts
-// Implement custom update checking mechanism:
+// In this project, automatic updates for Dolibarr modules are handled via a custom mechanism (not via module_parts).
+// Implement a custom update checking mechanism:
 // 1. Create an admin page that checks for updates from ARS
 // 2. Parse update XML from: https://releases.mokoconsulting.tech/dolibarr/updates/mokomodule.xml
 // 3. Display update notification and download link to administrators
@@ -921,7 +921,7 @@ if (version_compare($latestVersion, $this->version, '>')) {
 **Implementation Requirements**:
 
 1. **Key Validation**: Extensions must validate user key before enabling functionality
-2. **Key Storage**: Store encrypted keys in configuration (never plain text)
+2. **Key Storage**: Store license keys only in encrypted form and only in secure configuration/storage mechanisms; never store them in plain text or alongside their encryption keys.
    - Use AES-256-GCM for at-rest encryption of license keys
    - Encryption keys MUST NOT be stored in the same location as encrypted license keys
    - Use platform-specific secure storage APIs or environment variables for encryption key management
@@ -940,8 +940,120 @@ if (version_compare($latestVersion, $this->version, '>')) {
 
 **Dolibarr Implementation**:
 ```php
+// In module class
+/**
+ * Validate license key according to Moko Consulting standards.
+ *
+ * Requirements:
+ * - Enforce key format: MOKO-PRODUCT-XXXX-XXXX-XXXX (4-char alphanumeric segments)
+ *   Product code can be variable length (e.g., DOLITOOLS, CRM, FORM)
+ * - Call validation endpoint https://license.mokoconsulting.tech/validate via POST
+ * - Send JSON body: {"license_key": "...", "domain": "...", "installation_id": "..."}
+ * - Cache successful validations for up to 7 consecutive days for offline use
+ */
+public function validateUserKey($licenseKey)
+{
+    global $conf;
+
+    // 1) Basic format validation
+    // Product code limited to 2-12 characters to prevent abuse
+    $pattern = '/^MOKO-[A-Z0-9]{2,12}-(?:[A-Z0-9]{4}-){2}[A-Z0-9]{4}$/';
+    if (!preg_match($pattern, $licenseKey)) {
+        return false;
+    }
+
+    // 2) Determine cache file location (example: module-specific temp directory)
+    // Note: Replace 'mokomodule' with your actual module name for production use
+    // Note: In production, consider encrypting cache file contents to prevent information disclosure
+    $cacheDir = DOL_DATA_ROOT . '/mokomodule';
+    if (!is_dir($cacheDir)) {
+        dol_mkdir($cacheDir);
+    }
+    $cacheFile = $cacheDir . '/license_cache.json';
+
+    // 3) Try to use cached validation (offline mode) if endpoint not reachable
+    $now = time();
+    if (is_readable($cacheFile)) {
+        $fileSize = filesize($cacheFile);
+        // Validate file size to prevent reading excessively large files
+        if ($fileSize > 0 && $fileSize < 10240) { // Max 10KB
+            $cacheData = json_decode(file_get_contents($cacheFile), true);
+            if (json_last_error() === JSON_ERROR_NONE
+                && is_array($cacheData)
+                && !empty($cacheData['license_key'])
+                && $cacheData['license_key'] === $licenseKey
+                && !empty($cacheData['validated_at'])
+                && ($now - (int) $cacheData['validated_at']) <= 7 * 24 * 60 * 60
+            ) {
+                // Cached result still valid (within 7 days)
+                return !empty($cacheData['valid']);
+            }
+        }
+    }
+
+    // 4) Online validation against Moko license server
+    $domain = (!empty($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'cli');
+    // Note: dol_hash with length 5 is a Dolibarr convention for installation IDs
+    // For production use, consider: hash('sha256', $domain . getmypid() . microtime(true))
+    $installationId = !empty($conf->global->MAIN_INSTALL_ID) ? $conf->global->MAIN_INSTALL_ID : dol_hash($domain, 5);
+
+    $payload = json_encode([
+        'license_key'      => $licenseKey,
+        'domain'           => $domain,
+        'installation_id'  => $installationId,
+    ]);
+
+    $ch = curl_init('https://license.mokoconsulting.tech/validate');
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST           => true,
+        CURLOPT_HTTPHEADER     => [
+            'Content-Type: application/json',
+            // Note: Replace DOL_VERSION with your module version constant for production
+            'X-Extension-Version: ' . DOL_VERSION,
+        ],
+        CURLOPT_POSTFIELDS     => $payload,
+        CURLOPT_TIMEOUT        => 10,
+    ]);
+
+    $responseBody = curl_exec($ch);
+    $curlError    = curl_error($ch);
+    $httpCode     = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    // If request failed, fall back to any still-valid cache (handled above in step 3)
+    // If cache was also invalid/missing, we fail closed for security
+    if ($responseBody === false || $httpCode !== 200) {
+        if (!empty($curlError)) {
+            dol_syslog('License validation cURL error: ' . $curlError, LOG_ERR);
+        }
+        return false;
+    }
+
+    $response = json_decode($responseBody, true);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        dol_syslog('License validation JSON decode error: ' . json_last_error_msg(), LOG_ERR);
+        return false;
+    }
+    $isValid  = is_array($response) && !empty($response['valid']);
+
+    // 5) Update cache for offline mode
+    $cachePayload = [
+        'license_key'   => $licenseKey,
+        'valid'         => $isValid,
+        'validated_at'  => $now,
+        'raw_response'  => $response,
+    ];
+    if (file_put_contents($cacheFile, json_encode($cachePayload)) === false) {
+        // Log cache write failure but continue (validation already succeeded)
+        dol_syslog('Failed to write license validation cache', LOG_WARNING);
+    }
+
+    return $isValid;
+}
+
 // In module setup page
-// Note: Implement validateUserKey() method in your module class
+// Note: Call validateUserKey() before enabling module functionality
 if (!$this->validateUserKey($conf->global->MOKOMODULE_LICENSE_KEY)) {
     setEventMessages($langs->trans('InvalidLicenseKey'), null, 'errors');
     // Disable module functionality (implement appropriate checks throughout module)
@@ -951,7 +1063,10 @@ if (!$this->validateUserKey($conf->global->MOKOMODULE_LICENSE_KEY)) {
 **Joomla Implementation**:
 ```php
 // In extension installation script
-// Note: Implement validateLicenseKey() method in your extension class
+// Note: Implement validateLicenseKey() in your extension class to:
+//   - Enforce key format: MOKO-PRODUCT-XXXX-XXXX-XXXX
+//   - Validate keys against https://license.mokoconsulting.tech/validate
+//   - Apply the 7-day offline cache/expiry rules defined in this policy
 public function preflight($type, $parent) {
     $params = JComponentHelper::getParams('com_mokoextension');
     $licenseKey = $params->get('license_key');

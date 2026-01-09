@@ -36,10 +36,10 @@ Usage:
     python3 scripts/run/setup_github_project_v2.py
 
     With verbose logging:
-    python3 scripts/setup_github_project_v2.py --verbose
+    python3 scripts/run/setup_github_project_v2.py --verbose
 
     Skip view creation:
-    python3 scripts/setup_github_project_v2.py --skip-views
+    python3 scripts/run/setup_github_project_v2.py --skip-views
 
 Or use gh CLI authentication:
     gh auth login
@@ -94,7 +94,11 @@ class GitHubProjectV2Setup:
             if self.token:
                 # Use direct API call with token
                 if requests is None:
-                    error_msg = "requests library is required for token authentication. Install it with: pip install requests"
+                    error_msg = (
+                        "requests library is required for token authentication. "
+                        "Please install the 'requests' package for your Python 3 environment "
+                        "(for example: pip3 install requests)."
+                    )
                     self.errors.append(error_msg)
                     print(f"ERROR: {error_msg}", file=sys.stderr)
                     return {}
@@ -391,8 +395,8 @@ class GitHubProjectV2Setup:
                 return False
         
         print(f"\n✅ Created {len(self.field_ids)} custom fields")
-        print("\n⚠️  Note: Multi-select fields (Compliance Tags, Evidence Artifacts)")
-        print("   must be created manually via UI as they are not fully supported via API")
+        print("\nℹ️  Optional: You can add multi-select fields such as 'Compliance Tags'")
+        print("    and 'Evidence Artifacts' manually in the GitHub UI (not managed by this script).")
         
         return True
 

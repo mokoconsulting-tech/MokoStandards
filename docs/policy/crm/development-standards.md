@@ -225,7 +225,7 @@ class modMokoModule extends DolibarrModules
 
 Dolibarr module numbers **185051 to 185099** are reserved for Moko Consulting use.
 
-**Current Dolibarr Extensions in Development**:
+**Dolibarr Extensions Registry**:
 
 | Module Name | Module Number | Status | Description | Repository |
 |-------------|---------------|--------|-------------|------------|
@@ -255,7 +255,7 @@ To reserve a Dolibarr module ID from the Moko Consulting range (185051-185099):
 3. **Get approval** from the CRM Development Lead before merging
 4. **Merge the PR** to officially reserve the module ID
 
-**Important**: Module IDs MUST be reserved through a pull request. Direct commits to reserve module IDs are not permitted.
+**Important**: Module IDs MUST be reserved through a pull request. Direct commits to reserve module IDs are not permitted and are blocked on protected branches via branch protection rules (requiring PRs, code review, and automated checks) for the default and release branches.
 
 ### Database Standards
 
@@ -888,15 +888,21 @@ mokomodule-1.0.0.zip
 - **Update Server**: Extensions must include proper update XML configuration pointing to ARS
 
 **Dolibarr Module Updates**:
+
+Dolibarr modules **MUST** implement a custom update checking mechanism (not via `module_parts`) that:
+
+- Provides an admin page that checks for updates from ARS.
+- Parses the update XML from `https://releases.mokoconsulting.tech/dolibarr/updates/mokomodule.xml`.
+- Displays an update notification and download link to administrators when a newer version is available.
+- Provides manual update instructions or a one-click update, where technically feasible.
+
+Example implementation in an admin page:
 ```php
-// In this project, automatic updates for Dolibarr modules are handled via a custom mechanism (not via module_parts).
-// Implement a custom update checking mechanism:
+// Example: automatic updates for Dolibarr modules using a custom mechanism (not via module_parts).
+// Example implementation of update checking mechanism:
 // 1. Create an admin page that checks for updates from ARS
 // 2. Parse update XML from: https://releases.mokoconsulting.tech/dolibarr/updates/mokomodule.xml
 // 3. Display update notification and download link to administrators
-// 4. Provide manual update instructions or one-click update if feasible
-//
-// Example update check in admin page:
 $updateXmlUrl = 'https://releases.mokoconsulting.tech/dolibarr/updates/mokomodule.xml';
 $latestVersion = $this->checkForUpdates($updateXmlUrl);
 if (version_compare($latestVersion, $this->version, '>')) {
@@ -963,9 +969,9 @@ public function validateUserKey($licenseKey)
     }
 
     // 2) Determine cache file location (example: module-specific temp directory)
-    // Note: Replace 'mokomodule' with your actual module name for production use
+    // Note: Replace '{MODULE_NAME}' with your actual module name for production use
     // Note: In production, consider encrypting cache file contents to prevent information disclosure
-    $cacheDir = DOL_DATA_ROOT . '/mokomodule';
+    $cacheDir = DOL_DATA_ROOT . '/{MODULE_NAME}';
     if (!is_dir($cacheDir)) {
         dol_mkdir($cacheDir);
     }
@@ -994,7 +1000,7 @@ public function validateUserKey($licenseKey)
     // 4) Online validation against Moko license server
     $domain = (!empty($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'cli');
     // Note: dol_hash with length 5 is a Dolibarr convention for installation IDs
-    // For production use, consider: hash('sha256', $domain . getmypid() . microtime(true))
+    // For production use, consider: bin2hex(random_bytes(16)) or a UUID library for a robust installation ID
     $installationId = !empty($conf->global->MAIN_INSTALL_ID) ? $conf->global->MAIN_INSTALL_ID : dol_hash($domain, 5);
 
     $payload = json_encode([

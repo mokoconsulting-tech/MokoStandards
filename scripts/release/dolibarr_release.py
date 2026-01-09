@@ -42,8 +42,18 @@ from typing import Optional, Tuple
 import fnmatch
 
 
+# Chunk size used when streaming files to compute checksums.
+CHECKSUM_CHUNK_SIZE = 8192
+
+VERSION_REGEX = r'^\d+\.\d+\.\d+(-rc\d+)?$'
+
+
 class DolibarrReleaser:
     """Creates release packages for Dolibarr modules."""
+
+    # Default prefixes used when deriving the module name from the directory name.
+    DEFAULT_PREFIX_MOKODOLI = "MokoDoli"
+    DEFAULT_PREFIX_DOLIBARR = "dolibarr-"
 
     def __init__(self, module_dir: Path, version: str, output_dir: Path):
         """
@@ -72,8 +82,12 @@ class DolibarrReleaser:
                 if name:
                     return name
         
-        # Fallback to directory name
-        return self.module_dir.name.removeprefix("MokoDoli").removeprefix("dolibarr-")
+        # Fallback to directory name, stripping known prefixes
+        return (
+            self.module_dir.name
+            .removeprefix(self.DEFAULT_PREFIX_MOKODOLI)
+            .removeprefix(self.DEFAULT_PREFIX_DOLIBARR)
+        )
 
     def update_version(self) -> bool:
         """Update version in module descriptor."""
@@ -129,7 +143,7 @@ class DolibarrReleaser:
             'package.json', 'package-lock.json', '.DS_Store'
         }
 
-        def ignore_function(src: str, names: list[str]) -> set[str]:
+        def create_copytree_ignore_filter(src: str, names: list[str]) -> set[str]:
             """Custom ignore function to filter directories and file patterns."""
             ignored: set[str] = set()
             for name in names:
@@ -152,7 +166,7 @@ class DolibarrReleaser:
                 
                 dest = package_dir / item.name
                 if item.is_dir():
-                    shutil.copytree(item, dest, ignore=ignore_function)
+                    shutil.copytree(item, dest, ignore=create_copytree_ignore_filter)
                 else:
                     shutil.copy2(item, dest)
             
@@ -185,30 +199,22 @@ class DolibarrReleaser:
             return None
 
     def generate_checksums(self, zip_path: Path) -> bool:
-        """Generate SHA256 and MD5 checksums for the package."""
+        """Generate SHA256 checksum for the package."""
         try:
             # Compute hashes by streaming the file to avoid loading it all in memory
             sha256_hash = hashlib.sha256()
-            md5_hash = hashlib.md5()
 
             with open(zip_path, "rb") as f:
-                for chunk in iter(lambda: f.read(8192), b""):
+                for chunk in iter(lambda: f.read(CHECKSUM_CHUNK_SIZE), b""):
                     sha256_hash.update(chunk)
-                    md5_hash.update(chunk)
 
             sha256_digest = sha256_hash.hexdigest()
-            md5_digest = md5_hash.hexdigest()
 
-            # Write results in a format compatible with sha256sum/md5sum
+            # Write results in a format compatible with sha256sum
             sha256_path = zip_path.with_suffix(zip_path.suffix + ".sha256")
             with open(sha256_path, "w", encoding="utf-8") as sha256_file:
                 sha256_file.write(f"{sha256_digest}  {zip_path.name}\n")
             print(f"✅ Generated SHA256 checksum")
-
-            md5_path = zip_path.with_suffix(zip_path.suffix + ".md5")
-            with open(md5_path, "w", encoding="utf-8") as md5_file:
-                md5_file.write(f"{md5_digest}  {zip_path.name}\n")
-            print(f"✅ Generated MD5 checksum")
 
             return True
         except Exception as e:
@@ -246,7 +252,6 @@ class DolibarrReleaser:
         print(f"{'='*60}")
         print(f"Package: {zip_path}")
         print(f"SHA256: {zip_path}.sha256")
-        print(f"MD5: {zip_path}.md5")
         print(f"{'='*60}\n")
 
         return True
@@ -299,7 +304,7 @@ Examples:
     args = parser.parse_args()
 
     # Validate version format
-    if not re.match(r'^\d+\.\d+\.\d+(-rc\d+)?$', args.version):
+    if not re.match(VERSION_REGEX, args.version):
         print(f"Error: Invalid version format: {args.version}", file=sys.stderr)
         print(f"Expected format: X.Y.Z or X.Y.Z-rcN", file=sys.stderr)
         sys.exit(1)

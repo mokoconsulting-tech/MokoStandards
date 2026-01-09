@@ -4,6 +4,8 @@
 
 The `bulk_update_repos.py` script automates the process of pushing workflows, scripts, and configurations from the MokoStandards repository to multiple organization repositories.
 
+**Important**: This script only processes repositories whose names begin with "Moko" (e.g., MokoStandards, MokoCRM, MokoDoliTools). Other repositories in the organization are automatically excluded.
+
 ## Purpose
 
 This script helps maintain consistency across all organization repositories by:
@@ -23,11 +25,13 @@ This script helps maintain consistency across all organization repositories by:
 
 ### Basic Usage
 
-Update all non-archived repositories in the organization:
+Update all non-archived repositories in the organization that begin with "Moko":
 
 ```bash
 ./scripts/bulk_update_repos.py
 ```
+
+Note: Only repositories with names starting with "Moko" (e.g., MokoStandards, MokoCRM, MokoDoliTools) will be processed. Other repositories are automatically excluded.
 
 ### Dry Run (Recommended First)
 
@@ -196,6 +200,7 @@ The script will skip creating a new PR if one already exists for the branch.
 
 ## Safety Features
 
+- **Repository name filtering**: Only processes repositories beginning with "Moko"
 - **Dry run mode**: Preview changes without modification
 - **Interactive confirmation**: Prompts before making changes (unless `--yes` flag used)
 - **Automated execution**: Use `--yes` flag to skip confirmation for CI/CD

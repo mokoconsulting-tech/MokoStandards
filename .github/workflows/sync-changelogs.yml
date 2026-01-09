@@ -86,7 +86,13 @@ jobs:
           if [ "${{ github.event_name }}" == "pull_request" ]; then
             CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }})
           else
-            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+            # Handle initial commit or new branch
+            if git rev-parse HEAD~1 >/dev/null 2>&1; then
+              CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+            else
+              # First commit - check all files
+              CHANGED_FILES=$(git ls-files)
+            fi
           fi
           
           ROOT_CHANGED=false
@@ -151,6 +157,14 @@ jobs:
         run: |
           echo "⚠️  Both CHANGELOG files were modified in this commit"
           echo "This requires manual resolution. Please ensure both files have the same content."
+          echo ""
+          echo "To resolve:"
+          echo "  1. Choose which version to keep:"
+          echo "     - Use root as source: cp CHANGELOG.md src/CHANGELOG.md"
+          echo "     - Use src as source: cp src/CHANGELOG.md CHANGELOG.md"
+          echo "  2. Commit the resolved files: git add CHANGELOG.md src/CHANGELOG.md"
+          echo "  3. Commit: git commit -m 'docs: resolve CHANGELOG sync conflict'"
+          echo "  4. Push: git push"
           echo "sync_direction=conflict" >> $GITHUB_ENV
           exit 1
       
@@ -172,8 +186,29 @@ jobs:
               git commit -m "chore: sync CHANGELOG from src to root directory [automated]"
             fi
             
-            # Push changes
-            git push
+            # Push changes with retry logic
+            MAX_RETRIES=3
+            RETRY_COUNT=0
+            PUSH_SUCCESS=false
+            
+            while [ $RETRY_COUNT -lt $MAX_RETRIES ] && [ "$PUSH_SUCCESS" == "false" ]; do
+              if git push; then
+                PUSH_SUCCESS=true
+                echo "Successfully pushed changes"
+              else
+                RETRY_COUNT=$((RETRY_COUNT + 1))
+                if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
+                  echo "Push failed, retrying ($RETRY_COUNT/$MAX_RETRIES)..."
+                  sleep 2
+                  git pull --rebase
+                else
+                  echo "Failed to push after $MAX_RETRIES attempts"
+                  echo "This may be due to protected branch settings or concurrent pushes"
+                  echo "Please manually sync and push the changes"
+                  exit 1
+                fi
+              fi
+            done
           fi
       
       - name: Summary

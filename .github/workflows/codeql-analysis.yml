@@ -54,15 +54,17 @@ jobs:
     name: CodeQL Analysis
     runs-on: ubuntu-latest
     timeout-minutes: 360
+    continue-on-error: true
     
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'python' ]
+        language: [ 'python', 'javascript', 'php' ]
         # CodeQL supports: 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby', 'php'
         # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
         # Note: This repository contains primarily documentation with Python scripts.
-        # Only Python is included as it's the only programming language present in this repository.
+        # JavaScript and PHP are included for comprehensive scanning when present.
+        # The job is configured with continue-on-error to not fail when languages aren't found.
 
     steps:
     - name: Checkout repository

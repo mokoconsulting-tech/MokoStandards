@@ -129,7 +129,6 @@ jobs:
       run: |
         # Install security checker tools
         composer global require enlightn/security-checker --quiet
-        composer global require local-php-security-checker/local-php-security-checker --dev --quiet || true
         
         # Add composer global bin to PATH
         echo "$HOME/.composer/vendor/bin" >> $GITHUB_PATH
@@ -172,15 +171,16 @@ jobs:
         composer global require squizlabs/php_codesniffer --quiet
         composer global require phpcompatibility/php-compatibility --quiet
         composer global require dealerdirect/phpcodesniffer-composer-installer --quiet
+        composer global require pheromone/phpcs-security-audit --quiet || true
         
         echo "### PHP Security Code Analysis" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         
         # Run security-focused checks
         if phpcs --standard=Security --report=summary --report-width=120 . 2>/dev/null; then
-          echo "✅ No security issues found by PHPCS" >> $GITHUB_STEP_SUMMARY
+          echo "✅ No security issues found by PHPCS Security standard" >> $GITHUB_STEP_SUMMARY
         else
-          echo "⚠️ Running basic security checks (Security standard not available)" >> $GITHUB_STEP_SUMMARY
+          echo "ℹ️ Running basic security checks" >> $GITHUB_STEP_SUMMARY
           # Fallback to basic checks
           phpcs --standard=PSR12 --report=summary --report-width=120 . || echo "ℹ️ Basic code style checks completed" >> $GITHUB_STEP_SUMMARY
         fi
@@ -191,33 +191,47 @@ jobs:
       run: |
         echo "### PHP Vulnerability Pattern Scan" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
+        echo "Scanning for common vulnerability patterns..." >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
         
         # Scan for common vulnerability patterns
         ISSUES=0
         
-        # Check for unsafe functions
-        if grep -r "eval\|exec\|system\|passthru\|shell_exec\|assert\|preg_replace.*\/e" --include="*.php" . 2>/dev/null; then
+        # Check for unsafe functions (with better pattern)
+        echo "Checking for unsafe PHP functions..." >> $GITHUB_STEP_SUMMARY
+        if grep -rn "\\(eval\\|exec\\|system\\|passthru\\|shell_exec\\|assert\\)\\s*(" --include="*.php" . 2>/dev/null | head -5; then
           echo "⚠️ Found potentially unsafe PHP functions" >> $GITHUB_STEP_SUMMARY
           ISSUES=$((ISSUES + 1))
         fi
         
-        # Check for SQL injection patterns
-        if grep -r "\$_(GET|POST|REQUEST)\[.*\].*mysql_query\|SELECT.*\$_(GET|POST|REQUEST)" --include="*.php" . 2>/dev/null | head -5; then
-          echo "⚠️ Found potential SQL injection patterns" >> $GITHUB_STEP_SUMMARY
+        # Check for preg_replace with /e modifier (more precise pattern)
+        if grep -rn 'preg_replace\s*(\s*["\'"'"'][^"'"'"']*/[^"'"'"']*e' --include="*.php" . 2>/dev/null | head -5; then
+          echo "⚠️ Found deprecated preg_replace /e modifier" >> $GITHUB_STEP_SUMMARY
           ISSUES=$((ISSUES + 1))
         fi
         
-        # Check for XSS patterns
-        if grep -r "echo.*\$_(GET|POST|REQUEST)\|print.*\$_(GET|POST|REQUEST)" --include="*.php" . 2>/dev/null | grep -v "htmlspecialchars\|htmlentities" | head -5; then
-          echo "⚠️ Found potential XSS vulnerabilities (unescaped output)" >> $GITHUB_STEP_SUMMARY
+        # Check for potential SQL injection (basic pattern - may have false positives)
+        echo "Checking for potential SQL injection patterns..." >> $GITHUB_STEP_SUMMARY
+        if grep -rn '\$_\(GET\|POST\|REQUEST\)\[.*\].*\(mysql_query\|mysqli_query\)' --include="*.php" . 2>/dev/null | grep -v "mysqli_real_escape_string\|prepare" | head -5; then
+          echo "⚠️ Found potential SQL injection patterns (review recommended)" >> $GITHUB_STEP_SUMMARY
           ISSUES=$((ISSUES + 1))
         fi
         
+        # Check for potential XSS (basic pattern - may have false positives)
+        echo "Checking for potential XSS vulnerabilities..." >> $GITHUB_STEP_SUMMARY
+        if grep -rn '\(echo\|print\)\s*.*\$_\(GET\|POST\|REQUEST\)' --include="*.php" . 2>/dev/null | grep -v "htmlspecialchars\|htmlentities\|esc_html\|esc_attr" | head -5; then
+          echo "⚠️ Found potential XSS vulnerabilities - unescaped output (review recommended)" >> $GITHUB_STEP_SUMMARY
+          ISSUES=$((ISSUES + 1))
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
         if [ $ISSUES -eq 0 ]; then
           echo "✅ No common vulnerability patterns detected" >> $GITHUB_STEP_SUMMARY
         else
+          echo "⚠️ Found $ISSUES potential security issue types" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Found $ISSUES potential security issue types. Review the logs for details." >> $GITHUB_STEP_SUMMARY
+          echo "Note: These are basic pattern matches and may include false positives." >> $GITHUB_STEP_SUMMARY
+          echo "Review the workflow logs for details and validate each finding." >> $GITHUB_STEP_SUMMARY
         fi
 
     - name: Security scan summary

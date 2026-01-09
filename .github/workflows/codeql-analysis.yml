@@ -54,7 +54,6 @@ jobs:
     name: CodeQL Analysis
     runs-on: ubuntu-latest
     timeout-minutes: 360
-    continue-on-error: true
     
     strategy:
       fail-fast: false
@@ -64,13 +63,15 @@ jobs:
         # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
         # Note: This repository contains primarily documentation with Python scripts.
         # JavaScript and PHP are included for comprehensive scanning when present.
-        # The job is configured with continue-on-error to not fail when languages aren't found.
+        # The initialization step is configured with continue-on-error to gracefully handle languages not found.
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v6
 
     - name: Initialize CodeQL
+      id: init
+      continue-on-error: true
       uses: github/codeql-action/init@v4
       with:
         languages: ${{ matrix.language }}
@@ -84,9 +85,11 @@ jobs:
     # Autobuild attempts to build any compiled languages  (C/C++, C#, Go, or Java).
     # If this step fails, then you should remove it and run the build manually
     - name: Autobuild
+      if: steps.init.outcome == 'success'
       uses: github/codeql-action/autobuild@v4
 
     - name: Perform CodeQL Analysis
+      if: steps.init.outcome == 'success'
       uses: github/codeql-action/analyze@v4
       with:
         category: "/language:${{matrix.language}}"

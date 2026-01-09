@@ -47,6 +47,12 @@ VERSION_REGEX = r'^\d+\.\d+\.\d+(-rc\d+)?$'
 CHECKSUM_CHUNK_SIZE = 8192
 
 
+# Chunk size used when streaming files to compute checksums.
+CHECKSUM_CHUNK_SIZE = 8192
+
+VERSION_REGEX = r'^\d+\.\d+\.\d+(-rc\d+)?$'
+
+
 class DolibarrReleaser:
     """Creates release packages for Dolibarr modules."""
 

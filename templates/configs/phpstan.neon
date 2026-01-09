@@ -1,0 +1,35 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+# PHPStan configuration for MokoStandards projects
+parameters:
+    level: 5
+    paths:
+        - src
+        - tests
+    excludePaths:
+        - vendor
+        - node_modules
+    
+    # Report unknown classes and functions
+    reportUnmatchedIgnoredErrors: false
+    
+    # Check for dead code
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false
+    
+    # Additional checks
+    checkAlwaysTrueCheckTypeFunctionCall: true
+    checkAlwaysTrueInstanceof: true
+    checkAlwaysTrueStrictComparison: true
+    checkExplicitMixedMissingReturn: true
+    checkFunctionNameCase: true
+    checkInternalClassCaseSensitivity: true
+    
+    # Ignore common patterns
+    ignoreErrors:
+        # Add project-specific ignores here
+        # - '#Call to an undefined method#'

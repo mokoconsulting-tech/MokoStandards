@@ -58,18 +58,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'python', 'javascript', 'php' ]
+        language: [ 'python' ]
         # CodeQL supports: 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby', 'php'
         # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
-        # Note: Adjust the language matrix based on your repository's actual languages.
-        # Remove languages that are not present to avoid unnecessary workflow runs.
+        # IMPORTANT: Only include languages that exist in your repository to avoid errors.
+        # This template is configured for Python only. Add other languages as needed:
+        # - For JavaScript/TypeScript projects, add 'javascript'
+        # - For PHP projects, add 'php'
+        # - For multi-language projects, use: [ 'python', 'javascript', 'php' ]
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
+      uses: github/codeql-action/init@v4
       with:
         languages: ${{ matrix.language }}
         # If you wish to specify custom queries, you can do so here or in a config file.
@@ -82,10 +85,10 @@ jobs:
     # Autobuild attempts to build any compiled languages  (C/C++, C#, Go, or Java).
     # If this step fails, then you should remove it and run the build manually
     - name: Autobuild
-      uses: github/codeql-action/autobuild@v3
+      uses: github/codeql-action/autobuild@v4
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
+      uses: github/codeql-action/analyze@v4
       with:
         category: "/language:${{matrix.language}}"
         upload: true

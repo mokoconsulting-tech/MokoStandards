@@ -1,0 +1,356 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.Reusable
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/reusable-joomla-testing.yml
+# VERSION: 01.00.00
+# BRIEF: Reusable Joomla testing workflow with matrix PHP/Joomla versions
+# NOTE: Supports PHPUnit, integration tests, and code coverage
+
+name: Reusable Joomla Testing
+
+on:
+  workflow_call:
+    inputs:
+      php-versions:
+        description: 'JSON array of PHP versions to test'
+        required: false
+        type: string
+        default: '["7.4", "8.0", "8.1", "8.2"]'
+      joomla-versions:
+        description: 'JSON array of Joomla versions to test'
+        required: false
+        type: string
+        default: '["4.4", "5.0", "5.1"]'
+      coverage:
+        description: 'Enable code coverage reporting'
+        required: false
+        type: boolean
+        default: false
+      coverage-php-version:
+        description: 'PHP version to use for coverage reporting'
+        required: false
+        type: string
+        default: '8.1'
+      coverage-joomla-version:
+        description: 'Joomla version to use for coverage reporting'
+        required: false
+        type: string
+        default: '5.0'
+      working-directory:
+        description: 'Working directory for tests'
+        required: false
+        type: string
+        default: '.'
+      run-integration-tests:
+        description: 'Run integration tests with Joomla installation'
+        required: false
+        type: boolean
+        default: true
+    secrets:
+      CODECOV_TOKEN:
+        description: 'Codecov token for coverage uploads'
+        required: false
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  unit-tests:
+    name: PHPUnit (PHP ${{ matrix.php-version }}, Joomla ${{ matrix.joomla-version }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version: ${{ fromJSON(inputs.php-versions) }}
+        joomla-version: ${{ fromJSON(inputs.joomla-versions) }}
+        exclude:
+          # PHP 7.4 not compatible with Joomla 5.x
+          - php-version: '7.4'
+            joomla-version: '5.0'
+          - php-version: '7.4'
+            joomla-version: '5.1'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mbstring, xml, mysqli, zip, gd, intl
+          coverage: ${{ inputs.coverage && matrix.php-version == inputs.coverage-php-version && matrix.joomla-version == inputs.coverage-joomla-version && 'xdebug' || 'none' }}
+          tools: composer:v2
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-php-${{ matrix.php-version }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-${{ matrix.php-version }}-composer-
+            ${{ runner.os }}-php-
+
+      - name: Validate composer.json
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          if [ -f "composer.json" ]; then
+            composer validate --strict
+          else
+            echo "No composer.json found, skipping validation"
+          fi
+
+      - name: Install dependencies
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          if [ -f "composer.json" ]; then
+            composer install --prefer-dist --no-progress --no-interaction
+          else
+            echo "No composer.json found, skipping dependency installation"
+          fi
+
+      - name: Setup Joomla test environment
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          echo "Setting up Joomla ${{ matrix.joomla-version }} test environment"
+          # Add Joomla-specific environment variables
+          echo "JOOMLA_VERSION=${{ matrix.joomla-version }}" >> $GITHUB_ENV
+
+      - name: Run PHPUnit tests
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          if [ -f "vendor/bin/phpunit" ]; then
+            if [ "${{ inputs.coverage && matrix.php-version == inputs.coverage-php-version && matrix.joomla-version == inputs.coverage-joomla-version }}" == "true" ]; then
+              vendor/bin/phpunit --coverage-text --coverage-clover=coverage.xml
+            else
+              vendor/bin/phpunit
+            fi
+          elif [ -f "phpunit.xml" ] || [ -f "phpunit.xml.dist" ]; then
+            if [ "${{ inputs.coverage && matrix.php-version == inputs.coverage-php-version && matrix.joomla-version == inputs.coverage-joomla-version }}" == "true" ]; then
+              php vendor/phpunit/phpunit/phpunit --coverage-text --coverage-clover=coverage.xml
+            else
+              php vendor/phpunit/phpunit/phpunit
+            fi
+          else
+            echo "⚠️ No PHPUnit configuration found, skipping tests"
+            exit 0
+          fi
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        if: inputs.coverage && matrix.php-version == inputs.coverage-php-version && matrix.joomla-version == inputs.coverage-joomla-version
+        with:
+          file: ${{ inputs.working-directory }}/coverage.xml
+          flags: unittests,php-${{ matrix.php-version }},joomla-${{ matrix.joomla-version }}
+          name: codecov-joomla-${{ matrix.php-version }}-${{ matrix.joomla-version }}
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
+
+  integration-tests:
+    name: Integration (Joomla ${{ matrix.joomla-version }})
+    runs-on: ubuntu-latest
+    if: inputs.run-integration-tests
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: joomla_test
+          MYSQL_USER: joomla
+          MYSQL_PASSWORD: joomla
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    strategy:
+      fail-fast: false
+      matrix:
+        joomla-version: ${{ fromJSON(inputs.joomla-versions) }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mbstring, xml, mysqli, zip, gd, intl, pdo_mysql
+          tools: composer:v2
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-integration-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-integration-composer-
+
+      - name: Install dependencies
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          if [ -f "composer.json" ]; then
+            composer install --prefer-dist --no-progress --no-interaction
+          fi
+
+      - name: Download and setup Joomla ${{ matrix.joomla-version }}
+        run: |
+          echo "📦 Setting up Joomla ${{ matrix.joomla-version }} for integration testing"
+
+          # Create Joomla directory
+          mkdir -p /tmp/joomla
+          cd /tmp/joomla
+
+          # Determine Joomla version to download
+          JOOMLA_VERSION="${{ matrix.joomla-version }}"
+
+          # Download latest patch version for the specified minor version
+          if [[ "$JOOMLA_VERSION" == "4.4" ]]; then
+            DOWNLOAD_VERSION="4.4-Stable"
+          elif [[ "$JOOMLA_VERSION" == "5.0" ]]; then
+            DOWNLOAD_VERSION="5.0-Stable"
+          elif [[ "$JOOMLA_VERSION" == "5.1" ]]; then
+            DOWNLOAD_VERSION="5.1-Stable"
+          else
+            DOWNLOAD_VERSION="${JOOMLA_VERSION}-Stable"
+          fi
+
+          echo "Downloading Joomla ${DOWNLOAD_VERSION}..."
+          curl -L -o joomla.zip "https://downloads.joomla.org/cms/joomla${JOOMLA_VERSION%%.*}/${DOWNLOAD_VERSION}" || \
+          curl -L -o joomla.zip "https://github.com/joomla/joomla-cms/releases/download/${JOOMLA_VERSION}.0/Joomla_${JOOMLA_VERSION}.0-Stable-Full_Package.zip" || \
+          echo "⚠️ Could not download Joomla, integration tests may be limited"
+
+          if [ -f joomla.zip ]; then
+            unzip -q joomla.zip
+            echo "✅ Joomla extracted successfully"
+          fi
+
+      - name: Configure Joomla
+        run: |
+          echo "⚙️ Configuring Joomla for testing"
+
+          if [ -d "/tmp/joomla" ]; then
+            cd /tmp/joomla
+
+            # Create basic Joomla configuration
+            cat > configuration.php << 'EOF'
+          <?php
+          class JConfig {
+              public $dbtype = 'mysqli';
+              public $host = '127.0.0.1';
+              public $user = 'joomla';
+              public $password = 'joomla';
+              public $db = 'joomla_test';
+              public $dbprefix = 'jos_';
+              public $secret = 'test-secret';
+              public $debug = true;
+              public $error_reporting = 'maximum';
+          }
+          EOF
+
+            echo "✅ Joomla configuration created"
+          else
+            echo "⚠️ Joomla directory not found, skipping configuration"
+          fi
+
+      - name: Install extension into Joomla
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          echo "📦 Installing extension into Joomla"
+
+          if [ -d "/tmp/joomla" ]; then
+            # Copy extension files to Joomla
+            # This is a placeholder - actual implementation depends on extension type
+            echo "Extension installation logic would go here"
+            echo "Extension type detection and installation steps"
+          else
+            echo "⚠️ Skipping extension installation - Joomla not available"
+          fi
+
+      - name: Run integration tests
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          if [ -d "tests/Integration" ] && [ -f "vendor/bin/phpunit" ]; then
+            echo "🧪 Running integration tests"
+            # Try test suite first, then directory-based as fallback
+            if vendor/bin/phpunit --testsuite Integration; then
+              echo "✅ Integration tests passed (test suite)"
+            elif vendor/bin/phpunit tests/Integration/; then
+              echo "✅ Integration tests passed (directory)"
+            else
+              echo "❌ Integration tests failed"
+              exit 1
+            fi
+          else
+            echo "ℹ️ No integration tests found or PHPUnit not available"
+            echo "Looked for: tests/Integration/ directory"
+          fi
+
+  summary:
+    name: Testing Summary
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests]
+    if: always()
+
+    steps:
+      - name: Generate test summary
+        run: |
+          echo "### 🧪 Joomla Testing Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Test Suite | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Unit Tests | ${{ needs.unit-tests.result == 'success' && '✅ Passed' || needs.unit-tests.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Integration Tests | ${{ needs.integration-tests.result == 'success' && '✅ Passed' || needs.integration-tests.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Repository:** $GITHUB_REPOSITORY" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** $GITHUB_REF_NAME" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** $GITHUB_SHA" >> $GITHUB_STEP_SUMMARY
+
+      - name: Check test results
+        run: |
+          if [ "${{ needs.unit-tests.result }}" == "failure" ]; then
+            echo "❌ Unit tests failed"
+            exit 1
+          fi
+
+          if [ "${{ needs.integration-tests.result }}" == "failure" ]; then
+            echo "❌ Integration tests failed"
+            exit 1
+          fi
+
+          echo "✅ All test suites passed or were skipped"

@@ -155,7 +155,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.node-version }}
-          cache: 'npm'
 
       - name: Make scripts executable
         if: needs.setup.outputs.has-scripts == 'true'
@@ -216,19 +215,16 @@ jobs:
             echo "✅ PHP syntax validation passed" >> $GITHUB_STEP_SUMMARY
           else
             # Basic PHP syntax check
-            ERROR=0
-            find . -name "*.php" -type f | while read -r file; do
-              if ! php -l "$file" > /dev/null 2>&1; then
-                echo "❌ Syntax error in: $file"
-                ERROR=1
-              fi
-            done
-            if [ $ERROR -eq 0 ]; then
+            ERROR_FILE=$(mktemp)
+            find . -name "*.php" -type f -exec sh -c 'if ! php -l "$1" > /dev/null 2>&1; then echo "❌ Syntax error in: $1"; exit 1; fi' _ {} \; || echo "1" > "$ERROR_FILE"
+            if [ ! -s "$ERROR_FILE" ]; then
               echo "✅ PHP syntax validation passed" >> $GITHUB_STEP_SUMMARY
             else
               echo "❌ PHP syntax errors found" >> $GITHUB_STEP_SUMMARY
+              rm -f "$ERROR_FILE"
               exit 1
             fi
+            rm -f "$ERROR_FILE"
           fi
 
   optional-validations:
@@ -302,13 +298,11 @@ jobs:
             echo "✅ License headers validated" >> $GITHUB_STEP_SUMMARY
           else
             # Basic license header check
-            FILES_WITHOUT_LICENSE=0
-            find . -name "*.php" -o -name "*.js" -o -name "*.py" | while read -r file; do
-              if ! head -20 "$file" | grep -qi "license\|copyright\|spdx"; then
-                FILES_WITHOUT_LICENSE=$((FILES_WITHOUT_LICENSE + 1))
-              fi
-            done
-            if [ $FILES_WITHOUT_LICENSE -eq 0 ]; then
+            COUNT_FILE=$(mktemp)
+            find . \( -name "*.php" -o -name "*.js" -o -name "*.py" \) -type f -exec sh -c 'if ! head -20 "$1" | grep -qi "license\|copyright\|spdx"; then echo "1"; fi' _ {} \; > "$COUNT_FILE"
+            FILES_WITHOUT_LICENSE=$(wc -l < "$COUNT_FILE")
+            rm -f "$COUNT_FILE"
+            if [ "$FILES_WITHOUT_LICENSE" -eq 0 ]; then
               echo "✅ License headers appear present" >> $GITHUB_STEP_SUMMARY
             else
               echo "⚠️ Some files may be missing license headers" >> $GITHUB_STEP_SUMMARY

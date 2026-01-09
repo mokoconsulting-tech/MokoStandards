@@ -3,7 +3,7 @@
 
  This file is part of a Moko Consulting project.
 
- SPDX-LICENSE-IDENTIFIER: GPL-3.0-or-later
+ SPDX-License-Identifier: GPL-3.0-or-later
 
  # FILE INFORMATION
  DEFGROUP: MokoStandards

@@ -308,9 +308,9 @@ jobs:
           if [ -d "tests/Integration" ] && [ -f "vendor/bin/phpunit" ]; then
             echo "🧪 Running integration tests"
             # Try test suite first, then directory-based as fallback
-            if vendor/bin/phpunit --testsuite Integration 2>/dev/null; then
+            if vendor/bin/phpunit --testsuite Integration; then
               echo "✅ Integration tests passed (test suite)"
-            elif vendor/bin/phpunit tests/Integration/ 2>/dev/null; then
+            elif vendor/bin/phpunit tests/Integration/; then
               echo "✅ Integration tests passed (directory)"
             else
               echo "❌ Integration tests failed"

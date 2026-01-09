@@ -77,9 +77,9 @@ Preview what would be updated without making changes:
 
 ### Workflow Files (Default)
 
-- `.github/dependabot.yml` → `.github/dependabot.yml`
+- `.github/dependabot.yml` → `.github/dependabot.yml` (monthly schedule with Python, JavaScript, PHP, and GitHub Actions)
 - `.github/workflow-templates/build-universal.yml` → `.github/workflows/build.yml`
-- `.github/workflow-templates/codeql-analysis.yml` → `.github/workflows/codeql-analysis.yml`
+- `.github/workflow-templates/codeql-analysis.yml` → `.github/workflows/codeql-analysis.yml` (scans Python, JavaScript, and PHP)
 - `.github/workflow-templates/dependency-review.yml` → `.github/workflows/dependency-review.yml`
 - `.github/workflow-templates/standards-compliance.yml` → `.github/workflows/standards-compliance.yml`
 - `.github/workflow-templates/release-cycle.yml` → `.github/workflows/release-cycle.yml`

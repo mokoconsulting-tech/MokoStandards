@@ -69,8 +69,8 @@ The repository includes `.github/workflows/bulk-repo-sync.yml` which automatical
 - Creates pull requests for review
 
 **What gets synced:**
-- Dependabot configuration (monthly schedule)
-- GitHub workflow templates (CI, CodeQL, build, release)
+- Dependabot configuration (monthly schedule for Python, JavaScript, PHP, and GitHub Actions)
+- GitHub workflow templates (CI, CodeQL with Python/JavaScript/PHP, build, release)
 - Reusable workflows
 - Maintenance scripts (validation, changelog, release)
 

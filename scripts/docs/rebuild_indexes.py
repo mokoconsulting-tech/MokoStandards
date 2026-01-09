@@ -132,7 +132,7 @@ def generate_catalog_content(root_path: Path) -> str:
     lines = [
         f"# {PROJECT_NAME} Documentation Catalog",
         "",
-        "This is a comprehensive catalog of all documentation in the MokoStandards repository.",
+        f"This is a comprehensive catalog of all documentation in the {PROJECT_NAME} repository.",
         "",
         "## Quick Links",
         "",

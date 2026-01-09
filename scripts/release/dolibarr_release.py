@@ -115,19 +115,19 @@ class DolibarrReleaser:
         package_dir.mkdir(parents=True, exist_ok=True)
 
         # Exclusions for development files
-        exclude_dirs = [
+        exclude_dirs = {
             'build', 'tests', '.git', '.github',
             'node_modules', '.pytest_cache', '.vscode', '.idea', '__pycache__'
-        ]
+        }
         exclude_file_patterns = [
             '*.pyc'
         ]
-        exclude_names = [
+        exclude_names = {
             '.gitignore', '.gitattributes',
             'composer.json', 'composer.lock', 'phpunit.xml', 'phpunit.xml.dist',
             'phpcs.xml', 'phpcs.xml.dist', 'phpstan.neon', 'psalm.xml',
             'package.json', 'package-lock.json', '.DS_Store'
-        ]
+        }
 
         def ignore_function(src: str, names: list[str]) -> set[str]:
             """Custom ignore function to filter directories and file patterns."""

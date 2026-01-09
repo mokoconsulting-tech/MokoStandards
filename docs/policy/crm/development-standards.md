@@ -946,6 +946,7 @@ if (version_compare($latestVersion, $this->version, '>')) {
  *
  * Requirements:
  * - Enforce key format: MOKO-PRODUCT-XXXX-XXXX-XXXX (4-char alphanumeric segments)
+ *   Product code can be variable length (e.g., DOLITOOLS, CRM, FORM)
  * - Call validation endpoint https://license.mokoconsulting.tech/validate via POST
  * - Send JSON body: {"license_key": "...", "domain": "...", "installation_id": "..."}
  * - Cache successful validations for up to 7 consecutive days for offline use
@@ -961,6 +962,7 @@ public function validateUserKey($licenseKey)
     }
 
     // 2) Determine cache file location (example: module-specific temp directory)
+    // Note: In production, consider encrypting cache file contents to prevent information disclosure
     $cacheDir = DOL_DATA_ROOT . '/mokomodule';
     if (!is_dir($cacheDir)) {
         dol_mkdir($cacheDir);
@@ -970,15 +972,20 @@ public function validateUserKey($licenseKey)
     // 3) Try to use cached validation (offline mode) if endpoint not reachable
     $now = time();
     if (is_readable($cacheFile)) {
-        $cacheData = json_decode(file_get_contents($cacheFile), true);
-        if (is_array($cacheData)
-            && !empty($cacheData['license_key'])
-            && $cacheData['license_key'] === $licenseKey
-            && !empty($cacheData['validated_at'])
-            && ($now - (int) $cacheData['validated_at']) <= 7 * 24 * 60 * 60
-        ) {
-            // Cached result still valid (within 7 days)
-            return !empty($cacheData['valid']);
+        $fileSize = filesize($cacheFile);
+        // Validate file size to prevent reading excessively large files
+        if ($fileSize > 0 && $fileSize < 10240) { // Max 10KB
+            $cacheData = json_decode(file_get_contents($cacheFile), true);
+            if (json_last_error() === JSON_ERROR_NONE
+                && is_array($cacheData)
+                && !empty($cacheData['license_key'])
+                && $cacheData['license_key'] === $licenseKey
+                && !empty($cacheData['validated_at'])
+                && ($now - (int) $cacheData['validated_at']) <= 7 * 24 * 60 * 60
+            ) {
+                // Cached result still valid (within 7 days)
+                return !empty($cacheData['valid']);
+            }
         }
     }
 

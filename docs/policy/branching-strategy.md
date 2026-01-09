@@ -388,8 +388,8 @@ git push origin hotfix/1.2.3-backport
 
 # Create PR: hotfix/1.2.3-backport -> version/1.2.0
 # Merge and tag
-git checkout 1.2.0
-git pull origin 1.2.0
+git checkout version/1.2.0
+git pull origin version/1.2.0
 git tag -a v1.2.3 -m "Version 1.2.3"
 git push origin v1.2.3
 ```

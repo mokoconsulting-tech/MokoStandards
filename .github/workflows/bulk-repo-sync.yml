@@ -79,6 +79,11 @@ jobs:
           echo "$GH_TOKEN" | gh auth login --with-token
           gh auth status
           
+      - name: Configure Git
+        run: |
+          git config --global user.email "automation@mokoconsulting.tech"
+          git config --global user.name "Moko Standards Bot"
+          
       - name: Run bulk update script (dry-run)
         if: github.event_name == 'workflow_dispatch' && inputs.dry_run == true
         env:

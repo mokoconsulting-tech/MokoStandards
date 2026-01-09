@@ -128,8 +128,8 @@ def get_org_repositories(org: str, exclude_archived: bool = True) -> List[str]:
 
 def clone_repository(org: str, repo: str, target_dir: str) -> bool:
     """Clone a repository to a temporary directory."""
-    repo_url = f"https://github.com/{org}/{repo}.git"
-    cmd = ["git", "clone", repo_url, target_dir]
+    # Use gh CLI to clone, which handles authentication automatically
+    cmd = ["gh", "repo", "clone", f"{org}/{repo}", target_dir]
     
     success, stdout, stderr = run_command(cmd)
     if not success:

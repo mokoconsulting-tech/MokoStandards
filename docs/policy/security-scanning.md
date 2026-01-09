@@ -91,6 +91,7 @@ Responsible for:
 - Runs on: push to main, pull requests, weekly schedule
 - Languages supported: Python, JavaScript, TypeScript, Java, C/C++, C#, Go, Ruby
 - Query sets: `security-extended` and `security-and-quality`
+- **Language configuration must match repository contents**: Only languages with actual source files should be configured to avoid analysis failures
 
 **Implementation**:
 ```yaml
@@ -103,7 +104,36 @@ on:
     branches: [main, dev/**, rc/**]
   schedule:
     - cron: '0 6 * * 1'  # Weekly Monday 6 AM UTC
+
+jobs:
+  analyze:
+    strategy:
+      matrix:
+        # IMPORTANT: Only list languages that exist in your repository
+        # Configuring non-existent languages will cause CI failures
+        language: [ 'python' ]  # Adjust based on your actual codebase
 ```
+
+**Language Configuration Validation**:
+
+To prevent CI failures from misconfigured languages, validate your CodeQL configuration:
+
+```bash
+# Download and run the validation script
+curl -sSL https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/scripts/validate/validate_codeql_config.py -o validate_codeql_config.py
+python3 validate_codeql_config.py
+```
+
+The validation script will:
+- Detect programming languages present in your repository
+- Compare against configured CodeQL languages
+- Report errors for configured languages with no source files
+- Report warnings for detected languages not being scanned
+
+**Common Configuration Errors**:
+- ❌ **Incorrect**: Copying template with `['python', 'javascript', 'php']` when only Python exists
+- ✅ **Correct**: Configure only `['python']` for Python-only repositories
+- ✅ **Correct**: Configure `['python', 'javascript']` for repos with both languages
 
 **Response Requirements**:
 - Critical: Fix within 7 days

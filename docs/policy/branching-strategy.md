@@ -122,10 +122,22 @@ main (production)
 
 **Characteristics**:
 - Created from `rc/*` after release
+- **MUST be created with an accompanying Pull Request**
 - Used for version-specific maintenance
 - Accepts hotfixes for that version
 - Tagged with patch versions
 - Can be maintained in parallel
+
+**Pull Request Requirements**:
+- Version branch creation MUST trigger automatic PR creation
+- PR title format: `Version branch: X.Y.Z` or `Create version branch X.Y.Z`
+- PR MUST include:
+  - Summary of version changes from CHANGELOG
+  - List of major features and bug fixes
+  - Breaking changes (if any)
+  - Migration notes (if applicable)
+- PR MUST be reviewed and approved before merge to main
+- Minimum 1 reviewer approval required
 
 **Use Cases**:
 - Long-term support (LTS) versions
@@ -291,11 +303,20 @@ git push origin v1.2.0
 # Create PR: rc/1.2.0 -> dev
 # Merge to keep dev up to date
 
-# 9. Create version branch (optional, for LTS)
-git checkout -b 1.2.0
-git push origin 1.2.0
+# 9. Create version branch (REQUIRED for LTS/maintenance)
+git checkout main
+git pull origin main
+git checkout -b version/1.2.0
+git push origin version/1.2.0
 
-# 10. Delete RC branch
+# 10. Create Pull Request for version branch
+# REQUIRED: Version branch MUST have accompanying PR
+# - PR title: "Version branch: 1.2.0"
+# - Include CHANGELOG summary
+# - Include breaking changes and migration notes
+# - Requires 1 reviewer approval before merge
+
+# 11. Delete RC branch after version branch PR is merged
 git branch -d rc/1.2.0
 git push origin --delete rc/1.2.0
 ```
@@ -346,17 +367,26 @@ git push origin --delete hotfix/1.2.1-security-fix
 # Create version branch from main after release
 git checkout main
 git pull origin main
-git checkout -b 1.2.0
-git push origin 1.2.0
+git checkout -b version/1.2.0
+git push origin version/1.2.0
+
+# REQUIRED: Create Pull Request for version branch
+# PR title: "Version branch: 1.2.0"
+# PR body must include:
+# - Summary of version changes
+# - List of major features
+# - Breaking changes
+# - Migration notes
+# After approval, merge to main
 
 # Apply hotfix to version branch
-git checkout 1.2.0
+git checkout version/1.2.0
 git checkout -b hotfix/1.2.3-backport
 # Apply fix
 git commit -m "Backport security fix"
 git push origin hotfix/1.2.3-backport
 
-# Create PR: hotfix/1.2.3-backport -> 1.2.0
+# Create PR: hotfix/1.2.3-backport -> version/1.2.0
 # Merge and tag
 git checkout 1.2.0
 git pull origin 1.2.0

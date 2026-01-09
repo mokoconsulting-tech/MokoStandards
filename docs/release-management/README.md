@@ -51,11 +51,20 @@ main → dev → rc → version → main
 **Duration**: Permanent (never deleted)
 
 **Activities**:
+- Branch creation from rc branch
+- **REQUIRED: Automated Pull Request creation**
 - Tag creation
 - Release notes finalization
 - Archive for historical reference
 
 **Branch Pattern**: `version/X.Y.Z` (e.g., `version/1.2.0`)
+
+**Pull Request Requirement**:
+- Version branch creation MUST trigger automatic PR creation
+- PR title format: `Version branch: X.Y.Z`
+- PR must include version summary, breaking changes, and migration notes
+- Minimum 1 reviewer approval required before merge
+- See branching-strategy.md policy for complete requirements
 
 ### Stage 4: Production (main)
 
@@ -118,9 +127,15 @@ main → dev → rc → version → main
 
 **Created From**: `rc/X.Y.Z`
 
-**Merged To**: `main`
+**Merged To**: `main` (via Pull Request)
 
 **Lifetime**: Permanent (never deleted)
+
+**Pull Request Requirement**:
+- MUST create Pull Request when version branch is created
+- PR must include CHANGELOG summary and version details
+- Requires minimum 1 reviewer approval
+- Automated via version_branch.yml workflow
 
 #### Hotfix Branches
 

@@ -265,7 +265,7 @@ Repositories MAY implement these workflows as appropriate:
 
 - `release-cycle.yml` - Automated release management (main → dev → rc → version → main)
 - `repo_health.yml` - Repository health scoring and monitoring
-- `version_branch.yml` - Version branch automation
+- `version_branch.yml` - Version branch automation with automatic PR creation (enforces policy requirement)
 
 ### File Header Requirements
 

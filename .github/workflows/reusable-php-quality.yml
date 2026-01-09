@@ -230,7 +230,10 @@ jobs:
           elif [ -f "vendor/bin/psalm" ]; then
             # Initialize Psalm config if it doesn't exist
             if [ ! -f "psalm.xml" ]; then
-              vendor/bin/psalm --init src/ ${{ inputs.psalm-level }} || true
+              echo "Initializing Psalm configuration..."
+              if ! vendor/bin/psalm --init src/ ${{ inputs.psalm-level }}; then
+                echo "⚠️ Psalm initialization failed, proceeding with defaults"
+              fi
             fi
             vendor/bin/psalm --no-progress --output-format=github --show-info=false
           else

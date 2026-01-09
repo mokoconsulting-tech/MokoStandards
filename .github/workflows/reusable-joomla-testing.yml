@@ -164,7 +164,7 @@ jobs:
           fi
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         if: inputs.coverage && matrix.php-version == inputs.coverage-php-version && matrix.joomla-version == inputs.coverage-joomla-version
         with:
           file: ${{ inputs.working-directory }}/coverage.xml

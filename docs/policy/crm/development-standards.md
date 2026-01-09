@@ -261,9 +261,9 @@ To reserve a Dolibarr module ID from the Moko Consulting range (185051-185099):
 
 **Table Naming**:
 - Use `llx_` prefix (Dolibarr standard)
-- Add module prefix after: `llx_moko_tablename`
+- Add full module prefix after: `llx_mokocrm_workflow_tablename`
 - Use lowercase with underscores
-- Example: `llx_moko_workflow_tasks`
+- Example: `llx_mokocrm_workflow_tasks`
 
 **Required Columns**:
 ```sql
@@ -889,8 +889,8 @@ mokomodule-1.0.0.zip
 
 **Dolibarr Module Updates**:
 ```php
-// Dolibarr does not have native automatic update support via module_parts
-// Implement custom update checking mechanism:
+// In this project, automatic updates for Dolibarr modules are handled via a custom mechanism (not via module_parts).
+// Implement a custom update checking mechanism:
 // 1. Create an admin page that checks for updates from ARS
 // 2. Parse update XML from: https://releases.mokoconsulting.tech/dolibarr/updates/mokomodule.xml
 // 3. Display update notification and download link to administrators
@@ -921,7 +921,7 @@ if (version_compare($latestVersion, $this->version, '>')) {
 **Implementation Requirements**:
 
 1. **Key Validation**: Extensions must validate user key before enabling functionality
-2. **Key Storage**: Store encrypted keys in configuration (never plain text)
+2. **Key Storage**: Store license keys only in encrypted form and only in secure configuration/storage mechanisms; never store them in plain text or alongside their encryption keys.
    - Use AES-256-GCM for at-rest encryption of license keys
    - Encryption keys MUST NOT be stored in the same location as encrypted license keys
    - Use platform-specific secure storage APIs or environment variables for encryption key management
@@ -940,8 +940,97 @@ if (version_compare($latestVersion, $this->version, '>')) {
 
 **Dolibarr Implementation**:
 ```php
+// In module class
+/**
+ * Validate license key according to Moko Consulting standards.
+ *
+ * Requirements:
+ * - Enforce key format: MOKO-PRODUCT-XXXX-XXXX-XXXX (4-char alphanumeric segments)
+ * - Call validation endpoint https://license.mokoconsulting.tech/validate via POST
+ * - Send JSON body: {"license_key": "...", "domain": "...", "installation_id": "..."}
+ * - Cache successful validations for up to 7 consecutive days for offline use
+ */
+public function validateUserKey($licenseKey)
+{
+    global $conf;
+
+    // 1) Basic format validation
+    $pattern = '/^MOKO-[A-Z0-9]+-(?:[A-Z0-9]{4}-){2}[A-Z0-9]{4}$/i';
+    if (!preg_match($pattern, $licenseKey)) {
+        return false;
+    }
+
+    // 2) Determine cache file location (example: module-specific temp directory)
+    $cacheDir = DOL_DATA_ROOT . '/mokomodule';
+    if (!is_dir($cacheDir)) {
+        dol_mkdir($cacheDir);
+    }
+    $cacheFile = $cacheDir . '/license_cache.json';
+
+    // 3) Try to use cached validation (offline mode) if endpoint not reachable
+    $now = time();
+    if (is_readable($cacheFile)) {
+        $cacheData = json_decode(file_get_contents($cacheFile), true);
+        if (is_array($cacheData)
+            && !empty($cacheData['license_key'])
+            && $cacheData['license_key'] === $licenseKey
+            && !empty($cacheData['validated_at'])
+            && ($now - (int) $cacheData['validated_at']) <= 7 * 24 * 60 * 60
+        ) {
+            // Cached result still valid (within 7 days)
+            return !empty($cacheData['valid']);
+        }
+    }
+
+    // 4) Online validation against Moko license server
+    $domain = (!empty($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'cli');
+    $installationId = !empty($conf->global->MAIN_INSTALL_ID) ? $conf->global->MAIN_INSTALL_ID : dol_hash($domain, 5);
+
+    $payload = json_encode([
+        'license_key'      => $licenseKey,
+        'domain'           => $domain,
+        'installation_id'  => $installationId,
+    ]);
+
+    $ch = curl_init('https://license.mokoconsulting.tech/validate');
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST           => true,
+        CURLOPT_HTTPHEADER     => [
+            'Content-Type: application/json',
+            'X-Extension-Version: ' . DOL_VERSION,
+        ],
+        CURLOPT_POSTFIELDS     => $payload,
+        CURLOPT_TIMEOUT        => 10,
+    ]);
+
+    $responseBody = curl_exec($ch);
+    $curlErr      = curl_error($ch);
+    $httpCode     = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    // If request failed, fall back to any still-valid cache (handled above). Here we fail closed.
+    if ($responseBody === false || $httpCode !== 200) {
+        return false;
+    }
+
+    $response = json_decode($responseBody, true);
+    $isValid  = is_array($response) && !empty($response['valid']);
+
+    // 5) Update cache for offline mode
+    $cachePayload = [
+        'license_key'   => $licenseKey,
+        'valid'         => $isValid,
+        'validated_at'  => $now,
+        'raw_response'  => $response,
+    ];
+    @file_put_contents($cacheFile, json_encode($cachePayload));
+
+    return $isValid;
+}
+
 // In module setup page
-// Note: Implement validateUserKey() method in your module class
+// Note: Call validateUserKey() before enabling module functionality
 if (!$this->validateUserKey($conf->global->MOKOMODULE_LICENSE_KEY)) {
     setEventMessages($langs->trans('InvalidLicenseKey'), null, 'errors');
     // Disable module functionality (implement appropriate checks throughout module)
@@ -951,7 +1040,10 @@ if (!$this->validateUserKey($conf->global->MOKOMODULE_LICENSE_KEY)) {
 **Joomla Implementation**:
 ```php
 // In extension installation script
-// Note: Implement validateLicenseKey() method in your extension class
+// Note: Implement validateLicenseKey() in your extension class to:
+//   - Enforce key format: MOKO-PRODUCT-XXXX-XXXX-XXXX
+//   - Validate keys against https://license.mokoconsulting.tech/validate
+//   - Apply the 7-day offline cache/expiry rules defined in this policy
 public function preflight($type, $parent) {
     $params = JComponentHelper::getParams('com_mokoextension');
     $licenseKey = $params->get('license_key');

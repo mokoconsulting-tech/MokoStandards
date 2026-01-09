@@ -267,7 +267,7 @@ To reserve a Dolibarr module ID from the Moko Consulting range (185051-185099):
 
 **Required Columns**:
 ```sql
-CREATE TABLE llx_moko_example (
+CREATE TABLE llx_mokocrm_example (
   rowid INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
   entity INT(11) DEFAULT 1 NOT NULL,
   
@@ -292,9 +292,9 @@ CREATE TABLE llx_moko_example (
 
 **Indexes**:
 ```sql
-ALTER TABLE llx_moko_example ADD INDEX idx_moko_example_entity (entity);
-ALTER TABLE llx_moko_example ADD INDEX idx_moko_example_ref (ref);
-ALTER TABLE llx_moko_example ADD UNIQUE INDEX uk_moko_example_ref (ref, entity);
+ALTER TABLE llx_mokocrm_example ADD INDEX idx_mokocrm_example_entity (entity);
+ALTER TABLE llx_mokocrm_example ADD INDEX idx_mokocrm_example_ref (ref);
+ALTER TABLE llx_mokocrm_example ADD UNIQUE INDEX uk_mokocrm_example_ref (ref, entity);
 ```
 
 ### PHP Coding Standards
@@ -1023,7 +1023,10 @@ public function validateUserKey($licenseKey)
         'validated_at'  => $now,
         'raw_response'  => $response,
     ];
-    @file_put_contents($cacheFile, json_encode($cachePayload));
+    if (file_put_contents($cacheFile, json_encode($cachePayload)) === false) {
+        // Log cache write failure but continue (validation already succeeded)
+        dol_syslog('Failed to write license validation cache', LOG_WARNING);
+    }
 
     return $isValid;
 }

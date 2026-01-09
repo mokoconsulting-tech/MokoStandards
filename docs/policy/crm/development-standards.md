@@ -963,6 +963,7 @@ public function validateUserKey($licenseKey)
     }
 
     // 2) Determine cache file location (example: module-specific temp directory)
+    // Note: Replace 'mokomodule' with your actual module name for production use
     // Note: In production, consider encrypting cache file contents to prevent information disclosure
     $cacheDir = DOL_DATA_ROOT . '/mokomodule';
     if (!is_dir($cacheDir)) {
@@ -1008,6 +1009,7 @@ public function validateUserKey($licenseKey)
         CURLOPT_POST           => true,
         CURLOPT_HTTPHEADER     => [
             'Content-Type: application/json',
+            // Note: Replace DOL_VERSION with your module version constant for production
             'X-Extension-Version: ' . DOL_VERSION,
         ],
         CURLOPT_POSTFIELDS     => $payload,

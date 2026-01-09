@@ -21,15 +21,18 @@
 # DEFGROUP: GitHub.Workflow
 # INGROUP: MokoStandards.Release
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
-# PATH: /templates/workflows/joomla/release.yml
+# PATH: /templates/workflows/dolibarr/release.yml
 # VERSION: 01.00.00
-# BRIEF: Automated release workflow for Joomla extensions
-# NOTE: Creates release packages and publishes to GitHub Releases
+# BRIEF: Automated release workflow for Dolibarr modules
+# NOTE: Creates release packages and publishes to GitHub Releases following main > dev > rc > version > main cycle
 
 name: Create Release
 
 on:
   push:
+    branches:
+      - 'main'
+      - 'rc/**'
     tags:
       - 'v*.*.*'
   workflow_dispatch:
@@ -39,7 +42,7 @@ on:
         required: true
         type: string
       prerelease:
-        description: 'Mark as pre-release'
+        description: 'Mark as pre-release (use for RC releases)'
         required: false
         type: boolean
         default: false
@@ -62,19 +65,35 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
-          extensions: mbstring, xml, zip
+          extensions: mbstring, xml, zip, gd, curl
           tools: composer:v2
 
-      - name: Get version
+      - name: Determine version and prerelease status
         id: version
         run: |
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             VERSION="${{ inputs.version }}"
-          else
+            PRERELEASE="${{ inputs.prerelease }}"
+          elif [ "${{ github.ref_type }}" == "tag" ]; then
             VERSION=${GITHUB_REF#refs/tags/v}
+            # Check if it's an RC tag
+            if [[ "$VERSION" == *"-rc"* ]]; then
+              PRERELEASE="true"
+            else
+              PRERELEASE="false"
+            fi
+          elif [[ "${{ github.ref }}" == refs/heads/rc/* ]]; then
+            # RC branch push - mark as prerelease
+            VERSION=$(grep -oP 'VERSION:\s*\K[\d.]+' README.md || echo "0.0.0")
+            PRERELEASE="true"
+          else
+            # Main branch or other
+            VERSION=$(grep -oP 'VERSION:\s*\K[\d.]+' README.md || echo "0.0.0")
+            PRERELEASE="false"
           fi
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
-          echo "Building version: ${VERSION}"
+          echo "prerelease=${PRERELEASE}" >> $GITHUB_OUTPUT
+          echo "Building version: ${VERSION} (prerelease: ${PRERELEASE})"
 
       - name: Install dependencies
         run: |
@@ -82,17 +101,20 @@ jobs:
             composer install --no-dev --optimize-autoloader
           fi
 
-      - name: Update version in manifest
+      - name: Update version in module descriptor
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          # Update version in XML manifest files
-          find . -name "*.xml" -type f -exec sed -i "s/<version>.*<\/version>/<version>${VERSION}<\/version>/g" {} \;
+          # Update version in core/modules/mod*.class.php
+          if [ -d "core/modules" ]; then
+            find core/modules -name "mod*.class.php" -type f -exec sed -i "s/\$this->version = '[^']*'/\$this->version = '${VERSION}'/g" {} \;
+            echo "- ✅ Updated version in module descriptor" >> $GITHUB_STEP_SUMMARY
+          fi
 
       - name: Create package structure
         run: |
           mkdir -p build/package
           
-          # Copy extension files (excluding development files)
+          # Copy module files (excluding development files)
           rsync -av --exclude='build' \
                     --exclude='tests' \
                     --exclude='.git*' \
@@ -104,24 +126,44 @@ jobs:
                     --exclude='psalm.xml*' \
                     --exclude='node_modules' \
                     --exclude='.github' \
+                    --exclude='package.json' \
+                    --exclude='package-lock.json' \
                     . build/package/
+
+      - name: Determine module name
+        id: module
+        run: |
+          # Try to extract module name from module descriptor
+          if [ -d "core/modules" ]; then
+            MOD_FILE=$(find core/modules -name "mod*.class.php" -type f | head -1)
+            if [ -n "$MOD_FILE" ]; then
+              MODULE_NAME=$(basename "$MOD_FILE" .class.php | sed 's/^mod//')
+            else
+              MODULE_NAME=$(basename $GITHUB_REPOSITORY | sed 's/^MokoDoli//' | sed 's/^dolibarr-//')
+            fi
+          else
+            MODULE_NAME=$(basename $GITHUB_REPOSITORY | sed 's/^MokoDoli//' | sed 's/^dolibarr-//')
+          fi
+          echo "name=${MODULE_NAME}" >> $GITHUB_OUTPUT
+          echo "Module name: ${MODULE_NAME}"
 
       - name: Create ZIP package
         run: |
           cd build/package
-          EXTENSION_NAME=$(basename $GITHUB_REPOSITORY | sed 's/^joomla-//' | sed 's/^mod_//' | sed 's/^com_//' | sed 's/^plg_//')
+          MODULE_NAME="${{ steps.module.outputs.name }}"
           VERSION="${{ steps.version.outputs.version }}"
-          ZIP_NAME="${EXTENSION_NAME}-${VERSION}.zip"
+          ZIP_NAME="${MODULE_NAME}-${VERSION}.zip"
           zip -r "../${ZIP_NAME}" .
           cd ../..
           echo "ZIP_NAME=${ZIP_NAME}" >> $GITHUB_ENV
-          echo "Created package: ${ZIP_NAME}"
+          echo "Created package: ${ZIP_NAME}" >> $GITHUB_STEP_SUMMARY
 
       - name: Generate checksums
         run: |
           cd build
           sha256sum "${ZIP_NAME}" > "${ZIP_NAME}.sha256"
           md5sum "${ZIP_NAME}" > "${ZIP_NAME}.md5"
+          echo "- ✅ Generated checksums" >> $GITHUB_STEP_SUMMARY
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -131,6 +173,7 @@ jobs:
             build/*.zip
             build/*.sha256
             build/*.md5
+          retention-days: 90
 
   release:
     name: Create GitHub Release
@@ -147,15 +190,28 @@ jobs:
           name: release-package
           path: ./artifacts
 
-      - name: Get version
+      - name: Get version and prerelease status
         id: version
         run: |
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             VERSION="${{ inputs.version }}"
-          else
+            PRERELEASE="${{ inputs.prerelease }}"
+          elif [ "${{ github.ref_type }}" == "tag" ]; then
             VERSION=${GITHUB_REF#refs/tags/v}
+            if [[ "$VERSION" == *"-rc"* ]]; then
+              PRERELEASE="true"
+            else
+              PRERELEASE="false"
+            fi
+          elif [[ "${{ github.ref }}" == refs/heads/rc/* ]]; then
+            VERSION=$(grep -oP 'VERSION:\s*\K[\d.]+' README.md || echo "0.0.0")
+            PRERELEASE="true"
+          else
+            VERSION=$(grep -oP 'VERSION:\s*\K[\d.]+' README.md || echo "0.0.0")
+            PRERELEASE="false"
           fi
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "prerelease=${PRERELEASE}" >> $GITHUB_OUTPUT
 
       - name: Extract changelog
         id: changelog
@@ -166,37 +222,37 @@ jobs:
             awk "/## \[${VERSION}\]/,/## \[/{if(/## \[${VERSION}\]/)print;else if(/## \[/)exit;else print}" CHANGELOG.md > release_notes.md
             
             if [ ! -s release_notes.md ]; then
-              echo "No specific changelog found for version ${VERSION}" > release_notes.md
+              echo "Release ${VERSION}" > release_notes.md
               echo "" >> release_notes.md
-              echo "Please refer to the full CHANGELOG.md for details." >> release_notes.md
+              echo "See CHANGELOG.md for details." >> release_notes.md
             fi
           else
-            echo "Release version ${{ steps.version.outputs.version }}" > release_notes.md
+            echo "Release ${VERSION}" > release_notes.md
+            echo "" >> release_notes.md
+            echo "Dolibarr module release package." >> release_notes.md
           fi
 
-      - name: Create Release
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ steps.version.outputs.version }}
           name: Release ${{ steps.version.outputs.version }}
           body_path: release_notes.md
-          draft: false
-          prerelease: ${{ inputs.prerelease || false }}
           files: |
             artifacts/*.zip
             artifacts/*.sha256
             artifacts/*.md5
+          draft: false
+          prerelease: ${{ steps.version.outputs.prerelease }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Release summary
+      - name: Release Summary
         run: |
-          echo "### Release Created Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "## 🎉 Release Created" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- Version: ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Repository: $GITHUB_REPOSITORY" >> $GITHUB_STEP_SUMMARY
-          echo "- Tag: v${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Pre-release: ${{ inputs.prerelease || false }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Pre-release:** ${{ steps.version.outputs.prerelease }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Package files:" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 Artifacts" >> $GITHUB_STEP_SUMMARY
           ls -lh artifacts/ >> $GITHUB_STEP_SUMMARY

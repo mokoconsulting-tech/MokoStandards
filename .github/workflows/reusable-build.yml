@@ -74,7 +74,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup PHP
         if: needs.detect.outputs.has-php == 'true'
@@ -86,7 +86,7 @@ jobs:
 
       - name: Setup Node.js
         if: needs.detect.outputs.has-node == 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ inputs.node-version }}
 
@@ -97,7 +97,7 @@ jobs:
 
       - name: Cache Composer dependencies
         if: needs.detect.outputs.has-php == 'true'
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -105,7 +105,7 @@ jobs:
 
       - name: Cache Node modules
         if: needs.detect.outputs.has-node == 'true'
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
@@ -210,7 +210,7 @@ jobs:
 
       - name: Upload build artifacts
         if: inputs.upload-artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ inputs.artifact-name }}-${{ needs.detect.outputs.project-type }}
           path: |

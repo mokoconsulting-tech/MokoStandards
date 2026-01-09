@@ -396,6 +396,46 @@ jobs:
           if [ $INVALID -gt 0 ]; then
             exit 1
           fi
+      
+      - name: Setup Python for CodeQL Validation
+        if: hashFiles('.github/workflows/codeql-analysis.yml') != ''
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      
+      - name: Install PyYAML for CodeQL Validation
+        if: hashFiles('.github/workflows/codeql-analysis.yml') != ''
+        run: pip install pyyaml
+      
+      - name: Validate CodeQL Configuration
+        if: hashFiles('.github/workflows/codeql-analysis.yml') != ''
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### CodeQL Language Configuration" >> $GITHUB_STEP_SUMMARY
+          
+          # Download validation script from MokoStandards
+          SCRIPT_URL="https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/scripts/validate/validate_codeql_config.py"
+          curl -sSL "$SCRIPT_URL" -o /tmp/validate_codeql_config.py
+          
+          # Run validation
+          if python3 /tmp/validate_codeql_config.py > /tmp/codeql_validation.txt 2>&1; then
+            echo "✅ CodeQL language configuration is valid" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            cat /tmp/codeql_validation.txt >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ CodeQL language configuration has issues" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            cat /tmp/codeql_validation.txt >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Action Required:** CodeQL is configured to analyze languages that don't exist in your repository." >> $GITHUB_STEP_SUMMARY
+            echo "This will cause CI failures. Please update .github/workflows/codeql-analysis.yml to only include" >> $GITHUB_STEP_SUMMARY
+            echo "languages that are actually present in your codebase." >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
 
   summary:
     name: Compliance Summary

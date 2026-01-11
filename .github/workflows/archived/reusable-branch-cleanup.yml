@@ -26,7 +26,7 @@
 # BRIEF: Reusable workflow to clean up stale and merged branches
 # NOTE: Works across all organization repositories with configurable exclusions
 
-name: Reusable Branch Cleanup
+name: Reusable Branch Cleanup (DEPRECATED)
 
 on:
   workflow_call:

@@ -58,19 +58,19 @@ def validate_yaml_syntax(filepath: Path) -> bool:
     try:
         import yaml
     except ImportError:
-        common.log_warn("PyYAML module not installed. Install with: pip3 install pyyaml")
+        common.log_warning("PyYAML module not installed. Install with: pip3 install pyyaml")
         return True  # Skip validation if yaml not available
     
     try:
         with open(filepath, 'r', encoding='utf-8') as f:
             yaml.safe_load(f)
-        print(f"✓ Valid YAML: {filepath.name}")
+        common.log_success(f"Valid YAML: {filepath.name}")
         return True
     except yaml.YAMLError as e:
-        print(f"✗ YAML Error in {filepath.name}: {e}", file=sys.stderr)
+        common.log_error(f"YAML Error in {filepath.name}: {e}")
         return False
     except Exception as e:
-        print(f"✗ Error reading {filepath.name}: {e}", file=sys.stderr)
+        common.log_error(f"Error reading {filepath.name}: {e}")
         return False
 
 

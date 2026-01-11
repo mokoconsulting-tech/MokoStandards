@@ -183,7 +183,7 @@ def main() -> int:
             "hits": [{"hit": f"{h['file']}:{h['line']}: {h['content']}"} for h in hits]
         }
         
-        print(json.dumps(result))
+        common.json_output(result)
         
         # Also print human-readable output
         print("\nERROR: Potential secrets detected!", file=sys.stderr)

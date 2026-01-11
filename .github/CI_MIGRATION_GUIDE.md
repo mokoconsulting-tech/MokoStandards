@@ -53,6 +53,7 @@ This dual-repository approach provides:
 | `release_pipeline.yml` | Automated release with marketplace publishing | **High** |
 | `deploy_staging.yml` | Staging environment deployment | **High** |
 | `joomla_testing.yml` | Comprehensive Joomla testing matrix | **High** |
+| `reusable-branch-cleanup.yml` | Branch cleanup automation | **Medium** |
 
 ### Workflows to Keep Local
 
@@ -682,9 +683,41 @@ jobs:
 
 ---
 
+### 5. Branch Cleanup (reusable-branch-cleanup.yml) → .github-private
+
+**Current Location:** `.github/workflows/reusable-branch-cleanup.yml` (MIGRATED)  
+**Target Location:** `.github-private/.github/workflows/branch-cleanup.yml`
+
+**Migration Steps:**
+1. Move reusable branch cleanup workflow to .github-private
+2. Centralize branch cleanup logic for organization-wide consistency
+3. Update branch-cleanup.yml caller to reference external workflow
+4. Configure organization-level branch protection patterns
+
+**Caller Example:**
+```yaml
+jobs:
+  cleanup:
+    uses: mokoconsulting-tech/.github-private/.github/workflows/branch-cleanup.yml@main
+    with:
+      stale-days: 90
+      delete-merged: true
+      delete-stale: true
+      dry-run: false
+      exclude-patterns: '["main", "master", "develop", "dev/.*", "rc/.*"]'
+      exclude-prefix: 'dependabot/,renovate/,copilot/'
+    secrets: inherit
+```
+
+**Shared Scripts Used:** None (uses GitHub API directly)
+
+**Status:** ✅ Migrated - Local reusable workflow moved to archived/, caller updated to use .github-private
+
+---
+
 ### Workflows Kept Local
 
-### 5. CI Validation (ci.yml) - KEEP LOCAL
+### 6. CI Validation (ci.yml) - KEEP LOCAL
 
 **Decision:** Keep in local repository
 
@@ -695,7 +728,7 @@ jobs:
 
 ---
 
-### 6. Repository Health (repo_health.yml) - KEEP LOCAL
+### 7. Repository Health (repo_health.yml) - KEEP LOCAL
 
 **Decision:** Keep in local repository
 
@@ -706,7 +739,7 @@ jobs:
 
 ---
 
-### 7. Version Branch (version_branch.yml) - KEEP LOCAL
+### 8. Version Branch (version_branch.yml) - KEEP LOCAL
 
 **Decision:** Keep in local repository
 

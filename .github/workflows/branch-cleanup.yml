@@ -24,7 +24,7 @@
 # PATH: /.github/workflows/branch-cleanup.yml
 # VERSION: 01.00.00
 # BRIEF: Clean up stale and merged branches in the repository
-# NOTE: Runs monthly or manually, uses reusable-branch-cleanup workflow
+# NOTE: Runs monthly or manually, uses centralized workflow from .github-private
 
 name: Branch Cleanup
 
@@ -63,7 +63,7 @@ permissions:
 jobs:
   cleanup:
     name: Cleanup Branches
-    uses: ./.github/workflows/reusable-branch-cleanup.yml
+    uses: mokoconsulting-tech/.github-private/.github/workflows/branch-cleanup.yml@main
     with:
       stale-days: ${{ inputs.stale-days || 90 }}
       delete-merged: ${{ inputs.delete-merged != false }}

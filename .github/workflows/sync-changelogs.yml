@@ -29,19 +29,17 @@
 name: Sync CHANGELOG Files
 
 on:
-  push:
-    branches:
-      - main
-      - dev/**
-      - rc/**
-    paths:
-      - 'CHANGELOG.md'
-      - 'src/CHANGELOG.md'
-  pull_request:
-    paths:
-      - 'CHANGELOG.md'
-      - 'src/CHANGELOG.md'
   workflow_dispatch:
+    inputs:
+      direction:
+        description: 'Sync direction'
+        required: true
+        type: choice
+        options:
+          - 'root-to-src'
+          - 'src-to-root'
+          - 'check-only'
+        default: 'check-only'
 
 permissions:
   contents: write
@@ -78,39 +76,6 @@ jobs:
           echo "root_exists=$ROOT_EXISTS" >> $GITHUB_OUTPUT
           echo "src_exists=$SRC_EXISTS" >> $GITHUB_OUTPUT
       
-      - name: Detect which file was changed
-        id: detect-change
-        if: steps.check-files.outputs.root_exists == 'true' && steps.check-files.outputs.src_exists == 'true'
-        run: |
-          # Get the list of changed files in this push/PR
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }})
-          else
-            # Handle initial commit or new branch
-            if git rev-parse HEAD~1 >/dev/null 2>&1; then
-              CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
-            else
-              # First commit - check all files
-              CHANGED_FILES=$(git ls-files)
-            fi
-          fi
-          
-          ROOT_CHANGED=false
-          SRC_CHANGED=false
-          
-          if echo "$CHANGED_FILES" | grep -q "^CHANGELOG.md$"; then
-            ROOT_CHANGED=true
-            echo "Root CHANGELOG.md was changed"
-          fi
-          
-          if echo "$CHANGED_FILES" | grep -q "^src/CHANGELOG.md$"; then
-            SRC_CHANGED=true
-            echo "src/CHANGELOG.md was changed"
-          fi
-          
-          echo "root_changed=$ROOT_CHANGED" >> $GITHUB_OUTPUT
-          echo "src_changed=$SRC_CHANGED" >> $GITHUB_OUTPUT
-      
       - name: Check if files are already in sync
         id: check-sync
         if: steps.check-files.outputs.root_exists == 'true' && steps.check-files.outputs.src_exists == 'true'
@@ -125,11 +90,10 @@ jobs:
       
       - name: Sync root CHANGELOG to src
         if: |
+          github.event.inputs.direction == 'root-to-src' &&
           steps.check-files.outputs.root_exists == 'true' && 
           steps.check-files.outputs.src_exists == 'true' &&
-          steps.check-sync.outputs.in_sync == 'false' &&
-          steps.detect-change.outputs.root_changed == 'true' &&
-          steps.detect-change.outputs.src_changed == 'false'
+          steps.check-sync.outputs.in_sync == 'false'
         run: |
           echo "Syncing root CHANGELOG.md to src/CHANGELOG.md"
           cp CHANGELOG.md src/CHANGELOG.md
@@ -137,39 +101,32 @@ jobs:
       
       - name: Sync src CHANGELOG to root
         if: |
+          github.event.inputs.direction == 'src-to-root' &&
           steps.check-files.outputs.root_exists == 'true' && 
           steps.check-files.outputs.src_exists == 'true' &&
-          steps.check-sync.outputs.in_sync == 'false' &&
-          steps.detect-change.outputs.root_changed == 'false' &&
-          steps.detect-change.outputs.src_changed == 'true'
+          steps.check-sync.outputs.in_sync == 'false'
         run: |
           echo "Syncing src/CHANGELOG.md to root CHANGELOG.md"
           cp src/CHANGELOG.md CHANGELOG.md
           echo "sync_direction=src-to-root" >> $GITHUB_ENV
       
-      - name: Handle conflict (both files changed)
-        if: |
-          steps.check-files.outputs.root_exists == 'true' && 
-          steps.check-files.outputs.src_exists == 'true' &&
-          steps.check-sync.outputs.in_sync == 'false' &&
-          steps.detect-change.outputs.root_changed == 'true' &&
-          steps.detect-change.outputs.src_changed == 'true'
+      - name: Check only mode
+        if: github.event.inputs.direction == 'check-only'
         run: |
-          echo "⚠️  Both CHANGELOG files were modified in this commit"
-          echo "This requires manual resolution. Please ensure both files have the same content."
-          echo ""
-          echo "To resolve:"
-          echo "  1. Choose which version to keep:"
-          echo "     - Use root as source: cp CHANGELOG.md src/CHANGELOG.md"
-          echo "     - Use src as source: cp src/CHANGELOG.md CHANGELOG.md"
-          echo "  2. Commit the resolved files: git add CHANGELOG.md src/CHANGELOG.md"
-          echo "  3. Commit: git commit -m 'docs: resolve CHANGELOG sync conflict'"
-          echo "  4. Push: git push"
-          echo "sync_direction=conflict" >> $GITHUB_ENV
-          exit 1
+          echo "Running in check-only mode"
+          if [ "${{ steps.check-sync.outputs.in_sync }}" == "true" ]; then
+            echo "✅ CHANGELOG files are in sync"
+          else
+            echo "⚠️  CHANGELOG files are out of sync"
+            echo ""
+            echo "To sync, run this workflow again with either:"
+            echo "  - direction: root-to-src (copy root CHANGELOG.md to src/)"
+            echo "  - direction: src-to-root (copy src/CHANGELOG.md to root)"
+          fi
+          echo "sync_direction=check-only" >> $GITHUB_ENV
       
       - name: Commit synchronized changes
-        if: env.sync_direction != 'conflict' && env.sync_direction != ''
+        if: env.sync_direction != 'check-only' && env.sync_direction != ''
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"

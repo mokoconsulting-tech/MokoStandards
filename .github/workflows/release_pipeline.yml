@@ -1,0 +1,1075 @@
+name: Release Pipeline (dev > rc > version > main)
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_classification:
+        description: "Manual override for classification. auto follows branch policy; rc forces prerelease behavior; stable forces full release behavior."
+        required: true
+        default: auto
+        type: choice
+        options:
+          - auto
+          - rc
+          - stable
+  release:
+    types:
+      - created
+      - prereleased
+      - published
+
+concurrency:
+  group: release-pipeline-${{ github.ref_name }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+# Principle of least privilege. Jobs elevate as needed.
+permissions:
+  contents: read
+
+jobs:
+  guard:
+    name: 00 Guardrails and metadata
+    runs-on: ubuntu-latest
+
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+      source_branch: ${{ steps.meta.outputs.source_branch }}
+      source_prefix: ${{ steps.meta.outputs.source_prefix }}
+      target_branch: ${{ steps.meta.outputs.target_branch }}
+      promoted_branch: ${{ steps.meta.outputs.promoted_branch }}
+      today_utc: ${{ steps.meta.outputs.today_utc }}
+      channel: ${{ steps.meta.outputs.channel }}
+      release_mode: ${{ steps.meta.outputs.release_mode }}
+      override: ${{ steps.meta.outputs.override }}
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout (best effort)
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Actor authorization (admin or maintain)
+        id: auth
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const username = context.actor;
+
+            const res = await github.rest.repos.getCollaboratorPermissionLevel({ owner, repo, username });
+            const perm = (res && res.data && res.data.permission) ? String(res.data.permission).toLowerCase() : "unknown";
+            const allowed = (perm === "admin" || perm === "maintain");
+
+            core.setOutput("permission", perm);
+            core.setOutput("allowed", allowed ? "true" : "false");
+
+            if (!allowed) {
+              core.setFailed(`Actor ${username} lacks required role (admin or maintain). Detected permission: ${perm}.`);
+            }
+
+      - name: Validate trigger and extract metadata
+        id: meta
+        env:
+          RELEASE_CLASSIFICATION: ${{ github.event.inputs.release_classification }}
+          RELEASE_PRERELEASE: ${{ github.event.release.prerelease }}
+        run: |
+          set -euo pipefail
+
+          EVENT_NAME="${GITHUB_EVENT_NAME}"
+          REF_NAME="${GITHUB_REF_NAME}"
+
+          VERSION=""
+          SOURCE_BRANCH=""
+          SOURCE_PREFIX=""
+          TARGET_BRANCH=""
+          PROMOTED_BRANCH=""
+          CHANNEL=""
+          RELEASE_MODE="none"
+
+          OVERRIDE="${RELEASE_CLASSIFICATION:-auto}"
+          if [ -z "${OVERRIDE}" ]; then
+            OVERRIDE="auto"
+          fi
+
+          if [ "${EVENT_NAME}" = "workflow_dispatch" ]; then
+            # Check if REF_NAME is main or matches version pattern
+            if [ "${REF_NAME}" = "main" ]; then
+              # Infer version from manifest when on main branch
+              # Use Python library for cross-platform compatibility
+              # Note: Single-line format required for YAML compatibility
+              VERSION=$(python3 -c "import sys; sys.path.insert(0, '${GITHUB_WORKSPACE}/scripts/lib'); import extension_utils; ext_info = extension_utils.get_extension_info('${GITHUB_WORKSPACE}/src'); print(ext_info.version) if ext_info else sys.exit(1)")
+              
+              if [ -z "${VERSION}" ]; then
+                echo "ERROR: Failed to extract version from manifest" >> "${GITHUB_STEP_SUMMARY}"
+                exit 1
+              fi
+              
+              echo "Inferred version ${VERSION} from manifest on main branch" >> "${GITHUB_STEP_SUMMARY}"
+              
+              SOURCE_BRANCH="${REF_NAME}"
+              SOURCE_PREFIX="main"
+              TARGET_BRANCH="version/${VERSION}"
+              PROMOTED_BRANCH="version/${VERSION}"
+              CHANNEL="stable"
+              RELEASE_MODE="stable"
+            else
+              # Extract version from branch name (dev/XX.XX.XX or rc/XX.XX.XX)
+              echo "${REF_NAME}" | grep -E '^(dev|rc)/[0-9]+[.][0-9]+[.][0-9]+$' >/dev/null
+
+              SOURCE_BRANCH="${REF_NAME}"
+              SOURCE_PREFIX="${REF_NAME%%/*}"
+              VERSION="${REF_NAME#*/}"
+
+              if [ "${SOURCE_PREFIX}" = "dev" ]; then
+                TARGET_BRANCH="rc/${VERSION}"
+                PROMOTED_BRANCH="rc/${VERSION}"
+                CHANNEL="rc"
+                RELEASE_MODE="prerelease"
+              else
+                TARGET_BRANCH="version/${VERSION}"
+                PROMOTED_BRANCH="version/${VERSION}"
+                CHANNEL="stable"
+                RELEASE_MODE="stable"
+              fi
+            fi
+
+            if [ "${OVERRIDE}" = "rc" ]; then
+              CHANNEL="rc"
+              RELEASE_MODE="prerelease"
+            elif [ "${OVERRIDE}" = "stable" ]; then
+              CHANNEL="stable"
+              RELEASE_MODE="stable"
+            else
+              OVERRIDE="auto"
+            fi
+
+          elif [ "${EVENT_NAME}" = "release" ]; then
+            TAG_NAME="${REF_NAME}"
+
+            VERSION="${TAG_NAME#v}"
+            VERSION="${VERSION%-rc}"
+            echo "${VERSION}" | grep -E '^[0-9]+[.][0-9]+[.][0-9]+$' >/dev/null
+
+            if [ "${RELEASE_PRERELEASE:-false}" = "true" ]; then
+              CHANNEL="rc"
+              RELEASE_MODE="prerelease"
+            else
+              CHANNEL="stable"
+              RELEASE_MODE="stable"
+            fi
+
+            OVERRIDE="auto"
+
+          else
+            echo "ERROR: Unsupported trigger ${EVENT_NAME}" >> "${GITHUB_STEP_SUMMARY}"
+            exit 1
+          fi
+
+          TODAY_UTC="$(date -u +%Y-%m-%d)"
+
+          echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
+          echo "source_branch=${SOURCE_BRANCH}" >> "${GITHUB_OUTPUT}"
+          echo "source_prefix=${SOURCE_PREFIX}" >> "${GITHUB_OUTPUT}"
+          echo "target_branch=${TARGET_BRANCH}" >> "${GITHUB_OUTPUT}"
+          echo "promoted_branch=${PROMOTED_BRANCH}" >> "${GITHUB_OUTPUT}"
+          echo "today_utc=${TODAY_UTC}" >> "${GITHUB_OUTPUT}"
+          echo "channel=${CHANNEL}" >> "${GITHUB_OUTPUT}"
+          echo "release_mode=${RELEASE_MODE}" >> "${GITHUB_OUTPUT}"
+          echo "override=${OVERRIDE}" >> "${GITHUB_OUTPUT}"
+
+          {
+            echo "### Guard report"
+            echo "\`\`\`json"
+            echo "{"
+            echo "  \"repository\": \"${GITHUB_REPOSITORY}\","
+            echo "  \"workflow\": \"${GITHUB_WORKFLOW}\","
+            echo "  \"job\": \"${GITHUB_JOB}\","
+            echo "  \"run/id\": ${GITHUB_RUN_ID},"
+            echo "  \"run/number\": ${GITHUB_RUN_NUMBER},"
+            echo "  \"run/attempt\": ${GITHUB_RUN_ATTEMPT},"
+            echo "  \"run/url\": \"${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}\","
+            echo "  \"actor\": \"${GITHUB_ACTOR}\","
+            echo "  \"actor_permission\": \"${{ steps.auth.outputs.permission }}\","
+            echo "  \"sha\": \"${GITHUB_SHA}\","
+            echo "  \"event\": \"${EVENT_NAME}\","
+            echo "  \"ref\": \"${REF_NAME}\","
+            echo "  \"version\": \"${VERSION}\","
+            echo "  \"source_branch\": \"${SOURCE_BRANCH}\","
+            echo "  \"target_branch\": \"${TARGET_BRANCH}\","
+            echo "  \"promoted_branch\": \"${PROMOTED_BRANCH}\","
+            echo "  \"channel\": \"${CHANNEL}\","
+            echo "  \"release_mode\": \"${RELEASE_MODE}\","
+            echo "  \"override\": \"${OVERRIDE}\","
+            echo "  \"today_utc\": \"${TODAY_UTC}\""
+            echo "}"
+            echo "\`\`\`"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Report run context (always)
+        if: ${{ always() }}
+        run: |
+          set -euo pipefail
+
+          {
+            echo "### Run context"
+            echo "\`\`\`json"
+            printf '{'
+            printf '"repository":"%s",' "${GITHUB_REPOSITORY}"
+            printf '"workflow":"%s",' "${GITHUB_WORKFLOW}"
+            printf '"job":"%s",' "${GITHUB_JOB}"
+            printf '"run/id":%s,' "${GITHUB_RUN_ID}"
+            printf '"run/number":%s,' "${GITHUB_RUN_NUMBER}"
+            printf '"run/attempt":%s,' "${GITHUB_RUN_ATTEMPT}"
+            printf '"run/url":"%s",' "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            printf '"actor":"%s",' "${GITHUB_ACTOR}"
+            printf '"event":"%s",' "${GITHUB_EVENT_NAME}"
+            printf '"ref_name":"%s",' "${GITHUB_REF_NAME}"
+            printf '"sha":"%s",' "${GITHUB_SHA}"
+            printf '"runner_os":"%s",' "${RUNNER_OS}"
+            printf '"runner_name":"%s"' "${RUNNER_NAME}"
+            printf '}\n'
+            echo "\`\`\`"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+          {
+            echo "### Git snapshot"
+            echo "\`\`\`"
+            git --version || true
+            git status --porcelain=v1 || true
+            git log -1 --pretty=fuller || true
+            echo "\`\`\`"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+  promote_branch:
+    name: 01 Promote branch and delete source
+    runs-on: ubuntu-latest
+    needs: guard
+
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout source branch
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.guard.outputs.source_branch }}
+          fetch-depth: 0
+
+      - name: Configure Git identity
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+
+      - name: Enforce promotion preconditions
+        run: |
+          set -euo pipefail
+
+          SRC="${{ needs.guard.outputs.source_branch }}"
+          DST="${{ needs.guard.outputs.target_branch }}"
+
+          git fetch origin --prune
+
+          if [ -z "${SRC}" ] || [ -z "${DST}" ]; then
+            echo "ERROR: guard did not emit SRC or DST" >> "${GITHUB_STEP_SUMMARY}"
+            exit 1
+          fi
+
+          if ! git show-ref --verify --quiet "refs/remotes/origin/${SRC}"; then
+            echo "ERROR: origin/${SRC} not found" >> "${GITHUB_STEP_SUMMARY}"
+            exit 1
+          fi
+
+          if git show-ref --verify --quiet "refs/remotes/origin/${DST}"; then
+            echo "ERROR: origin/${DST} already exists" >> "${GITHUB_STEP_SUMMARY}"
+            exit 1
+          fi
+
+      - name: Promote and delete source
+        run: |
+          set -euo pipefail
+
+          SRC="${{ needs.guard.outputs.source_branch }}"
+          DST="${{ needs.guard.outputs.target_branch }}"
+
+          git checkout -B "${DST}" "origin/${SRC}"
+          git push origin "${DST}"
+
+          # Skip deletion of main branch as GitHub does not allow deleting the default branch
+          if [ "${SRC}" != "main" ]; then
+            git push origin --delete "${SRC}"
+          fi
+
+          {
+            echo "### Promotion report"
+            echo "\`\`\`json"
+            echo "{\"source\":\"${SRC}\",\"target\":\"${DST}\",\"status\":\"ok\"}"
+            echo "\`\`\`"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Report run context (always)
+        if: ${{ always() }}
+        run: |
+          set -euo pipefail
+          {
+            echo "### Git snapshot"
+            echo "\`\`\`"
+            git status --porcelain=v1 || true
+            git log -1 --pretty=fuller || true
+            echo "\`\`\`"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+  normalize_dates:
+    name: 02 Normalize dates on promoted branch
+    runs-on: ubuntu-latest
+    needs:
+      - guard
+      - promote_branch
+
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout promoted branch
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.guard.outputs.promoted_branch }}
+          fetch-depth: 0
+
+      - name: Configure Git identity
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+
+      - name: Validate repo prerequisites
+        run: |
+          set -euo pipefail
+          test -d src || (echo "ERROR: src directory missing" && exit 1)
+          test -f CHANGELOG.md || (echo "ERROR: CHANGELOG.md missing" && exit 1)
+
+          VERSION="${{ needs.guard.outputs.version }}"
+
+          if ! grep -F "## [${VERSION}] " CHANGELOG.md >/dev/null; then
+            echo "ERROR: CHANGELOG.md missing heading for version [${VERSION}]" >> "${GITHUB_STEP_SUMMARY}"
+            exit 1
+          fi
+
+      - name: Normalize dates using repository script only
+        run: |
+          set -euo pipefail
+
+          TODAY="${{ needs.guard.outputs.today_utc }}"
+          VERSION="${{ needs.guard.outputs.version }}"
+
+          {
+            echo "### Date normalization (repo script only)"
+            echo "\`\`\`json"
+            echo "{\"today_utc\":\"${TODAY}\",\"version\":\"${VERSION}\"}"
+            echo "\`\`\`"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+          CANDIDATES=(
+            "scripts/release/update_dates.sh"
+            "scripts/release/update_dates"
+            "scripts/update_dates.sh"
+          )
+
+          SCRIPT=""
+          for c in "${CANDIDATES[@]}"; do
+            if [ -f "${c}" ]; then
+              SCRIPT="${c}"
+              break
+            fi
+          done
+
+          if [ -z "${SCRIPT}" ]; then
+            FOUND="$(find . -maxdepth 3 -type f \( -name 'update_dates.sh' -o -name 'update-dates.sh' \) 2>/dev/null | head -n 5 || true)"
+            {
+              echo "ERROR: Date normalization script not found in approved locations."
+              echo "Approved locations:"
+              printf '%s\n' "${CANDIDATES[@]}"
+              echo "Discovered candidates (first 5):"
+              echo "${FOUND:-<none>}"
+              echo "Required action: add scripts/release/update_dates.sh (preferred) to the repo."
+            } >> "${GITHUB_STEP_SUMMARY}"
+            exit 1
+          fi
+
+          echo "Using date script: ${SCRIPT}" >> "${GITHUB_STEP_SUMMARY}"
+
+          chmod +x "${SCRIPT}"
+          "${SCRIPT}" "${TODAY}" "${VERSION}" >> "${GITHUB_STEP_SUMMARY}"
+
+          {
+            echo "### Date normalization diffstat"
+            echo "\`\`\`"
+            git diff --stat || true
+            echo "\`\`\`"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Commit normalized dates (if changed)
+        run: |
+          set -euo pipefail
+          if git diff --quiet; then
+            echo "No date changes to commit" >> "${GITHUB_STEP_SUMMARY}"
+            exit 0
+          fi
+          git add -A
+          git commit -m "chore(release): normalize dates" || true
+          git push origin "HEAD:${{ needs.guard.outputs.promoted_branch }}"
+
+      - name: Report run context (always)
+        if: ${{ always() }}
+        run: |
+          set -euo pipefail
+          {
+            echo "### Git snapshot"
+            echo "\`\`\`"
+            git status --porcelain=v1 || true
+            git log -1 --pretty=fuller || true
+            echo "\`\`\`"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+  build_and_release:
+    name: 03 Build ZIP, upload to SFTP, create GitHub release
+    runs-on: ubuntu-latest
+    needs:
+      - guard
+      - normalize_dates
+
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+
+    steps:
+      - name: Checkout promoted branch
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.guard.outputs.promoted_branch }}
+          fetch-depth: 0
+
+      - name: Configure Git identity
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+
+      - name: Validate required secrets and variables
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_KEY: ${{ secrets.FTP_KEY }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_PATH: ${{ secrets.FTP_PATH }}
+          FTP_PROTOCOL: ${{ secrets.FTP_PROTOCOL }}
+          FTP_PORT: ${{ secrets.FTP_PORT }}
+          FTP_PATH_SUFFIX: ${{ vars.FTP_PATH_SUFFIX }}
+          CHANNEL: ${{ needs.guard.outputs.channel }}
+          DEPLOY_DRY_RUN: ${{ vars.DEPLOY_DRY_RUN }}
+        run: |
+          set -euo pipefail
+
+          missing=()
+
+          [ -n "${FTP_SERVER:-}" ] || missing+=("FTP_SERVER")
+          [ -n "${FTP_USER:-}" ] || missing+=("FTP_USER")
+          [ -n "${FTP_PATH:-}" ] || missing+=("FTP_PATH")
+
+          proto="${FTP_PROTOCOL:-sftp}"
+          if [ -n "${FTP_PROTOCOL:-}" ] && [ "${proto}" != "sftp" ]; then
+            missing+=("FTP_PROTOCOL_INVALID")
+          fi
+
+          key_present=false
+          if [ -n "${FTP_KEY:-}" ]; then
+            key_present=true
+          fi
+
+          pw_present=false
+          if [ -n "${FTP_PASSWORD:-}" ]; then
+            pw_present=true
+          fi
+
+          auth_mode="password"
+          if [ "${key_present}" = "true" ]; then
+            auth_mode="key"
+          fi
+
+          if [ "${auth_mode}" = "password" ] && [ "${pw_present}" != "true" ]; then
+            missing+=("FTP_PASSWORD_REQUIRED")
+          fi
+
+          {
+            echo "### Configuration guardrails"
+            echo "\`\`\`json"
+            printf '{"status":"%s","missing":[' "$( [ "${#missing[@]}" -gt 0 ] && echo fail || echo ok )"
+            sep=""
+            for m in "${missing[@]}"; do
+              printf '%s"%s"' "${sep}" "${m}"
+              sep=",";
+            done
+            printf '],"channel":"%s","deploy_dry_run":"%s","credential_presence":{"FTP_KEY":"%s","FTP_PASSWORD":"%s"}}\n' \
+              "${CHANNEL}" "${DEPLOY_DRY_RUN:-false}" \
+              "$( [ "${key_present}" = "true" ] && echo present || echo missing )" \
+              "$( [ "${pw_present}" = "true" ] && echo present || echo missing )"
+            echo "\`\`\`"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+          if [ "${#missing[@]}" -gt 0 ]; then
+            exit 1
+          fi
+
+      - name: Run repository validation scripts (workflow-controlled)
+        run: |
+          set -euo pipefail
+
+          required_scripts=(
+            "scripts/validate/manifest.py"
+            "scripts/validate/xml_wellformed.py"
+          )
+
+          optional_scripts=(
+            "scripts/validate/changelog.py"
+            "scripts/validate/language_structure.py"
+            "scripts/validate/license_headers.py"
+            "scripts/validate/no_secrets.py"
+            "scripts/validate/paths.py"
+            "scripts/validate/php_syntax.py"
+            "scripts/validate/tabs.py"
+            "scripts/validate/version_alignment.py"
+          )
+
+          missing=()
+          for s in "${required_scripts[@]}"; do
+            if [ ! -f "${s}" ]; then
+              missing+=("${s}")
+            fi
+          done
+
+          if [ "${#missing[@]}" -gt 0 ]; then
+            {
+              echo "### Script guardrails"
+              echo "\`\`\`json"
+              printf '{"status":"fail","missing_required_scripts":['
+              sep=""
+              for m in "${missing[@]}"; do
+                printf '%s"%s"' "${sep}" "${m}"
+                sep=",";
+              done
+              printf ']}\n'
+              echo "\`\`\`"
+            } >> "${GITHUB_STEP_SUMMARY}"
+            exit 1
+          fi
+
+          ran=()
+          skipped=()
+
+          for s in "${required_scripts[@]}" "${optional_scripts[@]}"; do
+            if [ -f "${s}" ]; then
+              chmod +x "${s}"
+              python3 "${s}" >> "${GITHUB_STEP_SUMMARY}"
+              ran+=("${s}")
+            else
+              skipped+=("${s}")
+            fi
+          done
+
+          {
+            echo "### Validation inventory"
+            echo "\`\`\`json"
+            printf '{'
+            printf '"required_count":%s,' "${#required_scripts[@]}"
+            printf '"optional_count":%s,' "${#optional_scripts[@]}"
+            printf '"ran_count":%s,' "${#ran[@]}"
+            printf '"skipped_optional_count":%s,' "${#skipped[@]}"
+
+            printf '"required":['
+            sep=""
+            for s in "${required_scripts[@]}"; do
+              printf '%s"%s"' "${sep}" "${s}"
+              sep=",";
+            done
+
+            printf '],"optional":['
+            sep=""
+            for s in "${optional_scripts[@]}"; do
+              printf '%s"%s"' "${sep}" "${s}"
+              sep=",";
+            done
+
+            printf '],"ran":['
+            sep=""
+            for s in "${ran[@]}"; do
+              printf '%s"%s"' "${sep}" "${s}"
+              sep=",";
+            done
+
+            printf '],"skipped_optional":['
+            sep=""
+            for s in "${skipped[@]}"; do
+              printf '%s"%s"' "${sep}" "${s}"
+              sep=",";
+            done
+
+            printf ']}\n'
+            echo "\`\`\`"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Build Joomla/Dolibarr ZIP (src-only archive)
+        id: build
+        run: |
+          set -euo pipefail
+
+          VERSION="${{ needs.guard.outputs.version }}"
+          REPO_NAME="${{ github.event.repository.name }}"
+          CHANNEL="${{ needs.guard.outputs.channel }}"
+
+          test -d src || (echo "ERROR: src directory missing" && exit 1)
+
+          DIST_DIR="${GITHUB_WORKSPACE}/dist"
+          mkdir -p "${DIST_DIR}"
+
+          # Determine suffix based on channel
+          if [ "${CHANNEL}" = "rc" ]; then
+            SUFFIX="rc"
+          else
+            SUFFIX="stable"
+          fi
+
+          ZIP="${REPO_NAME}-${VERSION}-${SUFFIX}.zip"
+
+          # Create ZIP with development artifact exclusions
+          # Zip only the contents of the src folder (not the src/ folder itself)
+          # This creates a ZIP with extension files at the root level for direct installation
+          cd src
+          zip -r -X "${DIST_DIR}/${ZIP}" . \
+            -x ".git/**" \
+            -x ".github/**" \
+            -x ".DS_Store" \
+            -x "__MACOSX/**" \
+            -x "node_modules/**" \
+            -x "vendor/**" \
+            -x "tests/**" \
+            -x "Tests/**" \
+            -x ".phpstan.cache/**" \
+            -x ".psalm/**" \
+            -x ".rector/**" \
+            -x "phpmd-cache/**" \
+            -x ".php-cs-fixer.cache" \
+            -x ".phplint-cache" \
+            -x "*.log"
+          cd ..
+
+          echo "zip_name=${ZIP}" >> "${GITHUB_OUTPUT}"
+          echo "dist_dir=${DIST_DIR}" >> "${GITHUB_OUTPUT}"
+
+          ZIP_BYTES="$(stat -c%s "${DIST_DIR}/${ZIP}")"
+
+          {
+            echo "### Build report"
+            echo "\`\`\`json"
+            echo "{\"repository\":\"${GITHUB_REPOSITORY}\",\"workflow\":\"${GITHUB_WORKFLOW}\",\"job\":\"${GITHUB_JOB}\",\"run/id\":${GITHUB_RUN_ID},\"run/number\":${GITHUB_RUN_NUMBER},\"run/attempt\":${GITHUB_RUN_ATTEMPT},\"run/url\":\"${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}\",\"actor\":\"${GITHUB_ACTOR}\",\"sha\":\"${GITHUB_SHA}\",\"archive_policy\":\"src_only\",\"suffix\":\"${SUFFIX}\",\"zip\":\"${DIST_DIR}/${ZIP}\",\"zip_bytes\":${ZIP_BYTES}}"
+            echo "\`\`\`"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: ZIP inventory (audit)
+        run: |
+          set -euo pipefail
+
+          DIST_DIR="${{ steps.build.outputs.dist_dir }}"
+          ZIP_NAME="${{ steps.build.outputs.zip_name }}"
+
+          {
+            echo "### ZIP inventory"
+            echo "\`\`\`"
+            ls -la "${DIST_DIR}" || true
+            echo ""
+            echo "ZIP file list (first 200):"
+            unzip -l "${DIST_DIR}/${ZIP_NAME}" | head -n 200 || true
+            echo "\`\`\`"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Upload ZIP to SFTP (key-preferred, password-fallback, overwrite, verified)
+        id: sftp
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_KEY: ${{ secrets.FTP_KEY }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_PATH: ${{ secrets.FTP_PATH }}
+          FTP_PROTOCOL: ${{ secrets.FTP_PROTOCOL }}
+          FTP_PORT: ${{ secrets.FTP_PORT }}
+          FTP_PATH_SUFFIX: ${{ vars.FTP_PATH_SUFFIX }}
+          CHANNEL: ${{ needs.guard.outputs.channel }}
+          DEPLOY_DRY_RUN: ${{ vars.DEPLOY_DRY_RUN }}
+        run: |
+          set -euo pipefail
+
+          ZIP="${{ steps.build.outputs.zip_name }}"
+          DIST_DIR="${{ steps.build.outputs.dist_dir }}"
+
+          : "${FTP_SERVER:?Missing secret FTP_SERVER}"
+          : "${FTP_USER:?Missing secret FTP_USER}"
+          : "${FTP_PATH:?Missing secret FTP_PATH}"
+
+          PROTOCOL="${FTP_PROTOCOL:-sftp}"
+          if [ "${PROTOCOL}" != "sftp" ]; then
+            echo "ERROR: Only SFTP permitted" >> "${GITHUB_STEP_SUMMARY}"
+            exit 1
+          fi
+
+          PORT="${FTP_PORT:-}"
+          if [ -n "${PORT}" ]; then
+            HOSTPORT="${FTP_SERVER}:${PORT}"
+          else
+            HOSTPORT="${FTP_SERVER}"
+          fi
+
+          SUFFIX="${FTP_PATH_SUFFIX:-}"
+          if [ -n "${SUFFIX}" ]; then
+            REMOTE_PATH="${FTP_PATH%/}/${SUFFIX%/}/${CHANNEL}"
+          else
+            REMOTE_PATH="${FTP_PATH%/}/${CHANNEL}"
+          fi
+
+          AUTH_MODE="password"
+          if [ -n "${FTP_KEY:-}" ]; then
+            AUTH_MODE="key"
+          fi
+
+          if [ "${AUTH_MODE}" = "password" ] && [ -z "${FTP_PASSWORD:-}" ]; then
+            echo "ERROR: FTP_PASSWORD required when FTP_KEY is not provided" >> "${GITHUB_STEP_SUMMARY}"
+            exit 1
+          fi
+
+          DRY_RUN="${DEPLOY_DRY_RUN:-false}"
+          if [ "${DRY_RUN}" != "true" ]; then
+            DRY_RUN="false"
+          fi
+
+          {
+            echo "### Deployment intent"
+            echo "\`\`\`json"
+            printf '{'
+            printf '"protocol":"sftp",'
+            printf '"auth_mode":"%s",' "${AUTH_MODE}"
+            printf '"host":"%s",' "${FTP_SERVER}"
+            printf '"port":"%s",' "${PORT:-default}"
+            printf '"remote_path":"%s",' "${REMOTE_PATH}"
+            printf '"overwrite":true,'
+            printf '"dry_run":%s' "${DRY_RUN}"
+            printf '}\n'
+            echo "\`\`\`"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+          sudo apt-get update -y
+          sudo apt-get install -y lftp openssh-client putty-tools
+
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+
+          if [ "${AUTH_MODE}" = "key" ]; then
+            if printf '%s' "${FTP_KEY}" | head -n 1 | grep -q '^PuTTY-User-Key-File-'; then
+              printf '%s' "${FTP_KEY}" > ~/.ssh/key.ppk
+              chmod 600 ~/.ssh/key.ppk
+
+              if grep -Eq '^Encryption: *none[[:space:]]*$' ~/.ssh/key.ppk; then
+                PPK_PASSPHRASE=""
+              else
+                PPK_PASSPHRASE="${FTP_PASSWORD:-}"
+              fi
+
+              if [ -n "${PPK_PASSPHRASE}" ]; then
+                puttygen ~/.ssh/key.ppk -O private-openssh --passphrase "${PPK_PASSPHRASE}" -o ~/.ssh/id_rsa
+              else
+                puttygen ~/.ssh/key.ppk -O private-openssh -o ~/.ssh/id_rsa
+              fi
+
+              rm -f ~/.ssh/key.ppk
+              chmod 600 ~/.ssh/id_rsa
+            else
+              printf '%s' "${FTP_KEY}" > ~/.ssh/id_rsa
+              chmod 600 ~/.ssh/id_rsa
+            fi
+          fi
+
+          ssh-keyscan -H "${FTP_SERVER}" >> ~/.ssh/known_hosts
+
+          if [ "${AUTH_MODE}" = "key" ]; then
+            CONNECT="set sftp:connect-program 'ssh -a -x -i ~/.ssh/id_rsa -o PubkeyAuthentication=yes -o PasswordAuthentication=no'"
+            OPEN="open -u '${FTP_USER}', sftp://${HOSTPORT}"
+          else
+            CONNECT="set sftp:connect-program 'ssh -a -x -o PubkeyAuthentication=no -o PasswordAuthentication=yes'"
+            OPEN="open -u '${FTP_USER}','${FTP_PASSWORD}', sftp://${HOSTPORT}"
+          fi
+
+          if [ "${DRY_RUN}" = "true" ]; then
+            echo "Dry run enabled. Upload skipped." >> "${GITHUB_STEP_SUMMARY}"
+            echo "auth_mode=${AUTH_MODE}" >> "${GITHUB_OUTPUT}"
+            echo "remote_path=${REMOTE_PATH}" >> "${GITHUB_OUTPUT}"
+            echo "host=${FTP_SERVER}" >> "${GITHUB_OUTPUT}"
+            echo "port=${PORT:-default}" >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
+
+          set +e
+          upload_log="$(mktemp)"
+          lftp -d -e "\
+            set sftp:auto-confirm yes; \
+            set cmd:trace yes; \
+            set net:timeout 30; \
+            set net:max-retries 3; \
+            set net:reconnect-interval-base 5; \
+            ${CONNECT}; \
+            ${OPEN}; \
+            mkdir -p '${REMOTE_PATH}'; \
+            cd '${REMOTE_PATH}'; \
+            put -E '${DIST_DIR}/${ZIP}'; \
+            ls -l; \
+            bye" >"${upload_log}" 2>&1
+          rc=$?
+          set -e
+
+          if [ "${rc}" -ne 0 ]; then
+            {
+              echo "### SFTP session log"
+              echo "\`\`\`"
+              tail -n 400 "${upload_log}" || true
+              echo "\`\`\`"
+            } >> "${GITHUB_STEP_SUMMARY}" || true
+            exit "${rc}"
+          fi
+
+          ZIP_BYTES_LOCAL="$(stat -c%s "${DIST_DIR}/${ZIP}")"
+          {
+            echo "### SFTP upload report"
+            echo "\`\`\`json"
+            echo "{\"status\":\"ok\",\"protocol\":\"sftp\",\"auth_mode\":\"${AUTH_MODE}\",\"host\":\"${FTP_SERVER}\",\"port\":\"${PORT:-default}\",\"remote_path\":\"${REMOTE_PATH}\",\"zip\":\"${ZIP}\",\"zip_bytes_local\":${ZIP_BYTES_LOCAL},\"overwrite\":true}"
+            echo "\`\`\`"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+          echo "auth_mode=${AUTH_MODE}" >> "${GITHUB_OUTPUT}"
+          echo "remote_path=${REMOTE_PATH}" >> "${GITHUB_OUTPUT}"
+          echo "host=${FTP_SERVER}" >> "${GITHUB_OUTPUT}"
+          echo "port=${PORT:-default}" >> "${GITHUB_OUTPUT}"
+
+      - name: Create Git tag
+        id: tag
+        run: |
+          set -euo pipefail
+
+          VERSION="${{ needs.guard.outputs.version }}"
+          MODE="${{ needs.guard.outputs.release_mode }}"
+
+          if [ "${MODE}" = "prerelease" ]; then
+            TAG="v${VERSION}-rc"
+          else
+            TAG="v${VERSION}"
+          fi
+
+          git fetch --tags
+          if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null; then
+            echo "Tag ${TAG} already exists" >> "${GITHUB_STEP_SUMMARY}"
+          else
+            git tag -a "${TAG}" -m "${MODE} ${VERSION}"
+            git push origin "refs/tags/${TAG}"
+          fi
+
+          echo "tag=${TAG}" >> "${GITHUB_OUTPUT}"
+
+      - name: Generate release notes from CHANGELOG.md
+        env:
+          SFTP_AUTH_MODE: ${{ steps.sftp.outputs.auth_mode }}
+          SFTP_REMOTE_PATH: ${{ steps.sftp.outputs.remote_path }}
+          SFTP_HOST: ${{ steps.sftp.outputs.host }}
+          SFTP_PORT: ${{ steps.sftp.outputs.port }}
+        run: |
+          set -euo pipefail
+
+          VERSION="${{ needs.guard.outputs.version }}"
+          ZIP_ASSET="${{ steps.build.outputs.zip_name }}"
+
+          awk "/^## \[${VERSION}\]/{flag=1;next}/^## \[/ {flag=0}flag" CHANGELOG.md > RELEASE_NOTES.md || true
+
+          if [ ! -s RELEASE_NOTES.md ]; then
+            echo "ERROR: Release notes extraction failed for ${VERSION}" >> "${GITHUB_STEP_SUMMARY}"
+            exit 1
+          fi
+
+          {
+            echo ""
+            echo "Assets:"
+            echo "- ${ZIP_ASSET}"
+            echo ""
+            echo "Deployment metadata:"
+            echo "- auth_mode: ${SFTP_AUTH_MODE:-unknown}"
+            echo "- remote_path: ${SFTP_REMOTE_PATH:-unknown}"
+            echo "- host: ${SFTP_HOST:-unknown}"
+            echo "- port: ${SFTP_PORT:-unknown}"
+          } >> RELEASE_NOTES.md
+
+      - name: Create GitHub release and attach ZIP
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: ${{ needs.guard.outputs.release_mode }} ${{ needs.guard.outputs.version }}
+          prerelease: ${{ needs.guard.outputs.release_mode == 'prerelease' }}
+          body_path: RELEASE_NOTES.md
+          files: |
+            dist/*.zip
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-path: |
+            dist/*.zip
+
+      - name: Report run context (always)
+        if: ${{ always() }}
+        run: |
+          set -euo pipefail
+          {
+            echo "### Git snapshot"
+            echo "\`\`\`"
+            git status --porcelain=v1 || true
+            git log -1 --pretty=fuller || true
+            echo "\`\`\`"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+  push_version_to_main:
+    name: 04 Promote version branch to main (stable only, keep version branch)
+    runs-on: ubuntu-latest
+    needs:
+      - guard
+      - build_and_release
+
+    if: ${{ github.event_name == 'workflow_dispatch' && needs.guard.outputs.release_mode == 'stable' }}
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Configure Git identity
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+
+      - name: Create PR from version branch to main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          VERSION="${{ needs.guard.outputs.version }}"
+          HEAD="${{ needs.guard.outputs.promoted_branch }}"
+
+          gh pr create \
+            --base main \
+            --head "${HEAD}" \
+            --title "Release ${VERSION} to main" \
+            --body "Automated PR created by release pipeline. Version branch is retained by policy." \
+            || true
+
+      - name: Attempt to merge PR (best effort)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          HEAD="${{ needs.guard.outputs.promoted_branch }}"
+          PR_NUMBER="$(gh pr list --head "${HEAD}" --base main --json number --jq '.[0].number' || true)"
+
+          if [ -z "${PR_NUMBER}" ] || [ "${PR_NUMBER}" = "null" ]; then
+            echo "ERROR: PR not found for head ${HEAD}" >> "${GITHUB_STEP_SUMMARY}"
+            exit 1
+          fi
+
+          gh pr merge "${PR_NUMBER}" --merge --delete-branch=false \
+            || echo "PR merge blocked by branch protection or policy" >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Report run context (always)
+        if: ${{ always() }}
+        run: |
+          set -euo pipefail
+          {
+            echo "### Main promotion report"
+            echo "\`\`\`json"
+            echo "{\"head\":\"${{ needs.guard.outputs.promoted_branch }}\",\"base\":\"main\",\"release_mode\":\"${{ needs.guard.outputs.release_mode }}\"}"
+            echo "\`\`\`"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+  release_event_report:
+    name: 99 Release event report (GitHub UI created release)
+    runs-on: ubuntu-latest
+    needs: guard
+
+    if: ${{ github.event_name == 'release' }}
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout tag
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 1
+
+      - name: Release event telemetry
+        run: |
+          set -euo pipefail
+          {
+            echo "### Release event telemetry"
+            echo "\`\`\`json"
+            echo "{"
+            echo "  \"repository\": \"${GITHUB_REPOSITORY}\","
+            echo "  \"event\": \"${GITHUB_EVENT_NAME}\","
+            echo "  \"ref_name\": \"${GITHUB_REF_NAME}\","
+            echo "  \"sha\": \"${GITHUB_SHA}\","
+            echo "  \"channel\": \"${{ needs.guard.outputs.channel }}\","
+            echo "  \"release_mode\": \"${{ needs.guard.outputs.release_mode }}\","
+            echo "  \"version\": \"${{ needs.guard.outputs.version }}\""
+            echo "}"
+            echo "\`\`\`"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Report run context (always)
+        if: ${{ always() }}
+        run: |
+          set -euo pipefail
+          {
+            echo "### Git snapshot"
+            echo "\`\`\`"
+            git status --porcelain=v1 || true
+            git log -1 --pretty=fuller || true
+            echo "\`\`\`"
+          } >> "${GITHUB_STEP_SUMMARY}"

@@ -29,22 +29,6 @@
 name: Sync Docs to Project
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'docs/**/*.md'
-      - 'templates/**/*.md'
-      - 'docs/**'
-      - 'templates/**'
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'docs/**/*.md'
-      - 'templates/**/*.md'
-      - 'docs/**'
-      - 'templates/**'
   workflow_dispatch:
     inputs:
       file_path:
@@ -90,98 +74,8 @@ jobs:
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
       
-      - name: Get changed files
-        id: changed-files
-        if: github.event_name != 'workflow_dispatch'
-        run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            # For pull requests, get files changed in PR
-            FILES=$(gh pr view ${{ github.event.pull_request.number }} --json files --jq '.files[].path' | grep -E '^(docs|templates)/' || true)
-          else
-            # For push events, get files changed in the commit
-            if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
-              # New branch, compare with main
-              FILES=$(git diff --name-only origin/main HEAD | grep -E '^(docs|templates)/' || true)
-            else
-              # Existing branch, compare with previous commit
-              FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -E '^(docs|templates)/' || true)
-            fi
-          fi
-          
-          # Save files to output
-          echo "files<<EOF" >> $GITHUB_OUTPUT
-          echo "$FILES" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-          
-          # Also save count
-          if [ -z "$FILES" ]; then
-            COUNT=0
-          else
-            COUNT=$(echo "$FILES" | grep -c . || echo "0")
-          fi
-          echo "count=$COUNT" >> $GITHUB_OUTPUT
-      
-      - name: Get folders for new files
-        id: new-folders
-        if: github.event_name != 'workflow_dispatch'
-        run: |
-          # Get all unique parent folders of changed files
-          FILES="${{ steps.changed-files.outputs.files }}"
-          if [ -n "$FILES" ]; then
-            FOLDERS=$(echo "$FILES" | xargs -I {} dirname {} | sort -u | grep -E '^(docs|templates)/' || true)
-          else
-            FOLDERS=""
-          fi
-          
-          # Save folders to output
-          echo "folders<<EOF" >> $GITHUB_OUTPUT
-          echo "$FOLDERS" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-      
-      - name: Sync changed files to project
-        if: github.event_name != 'workflow_dispatch' && steps.changed-files.outputs.count != '0'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "Syncing ${{ steps.changed-files.outputs.count }} changed files..."
-          
-          # Make script executable
-          chmod +x scripts/sync_file_to_project.py
-          
-          # Process each changed file
-          echo "${{ steps.changed-files.outputs.files }}" | while IFS= read -r file; do
-            if [ -n "$file" ]; then
-              echo "Processing: $file"
-              
-              # Check if it's a markdown file
-              if [[ "$file" == *.md ]]; then
-                python3 scripts/sync_file_to_project.py "$file" 7 || echo "Warning: Failed to sync $file"
-              else
-                echo "Skipping non-markdown file: $file"
-              fi
-            fi
-          done
-      
-      - name: Sync folders to project
-        if: github.event_name != 'workflow_dispatch' && steps.new-folders.outputs.folders != ''
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "Syncing folders..."
-          
-          # Make script executable
-          chmod +x scripts/sync_file_to_project.py
-          
-          # Process each folder
-          echo "${{ steps.new-folders.outputs.folders }}" | while IFS= read -r folder; do
-            if [ -n "$folder" ] && [ -d "$folder" ]; then
-              echo "Processing folder: $folder"
-              python3 scripts/sync_file_to_project.py "$folder" 7 --folder || echo "Warning: Failed to sync folder $folder"
-            fi
-          done
-      
       - name: Sync specific path (manual trigger)
-        if: github.event_name == 'workflow_dispatch' && github.event.inputs.file_path != ''
+        if: github.event.inputs.file_path != ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -212,10 +106,10 @@ jobs:
             echo "- Repository: ${{ github.repository }}"
             echo "- Branch: ${{ github.ref_name }}"
             
-            if [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
-              echo "- Files processed: ${{ steps.changed-files.outputs.count }}"
+            if [ -n "${{ github.event.inputs.file_path }}" ]; then
+              echo "- Path synced: ${{ github.event.inputs.file_path }}"
             fi
             
             echo ""
-            echo "Tasks have been created or updated in Project #7"
+            echo "Tasks have been created or updated in Project #${{ github.event.inputs.project_number }}"
           } >> "$GITHUB_STEP_SUMMARY"

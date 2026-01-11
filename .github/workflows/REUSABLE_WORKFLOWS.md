@@ -43,6 +43,9 @@ jobs:
 - **reusable-joomla-testing.yml** - Joomla extension testing with matrix PHP/Joomla versions
 - **reusable-ci-validation.yml** - Repository standards validation
 
+### Repository Maintenance Workflows
+- **reusable-branch-cleanup.yml** - Automated cleanup of stale and merged branches
+
 ### Type-Aware Orchestration Workflows
 - **reusable-project-detector.yml** - Automatic project type detection
 - **reusable-build.yml** - Universal build for all project types
@@ -131,6 +134,57 @@ jobs:
 - `validate-licenses` (boolean) - Validate license headers, default: `true`
 - `validate-security` (boolean) - Security checks, default: `true`
 - `fail-on-warnings` (boolean) - Fail on warnings, default: `false`
+
+---
+
+## Repository Maintenance Workflows
+
+### Branch Cleanup
+
+Automatically cleans up stale and merged branches with configurable exclusion patterns and dry-run support.
+
+**Usage:**
+```yaml
+jobs:
+  cleanup:
+    uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-branch-cleanup.yml@main
+    with:
+      stale-days: 90
+      delete-merged: true
+      delete-stale: true
+      dry-run: false
+    permissions:
+      contents: write
+```
+
+**Key Inputs:**
+- `stale-days` (number) - Days before branch is stale, default: `90`
+- `delete-merged` (boolean) - Delete merged branches, default: `true`
+- `delete-stale` (boolean) - Delete stale branches, default: `true`
+- `dry-run` (boolean) - Preview without deleting, default: `false`
+- `exclude-patterns` (string) - JSON array of regex patterns to exclude, default: `["main", "master", "develop", "dev", "dev/.*", "rc/.*", "release/.*", "staging", "production"]`
+- `exclude-prefix` (string) - Comma-separated prefixes to exclude, default: `"dependabot/,renovate/"`
+
+**Features:**
+- Detects and deletes branches merged into default branch
+- Identifies stale branches based on last commit date
+- Configurable exclusion patterns (regex and prefix-based)
+- Dry-run mode for previewing changes
+- Detailed summary of deleted and failed branches
+
+**Example with custom exclusions:**
+```yaml
+jobs:
+  cleanup:
+    uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-branch-cleanup.yml@main
+    with:
+      stale-days: 60
+      delete-merged: true
+      delete-stale: true
+      dry-run: false
+      exclude-patterns: '["main", "master", "develop", "hotfix/.*"]'
+      exclude-prefix: 'dependabot/,renovate/,feature/'
+```
 
 ---
 
@@ -506,5 +560,6 @@ jobs:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 02.01.00 | 2026-01-11 | Added reusable-branch-cleanup workflow, standards-compliance workflow |
 | 02.00.00 | 2026-01-09 | Consolidated documentation, added type-aware workflows |
 | 01.00.00 | 2026-01-09 | Initial release (php-quality, joomla-testing, ci-validation) |

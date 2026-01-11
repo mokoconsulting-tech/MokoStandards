@@ -221,6 +221,17 @@ def log_debug(message: str, debug: Optional[bool] = None) -> None:
         print(f"🔍 {message}", file=sys.stderr)
 
 
+def json_output(data: dict) -> None:
+    """
+    Output data in JSON format.
+    
+    Args:
+        data: Dictionary to output as JSON
+    """
+    import json
+    print(json.dumps(data, indent=2))
+
+
 # ============================================================
 # Error Handling
 # ============================================================

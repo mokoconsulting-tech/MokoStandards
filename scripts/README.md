@@ -13,9 +13,26 @@ The scripts are organized according to MokoStandards governance policy:
 - **`lib/`** - Shared library code
   - `common.py` - Python utility functions
   - `common.sh` - Shell utility functions
+  - `extension_utils.py` - Unified Joomla/Dolibarr extension detection
+  - `joomla_manifest.py` - Joomla manifest parsing utilities
 - **`fix/`** - Repository repair scripts (reserved for future use)
-- **`release/`** - Release automation scripts (reserved for future use)
-- **`validate/`** - Validation and linting scripts (reserved for future use)
+- **`release/`** - Release automation scripts
+  - `dolibarr_release.py` - Dolibarr module release automation
+  - `detect_platform.py` - Auto-detect extension platform (Joomla/Dolibarr)
+  - `package_extension.py` - Create distributable ZIP packages
+  - `update_dates.sh` - Update copyright dates in files
+- **`validate/`** - Validation and linting scripts
+  - `manifest.py` - Validate extension manifests (Joomla/Dolibarr)
+  - `xml_wellformed.py` - Validate XML syntax
+  - `workflows.py` - Validate GitHub Actions workflows
+  - `tabs.py` - Check for tab characters in YAML
+  - `no_secrets.py` - Scan for secrets/credentials
+  - `paths.py` - Check for Windows-style paths
+  - `php_syntax.py` - Validate PHP syntax
+  - `check_repo_health.py` - Repository health checks
+  - `validate_repo_health.py` - Comprehensive repository validation
+  - `validate_structure.py` - Validate repository structure
+  - `validate_codeql_config.py` - Validate CodeQL configuration
 
 ## Requirements
 
@@ -191,6 +208,96 @@ python3 scripts/setup_project_views.py --verbose --project-number 7
 - ✅ Verbose error handling
 - ✅ View-specific documentation
 
+### Validation Scripts (`validate/`)
+
+Scripts for validating repository structure, code quality, and standards compliance.
+
+#### manifest.py
+
+Validates extension manifests for Joomla and Dolibarr projects.
+
+**Usage:**
+```bash
+python3 scripts/validate/manifest.py
+python3 scripts/validate/manifest.py --path src/
+```
+
+#### xml_wellformed.py
+
+Validates XML file syntax and structure.
+
+**Usage:**
+```bash
+python3 scripts/validate/xml_wellformed.py
+python3 scripts/validate/xml_wellformed.py file.xml
+```
+
+#### workflows.py
+
+Validates GitHub Actions workflow files.
+
+**Usage:**
+```bash
+python3 scripts/validate/workflows.py
+```
+
+#### php_syntax.py
+
+Validates PHP file syntax using PHP parser.
+
+**Usage:**
+```bash
+python3 scripts/validate/php_syntax.py
+python3 scripts/validate/php_syntax.py src/
+```
+
+#### no_secrets.py
+
+Scans for accidentally committed secrets and credentials.
+
+**Usage:**
+```bash
+python3 scripts/validate/no_secrets.py
+```
+
+### Release Scripts (`release/`)
+
+Scripts for creating releases and packages.
+
+#### package_extension.py
+
+Creates distributable ZIP packages for Joomla and Dolibarr extensions.
+
+**Usage:**
+```bash
+python3 scripts/release/package_extension.py dist/
+python3 scripts/release/package_extension.py --output-dir releases/
+```
+
+**Features:**
+- Auto-detects extension type (Joomla/Dolibarr)
+- Creates proper directory structure
+- Excludes development files
+- Generates checksums
+
+#### detect_platform.py
+
+Auto-detects whether project is Joomla or Dolibarr extension.
+
+**Usage:**
+```bash
+python3 scripts/release/detect_platform.py
+```
+
+#### update_dates.sh
+
+Updates copyright dates in files.
+
+**Usage:**
+```bash
+bash scripts/release/update_dates.sh
+```
+
 ## Library Functions (`lib/`)
 
 ### common.py
@@ -200,6 +307,25 @@ Python utility functions for common operations.
 ### common.sh
 
 Shell utility functions for common operations.
+
+### extension_utils.py
+
+Unified extension detection and utilities for Joomla and Dolibarr projects.
+
+**Features:**
+- Auto-detect extension type
+- Parse extension metadata
+- Get version information
+- Extract extension details
+
+### joomla_manifest.py
+
+Joomla manifest (XML) parsing utilities.
+
+**Features:**
+- Parse Joomla manifest files
+- Extract extension metadata
+- Validate manifest structure
 
 ## Authentication
 

@@ -108,7 +108,7 @@ branches:
         contexts: []
       
       # Enforce all configured restrictions for administrators
-      enforce_admins: false
+      enforce_admins: true
       
       # Require signed commits
       required_signatures: false

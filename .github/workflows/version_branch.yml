@@ -1,6 +1,21 @@
-name: Create version branch and bump versions
+name: Version Branch and Bump
 
 on:
+  # Run monthly on the 1st at 03:00 UTC for automated version planning
+  schedule:
+    - cron: '0 3 1 * *'
+  
+  # Run on pull requests to version branches for validation
+  pull_request:
+    branches:
+      - version/**
+      - rc/**
+  
+  # Run on release creation for version tracking
+  release:
+    types: [published, created]
+  
+  # Allow manual triggering with full options
   workflow_dispatch:
     inputs:
       new_version:

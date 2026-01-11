@@ -1,0 +1,365 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.Automation
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/reusable-branch-cleanup.yml
+# VERSION: 01.00.00
+# BRIEF: Reusable workflow to clean up stale and merged branches
+# NOTE: Works across all organization repositories with configurable exclusions
+
+name: Branch Cleanup
+
+on:
+  workflow_call:
+    inputs:
+      stale-days:
+        description: 'Number of days before a branch is considered stale'
+        required: false
+        type: number
+        default: 90
+      delete-merged:
+        description: 'Delete branches that have been merged'
+        required: false
+        type: boolean
+        default: true
+      delete-stale:
+        description: 'Delete branches that are stale (no activity)'
+        required: false
+        type: boolean
+        default: true
+      dry-run:
+        description: 'Dry run mode - preview changes without deleting'
+        required: false
+        type: boolean
+        default: false
+      exclude-patterns:
+        description: 'JSON array of branch patterns to exclude (regex)'
+        required: false
+        type: string
+        default: '["main", "master", "develop", "dev", "dev/.*", "rc/.*", "release/.*", "staging", "production"]'
+      exclude-prefix:
+        description: 'Comma-separated list of branch prefixes to exclude'
+        required: false
+        type: string
+        default: 'dependabot/,renovate/'
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup-branches:
+    name: Cleanup Stale and Merged Branches
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Setup Git
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+      
+      - name: Parse exclusion patterns
+        id: parse-exclusions
+        run: |
+          # Parse JSON array of exclude patterns
+          EXCLUDE_PATTERNS='${{ inputs.exclude-patterns }}'
+          echo "exclude_patterns=$EXCLUDE_PATTERNS" >> $GITHUB_OUTPUT
+          
+          # Parse comma-separated prefixes
+          EXCLUDE_PREFIX='${{ inputs.exclude-prefix }}'
+          echo "exclude_prefix=$EXCLUDE_PREFIX" >> $GITHUB_OUTPUT
+      
+      - name: Find merged branches
+        id: find-merged
+        if: inputs.delete-merged == true
+        run: |
+          echo "Finding merged branches..."
+          
+          # Get default branch
+          DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
+          echo "Default branch: $DEFAULT_BRANCH"
+          
+          # Get all remote branches that have been merged into default branch
+          MERGED_BRANCHES=$(git branch -r --merged origin/$DEFAULT_BRANCH | \
+            grep -v "HEAD" | \
+            grep -v "$DEFAULT_BRANCH" | \
+            sed 's/origin\///' | \
+            sed 's/^[[:space:]]*//' || true)
+          
+          # Save to output
+          echo "merged_branches<<EOF" >> $GITHUB_OUTPUT
+          echo "$MERGED_BRANCHES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+          # Count
+          if [ -z "$MERGED_BRANCHES" ]; then
+            echo "merged_count=0" >> $GITHUB_OUTPUT
+          else
+            MERGED_COUNT=$(echo "$MERGED_BRANCHES" | grep -c . || echo "0")
+            echo "merged_count=$MERGED_COUNT" >> $GITHUB_OUTPUT
+          fi
+          
+          echo "Found $MERGED_COUNT merged branches"
+      
+      - name: Find stale branches
+        id: find-stale
+        if: inputs.delete-stale == true
+        run: |
+          echo "Finding stale branches (no activity for ${{ inputs.stale-days }} days)..."
+          
+          # Calculate cutoff date
+          CUTOFF_DATE=$(date -d "${{ inputs.stale-days }} days ago" +%s)
+          echo "Cutoff date: $(date -d @$CUTOFF_DATE)"
+          
+          # Get all remote branches
+          STALE_BRANCHES=""
+          
+          for branch in $(git branch -r | grep -v "HEAD" | sed 's/origin\///' | sed 's/^[[:space:]]*//'); do
+            # Get last commit date for branch
+            LAST_COMMIT_DATE=$(git log -1 --format=%ct origin/$branch 2>/dev/null || echo "0")
+            
+            # Check if branch is stale
+            if [ "$LAST_COMMIT_DATE" -lt "$CUTOFF_DATE" ] && [ "$LAST_COMMIT_DATE" != "0" ]; then
+              if [ -z "$STALE_BRANCHES" ]; then
+                STALE_BRANCHES="$branch"
+              else
+                STALE_BRANCHES="$STALE_BRANCHES"$'\n'"$branch"
+              fi
+            fi
+          done
+          
+          # Save to output
+          echo "stale_branches<<EOF" >> $GITHUB_OUTPUT
+          echo "$STALE_BRANCHES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+          # Count
+          if [ -z "$STALE_BRANCHES" ]; then
+            echo "stale_count=0" >> $GITHUB_OUTPUT
+          else
+            STALE_COUNT=$(echo "$STALE_BRANCHES" | grep -c . || echo "0")
+            echo "stale_count=$STALE_COUNT" >> $GITHUB_OUTPUT
+          fi
+          
+          echo "Found $STALE_COUNT stale branches"
+      
+      - name: Filter excluded branches
+        id: filter-exclusions
+        run: |
+          echo "Filtering excluded branches..."
+          
+          # Combine merged and stale branches
+          ALL_BRANCHES=""
+          
+          if [ "${{ inputs.delete-merged }}" == "true" ]; then
+            MERGED='${{ steps.find-merged.outputs.merged_branches }}'
+            if [ -n "$MERGED" ]; then
+              ALL_BRANCHES="$MERGED"
+            fi
+          fi
+          
+          if [ "${{ inputs.delete-stale }}" == "true" ]; then
+            STALE='${{ steps.find-stale.outputs.stale_branches }}'
+            if [ -n "$STALE" ]; then
+              if [ -n "$ALL_BRANCHES" ]; then
+                ALL_BRANCHES="$ALL_BRANCHES"$'\n'"$STALE"
+              else
+                ALL_BRANCHES="$STALE"
+              fi
+            fi
+          fi
+          
+          # Remove duplicates
+          if [ -n "$ALL_BRANCHES" ]; then
+            ALL_BRANCHES=$(echo "$ALL_BRANCHES" | sort -u)
+          fi
+          
+          # Filter out excluded patterns
+          FILTERED_BRANCHES=""
+          EXCLUDE_PATTERNS='${{ steps.parse-exclusions.outputs.exclude_patterns }}'
+          EXCLUDE_PREFIX='${{ steps.parse-exclusions.outputs.exclude_prefix }}'
+          
+          # Parse JSON array to bash array
+          PATTERNS=$(echo "$EXCLUDE_PATTERNS" | jq -r '.[]' 2>/dev/null || echo "")
+          
+          for branch in $ALL_BRANCHES; do
+            EXCLUDE=false
+            
+            # Check against patterns
+            for pattern in $PATTERNS; do
+              if echo "$branch" | grep -qE "^${pattern}$"; then
+                echo "  Excluding (pattern): $branch (matches $pattern)"
+                EXCLUDE=true
+                break
+              fi
+            done
+            
+            # Check against prefixes
+            if [ "$EXCLUDE" == "false" ]; then
+              IFS=',' read -ra PREFIXES <<< "$EXCLUDE_PREFIX"
+              for prefix in "${PREFIXES[@]}"; do
+                if [[ "$branch" == "$prefix"* ]]; then
+                  echo "  Excluding (prefix): $branch (starts with $prefix)"
+                  EXCLUDE=true
+                  break
+                fi
+              done
+            fi
+            
+            # Add to filtered list if not excluded
+            if [ "$EXCLUDE" == "false" ]; then
+              if [ -z "$FILTERED_BRANCHES" ]; then
+                FILTERED_BRANCHES="$branch"
+              else
+                FILTERED_BRANCHES="$FILTERED_BRANCHES"$'\n'"$branch"
+              fi
+            fi
+          done
+          
+          # Save to output
+          echo "branches<<EOF" >> $GITHUB_OUTPUT
+          echo "$FILTERED_BRANCHES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+          # Count
+          if [ -z "$FILTERED_BRANCHES" ]; then
+            echo "count=0" >> $GITHUB_OUTPUT
+          else
+            BRANCH_COUNT=$(echo "$FILTERED_BRANCHES" | grep -c . || echo "0")
+            echo "count=$BRANCH_COUNT" >> $GITHUB_OUTPUT
+          fi
+          
+          echo "Branches to delete: $BRANCH_COUNT"
+      
+      - name: Delete branches (dry-run)
+        if: inputs.dry-run == true && steps.filter-exclusions.outputs.count != '0'
+        run: |
+          echo "DRY RUN MODE - No branches will be deleted"
+          echo ""
+          echo "The following branches would be deleted:"
+          echo "${{ steps.filter-exclusions.outputs.branches }}"
+          
+          # Create summary
+          {
+            echo "### 🔍 Branch Cleanup Preview (Dry Run)"
+            echo ""
+            echo "**Branches that would be deleted:** ${{ steps.filter-exclusions.outputs.count }}"
+            echo ""
+            echo "#### Branches:"
+            echo '```'
+            echo "${{ steps.filter-exclusions.outputs.branches }}"
+            echo '```'
+            echo ""
+            echo "**Note:** This is a dry run. No branches were actually deleted."
+            echo "Remove \`dry-run: true\` to delete these branches."
+          } >> "$GITHUB_STEP_SUMMARY"
+      
+      - name: Delete branches
+        if: inputs.dry-run == false && steps.filter-exclusions.outputs.count != '0'
+        run: |
+          echo "Deleting ${{ steps.filter-exclusions.outputs.count }} branches..."
+          
+          BRANCHES='${{ steps.filter-exclusions.outputs.branches }}'
+          DELETED_COUNT=0
+          FAILED_COUNT=0
+          FAILED_BRANCHES=""
+          
+          for branch in $BRANCHES; do
+            echo "Deleting branch: $branch"
+            if git push origin --delete "$branch" 2>/dev/null; then
+              echo "  ✓ Deleted: $branch"
+              DELETED_COUNT=$((DELETED_COUNT + 1))
+            else
+              echo "  ✗ Failed to delete: $branch"
+              FAILED_COUNT=$((FAILED_COUNT + 1))
+              if [ -z "$FAILED_BRANCHES" ]; then
+                FAILED_BRANCHES="$branch"
+              else
+                FAILED_BRANCHES="$FAILED_BRANCHES"$'\n'"$branch"
+              fi
+            fi
+          done
+          
+          echo ""
+          echo "Summary:"
+          echo "  Deleted: $DELETED_COUNT"
+          echo "  Failed: $FAILED_COUNT"
+          
+          # Save results
+          echo "deleted_count=$DELETED_COUNT" >> $GITHUB_OUTPUT
+          echo "failed_count=$FAILED_COUNT" >> $GITHUB_OUTPUT
+          echo "failed_branches<<EOF" >> $GITHUB_OUTPUT
+          echo "$FAILED_BRANCHES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+          # Create summary
+          {
+            echo "### 🧹 Branch Cleanup Results"
+            echo ""
+            echo "**Total branches processed:** ${{ steps.filter-exclusions.outputs.count }}"
+            echo "**Successfully deleted:** $DELETED_COUNT"
+            echo "**Failed:** $FAILED_COUNT"
+            echo ""
+            
+            if [ "$FAILED_COUNT" -gt 0 ]; then
+              echo "#### Failed to delete:"
+              echo '```'
+              echo "$FAILED_BRANCHES"
+              echo '```'
+            fi
+            
+            echo ""
+            echo "**Settings:**"
+            echo "- Delete merged branches: ${{ inputs.delete-merged }}"
+            echo "- Delete stale branches: ${{ inputs.delete-stale }}"
+            echo "- Stale threshold: ${{ inputs.stale-days }} days"
+          } >> "$GITHUB_STEP_SUMMARY"
+      
+      - name: Summary (no branches to delete)
+        if: steps.filter-exclusions.outputs.count == '0'
+        run: |
+          {
+            echo "### ✨ Branch Cleanup Results"
+            echo ""
+            echo "No branches found matching cleanup criteria."
+            echo ""
+            echo "**Settings:**"
+            echo "- Delete merged branches: ${{ inputs.delete-merged }}"
+            echo "- Delete stale branches: ${{ inputs.delete-stale }}"
+            echo "- Stale threshold: ${{ inputs.stale-days }} days"
+            
+            if [ "${{ inputs.delete-merged }}" == "true" ]; then
+              echo "- Merged branches found: ${{ steps.find-merged.outputs.merged_count }}"
+            fi
+            
+            if [ "${{ inputs.delete-stale }}" == "true" ]; then
+              echo "- Stale branches found: ${{ steps.find-stale.outputs.stale_count }}"
+            fi
+            
+            echo ""
+            echo "All branches were excluded by filters or no stale/merged branches exist."
+          } >> "$GITHUB_STEP_SUMMARY"

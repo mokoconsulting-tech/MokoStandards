@@ -1,0 +1,73 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.Automation
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/branch-cleanup.yml
+# VERSION: 01.00.00
+# BRIEF: Clean up stale and merged branches in the repository
+# NOTE: Runs monthly or manually, uses reusable-branch-cleanup workflow
+
+name: Branch Cleanup
+
+on:
+  # Run monthly on the 15th at 02:00 UTC
+  schedule:
+    - cron: '0 2 15 * *'
+  
+  # Allow manual triggering with options
+  workflow_dispatch:
+    inputs:
+      stale-days:
+        description: 'Days before branch is considered stale'
+        required: false
+        type: number
+        default: 90
+      delete-merged:
+        description: 'Delete merged branches'
+        required: false
+        type: boolean
+        default: true
+      delete-stale:
+        description: 'Delete stale branches'
+        required: false
+        type: boolean
+        default: true
+      dry-run:
+        description: 'Preview changes without deleting'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    name: Cleanup Branches
+    uses: ./.github/workflows/reusable-branch-cleanup.yml
+    with:
+      stale-days: ${{ inputs.stale-days || 90 }}
+      delete-merged: ${{ inputs.delete-merged != false }}
+      delete-stale: ${{ inputs.delete-stale != false }}
+      dry-run: ${{ inputs.dry-run == true }}
+      exclude-patterns: '["main", "master", "develop", "dev", "dev/.*", "rc/.*", "release/.*", "staging", "production"]'
+      exclude-prefix: 'dependabot/,renovate/,copilot/'

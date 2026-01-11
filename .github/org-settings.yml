@@ -1,0 +1,197 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.Settings
+# INGROUP: MokoStandards.Configuration
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/org-settings.yml
+# VERSION: 01.00.00
+# BRIEF: GitHub organization-level settings configuration for branch protection
+# NOTE: Applied at organization level to protect main branch across all repositories
+
+# Organization-level branch protection rules
+# These settings apply to all repositories in the mokoconsulting-tech organization
+# 
+# To apply these settings:
+# 1. Go to GitHub Organization Settings → Repository → Rules → Rulesets
+# 2. Create a new ruleset with these configurations
+# 3. Apply to "All repositories" or specific repository patterns
+#
+# Alternatively, use GitHub API or terraform to automate:
+# https://docs.github.com/en/rest/repos/rules
+
+organization:
+  name: mokoconsulting-tech
+  
+  # Organization-wide branch protection rulesets
+  rulesets:
+    - name: "Protect main branch across all repositories"
+      # Target: Apply to all repositories
+      target: all_repositories
+      
+      # Enforcement level: active (enforced), evaluate (report only), disabled
+      enforcement: active
+      
+      # Bypass actors (users/teams that can bypass these rules)
+      # Leave empty for strict enforcement, or add admin teams for emergency bypass
+      bypass_actors: []
+      
+      # Conditions: Which branches to protect
+      conditions:
+        ref_name:
+          include:
+            - "refs/heads/main"
+            - "refs/heads/master"
+          exclude: []
+      
+      # Rules to enforce
+      rules:
+        # Require pull requests before merging
+        - type: pull_request
+          parameters:
+            # Require at least 1 approval
+            required_approving_review_count: 1
+            # Dismiss stale reviews when new commits are pushed
+            dismiss_stale_reviews_on_push: true
+            # Require review from code owners (if CODEOWNERS file exists)
+            require_code_owner_review: false
+            # Require approval of the most recent reviewable push
+            require_last_push_approval: false
+            # Restrict who can dismiss reviews
+            required_review_thread_resolution: true
+        
+        # Require status checks to pass
+        - type: required_status_checks
+          parameters:
+            # Require branches to be up to date before merging
+            strict_required_status_checks_policy: true
+            # Required status checks (add specific checks as needed)
+            required_status_checks: []
+        
+        # Require linear history (no merge commits)
+        - type: required_linear_history
+          parameters: {}
+        
+        # Require signed commits
+        - type: required_signatures
+          parameters:
+            required_signatures: false
+        
+        # Prevent force pushes
+        - type: non_fast_forward
+          parameters: {}
+        
+        # Prevent branch deletion
+        - type: deletion
+          parameters: {}
+        
+        # Require conversation resolution before merging
+        - type: required_conversation_resolution
+          parameters: {}
+        
+        # Creation restrictions (who can create matching branches)
+        - type: creation
+          parameters:
+            # Restrict branch creation
+            restrict_creation: true
+        
+        # Update restrictions (who can push to matching branches)
+        - type: update
+          parameters:
+            # Restrict direct pushes - force all changes through PRs
+            update_allows_fetch_and_merge: false
+
+# Alternative: Organization default branch protection template
+# This can be used as a template for new repositories
+default_branch_protection:
+  # Pattern to match (e.g., "main", "master", or "*" for default branch)
+  pattern: main
+  
+  # Require pull request reviews before merging
+  required_pull_request_reviews:
+    required_approving_review_count: 1
+    dismiss_stale_reviews: true
+    require_code_owner_reviews: false
+    require_last_push_approval: false
+  
+  # Require status checks to pass before merging
+  required_status_checks:
+    strict: true
+    contexts: []
+  
+  # Enforce all configured restrictions for administrators
+  enforce_admins: true
+  
+  # Require signed commits
+  required_signatures: false
+  
+  # Require linear history (forces squash or rebase)
+  required_linear_history: true
+  
+  # Prevent force pushes
+  allow_force_pushes: false
+  
+  # Prevent deletions
+  allow_deletions: false
+  
+  # Require conversation resolution before merging
+  required_conversation_resolution: true
+  
+  # Restrict who can push to matching branches
+  restrictions:
+    users: []
+    teams: []
+    apps: []
+
+# Instructions for applying organization-level settings
+# 
+# Method 1: GitHub Web UI
+# -----------------------
+# 1. Navigate to: https://github.com/organizations/mokoconsulting-tech/settings/rules
+# 2. Click "New ruleset" → "New branch ruleset"
+# 3. Configure:
+#    - Name: "Protect main branch across all repositories"
+#    - Enforcement status: Active
+#    - Target repositories: All repositories
+#    - Target branches: Include "main" and "master"
+# 4. Add rules as specified above
+# 5. Click "Create" to apply
+#
+# Method 2: GitHub CLI
+# --------------------
+# Use `gh api` to create rulesets programmatically
+# See: https://docs.github.com/en/rest/repos/rules
+#
+# Method 3: Terraform
+# -------------------
+# Use github_repository_ruleset resource
+# See: https://registry.terraform.io/providers/integrations/github/latest/docs/resources/repository_ruleset
+#
+# Method 4: GitHub API
+# --------------------
+# POST /orgs/{org}/rulesets
+# See: https://docs.github.com/en/rest/repos/rules#create-an-organization-repository-ruleset
+
+# Notes:
+# ------
+# - Organization rulesets apply to all repositories and override repository-level settings
+# - Administrators can be exempted via bypass_actors if needed for emergencies
+# - This ensures consistent protection across all org repositories
+# - Individual repositories can have additional (stricter) rules via settings.yml

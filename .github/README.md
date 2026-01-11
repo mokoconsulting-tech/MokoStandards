@@ -61,23 +61,54 @@ To apply these settings manually:
 3. Go to Settings → Branches → Add rule for `main`
 4. Configure branch protection as specified in settings.yml
 
+### org-settings.yml
+
+**Organization-level** branch protection configuration that applies to **all repositories** in the mokoconsulting-tech organization.
+
+* **Scope**: Organization-wide (all repositories)
+* **Protection**: Main/master branch protection rules
+* **Enforcement**: Active ruleset with optional bypass actors
+* **Method**: GitHub Rulesets (organization settings)
+
+#### Usage
+
+Apply organization-level branch protection using GitHub Rulesets:
+
+1. Go to GitHub Organization Settings → Repository → Rules → Rulesets
+2. Create new ruleset: "Protect main branch across all repositories"
+3. Configure target: All repositories
+4. Add branch patterns: `main`, `master`
+5. Enable rules as specified in org-settings.yml
+
+Alternatively, use GitHub API, CLI, or Terraform for automation.
+
+**Key Differences from settings.yml:**
+* `settings.yml` - Applied per-repository (synced via bulk update)
+* `org-settings.yml` - Applied once at organization level (affects all repos)
+* Organization rulesets override repository-level settings
+
 #### Key Settings
 
-**Merge Methods:**
+**Repository-level (settings.yml):**
 * ✅ Squash merge enabled
 * ❌ Merge commit disabled
 * ❌ Rebase merge disabled
-
-**Automatic Actions:**
 * Branch deletion after merge
 * Stale review dismissal
 * Conversation resolution required
-
-**Branch Protection (main):**
 * Pull request reviews required
 * Linear history enforced
 * Status checks required
 * Up-to-date branches required
+
+**Organization-level (org-settings.yml):**
+* 🌐 Applied to ALL organization repositories
+* 🔒 Protects main/master branches organization-wide
+* ✅ Requires pull requests (no direct pushes)
+* ✅ Requires 1 approval minimum
+* ✅ Enforces linear history
+* ✅ Prevents force pushes and deletions
+* ✅ Can be bypassed by designated users/teams if needed
 
 ## Related Documentation
 

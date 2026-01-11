@@ -11,6 +11,7 @@ This index provides navigation to documentation within this folder.
 - [template-CONTRIBUTING](./template-CONTRIBUTING.md)
 - [template-LICENSE](./template-LICENSE.md)
 - [template-README](./template-README.md)
+- [template-SECURITY](./template-SECURITY.md)
 
 ## Metadata
 

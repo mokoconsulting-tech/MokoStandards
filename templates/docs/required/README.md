@@ -23,6 +23,7 @@ All repositories MUST include these documentation files:
 2. **CHANGELOG.md** - Change tracking and release history
 3. **CONTRIBUTING.md** - Contribution guidelines and workflow
 4. **LICENSE.md** - License terms and copyright information
+5. **SECURITY.md** - Security vulnerability reporting and handling policy
 
 ### Template Usage
 
@@ -91,6 +92,13 @@ All required templates must have these completed:
 - License terms
 - Redistribution terms
 
+### SECURITY.md
+
+- Supported versions
+- Vulnerability reporting process
+- Security best practices
+- Response timeline and severity classification
+
 ## Example Usage
 
 ### New Repository Setup
@@ -108,11 +116,12 @@ cp /templates/docs/required/template-README.md ./README.md
 cp /templates/docs/required/template-CHANGELOG.md ./CHANGELOG.md
 cp /templates/docs/required/template-CONTRIBUTING.md ./CONTRIBUTING.md
 cp /templates/docs/required/template-LICENSE.md ./LICENSE.md
+cp /templates/docs/required/template-SECURITY.md ./SECURITY.md
 
 # Edit each file to complete required fields
 # Validate compliance
 # Commit to repository
-git add README.md CHANGELOG.md CONTRIBUTING.md LICENSE.md
+git add README.md CHANGELOG.md CONTRIBUTING.md LICENSE.md SECURITY.md
 git commit -m "Add required documentation"
 ```
 
@@ -120,7 +129,7 @@ git commit -m "Add required documentation"
 
 ```bash
 # Check for missing required files
-ls -1 README.md CHANGELOG.md CONTRIBUTING.md LICENSE.md
+ls -1 README.md CHANGELOG.md CONTRIBUTING.md LICENSE.md SECURITY.md
 
 # Copy missing templates
 # Complete required fields
@@ -133,6 +142,7 @@ ls -1 README.md CHANGELOG.md CONTRIBUTING.md LICENSE.md
 - **template-CHANGELOG.md** - Change log template
 - **template-CONTRIBUTING.md** - Contribution guidelines template
 - **template-LICENSE.md** - License document template
+- **template-SECURITY.md** - Security policy template
 
 ## Metadata
 

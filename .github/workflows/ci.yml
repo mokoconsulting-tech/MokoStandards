@@ -23,8 +23,8 @@
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/ci.yml
 # VERSION: 02.00.00
-# BRIEF: Continuous integration workflow using centralized reusable workflow from .github-private
-# NOTE: Delegates CI execution to .github-private repository for centralized workflow management
+# BRIEF: Continuous integration workflow using local reusable workflow
+# NOTE: Delegates CI execution to local reusable-ci-validation.yml for repository validation
 
 name: Continuous Integration
 
@@ -48,8 +48,7 @@ permissions:
 jobs:
   ci:
     name: Repository Validation Pipeline
-    uses: mokoconsulting-tech/.github-private/.github/workflows/reusable/ci-validation.yml@main
+    uses: ./.github/workflows/reusable-ci-validation.yml
     with:
-      profile: all
-      python-version: '3.x'
+      profile: full
     secrets: inherit

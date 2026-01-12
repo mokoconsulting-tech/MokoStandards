@@ -21,12 +21,12 @@
 # DEFGROUP: GitHub.Workflow
 # INGROUP: MokoStandards.Automation
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
-# PATH: /.github/workflows/reusable-branch-cleanup.yml
+# PATH: /.github/workflows/archived/reusable-branch-cleanup.yml (ARCHIVED - Migrated to .github-private)
 # VERSION: 01.00.00
-# BRIEF: Reusable workflow to clean up stale and merged branches
-# NOTE: Works across all organization repositories with configurable exclusions
+# BRIEF: Reusable workflow to clean up stale and merged branches (ARCHIVED)
+# NOTE: Migrated to .github-private repository for centralized organization automation
 
-name: Branch Cleanup
+name: Reusable Branch Cleanup (DEPRECATED)
 
 on:
   workflow_call:

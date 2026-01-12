@@ -29,10 +29,12 @@ BRIEF: Automatically create smart GitHub Projects for every organization reposit
 """
 
 import argparse
+import base64
 import json
 import os
 import subprocess
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -195,7 +197,9 @@ class OrgProjectsCreator:
         """Detect project type from repository contents."""
         self.log_verbose(f"Detecting project type for {repo_name}...")
         
-        # Check for Joomla indicators
+        joomla_indicators = 0
+        dolibarr_indicators = 0
+        
         try:
             result = subprocess.run(
                 ["gh", "api", f"repos/{self.org}/{repo_name}/contents", 
@@ -209,29 +213,43 @@ class OrgProjectsCreator:
                 contents = json.loads(result.stdout)
                 file_names = [item.get("name", "") for item in contents]
                 
-                # Check for Joomla patterns
-                if any(name.endswith(".xml") for name in file_names):
-                    # Try to read manifest to confirm Joomla
-                    for name in file_names:
-                        if name.endswith(".xml"):
-                            manifest_result = subprocess.run(
-                                ["gh", "api", f"repos/{self.org}/{repo_name}/contents/{name}",
-                                 "-f", f"ref={default_branch}"],
-                                capture_output=True,
-                                text=True,
-                                check=False
-                            )
-                            if manifest_result.returncode == 0:
-                                # Simple check for Joomla XML structure
-                                if "joomla" in manifest_result.stdout.lower():
-                                    return "joomla"
+                # Check for Joomla patterns with multiple indicators
+                for name in file_names:
+                    if name.endswith(".xml"):
+                        # Read manifest to confirm Joomla
+                        manifest_result = subprocess.run(
+                            ["gh", "api", f"repos/{self.org}/{repo_name}/contents/{name}",
+                             "-f", f"ref={default_branch}"],
+                            capture_output=True,
+                            text=True,
+                            check=False
+                        )
+                        if manifest_result.returncode == 0:
+                            manifest_content = manifest_result.stdout.lower()
+                            # Multiple validation criteria
+                            if "joomla" in manifest_content:
+                                joomla_indicators += 2
+                            if any(x in manifest_content for x in ["<extension", "<install", "<component", "<module", "<plugin"]):
+                                joomla_indicators += 1
+                    
+                    # Additional Joomla indicators
+                    if name in ["administrator", "components", "modules", "plugins"]:
+                        joomla_indicators += 1
                 
-                # Check for Dolibarr patterns
+                # Check for Dolibarr patterns with multiple indicators
                 for name in file_names:
                     if name.startswith("mod") and name.endswith(".class.php"):
-                        return "dolibarr"
+                        dolibarr_indicators += 2
                     if name == "htdocs":
-                        return "dolibarr"
+                        dolibarr_indicators += 2
+                    if name in ["core", "class"]:
+                        dolibarr_indicators += 1
+                
+                # Decide based on indicators
+                if joomla_indicators >= 2:
+                    return "joomla"
+                if dolibarr_indicators >= 2:
+                    return "dolibarr"
         
         except Exception as e:
             self.log_verbose(f"Error detecting project type: {e}")
@@ -394,7 +412,10 @@ Focus: Major feature additions and improvements
 * ⬜ Comprehensive testing
 """
         
-        base_content += """
+        # Get current date once
+        current_date = datetime.now().strftime("%Y-%m-%d")
+        
+        base_content += f"""
 ---
 
 ## Metadata
@@ -402,14 +423,14 @@ Focus: Major feature additions and improvements
 ```
 Owner: Development Team
 Status: Active
-Last Updated: """ + subprocess.run(["date", "+%Y-%m-%d"], capture_output=True, text=True).stdout.strip() + """
+Last Updated: {current_date}
 ```
 
 ## Revision History
 
 | Date       | Version  | Author | Notes                    |
 | ---------- | -------- | ------ | ------------------------ |
-| """ + subprocess.run(["date", "+%Y-%m-%d"], capture_output=True, text=True).stdout.strip() + """ | 01.00.00 | Auto   | Initial roadmap creation |
+| {current_date} | 01.00.00 | Auto   | Initial roadmap creation |
 """
         
         return base_content
@@ -438,7 +459,6 @@ Last Updated: """ + subprocess.run(["date", "+%Y-%m-%d"], capture_output=True, t
             
             # Create roadmap file (this will require push access)
             # Note: This uses gh api to create/update file
-            import base64
             encoded_content = base64.b64encode(roadmap_content.encode()).decode()
             
             # Check if file exists

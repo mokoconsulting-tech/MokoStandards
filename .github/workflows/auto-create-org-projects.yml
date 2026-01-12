@@ -74,8 +74,8 @@ jobs:
 
       - name: Run auto-create projects script
         env:
-          GH_PAT: ${{ secrets.GH_PAT }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Prefer GH_PAT if available, otherwise use GITHUB_TOKEN
+          GH_PAT: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
         run: |
           DRY_RUN_FLAG=""
           VERBOSE_FLAG=""

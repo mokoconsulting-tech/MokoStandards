@@ -22,9 +22,9 @@
 # INGROUP: MokoStandards.Security
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/codeql-analysis.yml
-# VERSION: 01.00.00
+# VERSION: 01.01.00
 # BRIEF: CodeQL security scanning workflow for vulnerability detection
-# NOTE: Runs on push to main and PRs, weekly scheduled scans
+# NOTE: Runs on push to main and PRs, weekly scheduled scans. Automatically detects supported languages.
 
 name: "CodeQL Security Scanning"
 
@@ -50,19 +50,126 @@ permissions:
   security-events: write
 
 jobs:
+  detect-languages:
+    name: Detect Languages
+    runs-on: ubuntu-latest
+    outputs:
+      has-python: ${{ steps.detect.outputs.has-python }}
+      has-javascript: ${{ steps.detect.outputs.has-javascript }}
+      has-php: ${{ steps.detect.outputs.has-php }}
+      languages: ${{ steps.detect.outputs.languages }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      
+      - name: Detect Languages
+        id: detect
+        run: |
+          # Detect Python files
+          if find . -type f -name "*.py" \
+            -not -path "./node_modules/*" \
+            -not -path "./vendor/*" \
+            -not -path "./.git/*" \
+            -not -path "./build/*" \
+            -not -path "./dist/*" \
+            | grep -q .; then
+            echo "has-python=true" >> $GITHUB_OUTPUT
+            echo "✓ Python files detected"
+            LANGUAGES="python"
+          else
+            echo "has-python=false" >> $GITHUB_OUTPUT
+            echo "✗ No Python files detected"
+            LANGUAGES=""
+          fi
+          
+          # Detect JavaScript/TypeScript files
+          if find . -type f \( -name "*.js" -o -name "*.ts" -o -name "*.jsx" -o -name "*.tsx" \) \
+            -not -path "./node_modules/*" \
+            -not -path "./vendor/*" \
+            -not -path "./.git/*" \
+            -not -path "./build/*" \
+            -not -path "./dist/*" \
+            | grep -q .; then
+            echo "has-javascript=true" >> $GITHUB_OUTPUT
+            echo "✓ JavaScript/TypeScript files detected"
+            if [ -n "$LANGUAGES" ]; then
+              LANGUAGES="$LANGUAGES, javascript"
+            else
+              LANGUAGES="javascript"
+            fi
+          else
+            echo "has-javascript=false" >> $GITHUB_OUTPUT
+            echo "✗ No JavaScript/TypeScript files detected"
+          fi
+          
+          # Detect PHP files
+          if find . -type f -name "*.php" \
+            -not -path "./node_modules/*" \
+            -not -path "./vendor/*" \
+            -not -path "./.git/*" \
+            -not -path "./build/*" \
+            -not -path "./dist/*" \
+            | grep -q .; then
+            echo "has-php=true" >> $GITHUB_OUTPUT
+            echo "✓ PHP files detected"
+            if [ -n "$LANGUAGES" ]; then
+              LANGUAGES="$LANGUAGES, php"
+            else
+              LANGUAGES="php"
+            fi
+          else
+            echo "has-php=false" >> $GITHUB_OUTPUT
+            echo "✗ No PHP files detected"
+          fi
+          
+          # Output detected languages
+          if [ -z "$LANGUAGES" ]; then
+            echo "languages=" >> $GITHUB_OUTPUT
+            echo ""
+            echo "⚠️  No supported languages detected for CodeQL analysis"
+            echo "    Supported: Python (.py), JavaScript/TypeScript (.js, .ts, .jsx, .tsx), PHP (.php)"
+          else
+            echo "languages=$LANGUAGES" >> $GITHUB_OUTPUT
+            echo ""
+            echo "📊 Languages detected for CodeQL analysis: $LANGUAGES"
+          fi
+      
+      - name: Summary
+        run: |
+          echo "## CodeQL Language Detection" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.detect.outputs.languages }}" == "" ]; then
+            echo "⚠️ **No supported languages detected**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "CodeQL analysis will be skipped as no supported language files were found." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ **Detected languages:** ${{ steps.detect.outputs.languages }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "CodeQL security analysis will run for the detected languages." >> $GITHUB_STEP_SUMMARY
+          fi
+
   analyze:
-    name: CodeQL Analysis
+    name: CodeQL Analysis (${{ matrix.language }})
     runs-on: ubuntu-latest
     timeout-minutes: 360
-
+    needs: detect-languages
+    # Only run if at least one supported language is detected
+    if: |
+      needs.detect-languages.outputs.languages != '' &&
+      (
+        (matrix.language == 'python' && needs.detect-languages.outputs.has-python == 'true') ||
+        (matrix.language == 'javascript' && needs.detect-languages.outputs.has-javascript == 'true') ||
+        (matrix.language == 'php' && needs.detect-languages.outputs.has-php == 'true')
+      )
+    
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'python' ]
+        # Attempt to analyze all possible languages; actual execution is controlled by the if condition
         # CodeQL supports: 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby', 'php'
-        # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
-        # Note: This repository contains primarily documentation with Python scripts.
-        # Only Python is configured as it's the only programming language present in this repository.
+        # This workflow automatically detects Python, JavaScript/TypeScript, and PHP
+        language: ['python', 'javascript', 'php']
 
     steps:
     - name: Checkout repository

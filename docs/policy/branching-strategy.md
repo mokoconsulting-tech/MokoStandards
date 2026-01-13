@@ -328,12 +328,12 @@ git push origin rc/1.2.0
 
 # 4. Perform testing on RC branch
 
-# 5. Apply bug fixes if needed
-git checkout -b bugfix/rc-issue-123
+# 5. Apply bug fixes if needed (use dev prefix since it's for a specific version)
+git checkout -b dev/1.2.0/fix-rc-issue-123
 # Fix bug
-git commit -m "Fix issue in RC"
-git push origin bugfix/rc-issue-123
-# Create PR: bugfix/rc-issue-123 -> rc/1.2.0
+git commit -m "fix: Fix issue in RC"
+git push origin dev/1.2.0/fix-rc-issue-123
+# Create PR: dev/1.2.0/fix-rc-issue-123 -> rc/1.2.0
 
 # 6. When RC is stable, merge to main
 # Create PR: rc/1.2.0 -> main
@@ -402,9 +402,9 @@ git merge patch/1.2.1/security-fix
 git tag -a v1.2.1 -m "Hotfix release 1.2.1"
 git push origin version/1.2.0 --tags
 
-# 8. Delete hotfix branch
-git branch -d hotfix/1.2.1-security-fix
-git push origin --delete hotfix/1.2.1-security-fix
+# 8. Delete patch branch
+git branch -d patch/1.2.1/security-fix
+git push origin --delete patch/1.2.1/security-fix
 ```
 
 ### Version Branch Maintenance
@@ -425,14 +425,14 @@ git push origin version/1.2.0
 # - Migration notes
 # After approval, merge to main
 
-# Apply hotfix to version branch
+# Apply patch to version branch
 git checkout version/1.2.0
-git checkout -b hotfix/1.2.3-backport
+git checkout -b patch/1.2.3/backport
 # Apply fix
-git commit -m "Backport security fix"
-git push origin hotfix/1.2.3-backport
+git commit -m "fix: Backport security fix"
+git push origin patch/1.2.3/backport
 
-# Create PR: hotfix/1.2.3-backport -> version/1.2.0
+# Create PR: patch/1.2.3/backport -> version/1.2.0
 # Merge and tag
 git checkout version/1.2.0
 git pull origin version/1.2.0
@@ -442,14 +442,9 @@ git push origin v1.2.3
 
 ## Merge Strategies
 
-### Feature to Dev
+### Development Branches (dev/x.y.z/*) to Dev
 - **Strategy**: Squash or Merge Commit
 - **Rationale**: Clean history, single commit per feature
-- **PR Required**: Yes (1 approval)
-
-### Bugfix to Dev
-- **Strategy**: Squash
-- **Rationale**: Clean history
 - **PR Required**: Yes (1 approval)
 
 ### RC to Main
@@ -462,12 +457,12 @@ git push origin v1.2.3
 - **Rationale**: Keep both histories
 - **PR Required**: Yes (1 approval)
 
-### Hotfix to Main
+### Patch Branches (patch/x.y.z/*) to Main
 - **Strategy**: Merge Commit
-- **Rationale**: Clear hotfix trail
+- **Rationale**: Clear patch/hotfix trail
 - **PR Required**: Yes (expedited, 1 approval)
 
-### Hotfix to Dev
+### Patch Branches to Dev
 - **Strategy**: Merge or Cherry-pick
 - **Rationale**: Depends on conflicts
 - **PR Required**: Yes (1 approval)
@@ -580,8 +575,9 @@ git push origin --delete v1.2.0
 ## Best Practices
 
 ### Do's
-- ✓ Keep feature branches small and focused
-- ✓ Rebase feature branches regularly on dev
+- ✓ Follow branch naming convention with semantic versioning
+- ✓ Keep development branches small and focused
+- ✓ Rebase branches regularly on dev
 - ✓ Write descriptive commit messages
 - ✓ Update CHANGELOG.md for releases
 - ✓ Tag all releases
@@ -598,6 +594,7 @@ git push origin --delete v1.2.0
 - ✗ Don't skip version numbers
 - ✗ Don't mix features in single branch
 - ✗ Don't create branches with reserved prefixes (e.g., mokostandards*)
+- ✗ Don't create branches without proper version prefix and semantic version
 
 ## Automation
 

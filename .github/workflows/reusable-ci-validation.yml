@@ -408,10 +408,9 @@ jobs:
                 --exclude-dir=.git \
                 --exclude-dir=node_modules \
                 --exclude-dir=vendor \
+                --exclude-dir=.github \
                 --exclude-dir=docs \
-                --exclude="*.md" \
-                --exclude="reusable-ci-validation.yml" \
-                --exclude="reusable-joomla-testing.yml" 2>/dev/null; then
+                --exclude="*.md" 2>/dev/null; then
                 FOUND=1
               fi
             done

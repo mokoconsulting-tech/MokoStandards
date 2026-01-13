@@ -35,13 +35,13 @@ Updates CHANGELOG.md by adding entries to the UNRELEASED section.
 **Usage**:
 ```bash
 # Add a simple entry
-python3 scripts/update_changelog.py --category Added --entry "New feature X"
+python3 scripts/maintenance/update_changelog.py --category Added --entry "New feature X"
 
 # Add an entry with subcategory
-python3 scripts/update_changelog.py --category Changed --entry "Updated API" --subcategory "API"
+python3 scripts/maintenance/update_changelog.py --category Changed --entry "Updated API" --subcategory "API"
 
 # Display current UNRELEASED section
-python3 scripts/update_changelog.py --show
+python3 scripts/maintenance/update_changelog.py --show
 ```
 
 **Categories**: Added, Changed, Deprecated, Removed, Fixed, Security
@@ -59,19 +59,19 @@ Releases a version by moving UNRELEASED items to a versioned section, updating V
 **Usage**:
 ```bash
 # Release version (updates CHANGELOG only)
-python3 scripts/release_version.py --version 05.01.00
+python3 scripts/maintenance/release_version.py --version 05.01.00
 
 # Release with custom date
-python3 scripts/release_version.py --version 05.01.00 --date 2026-01-15
+python3 scripts/maintenance/release_version.py --version 05.01.00 --date 2026-01-15
 
 # Release and update VERSION in all files
-python3 scripts/release_version.py --version 05.01.00 --update-files
+python3 scripts/maintenance/release_version.py --version 05.01.00 --update-files
 
 # Release, update files, and create GitHub release
-python3 scripts/release_version.py --version 05.01.00 --update-files --create-release
+python3 scripts/maintenance/release_version.py --version 05.01.00 --update-files --create-release
 
 # Dry run to preview changes
-python3 scripts/release_version.py --version 05.01.00 --update-files --create-release --dry-run
+python3 scripts/maintenance/release_version.py --version 05.01.00 --update-files --create-release --dry-run
 ```
 
 **Features**:
@@ -194,7 +194,7 @@ Examples: `05.00.00`, `05.01.00`, `05.01.01`
 1. Make code changes
 2. Add changelog entry using script or workflow:
    ```bash
-   python3 scripts/update_changelog.py --category Added --entry "Feature description"
+   python3 scripts/maintenance/update_changelog.py --category Added --entry "Feature description"
    ```
 3. Commit both code and changelog changes
 
@@ -213,14 +213,14 @@ Examples: `05.00.00`, `05.01.00`, `05.01.01`
 
 ```bash
 # 1. Release version
-python3 scripts/release_version.py --version 05.01.00 --update-files
+python3 scripts/maintenance/release_version.py --version 05.01.00 --update-files
 
 # 2. Commit changes
 git add .
 git commit -m "release: version 05.01.00"
 
 # 3. Create GitHub release
-python3 scripts/release_version.py --version 05.01.00 --create-release
+python3 scripts/maintenance/release_version.py --version 05.01.00 --create-release
 
 # 4. Push changes
 git push origin main
@@ -281,20 +281,20 @@ Use XX.YY.ZZ format (e.g., `05.01.00`, not `5.1.0`).
 
 ```bash
 # Add to UNRELEASED
-python3 scripts/update_changelog.py \
+python3 scripts/maintenance/update_changelog.py \
   --category Added \
   --entry "Support for custom themes" \
   --subcategory "UI"
 
 # View changes
-python3 scripts/update_changelog.py --show
+python3 scripts/maintenance/update_changelog.py --show
 ```
 
 ### Example 2: Release Minor Version
 
 ```bash
 # Release 05.01.00
-python3 scripts/release_version.py \
+python3 scripts/maintenance/release_version.py \
   --version 05.01.00 \
   --update-files \
   --create-release
@@ -304,12 +304,12 @@ python3 scripts/release_version.py \
 
 ```bash
 # Add security entry
-python3 scripts/update_changelog.py \
+python3 scripts/maintenance/update_changelog.py \
   --category Security \
   --entry "Fix XSS vulnerability in user input"
 
 # Release patch version
-python3 scripts/release_version.py \
+python3 scripts/maintenance/release_version.py \
   --version 05.00.01 \
   --update-files \
   --create-release

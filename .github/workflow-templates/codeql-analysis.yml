@@ -127,7 +127,7 @@ jobs:
           if [ -z "$LANGUAGES" ]; then
             echo "languages=" >> $GITHUB_OUTPUT
             echo ""
-            echo "⚠️  No supported languages detected for CodeQL analysis"
+            echo "⚠️ No supported languages detected for CodeQL analysis"
             echo "    Supported: Python (.py), JavaScript/TypeScript (.js, .ts, .jsx, .tsx), PHP (.php)"
           else
             echo "languages=$LANGUAGES" >> $GITHUB_OUTPUT

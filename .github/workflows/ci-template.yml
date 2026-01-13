@@ -1,0 +1,144 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.Template
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/ci-template.yml
+# VERSION: 01.00.00
+# BRIEF: Template CI workflow that calls the reusable CI validation workflow
+# NOTE: Copy this file to your project's .github/workflows/ci.yml and customize as needed
+
+# ============================================================================
+# TEMPLATE USAGE INSTRUCTIONS
+# ============================================================================
+#
+# This is a template file. To use it in your project:
+#
+# 1. Copy this file to your repository's .github/workflows/ci.yml
+#
+# 2. Update the workflow to call the reusable workflow from MokoStandards:
+#    uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-ci-validation.yml@main
+#
+# 3. Customize the inputs based on your project needs:
+#    - profile: Choose validation strictness (basic, full, strict)
+#    - validate-manifests: Enable for Joomla/Dolibarr projects
+#    - validate-changelogs: Enable if you maintain a CHANGELOG.md
+#    - validate-licenses: Enable to check license headers
+#    - validate-security: Enable to scan for secrets
+#    - node-version: Set your Node.js version
+#    - php-version: Set your PHP version
+#
+# 4. Ensure your repository has the correct permissions configured
+#
+# 5. Test the workflow by creating a pull request
+#
+# For more information, see: docs/MIGRATION_TO_MOKOSTANDARDS.md
+#
+# ============================================================================
+
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+      - main
+      - dev/**
+      - rc/**
+      - version/**
+  pull_request:
+    branches:
+      - main
+      - dev/**
+      - rc/**
+      - version/**
+
+# Required permissions for the reusable workflow
+# The reusable workflow needs these to create check runs and comment on PRs
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  ci:
+    name: Repository Validation Pipeline
+    # For local use (in MokoStandards repository):
+    uses: ./.github/workflows/reusable-ci-validation.yml
+    
+    # For external repositories, uncomment and use this instead:
+    # uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-ci-validation.yml@main
+    
+    with:
+      # Validation profile: basic, full, or strict
+      # - basic: Essential checks only (quick feedback)
+      # - full: Comprehensive validation (recommended for PRs)
+      # - strict: Maximum validation (for releases)
+      profile: full
+      
+      # Enable specific validations based on your project type
+      # Uncomment and set to true/false as needed:
+      
+      # validate-manifests: true     # For Joomla/Dolibarr projects with XML manifests
+      # validate-changelogs: true    # If you maintain CHANGELOG.md
+      # validate-licenses: true      # Check license headers in source files
+      # validate-security: true      # Scan for hardcoded secrets
+      # fail-on-warnings: false      # Fail build on validation warnings
+      
+      # Language versions (customize for your project):
+      # node-version: '20.x'         # Node.js version for frontend
+      # php-version: '8.1'           # PHP version for backend
+      
+      # Working directory (if project is in a subdirectory):
+      # working-directory: '.'
+    
+    # Inherit repository secrets for any authenticated operations
+    secrets: inherit
+
+# ============================================================================
+# CUSTOMIZATION EXAMPLES
+# ============================================================================
+#
+# Example 1: Joomla Extension with strict validation
+# ---------------------------------------------------
+# with:
+#   profile: strict
+#   validate-manifests: true
+#   validate-licenses: true
+#   php-version: '8.1'
+#
+# Example 2: Node.js project with basic validation
+# -------------------------------------------------
+# with:
+#   profile: basic
+#   validate-security: true
+#   node-version: '20.x'
+#
+# Example 3: Multi-language project with full validation
+# -------------------------------------------------------
+# with:
+#   profile: full
+#   validate-changelogs: true
+#   validate-licenses: true
+#   validate-security: true
+#   node-version: '20.x'
+#   php-version: '8.2'
+#
+# ============================================================================

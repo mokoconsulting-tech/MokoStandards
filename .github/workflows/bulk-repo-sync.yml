@@ -126,6 +126,12 @@ jobs:
           echo "Running bulk update script..."
           echo "Arguments: $ARGS"
           
+          # Verify GH_TOKEN is available for git operations
+          if [ -z "$GH_TOKEN" ]; then
+            echo "Error: GH_TOKEN is not set"
+            exit 1
+          fi
+          
           # Run the script with automatic confirmation via --yes flag
           python3 scripts/bulk_update_repos.py $ARGS
           

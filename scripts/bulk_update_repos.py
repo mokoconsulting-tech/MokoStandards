@@ -137,6 +137,16 @@ def clone_repository(org: str, repo: str, target_dir: str) -> bool:
         print(f"Error cloning {repo}: {stderr}", file=sys.stderr)
         return False
     
+    # Configure git to use gh as credential helper for push operations
+    # This ensures that subsequent git push commands can authenticate
+    cmd = ["git", "config", "--local", "credential.helper", ""]
+    run_command(cmd, cwd=target_dir)
+    
+    cmd = ["git", "config", "--local", "credential.helper", "!gh auth git-credential"]
+    success, _, stderr = run_command(cmd, cwd=target_dir)
+    if not success:
+        print(f"Warning: Could not configure gh credential helper: {stderr}", file=sys.stderr)
+    
     return True
 
 
@@ -207,8 +217,11 @@ def commit_changes(repo_dir: str, message: str) -> bool:
 
 
 def push_branch(repo_dir: str, branch_name: str) -> bool:
-    """Push branch to remote."""
+    """Push branch to remote using gh CLI for proper authentication."""
+    # First, ensure the branch is up to date locally
     cmd = ["git", "push", "-u", "origin", branch_name]
+    
+    # Git should now use gh's credential helper configured during clone
     success, _, stderr = run_command(cmd, cwd=repo_dir)
     if not success:
         print(f"Error pushing branch: {stderr}", file=sys.stderr)

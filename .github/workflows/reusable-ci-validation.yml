@@ -179,15 +179,28 @@ jobs:
           elif [ -f ".github/scripts/validate/manifest.sh" ]; then
             ./.github/scripts/validate/manifest.sh
             echo "✅ Manifest validation passed" >> $GITHUB_STEP_SUMMARY
-          else
-            # Basic XML validation
-            find . -name "*.xml" -type f | while read -r file; do
+          elif command -v xmllint >/dev/null 2>&1; then
+            # Basic XML validation using xmllint
+            XML_FOUND=false
+            ERROR_FOUND=false
+            
+            find . -name "*.xml" -type f ! -path "*/node_modules/*" ! -path "*/.git/*" | while read -r file; do
+              XML_FOUND=true
               if ! xmllint --noout "$file" 2>/dev/null; then
                 echo "❌ Invalid XML: $file" >> $GITHUB_STEP_SUMMARY
-                exit 1
+                ERROR_FOUND=true
               fi
             done
-            echo "✅ Basic XML validation passed" >> $GITHUB_STEP_SUMMARY
+            
+            if [ "$ERROR_FOUND" = true ]; then
+              exit 1
+            elif [ "$XML_FOUND" = true ]; then
+              echo "✅ Basic XML validation passed" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "ℹ️ No XML files found to validate" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "ℹ️ No manifest validation script or xmllint available, skipping XML validation" >> $GITHUB_STEP_SUMMARY
           fi
 
       - name: Validate XML well-formedness

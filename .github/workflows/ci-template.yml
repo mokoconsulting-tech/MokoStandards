@@ -80,11 +80,19 @@ permissions:
 jobs:
   ci:
     name: Repository Validation Pipeline
-    # For local use (in MokoStandards repository):
-    uses: ./.github/workflows/reusable-ci-validation.yml
     
-    # For external repositories, uncomment and use this instead:
-    # uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-ci-validation.yml@main
+    # IMPORTANT: Choose the correct reference based on where you're using this file:
+    # 
+    # Option A: For the MokoStandards repository itself (testing/development)
+    # uses: ./.github/workflows/reusable-ci-validation.yml
+    # 
+    # Option B: For external projects (RECOMMENDED for most users)
+    uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-ci-validation.yml@main
+    
+    # To use this template:
+    # 1. Copy this file to your repository's .github/workflows/ci.yml
+    # 2. Use Option B (external reference) unless you're contributing to MokoStandards
+    # 3. Customize the 'with' parameters below for your project
     
     with:
       # Validation profile: basic, full, or strict

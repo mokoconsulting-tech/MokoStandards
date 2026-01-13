@@ -63,12 +63,28 @@ touch CONTRIBUTING.md
 
 Copy the template and customize for your project:
 
+**Option A: Using curl (verify the content before use)**
 ```bash
-# Copy the template
+# Download the template
 curl -o .github/workflows/ci.yml https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/.github/workflows/ci-template.yml
+
+# IMPORTANT: Review the downloaded file before using it
+cat .github/workflows/ci.yml
 ```
 
-Or create `.github/workflows/ci.yml` manually:
+**Option B: Using GitHub CLI (recommended - more secure)**
+```bash
+# Clone MokoStandards temporarily
+gh repo clone mokoconsulting-tech/MokoStandards /tmp/mokostandards
+
+# Copy the template
+cp /tmp/mokostandards/.github/workflows/ci-template.yml .github/workflows/ci.yml
+
+# Clean up
+rm -rf /tmp/mokostandards
+```
+
+**Option C: Manual creation (most secure)**
 
 ```yaml
 # Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>

@@ -80,9 +80,9 @@ DEFAULT_FILES_TO_SYNC = {
 
 # Scripts to sync
 DEFAULT_SCRIPTS_TO_SYNC = [
-    "scripts/validate_file_headers.py",
-    "scripts/update_changelog.py",
-    "scripts/release_version.py",
+    "scripts/maintenance/validate_file_headers.py",
+    "scripts/maintenance/update_changelog.py",
+    "scripts/maintenance/release_version.py",
     "scripts/validate/validate_codeql_config.py",
 ]
 

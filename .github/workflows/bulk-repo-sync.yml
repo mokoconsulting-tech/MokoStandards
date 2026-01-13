@@ -76,7 +76,17 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
         run: |
+          # Verify token is available before attempting authentication
+          if [ -z "$GH_TOKEN" ]; then
+            echo "Error: ORG_ADMIN_TOKEN secret is not set or is empty"
+            echo "Please configure the ORG_ADMIN_TOKEN secret in repository settings"
+            exit 1
+          fi
+          
+          # Authenticate with token (stdin)
           echo "$GH_TOKEN" | gh auth login --with-token
+          
+          # Verify authentication succeeded
           gh auth status
           
       - name: Configure Git
@@ -100,7 +110,7 @@ jobs:
           fi
           
           echo "Running bulk update in dry-run mode..."
-          python3 scripts/bulk_update_repos.py $ARGS
+          python3 scripts/automation/bulk_update_repos.py $ARGS
           
       - name: Run bulk update script
         if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.dry_run != true)
@@ -133,7 +143,7 @@ jobs:
           fi
           
           # Run the script with automatic confirmation via --yes flag
-          python3 scripts/bulk_update_repos.py $ARGS
+          python3 scripts/automation/bulk_update_repos.py $ARGS
           
       - name: Report results
         if: always()

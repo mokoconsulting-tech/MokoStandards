@@ -4,35 +4,53 @@ This directory contains automation scripts for MokoStandards repository manageme
 
 ## Directory Structure
 
-The scripts are organized according to MokoStandards governance policy:
+The scripts are organized into functional categories:
 
-- **`docs/`** - Documentation generation and maintenance scripts
-  - `rebuild_indexes.py` - Generates index.md files for documentation folders
-- **`run/`** - Operational scripts for repository setup and maintenance
-  - `setup_github_project_v2.py` - Sets up GitHub Project v2 for documentation control
-- **`lib/`** - Shared library code
+- **[`automation/`](automation/)** - Repository automation and bulk operations
+  - `bulk_update_repos.py` - Bulk update organization repositories
+  - `sync_file_to_project.py` - Sync files to target repositories
+  - `auto_create_org_projects.py` - Auto-create GitHub Projects
+  - `create_repo_project.py` - Create repository-specific projects
+- **[`maintenance/`](maintenance/)** - Repository maintenance tasks
+  - `update_changelog.py` - Manage CHANGELOG.md updates
+  - `release_version.py` - Release version management
+  - `validate_file_headers.py` - Validate file headers
+  - `update_gitignore_patterns.sh` - Update gitignore patterns
+  - `setup-labels.sh` - Setup standard GitHub labels
+- **[`analysis/`](analysis/)** - Analysis and reporting
+  - `analyze_pr_conflicts.py` - Analyze PR conflicts
+  - `generate_canonical_config.py` - Generate canonical configs
+- **[`tests/`](tests/)** - Test scripts
+  - `test_bulk_update_repos.py` - Test bulk update automation
+  - `test_dry_run.py` - Test dry-run functionality
+- **[`docs/`](docs/)** - Documentation generation and maintenance
+  - `rebuild_indexes.py` - Generate documentation indexes
+- **[`run/`](run/)** - Operational setup scripts
+  - `setup_github_project_v2.py` - Setup GitHub Projects
+- **[`lib/`](lib/)** - Shared library code
   - `common.py` - Python utility functions
   - `common.sh` - Shell utility functions
-  - `extension_utils.py` - Unified Joomla/Dolibarr extension detection
-  - `joomla_manifest.py` - Joomla manifest parsing utilities
-- **`fix/`** - Repository repair scripts (reserved for future use)
-- **`release/`** - Release automation scripts
-  - `dolibarr_release.py` - Dolibarr module release automation
-  - `detect_platform.py` - Auto-detect extension platform (Joomla/Dolibarr)
-  - `package_extension.py` - Create distributable ZIP packages
-  - `update_dates.sh` - Update copyright dates in files
-- **`validate/`** - Validation and linting scripts
-  - `manifest.py` - Validate extension manifests (Joomla/Dolibarr)
+  - `extension_utils.py` - Extension detection utilities
+  - `joomla_manifest.py` - Joomla manifest parsing
+- **[`build/`](build/)** - Build and compilation scripts
+  - `resolve_makefile.py` - Makefile resolution
+- **[`release/`](release/)** - Release automation
+  - `dolibarr_release.py` - Dolibarr module releases
+  - `detect_platform.py` - Platform detection
+  - `package_extension.py` - Create distribution packages
+  - `update_dates.sh` - Update copyright dates
+- **[`validate/`](validate/)** - Validation and linting
+  - `manifest.py` - Validate extension manifests
   - `xml_wellformed.py` - Validate XML syntax
   - `workflows.py` - Validate GitHub Actions workflows
-  - `tabs.py` - Check for tab characters in YAML
-  - `no_secrets.py` - Scan for secrets/credentials
-  - `paths.py` - Check for Windows-style paths
+  - `tabs.py` - Check for tab characters
+  - `no_secrets.py` - Scan for secrets
+  - `paths.py` - Check for Windows paths
   - `php_syntax.py` - Validate PHP syntax
   - `check_repo_health.py` - Repository health checks
-  - `validate_repo_health.py` - Comprehensive repository validation
+  - `validate_repo_health.py` - Comprehensive validation
   - `validate_structure.py` - Validate repository structure
-  - `validate_codeql_config.py` - Validate CodeQL configuration
+  - `validate_codeql_config.py` - Validate CodeQL config
 
 ## Requirements
 
@@ -43,28 +61,66 @@ The scripts are organized according to MokoStandards governance policy:
   - `read:org` (organization read)
   - `repo` (repository access)
 
+## Quick Start
+
+### Automation Scripts
+```bash
+# Bulk update all organization repositories
+./scripts/automation/bulk_update_repos.py --dry-run
+./scripts/automation/bulk_update_repos.py --yes
+
+# Sync specific file to repositories
+./scripts/automation/sync_file_to_project.py
+```
+
+### Maintenance Scripts
+```bash
+# Update changelog
+python3 scripts/maintenance/update_changelog.py --category Added --entry "New feature"
+
+# Create a release
+python3 scripts/maintenance/release_version.py --version 05.01.00
+
+# Validate file headers
+python3 scripts/maintenance/validate_file_headers.py
+```
+
+### Validation Scripts
+```bash
+# Validate repository health
+python3 scripts/validate/validate_repo_health.py
+
+# Validate manifests
+python3 scripts/validate/manifest.py
+
+# Validate CodeQL configuration
+python3 scripts/validate/validate_codeql_config.py
+```
+
 ## Scripts Overview
 
-### Repository Management Scripts
+### Repository Automation Scripts
 
-#### auto_create_org_projects.py ⭐ NEW
+See the [automation/ directory](automation/) for detailed documentation.
+
+#### auto_create_org_projects.py
 
 Automatically create smart GitHub Projects for every repository in the organization. Intelligently detects project types (Joomla, Dolibarr, or Generic) and creates appropriate project structures with customized fields and views. Also generates and pushes roadmaps to repositories that don't have one.
 
 **Usage:**
 ```bash
 # Dry run (preview what would be created)
-python3 scripts/auto_create_org_projects.py --dry-run
+python3 scripts/automation/auto_create_org_projects.py --dry-run
 
 # Actually create projects and roadmaps
 export GH_PAT="your_token"
-python3 scripts/auto_create_org_projects.py
+python3 scripts/automation/auto_create_org_projects.py
 
 # With verbose logging
-python3 scripts/auto_create_org_projects.py --verbose
+python3 scripts/automation/auto_create_org_projects.py --verbose
 
 # For a different organization
-python3 scripts/auto_create_org_projects.py --org your-org-name
+python3 scripts/automation/auto_create_org_projects.py --org your-org-name
 ```
 
 **What it does:**
@@ -87,25 +143,25 @@ Bulk update script to push workflows, scripts, and configurations to multiple or
 **Usage:**
 ```bash
 # Dry run (preview changes)
-./scripts/bulk_update_repos.py --dry-run
+./scripts/automation/bulk_update_repos.py --dry-run
 
 # Update all non-archived repos beginning with "Moko"
-./scripts/bulk_update_repos.py
+./scripts/automation/bulk_update_repos.py
 
 # Update specific repos
-./scripts/bulk_update_repos.py --repos repo1 repo2
+./scripts/automation/bulk_update_repos.py --repos repo1 repo2
 
 # Exclude specific repos
-./scripts/bulk_update_repos.py --exclude legacy-repo archived-repo
+./scripts/automation/bulk_update_repos.py --exclude legacy-repo archived-repo
 
 # Automated execution (skip confirmation)
-./scripts/bulk_update_repos.py --yes
+./scripts/automation/bulk_update_repos.py --yes
 
 # Only sync workflows (not scripts)
-./scripts/bulk_update_repos.py --files-only
+./scripts/automation/bulk_update_repos.py --files-only
 
 # Only sync scripts (not workflows)
-./scripts/bulk_update_repos.py --scripts-only
+./scripts/automation/bulk_update_repos.py --scripts-only
 ```
 
 **Automated Monthly Sync:**

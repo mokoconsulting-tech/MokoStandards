@@ -1,0 +1,40 @@
+# Automation Scripts
+
+This directory contains scripts for automating repository management and bulk operations across the MokoStandards organization.
+
+## Scripts
+
+### bulk_update_repos.py
+Bulk update organization repositories with workflows, scripts, and configurations.
+
+**Usage:**
+```bash
+# Dry run to preview changes
+./scripts/automation/bulk_update_repos.py --dry-run
+
+# Update all repositories
+./scripts/automation/bulk_update_repos.py --yes
+
+# Update specific repositories
+./scripts/automation/bulk_update_repos.py --repos repo1 repo2
+
+# Exclude specific repositories
+./scripts/automation/bulk_update_repos.py --exclude legacy-repo
+
+# Update only workflow files
+./scripts/automation/bulk_update_repos.py --files-only
+
+# Update only scripts
+./scripts/automation/bulk_update_repos.py --scripts-only
+```
+
+See also: [Bulk Repository Updates Guide](../../docs/guide/bulk-repository-updates.md)
+
+### sync_file_to_project.py
+Sync specific files from MokoStandards to target repositories.
+
+### auto_create_org_projects.py
+Automatically create GitHub Projects for organization repositories.
+
+### create_repo_project.py
+Create a GitHub Project for a specific repository.

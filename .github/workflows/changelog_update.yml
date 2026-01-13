@@ -54,12 +54,12 @@ jobs:
       - name: Update CHANGELOG.md
         run: |
           if [ -n "${{ inputs.subcategory }}" ]; then
-            python3 scripts/update_changelog.py \
+            python3 scripts/maintenance/update_changelog.py \
               --category "${{ inputs.category }}" \
               --entry "${{ inputs.entry }}" \
               --subcategory "${{ inputs.subcategory }}"
           else
-            python3 scripts/update_changelog.py \
+            python3 scripts/maintenance/update_changelog.py \
               --category "${{ inputs.category }}" \
               --entry "${{ inputs.entry }}"
           fi
@@ -67,7 +67,7 @@ jobs:
       - name: Display updated UNRELEASED section
         run: |
           echo "Updated UNRELEASED section:"
-          python3 scripts/update_changelog.py --show
+          python3 scripts/maintenance/update_changelog.py --show
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v8

@@ -13,8 +13,7 @@ Thumbs.db
 # ============================================================
 .vscode/
 .idea/
-*.sublime-project
-*.sublime-workspace
+*.sublime*
 .project
 .classpath
 .settings/

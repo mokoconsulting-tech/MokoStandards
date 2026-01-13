@@ -35,8 +35,7 @@ Icon?
 .idea/
 .vscode/
 *.code-workspace
-*.sublime-project
-*.sublime-workspace
+*.sublime*
 .project
 .settings/
 .buildpath

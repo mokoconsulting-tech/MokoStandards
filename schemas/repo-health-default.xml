@@ -11,7 +11,7 @@
   </metadata>
 
   <scoring>
-    <total-points>100</total-points>
+    <total-points>101</total-points>
     
     <categories>
       <category>
@@ -26,7 +26,7 @@
         <id>required-documentation</id>
         <name>Required Documentation</name>
         <description>Core documentation files presence and quality</description>
-        <max-points>15</max-points>
+        <max-points>16</max-points>
         <enabled>true</enabled>
       </category>
       
@@ -312,6 +312,33 @@
         </parameters>
         <required>true</required>
         <remediation>Copy .editorconfig from templates/</remediation>
+      </check>
+      
+      <check>
+        <id>gitignore-patterns</id>
+        <name>.gitignore has standard patterns</name>
+        <description>Check if .gitignore includes *.sublime* and sftp-config*.json patterns</description>
+        <points>1</points>
+        <check-type>file-content</check-type>
+        <parameters>
+          <parameter>
+            <key>file-path</key>
+            <value>.gitignore</value>
+            <type>path</type>
+          </parameter>
+          <parameter>
+            <key>pattern</key>
+            <value>^\*\.sublime\*$</value>
+            <type>regex</type>
+          </parameter>
+          <parameter>
+            <key>pattern2</key>
+            <value>^sftp-config\*\.json$</value>
+            <type>regex</type>
+          </parameter>
+        </parameters>
+        <required>true</required>
+        <remediation>Run scripts/update_gitignore_patterns.sh to add standard ignore patterns</remediation>
       </check>
     </check-group>
 

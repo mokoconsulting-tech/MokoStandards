@@ -13,7 +13,7 @@ The health score is calculated across 8 categories with a maximum possible score
 | Category | Points | Description |
 |---|---|---|
 | CI/CD Status | 15 | Continuous integration and deployment health |
-| Required Documentation | 15 | Core documentation files presence and quality |
+| Required Documentation | 16 | Core documentation files presence and quality |
 | Required Folders | 10 | Standard directory structure compliance |
 | Workflows | 10 | GitHub Actions workflow completeness |
 | Issue Templates | 5 | Issue and PR template availability |
@@ -21,7 +21,7 @@ The health score is calculated across 8 categories with a maximum possible score
 | Repository Settings | 10 | GitHub repository configuration compliance |
 | Deployment Secrets | 20 | Deployment configuration and secrets management |
 
-**Total Maximum Score**: 100 points
+**Total Maximum Score**: 101 points
 
 ## Score Levels
 
@@ -51,9 +51,9 @@ Repositories are categorized into four health levels based on their total score:
 **Manual Override**: N/A
 **Remediation**: Add CI workflow from MokoStandards templates
 
-### 2. Required Documentation (15 points)
+### 2. Required Documentation (16 points)
 
-**Maximum**: 15 points
+**Maximum**: 16 points
 
 | File | Points | Requirements |
 |---|---|---|
@@ -63,10 +63,11 @@ Repositories are categorized into four health levels based on their total score:
 | SECURITY.md | 2 | Present, contains security policy |
 | CHANGELOG.md | 3 | Present, follows Keep a Changelog format |
 | .editorconfig | 2 | Present, defines coding style rules |
+| .gitignore patterns | 1 | Contains *.sublime* and sftp-config*.json patterns |
 
 **Automated Check**: File presence and content validation
 **Manual Override**: Exceptional projects may substitute equivalent documentation
-**Remediation**: Copy templates from `templates/docs/required/`
+**Remediation**: Copy templates from `templates/docs/required/` or run `scripts/update_gitignore_patterns.sh`
 
 ### 3. Required Folders (10 points)
 
@@ -186,14 +187,14 @@ For repositories with deployment workflows (web applications, extensions):
 | Category | Max | Earned | Notes |
 |---|---|---|---|
 | CI/CD Status | 15 | 13 | CI present and passing, using older template |
-| Required Documentation | 15 | 12 | Missing SECURITY.md |
+| Required Documentation | 16 | 13 | Missing SECURITY.md and .gitignore patterns |
 | Required Folders | 10 | 10 | All required folders present |
 | Workflows | 10 | 8 | Missing repo_health workflow |
 | Issue Templates | 5 | 5 | All templates present |
 | Security | 15 | 11 | Dependabot not configured |
 | Repository Settings | 10 | 8 | Signed commits not required |
 | Deployment Secrets | 20 | 20 | All secrets properly configured |
-| **TOTAL** | **100** | **87** | **Good (⚠️)** |
+| **TOTAL** | **101** | **88** | **Good (⚠️)** |
 
 ## Health Score Monitoring
 

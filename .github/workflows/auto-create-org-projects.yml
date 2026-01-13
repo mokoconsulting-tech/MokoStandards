@@ -74,8 +74,10 @@ jobs:
 
       - name: Run auto-create projects script
         env:
-          # Prefer GH_PAT if available, otherwise use GITHUB_TOKEN
-          GH_PAT: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+          # GH_PAT is required for organization operations (GITHUB_TOKEN has insufficient permissions)
+          GH_PAT: ${{ secrets.GH_PAT }}
+          # Fallback to GITHUB_TOKEN for dry-run mode only
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           DRY_RUN_FLAG=""
           VERBOSE_FLAG=""

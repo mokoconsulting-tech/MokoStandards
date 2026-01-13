@@ -42,6 +42,88 @@ organization:
   
   # Organization-wide branch protection rulesets
   rulesets:
+    - name: "Reserve mokostandards branch prefix"
+      # Target: Apply to all repositories
+      target: all_repositories
+      
+      # Enforcement level: active (enforced)
+      enforcement: active
+      
+      # Bypass actors: Empty to prevent all users from creating these branches
+      bypass_actors: []
+      
+      # Conditions: Protect branches starting with mokostandards
+      conditions:
+        ref_name:
+          include:
+            - "refs/heads/mokostandards*"
+          exclude: []
+      
+      # Rules to enforce
+      rules:
+        # Prevent creation of branches with this prefix
+        - type: creation
+          parameters:
+            # Completely restrict branch creation with this prefix
+            restrict_creation: true
+        
+        # Prevent updates to these branches
+        - type: update
+          parameters: {}
+        
+        # Prevent deletion of these branches (if they exist)
+        - type: deletion
+          parameters: {}
+        
+        # Prevent force pushes
+        - type: non_fast_forward
+          parameters: {}
+    
+    - name: "Enforce branch naming convention"
+      # Target: Apply to all repositories
+      target: all_repositories
+      
+      # Enforcement level: active (enforced)
+      enforcement: active
+      
+      # Bypass actors: Empty to enforce for all users
+      bypass_actors: []
+      
+      # Conditions: Match version-prefixed branches with semantic versioning
+      # Pattern: (dev|rc|version|dependabot|copilot|patch)/X.Y.Z[/optional-suffix]
+      # Examples:
+      #   - dev/1.0.0
+      #   - rc/2.1.0
+      #   - version/1.2.3
+      #   - dependabot/1.0.0/update-dependency
+      #   - copilot/1.1.0/fix-bug
+      #   - patch/1.0.1/security-fix
+      conditions:
+        ref_name:
+          include:
+            - "~ALL"
+          exclude:
+            - "refs/heads/main"
+            - "refs/heads/master"
+            - "refs/heads/dev"
+            - "refs/heads/staging"
+            - "refs/heads/production"
+      
+      # Rules to enforce
+      rules:
+        # Require branch names to match semantic versioning pattern
+        - type: branch_name_pattern
+          parameters:
+            # Branch name must match: (prefix)/X.Y.Z[/optional]
+            # Where prefix is: dev, rc, version, dependabot, copilot, or patch
+            # And X.Y.Z follows semantic versioning (MAJOR.MINOR.PATCH)
+            name: "Version-prefixed branch naming convention"
+            # Negate=false means branches MUST match this pattern
+            negate: false
+            # Regex pattern for branch names
+            operator: "regex"
+            pattern: "^(dev|rc|version|dependabot|copilot|patch)/[0-9]+\\.[0-9]+\\.[0-9]+(/.*)?$"
+    
     - name: "Protect main branch across all repositories"
       # Target: Apply to all repositories
       target: all_repositories
@@ -166,13 +248,40 @@ default_branch_protection:
 # -----------------------
 # 1. Navigate to: https://github.com/organizations/mokoconsulting-tech/settings/rules
 # 2. Click "New ruleset" → "New branch ruleset"
-# 3. Configure:
+# 
+# For main branch protection:
+# 3a. Configure:
 #    - Name: "Protect main branch across all repositories"
 #    - Enforcement status: Active
 #    - Target repositories: All repositories
 #    - Target branches: Include "main" and "master"
-# 4. Add rules as specified above
-# 5. Click "Create" to apply
+# 4a. Add rules as specified above
+# 5a. Click "Create" to apply
+#
+# For reserved branch prefix (mokostandards*):
+# 3b. Configure:
+#    - Name: "Reserve mokostandards branch prefix"
+#    - Enforcement status: Active
+#    - Target repositories: All repositories
+#    - Target branches: Include "mokostandards*"
+# 4b. Add rules:
+#    - Block creations
+#    - Block updates
+#    - Block deletions
+#    - Block force pushes
+# 5b. Click "Create" to apply
+#
+# For branch naming convention:
+# 3c. Configure:
+#    - Name: "Enforce branch naming convention"
+#    - Enforcement status: Active
+#    - Target repositories: All repositories
+#    - Target branches: Include "~ALL", Exclude "main", "master", "dev", "staging", "production"
+# 4c. Add rules:
+#    - Branch name pattern
+#    - Pattern: ^(dev|rc|version|dependabot|copilot|patch)/[0-9]+\.[0-9]+\.[0-9]+(/.*)?$
+#    - This enforces semantic versioning with approved prefixes
+# 5c. Click "Create" to apply
 #
 # Method 2: GitHub CLI
 # --------------------
@@ -195,3 +304,15 @@ default_branch_protection:
 # - Administrators can be exempted via bypass_actors if needed for emergencies
 # - This ensures consistent protection across all org repositories
 # - Individual repositories can have additional (stricter) rules via settings.yml
+# - Reserved branch prefixes (e.g., mokostandards*) prevent users from creating branches
+#   that could conflict with automated workflows or system operations
+# - The mokostandards* prefix is reserved for MokoStandards automated processes only
+# - Branch naming convention enforces semantic versioning with approved prefixes:
+#   - dev/X.Y.Z - Development branches
+#   - rc/X.Y.Z - Release candidate branches
+#   - version/X.Y.Z - Version maintenance branches
+#   - dependabot/X.Y.Z - Automated dependency update branches
+#   - copilot/X.Y.Z - GitHub Copilot automated branches
+#   - patch/X.Y.Z - Patch/hotfix branches
+#   - Optional suffix after version: prefix/X.Y.Z/description
+# - Protected branches (main, master, dev, staging, production) are exempt from naming rules

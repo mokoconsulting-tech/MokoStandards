@@ -1,0 +1,349 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.Reusable
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/repo-health.yml
+# VERSION: 01.00.00
+# BRIEF: Reusable workflow for repository health checks and scoring
+# NOTE: Validates repository structure, required files, and generates health score
+
+name: Repository Health Check
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        description: 'Working directory for health check'
+        required: false
+        type: string
+        default: '.'
+      create-issue-on-failure:
+        description: 'Create an issue if health score is below threshold'
+        required: false
+        type: boolean
+        default: false
+      health-threshold:
+        description: 'Minimum health score (0-100) to pass'
+        required: false
+        type: number
+        default: 70
+    outputs:
+      health-score:
+        description: 'Repository health score (0-100)'
+        value: ${{ jobs.health-check.outputs.health_score }}
+      passed:
+        description: 'Whether health check passed threshold'
+        value: ${{ jobs.health-check.outputs.passed }}
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  health-check:
+    name: Repository Health Assessment
+    runs-on: ubuntu-latest
+    outputs:
+      health_score: ${{ steps.calculate.outputs.health_score }}
+      passed: ${{ steps.calculate.outputs.passed }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Check required files
+        id: check-files
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          echo "### 📋 Required Files Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          SCORE=0
+          TOTAL=0
+          MISSING_FILES=""
+          
+          # Essential files (10 points each)
+          ESSENTIAL_FILES=(
+            "README.md:Repository documentation"
+            "LICENSE:License file"
+            ".gitignore:Git ignore configuration"
+          )
+          
+          for entry in "${ESSENTIAL_FILES[@]}"; do
+            IFS=: read -r file desc <<< "$entry"
+            TOTAL=$((TOTAL + 10))
+            if [ -f "$file" ]; then
+              echo "✅ $desc ($file)" >> $GITHUB_STEP_SUMMARY
+              SCORE=$((SCORE + 10))
+            else
+              echo "❌ $desc ($file) - MISSING" >> $GITHUB_STEP_SUMMARY
+              MISSING_FILES="$MISSING_FILES\n- $file: $desc"
+            fi
+          done
+          
+          # Important files (5 points each)
+          IMPORTANT_FILES=(
+            "CHANGELOG.md:Change log"
+            "CONTRIBUTING.md:Contribution guidelines"
+            "CODE_OF_CONDUCT.md:Code of conduct"
+            "SECURITY.md:Security policy"
+          )
+          
+          for entry in "${IMPORTANT_FILES[@]}"; do
+            IFS=: read -r file desc <<< "$entry"
+            TOTAL=$((TOTAL + 5))
+            if [ -f "$file" ]; then
+              echo "✅ $desc ($file)" >> $GITHUB_STEP_SUMMARY
+              SCORE=$((SCORE + 5))
+            else
+              echo "⚠️  $desc ($file) - Missing (recommended)" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+          
+          echo "files_score=$SCORE" >> $GITHUB_OUTPUT
+          echo "files_total=$TOTAL" >> $GITHUB_OUTPUT
+          echo "missing_files<<EOF" >> $GITHUB_OUTPUT
+          echo -e "$MISSING_FILES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Check project structure
+        id: check-structure
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📁 Project Structure Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          SCORE=0
+          TOTAL=20
+          
+          # Check for .github directory
+          if [ -d ".github" ]; then
+            echo "✅ .github directory exists" >> $GITHUB_STEP_SUMMARY
+            SCORE=$((SCORE + 5))
+          else
+            echo "⚠️  .github directory missing" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check for workflows
+          if [ -d ".github/workflows" ] && [ "$(find .github/workflows -name '*.yml' -o -name '*.yaml' | wc -l)" -gt 0 ]; then
+            echo "✅ GitHub Actions workflows configured" >> $GITHUB_STEP_SUMMARY
+            SCORE=$((SCORE + 10))
+          else
+            echo "⚠️  No GitHub Actions workflows found" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check for tests directory
+          if [ -d "tests" ] || [ -d "test" ] || [ -d "spec" ]; then
+            echo "✅ Tests directory exists" >> $GITHUB_STEP_SUMMARY
+            SCORE=$((SCORE + 5))
+          else
+            echo "⚠️  No tests directory found" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "structure_score=$SCORE" >> $GITHUB_OUTPUT
+          echo "structure_total=$TOTAL" >> $GITHUB_OUTPUT
+
+      - name: Check documentation
+        id: check-docs
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📚 Documentation Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          SCORE=0
+          TOTAL=30
+          
+          # Check README content
+          if [ -f "README.md" ]; then
+            LINES=$(wc -l < "README.md")
+            if [ "$LINES" -gt 50 ]; then
+              echo "✅ README.md has substantial content ($LINES lines)" >> $GITHUB_STEP_SUMMARY
+              SCORE=$((SCORE + 10))
+            elif [ "$LINES" -gt 20 ]; then
+              echo "⚠️  README.md could be more detailed ($LINES lines)" >> $GITHUB_STEP_SUMMARY
+              SCORE=$((SCORE + 5))
+            else
+              echo "❌ README.md is too brief ($LINES lines)" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+          
+          # Check for additional documentation
+          if [ -d "docs" ]; then
+            DOC_COUNT=$(find docs -name '*.md' | wc -l)
+            if [ "$DOC_COUNT" -gt 0 ]; then
+              echo "✅ Additional documentation found ($DOC_COUNT docs)" >> $GITHUB_STEP_SUMMARY
+              SCORE=$((SCORE + 10))
+            fi
+          fi
+          
+          # Check for inline code documentation
+          if command -v find >/dev/null 2>&1; then
+            PHP_DOCS=0
+            JS_DOCS=0
+            
+            if find . -name "*.php" -type f ! -path "*/vendor/*" | head -1 | grep -q .; then
+              PHP_DOCS=$(find . -name "*.php" -type f ! -path "*/vendor/*" -exec grep -l "@param\|@return\|@var" {} \; 2>/dev/null | wc -l)
+            fi
+            
+            if find . -name "*.js" -type f ! -path "*/node_modules/*" | head -1 | grep -q .; then
+              JS_DOCS=$(find . -name "*.js" -type f ! -path "*/node_modules/*" -exec grep -l "@param\|@return\|@type" {} \; 2>/dev/null | wc -l)
+            fi
+            
+            TOTAL_CODE_DOCS=$((PHP_DOCS + JS_DOCS))
+            if [ "$TOTAL_CODE_DOCS" -gt 10 ]; then
+              echo "✅ Good inline documentation coverage" >> $GITHUB_STEP_SUMMARY
+              SCORE=$((SCORE + 10))
+            elif [ "$TOTAL_CODE_DOCS" -gt 0 ]; then
+              echo "⚠️  Some inline documentation present" >> $GITHUB_STEP_SUMMARY
+              SCORE=$((SCORE + 5))
+            else
+              echo "⚠️  Limited inline documentation" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+          
+          echo "docs_score=$SCORE" >> $GITHUB_OUTPUT
+          echo "docs_total=$TOTAL" >> $GITHUB_OUTPUT
+
+      - name: Calculate health score
+        id: calculate
+        run: |
+          FILES_SCORE=${{ steps.check-files.outputs.files_score }}
+          FILES_TOTAL=${{ steps.check-files.outputs.files_total }}
+          STRUCTURE_SCORE=${{ steps.check-structure.outputs.structure_score }}
+          STRUCTURE_TOTAL=${{ steps.check-structure.outputs.structure_total }}
+          DOCS_SCORE=${{ steps.check-docs.outputs.docs_score }}
+          DOCS_TOTAL=${{ steps.check-docs.outputs.docs_total }}
+          
+          TOTAL_SCORE=$((FILES_SCORE + STRUCTURE_SCORE + DOCS_SCORE))
+          TOTAL_POSSIBLE=$((FILES_TOTAL + STRUCTURE_TOTAL + DOCS_TOTAL))
+          
+          HEALTH_SCORE=$((TOTAL_SCORE * 100 / TOTAL_POSSIBLE))
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📊 Health Score Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Category | Score | Possible | Percentage |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|----------|------------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Required Files | $FILES_SCORE | $FILES_TOTAL | $((FILES_SCORE * 100 / FILES_TOTAL))% |" >> $GITHUB_STEP_SUMMARY
+          echo "| Project Structure | $STRUCTURE_SCORE | $STRUCTURE_TOTAL | $((STRUCTURE_SCORE * 100 / STRUCTURE_TOTAL))% |" >> $GITHUB_STEP_SUMMARY
+          echo "| Documentation | $DOCS_SCORE | $DOCS_TOTAL | $((DOCS_SCORE * 100 / DOCS_TOTAL))% |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Total** | **$TOTAL_SCORE** | **$TOTAL_POSSIBLE** | **${HEALTH_SCORE}%** |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "$HEALTH_SCORE" -ge ${{ inputs.health-threshold }} ]; then
+            echo "✅ **Health check PASSED** (score: ${HEALTH_SCORE}% ≥ threshold: ${{ inputs.health-threshold }}%)" >> $GITHUB_STEP_SUMMARY
+            echo "passed=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ **Health check FAILED** (score: ${HEALTH_SCORE}% < threshold: ${{ inputs.health-threshold }}%)" >> $GITHUB_STEP_SUMMARY
+            echo "passed=false" >> $GITHUB_OUTPUT
+          fi
+          
+          echo "health_score=$HEALTH_SCORE" >> $GITHUB_OUTPUT
+
+      - name: Create issue for low health score
+        if: inputs.create-issue-on-failure && steps.calculate.outputs.passed == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const healthScore = ${{ steps.calculate.outputs.health_score }};
+            const threshold = ${{ inputs.health-threshold }};
+            const missingFiles = `${{ steps.check-files.outputs.missing_files }}`;
+            
+            const issueTitle = `Repository Health Score Below Threshold (${healthScore}%)`;
+            const issueBody = `## 🏥 Repository Health Check Alert
+            
+            The repository health score has fallen below the acceptable threshold.
+            
+            ### Summary
+            - **Current Score:** ${healthScore}%
+            - **Required Threshold:** ${threshold}%
+            - **Gap:** ${threshold - healthScore} points
+            
+            ### Missing Critical Files
+            ${missingFiles || 'None'}
+            
+            ### Recommendations
+            
+            1. Add missing essential files (README, LICENSE, .gitignore)
+            2. Add recommended documentation (CHANGELOG, CONTRIBUTING, CODE_OF_CONDUCT, SECURITY)
+            3. Ensure proper project structure with GitHub Actions workflows
+            4. Add comprehensive documentation
+            5. Implement tests
+            
+            ### Next Steps
+            
+            Please address the issues identified above to improve the repository health score.
+            For more information, see the [Health Scoring Documentation](../docs/health-scoring.md).
+            
+            ---
+            *This issue was automatically created by the Repository Health Check workflow.*
+            *Run ID: ${{ github.run_id }}*
+            `;
+            
+            // Check if similar issue already exists
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: ['repository-health']
+            });
+            
+            const existingIssue = issues.data.find(issue => 
+              issue.title.includes('Repository Health Score Below Threshold')
+            );
+            
+            if (existingIssue) {
+              // Update existing issue
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existingIssue.number,
+                body: `### Updated Health Check Results\n\n${issueBody}`
+              });
+              console.log(`Updated existing issue #${existingIssue.number}`);
+            } else {
+              // Create new issue
+              const issue = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: issueTitle,
+                body: issueBody,
+                labels: ['repository-health', 'automation']
+              });
+              console.log(`Created new issue #${issue.data.number}`);
+            }
+
+      - name: Fail if below threshold
+        if: steps.calculate.outputs.passed == 'false'
+        run: |
+          echo "::error::Repository health score (${{ steps.calculate.outputs.health_score }}%) is below threshold (${{ inputs.health-threshold }}%)"
+          exit 1

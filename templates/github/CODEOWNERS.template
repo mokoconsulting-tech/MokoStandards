@@ -1,0 +1,51 @@
+# CODEOWNERS Template
+#
+# This file defines code ownership for automatic review assignment.
+# Copy to .github/CODEOWNERS (remove .template suffix) and customize.
+#
+# Syntax:
+# pattern owner(s)
+#
+# Examples:
+# *                              @org/default-team
+# /docs/                         @org/docs-team
+# *.js                           @org/frontend-team
+# /src/security/                 @org/security-team
+#
+# Last matching pattern takes precedence.
+# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for everything in the repo
+# These owners will be requested for review when someone opens a PR
+# Unless a later match takes precedence
+*                                   @mokoconsulting-tech/maintainers
+
+# Documentation
+/docs/                              @mokoconsulting-tech/docs-team
+/README.md                          @mokoconsulting-tech/docs-team
+/CHANGELOG.md                       @mokoconsulting-tech/docs-team
+/CONTRIBUTING.md                    @mokoconsulting-tech/docs-team
+
+# GitHub configuration
+/.github/                           @mokoconsulting-tech/devops-team
+/.github/workflows/                 @mokoconsulting-tech/devops-team
+
+# Security-related files
+/SECURITY.md                        @mokoconsulting-tech/security-team
+/docs/policy/security-*.md          @mokoconsulting-tech/security-team
+/.github/workflows/security-*.yml   @mokoconsulting-tech/security-team
+
+# Scripts and automation
+/scripts/                           @mokoconsulting-tech/automation-team
+
+# Build system
+/Makefiles/                         @mokoconsulting-tech/build-team
+
+# Policies (require policy owner approval)
+/docs/policy/                       @mokoconsulting-tech/policy-owners
+
+# Templates
+/templates/                         @mokoconsulting-tech/template-maintainers
+
+# Schemas
+/schemas/                           @mokoconsulting-tech/architecture-team

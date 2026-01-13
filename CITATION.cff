@@ -1,0 +1,33 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "MokoStandards"
+abstract: "Authoritative coding standards, workflows, templates, and compliance controls for the Moko Consulting organization"
+authors:
+  - family-names: "Miller"
+    given-names: "Jonathan"
+    affiliation: "Moko Consulting"
+    email: "jmiller@mokoconsulting.tech"
+    orcid: "https://orcid.org/0000-0000-0000-0000"
+  - name: "Moko Consulting"
+    email: "hello@mokoconsulting.tech"
+    website: "https://mokoconsulting.tech"
+repository-code: "https://github.com/mokoconsulting-tech/MokoStandards"
+url: "https://github.com/mokoconsulting-tech/MokoStandards"
+keywords:
+  - coding-standards
+  - github-actions
+  - workflows
+  - templates
+  - compliance
+  - governance
+  - ci-cd
+  - automation
+  - php
+  - python
+  - joomla
+  - dolibarr
+license: GPL-3.0-or-later
+license-url: "https://www.gnu.org/licenses/gpl-3.0.html"
+version: "07.00.00"
+date-released: "2026-01-13"

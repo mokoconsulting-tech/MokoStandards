@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Documentation
+    url: https://github.com/mokoconsulting-tech/MokoStandards/docs
+    about: Check the documentation for answers to common questions
+  - name: 💬 Discussions
+    url: https://github.com/mokoconsulting-tech/MokoStandards/discussions
+    about: Ask questions and discuss ideas with the community
+  - name: 🔒 Security Issue
+    url: https://github.com/mokoconsulting-tech/MokoStandards/security/advisories/new
+    about: Report a security vulnerability privately

@@ -40,14 +40,6 @@
 organization:
   name: mokoconsulting-tech
   
-  # Reserved branch prefixes
-  # These branch name patterns are reserved and cannot be created by users
-  reserved_branch_prefixes:
-    - pattern: "mokostandards*"
-      description: "Reserved for MokoStandards automated workflows and system operations"
-      enforcement: strict
-      allowed_actors: []  # No users can create branches with this prefix
-  
   # Organization-wide branch protection rulesets
   rulesets:
     - name: "Reserve mokostandards branch prefix"
@@ -77,9 +69,7 @@ organization:
         
         # Prevent updates to these branches
         - type: update
-          parameters:
-            # Prevent any updates
-            update_allows_fetch_and_merge: false
+          parameters: {}
         
         # Prevent deletion of these branches (if they exist)
         - type: deletion

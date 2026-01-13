@@ -26,7 +26,17 @@ Bulk update organization repositories with workflows, scripts, and configuration
 
 # Update only scripts
 ./scripts/automation/bulk_update_repos.py --scripts-only
+
+# Set missing standards options (repository variables)
+./scripts/automation/bulk_update_repos.py --set-standards
+
+# Combine options: update files and set standards
+./scripts/automation/bulk_update_repos.py --yes --set-standards
 ```
+
+**Standards Options:**
+The `--set-standards` flag automatically sets missing repository variables:
+- `FTP_PATH_SUFFIX`: Set to `/{repo_name_lowercase}` for SFTP deployment path configuration
 
 See also: [Bulk Repository Updates Guide](../../docs/guide/bulk-repository-updates.md)
 

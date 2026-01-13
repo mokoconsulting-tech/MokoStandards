@@ -162,6 +162,9 @@ Bulk update script to push workflows, scripts, and configurations to multiple or
 
 # Only sync scripts (not workflows)
 ./scripts/automation/bulk_update_repos.py --scripts-only
+
+# Set missing standards options (repository variables)
+./scripts/automation/bulk_update_repos.py --set-standards --yes
 ```
 
 **Automated Monthly Sync:**
@@ -173,6 +176,7 @@ The repository includes `.github/workflows/bulk-repo-sync.yml` which automatical
 - Copies workflows, scripts, and configurations
 - Commits and pushes changes
 - Creates pull requests for review
+- Optionally sets missing standards options (repository variables like `FTP_PATH_SUFFIX`)
 
 **What gets synced:**
 - Dependabot configuration (monthly schedule for Python, JavaScript, PHP, and GitHub Actions)

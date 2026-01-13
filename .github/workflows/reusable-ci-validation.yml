@@ -172,35 +172,51 @@ jobs:
         working-directory: ${{ inputs.working-directory }}
         run: |
           echo "### 📋 Manifest Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
 
           if [ -f "scripts/validate/manifest.sh" ]; then
-            ./scripts/validate/manifest.sh
-            echo "✅ Manifest validation passed" >> $GITHUB_STEP_SUMMARY
+            echo "Running manifest validation script..." >> $GITHUB_STEP_SUMMARY
+            if ./scripts/validate/manifest.sh 2>&1 | tee -a $GITHUB_STEP_SUMMARY; then
+              echo "✅ Manifest validation passed" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ Manifest validation script failed" >> $GITHUB_STEP_SUMMARY
+              exit 1
+            fi
           elif [ -f ".github/scripts/validate/manifest.sh" ]; then
-            ./.github/scripts/validate/manifest.sh
-            echo "✅ Manifest validation passed" >> $GITHUB_STEP_SUMMARY
+            echo "Running manifest validation script..." >> $GITHUB_STEP_SUMMARY
+            if ./.github/scripts/validate/manifest.sh 2>&1 | tee -a $GITHUB_STEP_SUMMARY; then
+              echo "✅ Manifest validation passed" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ Manifest validation script failed" >> $GITHUB_STEP_SUMMARY
+              exit 1
+            fi
           elif command -v xmllint >/dev/null 2>&1; then
             # Basic XML validation using xmllint
+            echo "Using xmllint for basic XML validation..." >> $GITHUB_STEP_SUMMARY
             XML_FOUND=false
             ERROR_FOUND=false
             
             while IFS= read -r file; do
               XML_FOUND=true
-              if ! xmllint --noout "$file" 2>/dev/null; then
+              if ! xmllint --noout "$file" 2>&1 | tee -a $GITHUB_STEP_SUMMARY; then
                 echo "❌ Invalid XML: $file" >> $GITHUB_STEP_SUMMARY
                 ERROR_FOUND=true
               fi
             done < <(find . -name "*.xml" -type f ! -path "*/node_modules/*" ! -path "*/.git/*")
             
             if [ "$ERROR_FOUND" = true ]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "❌ XML validation failed" >> $GITHUB_STEP_SUMMARY
               exit 1
             elif [ "$XML_FOUND" = true ]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
               echo "✅ Basic XML validation passed" >> $GITHUB_STEP_SUMMARY
             else
               echo "ℹ️ No XML files found to validate" >> $GITHUB_STEP_SUMMARY
             fi
           else
-            echo "ℹ️ No manifest validation script or xmllint available, skipping XML validation" >> $GITHUB_STEP_SUMMARY
+            echo "ℹ️ No manifest validation script or xmllint available" >> $GITHUB_STEP_SUMMARY
+            echo "Skipping XML validation" >> $GITHUB_STEP_SUMMARY
           fi
 
       - name: Validate XML well-formedness
@@ -219,25 +235,44 @@ jobs:
         working-directory: ${{ inputs.working-directory }}
         run: |
           echo "### 🔍 PHP Syntax Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
 
           if [ -f "scripts/validate/php_syntax.sh" ]; then
-            ./scripts/validate/php_syntax.sh
-            echo "✅ PHP syntax validation passed" >> $GITHUB_STEP_SUMMARY
-          elif [ -f ".github/scripts/validate/php_syntax.sh" ]; then
-            ./.github/scripts/validate/php_syntax.sh
-            echo "✅ PHP syntax validation passed" >> $GITHUB_STEP_SUMMARY
-          else
-            # Basic PHP syntax check
-            ERROR_FILE=$(mktemp)
-            find . -name "*.php" -type f -exec sh -c 'if ! php -l "$1" > /dev/null 2>&1; then echo "❌ Syntax error in: $1"; exit 1; fi' _ {} \; || echo "1" > "$ERROR_FILE"
-            if [ ! -s "$ERROR_FILE" ]; then
+            echo "Running PHP syntax validation script..." >> $GITHUB_STEP_SUMMARY
+            if ./scripts/validate/php_syntax.sh 2>&1 | tee -a $GITHUB_STEP_SUMMARY; then
               echo "✅ PHP syntax validation passed" >> $GITHUB_STEP_SUMMARY
             else
-              echo "❌ PHP syntax errors found" >> $GITHUB_STEP_SUMMARY
-              rm -f "$ERROR_FILE"
+              echo "❌ PHP syntax validation script failed" >> $GITHUB_STEP_SUMMARY
               exit 1
             fi
-            rm -f "$ERROR_FILE"
+          elif [ -f ".github/scripts/validate/php_syntax.sh" ]; then
+            echo "Running PHP syntax validation script..." >> $GITHUB_STEP_SUMMARY
+            if ./.github/scripts/validate/php_syntax.sh 2>&1 | tee -a $GITHUB_STEP_SUMMARY; then
+              echo "✅ PHP syntax validation passed" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ PHP syntax validation script failed" >> $GITHUB_STEP_SUMMARY
+              exit 1
+            fi
+          else
+            # Basic PHP syntax check
+            echo "Running basic PHP syntax check..." >> $GITHUB_STEP_SUMMARY
+            ERROR_FOUND=false
+            
+            while IFS= read -r file; do
+              if ! php -l "$file" 2>&1 | tee -a $GITHUB_STEP_SUMMARY; then
+                echo "❌ Syntax error in: $file" >> $GITHUB_STEP_SUMMARY
+                ERROR_FOUND=true
+              fi
+            done < <(find . -name "*.php" -type f ! -path "*/vendor/*" ! -path "*/node_modules/*")
+            
+            if [ "$ERROR_FOUND" = true ]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "❌ PHP syntax errors found" >> $GITHUB_STEP_SUMMARY
+              exit 1
+            else
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "✅ PHP syntax validation passed" >> $GITHUB_STEP_SUMMARY
+            fi
           fi
 
   optional-validations:
@@ -396,15 +431,24 @@ jobs:
         working-directory: ${{ inputs.working-directory }}
         run: |
           echo "### 🔒 Security Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
 
           if [ -f "scripts/validate/no_secrets.sh" ]; then
-            ./scripts/validate/no_secrets.sh
-            echo "✅ No secrets found" >> $GITHUB_STEP_SUMMARY
+            if ./scripts/validate/no_secrets.sh 2>&1 | tee -a $GITHUB_STEP_SUMMARY; then
+              echo "✅ No secrets found" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ Secret validation script failed" >> $GITHUB_STEP_SUMMARY
+              exit 1
+            fi
           elif [ -f ".github/scripts/validate/no_secrets.sh" ]; then
-            ./.github/scripts/validate/no_secrets.sh
-            echo "✅ No secrets found" >> $GITHUB_STEP_SUMMARY
+            if ./.github/scripts/validate/no_secrets.sh 2>&1 | tee -a $GITHUB_STEP_SUMMARY; then
+              echo "✅ No secrets found" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ Secret validation script failed" >> $GITHUB_STEP_SUMMARY
+              exit 1
+            fi
           else
-            # Basic secrets check
+            # Basic secrets check using find to properly exclude directories
             PATTERNS=(
               "password\s*=\s*['\"][^'\"]+['\"]"
               "api[_-]?key\s*=\s*['\"][^'\"]+['\"]"
@@ -415,24 +459,34 @@ jobs:
             )
 
             FOUND=0
+            echo "Scanning for potential secrets..." >> $GITHUB_STEP_SUMMARY
+            
             for pattern in "${PATTERNS[@]}"; do
-              # Exclude documentation and workflow/config directories
-              if grep -rE "$pattern" . \
-                --exclude-dir=.git \
-                --exclude-dir=node_modules \
-                --exclude-dir=vendor \
-                --exclude-dir=.github \
-                --exclude-dir=docs \
-                --exclude="*.md" 2>/dev/null; then
-                FOUND=1
-              fi
+              # Use find to exclude directories and files, then grep the results
+              while IFS= read -r file; do
+                if [ -f "$file" ]; then
+                  if grep -HnE "$pattern" "$file" 2>/dev/null; then
+                    FOUND=1
+                    echo "⚠️ Found pattern in: $file" >> $GITHUB_STEP_SUMMARY
+                  fi
+                fi
+              done < <(find . -type f \
+                ! -path "*/.git/*" \
+                ! -path "*/node_modules/*" \
+                ! -path "*/vendor/*" \
+                ! -path "*/.github/*" \
+                ! -path "*/docs/*" \
+                ! -name "*.md" \
+                2>/dev/null)
             done
 
             if [ $FOUND -eq 0 ]; then
-              echo "✅ Basic security check passed" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "✅ Basic security check passed - no secrets detected" >> $GITHUB_STEP_SUMMARY
             else
-              echo "⚠️ Potential secrets or credentials detected" >> $GITHUB_STEP_SUMMARY
-              echo "Please review the findings above" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "❌ Potential secrets or credentials detected" >> $GITHUB_STEP_SUMMARY
+              echo "Please review the findings above and ensure they are test fixtures or documentation examples" >> $GITHUB_STEP_SUMMARY
               exit 1
             fi
           fi

@@ -144,7 +144,7 @@ Review and update incrementally:
 #### Architecture & Organization
 - **[Golden Architecture Guide](docs/guide/repository-organization.md)** - Repository structure and organization patterns
 - **[Architecture Decision Records](docs/adr/index.md)** - Significant architectural decisions and rationale
-- **[Workflow Architecture](. github/WORKFLOW_ARCHITECTURE.md)** - Workflow hierarchy and design patterns
+- **[Workflow Architecture](.github/WORKFLOW_ARCHITECTURE.md)** - Workflow hierarchy and design patterns
 - **[Repository Setup Checklist](docs/checklist/repository-setup.md)** - Complete setup and compliance checklist
 
 #### Standards & Policies
@@ -160,8 +160,8 @@ Review and update incrementally:
 - **[Documentation Templates](templates/docs/)** - README, CONTRIBUTING, SECURITY templates
 
 #### Workflows & Automation
-- **[Reusable Workflows](. github/workflows/REUSABLE_WORKFLOWS.md)** - Documentation for all reusable workflows
-- **[Workflow Inventory](. github/WORKFLOW_INVENTORY.md)** - Complete inventory of workflows
+- **[Reusable Workflows](.github/workflows/REUSABLE_WORKFLOWS.md)** - Documentation for all reusable workflows
+- **[Workflow Inventory](.github/WORKFLOW_INVENTORY.md)** - Complete inventory of workflows
 - **[Scripts Catalog](scripts/README.md)** - Automation scripts and utilities
 
 #### Project Management

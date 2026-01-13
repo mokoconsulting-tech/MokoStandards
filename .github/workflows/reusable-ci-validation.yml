@@ -403,7 +403,7 @@ jobs:
 
             FOUND=0
             for pattern in "${PATTERNS[@]}"; do
-              # Exclude documentation, test fixtures, and workflow definitions
+              # Exclude documentation and workflow/config directories
               if grep -rE "$pattern" . \
                 --exclude-dir=.git \
                 --exclude-dir=node_modules \

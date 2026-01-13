@@ -61,9 +61,6 @@ pattern_exists() {
         return 1
     fi
     
-    # Escape special regex characters in pattern
-    local escaped_pattern=$(echo "$pattern" | sed 's/[]\/$*.^[]/\\&/g')
-    
     # Check if pattern exists as a complete line
     grep -qxF "$pattern" "$file" 2>/dev/null
 }
@@ -102,7 +99,7 @@ add_new_patterns() {
     
     # Find the right section to add patterns
     # Look for OS / Editor / IDE section or create it
-    local section_marker="# OS / Editor / IDE"
+    local section_marker="# OS / Editor / IDE cruft"
     local has_section=0
     
     if grep -q "$section_marker" "$file" 2>/dev/null; then
@@ -114,16 +111,15 @@ add_new_patterns() {
             print_info "Adding pattern: $pattern"
             
             if [ $has_section -eq 1 ]; then
-                # Add after the section marker if it doesn't already exist nearby
-                # This is a simplified approach - just append to end of section
-                echo "$pattern" >> "$file"
+                # Add after the section marker
+                sed -i "/^$section_marker/a $pattern" "$file"
             else
                 # Add at the end with a comment header
                 if [ ! -s "$file" ]; then
-                    echo "# OS / Editor / IDE cruft" >> "$file"
+                    echo "$section_marker" >> "$file"
                 else
                     echo "" >> "$file"
-                    echo "# OS / Editor / IDE cruft" >> "$file"
+                    echo "$section_marker" >> "$file"
                 fi
                 echo "$pattern" >> "$file"
                 has_section=1

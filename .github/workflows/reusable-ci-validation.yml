@@ -184,13 +184,13 @@ jobs:
             XML_FOUND=false
             ERROR_FOUND=false
             
-            find . -name "*.xml" -type f ! -path "*/node_modules/*" ! -path "*/.git/*" | while read -r file; do
+            while IFS= read -r file; do
               XML_FOUND=true
               if ! xmllint --noout "$file" 2>/dev/null; then
                 echo "❌ Invalid XML: $file" >> $GITHUB_STEP_SUMMARY
                 ERROR_FOUND=true
               fi
-            done
+            done < <(find . -name "*.xml" -type f ! -path "*/node_modules/*" ! -path "*/.git/*")
             
             if [ "$ERROR_FOUND" = true ]; then
               exit 1

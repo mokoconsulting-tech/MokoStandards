@@ -40,8 +40,55 @@
 organization:
   name: mokoconsulting-tech
   
+  # Reserved branch prefixes
+  # These branch name patterns are reserved and cannot be created by users
+  reserved_branch_prefixes:
+    - pattern: "mokostandards*"
+      description: "Reserved for MokoStandards automated workflows and system operations"
+      enforcement: strict
+      allowed_actors: []  # No users can create branches with this prefix
+  
   # Organization-wide branch protection rulesets
   rulesets:
+    - name: "Reserve mokostandards branch prefix"
+      # Target: Apply to all repositories
+      target: all_repositories
+      
+      # Enforcement level: active (enforced)
+      enforcement: active
+      
+      # Bypass actors: Empty to prevent all users from creating these branches
+      bypass_actors: []
+      
+      # Conditions: Protect branches starting with mokostandards
+      conditions:
+        ref_name:
+          include:
+            - "refs/heads/mokostandards*"
+          exclude: []
+      
+      # Rules to enforce
+      rules:
+        # Prevent creation of branches with this prefix
+        - type: creation
+          parameters:
+            # Completely restrict branch creation with this prefix
+            restrict_creation: true
+        
+        # Prevent updates to these branches
+        - type: update
+          parameters:
+            # Prevent any updates
+            update_allows_fetch_and_merge: false
+        
+        # Prevent deletion of these branches (if they exist)
+        - type: deletion
+          parameters: {}
+        
+        # Prevent force pushes
+        - type: non_fast_forward
+          parameters: {}
+    
     - name: "Protect main branch across all repositories"
       # Target: Apply to all repositories
       target: all_repositories
@@ -166,13 +213,28 @@ default_branch_protection:
 # -----------------------
 # 1. Navigate to: https://github.com/organizations/mokoconsulting-tech/settings/rules
 # 2. Click "New ruleset" → "New branch ruleset"
-# 3. Configure:
+# 
+# For main branch protection:
+# 3a. Configure:
 #    - Name: "Protect main branch across all repositories"
 #    - Enforcement status: Active
 #    - Target repositories: All repositories
 #    - Target branches: Include "main" and "master"
-# 4. Add rules as specified above
-# 5. Click "Create" to apply
+# 4a. Add rules as specified above
+# 5a. Click "Create" to apply
+#
+# For reserved branch prefix (mokostandards*):
+# 3b. Configure:
+#    - Name: "Reserve mokostandards branch prefix"
+#    - Enforcement status: Active
+#    - Target repositories: All repositories
+#    - Target branches: Include "mokostandards*"
+# 4b. Add rules:
+#    - Block creations
+#    - Block updates
+#    - Block deletions
+#    - Block force pushes
+# 5b. Click "Create" to apply
 #
 # Method 2: GitHub CLI
 # --------------------
@@ -195,3 +257,6 @@ default_branch_protection:
 # - Administrators can be exempted via bypass_actors if needed for emergencies
 # - This ensures consistent protection across all org repositories
 # - Individual repositories can have additional (stricter) rules via settings.yml
+# - Reserved branch prefixes (e.g., mokostandards*) prevent users from creating branches
+#   that could conflict with automated workflows or system operations
+# - The mokostandards* prefix is reserved for MokoStandards automated processes only

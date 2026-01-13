@@ -44,6 +44,16 @@ This policy applies to:
 
 ## Branching Model
 
+### Reserved Branch Prefixes
+
+The following branch name patterns are **reserved** and cannot be used for regular development:
+
+- `mokostandards*` - Reserved for MokoStandards automated workflows and system operations
+
+**Enforcement**: Organization-level rules prevent creation of branches with reserved prefixes. Attempting to create a branch with a reserved prefix will result in an error.
+
+**Rationale**: Reserved prefixes ensure automated processes can operate without naming conflicts with user-created branches.
+
 ### Branch Hierarchy
 
 ```
@@ -551,6 +561,7 @@ git push origin --delete v1.2.0
 - ✗ Don't rewrite history on shared branches
 - ✗ Don't skip version numbers
 - ✗ Don't mix features in single branch
+- ✗ Don't create branches with reserved prefixes (e.g., mokostandards*)
 
 ## Automation
 

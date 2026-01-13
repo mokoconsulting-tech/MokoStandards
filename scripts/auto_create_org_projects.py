@@ -667,6 +667,19 @@ def main():
         print("   Or authenticate with: gh auth login")
         sys.exit(1)
     
+    # Check if using GITHUB_TOKEN (which has limited permissions)
+    if token and token.startswith("ghs_") and not args.dry_run:
+        print("❌ Organization operations require a Personal Access Token (PAT)")
+        print("   The default GITHUB_TOKEN does not have permissions to access organization data")
+        print("")
+        print("   Please set the GH_PAT secret with a token that has these scopes:")
+        print("   - read:org (to read organization repositories)")
+        print("   - repo (to read repository contents)")
+        print("   - project (to create and manage projects)")
+        print("")
+        print("   See: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens")
+        sys.exit(1)
+    
     # Create and run processor
     processor = OrgProjectsCreator(
         org=args.org,

@@ -231,7 +231,7 @@ Dolibarr module numbers **185051 to 185099** are reserved for Moko Consulting us
 |-------------|---------------|--------|-------------|------------|
 | MokoDoliTools | 185051 | Active | Core utilities and admin toolkit for Dolibarr with curated defaults, UI enhancements, and entity-aware operations | [mokoconsulting-tech/MokoDoliTools](https://github.com/mokoconsulting-tech/MokoDoliTools) |
 | MokoDoliSign | 185052 | Reserved | Digital signature and document signing module | TBD |
-| MokoCRM Mobile | 185053 | Reserved | Mobile application for MokoCRM | TBD |
+| MokoCRMTheme | 185053 | Reserved | MokoCRM Theme | TBD |
 | MokoDoliChimp | 185054 | Reserved | MailChimp integration for Dolibarr | TBD |
 | MokoDoliPasskey | 185055 | Reserved | WebAuthn/Passkey authentication module for Dolibarr | TBD |
 | MokoDoliForm | 185056 | Reserved | Advanced form builder and workflow module for Dolibarr | TBD |
@@ -239,6 +239,8 @@ Dolibarr module numbers **185051 to 185099** are reserved for Moko Consulting us
 | MokoDoliDeploy | 185058 | Reserved | Deployment automation and management module for Dolibarr | TBD |
 | MokoDoliMulti | 185059 | Reserved | Multi-entity management module for Dolibarr | TBD |
 | MokoDoliHRM | 185060 | Reserved | Human Resource Management module for Dolibarr | TBD |
+| MokoDoliAuth | 185061 | Reserved |  | TBD |
+| MokoDoliOffline | 185062 | Reserved |  | TBD |
 | Available for Assignment | 185061-185099 | Reserved | Reserved for future Moko Consulting modules | - |
 
 **Module ID Reservation Process**:

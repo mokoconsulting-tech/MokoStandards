@@ -15,7 +15,7 @@
  DEFGROUP: MokoStandards
  INGROUP: MokoStandards.Documentation
  REPO: https://github.com/mokoconsulting-tech/MokoStandards/
- VERSION: 05.00.00
+ VERSION: 07.00.00
  PATH: ./CHANGELOG.md
  BRIEF: Version history using Keep a Changelog
  NOTE: Adheres to SemVer when applicable
@@ -24,6 +24,70 @@
 # Changelog
 
 ## [UNRELEASED]
+
+## [07.00.00] - 2026-01-13
+### Added - Golden Architecture & Organizational Standards
+- **Architecture Decision Records (ADR)**
+  - New `docs/adr/` directory for documenting architectural decisions
+  - ADR index and comprehensive ADR template
+  - Framework for tracking significant technical decisions
+- **Golden Architecture Documentation**
+  - `docs/guide/repository-organization.md` - Comprehensive golden architecture guide
+  - `docs/policy/workflow-standards.md` - GitHub Actions workflow governance policy
+  - `docs/checklist/repository-setup.md` - Complete repository setup checklist
+  - `.github/WORKFLOW_ARCHITECTURE.md` - Workflow hierarchy and design patterns
+- **GitHub Templates**
+  - New `templates/github/` directory for GitHub-specific templates
+  - Issue templates (bug reports, feature requests) with config.yml
+  - Pull request template with comprehensive checklist
+  - CODEOWNERS template with team structure examples
+  - Complete documentation in `templates/github/README.md`
+- **Templates Catalog**
+  - Comprehensive `templates/index.md` with usage guide
+  - Organized template categories and documentation
+  - Clear guidance on template vs. policy distinction
+- **Documentation Structure Enhancements**
+  - Updated `docs/index.md` with ADR section and new guides
+  - Cross-references between related documentation
+  - Improved navigation and discoverability
+
+### Changed - Repository Organization
+- **Enhanced Documentation Hierarchy**
+  - Added Architecture Decision Records as top-level documentation category
+  - Integrated workflow standards into policy framework
+  - Improved documentation index with better categorization
+- **Workflow Documentation**
+  - Documented three-tier workflow architecture (Organization/Public/Local)
+  - Added workflow design patterns and decision trees
+  - Enhanced reusable workflow documentation
+- **Template Organization**
+  - Reorganized templates with clearer structure
+  - Added comprehensive READMEs for each template category
+  - Improved template discoverability and usage guidance
+
+### Documentation
+- All new files include proper copyright headers and metadata
+- File versions updated to 01.00.00 for new content
+- Comprehensive revision history in all new documents
+- Enhanced cross-referencing between related documents
+
+### Infrastructure
+- Repository now exemplifies the golden architecture it defines
+- Clear separation between binding policies and non-binding templates
+- Comprehensive checklists for compliance verification
+- Improved onboarding documentation for new repositories
+
+## [06.00.00] - 2026-01-07
+### Added
+- Public workflow templates in `.github/workflow-templates/`
+- Makefiles directory with platform-specific Makefiles
+- Build system documentation
+- Release management documentation
+- Comprehensive quick start guide
+
+### Changed
+- README updated with new workflow inventory and structure
+- Documentation structure enhanced with additional guides
 
 ## [05.00.00] - 2026-01-04
 ### Added - Enterprise Readiness

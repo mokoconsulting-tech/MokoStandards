@@ -23,17 +23,17 @@
  INGROUP: MokoStandards
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  FILE: README.md
- VERSION: 06.00.00
- BRIEF: Coding standards hub with public workflow templates, build system, and comprehensive documentation.
+ VERSION: 07.00.00
+ BRIEF: Authoritative coding standards, golden architecture, workflows, templates, and governance policies.
  PATH: /README.md
- NOTE: Added public workflow templates, Makefiles, and comprehensive build/release documentation.
+ NOTE: Repository reorganization: ADR framework, golden architecture guide, workflow standards, GitHub templates, enhanced documentation structure.
 -->
 
 ![Moko Consulting](https://mokoconsulting.tech/images/branding/logo.png)
 
-# MokoStandards (VERSION: 06.00.00)
+# MokoStandards (VERSION: 07.00.00)
 
-MokoStandards is the authoritative control plane for coding standards across the Moko Consulting ecosystem. This repository defines how code is formatted, structured, reviewed, tested, packaged, and released.
+MokoStandards is the authoritative control plane for coding standards across the Moko Consulting ecosystem. This repository defines how code is formatted, structured, reviewed, tested, packaged, and released. It also provides the golden architecture pattern that all repositories should follow.
 
 ## Scope
 
@@ -141,14 +141,38 @@ Review and update incrementally:
 
 ### Key Resources
 
+#### Architecture & Organization
+- **[Golden Architecture Guide](docs/guide/repository-organization.md)** - Repository structure and organization patterns
+- **[Architecture Decision Records](docs/adr/index.md)** - Significant architectural decisions and rationale
+- **[Workflow Architecture](. github/WORKFLOW_ARCHITECTURE.md)** - Workflow hierarchy and design patterns
+- **[Repository Setup Checklist](docs/checklist/repository-setup.md)** - Complete setup and compliance checklist
+
+#### Standards & Policies
+- **[Workflow Standards](docs/policy/workflow-standards.md)** - GitHub Actions workflow governance
+- **[File Header Standards](docs/policy/file-header-standards.md)** - Copyright headers and metadata
+- **[Scripting Standards](docs/policy/scripting-standards.md)** - Python-first automation standards
+- **[Policy Index](docs/policy/index.md)** - Complete list of all binding policies
+
+#### Templates & Examples
+- **[Templates Catalog](templates/index.md)** - Comprehensive templates for all common needs
+- **[GitHub Templates](templates/github/)** - Issue templates, PR templates, CODEOWNERS
+- **[Workflow Templates](templates/workflows/)** - CI/CD workflow templates by project type
+- **[Documentation Templates](templates/docs/)** - README, CONTRIBUTING, SECURITY templates
+
+#### Workflows & Automation
+- **[Reusable Workflows](. github/workflows/REUSABLE_WORKFLOWS.md)** - Documentation for all reusable workflows
+- **[Workflow Inventory](. github/WORKFLOW_INVENTORY.md)** - Complete inventory of workflows
+- **[Scripts Catalog](scripts/README.md)** - Automation scripts and utilities
+
+#### Project Management
 - **[Repository Inventory](docs/REPOSITORY_INVENTORY.md)** - Complete list of all coupled organization repositories
-- **[Workflow Templates](docs/workflows/README.md)** - CI/CD workflow documentation
-- **[Build System](docs/build-system/README.md)** - Universal build system with Makefile precedence
-- **[Release Management](docs/release-management/README.md)** - Release cycle and versioning
 - **[Project Types](docs/project-types.md)** - Automatic project detection (Joomla, Dolibarr, Generic)
 - **[Health Scoring](docs/health-scoring.md)** - Repository quality assessment (100-point scale)
+
+#### Build & Release
+- **[Build System](docs/build-system/README.md)** - Universal build system with Makefile precedence
+- **[Release Management](docs/release-management/README.md)** - Release cycle and versioning
 - **[Public Makefiles](Makefiles/)** - Platform-specific Makefile examples
-- **[Auto-Create Projects](scripts/QUICKSTART_ORG_PROJECTS.md)** - Automatically create smart GitHub Projects for all org repositories
 
 ## Ecosystem map
 
@@ -453,3 +477,4 @@ See the authoritative roadmap document: [`/docs/ROADMAP.md`](docs/ROADMAP.md).
 | 04.01.00 | 2026-01-03 | Jonathan Miller (@jmiller-moko) | Version alignment with current MokoStandards standards baseline. |
 | 05.00.00 | 2026-01-04 | Jonathan Miller (@jmiller-moko) | Enterprise readiness: security automation, workflow consolidation, complete public/private separation. |
 | 06.00.00 | 2026-01-07 | GitHub Copilot                  | Added public workflow templates, Makefiles directory, build system documentation, release management docs, and comprehensive quick start guide. |
+| 07.00.00 | 2026-01-13 | GitHub Copilot                  | Repository reorganization: ADR framework, golden architecture guide, workflow standards policy, GitHub templates, enhanced documentation structure, and comprehensive compliance tools. Repository now exemplifies the standards it defines. |

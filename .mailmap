@@ -1,0 +1,17 @@
+# .mailmap
+#
+# This file maps various author names and email addresses to canonical forms.
+# It helps consolidate contributions from the same person under a single identity.
+#
+# Format:
+# Canonical Name <canonical@email> Other Name <other@email>
+# Canonical Name <canonical@email> <other@email>
+#
+# See: https://git-scm.com/docs/git-shortlog#_mapping_authors
+
+# Moko Consulting Organization Account
+jmiller-moko <230051081+jmiller-moko@users.noreply.github.com> Jonathan Miller <jmiller@mokoconsulting.tech>
+jmiller-moko <230051081+jmiller-moko@users.noreply.github.com> Jonathan Miller <hello@mokoconsulting.tech>
+
+# GitHub Copilot Automated Commits
+GitHub Copilot <copilot@github.com>

@@ -54,16 +54,49 @@ The following branch name patterns are **reserved** and cannot be used for regul
 
 **Rationale**: Reserved prefixes ensure automated processes can operate without naming conflicts with user-created branches.
 
+### Branch Naming Convention
+
+All branches (except protected branches: main, master, dev, staging, production) **must** follow this naming pattern:
+
+**Format**: `(prefix)/MAJOR.MINOR.PATCH[/optional-description]`
+
+**Approved Prefixes**:
+- `dev/` - Development branches (e.g., `dev/1.0.0`, `dev/1.0.0/new-feature`)
+- `rc/` - Release candidate branches (e.g., `rc/2.0.0`, `rc/2.0.0/final-testing`)
+- `version/` - Version maintenance branches (e.g., `version/1.2.0`)
+- `dependabot/` - Automated dependency updates (e.g., `dependabot/1.0.1/update-package`)
+- `copilot/` - GitHub Copilot automated branches (e.g., `copilot/1.1.0/fix-bug`)
+- `patch/` - Patch/hotfix branches (e.g., `patch/1.0.1/security-fix`)
+
+**Version Format**: Must follow semantic versioning - `MAJOR.MINOR.PATCH` (e.g., `1.0.0`, `2.1.3`)
+
+**Optional Description**: After the version, you can add a forward slash and description (e.g., `/fix-login`, `/add-dashboard`)
+
+**Examples**:
+- ✅ `dev/1.0.0` - Valid
+- ✅ `rc/2.1.0/beta-testing` - Valid
+- ✅ `version/1.2.3` - Valid
+- ✅ `copilot/1.0.1/fix-graphql-error` - Valid
+- ✅ `patch/1.0.2/security-patch` - Valid
+- ❌ `feature/user-auth` - Invalid (no version)
+- ❌ `dev/1.0` - Invalid (incomplete version)
+- ❌ `mybranch` - Invalid (no prefix or version)
+- ❌ `hotfix/critical-bug` - Invalid (use `patch/` prefix with version)
+
+**Enforcement**: Organization-level ruleset validates branch names match the required pattern. Branches that don't match will be rejected.
+
+**Rationale**: Consistent naming ensures traceability, clear version association, and automated workflow compatibility.
+
 ### Branch Hierarchy
 
 ```
 main (production)
   └── dev (integration)
       └── rc/x.y.z (release candidate)
-          └── x.y.z (version release)
-              └── feature/* (feature branches)
-              └── bugfix/* (bug fix branches)
-              └── hotfix/* (hotfix branches)
+          └── version/x.y.z (version release)
+              └── dev/x.y.z/* (versioned development branches)
+              └── patch/x.y.z/* (patch branches)
+              └── copilot/x.y.z/* (automated branches)
 ```
 
 ### Branch Types
@@ -124,17 +157,17 @@ main (production)
 5. Merged back to `dev`
 6. Deleted after successful release
 
-#### 4. Version Branches (`x.y.z`)
+#### 4. Version Branches (`version/x.y.z`)
 
 **Purpose**: Long-term support for specific versions
 
-**Format**: `MAJOR.MINOR.PATCH` (e.g., `1.2.0`, `2.0.1`)
+**Format**: `version/MAJOR.MINOR.PATCH` (e.g., `version/1.2.0`, `version/2.0.1`)
 
 **Characteristics**:
 - Created from `rc/*` after release
 - **MUST be created with an accompanying Pull Request**
 - Used for version-specific maintenance
-- Accepts hotfixes for that version
+- Accepts patches for that version
 - Tagged with patch versions
 - Can be maintained in parallel
 
@@ -155,56 +188,59 @@ main (production)
 - Security patches for older versions
 - Backporting critical fixes
 
-#### 5. Feature Branches (`feature/*`)
+#### 5. Development Branches (`dev/x.y.z/*`)
 
-**Purpose**: Develop new features
+**Purpose**: Develop new features and changes for a specific version
 
-**Format**: `feature/short-description` or `feature/ISSUE-123-description`
+**Format**: `dev/MAJOR.MINOR.PATCH/short-description` (e.g., `dev/1.0.0/user-auth`, `dev/2.1.0/add-dashboard`)
 
 **Characteristics**:
 - Created from `dev` branch
 - Merged back to `dev` via PR
 - Deleted after merge
+- Must include semantic version in branch name
 - Can be long-lived for complex features
 
 **Naming Examples**:
-- `feature/user-authentication`
-- `feature/JIRA-456-payment-gateway`
-- `feature/admin-dashboard`
+- `dev/1.0.0/user-authentication`
+- `dev/1.1.0/payment-gateway`
+- `dev/2.0.0/admin-dashboard`
 
-#### 6. Bugfix Branches (`bugfix/*`)
+#### 6. Patch Branches (`patch/x.y.z/*`)
 
-**Purpose**: Fix bugs found in `dev`
+**Purpose**: Emergency fixes for production issues
 
-**Format**: `bugfix/short-description` or `bugfix/ISSUE-123-description`
-
-**Characteristics**:
-- Created from `dev` branch
-- Merged back to `dev` via PR
-- Deleted after merge
-- Short-lived
-
-**Naming Examples**:
-- `bugfix/login-error`
-- `bugfix/JIRA-789-crash-on-submit`
-- `bugfix/memory-leak`
-
-#### 7. Hotfix Branches (`hotfix/*`)
-
-**Purpose**: Emergency fixes for production
-
-**Format**: `hotfix/x.y.z-description` or `hotfix/ISSUE-123-description`
+**Format**: `patch/MAJOR.MINOR.PATCH/short-description` (e.g., `patch/1.0.1/security-fix`)
 
 **Characteristics**:
-- Created from `main` or version branch
+- Created from `main` or `version/*` branch
 - Merged to both `main` and `dev`
 - Triggers immediate patch release
 - Requires expedited review
+- Short-lived
 
 **Naming Examples**:
-- `hotfix/1.2.1-security-vulnerability`
-- `hotfix/critical-data-loss`
-- `hotfix/CVE-2026-12345`
+- `patch/1.0.1/security-vulnerability`
+- `patch/1.2.1/critical-data-loss`
+- `patch/1.0.2/fix-CVE-2026-12345`
+
+#### 7. Automated Branches
+
+**Dependabot Branches** (`dependabot/x.y.z/*`)
+- Automated dependency update branches
+- Format: `dependabot/X.Y.Z/update-package-name`
+- Example: `dependabot/1.0.1/update-lodash`
+
+**Copilot Branches** (`copilot/x.y.z/*`)
+- GitHub Copilot automated branches
+- Format: `copilot/X.Y.Z/description`
+- Example: `copilot/1.1.0/fix-graphql-error`
+
+**Characteristics**:
+- Automatically created by tools
+- Follow same naming convention
+- Subject to standard PR review process
+- Merged or closed based on review
 
 ## Version Numbering
 
@@ -254,25 +290,25 @@ Follow Semantic Versioning 2.0.0 (semver.org):
 ### Standard Feature Development
 
 ```bash
-# 1. Create feature branch from dev
+# 1. Create development branch from dev (with version)
 git checkout dev
 git pull origin dev
-git checkout -b feature/new-dashboard
+git checkout -b dev/1.0.0/new-dashboard
 
 # 2. Develop and commit
 git add .
-git commit -m "Add user dashboard component"
+git commit -m "feat: Add user dashboard component"
 
 # 3. Push and create PR
-git push origin feature/new-dashboard
-# Create PR: feature/new-dashboard -> dev
+git push origin dev/1.0.0/new-dashboard
+# Create PR: dev/1.0.0/new-dashboard -> dev
 
 # 4. After PR approval and CI pass
 # Merge via GitHub (squash or merge commit)
 
-# 5. Delete feature branch
-git branch -d feature/new-dashboard
-git push origin --delete feature/new-dashboard
+# 5. Delete development branch
+git branch -d dev/1.0.0/new-dashboard
+git push origin --delete dev/1.0.0/new-dashboard
 ```
 
 ### Release Candidate Creation
@@ -334,20 +370,20 @@ git push origin --delete rc/1.2.0
 ### Hotfix Workflow
 
 ```bash
-# 1. Create hotfix from main
+# 1. Create patch branch from main (following naming convention)
 git checkout main
 git pull origin main
-git checkout -b hotfix/1.2.1-security-fix
+git checkout -b patch/1.2.1/security-fix
 
 # 2. Apply fix
 # Make changes
-git commit -m "Fix security vulnerability CVE-2026-12345"
+git commit -m "fix: Patch security vulnerability CVE-2026-12345"
 
-# 3. Push hotfix
-git push origin hotfix/1.2.1-security-fix
+# 3. Push patch branch
+git push origin patch/1.2.1/security-fix
 
 # 4. Create PR to main
-# PR: hotfix/1.2.1-security-fix -> main
+# PR: patch/1.2.1/security-fix -> main
 # After approval, merge
 
 # 5. Tag hotfix release
@@ -357,14 +393,14 @@ git tag -a v1.2.1 -m "Hotfix release 1.2.1"
 git push origin v1.2.1
 
 # 6. Merge to dev
-# Create PR: hotfix/1.2.1-security-fix -> dev
+# Create PR: patch/1.2.1/security-fix -> dev
 # Or cherry-pick if conflicts
 
 # 7. Update version branch if exists
-git checkout 1.2.0
-git merge hotfix/1.2.1-security-fix
+git checkout version/1.2.0
+git merge patch/1.2.1/security-fix
 git tag -a v1.2.1 -m "Hotfix release 1.2.1"
-git push origin 1.2.0 --tags
+git push origin version/1.2.0 --tags
 
 # 8. Delete hotfix branch
 git branch -d hotfix/1.2.1-security-fix

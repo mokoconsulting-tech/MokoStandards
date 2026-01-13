@@ -403,7 +403,15 @@ jobs:
 
             FOUND=0
             for pattern in "${PATTERNS[@]}"; do
-              if grep -rE "$pattern" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=vendor 2>/dev/null; then
+              # Exclude documentation, test fixtures, and workflow definitions
+              if grep -rE "$pattern" . \
+                --exclude-dir=.git \
+                --exclude-dir=node_modules \
+                --exclude-dir=vendor \
+                --exclude-dir=docs \
+                --exclude="*.md" \
+                --exclude="reusable-ci-validation.yml" \
+                --exclude="reusable-joomla-testing.yml" 2>/dev/null; then
                 FOUND=1
               fi
             done

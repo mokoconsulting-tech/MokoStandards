@@ -25,6 +25,7 @@ Standards, requirements, and compliance documentation.
 - [scripting-standards](./policy/scripting-standards.md)
 - [security-scanning](./policy/security-scanning.md)
 - [vendor-risk](./policy/vendor-risk.md)
+- [workflow-standards](./policy/workflow-standards.md) - GitHub Actions workflow governance
 
 ### CRM
 
@@ -94,6 +95,7 @@ Step-by-step tutorials and how-to documentation.
 - [conflict-resolution](./guide/conflict-resolution.md)
 - [project-fields](./guide/project-fields.md)
 - [project-views](./guide/project-views.md)
+- [repository-organization](./guide/repository-organization.md) - Golden architecture pattern
 - [repository-split-plan](./guide/repository-split-plan.md)
 - [repository-structure-schema](./guide/repository-structure-schema.md)
 
@@ -119,11 +121,19 @@ Step-by-step tutorials and how-to documentation.
 
 - [pre-deployment](./checklist/pre-deployment.md)
 - [release](./checklist/release.md)
+- [repository-setup](./checklist/repository-setup.md) - Comprehensive repository setup checklist
 - [security-review](./checklist/security-review.md)
 
 ## Glossaries
 
 - [technical-terms](./glossary/technical-terms.md)
+
+## Architecture Decision Records (ADR)
+
+Significant architectural decisions and their rationale.
+
+- [ADR Index](./adr/index.md) - Complete list of architecture decisions
+- [ADR Template](./adr/template.md) - Template for creating new ADRs
 
 ## Product Documentation
 
@@ -134,6 +144,7 @@ Step-by-step tutorials and how-to documentation.
 
 Browse documentation by folder:
 
+- [adr/](./adr/index.md) - Architecture Decision Records
 - [checklist/](./checklist/index.md) - Checklists and procedures
 - [glossary/](./glossary/index.md) - Terminology definitions
 - [guide/](./guide/index.md) - How-to guides and tutorials

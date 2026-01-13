@@ -1,0 +1,139 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# FILE INFORMATION
+# DEFGROUP: MokoStandards.Workflows
+# INGROUP: MokoStandards.Automation
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# FILE: .github/workflows/auto-create-org-projects.yml
+# VERSION: 01.00.00
+# BRIEF: Automatically create smart GitHub Projects for all organization repositories
+# PATH: /.github/workflows/auto-create-org-projects.yml
+
+name: Auto-Create Organization Projects
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (preview without making changes)'
+        required: false
+        type: boolean
+        default: true
+      verbose:
+        description: 'Enable verbose logging'
+        required: false
+        type: boolean
+        default: false
+  schedule:
+    # Run quarterly on the 1st at 2:00 AM UTC
+    - cron: '0 2 1 */3 *'
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  create-projects:
+    runs-on: ubuntu-latest
+    name: Create Smart Projects for Org Repos
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Run auto-create projects script
+        env:
+          # Prefer GH_PAT if available, otherwise use GITHUB_TOKEN
+          GH_PAT: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+        run: |
+          DRY_RUN_FLAG=""
+          VERBOSE_FLAG=""
+          
+          # Use workflow dispatch inputs if triggered manually
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            if [ "${{ inputs.dry_run }}" = "true" ]; then
+              DRY_RUN_FLAG="--dry-run"
+            fi
+            if [ "${{ inputs.verbose }}" = "true" ]; then
+              VERBOSE_FLAG="--verbose"
+            fi
+          fi
+          
+          # For scheduled runs, always use dry-run for safety
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            DRY_RUN_FLAG="--dry-run"
+            VERBOSE_FLAG="--verbose"
+          fi
+          
+          python3 scripts/auto_create_org_projects.py $DRY_RUN_FLAG $VERBOSE_FLAG
+
+      - name: Create summary
+        if: always()
+        run: |
+          echo "## Auto-Create Projects Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Organization:** mokoconsulting-tech" >> $GITHUB_STEP_SUMMARY
+          echo "**Trigger:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "**Dry Run:** ${{ inputs.dry_run }}" >> $GITHUB_STEP_SUMMARY
+            echo "**Verbose:** ${{ inputs.verbose }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Dry Run:** true (scheduled run)" >> $GITHUB_STEP_SUMMARY
+            echo "**Verbose:** true" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "This was a scheduled dry-run. Review the logs and run manually without --dry-run if changes should be applied." >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ inputs.dry_run }}" = "true" ]; then
+            echo "This was a dry-run. Review the logs and run again without dry-run mode to apply changes." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Projects were created. Review them at: https://github.com/orgs/mokoconsulting-tech/projects" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "## ❌ Auto-Create Projects Failed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The auto-create projects workflow failed. Check the logs for details." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Troubleshooting" >> $GITHUB_STEP_SUMMARY
+          echo "- Verify GH_PAT secret is set with correct permissions" >> $GITHUB_STEP_SUMMARY
+          echo "- Check API rate limits" >> $GITHUB_STEP_SUMMARY
+          echo "- Review error messages in workflow logs" >> $GITHUB_STEP_SUMMARY

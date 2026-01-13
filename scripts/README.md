@@ -47,7 +47,38 @@ The scripts are organized according to MokoStandards governance policy:
 
 ### Repository Management Scripts
 
-#### bulk_update_repos.py ⭐ NEW
+#### auto_create_org_projects.py ⭐ NEW
+
+Automatically create smart GitHub Projects for every repository in the organization. Intelligently detects project types (Joomla, Dolibarr, or Generic) and creates appropriate project structures with customized fields and views. Also generates and pushes roadmaps to repositories that don't have one.
+
+**Usage:**
+```bash
+# Dry run (preview what would be created)
+python3 scripts/auto_create_org_projects.py --dry-run
+
+# Actually create projects and roadmaps
+export GH_PAT="your_token"
+python3 scripts/auto_create_org_projects.py
+
+# With verbose logging
+python3 scripts/auto_create_org_projects.py --verbose
+
+# For a different organization
+python3 scripts/auto_create_org_projects.py --org your-org-name
+```
+
+**What it does:**
+- Fetches all repositories in the organization
+- Automatically detects project type (Joomla/Dolibarr/Generic)
+- Checks for existing roadmaps
+- Generates type-specific roadmaps if missing
+- Pushes roadmaps to `docs/ROADMAP.md` in each repo
+- Creates GitHub Projects with appropriate custom fields and views
+- Skips MokoStandards (Project #7 already exists)
+
+See [AUTO_CREATE_ORG_PROJECTS.md](./AUTO_CREATE_ORG_PROJECTS.md) for detailed documentation.
+
+#### bulk_update_repos.py
 
 Bulk update script to push workflows, scripts, and configurations to multiple organization repositories.
 

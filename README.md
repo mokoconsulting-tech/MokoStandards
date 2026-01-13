@@ -148,6 +148,7 @@ Review and update incrementally:
 - **[Project Types](docs/project-types.md)** - Automatic project detection (Joomla, Dolibarr, Generic)
 - **[Health Scoring](docs/health-scoring.md)** - Repository quality assessment (100-point scale)
 - **[Public Makefiles](Makefiles/)** - Platform-specific Makefile examples
+- **[Auto-Create Projects](scripts/QUICKSTART_ORG_PROJECTS.md)** - Automatically create smart GitHub Projects for all org repositories
 
 ## Ecosystem map
 

@@ -8,8 +8,8 @@ import json
 import sys
 from pathlib import Path
 
-# Add parent directory to path to import bulk_update_repos
-sys.path.insert(0, str(Path(__file__).parent))
+# Add automation directory to path to import bulk_update_repos
+sys.path.insert(0, str(Path(__file__).parent.parent / "automation"))
 
 # Mock the run_command function to avoid actual gh API calls
 def mock_run_command(cmd, cwd=None):

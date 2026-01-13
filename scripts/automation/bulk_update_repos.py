@@ -80,9 +80,9 @@ DEFAULT_FILES_TO_SYNC = {
 
 # Scripts to sync
 DEFAULT_SCRIPTS_TO_SYNC = [
-    "scripts/validate_file_headers.py",
-    "scripts/update_changelog.py",
-    "scripts/release_version.py",
+    "scripts/maintenance/validate_file_headers.py",
+    "scripts/maintenance/update_changelog.py",
+    "scripts/maintenance/release_version.py",
     "scripts/validate/validate_codeql_config.py",
 ]
 
@@ -136,6 +136,16 @@ def clone_repository(org: str, repo: str, target_dir: str) -> bool:
     if not success:
         print(f"Error cloning {repo}: {stderr}", file=sys.stderr)
         return False
+    
+    # Configure git to use gh as credential helper for push operations
+    # This ensures that subsequent git push commands can authenticate
+    cmd = ["git", "config", "--local", "credential.helper", ""]
+    run_command(cmd, cwd=target_dir)
+    
+    cmd = ["git", "config", "--local", "credential.helper", "!gh auth git-credential"]
+    success, _, stderr = run_command(cmd, cwd=target_dir)
+    if not success:
+        print(f"Warning: Could not configure gh credential helper: {stderr}", file=sys.stderr)
     
     return True
 
@@ -207,8 +217,11 @@ def commit_changes(repo_dir: str, message: str) -> bool:
 
 
 def push_branch(repo_dir: str, branch_name: str) -> bool:
-    """Push branch to remote."""
+    """Push branch to remote using gh CLI for proper authentication."""
+    # First, ensure the branch is up to date locally
     cmd = ["git", "push", "-u", "origin", branch_name]
+    
+    # Git should now use gh's credential helper configured during clone
     success, _, stderr = run_command(cmd, cwd=repo_dir)
     if not success:
         print(f"Error pushing branch: {stderr}", file=sys.stderr)
@@ -240,6 +253,59 @@ def create_pull_request(org: str, repo: str, branch_name: str, title: str, body:
     return True
 
 
+def get_repository_variable(org: str, repo: str, var_name: str) -> Optional[str]:
+    """Get a repository variable value."""
+    cmd = [
+        "gh", "variable", "get", var_name,
+        "--repo", f"{org}/{repo}"
+    ]
+    
+    success, stdout, stderr = run_command(cmd)
+    if success:
+        return stdout
+    return None
+
+
+def set_repository_variable(org: str, repo: str, var_name: str, var_value: str) -> bool:
+    """Set a repository variable."""
+    cmd = [
+        "gh", "variable", "set", var_name,
+        "--repo", f"{org}/{repo}",
+        "--body", var_value
+    ]
+    
+    success, stdout, stderr = run_command(cmd)
+    if not success:
+        print(f"Error setting variable {var_name}: {stderr}", file=sys.stderr)
+        return False
+    
+    return True
+
+
+def set_missing_standards_options(org: str, repo: str, dry_run: bool = False) -> bool:
+    """Set missing standards options (repository variables)."""
+    # Create path suffix variable based on lowercase repo name
+    path_suffix = f"/{repo.lower()}"
+    
+    # Check if FTP_PATH_SUFFIX already exists
+    existing_value = get_repository_variable(org, repo, "FTP_PATH_SUFFIX")
+    
+    if existing_value is None:
+        if dry_run:
+            print(f"  [DRY RUN] Would set FTP_PATH_SUFFIX = {path_suffix}")
+            return True
+        
+        print(f"  Setting FTP_PATH_SUFFIX = {path_suffix}")
+        if not set_repository_variable(org, repo, "FTP_PATH_SUFFIX", path_suffix):
+            print(f"  Warning: Failed to set FTP_PATH_SUFFIX", file=sys.stderr)
+            return False
+        print(f"  ✓ Set FTP_PATH_SUFFIX")
+    else:
+        print(f"  FTP_PATH_SUFFIX already exists: {existing_value}")
+    
+    return True
+
+
 def update_repository(
     org: str,
     repo: str,
@@ -251,14 +317,23 @@ def update_repository(
     pr_title: str,
     pr_body: str,
     temp_dir: str,
-    dry_run: bool = False
+    dry_run: bool = False,
+    set_standards: bool = False
 ) -> bool:
     """Update a single repository with files and scripts."""
     print(f"\n{'[DRY RUN] ' if dry_run else ''}Processing repository: {org}/{repo}")
     
     if dry_run:
         print(f"  Would sync {len(files_to_sync)} files and {len(scripts_to_sync)} scripts")
+        if set_standards:
+            print(f"  Would check and set missing standards options")
         return True
+    
+    # Set missing standards options (repository variables) if requested
+    if set_standards:
+        print(f"  Checking standards options...")
+        if not set_missing_standards_options(org, repo, dry_run):
+            print(f"  Warning: Failed to set some standards options", file=sys.stderr)
     
     # Create temporary directory for this repo
     repo_dir = Path(temp_dir) / repo
@@ -388,6 +463,11 @@ def main():
         action='store_true',
         help='Skip confirmation prompt (use for automation)'
     )
+    parser.add_argument(
+        '--set-standards',
+        action='store_true',
+        help='Set missing standards options (repository variables like FTP_PATH_SUFFIX)'
+    )
     
     args = parser.parse_args()
     
@@ -454,7 +534,8 @@ def main():
                 args.pr_title,
                 args.pr_body,
                 str(temp_dir),
-                args.dry_run
+                args.dry_run,
+                args.set_standards
             ):
                 success_count += 1
             else:

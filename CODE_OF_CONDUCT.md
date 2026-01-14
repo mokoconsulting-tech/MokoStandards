@@ -34,7 +34,7 @@ We as members, contributors, and leaders pledge to make participation in our com
 Unacceptable behavior includes sexualized language/imagery, trolling, harassment, doxing, and other inappropriate conduct.
 
 ## Enforcement
-Report incidents to **dev@mokoconsulting.tech**. Complaints will be reviewed promptly and fairly.
+Report incidents to **dev@mokoconsulting.tech** or through [GitHub Discussions](https://github.com/mokoconsulting-tech/MokoStandards/discussions) if you prefer a community-visible approach. Private complaints will be reviewed promptly and fairly.
 
 ## Enforcement Guidelines
 1. **Correction** — Private warning  

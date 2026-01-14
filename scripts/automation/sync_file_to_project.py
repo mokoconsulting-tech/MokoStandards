@@ -34,6 +34,7 @@ import json
 import subprocess
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
+from urllib.parse import quote
 
 # Project configuration
 DEFAULT_PROJECT_NUMBER = 7
@@ -85,11 +86,13 @@ PRIORITY_MAP = {
 def run_gh_command(cmd: List[str]) -> Tuple[bool, str]:
     """Execute a gh CLI command and return success status and output."""
     try:
+        # gh CLI automatically uses GH_TOKEN from environment
         result = subprocess.run(
             cmd,
             capture_output=True,
             text=True,
-            check=True
+            check=True,
+            env=os.environ.copy()
         )
         return True, result.stdout.strip()
     except subprocess.CalledProcessError as e:
@@ -189,22 +192,11 @@ def get_document_metadata(file_path: str, is_folder: bool = False) -> Dict[str, 
     # Determine status
     status = "In Progress" if path.exists() else "Planned"
     
-    # Generate title
-    if is_folder:
-        # For folders, use the folder name
-        folder_name = path.name if path.name else path.parts[-1]
-        title = folder_name.replace("-", " ").replace("_", " ").title()
-        title = f"Folder: {title}"
-    else:
-        title = path.stem.replace("-", " ").replace("_", " ").title()
-        if doc_type == "policy":
-            title = f"Policy: {title}"
-        elif doc_type == "guide":
-            title = f"Guide: {title}"
-        elif doc_type == "checklist":
-            title = f"Checklist: {title}"
-        elif doc_type == "template":
-            title = f"Template: {title}"
+    # Generate title with full path as markdown link to the document
+    # URL encode the file path to handle special characters
+    encoded_path = quote(file_path, safe='/')
+    file_url = f"https://github.com/{REPO_OWNER}/{REPO_NAME}/blob/main/{encoded_path}"
+    title = f"[{file_path}]({file_url})"
     
     return {
         "title": title,
@@ -505,12 +497,17 @@ def main():
         print("Install from: https://cli.github.com/", file=sys.stderr)
         sys.exit(1)
     
-    # Check for authentication
-    result = subprocess.run(["gh", "auth", "status"], capture_output=True)
-    if result.returncode != 0:
-        print("Error: Not authenticated with gh CLI", file=sys.stderr)
-        print("Run: gh auth login", file=sys.stderr)
-        sys.exit(1)
+    # Check for authentication via GH_TOKEN or gh auth
+    gh_token = os.environ.get("GH_TOKEN")
+    if gh_token:
+        print("Using GH_TOKEN for authentication")
+    else:
+        # Check for gh CLI authentication
+        result = subprocess.run(["gh", "auth", "status"], capture_output=True)
+        if result.returncode != 0:
+            print("Error: Not authenticated with gh CLI", file=sys.stderr)
+            print("Run: gh auth login or set GH_TOKEN environment variable", file=sys.stderr)
+            sys.exit(1)
     
     # Sync file to project
     success = sync_file_to_project(file_path, project_number, is_folder)

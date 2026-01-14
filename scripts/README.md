@@ -238,31 +238,31 @@ python3 scripts/setup_github_project_v2.py --skip-views
 - ✅ Automatic view documentation (Board, Table, Roadmap)
 - ✅ `--skip-views` flag to skip view documentation
 
-#### 1b. `setup_project_7.py` - Create or Update Project #7 ⭐ NEW
+#### 2. `sync_file_to_project.py` - Sync Documentation Files to Project
 
-Creates or updates GitHub Project #7 specifically with version tracking.
+Syncs individual documentation files or folders to GitHub Project #7 with full path as clickable title.
 
 **Usage:**
 ```bash
-export GH_PAT="your_personal_access_token"
-python3 scripts/setup_project_7.py --target-version "1.0.0"
+export GH_TOKEN="your_github_token"  # or use gh auth login
+python3 scripts/automation/sync_file_to_project.py docs/policy/example.md
 
-# With verbose logging
-python3 scripts/setup_project_7.py --verbose --target-version "2.0.0"
+# Sync a folder
+python3 scripts/automation/sync_file_to_project.py docs/policy --folder
 
-# Skip view documentation
-python3 scripts/setup_project_7.py --skip-views --target-version "1.0.0"
+# Specify different project number
+python3 scripts/automation/sync_file_to_project.py docs/guide/example.md 8
 ```
 
 **Features:**
-- ✅ Targets specific project number (#7)
-- ✅ Adds "Target Version Number" custom field
-- ✅ Checks for existing project to avoid duplicates
-- ✅ All items tagged with target version
-- ✅ Verbose error handling
-- ✅ View documentation
+- ✅ Creates GitHub issue for each document
+- ✅ Title is full path as markdown link to document
+- ✅ Supports GH_TOKEN environment variable
+- ✅ Automatically adds to specified project
+- ✅ Sets project fields based on document type
+- ✅ Tracks document metadata and status
 
-#### 2. `populate_project_from_scan.py` - Populate Existing Project
+#### 3. `populate_project_from_scan.py` - Populate Existing Project
 
 Scans docs/ and templates/ directories and populates an existing project with tasks.
 
@@ -279,7 +279,7 @@ python3 scripts/populate_project_from_scan.py --project-number 7
 - Creates tasks for each document
 - Infers metadata from file paths and names
 
-#### 3. `setup_project_views.py` - Configure Views
+#### 4. `setup_project_views.py` - Configure Views
 
 Creates standardized views for your GitHub Project v2.
 

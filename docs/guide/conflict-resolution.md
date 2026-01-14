@@ -173,7 +173,7 @@ If you encounter complex conflicts:
 
 1. **Comment on the PR**: Describe the conflict and ask for guidance
 2. **Tag maintainers**: Use @mentions to get attention
-3. **Join discussions**: Check if others have similar issues
+3. **Join discussions**: Check [GitHub Discussions](https://github.com/mokoconsulting-tech/MokoStandards/discussions) if others have similar issues
 4. **Consult documentation**: Review relevant standards and guides
 5. **Ask for pair resolution**: Request help from another developer
 

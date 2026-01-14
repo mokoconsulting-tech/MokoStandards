@@ -8,6 +8,7 @@ This index provides navigation to documentation within this folder.
 
 - [pre-deployment](./pre-deployment.md)
 - [release](./release.md)
+- [repository-setup](./repository-setup.md)
 - [security-review](./security-review.md)
 
 ## Metadata

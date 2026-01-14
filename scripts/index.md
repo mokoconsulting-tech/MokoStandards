@@ -8,7 +8,7 @@ for the MokoStandards repository.
 ## Quick Links
 
 - [README](./README.md) - Scripts documentation overview
-- [PROJECT_7_SETUP](./PROJECT_7_SETUP.md) - Project setup automation
+- [automation/sync_file_to_project.py](./automation/sync_file_to_project.py) - Sync documentation files to GitHub Project
 
 ## Subfolders
 

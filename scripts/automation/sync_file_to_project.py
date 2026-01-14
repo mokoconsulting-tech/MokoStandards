@@ -34,6 +34,7 @@ import json
 import subprocess
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
+from urllib.parse import quote
 
 # Project configuration
 DEFAULT_PROJECT_NUMBER = 7
@@ -85,18 +86,13 @@ PRIORITY_MAP = {
 def run_gh_command(cmd: List[str]) -> Tuple[bool, str]:
     """Execute a gh CLI command and return success status and output."""
     try:
-        # Set up environment with GH_TOKEN if available
-        env = os.environ.copy()
-        if "GH_TOKEN" in env:
-            # gh CLI uses GH_TOKEN automatically, just ensure it's in the environment
-            pass
-        
+        # gh CLI automatically uses GH_TOKEN from environment
         result = subprocess.run(
             cmd,
             capture_output=True,
             text=True,
             check=True,
-            env=env
+            env=os.environ.copy()
         )
         return True, result.stdout.strip()
     except subprocess.CalledProcessError as e:
@@ -197,7 +193,9 @@ def get_document_metadata(file_path: str, is_folder: bool = False) -> Dict[str, 
     status = "In Progress" if path.exists() else "Planned"
     
     # Generate title with full path as markdown link to the document
-    file_url = f"https://github.com/{REPO_OWNER}/{REPO_NAME}/blob/main/{file_path}"
+    # URL encode the file path to handle special characters
+    encoded_path = quote(file_path, safe='/')
+    file_url = f"https://github.com/{REPO_OWNER}/{REPO_NAME}/blob/main/{encoded_path}"
     title = f"[{file_path}]({file_url})"
     
     return {

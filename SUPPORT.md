@@ -62,6 +62,25 @@ Use GitHub Issues for:
 * Link to related issues or documentation
 * Follow the issue template checklist
 
+### GitHub Discussions
+
+**Community Channel**: [GitHub Discussions](https://github.com/mokoconsulting-tech/MokoStandards/discussions)
+
+Use GitHub Discussions for:
+
+* General questions and answers
+* Design discussions and brainstorming
+* Sharing ideas and proposals
+* Community engagement and feedback
+* Show and tell (how you're using MokoStandards)
+
+**Discussion Categories**:
+
+* **Q&A**: Ask questions and get community help
+* **Ideas**: Propose new features or improvements
+* **Show and Tell**: Share your implementations
+* **General**: Open-ended discussions about standards
+
 ### Email Support
 
 **Email**: `dev@mokoconsulting.tech`
@@ -125,12 +144,14 @@ We do **not** provide support for:
 
 ## Community Support
 
-### Discussions
+### GitHub Discussions
 
-For general questions, design discussions, and community engagement, use:
+For general questions, design discussions, and community engagement, use [GitHub Discussions](https://github.com/mokoconsulting-tech/MokoStandards/discussions):
 
-* GitHub Discussions (when enabled)
-* Issue comments on relevant topics
+* **Q&A**: Ask questions and get help from the community
+* **Ideas**: Discuss new features and improvements
+* **Show and Tell**: Share how you're using MokoStandards
+* **General**: Open-ended discussions
 
 ### Contributing
 

@@ -85,11 +85,18 @@ PRIORITY_MAP = {
 def run_gh_command(cmd: List[str]) -> Tuple[bool, str]:
     """Execute a gh CLI command and return success status and output."""
     try:
+        # Set up environment with GH_TOKEN if available
+        env = os.environ.copy()
+        if "GH_TOKEN" in env:
+            # gh CLI uses GH_TOKEN automatically, just ensure it's in the environment
+            pass
+        
         result = subprocess.run(
             cmd,
             capture_output=True,
             text=True,
-            check=True
+            check=True,
+            env=env
         )
         return True, result.stdout.strip()
     except subprocess.CalledProcessError as e:
@@ -189,22 +196,9 @@ def get_document_metadata(file_path: str, is_folder: bool = False) -> Dict[str, 
     # Determine status
     status = "In Progress" if path.exists() else "Planned"
     
-    # Generate title
-    if is_folder:
-        # For folders, use the folder name
-        folder_name = path.name if path.name else path.parts[-1]
-        title = folder_name.replace("-", " ").replace("_", " ").title()
-        title = f"Folder: {title}"
-    else:
-        title = path.stem.replace("-", " ").replace("_", " ").title()
-        if doc_type == "policy":
-            title = f"Policy: {title}"
-        elif doc_type == "guide":
-            title = f"Guide: {title}"
-        elif doc_type == "checklist":
-            title = f"Checklist: {title}"
-        elif doc_type == "template":
-            title = f"Template: {title}"
+    # Generate title with full path as markdown link to the document
+    file_url = f"https://github.com/{REPO_OWNER}/{REPO_NAME}/blob/main/{file_path}"
+    title = f"[{file_path}]({file_url})"
     
     return {
         "title": title,
@@ -505,12 +499,17 @@ def main():
         print("Install from: https://cli.github.com/", file=sys.stderr)
         sys.exit(1)
     
-    # Check for authentication
-    result = subprocess.run(["gh", "auth", "status"], capture_output=True)
-    if result.returncode != 0:
-        print("Error: Not authenticated with gh CLI", file=sys.stderr)
-        print("Run: gh auth login", file=sys.stderr)
-        sys.exit(1)
+    # Check for authentication via GH_TOKEN or gh auth
+    gh_token = os.environ.get("GH_TOKEN")
+    if gh_token:
+        print("Using GH_TOKEN for authentication")
+    else:
+        # Check for gh CLI authentication
+        result = subprocess.run(["gh", "auth", "status"], capture_output=True)
+        if result.returncode != 0:
+            print("Error: Not authenticated with gh CLI", file=sys.stderr)
+            print("Run: gh auth login or set GH_TOKEN environment variable", file=sys.stderr)
+            sys.exit(1)
     
     # Sync file to project
     success = sync_file_to_project(file_path, project_number, is_folder)

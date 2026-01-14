@@ -65,7 +65,7 @@ Before investing significant effort, contributors are encouraged to review the o
 Typical communication paths include:
 
 * GitHub Issues for bug reports, feature requests, and questions
-* GitHub Discussions or equivalent for design conversations (where enabled)
+* GitHub Discussions for design conversations, Q&A, and community engagement
 * Pull Requests for change proposals
 
 Project maintainers may document additional channels (for example, email, chat, or ticketing) in `README.md` or `GOVERNANCE.md`.

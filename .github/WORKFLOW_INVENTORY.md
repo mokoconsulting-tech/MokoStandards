@@ -47,8 +47,7 @@ This inventory identifies which workflows stay in the public `MokoStandards` rep
 | 10 | version_release.yml | 169 | High | GH_PAT | Evaluate |
 | 11 | rebuild_docs_indexes.yml | 92 | Medium | GH_PAT | Evaluate |
 | 12 | setup_project_v2.yml | 72 | Medium | GH_PAT | Evaluate |
-| 13 | setup_project_7.yml | 92 | Medium | GH_PAT | Evaluate |
-| 14 | sync_docs_to_project.yml | 225 | High | GH_PAT | Evaluate |
+| 13 | sync_docs_to_project.yml | 225 | High | GH_PAT | Evaluate |
 
 **Decision Summary:**
 - **Centralize (4):** php_quality.yml, release_pipeline.yml, deploy_staging.yml, joomla_testing.yml
@@ -1359,29 +1358,7 @@ jobs:
 
 ---
 
-### 13. setup_project_7.yml - Project #7 Specific Setup
-
-**Purpose:** Specialized setup for Project #7 with version tracking
-
-**Triggers:**
-- Manual workflow_dispatch with version parameters
-
-**Jobs:**
-- Project #7 creation/update
-- Version field configuration
-- Documentation tagging
-
-**Dependencies:**
-- Python 3.x
-- GitHub GraphQL API
-- GH_PAT secret
-- `scripts/setup_project_7.py`
-
-**Decision:** Evaluate - May merge with setup_project_v2.yml
-
----
-
-### 14. sync_docs_to_project.yml - Documentation Project Sync
+### 13. sync_docs_to_project.yml - Documentation Project Sync
 
 **Purpose:** Sync documentation files to GitHub Project items
 
@@ -1466,8 +1443,7 @@ jobs:
 | `scripts/validate/*` | ci.yml | Keep in repository (repo-specific) |
 | `scripts/docs/rebuild_indexes.py` | rebuild_docs_indexes.yml | Keep in repository |
 | `scripts/setup_project_v2.py` | setup_project_v2.yml | Evaluate for centralization |
-| `scripts/setup_project_7.py` | setup_project_7.yml | Evaluate for centralization |
-| `scripts/sync_file_to_project.py` | sync_docs_to_project.yml | Evaluate for centralization |
+| `scripts/automation/sync_file_to_project.py` | sync_docs_to_project.yml | Keep in repository |
 
 ## Migration Priority Matrix
 
@@ -1488,8 +1464,7 @@ jobs:
 10. **version_release.yml** - May integrate with release_pipeline.yml  
 11. **rebuild_docs_indexes.yml** - Repository-specific documentation
 12. **setup_project_v2.yml** - Project automation
-13. **setup_project_7.yml** - Project automation
-14. **sync_docs_to_project.yml** - Project sync
+13. **sync_docs_to_project.yml** - Project sync
 
 ## Reusable Workflow Structure
 

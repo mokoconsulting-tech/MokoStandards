@@ -123,7 +123,7 @@
   - `.github/PULL_REQUEST_TEMPLATE.md` (internal checklist)
   - `IMPLEMENTATION_SUMMARY.md`, `MERGE_SUMMARY.md`, `CONFLICT_RESOLUTION_GUIDE.md`
   - `docs/policy/copilot-prompt-projectv2-joomla-template.md` (proprietary AI prompts)
-  - Internal automation scripts: `setup_project_7.py`, `populate_project_from_scan.py`, `ensure_docs_and_project_tasks.py`, `setup_project_views.py`
+  - Internal automation scripts: `populate_project_from_scan.py`, `ensure_docs_and_project_tasks.py`, `setup_project_views.py`
 - **Created reference documents**:
   - `.github/PRIVATE_TEMPLATES.md` - GitHub templates reference
   - `PRIVATE_REPOSITORY_REFERENCE.md` - Comprehensive moved files documentation

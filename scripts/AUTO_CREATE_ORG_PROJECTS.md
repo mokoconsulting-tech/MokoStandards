@@ -363,7 +363,7 @@ jobs:
 ## See Also
 
 - [setup_github_project_v2.py](./run/setup_github_project_v2.py) - Single project setup
-- [PROJECT_7_SETUP.md](./PROJECT_7_SETUP.md) - MokoStandards Project #7 setup
+- [sync_file_to_project.py](./automation/sync_file_to_project.py) - Sync documentation files to Project #7
 - [templates/projects/README.md](../templates/projects/README.md) - Project templates documentation
 - [bulk_update_repos.py](./bulk_update_repos.py) - Bulk repository updates
 

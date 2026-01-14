@@ -30,6 +30,7 @@ This index provides navigation to documentation within this folder.
 - [scripting-standards](./scripting-standards.md)
 - [security-scanning](./security-scanning.md)
 - [vendor-risk](./vendor-risk.md)
+- [workflow-standards](./workflow-standards.md)
 
 ## Metadata
 

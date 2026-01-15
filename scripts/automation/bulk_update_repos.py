@@ -36,8 +36,16 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
+try:
+    import yaml
+except ImportError:
+    yaml = None
+
 # Default organization
 DEFAULT_ORG = "mokoconsulting-tech"
+
+# Sync override file name (located in scripts/ directory of target repo)
+SYNC_OVERRIDE_FILE = "scripts/.mokostandards-sync.yml"
 
 # Files to sync with their destination paths
 DEFAULT_FILES_TO_SYNC = {

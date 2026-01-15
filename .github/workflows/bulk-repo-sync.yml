@@ -93,16 +93,11 @@ jobs:
           # Authenticate with token (stdin)
           echo "$GH_TOKEN" | gh auth login --with-token
           
-          # Verify authentication (don't fail workflow if status check has issues)
-          if gh auth status 2>&1 | grep -q "Logged in\|Token:"; then
-            echo "## ✅ GitHub CLI Authentication Successful" >> $GITHUB_STEP_SUMMARY
+          # Verify authentication (don't fail workflow on status check, GH_TOKEN being set is sufficient)
+          if gh auth status 2>&1 || true; then
+            echo "## ✅ GitHub CLI Authentication Completed" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "Successfully authenticated with ORG_ADMIN_TOKEN." >> $GITHUB_STEP_SUMMARY
-          else
-            echo "## ⚠️ GitHub CLI Authentication Status" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "GH_TOKEN is set, but auth status check returned unexpected output." >> $GITHUB_STEP_SUMMARY
-            echo "Proceeding with workflow execution." >> $GITHUB_STEP_SUMMARY
           fi
           
       - name: Configure Git

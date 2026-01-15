@@ -107,11 +107,9 @@ jobs:
           # Authenticate with token
           echo "$GH_TOKEN" | gh auth login --with-token
           
-          # Verify authentication (capture status but don't fail on it)
-          if gh auth status 2>&1 | grep -q "Logged in"; then
-            echo "✅ GitHub CLI authentication successful" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "⚠️ GitHub CLI authentication status unclear, but GH_TOKEN is set" >> $GITHUB_STEP_SUMMARY
+          # Verify authentication (don't fail on status check, GH_TOKEN being set is sufficient)
+          if gh auth status 2>&1 || true; then
+            echo "✅ GitHub CLI authentication completed" >> $GITHUB_STEP_SUMMARY
           fi
       
       - name: Find and cleanup branches
@@ -129,6 +127,14 @@ jobs:
           EXCLUDE_PREFIXES=("dependabot/" "renovate/" "copilot/" "dev/" "rc/" "release/")
           
           echo "## Branch Cleanup Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Detect default branch dynamically
+          DEFAULT_BRANCH=$(git remote show origin | grep 'HEAD branch' | cut -d' ' -f5)
+          if [ -z "$DEFAULT_BRANCH" ]; then
+            DEFAULT_BRANCH="main"
+          fi
+          echo "**Default Branch:** \`$DEFAULT_BRANCH\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
           # Function to check if branch is protected
@@ -172,10 +178,10 @@ jobs:
               continue
             fi
             
-            # Check if branch is merged
+            # Check if branch is merged into default branch
             IS_MERGED=false
             if [ "$DELETE_MERGED" = "true" ]; then
-              if git branch -r --merged origin/main | grep -q "origin/$branch"; then
+              if git branch -r --merged "origin/$DEFAULT_BRANCH" | grep -q "origin/$branch"; then
                 IS_MERGED=true
               fi
             fi

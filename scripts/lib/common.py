@@ -41,8 +41,10 @@ Provides reusable utilities for:
 
 import os
 import sys
+import time
 from pathlib import Path
-from typing import Optional, Set, Union
+from typing import Optional, Set, Union, Callable, Any
+from functools import wraps
 
 
 # ============================================================
@@ -378,6 +380,107 @@ def is_excluded_path(path: Union[str, Path], exclusions: Set[str]) -> bool:
             return True
     
     return False
+
+
+# ============================================================
+# Enterprise Features: Retry and Rate Limiting
+# ============================================================
+
+def retry(
+    max_attempts: int = 3,
+    backoff_base: float = 2.0,
+    exceptions: tuple = (Exception,),
+    on_retry: Optional[Callable[[int, Exception], None]] = None
+):
+    """
+    Decorator for automatic retry with exponential backoff.
+    
+    Args:
+        max_attempts: Maximum number of attempts
+        backoff_base: Base for exponential backoff (seconds)
+        exceptions: Tuple of exceptions to catch and retry
+        on_retry: Optional callback function called on each retry (attempt_num, exception)
+    
+    Example:
+        @retry(max_attempts=3, backoff_base=2.0)
+        def fetch_data():
+            # Network call that might fail
+            pass
+    """
+    def decorator(func: Callable) -> Callable:
+        @wraps(func)
+        def wrapper(*args, **kwargs) -> Any:
+            last_exception = None
+            
+            for attempt in range(1, max_attempts + 1):
+                try:
+                    return func(*args, **kwargs)
+                except exceptions as e:
+                    last_exception = e
+                    
+                    if attempt < max_attempts:
+                        # Calculate backoff time
+                        backoff_time = backoff_base ** (attempt - 1)
+                        
+                        # Call retry callback if provided
+                        if on_retry:
+                            on_retry(attempt, e)
+                        else:
+                            log_warning(f"Attempt {attempt}/{max_attempts} failed: {e}")
+                            log_info(f"Retrying in {backoff_time:.1f} seconds...")
+                        
+                        time.sleep(backoff_time)
+                    else:
+                        log_error(f"All {max_attempts} attempts failed")
+            
+            # Re-raise the last exception
+            raise last_exception
+        
+        return wrapper
+    return decorator
+
+
+class RateLimiter:
+    """
+    Simple rate limiter for API calls.
+    
+    Example:
+        limiter = RateLimiter(requests_per_hour=5000)
+        
+        for item in items:
+            limiter.acquire()
+            make_api_call(item)
+    """
+    
+    def __init__(self, requests_per_hour: int = 5000):
+        """
+        Initialize rate limiter.
+        
+        Args:
+            requests_per_hour: Maximum requests per hour
+        """
+        self.requests_per_hour = requests_per_hour
+        self.min_interval = 3600.0 / requests_per_hour  # seconds between requests
+        self.last_request_time = 0.0
+    
+    def acquire(self):
+        """Acquire permission for one request (blocks if needed)"""
+        current_time = time.time()
+        elapsed = current_time - self.last_request_time
+        
+        if elapsed < self.min_interval:
+            sleep_time = self.min_interval - elapsed
+            if sleep_time > 1.0:
+                log_debug(f"Rate limiting: sleeping {sleep_time:.2f}s")
+            time.sleep(sleep_time)
+        
+        self.last_request_time = time.time()
+    
+    def can_proceed(self) -> bool:
+        """Check if we can proceed without blocking"""
+        current_time = time.time()
+        elapsed = current_time - self.last_request_time
+        return elapsed >= self.min_interval
 
 
 # ============================================================

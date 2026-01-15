@@ -16,8 +16,13 @@
 
 	"host": "example.com",
 	"user": "username",
-	//"password": "password",
+
+//Default
 	//"port": "22",
+
+//Uncomment One:
+	//"ssh_key_file": "absolute/path/to/key/file",
+	//"password": "password",
 
 	"remote_path": "/example/path/",
 	"ignore_regexes": [

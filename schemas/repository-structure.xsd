@@ -76,6 +76,7 @@
       <xs:element name="name" type="xs:string"/>
       <xs:element name="description" type="xs:string" minOccurs="0"/>
       <xs:element name="required" type="xs:boolean" default="true"/>
+      <xs:element name="always-overwrite" type="xs:boolean" default="true" minOccurs="0"/>
       <xs:element name="audience" type="rs:AudienceEnum" minOccurs="0"/>
       <xs:element name="template" type="xs:string" minOccurs="0"/>
       <xs:element name="stub-content" type="xs:string" minOccurs="0"/>

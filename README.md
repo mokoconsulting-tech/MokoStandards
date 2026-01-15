@@ -200,7 +200,7 @@ Moko Consulting uses a dual-repository strategy for centralized standards and wo
 - Confidential configurations and credentials
 - Proprietary AI prompts and automation
 
-**For Moko Consulting Internal Users**: See [PRIVATE_REPOSITORY_REFERENCE.md](PRIVATE_REPOSITORY_REFERENCE.md) for:
+**For Moko Consulting Internal Users**: See [PRIVATE_REPOSITORY_REFERENCE.md](docs/PRIVATE_REPOSITORY_REFERENCE.md) for:
 - Complete list of files in private repository
 - Access instructions for internal users
 - Public alternatives for external users

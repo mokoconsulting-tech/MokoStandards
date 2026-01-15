@@ -33,9 +33,9 @@ This CONTRIBUTING file operates alongside the following governance assets:
 * `README.md` for project overview and onboarding
 * `LICENSE` for legal terms and reuse constraints
 * `CODE_OF_CONDUCT.md` for behavioral expectations
-* `GOVERNANCE.md` (where present) for decision making, ownership, and escalation
+* [GOVERNANCE.md](docs/GOVERNANCE.md) (where present) for decision making, ownership, and escalation
 
-In case of conflict, legal terms in `LICENSE` take precedence, followed by `GOVERNANCE.md` and then this document.
+In case of conflict, legal terms in `LICENSE` take precedence, followed by [GOVERNANCE.md](docs/GOVERNANCE.md) and then this document.
 
 ## Alignment with MokoStandards
 
@@ -45,7 +45,7 @@ All Moko Consulting projects are expected to comply with the shared standards de
 * Repository inventory: [Repository Inventory](docs/REPOSITORY_INVENTORY.md) - Complete list of coupled organization repositories
 * Areas covered: headers, licensing, coding style, documentation layout, and CI expectations
 
-Per project policy, this file should reference standards rather than redefining them. Any deviation must be explicitly documented in `GOVERNANCE.md` or an architecture decision record (ADR).
+Per project policy, this file should reference standards rather than redefining them. Any deviation must be explicitly documented in [GOVERNANCE.md](docs/GOVERNANCE.md) or an architecture decision record (ADR).
 
 ## Ways to contribute
 
@@ -68,7 +68,7 @@ Typical communication paths include:
 * GitHub Discussions for design conversations, Q&A, and community engagement
 * Pull Requests for change proposals
 
-Project maintainers may document additional channels (for example, email, chat, or ticketing) in `README.md` or `GOVERNANCE.md`.
+Project maintainers may document additional channels (for example, email, chat, or ticketing) in `README.md` or [GOVERNANCE.md](docs/GOVERNANCE.md).
 
 ## Issue workflow
 
@@ -125,7 +125,7 @@ For complete details, see the [Merge Strategy Policy](docs/policy/merge-strategy
 
 ## Branching and versioning
 
-Unless specified otherwise in `GOVERNANCE.md` or a dedicated versioning policy:
+Unless specified otherwise in [GOVERNANCE.md](docs/GOVERNANCE.md) or a dedicated versioning policy:
 
 * Default development branch: `main`
 * Feature work: short lived feature branches named using a predictable convention, for example `feature/<short-description>` or `fix/<short-description>`
@@ -202,7 +202,7 @@ By submitting a contribution, you confirm that:
 * You agree that your contribution will be licensed under the project license.
 * You will not submit content that infringes third party rights.
 
-If the project later adopts a formal contributor license agreement (CLA) or additional terms, those requirements will be documented in `GOVERNANCE.md` or a dedicated `CLA` reference file.
+If the project later adopts a formal contributor license agreement (CLA) or additional terms, those requirements will be documented in [GOVERNANCE.md](docs/GOVERNANCE.md) or a dedicated `CLA` reference file.
 
 ## Escalation and decision making
 
@@ -210,6 +210,6 @@ If you disagree with a review decision or prioritization decision:
 
 1. Engage constructively in the PR discussion and request clarification.
 2. Reference any relevant governance rules or design records.
-3. Where needed, request maintainer arbitration as documented in `GOVERNANCE.md`.
+3. Where needed, request maintainer arbitration as documented in [GOVERNANCE.md](docs/GOVERNANCE.md).
 
 The objective is to maintain a collaborative, predictable contribution environment that supports long term maintainability and stakeholder trust.

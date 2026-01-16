@@ -95,8 +95,9 @@ See LICENSE file for details.
 
       <file extension="gitignore">
         <name>.gitignore</name>
-        <description>Git ignore patterns</description>
+        <description>Git ignore patterns - preserved during sync operations</description>
         <required>true</required>
+        <always-overwrite>false</always-overwrite>
         <audience>developer</audience>
       </file>
 

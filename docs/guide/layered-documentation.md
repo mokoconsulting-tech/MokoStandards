@@ -274,10 +274,12 @@ These files are **REQUIRED** for all repositories regardless of type:
 
 ## Summary Tables
 
-### All Repositories - File Requirements
+### All Repositories - Common File Requirements
 
-| File | All Repos | Joomla | Dolibarr | Notes |
-|------|-----------|--------|----------|-------|
+This table shows files that are common across all repository types, with their specific requirement level per type:
+
+| File | Generic Repos | Joomla | Dolibarr | Notes |
+|------|---------------|--------|----------|-------|
 | **README.md** | ✅ Required | ✅ Required | ✅ Required | Repository root |
 | **LICENSE** | ✅ Required | ✅ Required | ✅ Required | GPL-3.0-or-later |
 | **CHANGELOG.md** | ✅ Required | ✅ Required | ✅ Required | Version history |

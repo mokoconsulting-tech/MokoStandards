@@ -60,6 +60,125 @@
     <xs:sequence>
       <xs:element name="root-files" type="rs:FilesType" minOccurs="0"/>
       <xs:element name="directories" type="rs:DirectoriesType" minOccurs="0"/>
+      <xs:element name="repository-requirements" type="rs:RepositoryRequirementsType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Repository Requirements -->
+  <xs:complexType name="RepositoryRequirementsType">
+    <xs:sequence>
+      <xs:element name="variables" type="rs:VariablesType" minOccurs="0"/>
+      <xs:element name="secrets" type="rs:SecretsType" minOccurs="0"/>
+      <xs:element name="branch-protections" type="rs:BranchProtectionsType" minOccurs="0"/>
+      <xs:element name="repository-settings" type="rs:RepositorySettingsType" minOccurs="0"/>
+      <xs:element name="labels" type="rs:LabelsType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Variables definition -->
+  <xs:complexType name="VariablesType">
+    <xs:sequence>
+      <xs:element name="variable" type="rs:VariableType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="VariableType">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="description" type="xs:string" minOccurs="0"/>
+      <xs:element name="default-value" type="xs:string" minOccurs="0"/>
+      <xs:element name="required" type="xs:boolean" default="true"/>
+      <xs:element name="scope" type="rs:VariableScopeEnum" default="repository"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="VariableScopeEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="repository"/>
+      <xs:enumeration value="environment"/>
+      <xs:enumeration value="organization"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Secrets definition -->
+  <xs:complexType name="SecretsType">
+    <xs:sequence>
+      <xs:element name="secret" type="rs:SecretType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SecretType">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="description" type="xs:string" minOccurs="0"/>
+      <xs:element name="required" type="xs:boolean" default="true"/>
+      <xs:element name="scope" type="rs:SecretScopeEnum" default="repository"/>
+      <xs:element name="used-in" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="SecretScopeEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="repository"/>
+      <xs:enumeration value="environment"/>
+      <xs:enumeration value="organization"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Branch Protections -->
+  <xs:complexType name="BranchProtectionsType">
+    <xs:sequence>
+      <xs:element name="branch-protection" type="rs:BranchProtectionType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="BranchProtectionType">
+    <xs:sequence>
+      <xs:element name="branch-pattern" type="xs:string"/>
+      <xs:element name="require-pull-request" type="xs:boolean" default="true"/>
+      <xs:element name="required-approvals" type="xs:int" minOccurs="0"/>
+      <xs:element name="require-code-owner-review" type="xs:boolean" default="false"/>
+      <xs:element name="dismiss-stale-reviews" type="xs:boolean" default="true"/>
+      <xs:element name="require-status-checks" type="xs:boolean" default="true"/>
+      <xs:element name="required-status-checks" type="rs:StatusChecksType" minOccurs="0"/>
+      <xs:element name="enforce-admins" type="xs:boolean" default="false"/>
+      <xs:element name="restrict-pushes" type="xs:boolean" default="true"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="StatusChecksType">
+    <xs:sequence>
+      <xs:element name="check" type="xs:string" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Repository Settings -->
+  <xs:complexType name="RepositorySettingsType">
+    <xs:sequence>
+      <xs:element name="has-issues" type="xs:boolean" default="true"/>
+      <xs:element name="has-projects" type="xs:boolean" default="true"/>
+      <xs:element name="has-wiki" type="xs:boolean" default="false"/>
+      <xs:element name="has-discussions" type="xs:boolean" default="false"/>
+      <xs:element name="allow-merge-commit" type="xs:boolean" default="true"/>
+      <xs:element name="allow-squash-merge" type="xs:boolean" default="true"/>
+      <xs:element name="allow-rebase-merge" type="xs:boolean" default="false"/>
+      <xs:element name="delete-branch-on-merge" type="xs:boolean" default="true"/>
+      <xs:element name="allow-auto-merge" type="xs:boolean" default="false"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Labels -->
+  <xs:complexType name="LabelsType">
+    <xs:sequence>
+      <xs:element name="label" type="rs:LabelType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="LabelType">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="color" type="xs:string"/>
+      <xs:element name="description" type="xs:string" minOccurs="0"/>
     </xs:sequence>
   </xs:complexType>
 

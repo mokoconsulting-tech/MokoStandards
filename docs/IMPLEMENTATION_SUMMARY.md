@@ -24,9 +24,9 @@ This document summarizes the comprehensive updates made to the MokoStandards rep
 ### 2. Schema Enhancements (✓)
 
 **Files Modified:**
-- `schemas/structures/default-repository.xml`
-- `schemas/structures/waas-component.xml`
-- `schemas/structures/crm-module.xml`
+- `scripts/definitions/default-repository.xml`
+- `scripts/definitions/waas-component.xml`
+- `scripts/definitions/crm-module.xml`
 
 **Changes:**
 
@@ -160,7 +160,7 @@ All schema files now properly define:
 
 3. Validate schema files:
    ```bash
-   python3 scripts/validate/validate_structure_v2.py --schema schemas/structures/default-repository.xml
+   python3 scripts/validate/validate_structure_v2.py --schema scripts/definitions/default-repository.xml
    ```
 
 4. Test script templates:
@@ -189,7 +189,7 @@ All schema files now properly define:
 - Workflow: `.github/workflows/bulk-repo-sync.yml`
 - Automation: `scripts/automation/bulk_update_repos.py`
 - Detection: `scripts/validate/auto_detect_platform.py`
-- Schemas: `schemas/structures/*.xml`
+- Schemas: `scripts/definitions/*.xml`
 - Templates: `templates/`
 
 ## Authors

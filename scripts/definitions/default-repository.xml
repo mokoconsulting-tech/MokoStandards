@@ -417,5 +417,118 @@
         <purpose>Generated directory that should not be committed</purpose>
       </directory>
     </directories>
+
+    <!-- Repository Requirements -->
+    <repository-requirements>
+      <!-- Required Secrets -->
+      <secrets>
+        <secret>
+          <name>GITHUB_TOKEN</name>
+          <description>GitHub API token (automatically provided)</description>
+          <required>true</required>
+          <scope>repository</scope>
+          <used-in>GitHub Actions workflows</used-in>
+        </secret>
+        
+        <secret>
+          <name>CODECOV_TOKEN</name>
+          <description>Codecov upload token for code coverage reporting</description>
+          <required>false</required>
+          <scope>repository</scope>
+          <used-in>CI workflow code coverage step</used-in>
+        </secret>
+      </secrets>
+
+      <!-- Required Variables -->
+      <variables>
+        <variable>
+          <name>NODE_VERSION</name>
+          <description>Node.js version for CI/CD</description>
+          <default-value>18</default-value>
+          <required>false</required>
+          <scope>repository</scope>
+        </variable>
+        
+        <variable>
+          <name>PYTHON_VERSION</name>
+          <description>Python version for CI/CD</description>
+          <default-value>3.9</default-value>
+          <required>false</required>
+          <scope>repository</scope>
+        </variable>
+      </variables>
+
+      <!-- Branch Protections -->
+      <branch-protections>
+        <branch-protection>
+          <branch-pattern>main</branch-pattern>
+          <require-pull-request>true</require-pull-request>
+          <required-approvals>1</required-approvals>
+          <require-code-owner-review>false</require-code-owner-review>
+          <dismiss-stale-reviews>true</dismiss-stale-reviews>
+          <require-status-checks>true</require-status-checks>
+          <required-status-checks>
+            <check>ci</check>
+            <check>code-quality</check>
+          </required-status-checks>
+          <enforce-admins>false</enforce-admins>
+          <restrict-pushes>true</restrict-pushes>
+        </branch-protection>
+        
+        <branch-protection>
+          <branch-pattern>master</branch-pattern>
+          <require-pull-request>true</require-pull-request>
+          <required-approvals>1</required-approvals>
+          <require-code-owner-review>false</require-code-owner-review>
+          <dismiss-stale-reviews>true</dismiss-stale-reviews>
+          <require-status-checks>true</require-status-checks>
+          <required-status-checks>
+            <check>ci</check>
+          </required-status-checks>
+          <enforce-admins>false</enforce-admins>
+          <restrict-pushes>true</restrict-pushes>
+        </branch-protection>
+      </branch-protections>
+
+      <!-- Repository Settings -->
+      <repository-settings>
+        <has-issues>true</has-issues>
+        <has-projects>true</has-projects>
+        <has-wiki>false</has-wiki>
+        <has-discussions>false</has-discussions>
+        <allow-merge-commit>true</allow-merge-commit>
+        <allow-squash-merge>true</allow-squash-merge>
+        <allow-rebase-merge>false</allow-rebase-merge>
+        <delete-branch-on-merge>true</delete-branch-on-merge>
+        <allow-auto-merge>false</allow-auto-merge>
+      </repository-settings>
+
+      <!-- Required Labels -->
+      <labels>
+        <label>
+          <name>bug</name>
+          <color>d73a4a</color>
+          <description>Something isn't working</description>
+        </label>
+        
+        <label>
+          <name>enhancement</name>
+          <color>a2eeef</color>
+          <description>New feature or request</description>
+        </label>
+        
+        <label>
+          <name>documentation</name>
+          <color>0075ca</color>
+          <description>Improvements or additions to documentation</description>
+        </label>
+        
+        <label>
+          <name>security</name>
+          <color>ee0701</color>
+          <description>Security vulnerability or concern</description>
+        </label>
+      </labels>
+    </repository-requirements>
   </structure>
 </repository-structure>

@@ -33,10 +33,10 @@ Validates repository against a specific schema (XML or JSON format):
 
 ```bash
 # XML schema
-python3 scripts/validate/validate_structure_v2.py --schema schemas/structures/default-repository.xml
+python3 scripts/validate/validate_structure_v2.py --schema scripts/definitions/default-repository.xml
 
 # JSON schema
-python3 scripts/validate/validate_structure_v2.py --schema schemas/structures/default-repository.json
+python3 scripts/validate/validate_structure_v2.py --schema scripts/definitions/default-repository.json
 ```
 
 ## Related Documentation

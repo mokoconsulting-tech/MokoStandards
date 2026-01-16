@@ -7,7 +7,7 @@ This script automatically detects whether a repository is a:
 - Dolibarr/CRM module (by finding Dolibarr module structure)
 - Generic repository (fallback)
 
-Then loads the appropriate schema from schemas/structures/ and validates
+Then loads the appropriate schema from scripts/definitions/ and validates
 the repository structure, generating documentation files for any issues found.
 
 Usage:
@@ -301,7 +301,7 @@ class ValidationDocumentationGenerator:
 Based on detection, the following schema will be used:
 
 - **Platform:** {platform}
-- **Schema File:** `schemas/structures/{self._get_schema_filename(platform)}`
+- **Schema File:** `scripts/definitions/{self._get_schema_filename(platform)}`
 
 ## Next Steps
 

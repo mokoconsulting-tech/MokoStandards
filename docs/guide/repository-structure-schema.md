@@ -25,7 +25,7 @@ The system consists of the following components:
 - **Namespace**: `http://mokoconsulting.com/schemas/repository-structure`
 
 ### 2. Structure Definitions (XML)
-- **Location**: `schemas/structures/`
+- **Location**: `scripts/definitions/`
 - **Purpose**: Define specific repository structures (e.g., CRM modules, WaaS components)
 - **Examples**:
   - `crm-module.xml` - MokoCRM (Dolibarr) module structure
@@ -195,7 +195,7 @@ Defines the actual file and folder hierarchy:
 
 ### MokoCRM Module Structure
 
-**File**: `schemas/structures/crm-module.xml`
+**File**: `scripts/definitions/crm-module.xml`
 
 Defines the standard structure for MokoCRM (Dolibarr) modules with special emphasis on the dual-README requirement:
 
@@ -212,7 +212,7 @@ Key directories:
 
 ### MokoWaaS Component Structure
 
-**File**: `schemas/structures/waas-component.xml` (to be created)
+**File**: `scripts/definitions/waas-component.xml` (to be created)
 
 Defines the standard structure for MokoWaaS (Joomla) components.
 
@@ -222,10 +222,10 @@ Defines the standard structure for MokoWaaS (Joomla) components.
 
 ```bash
 # Validate current directory
-python scripts/validate/validate_structure.py schemas/structures/crm-module.xml
+python scripts/validate/validate_structure.py scripts/definitions/crm-module.xml
 
 # Validate specific directory
-python scripts/validate/validate_structure.py schemas/structures/crm-module.xml /path/to/repo
+python scripts/validate/validate_structure.py scripts/definitions/crm-module.xml /path/to/repo
 
 # Use with make (from project root)
 make validate-structure
@@ -247,7 +247,7 @@ The validation tool provides:
 
 ```
 Validating repository: /path/to/repo
-Against structure: schemas/structures/crm-module.xml
+Against structure: scripts/definitions/crm-module.xml
 --------------------------------------------------------------------------------
 Structure: MokoCRM Module
 Description: Standard repository structure for MokoCRM (Dolibarr) modules
@@ -297,16 +297,16 @@ Total issues: 6
 
 ```bash
 # Dry run (preview)
-python scripts/validate/generate_stubs.py schemas/structures/crm-module.xml --dry-run
+python scripts/validate/generate_stubs.py scripts/definitions/crm-module.xml --dry-run
 
 # Generate stubs in current directory
-python scripts/validate/generate_stubs.py schemas/structures/crm-module.xml
+python scripts/validate/generate_stubs.py scripts/definitions/crm-module.xml
 
 # Generate stubs in specific directory
-python scripts/validate/generate_stubs.py schemas/structures/crm-module.xml /path/to/repo
+python scripts/validate/generate_stubs.py scripts/definitions/crm-module.xml /path/to/repo
 
 # Force overwrite existing files
-python scripts/validate/generate_stubs.py schemas/structures/crm-module.xml --force
+python scripts/validate/generate_stubs.py scripts/definitions/crm-module.xml --force
 
 # Use with make (from project root)
 make generate-stubs STRUCTURE=crm-module
@@ -337,7 +337,7 @@ Available placeholders for use in `stub-content`:
 ```
 === STUB GENERATION ===
 Repository: /path/to/repo
-Structure: schemas/structures/crm-module.xml
+Structure: scripts/definitions/crm-module.xml
 Force overwrite: False
 --------------------------------------------------------------------------------
 
@@ -384,7 +384,7 @@ cd my-new-module
 
 # 2. Generate structure stubs
 python ../MokoStandards/scripts/validate/generate_stubs.py \
-    ../MokoStandards/schemas/structures/crm-module.xml
+    ../MokoStandards/scripts/definitions/crm-module.xml
 
 # 3. Review generated files
 ls -la
@@ -394,7 +394,7 @@ ls -la
 
 # 5. Validate structure
 python ../MokoStandards/scripts/validate/validate_structure.py \
-    ../MokoStandards/schemas/structures/crm-module.xml
+    ../MokoStandards/scripts/definitions/crm-module.xml
 
 # 6. Initialize git and commit
 git init
@@ -408,13 +408,13 @@ git commit -m "Initial commit with standard structure"
 # Validate against CRM module structure
 cd existing-module
 python ../MokoStandards/scripts/validate/validate_structure.py \
-    ../MokoStandards/schemas/structures/crm-module.xml
+    ../MokoStandards/scripts/definitions/crm-module.xml
 
 # Fix any errors reported
 
 # Validate again
 python ../MokoStandards/scripts/validate/validate_structure.py \
-    ../MokoStandards/schemas/structures/crm-module.xml
+    ../MokoStandards/scripts/definitions/crm-module.xml
 ```
 
 ### Example 3: Generate Missing Files Only
@@ -423,7 +423,7 @@ python ../MokoStandards/scripts/validate/validate_structure.py \
 # Generate stubs without overwriting existing files
 cd partially-complete-module
 python ../MokoStandards/scripts/validate/generate_stubs.py \
-    ../MokoStandards/schemas/structures/crm-module.xml
+    ../MokoStandards/scripts/definitions/crm-module.xml
 
 # This will create only missing files
 # Existing files will be skipped
@@ -457,7 +457,7 @@ jobs:
       - name: Validate Structure
         run: |
           python MokoStandards/scripts/validate/validate_structure.py \
-            MokoStandards/schemas/structures/crm-module.xml .
+            MokoStandards/scripts/definitions/crm-module.xml .
 ```
 
 ## Best Practices
@@ -516,7 +516,7 @@ schemas/
 
 ### Step 1: Create XML Definition
 
-Create a new XML file in `schemas/structures/`:
+Create a new XML file in `scripts/definitions/`:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -599,16 +599,16 @@ TODO: Add getting started instructions
 ```bash
 # Validate the XML against the XSD schema
 xmllint --noout --schema schemas/repository-structure.xsd \
-    schemas/structures/your-structure.xml
+    scripts/definitions/your-structure.xml
 
 # Test stub generation
 python scripts/validate/generate_stubs.py \
-    schemas/structures/your-structure.xml \
+    scripts/definitions/your-structure.xml \
     /tmp/test-repo --dry-run
 
 # Test validation
 python scripts/validate/validate_structure.py \
-    schemas/structures/your-structure.xml \
+    scripts/definitions/your-structure.xml \
     /tmp/test-repo
 ```
 
@@ -633,17 +633,17 @@ STRUCTURE_TYPE ?= crm-module
 .PHONY: validate-structure
 validate-structure:
 	python $(MOKOSTANDARDS_ROOT)/scripts/validate/validate_structure.py \
-		$(MOKOSTANDARDS_ROOT)/schemas/structures/$(STRUCTURE_TYPE).xml .
+		$(MOKOSTANDARDS_ROOT)/scripts/definitions/$(STRUCTURE_TYPE).xml .
 
 .PHONY: generate-stubs
 generate-stubs:
 	python $(MOKOSTANDARDS_ROOT)/scripts/validate/generate_stubs.py \
-		$(MOKOSTANDARDS_ROOT)/schemas/structures/$(STRUCTURE_TYPE).xml .
+		$(MOKOSTANDARDS_ROOT)/scripts/definitions/$(STRUCTURE_TYPE).xml .
 
 .PHONY: validate-structure-dry
 validate-structure-dry:
 	python $(MOKOSTANDARDS_ROOT)/scripts/validate/generate_stubs.py \
-		$(MOKOSTANDARDS_ROOT)/schemas/structures/$(STRUCTURE_TYPE).xml . --dry-run
+		$(MOKOSTANDARDS_ROOT)/scripts/definitions/$(STRUCTURE_TYPE).xml . --dry-run
 ```
 
 ### GitHub Actions Workflow
@@ -681,7 +681,7 @@ jobs:
       - name: Validate Repository Structure
         run: |
           python .mokostandards/scripts/validate/validate_structure.py \
-            .mokostandards/schemas/structures/crm-module.xml .
+            .mokostandards/scripts/definitions/crm-module.xml .
 ```
 
 ## Troubleshooting
@@ -731,7 +731,7 @@ See `schemas/repository-structure.xsd` for the complete XML Schema Definition.
 
 ### Example Structures
 
-See `schemas/structures/` directory for example structure definitions.
+See `scripts/definitions/` directory for example structure definitions.
 
 ### Related Documentation
 

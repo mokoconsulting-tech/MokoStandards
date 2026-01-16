@@ -882,9 +882,9 @@ Source and destination extensions should match intent:
 
 - [Repository Structure Schema XSD](../../../schemas/repository-structure.xsd)
 - [Repository Structure JSON Schema](../../../schemas/repository-structure.schema.json)
-- [Default Repository Structure](../../../schemas/structures/default-repository.xml)
-- [Joomla Component Structure](../../../schemas/structures/waas-component.xml)
-- [Dolibarr Module Structure](../../../schemas/structures/crm-module.xml)
+- [Default Repository Structure](../../../scripts/definitions/default-repository.xml)
+- [Joomla Component Structure](../../../scripts/definitions/waas-component.xml)
+- [Dolibarr Module Structure](../../../scripts/definitions/crm-module.xml)
 - [Validation Script Documentation](../validation/auto-detection.md)
 
 ---

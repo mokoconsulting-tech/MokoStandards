@@ -13,8 +13,8 @@ Usage:
 
 Examples:
     # Auto-detect format from file extension
-    python3 validate_structure_v2.py --schema schemas/structures/default-repository.xml
-    python3 validate_structure_v2.py --schema schemas/structures/default-repository.json
+    python3 validate_structure_v2.py --schema scripts/definitions/default-repository.xml
+    python3 validate_structure_v2.py --schema scripts/definitions/default-repository.json
     
     # Explicit format specification
     python3 validate_structure_v2.py --schema my-schema.txt --format json --repo-path /path/to/repo
@@ -364,8 +364,8 @@ def main():
     )
     parser.add_argument(
         '--schema',
-        default='schemas/structures/default-repository.xml',
-        help='Path to schema file (XML or JSON). Default: schemas/structures/default-repository.xml'
+        default='scripts/definitions/default-repository.xml',
+        help='Path to schema file (XML or JSON). Default: scripts/definitions/default-repository.xml'
     )
     parser.add_argument(
         '--format',

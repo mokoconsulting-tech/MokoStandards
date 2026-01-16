@@ -57,12 +57,9 @@ permissions:
   contents: read
 
 env:
-  # Global policy variables baked into workflow
-  ALLOWED_SFTP_PROTOCOLS: sftp
-
-  # Release policy
-  RELEASE_REQUIRED_VARS: RS_FTP_HOST,RS_FTP_USER,RS_FTP_PATH
-  RELEASE_OPTIONAL_VARS: FTP_KEY,FTP_PASSWORD,FTP_PROTOCOL,FTP_PORT,RS_FTP_PATH_SUFFIX,DEV_FTP_HOST,DEV_FTP_USER,DEV_FTP_PASSWORD,DEV_FTP_PATH,DEV_FTP_PATH_SUFFIX
+  # Release policy - Repository Variables Only
+  RELEASE_REQUIRED_REPO_VARS: RS_FTP_PATH_SUFFIX
+  RELEASE_OPTIONAL_REPO_VARS: DEV_FTP_PATH_SUFFIX
 
   # Scripts governance policy
   # Note: directories listed without a trailing slash.
@@ -78,9 +75,6 @@ env:
 
   # Extended checks toggles
   EXTENDED_CHECKS: "true"
-
-  # Operational toggles
-  SFTP_VERBOSE: "false"
 
   # File / directory variables (moved to top-level env)
   DOCS_INDEX: docs/docs-index.md
@@ -166,18 +160,7 @@ jobs:
       - name: Guardrails release vars
         env:
           PROFILE_RAW: ${{ github.event.inputs.profile }}
-          RS_FTP_HOST: ${{ secrets.RS_FTP_HOST }}
-          RS_FTP_USER: ${{ secrets.RS_FTP_USER }}
-          FTP_KEY: ${{ secrets.FTP_KEY }}
-          RS_FTP_PASSWORD: ${{ secrets.RS_FTP_PASSWORD }}
-          RS_FTP_PATH: ${{ secrets.RS_FTP_PATH }}
-          FTP_PROTOCOL: ${{ secrets.FTP_PROTOCOL }}
-          FTP_PORT: ${{ secrets.FTP_PORT }}
           RS_FTP_PATH_SUFFIX: ${{ vars.RS_FTP_PATH_SUFFIX }}
-          DEV_FTP_HOST: ${{ secrets.DEV_FTP_HOST }}
-          DEV_FTP_USER: ${{ secrets.DEV_FTP_USER }}
-          DEV_FTP_PASSWORD: ${{ secrets.DEV_FTP_PASSWORD }}
-          DEV_FTP_PATH: ${{ secrets.DEV_FTP_PATH }}
           DEV_FTP_PATH_SUFFIX: ${{ vars.DEV_FTP_PATH_SUFFIX }}
         run: |
           set -euo pipefail
@@ -193,7 +176,7 @@ jobs:
 
           if [ "${profile}" = 'scripts' ] || [ "${profile}" = 'repo' ]; then
             {
-              printf '%s\n' '### Release configuration'
+              printf '%s\n' '### Release configuration (Repository Variables)'
               printf '%s\n' "Profile: ${profile}"
               printf '%s\n' 'Status: SKIPPED'
               printf '%s\n' 'Reason: profile excludes release validation'
@@ -202,9 +185,8 @@ jobs:
             exit 0
           fi
 
-          IFS=',' read -r -a required <<< "${RELEASE_REQUIRED_VARS}"
-          IFS=',' read -r -a optional <<< "${RELEASE_OPTIONAL_VARS}"
-          IFS=',' read -r -a allowed_proto <<< "${ALLOWED_SFTP_PROTOCOLS}"
+          IFS=',' read -r -a required <<< "${RELEASE_REQUIRED_REPO_VARS}"
+          IFS=',' read -r -a optional <<< "${RELEASE_OPTIONAL_REPO_VARS}"
 
           missing=()
           missing_optional=()
@@ -219,190 +201,41 @@ jobs:
             [ -z "${v}" ] && missing_optional+=("${k}")
           done
 
-          proto="${FTP_PROTOCOL:-sftp}"
-          if [ -n "${FTP_PROTOCOL:-}" ]; then
-            ok=false
-            for ap in "${allowed_proto[@]}"; do
-              [ "${proto}" = "${ap}" ] && ok=true
-            done
-            [ "${ok}" = false ] && missing+=("FTP_PROTOCOL_INVALID")
-          fi
-
-          target_path="${RS_FTP_PATH:-}"
-          if [ -n "${RS_FTP_PATH_SUFFIX:-}" ]; then
-            target_path="${target_path%/}/${RS_FTP_PATH_SUFFIX#/}"
-          fi
-
-          dev_target_path="${DEV_FTP_PATH:-}"
-          if [ -n "${DEV_FTP_PATH_SUFFIX:-}" ]; then
-            dev_target_path="${dev_target_path%/}/${DEV_FTP_PATH_SUFFIX#/}"
-          fi
-
-          auth_method='none'
-          [ -n "${FTP_KEY:-}" ] && auth_method='key'
-          [ -z "${FTP_KEY:-}" ] && [ -n "${RS_FTP_PASSWORD:-}" ] && auth_method='password'
-
           {
-            printf '%s\n' '### Release configuration'
+            printf '%s\n' '### Release configuration (Repository Variables)'
             printf '%s\n' "Profile: ${profile}"
-            printf '%s\n' '| Control | Value |'
+            printf '%s\n' '| Variable | Status |'
             printf '%s\n' '|---|---|'
-            printf '%s\n' "| Protocol | ${proto} |"
-            printf '%s\n' "| Port | ${FTP_PORT:-22} |"
-            printf '%s\n' "| Auth | ${auth_method} |"
-            printf '%s\n' "| Release Path (resolved) | ${target_path} |"
-            printf '%s\n' "| Dev Path (resolved) | ${dev_target_path:-not configured} |"
+            printf '%s\n' "| RS_FTP_PATH_SUFFIX | ${RS_FTP_PATH_SUFFIX:-NOT SET} |"
+            printf '%s\n' "| DEV_FTP_PATH_SUFFIX | ${DEV_FTP_PATH_SUFFIX:-NOT SET} |"
             printf '\n'
           } >> "${GITHUB_STEP_SUMMARY}"
 
           if [ "${#missing_optional[@]}" -gt 0 ]; then
             {
-              printf '%s\n' '### Missing optional release configuration'
+              printf '%s\n' '### Missing optional repository variables'
               for m in "${missing_optional[@]}"; do printf '%s\n' "- ${m}"; done
-              printf '\n'
-            } >> "${GITHUB_STEP_SUMMARY}"
-          else
-            {
-              printf '%s\n' '### Optional release configuration'
-              printf '%s\n' 'None missing.'
               printf '\n'
             } >> "${GITHUB_STEP_SUMMARY}"
           fi
 
           if [ "${#missing[@]}" -gt 0 ]; then
             {
-              printf '%s\n' '### Missing required release configuration'
+              printf '%s\n' '### Missing required repository variables'
               for m in "${missing[@]}"; do printf '%s\n' "- ${m}"; done
-              printf '%s\n' 'ERROR: Guardrails failed. Missing required release configuration.'
+              printf '%s\n' 'ERROR: Guardrails failed. Missing required repository variables.'
             } >> "${GITHUB_STEP_SUMMARY}"
             exit 1
           fi
 
           {
-            printf '%s\n' '### Release configuration result'
+            printf '%s\n' '### Repository variables validation result'
             printf '%s\n' 'Status: OK'
-            printf '%s\n' 'All required release variables present.'
+            printf '%s\n' 'All required repository variables present.'
+            printf '%s\n' ''
+            printf '%s\n' '**Note**: Organization secrets (RS_FTP_HOST, RS_FTP_USER, etc.) are validated at deployment time, not in repository health checks.'
             printf '\n'
           } >> "${GITHUB_STEP_SUMMARY}"
-
-      - name: Guardrails SFTP connectivity
-        env:
-          PROFILE_RAW: ${{ github.event.inputs.profile }}
-          RS_FTP_HOST: ${{ secrets.RS_FTP_HOST }}
-          RS_FTP_USER: ${{ secrets.RS_FTP_USER }}
-          FTP_KEY: ${{ secrets.FTP_KEY }}
-          RS_FTP_PASSWORD: ${{ secrets.RS_FTP_PASSWORD }}
-          FTP_PORT: ${{ secrets.FTP_PORT }}
-          RS_FTP_PATH: ${{ secrets.RS_FTP_PATH }}
-          RS_FTP_PATH_SUFFIX: ${{ vars.RS_FTP_PATH_SUFFIX }}
-        run: |
-          set -euo pipefail
-
-          profile="${PROFILE_RAW:-all}"
-          case "${profile}" in
-            all|release|scripts|repo) ;;
-            *)
-              printf '%s\n' "ERROR: Unknown profile: ${profile}" >> "${GITHUB_STEP_SUMMARY}"
-              exit 1
-              ;;
-          esac
-
-          if [ "${profile}" = 'scripts' ] || [ "${profile}" = 'repo' ]; then
-            {
-              printf '%s\n' '### SFTP connectivity'
-              printf '%s\n' "Profile: ${profile}"
-              printf '%s\n' 'Status: SKIPPED'
-              printf '%s\n' 'Reason: profile excludes release validation'
-              printf '\n'
-            } >> "${GITHUB_STEP_SUMMARY}"
-            exit 0
-          fi
-
-          port="${FTP_PORT:-22}"
-
-          target_path="${RS_FTP_PATH}"
-          if [ -n "${RS_FTP_PATH_SUFFIX:-}" ]; then
-            target_path="${target_path%/}/${RS_FTP_PATH_SUFFIX#/}"
-          fi
-
-          sftp_verbose="${SFTP_VERBOSE:-false}"
-          sftp_v_opt=()
-          [ "${sftp_verbose}" = 'true' ] && sftp_v_opt=(-vv)
-
-          auth_method='none'
-          if [ -n "${FTP_KEY:-}" ]; then
-            auth_method='key'
-          elif [ -n "${RS_FTP_PASSWORD:-}" ]; then
-            auth_method='password'
-          fi
-
-          {
-            printf '%s\n' '### SFTP connectivity'
-            printf '%s\n' '| Control | Value |'
-            printf '%s\n' '|---|---|'
-            printf '%s\n' "| Host | ${RS_FTP_HOST} |"
-            printf '%s\n' "| User | ${RS_FTP_USER} |"
-            printf '%s\n' "| Port | ${port} |"
-            printf '%s\n' "| Auth | ${auth_method} |"
-            printf '%s\n' "| Path (resolved) | ${target_path} |"
-            printf '\n'
-          } >> "${GITHUB_STEP_SUMMARY}"
-
-          sftp_cmds="$(printf 'cd %s\npwd\nbye\n' "${target_path}")"
-
-          set +e
-          if [ -n "${FTP_KEY:-}" ]; then
-            mkdir -p "$HOME/.ssh"
-            key_file="$HOME/.ssh/ci_sftp_key"
-            printf '%s\n' "${FTP_KEY}" > "${key_file}"
-            chmod 600 "${key_file}"
-
-            if [ -n "${FTP_PASSWORD:-}" ]; then
-              first_line="$(head -n 1 "${key_file}" || true)"
-              if printf '%s\n' "${first_line}" | grep -q '^PuTTY-User-Key-File-'; then
-                {
-                  printf '%s\n' '### SFTP connectivity result'
-                  printf '%s\n' 'Status: FAILED'
-                  printf '%s\n' 'Reason: FTP_KEY appears to be a PuTTY PPK. Provide an OpenSSH private key.'
-                  printf '\n'
-                } >> "${GITHUB_STEP_SUMMARY}"
-                exit 1
-              fi
-              ssh-keygen -p -P "${RS_FTP_PASSWORD}" -N '' -f "${key_file}" >/dev/null
-            fi
-
-            printf '%s' "${sftp_cmds}" | sftp "${sftp_v_opt[@]}" -oBatchMode=yes -oStrictHostKeyChecking=no -P "${port}" -i "${key_file}" "${RS_FTP_USER}@${RS_FTP_HOST}" >/tmp/sftp_check.log 2>&1
-            sftp_rc=$?
-          elif [ -n "${RS_FTP_PASSWORD:-}" ]; then
-            command -v sshpass >/dev/null 2>&1 || (sudo apt-get update -qq && sudo apt-get install -y sshpass >/dev/null)
-            printf '%s' "${sftp_cmds}" | sshpass -p "${RS_FTP_PASSWORD}" sftp "${sftp_v_opt[@]}" -oBatchMode=no -oStrictHostKeyChecking=no -P "${port}" "${RS_FTP_USER}@${RS_FTP_HOST}" >/tmp/sftp_check.log 2>&1
-            sftp_rc=$?
-          else
-            {
-              printf '%s\n' '### SFTP connectivity result'
-              printf '%s\n' 'Status: FAILED'
-              printf '%s\n' 'Reason: No FTP_KEY or RS_FTP_PASSWORD provided for SFTP authentication.'
-              printf '\n'
-            } >> "${GITHUB_STEP_SUMMARY}"
-            exit 1
-          fi
-          set -e
-
-          {
-            printf '%s\n' '### SFTP connectivity result'
-            if [ "${sftp_rc}" -eq 0 ]; then
-              printf '%s\n' 'Status: SUCCESS'
-              printf '%s\n' 'Validated host connectivity and remote path access.'
-            else
-              printf '%s\n' "Status: FAILED (exit code ${sftp_rc})"
-              printf '\n'
-              printf '%s\n' 'Last SFTP output'
-              tail -n 60 /tmp/sftp_check.log || true
-            fi
-            printf '\n'
-          } >> "${GITHUB_STEP_SUMMARY}"
-
-          [ "${sftp_rc}" -eq 0 ] || exit 1
 
   scripts_governance:
     name: Scripts governance
@@ -850,8 +683,7 @@ jobs:
             printf '%s\n' '| Domain | Status | Notes |'
             printf '%s\n' '|---|---|---|'
             printf '%s\n' '| Access control | OK | Admin-only execution gate |'
-            printf '%s\n' '| Release configuration | OK | Variable presence and protocol gate |'
-            printf '%s\n' '| SFTP connectivity | OK | Connectivity plus remote path resolution |'
+            printf '%s\n' '| Release variables | OK | Repository variables validation |'
             printf '%s\n' '| Scripts governance | OK | Directory policy and advisory reporting |'
             printf '%s\n' '| Repo required artifacts | OK | Required, optional, disallowed enforcement |'
             printf '%s\n' '| Repo content heuristics | OK | Brand, license, changelog structure |'

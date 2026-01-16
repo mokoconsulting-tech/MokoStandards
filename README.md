@@ -212,6 +212,38 @@ Moko Consulting uses a dual-repository strategy for centralized standards and wo
 - Clear boundaries between public and internal content
 - Secure centralization of proprietary workflows
 
+### Updating `.github-private` Repository
+
+**For Moko Consulting Internal Users**: To push updates to the `.github-private` repository:
+
+1. **Clone both repositories** (if not already cloned):
+   ```bash
+   git clone https://github.com/mokoconsulting-tech/MokoStandards.git
+   git clone https://github.com/mokoconsulting-tech/.github-private.git
+   ```
+
+2. **Transfer files** from MokoStandards to `.github-private`:
+   ```bash
+   # Copy specific files or directories as needed
+   cp -r MokoStandards/path/to/file .github-private/target/path/
+   ```
+
+3. **Commit and push changes**:
+   ```bash
+   cd .github-private
+   git add .
+   git commit -m "Description of changes from MokoStandards"
+   git push origin main
+   ```
+
+4. **Update references** in organization repositories if needed using the bulk update script:
+   ```bash
+   cd MokoStandards
+   python3 scripts/automation/bulk_update_repos.py --org mokoconsulting-tech
+   ```
+
+**Note**: The `.github-private` repository is private and accessible only to Moko Consulting organization members. Ensure sensitive files are never committed to the public MokoStandards repository.
+
 ## Operating model
 
 ### Source of truth

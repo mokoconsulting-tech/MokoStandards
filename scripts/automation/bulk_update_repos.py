@@ -295,21 +295,35 @@ def set_missing_standards_options(org: str, repo: str, dry_run: bool = False) ->
     # Create path suffix variable based on lowercase repo name
     path_suffix = f"/{repo.lower()}"
     
-    # Check if FTP_PATH_SUFFIX already exists
-    existing_value = get_repository_variable(org, repo, "FTP_PATH_SUFFIX")
+    # Check if RS_FTP_PATH_SUFFIX already exists (release system)
+    existing_rs_value = get_repository_variable(org, repo, "RS_FTP_PATH_SUFFIX")
     
-    if existing_value is None:
+    if existing_rs_value is None:
         if dry_run:
-            print(f"  [DRY RUN] Would set FTP_PATH_SUFFIX = {path_suffix}")
-            return True
-        
-        print(f"  Setting FTP_PATH_SUFFIX = {path_suffix}")
-        if not set_repository_variable(org, repo, "FTP_PATH_SUFFIX", path_suffix):
-            print(f"  Warning: Failed to set FTP_PATH_SUFFIX", file=sys.stderr)
-            return False
-        print(f"  ✓ Set FTP_PATH_SUFFIX")
+            print(f"  [DRY RUN] Would set RS_FTP_PATH_SUFFIX = {path_suffix}")
+        else:
+            print(f"  Setting RS_FTP_PATH_SUFFIX = {path_suffix}")
+            if not set_repository_variable(org, repo, "RS_FTP_PATH_SUFFIX", path_suffix):
+                print(f"  Warning: Failed to set RS_FTP_PATH_SUFFIX", file=sys.stderr)
+                return False
+            print(f"  ✓ Set RS_FTP_PATH_SUFFIX")
     else:
-        print(f"  FTP_PATH_SUFFIX already exists: {existing_value}")
+        print(f"  RS_FTP_PATH_SUFFIX already exists: {existing_rs_value}")
+    
+    # Check if DEV_FTP_PATH_SUFFIX already exists (dev system)
+    existing_dev_value = get_repository_variable(org, repo, "DEV_FTP_PATH_SUFFIX")
+    
+    if existing_dev_value is None:
+        if dry_run:
+            print(f"  [DRY RUN] Would set DEV_FTP_PATH_SUFFIX = {path_suffix}")
+        else:
+            print(f"  Setting DEV_FTP_PATH_SUFFIX = {path_suffix}")
+            if not set_repository_variable(org, repo, "DEV_FTP_PATH_SUFFIX", path_suffix):
+                print(f"  Warning: Failed to set DEV_FTP_PATH_SUFFIX", file=sys.stderr)
+                return False
+            print(f"  ✓ Set DEV_FTP_PATH_SUFFIX")
+    else:
+        print(f"  DEV_FTP_PATH_SUFFIX already exists: {existing_dev_value}")
     
     return True
 
@@ -474,7 +488,7 @@ def main():
     parser.add_argument(
         '--set-standards',
         action='store_true',
-        help='Set missing standards options (repository variables like FTP_PATH_SUFFIX)'
+        help='Set missing standards options (repository variables like RS_FTP_PATH_SUFFIX and DEV_FTP_PATH_SUFFIX)'
     )
     
     args = parser.parse_args()

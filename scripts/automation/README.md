@@ -36,7 +36,17 @@ Bulk update organization repositories with workflows, scripts, and configuration
 
 **Standards Options:**
 The `--set-standards` flag automatically sets missing repository variables:
-- `FTP_PATH_SUFFIX`: Set to `/{repo_name_lowercase}` for SFTP deployment path configuration
+- `RS_FTP_PATH_SUFFIX`: Release system FTP path suffix (e.g., `/{repo_name_lowercase}`)
+- `DEV_FTP_PATH_SUFFIX`: Development system FTP path suffix (e.g., `/{repo_name_lowercase}`)
+
+**Organization Secrets Required:**
+- **Release System**: `RS_FTP_HOST`, `RS_FTP_USER`, `RS_FTP_PASSWORD`, `RS_FTP_PATH`
+- **Development System**: `DEV_FTP_HOST`, `DEV_FTP_USER`, `DEV_FTP_PASSWORD`, `DEV_FTP_PATH`
+- **Authentication**: `FTP_KEY` (optional SSH private key), `FTP_PROTOCOL`, `FTP_PORT`
+
+**System Configuration:**
+- **Release System (RS_*)**: Production SFTP deployment for stable releases
+- **Development System (DEV_*)**: Development SFTP deployment for testing and staging
 
 See also: [Bulk Repository Updates Guide](../../docs/guide/bulk-repository-updates.md)
 

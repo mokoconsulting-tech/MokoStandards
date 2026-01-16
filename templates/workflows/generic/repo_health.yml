@@ -9,10 +9,10 @@
 # DEFGROUP: GitHub.Workflow
 # INGROUP: MokoStandards.Validation
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
-# PATH: /.github/workflows/repo_health.yml (template)
+# PATH: /.github/workflows/repo_health.yml
 # VERSION: 01.00.00
-# BRIEF: Enforces repository guardrails by validating release configuration, scripts governance, and core repository health artifacts.
-# NOTE: Generic template - adapt for specific repository needs
+# BRIEF: Enforces repository guardrails by validating release configuration, scripts governance, tooling availability, and core repository health artifacts.
+# NOTE: Field is user-managed.
 # ============================================================================
 
 name: Repo Health
@@ -38,6 +38,20 @@ on:
           - release
           - scripts
           - repo
+  pull_request:
+    paths:
+      - .github/workflows/**
+      - scripts/**
+      - docs/**
+      - dev/**
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/**
+      - scripts/**
+      - docs/**
+      - dev/**
 
 permissions:
   contents: read
@@ -47,13 +61,13 @@ env:
   ALLOWED_SFTP_PROTOCOLS: sftp
 
   # Release policy
-  RELEASE_REQUIRED_VARS: FTP_HOST,FTP_USER,FTP_PATH
-  RELEASE_OPTIONAL_VARS: FTP_KEY,FTP_PASSWORD,FTP_PROTOCOL,FTP_PORT,FTP_PATH_SUFFIX
+  RELEASE_REQUIRED_VARS: RS_FTP_HOST,RS_FTP_USER,RS_FTP_PATH
+  RELEASE_OPTIONAL_VARS: FTP_KEY,FTP_PASSWORD,FTP_PROTOCOL,FTP_PORT,RS_FTP_PATH_SUFFIX,DEV_FTP_HOST,DEV_FTP_USER,DEV_FTP_PASSWORD,DEV_FTP_PATH,DEV_FTP_PATH_SUFFIX
 
   # Scripts governance policy
   # Note: directories listed without a trailing slash.
   SCRIPTS_REQUIRED_DIRS:
-  SCRIPTS_ALLOWED_DIRS: scripts,scripts/docs,scripts/fix,scripts/lib,scripts/release,scripts/run,scripts/validate
+  SCRIPTS_ALLOWED_DIRS: scripts,scripts/fix,scripts/lib,scripts/release,scripts/run,scripts/validate
 
   # Repo health policy
   # Files are listed as-is; directories must end with a trailing slash.
@@ -94,14 +108,24 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const res = await github.rest.repos.getCollaboratorPermissionLevel({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              username: context.actor,
-            });
-
-            const permission = (res?.data?.permission || "unknown").toLowerCase();
-            const allowed = permission === "admin";
+            let permission = "unknown";
+            let allowed = false;
+            
+            try {
+              const res = await github.rest.repos.getCollaboratorPermissionLevel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                username: context.actor,
+              });
+              
+              permission = (res?.data?.permission || "unknown").toLowerCase();
+              allowed = permission === "admin";
+            } catch (error) {
+              // Handle cases where actor is not a valid user (e.g., bot accounts)
+              core.warning(`Could not fetch permissions for actor '${context.actor}': ${error.message}`);
+              permission = "unknown";
+              allowed = false;
+            }
 
             core.setOutput("permission", permission);
             core.setOutput("allowed", allowed ? "true" : "false");
@@ -142,14 +166,19 @@ jobs:
       - name: Guardrails release vars
         env:
           PROFILE_RAW: ${{ github.event.inputs.profile }}
-          FTP_HOST: ${{ secrets.FTP_HOST }}
-          FTP_USER: ${{ secrets.FTP_USER }}
+          RS_FTP_HOST: ${{ secrets.RS_FTP_HOST }}
+          RS_FTP_USER: ${{ secrets.RS_FTP_USER }}
           FTP_KEY: ${{ secrets.FTP_KEY }}
-          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-          FTP_PATH: ${{ secrets.FTP_PATH }}
+          RS_FTP_PASSWORD: ${{ secrets.RS_FTP_PASSWORD }}
+          RS_FTP_PATH: ${{ secrets.RS_FTP_PATH }}
           FTP_PROTOCOL: ${{ secrets.FTP_PROTOCOL }}
           FTP_PORT: ${{ secrets.FTP_PORT }}
-          FTP_PATH_SUFFIX: ${{ vars.FTP_PATH_SUFFIX }}
+          RS_FTP_PATH_SUFFIX: ${{ vars.RS_FTP_PATH_SUFFIX }}
+          DEV_FTP_HOST: ${{ secrets.DEV_FTP_HOST }}
+          DEV_FTP_USER: ${{ secrets.DEV_FTP_USER }}
+          DEV_FTP_PASSWORD: ${{ secrets.DEV_FTP_PASSWORD }}
+          DEV_FTP_PATH: ${{ secrets.DEV_FTP_PATH }}
+          DEV_FTP_PATH_SUFFIX: ${{ vars.DEV_FTP_PATH_SUFFIX }}
         run: |
           set -euo pipefail
 
@@ -199,14 +228,19 @@ jobs:
             [ "${ok}" = false ] && missing+=("FTP_PROTOCOL_INVALID")
           fi
 
-          target_path="${FTP_PATH:-}"
-          if [ -n "${FTP_PATH_SUFFIX:-}" ]; then
-            target_path="${target_path%/}/${FTP_PATH_SUFFIX#/}"
+          target_path="${RS_FTP_PATH:-}"
+          if [ -n "${RS_FTP_PATH_SUFFIX:-}" ]; then
+            target_path="${target_path%/}/${RS_FTP_PATH_SUFFIX#/}"
+          fi
+
+          dev_target_path="${DEV_FTP_PATH:-}"
+          if [ -n "${DEV_FTP_PATH_SUFFIX:-}" ]; then
+            dev_target_path="${dev_target_path%/}/${DEV_FTP_PATH_SUFFIX#/}"
           fi
 
           auth_method='none'
           [ -n "${FTP_KEY:-}" ] && auth_method='key'
-          [ -z "${FTP_KEY:-}" ] && [ -n "${FTP_PASSWORD:-}" ] && auth_method='password'
+          [ -z "${FTP_KEY:-}" ] && [ -n "${RS_FTP_PASSWORD:-}" ] && auth_method='password'
 
           {
             printf '%s\n' '### Release configuration'
@@ -216,7 +250,8 @@ jobs:
             printf '%s\n' "| Protocol | ${proto} |"
             printf '%s\n' "| Port | ${FTP_PORT:-22} |"
             printf '%s\n' "| Auth | ${auth_method} |"
-            printf '%s\n' "| Path (resolved) | ${target_path} |"
+            printf '%s\n' "| Release Path (resolved) | ${target_path} |"
+            printf '%s\n' "| Dev Path (resolved) | ${dev_target_path:-not configured} |"
             printf '\n'
           } >> "${GITHUB_STEP_SUMMARY}"
 
@@ -253,13 +288,13 @@ jobs:
       - name: Guardrails SFTP connectivity
         env:
           PROFILE_RAW: ${{ github.event.inputs.profile }}
-          FTP_HOST: ${{ secrets.FTP_HOST }}
-          FTP_USER: ${{ secrets.FTP_USER }}
+          RS_FTP_HOST: ${{ secrets.RS_FTP_HOST }}
+          RS_FTP_USER: ${{ secrets.RS_FTP_USER }}
           FTP_KEY: ${{ secrets.FTP_KEY }}
-          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          RS_FTP_PASSWORD: ${{ secrets.RS_FTP_PASSWORD }}
           FTP_PORT: ${{ secrets.FTP_PORT }}
-          FTP_PATH: ${{ secrets.FTP_PATH }}
-          FTP_PATH_SUFFIX: ${{ vars.FTP_PATH_SUFFIX }}
+          RS_FTP_PATH: ${{ secrets.RS_FTP_PATH }}
+          RS_FTP_PATH_SUFFIX: ${{ vars.RS_FTP_PATH_SUFFIX }}
         run: |
           set -euo pipefail
 
@@ -285,9 +320,9 @@ jobs:
 
           port="${FTP_PORT:-22}"
 
-          target_path="${FTP_PATH}"
-          if [ -n "${FTP_PATH_SUFFIX:-}" ]; then
-            target_path="${target_path%/}/${FTP_PATH_SUFFIX#/}"
+          target_path="${RS_FTP_PATH}"
+          if [ -n "${RS_FTP_PATH_SUFFIX:-}" ]; then
+            target_path="${target_path%/}/${RS_FTP_PATH_SUFFIX#/}"
           fi
 
           sftp_verbose="${SFTP_VERBOSE:-false}"
@@ -297,7 +332,7 @@ jobs:
           auth_method='none'
           if [ -n "${FTP_KEY:-}" ]; then
             auth_method='key'
-          elif [ -n "${FTP_PASSWORD:-}" ]; then
+          elif [ -n "${RS_FTP_PASSWORD:-}" ]; then
             auth_method='password'
           fi
 
@@ -305,8 +340,8 @@ jobs:
             printf '%s\n' '### SFTP connectivity'
             printf '%s\n' '| Control | Value |'
             printf '%s\n' '|---|---|'
-            printf '%s\n' "| Host | ${FTP_HOST} |"
-            printf '%s\n' "| User | ${FTP_USER} |"
+            printf '%s\n' "| Host | ${RS_FTP_HOST} |"
+            printf '%s\n' "| User | ${RS_FTP_USER} |"
             printf '%s\n' "| Port | ${port} |"
             printf '%s\n' "| Auth | ${auth_method} |"
             printf '%s\n' "| Path (resolved) | ${target_path} |"
@@ -333,20 +368,20 @@ jobs:
                 } >> "${GITHUB_STEP_SUMMARY}"
                 exit 1
               fi
-              ssh-keygen -p -P "${FTP_PASSWORD}" -N '' -f "${key_file}" >/dev/null
+              ssh-keygen -p -P "${RS_FTP_PASSWORD}" -N '' -f "${key_file}" >/dev/null
             fi
 
-            printf '%s' "${sftp_cmds}" | sftp "${sftp_v_opt[@]}" -oBatchMode=yes -oStrictHostKeyChecking=no -P "${port}" -i "${key_file}" "${FTP_USER}@${FTP_HOST}" >/tmp/sftp_check.log 2>&1
+            printf '%s' "${sftp_cmds}" | sftp "${sftp_v_opt[@]}" -oBatchMode=yes -oStrictHostKeyChecking=no -P "${port}" -i "${key_file}" "${RS_FTP_USER}@${RS_FTP_HOST}" >/tmp/sftp_check.log 2>&1
             sftp_rc=$?
-          elif [ -n "${FTP_PASSWORD:-}" ]; then
+          elif [ -n "${RS_FTP_PASSWORD:-}" ]; then
             command -v sshpass >/dev/null 2>&1 || (sudo apt-get update -qq && sudo apt-get install -y sshpass >/dev/null)
-            printf '%s' "${sftp_cmds}" | sshpass -p "${FTP_PASSWORD}" sftp "${sftp_v_opt[@]}" -oBatchMode=no -oStrictHostKeyChecking=no -P "${port}" "${FTP_USER}@${FTP_HOST}" >/tmp/sftp_check.log 2>&1
+            printf '%s' "${sftp_cmds}" | sshpass -p "${RS_FTP_PASSWORD}" sftp "${sftp_v_opt[@]}" -oBatchMode=no -oStrictHostKeyChecking=no -P "${port}" "${RS_FTP_USER}@${RS_FTP_HOST}" >/tmp/sftp_check.log 2>&1
             sftp_rc=$?
           else
             {
               printf '%s\n' '### SFTP connectivity result'
               printf '%s\n' 'Status: FAILED'
-              printf '%s\n' 'Reason: No FTP_KEY or FTP_PASSWORD provided for SFTP authentication.'
+              printf '%s\n' 'Reason: No FTP_KEY or RS_FTP_PASSWORD provided for SFTP authentication.'
               printf '\n'
             } >> "${GITHUB_STEP_SUMMARY}"
             exit 1
@@ -562,16 +597,24 @@ jobs:
 
           git fetch origin --prune
 
+          dev_paths=()
           dev_branches=()
 
           # Look for remote branches matching origin/dev*.
-          # A plain origin/dev is prohibited; only dev/<something> branches are allowed.
+          # A plain origin/dev is considered invalid; we require dev/<something> branches.
           while IFS= read -r b; do
             name="${b#origin/}"
             if [ "${name}" = 'dev' ]; then
               dev_branches+=("${name}")
+            else
+              dev_paths+=("${name}")
             fi
           done < <(git branch -r --list 'origin/dev*' | sed 's/^ *//')
+
+          # If there are no dev/* branches, fail the guardrail.
+          if [ "${#dev_paths[@]}" -eq 0 ]; then
+            missing_required+=("dev/* branch (e.g. dev/01.00.00)")
+          fi
 
           # If a plain dev branch exists (origin/dev), flag it as invalid.
           if [ "${#dev_branches[@]}" -gt 0 ]; then

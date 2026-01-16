@@ -41,7 +41,7 @@ These files are **REQUIRED** for all repositories regardless of type:
 | File | Purpose | Template Location |
 |------|---------|------------------|
 | **README.md** | Repository overview and entry point | `/templates/docs/required/template-README.md` |
-| **LICENSE** | License terms (GPL-3.0-or-later) | `/templates/licenses/GPL-3.0` |
+| **LICENSE** | License terms (GPL-3.0-or-later - **default for all repo types**) | `/templates/licenses/GPL-3.0` |
 | **CHANGELOG.md** | Change tracking and release history | `/templates/docs/required/template-CHANGELOG.md` |
 | **CONTRIBUTING.md** | Contribution guidelines and workflow | `/templates/docs/required/template-CONTRIBUTING.md` |
 | **SECURITY.md** | Security vulnerability reporting | `/templates/docs/required/template-SECURITY.md` |
@@ -75,6 +75,8 @@ These files are **REQUIRED** for all repositories regardless of type:
 - Redistribution terms
 - Warranty disclaimers
 - **Note:** LICENSE file must NOT have an extension (use `LICENSE`, not `LICENSE.md` or `LICENSE.txt`)
+- **Default License:** GPL-3.0-or-later is the default for all repository types (Generic, Joomla, Dolibarr)
+- **Source:** Copy from `templates/licenses/GPL-3.0`
 
 **SECURITY.md Requirements:**
 - Supported versions
@@ -84,10 +86,17 @@ These files are **REQUIRED** for all repositories regardless of type:
 
 #### Additional Required Files by Repository Type
 
+**License Note for All Repository Types:**
+- **Default License:** GPL-3.0-or-later
+- **Source:** `templates/licenses/GPL-3.0`
+- **Required:** All Joomla, Dolibarr, and Generic repositories MUST use GPL-3.0-or-later unless explicitly approved otherwise
+- **No Extension:** LICENSE file must not have an extension
+
 **Joomla Repositories (WaaS Components):**
 
 | File | Purpose | Required |
 |------|---------|----------|
+| **LICENSE** | GPL-3.0-or-later (default, no extension) | ✅ Required |
 | **CODE_OF_CONDUCT.md** | Community code of conduct | ✅ Required |
 | **Makefile** | Build automation using MokoStandards | ✅ Required |
 | **site/controller.php** | Main site controller | ✅ Required |
@@ -102,6 +111,7 @@ These files are **REQUIRED** for all repositories regardless of type:
 
 | File | Purpose | Required |
 |------|---------|----------|
+| **LICENSE** | GPL-3.0-or-later (default, no extension) | ✅ Required |
 | **Makefile** | Build automation using MokoStandards | ✅ Required |
 | **src/README.md** | End-user documentation | ✅ Required |
 | **src/core/modules/mod{ModuleName}.class.php** | Main module descriptor | ✅ Required |

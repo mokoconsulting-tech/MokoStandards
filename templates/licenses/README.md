@@ -14,15 +14,15 @@ The following license files are maintained as authoritative sources:
 
 **SPDX Identifier**: `GPL-3.0-or-later`
 
-**Usage**: This is the **primary license** for all Moko Consulting projects unless explicitly specified otherwise.
+**Usage**: This is the **primary and default license** for all Moko Consulting projects unless explicitly specified otherwise.
 
 **Source**: Official text from Free Software Foundation (https://www.gnu.org/licenses/gpl-3.0.txt)
 
-**When to Use**:
-- All new repositories (default)
-- Software projects
-- Libraries and frameworks
-- Tools and utilities
+**Default License For**:
+- **Generic repositories** (default)
+- **Joomla/WaaS component repositories** (default)
+- **Dolibarr/CRM module repositories** (default)
+- All software projects, libraries, frameworks, tools and utilities
 
 **Repository Requirements**:
 - Copy this file to repository root as `LICENSE` (no extension)
@@ -95,6 +95,11 @@ When updating these authoritative license files:
 Is this a new Moko Consulting project?
   └─ Yes → Use GPL-3.0-or-later (default)
   └─ No → See exceptions below
+
+Project Type Default Licenses:
+  - Generic Repository → GPL-3.0-or-later
+  - Joomla/WaaS Component → GPL-3.0-or-later
+  - Dolibarr/CRM Module → GPL-3.0-or-later
 
 Exceptions requiring different licenses:
   - Third-party integration requiring MIT → Use MIT

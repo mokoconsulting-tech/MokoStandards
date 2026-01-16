@@ -67,9 +67,11 @@ See LICENSE file for details.
 
       <file extension="">
         <name>LICENSE</name>
-        <description>License file without extension</description>
+        <description>License file (GPL-3.0-or-later) - Default for Dolibarr/CRM modules</description>
         <required>true</required>
         <audience>general</audience>
+        <template>templates/licenses/GPL-3.0</template>
+        <license-type>GPL-3.0-or-later</license-type>
       </file>
 
       <file extension="md">

@@ -309,7 +309,7 @@
                 <name>ci-joomla.yml</name>
                 <description>Joomla-specific CI workflow</description>
                 <requirement-status>required</requirement-status>
-                <template>templates/workflows/joomla/ci-joomla.yml</template>
+                <template>templates/workflows/joomla/ci-joomla.yml.template</template>
               </file>
               
               <file extension="yml">

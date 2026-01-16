@@ -196,7 +196,21 @@
                 <name>ci.yml</name>
                 <description>Continuous integration workflow</description>
                 <requirement-status>suggested</requirement-status>
-                <template>templates/workflows/generic/ci.yml</template>
+                <template>templates/workflows/generic/ci.yml.template</template>
+              </file>
+              
+              <file extension="yml">
+                <name>test.yml</name>
+                <description>Comprehensive testing workflow</description>
+                <requirement-status>optional</requirement-status>
+                <template>templates/workflows/generic/test.yml.template</template>
+              </file>
+              
+              <file extension="yml">
+                <name>code-quality.yml</name>
+                <description>Code quality and linting workflow</description>
+                <requirement-status>suggested</requirement-status>
+                <template>templates/workflows/generic/code-quality.yml.template</template>
               </file>
               
               <file extension="yml">
@@ -204,6 +218,20 @@
                 <description>CodeQL security analysis workflow</description>
                 <requirement-status>suggested</requirement-status>
                 <template>templates/workflows/generic/codeql-analysis.yml.template</template>
+              </file>
+              
+              <file extension="yml">
+                <name>deploy.yml</name>
+                <description>Deployment workflow</description>
+                <requirement-status>optional</requirement-status>
+                <template>templates/workflows/generic/deploy.yml.template</template>
+              </file>
+              
+              <file extension="yml">
+                <name>repo-health.yml</name>
+                <description>Repository health monitoring</description>
+                <requirement-status>suggested</requirement-status>
+                <template>templates/workflows/generic/repo_health.yml.template</template>
               </file>
               
               <file extension="yml">

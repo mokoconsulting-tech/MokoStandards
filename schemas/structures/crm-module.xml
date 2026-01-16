@@ -315,7 +315,7 @@ See CHANGELOG.md for version history.
                 <name>ci-dolibarr.yml</name>
                 <description>Dolibarr-specific CI workflow</description>
                 <requirement-status>required</requirement-status>
-                <template>templates/workflows/dolibarr/ci-dolibarr.yml</template>
+                <template>templates/workflows/dolibarr/ci-dolibarr.yml.template</template>
               </file>
               
               <file extension="yml">

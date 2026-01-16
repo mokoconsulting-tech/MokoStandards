@@ -204,7 +204,6 @@ These files are **REQUIRED** for all repositories regardless of type:
 
 | File/Directory | Purpose | Priority |
 |----------------|---------|----------|
-| **CODE_OF_CONDUCT.md** | Not required for generic (already required for Joomla/Dolibarr) | Medium |
 | **Makefile** | Build automation | Suggested |
 | **src/** | Source code directory | Suggested |
 | **tests/** | Test files directory | Suggested |
@@ -284,7 +283,7 @@ These files are **REQUIRED** for all repositories regardless of type:
 | **CHANGELOG.md** | ✅ Required | ✅ Required | ✅ Required | Version history |
 | **CONTRIBUTING.md** | ✅ Required | ✅ Required | ✅ Required | Contribution guidelines |
 | **SECURITY.md** | ✅ Required | ✅ Required | ✅ Required | Security policy |
-| **CODE_OF_CONDUCT.md** | Suggested | ✅ Required | Suggested | Community guidelines |
+| **CODE_OF_CONDUCT.md** | ✅ Required | ✅ Required | Suggested | Community guidelines |
 | **.gitignore** | ✅ Required | ✅ Required | ✅ Required | Platform-specific |
 | **.gitattributes** | ✅ Required | ✅ Required | ✅ Required | Git configuration |
 | **.editorconfig** | ✅ Required | ✅ Required | ✅ Required | Editor configuration |
@@ -686,12 +685,12 @@ To request a documentation requirement waiver:
 
 ### File Priority Matrix
 
-| Priority | All Repos | Joomla | Dolibarr |
-|----------|-----------|--------|----------|
-| **Critical (Required)** | README, LICENSE, CHANGELOG, CONTRIBUTING, SECURITY, .gitignore, .gitattributes, .editorconfig, docs/, scripts/ | + CODE_OF_CONDUCT, Makefile, site/*, admin/*, language/, tests/unit/ | + Makefile, src/README, src/core/*, src/langs/, tests/unit/ |
+| Priority | All Repos (Generic) | Joomla | Dolibarr |
+|----------|---------------------|--------|----------|
+| **Critical (Required)** | README, LICENSE, CHANGELOG, CONTRIBUTING, SECURITY, CODE_OF_CONDUCT, .gitignore, .gitattributes, .editorconfig, docs/, scripts/ | + Makefile, site/*, admin/*, language/, tests/unit/ | + Makefile, src/README, src/core/*, src/langs/, tests/unit/ |
 | **High (Suggested)** | .github/workflows/ | site/views/, admin/views/ | src/sql/, src/class/ |
-| **Medium (Suggested)** | CODE_OF_CONDUCT, GOVERNANCE, SUPPORT | site/controllers/, admin/controllers/, media/ | src/css/, src/js/, templates/ |
-| **Low (Optional)** | Makefile, src/ | scripts/.mokostandards-sync.yml | scripts/.mokostandards-sync.yml |
+| **Medium (Suggested)** | GOVERNANCE, SUPPORT | site/controllers/, admin/controllers/, media/ | src/css/, src/js/, templates/ |
+| **Low (Optional)** | Makefile, src/, tests/ | scripts/.mokostandards-sync.yml | scripts/.mokostandards-sync.yml |
 
 ### Setup Command Quick Reference
 

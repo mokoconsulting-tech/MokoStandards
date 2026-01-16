@@ -19,6 +19,7 @@ This index provides navigation to documentation within this folder.
 - [bulk-repository-updates](./bulk-repository-updates.md)
 - [changelog-synchronization](./changelog-synchronization.md)
 - [conflict-resolution](./conflict-resolution.md)
+- [layered-documentation](./layered-documentation.md)
 - [MIGRATION_TO_MOKOSTANDARDS](./MIGRATION_TO_MOKOSTANDARDS.md)
 - [PRIVATE_REPOSITORY_REFERENCE](./PRIVATE_REPOSITORY_REFERENCE.md)
 - [project-fields](./project-fields.md)

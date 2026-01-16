@@ -102,6 +102,7 @@ Step-by-step tutorials and how-to documentation.
 - [bulk-repository-updates](./guide/bulk-repository-updates.md)
 - [changelog-synchronization](./guide/changelog-synchronization.md)
 - [conflict-resolution](./guide/conflict-resolution.md)
+- [layered-documentation](./guide/layered-documentation.md)
 - [project-fields](./guide/project-fields.md)
 - [project-views](./guide/project-views.md)
 - [repository-organization](./guide/repository-organization.md)

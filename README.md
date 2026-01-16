@@ -120,7 +120,11 @@ Ensure your repository has required files:
 # - .editorconfig
 ```
 
-See [Repository Health Scoring](docs/policy/health-scoring.md) for complete requirements.
+**Note:** Requirements vary by repository type (Generic, Joomla, Dolibarr).
+
+See [Layered Documentation Guide](docs/guide/layered-documentation.md) for complete requirements by repository type.
+
+See [Repository Health Scoring](docs/policy/health-scoring.md) for scoring details.
 
 #### 4. Configure Repository Settings
 

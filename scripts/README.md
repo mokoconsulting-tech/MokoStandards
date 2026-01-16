@@ -176,7 +176,16 @@ The repository includes `.github/workflows/bulk-repo-sync.yml` which automatical
 - Copies workflows, scripts, and configurations
 - Commits and pushes changes
 - Creates pull requests for review
-- Optionally sets missing standards options (repository variables like `FTP_PATH_SUFFIX`)
+- Optionally sets missing standards options (repository variables)
+
+**Repository Variables Set:**
+- `RS_FTP_PATH_SUFFIX` - Release system FTP path suffix (e.g., `/mokocrm`)
+- `DEV_FTP_PATH_SUFFIX` - Development system FTP path suffix (e.g., `/mokocrm`)
+
+**Organization Secrets Used:**
+- Release System: `RS_FTP_HOST`, `RS_FTP_USER`, `RS_FTP_PASSWORD`, `RS_FTP_PATH`
+- Development System: `DEV_FTP_HOST`, `DEV_FTP_USER`, `DEV_FTP_PASSWORD`, `DEV_FTP_PATH`
+- Authentication: `FTP_KEY` (optional SSH key), `FTP_PROTOCOL`, `FTP_PORT`
 
 **What gets synced:**
 - Dependabot configuration (monthly schedule for Python, JavaScript, PHP, and GitHub Actions)

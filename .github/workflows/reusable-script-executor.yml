@@ -60,10 +60,6 @@ on:
         required: false
         type: boolean
         default: true
-    secrets:
-      GITHUB_TOKEN:
-        description: 'GitHub token for authentication'
-        required: false
     outputs:
       exit_code:
         description: 'Script exit code'

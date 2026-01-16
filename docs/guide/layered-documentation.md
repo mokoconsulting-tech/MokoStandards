@@ -49,6 +49,17 @@ These files are **REQUIRED** for all repositories regardless of type:
 | **.gitattributes** | Git attributes configuration | Copy from MokoStandards |
 | **.editorconfig** | Editor configuration | Copy from MokoStandards |
 
+#### Required Directories for All Repository Types
+
+These directories are **REQUIRED** for all repositories regardless of type:
+
+| Directory | Purpose | Contents |
+|-----------|---------|----------|
+| **docs/** | Documentation directory | Project documentation, guides, architecture docs |
+| **scripts/** | Build and automation scripts | Build, deployment, maintenance scripts |
+| **src/** | Source code directory | Application source code |
+| **.github/** | GitHub-specific configuration | GitHub Actions workflows, issue templates, CODEOWNERS |
+
 **README.md Requirements:**
 - Purpose and scope
 - Installation instructions
@@ -418,6 +429,9 @@ cp /path/to/MokoStandards/templates/docs/required/template-SECURITY.md ./SECURIT
 cp /path/to/MokoStandards/.editorconfig ./
 cp /path/to/MokoStandards/.gitattributes ./
 
+# Create required directory structure
+mkdir -p docs scripts src .github/workflows tests/unit
+
 # Create required directories
 mkdir -p docs scripts tests
 
@@ -714,7 +728,7 @@ cp template-CHANGELOG.md CHANGELOG.md
 cp template-CONTRIBUTING.md CONTRIBUTING.md
 cp ../licenses/GPL-3.0 LICENSE
 cp template-SECURITY.md SECURITY.md
-mkdir -p docs scripts tests
+mkdir -p docs scripts src .github/workflows tests
 ```
 
 **Add for Joomla:**

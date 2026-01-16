@@ -119,6 +119,14 @@
         <purpose>Contains scripts for building, testing, and deploying</purpose>
       </directory>
 
+      <!-- Source directory -->
+      <directory path="src">
+        <name>src</name>
+        <description>Source code directory</description>
+        <requirement-status>required</requirement-status>
+        <purpose>Contains application source code</purpose>
+      </directory>
+
       <!-- Tests directory -->
       <directory path="tests">
         <name>tests</name>
@@ -145,7 +153,7 @@
       <directory path=".github">
         <name>.github</name>
         <description>GitHub-specific configuration</description>
-        <requirement-status>suggested</requirement-status>
+        <requirement-status>required</requirement-status>
         <purpose>Contains GitHub Actions workflows, issue templates, etc.</purpose>
 
         <subdirectories>

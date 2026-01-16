@@ -112,6 +112,13 @@
         "purpose": "Contains scripts for building, testing, and deploying"
       },
       {
+        "name": "src",
+        "path": "src",
+        "description": "Source code directory",
+        "requirementStatus": "required",
+        "purpose": "Contains application source code"
+      },
+      {
         "name": "tests",
         "path": "tests",
         "description": "Test files",
@@ -136,7 +143,7 @@
         "name": ".github",
         "path": ".github",
         "description": "GitHub-specific configuration",
-        "requirementStatus": "suggested",
+        "requirementStatus": "required",
         "purpose": "Contains GitHub Actions workflows, issue templates, etc.",
         "subdirectories": [
           {

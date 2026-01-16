@@ -92,10 +92,12 @@ cp ~/MokoStandards/.gitattributes ./
 ### Step 4: Create Required Directory Structure
 
 ```bash
-# Create required directories
+# Create required directories for all repository types
 mkdir -p docs
 mkdir -p scripts
-mkdir -p tests
+mkdir -p src
+mkdir -p .github/workflows
+mkdir -p tests/unit
 
 # Create index files
 cat > docs/index.md << 'EOF'

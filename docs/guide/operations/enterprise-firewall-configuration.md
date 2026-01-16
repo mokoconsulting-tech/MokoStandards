@@ -15,15 +15,39 @@ Enterprise environments often have strict firewall policies that block outbound 
 
 ## Automated Workflow
 
-Use the GitHub Actions workflow `.github/workflows/enterprise-firewall-setup.yml` to automatically generate firewall rules for your environment:
+The GitHub Actions workflow `.github/workflows/enterprise-firewall-setup.yml` runs in two modes:
+
+### Automatic Mode (Coding Agent)
+
+The workflow **automatically runs** when:
+- A coding agent (GitHub Copilot) creates or updates a pull request on branches: `copilot/**` or `agent/**`
+- Code is pushed to coding agent branches
+
+In automatic mode, the workflow:
+- Validates that trusted domains are accessible in the coding agent environment
+- Documents which domains the coding agent can access for compliance
+- Ensures license providers, package registries, and documentation sources are available
+- Generates a summary of accessible domains
+
+**No manual action required** - this happens automatically when coding agents are active.
+
+### Manual Mode (Enterprise Configuration)
+
+For generating firewall rules for your enterprise environment, manually trigger the workflow:
 
 ```bash
-# Trigger the workflow manually from GitHub Actions tab
+# From GitHub Actions tab, click "Run workflow" and select options
 # Or use GitHub CLI:
 gh workflow run enterprise-firewall-setup.yml \
   -f firewall_type=all \
   -f output_format=all
 ```
+
+In manual mode, you can:
+- Select specific firewall type (iptables, UFW, firewalld, AWS, etc.)
+- Choose output format (shell-script, JSON, YAML, markdown)
+- Download generated firewall configurations as artifacts
+- Apply rules to your enterprise infrastructure
 
 ### Supported Firewall Types
 

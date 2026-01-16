@@ -41,7 +41,7 @@ These files are **REQUIRED** for all repositories regardless of type:
 | File | Purpose | Template Location |
 |------|---------|------------------|
 | **README.md** | Repository overview and entry point | `/templates/docs/required/template-README.md` |
-| **LICENSE** | License terms (GPL-3.0-or-later) | `/templates/docs/required/template-LICENSE.md` |
+| **LICENSE** | License terms (GPL-3.0-or-later) | `/templates/licenses/GPL-3.0` |
 | **CHANGELOG.md** | Change tracking and release history | `/templates/docs/required/template-CHANGELOG.md` |
 | **CONTRIBUTING.md** | Contribution guidelines and workflow | `/templates/docs/required/template-CONTRIBUTING.md` |
 | **SECURITY.md** | Security vulnerability reporting | `/templates/docs/required/template-SECURITY.md` |
@@ -401,7 +401,7 @@ cd /path/to/new-repo
 cp /path/to/MokoStandards/templates/docs/required/template-README.md ./README.md
 cp /path/to/MokoStandards/templates/docs/required/template-CHANGELOG.md ./CHANGELOG.md
 cp /path/to/MokoStandards/templates/docs/required/template-CONTRIBUTING.md ./CONTRIBUTING.md
-cp /path/to/MokoStandards/templates/docs/required/template-LICENSE.md ./LICENSE
+cp /path/to/MokoStandards/templates/licenses/GPL-3.0 ./LICENSE
 cp /path/to/MokoStandards/templates/docs/required/template-SECURITY.md ./SECURITY.md
 
 # Copy configuration files
@@ -702,7 +702,7 @@ To request a documentation requirement waiver:
 cp template-README.md README.md
 cp template-CHANGELOG.md CHANGELOG.md
 cp template-CONTRIBUTING.md CONTRIBUTING.md
-cp template-LICENSE.md LICENSE
+cp ../licenses/GPL-3.0 LICENSE
 cp template-SECURITY.md SECURITY.md
 mkdir -p docs scripts tests
 ```

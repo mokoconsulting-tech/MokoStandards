@@ -24,7 +24,7 @@
         "description": "License file (GPL-3.0-or-later)",
         "requirementStatus": "required",
         "audience": "general",
-        "template": "templates/docs/required/template-LICENSE.md"
+        "template": "templates/licenses/GPL-3.0"
       },
       {
         "name": "CHANGELOG.md",

@@ -77,6 +77,9 @@ cp ~/MokoStandards/templates/docs/required/template-CONTRIBUTING.md ./CONTRIBUTI
 cp ~/MokoStandards/templates/docs/required/template-SECURITY.md ./SECURITY.md
 cp ~/MokoStandards/templates/docs/required/template-CODE_OF_CONDUCT.md ./CODE_OF_CONDUCT.md
 
+# Copy LICENSE from authoritative source (no extension!)
+cp ~/MokoStandards/templates/licenses/GPL-3.0 ./LICENSE
+
 # Copy configuration files
 cp ~/MokoStandards/.editorconfig ./
 cp ~/MokoStandards/.gitattributes ./

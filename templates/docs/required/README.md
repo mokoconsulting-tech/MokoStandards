@@ -22,7 +22,7 @@ All repositories MUST include these documentation files:
 1. **README.md** - Repository overview and entry point
 2. **CHANGELOG.md** - Change tracking and release history
 3. **CONTRIBUTING.md** - Contribution guidelines and workflow
-4. **LICENSE.md** - License terms and copyright information
+4. **LICENSE** - License terms and copyright (see templates/licenses/ for authoritative versions)
 5. **SECURITY.md** - Security vulnerability reporting and handling policy
 
 ### Template Usage
@@ -115,13 +115,13 @@ git init
 cp /templates/docs/required/template-README.md ./README.md
 cp /templates/docs/required/template-CHANGELOG.md ./CHANGELOG.md
 cp /templates/docs/required/template-CONTRIBUTING.md ./CONTRIBUTING.md
-cp /templates/docs/required/template-LICENSE.md ./LICENSE.md
+cp /templates/licenses/GPL-3.0 ./LICENSE
 cp /templates/docs/required/template-SECURITY.md ./SECURITY.md
 
 # Edit each file to complete required fields
 # Validate compliance
 # Commit to repository
-git add README.md CHANGELOG.md CONTRIBUTING.md LICENSE.md SECURITY.md
+git add README.md CHANGELOG.md CONTRIBUTING.md LICENSE SECURITY.md
 git commit -m "Add required documentation"
 ```
 
@@ -141,8 +141,10 @@ ls -1 README.md CHANGELOG.md CONTRIBUTING.md LICENSE.md SECURITY.md
 - **template-README.md** - Repository overview template
 - **template-CHANGELOG.md** - Change log template
 - **template-CONTRIBUTING.md** - Contribution guidelines template
-- **template-LICENSE.md** - License document template
 - **template-SECURITY.md** - Security policy template
+- **template-CODE_OF_CONDUCT.md** - Community code of conduct template
+
+**Note**: LICENSE templates are in `/templates/licenses/` directory (see [templates/licenses/README.md](../../licenses/README.md))
 
 ## Metadata
 

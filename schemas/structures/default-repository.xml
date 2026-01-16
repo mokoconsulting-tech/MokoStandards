@@ -27,7 +27,7 @@
         <description>License file (GPL-3.0-or-later)</description>
         <requirement-status>required</requirement-status>
         <audience>general</audience>
-        <template>templates/docs/required/template-LICENSE.md</template>
+        <template>templates/licenses/GPL-3.0</template>
       </file>
 
       <file extension="md">

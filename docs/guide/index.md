@@ -19,11 +19,15 @@ This index provides navigation to documentation within this folder.
 - [bulk-repository-updates](./bulk-repository-updates.md)
 - [changelog-synchronization](./changelog-synchronization.md)
 - [conflict-resolution](./conflict-resolution.md)
+- [MIGRATION_TO_MOKOSTANDARDS](./MIGRATION_TO_MOKOSTANDARDS.md)
+- [PRIVATE_REPOSITORY_REFERENCE](./PRIVATE_REPOSITORY_REFERENCE.md)
 - [project-fields](./project-fields.md)
 - [project-views](./project-views.md)
+- [PUBLIC_ARCHITECTURE](./PUBLIC_ARCHITECTURE.md)
 - [repository-organization](./repository-organization.md)
 - [repository-split-plan](./repository-split-plan.md)
 - [repository-structure-schema](./repository-structure-schema.md)
+- [SUPPORT](./SUPPORT.md)
 
 ## Metadata
 

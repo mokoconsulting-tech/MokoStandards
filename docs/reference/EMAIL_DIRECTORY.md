@@ -79,13 +79,13 @@ This document provides a comprehensive directory of all email addresses referenc
 **Purpose**: Compliance, auditing, regulatory matters  
 **Referenced in**:
 - `/docs/github-private/ENTERPRISE_GITHUB_SETUP.md` - Compliance contact
-- `/docs/GOVERNANCE.md` - Governance inquiries
+- `/docs/policy/GOVERNANCE.md` - Governance inquiries
 - `/docs/policy/*` - Policy compliance questions
 
 #### support@mokoconsulting.tech
 **Purpose**: General technical assistance  
 **Referenced in**:
-- `/docs/SUPPORT.md` - Support documentation
+- `/docs/guide/SUPPORT.md` - Support documentation
 - `/README.md` - User support
 
 #### sales@sublimetext.com
@@ -122,11 +122,11 @@ This document provides a comprehensive directory of all email addresses referenc
 
 ### /docs/
 
-#### /docs/SUPPORT.md
+#### /docs/guide/SUPPORT.md
 - support@mokoconsulting.tech - General support
 - dev@mokoconsulting.tech - Technical support
 
-#### /docs/GOVERNANCE.md
+#### /docs/policy/GOVERNANCE.md
 - compliance@mokoconsulting.tech - Governance inquiries
 
 #### /docs/PRIVATE_REPOSITORY_REFERENCE.md

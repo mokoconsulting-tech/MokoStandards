@@ -146,7 +146,7 @@ class modMokoExample extends DolibarrModules
         
         // Module identification
         $this->rights_class = 'mokoexample';
-        $this->family = "products";
+        $this->family = "Moko Consulting";
         $this->module_position = '1000';
         $this->name = preg_replace('/^mod/i', '', get_class($this));
         $this->description = "Example Moko module for Dolibarr";

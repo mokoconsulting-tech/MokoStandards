@@ -542,10 +542,7 @@ The MokoStandards repository itself exemplifies this golden architecture:
 
 ### Project-Specific Examples
 
-See `templates/repos/` for project-specific examples:
-
-- [Joomla Component](../../templates/repos/joomla/component/)
-- [Generic Project](../../templates/repos/generic/)
+Project-specific repository structure templates have been moved to individual scaffold repositories for better maintainability and version control. Consult the organization's scaffold repositories for platform-specific examples (Joomla, Dolibarr, generic).
 
 ## References
 

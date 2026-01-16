@@ -1,4 +1,4 @@
-# Docs Index: /docs/scripts/automation
+# Docs Index: /docs/reference
 
 ## Purpose
 
@@ -6,8 +6,10 @@ This index provides navigation to documentation within this folder.
 
 ## Documents
 
-- [guide-file-distributor](./guide-file-distributor.md)
-- [README](./README.md)
+- [EMAIL_DIRECTORY](./EMAIL_DIRECTORY.md)
+- [project-types](./project-types.md)
+- [PROJECT_TYPE_DETECTION](./PROJECT_TYPE_DETECTION.md)
+- [REPOSITORY_INVENTORY](./REPOSITORY_INVENTORY.md)
 
 ## Metadata
 

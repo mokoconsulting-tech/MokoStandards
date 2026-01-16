@@ -530,5 +530,5 @@ For different deployment scenarios, consider:
 
 - [Release Management Policy](../policy/governance/release-management.md)
 - [Repository Health Workflow](../workflows/README.md#4-standards-compliance-template-repo_healthyml)
-- [Health Scoring System](../health-scoring.md)
+- [Health Scoring System](../policy/health-scoring.md)
 - [Akeeba and Panopticon Policy](../policy/waas/akeeba-and-panopticon.md)

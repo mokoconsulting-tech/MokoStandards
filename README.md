@@ -120,7 +120,7 @@ Ensure your repository has required files:
 # - .editorconfig
 ```
 
-See [Repository Health Scoring](docs/health-scoring.md) for complete requirements.
+See [Repository Health Scoring](docs/policy/health-scoring.md) for complete requirements.
 
 #### 4. Configure Repository Settings
 
@@ -165,9 +165,9 @@ Review and update incrementally:
 - **[Scripts Catalog](scripts/README.md)** - Automation scripts and utilities
 
 #### Project Management
-- **[Repository Inventory](docs/REPOSITORY_INVENTORY.md)** - Complete list of all coupled organization repositories
-- **[Project Types](docs/project-types.md)** - Automatic project detection (Joomla, Dolibarr, Generic)
-- **[Health Scoring](docs/health-scoring.md)** - Repository quality assessment (100-point scale)
+- **[Repository Inventory](docs/reference/REPOSITORY_INVENTORY.md)** - Complete list of all coupled organization repositories
+- **[Project Types](docs/reference/project-types.md)** - Automatic project detection (Joomla, Dolibarr, Generic)
+- **[Health Scoring](docs/policy/health-scoring.md)** - Repository quality assessment (100-point scale)
 
 #### Build & Release
 - **[Build System](docs/build-system/README.md)** - Universal build system with Makefile precedence
@@ -178,7 +178,7 @@ Review and update incrementally:
 
 MokoStandards serves as the central governance repository for all Moko Consulting organization repositories. All active repositories in the `mokoconsulting-tech` organization are coupled to and governed by the standards, workflows, and requirements defined here.
 
-For a complete list of coupled repositories, compliance requirements, and coupling mechanisms, see [Repository Inventory](docs/REPOSITORY_INVENTORY.md).
+For a complete list of coupled repositories, compliance requirements, and coupling mechanisms, see [Repository Inventory](docs/reference/REPOSITORY_INVENTORY.md).
 
 ### Dual-Repository Architecture
 
@@ -200,7 +200,7 @@ Moko Consulting uses a dual-repository strategy for centralized standards and wo
 - Confidential configurations and credentials
 - Proprietary AI prompts and automation
 
-**For Moko Consulting Internal Users**: See [PRIVATE_REPOSITORY_REFERENCE.md](docs/PRIVATE_REPOSITORY_REFERENCE.md) for:
+**For Moko Consulting Internal Users**: See [PRIVATE_REPOSITORY_REFERENCE.md](docs/guide/PRIVATE_REPOSITORY_REFERENCE.md) for:
 - Complete list of files in private repository
 - Access instructions for internal users
 - Public alternatives for external users
@@ -383,24 +383,6 @@ This repository is organized to separate enforceable standards from reusable tem
     * Example validation, CI, and utility scripts.
     * Intended for reuse, vendoring, or adaptation.
 
-  * [`templates/repos/`](templates/repos/index.md)
-
-    * Reference repository layouts by platform or domain.
-
-    * [`templates/repos/joomla/`](templates/repos/joomla/index.md)
-
-      * Joomla specific reference layouts.
-
-      * [`templates/repos/joomla/component/`](templates/repos/joomla/component/index.md)
-
-        * Joomla component reference repository.
-        * Demonstrates manifests, packaging, docs, and CI integration.
-
-    * [`templates/repos/generic/`](templates/repos/generic/index.md)
-
-      * Platform agnostic reference repository layout.
-      * Used when no domain specific scaffold applies.
-
 ### Documentation templates
 
 * [`templates/docs/`](templates/docs/index.md)
@@ -432,20 +414,6 @@ This repository is organized to separate enforceable standards from reusable tem
   * Pull request templates
   * Internal workflow configurations
   * Separation ensures confidential organizational templates remain private
-
-### Repository reference layouts
-
-* [`templates/repos/joomla/component/`](templates/repos/joomla/component/index.md)
-
-  * Reference repository layout for Joomla components.
-  * Demonstrates expected folder structure, manifest placement, documentation layout, and CI integration points.
-  * Does not replace Joomla specific standards documents.
-
-* [`templates/repos/generic/`](templates/repos/generic/index.md)
-
-  * Reference repository layout for non Joomla and non Dolibarr projects.
-  * Serves as a baseline when no domain specific scaffold applies.
-  * Emphasizes portability, minimal assumptions, and CI friendliness.
 
 ### Design principles
 

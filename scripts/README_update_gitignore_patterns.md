@@ -122,7 +122,7 @@ This script is integrated into the repository health scoring system. The health 
 - **Category**: Required Documentation
 - **Impact**: Contributes to overall repository health score
 
-See [health-scoring.md](../docs/health-scoring.md) for more details on repository health scoring.
+See [health-scoring.md](../docs/policy/health-scoring.md) for more details on repository health scoring.
 
 ## Best Practices
 
@@ -166,7 +166,7 @@ If you encounter issues or have suggestions for improving this script:
 
 ## See Also
 
-- [Repository Health Scoring](../docs/health-scoring.md)
+- [Repository Health Scoring](../docs/policy/health-scoring.md)
 - [.gitignore Templates](../templates/repos/)
 - [Bulk Repository Updates Guide](../docs/guide/bulk-repository-updates.md)
 

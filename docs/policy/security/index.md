@@ -10,6 +10,7 @@ This index provides navigation to documentation within this folder.
 - [audit-logging-monitoring](./audit-logging-monitoring.md)
 - [backup-recovery](./backup-recovery.md)
 - [data-privacy-gdpr-compliance](./data-privacy-gdpr-compliance.md)
+- [directory-listing-prevention](./directory-listing-prevention.md)
 - [disaster-recovery-business-continuity](./disaster-recovery-business-continuity.md)
 - [encryption-standards](./encryption-standards.md)
 - [vulnerability-management](./vulnerability-management.md)

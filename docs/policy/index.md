@@ -18,6 +18,7 @@ This index provides navigation to documentation within this folder.
 
 - [branching-strategy](./branching-strategy.md)
 - [change-management](./change-management.md)
+- [code-review-guidelines](./code-review-guidelines.md)
 - [coding-style-guide](./coding-style-guide.md)
 - [data-classification](./data-classification.md)
 - [dependency-management](./dependency-management.md)
@@ -25,6 +26,9 @@ This index provides navigation to documentation within this folder.
 - [document-formatting](./document-formatting.md)
 - [documentation-governance](./documentation-governance.md)
 - [file-header-standards](./file-header-standards.md)
+- [GOVERNANCE](./GOVERNANCE.md)
+- [health-scoring](./health-scoring.md)
+- [license-compliance](./license-compliance.md)
 - [merge-strategy](./merge-strategy.md)
 - [risk-register](./risk-register.md)
 - [scripting-standards](./scripting-standards.md)

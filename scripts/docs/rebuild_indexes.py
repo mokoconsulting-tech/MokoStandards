@@ -147,7 +147,9 @@ def generate_catalog_content(root_path: Path) -> str:
         'Guides': [],
         'Checklists': [],
         'Glossaries': [],
-        'Product Documentation': []
+        'Product Documentation': [],
+        'Reference': [],
+        'Reports': []
     }
     
     # Walk through all documentation
@@ -177,6 +179,10 @@ def generate_catalog_content(root_path: Path) -> str:
                     categories['Glossaries'].append((display_name, rel_file_path, path_str))
                 elif path_str.startswith('products'):
                     categories['Product Documentation'].append((display_name, rel_file_path, path_str))
+                elif path_str.startswith('reference'):
+                    categories['Reference'].append((display_name, rel_file_path, path_str))
+                elif path_str.startswith('reports'):
+                    categories['Reports'].append((display_name, rel_file_path, path_str))
     
     # Add Policies section
     add_section_with_subdirs(
@@ -200,7 +206,9 @@ def generate_catalog_content(root_path: Path) -> str:
     for category_name, items in [
         ('Checklists', categories['Checklists']),
         ('Glossaries', categories['Glossaries']),
-        ('Product Documentation', categories['Product Documentation'])
+        ('Product Documentation', categories['Product Documentation']),
+        ('Reference', categories['Reference']),
+        ('Reports', categories['Reports'])
     ]:
         if items:
             lines.append(f"## {category_name}")
@@ -220,6 +228,8 @@ def generate_catalog_content(root_path: Path) -> str:
         "- [guide/](./guide/index.md) - How-to guides and tutorials",
         "- [policy/](./policy/index.md) - Policies and standards",
         "- [products/](./products/index.md) - Product-specific documentation",
+        "- [reference/](./reference/index.md) - Technical references and directories",
+        "- [reports/](./reports/index.md) - Reports and status documents",
         "",
     ])
     

@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Templates
 INGROUP: MokoStandards
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /templates/index.md
-VERSION: 02.00.00
+VERSION: 02.02.00
 BRIEF: Comprehensive catalog of all templates in MokoStandards
 -->
 
@@ -61,19 +61,6 @@ GitHub Actions workflow templates for CI/CD automation.
 - Standards compliance validation
 
 **Documentation**: [workflows/README.md](./workflows/README.md)
-
-### Repositories (`repos/`)
-
-Reference repository structures by project type.
-
-**Categories:**
-- **Joomla**: Joomla component/module/plugin structures
-- **Dolibarr**: Dolibarr module structures
-- **Generic**: Platform-agnostic project structures
-
-**Purpose**: Demonstrate ideal repository organization and file placement
-
-**Documentation**: [repos/index.md](./repos/index.md)
 
 ### Configurations (`configs/`)
 
@@ -138,6 +125,32 @@ Build system templates and configurations.
 
 **Documentation**: [build/README.md](./build/README.md)
 
+### Security (`security/`)
+
+Security templates for directory listing prevention and web server protection.
+
+**Templates:**
+- `index.html` - Static HTML redirect template (all projects)
+- `index.php` - PHP server-side redirect template (PHP projects)
+
+**Purpose**: 
+- Prevent directory listing exposure on web servers
+- Redirect unauthorized access to repository root
+- Provide dual-layer protection for PHP-based projects
+
+**Usage:**
+```bash
+# For PHP projects (e.g., Dolibarr/MokoCRM)
+find src -type d -exec sh -c 'cp templates/security/index.html "$1" && cp templates/security/index.php "$1"' _ {} \;
+
+# For non-PHP projects
+find src -type d -exec cp templates/security/index.html {} \;
+```
+
+**Policy**: [SEC-DIR-001 Directory Listing Prevention](../docs/policy/security/directory-listing-prevention.md)
+
+**Documentation**: [security/README.md](./security/README.md)
+
 ### Projects (`projects/`)
 
 Project management and planning templates.
@@ -183,21 +196,30 @@ When customizing templates:
 ### Template Selection Guide
 
 **For New Repositories:**
-- Start with repository structure template from `repos/`
+- Review [Repository Organization Guide](../docs/guide/repository-organization.md) for structure
 - Add documentation templates from `docs/`
 - Copy workflow templates from `workflows/`
 - Add configuration templates from `configs/`
+- Apply security templates from `security/` to src directories
 
 **For Existing Repositories:**
 - Identify gaps in current structure
 - Add missing documentation from `docs/`
 - Integrate workflows from `workflows/`
 - Adopt configuration standards from `configs/`
+- Apply security templates from `security/` to src directories
 
 **For Standards Compliance:**
 - Use templates to meet minimum requirements
 - Validate against policies in `/docs/policy/`
 - Run compliance checks after implementation
+
+**For Security Hardening:**
+- Apply `security/index.html` to all src directories (required)
+- Apply `security/index.php` to all src directories in PHP projects (required)
+- Refer to [SEC-DIR-001](../docs/policy/security/directory-listing-prevention.md) for requirements
+
+**Note:** Repository structure templates have been moved to individual scaffold repositories. See the [Repository Organization Guide](../docs/guide/repository-organization.md) for details.
 
 ## Template Organization
 
@@ -211,11 +233,6 @@ templates/
 │   ├── dolibarr/        # Dolibarr-specific workflows
 │   ├── generic/         # Platform-agnostic workflows
 │   └── README.md
-├── repos/                # Repository structure templates
-│   ├── joomla/          # Joomla repository layouts
-│   ├── dolibarr/        # Dolibarr repository layouts
-│   ├── generic/         # Generic repository layouts
-│   └── index.md
 ├── configs/              # Configuration file templates
 │   ├── .editorconfig
 │   ├── .gitignore
@@ -231,6 +248,10 @@ templates/
 │   ├── PULL_REQUEST_TEMPLATE.md
 │   ├── CODEOWNERS.template
 │   └── README.md
+├── security/             # Security templates
+│   ├── index.html       # Static redirect template
+│   ├── index.php        # PHP redirect template
+│   └── README.md
 ├── scripts/              # Script templates
 │   └── index.md
 ├── build/                # Build system templates
@@ -238,6 +259,8 @@ templates/
 └── projects/             # Project management templates
     └── README.md
 ```
+
+**Note:** Repository structure templates (formerly in `repos/`) have been moved to individual scaffold repositories for better maintainability.
 
 ### Naming Conventions
 
@@ -360,3 +383,5 @@ To contribute new templates or improvements:
 | -------- | ---------- | ------------------------------- | ----------------------------------------------- |
 | 01.00.00 | 2025-01-XX | rebuild_indexes.py              | Auto-generated initial index                    |
 | 02.00.00 | 2026-01-13 | GitHub Copilot                  | Comprehensive templates catalog creation        |
+| 02.01.00 | 2026-01-16 | GitHub Copilot                  | Added security templates section and reorganized for usability |
+| 02.02.00 | 2026-01-16 | GitHub Copilot                  | Removed repos/ - moved to individual scaffold repositories |

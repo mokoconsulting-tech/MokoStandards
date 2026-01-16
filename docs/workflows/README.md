@@ -348,7 +348,7 @@ on:
 
 ## Platform Detection
 
-Workflows use automatic project type detection based on file presence. See [Project Type Detection](../project-types.md) for complete details.
+Workflows use automatic project type detection based on file presence. See [Project Type Detection](../reference/project-types.md) for complete details.
 
 ### Quick Reference
 
@@ -466,7 +466,7 @@ All workflows follow MokoStandards requirements:
 
 ## Integration with Health Scoring
 
-These workflows contribute to the [Health Scoring System](../health-scoring.md):
+These workflows contribute to the [Health Scoring System](../policy/health-scoring.md):
 
 - **CI/CD Status**: 15 points - CI workflow passing
 - **Workflows**: 10 points - Required workflows present
@@ -497,7 +497,7 @@ These workflows contribute to the [Health Scoring System](../health-scoring.md):
 1. Review workflow logs in GitHub Actions UI
 2. Check step summaries for detailed errors
 3. Validate scripts locally before CI
-4. Refer to [Project Types Documentation](../project-types.md)
+4. Refer to [Project Types Documentation](../reference/project-types.md)
 5. Consult [SFTP Deployment Guide](../deployment/sftp.md)
 
 For issues with templates:
@@ -528,9 +528,9 @@ For issues with templates:
 
 - [Build System Documentation](../build-system/README.md)
 - [Release Management Documentation](../release-management/README.md)
-- [Health Scoring System](../health-scoring.md)
+- [Health Scoring System](../policy/health-scoring.md)
 - [SFTP Deployment Guide](../deployment/sftp.md)
-- [Project Type Detection](../project-types.md)
+- [Project Type Detection](../reference/project-types.md)
 - [Repository Structure Schema](../guide/repository-structure-schema.md)
 - [Workflow Templates (Technical)](../../templates/workflows/README.md)
 - [Public Workflow Templates](../../.github/workflow-templates/)

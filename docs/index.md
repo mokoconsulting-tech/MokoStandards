@@ -11,8 +11,10 @@ This is a comprehensive catalog of all documentation in the MokoStandards reposi
 
 Standards, requirements, and compliance documentation.
 
+- [GOVERNANCE](./policy/GOVERNANCE.md)
 - [branching-strategy](./policy/branching-strategy.md)
 - [change-management](./policy/change-management.md)
+- [code-review-guidelines](./policy/code-review-guidelines.md)
 - [coding-style-guide](./policy/coding-style-guide.md)
 - [data-classification](./policy/data-classification.md)
 - [dependency-management](./policy/dependency-management.md)
@@ -20,12 +22,14 @@ Standards, requirements, and compliance documentation.
 - [document-formatting](./policy/document-formatting.md)
 - [documentation-governance](./policy/documentation-governance.md)
 - [file-header-standards](./policy/file-header-standards.md)
+- [health-scoring](./policy/health-scoring.md)
+- [license-compliance](./policy/license-compliance.md)
 - [merge-strategy](./policy/merge-strategy.md)
 - [risk-register](./policy/risk-register.md)
 - [scripting-standards](./policy/scripting-standards.md)
 - [security-scanning](./policy/security-scanning.md)
 - [vendor-risk](./policy/vendor-risk.md)
-- [workflow-standards](./policy/workflow-standards.md) - GitHub Actions workflow governance
+- [workflow-standards](./policy/workflow-standards.md)
 
 ### CRM
 
@@ -60,6 +64,7 @@ Standards, requirements, and compliance documentation.
 - [audit-logging-monitoring](./policy/security/audit-logging-monitoring.md)
 - [backup-recovery](./policy/security/backup-recovery.md)
 - [data-privacy-gdpr-compliance](./policy/security/data-privacy-gdpr-compliance.md)
+- [directory-listing-prevention](./policy/security/directory-listing-prevention.md)
 - [disaster-recovery-business-continuity](./policy/security/disaster-recovery-business-continuity.md)
 - [encryption-standards](./policy/security/encryption-standards.md)
 - [vulnerability-management](./policy/security/vulnerability-management.md)
@@ -88,6 +93,10 @@ Standards, requirements, and compliance documentation.
 
 Step-by-step tutorials and how-to documentation.
 
+- [MIGRATION_TO_MOKOSTANDARDS](./guide/MIGRATION_TO_MOKOSTANDARDS.md)
+- [PRIVATE_REPOSITORY_REFERENCE](./guide/PRIVATE_REPOSITORY_REFERENCE.md)
+- [PUBLIC_ARCHITECTURE](./guide/PUBLIC_ARCHITECTURE.md)
+- [SUPPORT](./guide/SUPPORT.md)
 - [audit-readiness](./guide/audit-readiness.md)
 - [branching-quick-reference](./guide/branching-quick-reference.md)
 - [bulk-repository-updates](./guide/bulk-repository-updates.md)
@@ -95,7 +104,7 @@ Step-by-step tutorials and how-to documentation.
 - [conflict-resolution](./guide/conflict-resolution.md)
 - [project-fields](./guide/project-fields.md)
 - [project-views](./guide/project-views.md)
-- [repository-organization](./guide/repository-organization.md) - Golden architecture pattern
+- [repository-organization](./guide/repository-organization.md)
 - [repository-split-plan](./guide/repository-split-plan.md)
 - [repository-structure-schema](./guide/repository-structure-schema.md)
 
@@ -121,35 +130,45 @@ Step-by-step tutorials and how-to documentation.
 
 - [pre-deployment](./checklist/pre-deployment.md)
 - [release](./checklist/release.md)
-- [repository-setup](./checklist/repository-setup.md) - Comprehensive repository setup checklist
+- [repository-setup](./checklist/repository-setup.md)
 - [security-review](./checklist/security-review.md)
 
 ## Glossaries
 
 - [technical-terms](./glossary/technical-terms.md)
 
-## Architecture Decision Records (ADR)
-
-Significant architectural decisions and their rationale.
-
-- [ADR Index](./adr/index.md) - Complete list of architecture decisions
-- [ADR Template](./adr/template.md) - Template for creating new ADRs
-
 ## Product Documentation
 
 - [glossary](./products/mokocrm/glossary.md)
 - [glossary](./products/mokowaas/glossary.md)
 
+## Reference
+
+- [EMAIL_DIRECTORY](./reference/EMAIL_DIRECTORY.md)
+- [PROJECT_TYPE_DETECTION](./reference/PROJECT_TYPE_DETECTION.md)
+- [REPOSITORY_INVENTORY](./reference/REPOSITORY_INVENTORY.md)
+- [project-types](./reference/project-types.md)
+
+## Reports
+
+- [ENTERPRISE-READINESS](./reports/ENTERPRISE-READINESS.md)
+- [ENTERPRISE_READINESS_SCRIPTS](./reports/ENTERPRISE_READINESS_SCRIPTS.md)
+- [ENTERPRISE_READINESS_SUMMARY](./reports/ENTERPRISE_READINESS_SUMMARY.md)
+- [IMPLEMENTATION_SUMMARY](./reports/IMPLEMENTATION_SUMMARY.md)
+- [SCRIPT_DOCUMENTATION_SUMMARY](./reports/SCRIPT_DOCUMENTATION_SUMMARY.md)
+- [SECURITY_NOTES_REPO_HEALTH](./reports/SECURITY_NOTES_REPO_HEALTH.md)
+
 ## Directory Structure
 
 Browse documentation by folder:
 
-- [adr/](./adr/index.md) - Architecture Decision Records
 - [checklist/](./checklist/index.md) - Checklists and procedures
 - [glossary/](./glossary/index.md) - Terminology definitions
 - [guide/](./guide/index.md) - How-to guides and tutorials
 - [policy/](./policy/index.md) - Policies and standards
 - [products/](./products/index.md) - Product-specific documentation
+- [reference/](./reference/index.md) - Technical references and directories
+- [reports/](./reports/index.md) - Reports and status documents
 
 ## Metadata
 

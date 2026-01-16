@@ -527,7 +527,7 @@ jobs:
 
 - [Project Type Detection](PROJECT_TYPE_DETECTION.md)
 - [Migration Guide](MIGRATION_TO_MOKOSTANDARDS.md)
-- [Health Scoring](health-scoring.md)
+- [Health Scoring](../policy/health-scoring.md)
 - [Reusable Workflows](../.github/workflows/REUSABLE_WORKFLOWS.md)
 
 ## Contributing

@@ -51,8 +51,8 @@ Use GitHub Issues for:
 
 1. Search existing issues to avoid duplicates
 2. Review documentation in `/docs/`
-3. Check the [CHANGELOG.md](CHANGELOG.md) for recent changes
-4. Consult the [ROADMAP.md](docs/ROADMAP.md) for planned features
+3. Check the [CHANGELOG.md](../../CHANGELOG.md) for recent changes
+4. Consult the [ROADMAP.md](../ROADMAP.md) for planned features
 
 **Issue Quality Requirements**:
 
@@ -98,7 +98,7 @@ Use email for:
 
 **DO NOT** use GitHub Issues or public channels for security vulnerabilities.
 
-See [SECURITY.md](SECURITY.md) for security-specific reporting procedures.
+See [SECURITY.md](../../SECURITY.md) for security-specific reporting procedures.
 
 ## Support Boundaries
 
@@ -155,7 +155,7 @@ For general questions, design discussions, and community engagement, use [GitHub
 
 ### Contributing
 
-Community contributions are encouraged. See [CONTRIBUTING.md](CONTRIBUTING.md) for:
+Community contributions are encouraged. See [CONTRIBUTING.md](../../CONTRIBUTING.md) for:
 
 * Contribution workflow
 * Branch and commit conventions
@@ -211,14 +211,14 @@ Before requesting support, please review:
 
 ### Documentation Structure
 
-* [`README.md`](README.md) - Repository overview and quick start
-* [`/docs/`](docs/index.md) - Comprehensive standards documentation
-  * [`/docs/policy/`](docs/policy/index.md) - Binding policy documents
-  * [`/docs/guide/`](docs/guide/index.md) - Implementation guidance
-  * [`/docs/checklist/`](docs/checklist/index.md) - Compliance checklists
-* [`CONTRIBUTING.md`](CONTRIBUTING.md) - Contribution guidelines
-* [`CHANGELOG.md`](CHANGELOG.md) - Version history and changes
-* [`docs/ROADMAP.md`](docs/ROADMAP.md) - Future plans and priorities
+* [`README.md`](../../README.md) - Repository overview and quick start
+* [`/docs/`](../index.md) - Comprehensive standards documentation
+  * [`/docs/policy/`](../policy/index.md) - Binding policy documents
+  * [`/docs/guide/`](../guide/index.md) - Implementation guidance
+  * [`/docs/checklist/`](../checklist/index.md) - Compliance checklists
+* [`CONTRIBUTING.md`](../../CONTRIBUTING.md) - Contribution guidelines
+* [`CHANGELOG.md`](../../CHANGELOG.md) - Version history and changes
+* [`docs/ROADMAP.md`](../ROADMAP.md) - Future plans and priorities
 
 ### Common Resources
 
@@ -237,7 +237,7 @@ We continuously improve our support processes. Feedback on support experience is
 
 ## Governance
 
-This support policy is governed by the MokoStandards framework and may only be modified through the approved governance process defined in [GOVERNANCE.md](GOVERNANCE.md).
+This support policy is governed by the MokoStandards framework and may only be modified through the approved governance process defined in [GOVERNANCE.md](../policy/GOVERNANCE.md).
 
 ---
 

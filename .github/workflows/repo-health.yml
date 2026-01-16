@@ -302,7 +302,7 @@ jobs:
             ### Next Steps
             
             Please address the issues identified above to improve the repository health score.
-            For more information, see the [Health Scoring Documentation](../docs/health-scoring.md).
+            For more information, see the [Health Scoring Documentation](../docs/policy/health-scoring.md).
             
             ---
             *This issue was automatically created by the Repository Health Check workflow.*

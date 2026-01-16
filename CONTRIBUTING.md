@@ -42,7 +42,7 @@ In case of conflict, legal terms in `LICENSE` take precedence, followed by [GOVE
 All Moko Consulting projects are expected to comply with the shared standards defined in the `MokoStandards` repository.
 
 * Source of truth: [https://github.com/mokoconsulting-tech/MokoStandards](https://github.com/mokoconsulting-tech/MokoStandards)
-* Repository inventory: [Repository Inventory](docs/REPOSITORY_INVENTORY.md) - Complete list of coupled organization repositories
+* Repository inventory: [Repository Inventory](docs/reference/REPOSITORY_INVENTORY.md) - Complete list of coupled organization repositories
 * Areas covered: headers, licensing, coding style, documentation layout, and CI expectations
 
 Per project policy, this file should reference standards rather than redefining them. Any deviation must be explicitly documented in [GOVERNANCE.md](docs/policy/GOVERNANCE.md) or an architecture decision record (ADR).

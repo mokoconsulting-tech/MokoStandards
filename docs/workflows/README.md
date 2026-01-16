@@ -466,7 +466,7 @@ All workflows follow MokoStandards requirements:
 
 ## Integration with Health Scoring
 
-These workflows contribute to the [Health Scoring System](../health-scoring.md):
+These workflows contribute to the [Health Scoring System](../policy/health-scoring.md):
 
 - **CI/CD Status**: 15 points - CI workflow passing
 - **Workflows**: 10 points - Required workflows present
@@ -528,7 +528,7 @@ For issues with templates:
 
 - [Build System Documentation](../build-system/README.md)
 - [Release Management Documentation](../release-management/README.md)
-- [Health Scoring System](../health-scoring.md)
+- [Health Scoring System](../policy/health-scoring.md)
 - [SFTP Deployment Guide](../deployment/sftp.md)
 - [Project Type Detection](../reference/project-types.md)
 - [Repository Structure Schema](../guide/repository-structure-schema.md)

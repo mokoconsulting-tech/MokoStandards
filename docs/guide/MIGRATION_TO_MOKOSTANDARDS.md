@@ -513,7 +513,7 @@ Track and optimize workflow execution time:
 
 - [Project Type Detection](PROJECT_TYPE_DETECTION.md)
 - [Public Architecture](PUBLIC_ARCHITECTURE.md)
-- [Health Scoring](health-scoring.md)
+- [Health Scoring](../policy/health-scoring.md)
 - [Reusable Workflows](../.github/workflows/REUSABLE_WORKFLOWS.md)
 
 ### Community Support

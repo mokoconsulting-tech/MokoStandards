@@ -120,7 +120,7 @@ Ensure your repository has required files:
 # - .editorconfig
 ```
 
-See [Repository Health Scoring](docs/health-scoring.md) for complete requirements.
+See [Repository Health Scoring](docs/policy/health-scoring.md) for complete requirements.
 
 #### 4. Configure Repository Settings
 
@@ -165,9 +165,9 @@ Review and update incrementally:
 - **[Scripts Catalog](scripts/README.md)** - Automation scripts and utilities
 
 #### Project Management
-- **[Repository Inventory](docs/REPOSITORY_INVENTORY.md)** - Complete list of all coupled organization repositories
+- **[Repository Inventory](docs/reference/REPOSITORY_INVENTORY.md)** - Complete list of all coupled organization repositories
 - **[Project Types](docs/reference/project-types.md)** - Automatic project detection (Joomla, Dolibarr, Generic)
-- **[Health Scoring](docs/health-scoring.md)** - Repository quality assessment (100-point scale)
+- **[Health Scoring](docs/policy/health-scoring.md)** - Repository quality assessment (100-point scale)
 
 #### Build & Release
 - **[Build System](docs/build-system/README.md)** - Universal build system with Makefile precedence
@@ -178,7 +178,7 @@ Review and update incrementally:
 
 MokoStandards serves as the central governance repository for all Moko Consulting organization repositories. All active repositories in the `mokoconsulting-tech` organization are coupled to and governed by the standards, workflows, and requirements defined here.
 
-For a complete list of coupled repositories, compliance requirements, and coupling mechanisms, see [Repository Inventory](docs/REPOSITORY_INVENTORY.md).
+For a complete list of coupled repositories, compliance requirements, and coupling mechanisms, see [Repository Inventory](docs/reference/REPOSITORY_INVENTORY.md).
 
 ### Dual-Repository Architecture
 

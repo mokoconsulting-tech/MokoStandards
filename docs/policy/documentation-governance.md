@@ -23,6 +23,59 @@ This policy does not apply to:
 
 The organization maintains a governed documentation control system using GitHub Project v2 as the authoritative documentation register. All documentation must be registered, tracked, and maintained in compliance with this policy.
 
+## Documentation Organization Structure
+
+### Directory Structure
+
+The `/docs/` directory is organized into the following subdirectories based on document type and purpose:
+
+- **`policy/`** - Binding policies, standards, and requirements
+  - Includes subdirectories for: crm, governance, legal, operations, quality, security, waas
+- **`guide/`** - Step-by-step tutorials, how-to documentation, and implementation guides
+  - Includes subdirectories for: crm, development, onboarding, operations, waas
+- **`reference/`** - Technical references, directories, catalogs, and specifications
+- **`reports/`** - Historical implementation summaries, status reports, and assessments
+- **`checklist/`** - Compliance checklists and validation procedures
+- **`glossary/`** - Terminology definitions and acronyms
+- **`products/`** - Product-specific documentation
+- **`adr/`** - Architecture Decision Records
+- **`templates/`** - Documentation templates and scaffolding
+- **`scripts/`** - Documentation-related automation scripts
+- **`workflows/`** - GitHub Actions workflow documentation
+- **`build-system/`** - Build system and Makefile documentation
+- **`deployment/`** - Deployment guides and procedures
+- **`quickstart/`** - Quick start guides
+- **`release-management/`** - Release process documentation
+
+### Root-Level Files
+
+Only the following files should exist at the `/docs/` root:
+
+- `README.md` - Documentation governance framework
+- `ROADMAP.md` - Documentation roadmap and future plans
+- `index.md` - Comprehensive documentation catalog (auto-generated)
+
+### Categorization Rules
+
+Documents must be placed in directories according to their primary purpose:
+
+| Document Type | Directory | Examples |
+|--------------|-----------|----------|
+| Binding policies and standards | `policy/` | Security policies, coding standards, compliance requirements |
+| Implementation guides | `guide/` | Setup tutorials, migration guides, operational procedures |
+| Technical references | `reference/` | Email directory, repository inventory, type detection specs |
+| Status and historical reports | `reports/` | Enterprise readiness reports, implementation summaries |
+| Validation procedures | `checklist/` | Pre-deployment checks, security reviews |
+
+### Index File Requirements
+
+Every directory under `/docs/` must contain an `index.md` file that:
+- Lists all immediate child documents and subdirectories
+- Provides a brief description of the directory's purpose
+- Is automatically generated and maintained by `scripts/docs/rebuild_indexes.py`
+
+Refer to [Directory Index Requirements Policy](./directory-index-requirements.md) for complete requirements.
+
 ## Governance Framework
 
 ### Authoritative Documentation Register

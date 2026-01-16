@@ -125,6 +125,28 @@ mokoworkflow_approval
 - Upgrade safety
 - Easier maintenance
 
+### Module Family
+
+**All custom modules MUST use "Moko Consulting" as the module family:**
+
+```php
+$this->family = "Moko Consulting";
+```
+
+**Rationale**:
+- Groups all Moko custom modules together in the Dolibarr module manager
+- Provides clear branding and identification
+- Separates custom modules from standard Dolibarr module families
+- Improves user experience when browsing modules
+
+**Standard Dolibarr module families:**
+- "products" - Product/service management
+- "crm" - CRM and sales
+- "financial" - Accounting and finance
+- "hr" - Human resources
+- "projects" - Project management
+- "Moko Consulting" - **Our custom module family**
+
 ### Module Structure
 
 **Standard Dolibarr module structure:**
@@ -181,7 +203,7 @@ class modMokoModule extends DolibarrModules
         $this->rights_class = 'mokomodule';
         
         // Module information
-        $this->family = "moko";
+        $this->family = "Moko Consulting";
         $this->module_position = '90';
         $this->name = preg_replace('/^mod/i', '', get_class($this));
         $this->description = "MokoCRM custom module description";
@@ -551,7 +573,7 @@ class InterfaceModMokoModuleMokoTriggers extends DolibarrTriggers
         $this->db = $db;
         
         $this->name = preg_replace('/^Interface/i', '', get_class($this));
-        $this->family = "moko";
+        $this->family = "Moko Consulting";
         $this->description = "MokoModule triggers";
         $this->version = '1.0.0';
         $this->picto = 'mokomodule@mokomodule';

@@ -1,0 +1,220 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://mokoconsulting.com/schemas/repository-structure.json",
+  "title": "Repository Structure Schema",
+  "description": "Schema for defining repository structure requirements, including files, directories, and validation rules",
+  "version": "1.0",
+  "type": "object",
+  "required": ["metadata", "structure"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0",
+      "description": "Version of the schema specification"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Metadata about the repository structure definition",
+      "required": ["name", "description", "repositoryType", "platform", "lastUpdated", "maintainer"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the repository structure definition"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the repository type and structure"
+        },
+        "repositoryType": {
+          "type": "string",
+          "enum": [
+            "standards",
+            "waas-component",
+            "waas-module",
+            "waas-plugin",
+            "waas-template",
+            "waas-library",
+            "waas-package",
+            "crm-module",
+            "crm-plugin",
+            "application",
+            "library"
+          ],
+          "description": "Type of repository"
+        },
+        "platform": {
+          "type": "string",
+          "enum": ["mokowaas", "mokokrm", "standards", "multi-platform"],
+          "description": "Target platform for the repository"
+        },
+        "lastUpdated": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp of last update"
+        },
+        "maintainer": {
+          "type": "string",
+          "description": "Organization or person maintaining this definition"
+        }
+      }
+    },
+    "structure": {
+      "type": "object",
+      "description": "Repository structure definition including files and directories",
+      "properties": {
+        "rootFiles": {
+          "type": "array",
+          "description": "Files expected at repository root level",
+          "items": {
+            "$ref": "#/definitions/file"
+          }
+        },
+        "directories": {
+          "type": "array",
+          "description": "Directory structure and requirements",
+          "items": {
+            "$ref": "#/definitions/directory"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "file": {
+      "type": "object",
+      "description": "Definition of a file requirement",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the file"
+        },
+        "extension": {
+          "type": "string",
+          "description": "File extension (without leading dot)"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the file's purpose"
+        },
+        "requirementStatus": {
+          "type": "string",
+          "enum": ["required", "suggested", "optional", "not-allowed"],
+          "default": "required",
+          "description": "Requirement level: required (MUST be present), suggested (SHOULD be present), optional (MAY be present), not-allowed (MUST NOT be present)"
+        },
+        "alwaysOverwrite": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether file should be overwritten during sync operations"
+        },
+        "audience": {
+          "type": "string",
+          "enum": ["developer", "end-user", "administrator", "contributor", "general"],
+          "description": "Primary audience for the file"
+        },
+        "template": {
+          "type": "string",
+          "description": "Path to template file for generating this file"
+        },
+        "stubContent": {
+          "type": "string",
+          "description": "Default stub content for file generation"
+        },
+        "validationRules": {
+          "type": "array",
+          "description": "Validation rules to apply to this file",
+          "items": {
+            "$ref": "#/definitions/validationRule"
+          }
+        }
+      }
+    },
+    "directory": {
+      "type": "object",
+      "description": "Definition of a directory requirement",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the directory"
+        },
+        "path": {
+          "type": "string",
+          "description": "Full path to the directory"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the directory's purpose"
+        },
+        "requirementStatus": {
+          "type": "string",
+          "enum": ["required", "suggested", "optional", "not-allowed"],
+          "default": "required",
+          "description": "Requirement level: required (MUST exist), suggested (SHOULD exist), optional (MAY exist), not-allowed (MUST NOT exist)"
+        },
+        "purpose": {
+          "type": "string",
+          "description": "Detailed purpose or intended use of the directory"
+        },
+        "files": {
+          "type": "array",
+          "description": "Files expected within this directory",
+          "items": {
+            "$ref": "#/definitions/file"
+          }
+        },
+        "subdirectories": {
+          "type": "array",
+          "description": "Subdirectories within this directory",
+          "items": {
+            "$ref": "#/definitions/directory"
+          }
+        },
+        "validationRules": {
+          "type": "array",
+          "description": "Validation rules to apply to this directory",
+          "items": {
+            "$ref": "#/definitions/validationRule"
+          }
+        }
+      }
+    },
+    "validationRule": {
+      "type": "object",
+      "description": "Validation rule definition",
+      "required": ["type", "description"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "naming-convention",
+            "content-pattern",
+            "file-exists",
+            "directory-exists",
+            "min-size",
+            "max-size",
+            "header-required",
+            "license-required",
+            "custom"
+          ],
+          "description": "Type of validation rule"
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description of the rule"
+        },
+        "pattern": {
+          "type": "string",
+          "description": "Regular expression pattern (for pattern-based rules)"
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["error", "warning", "info"],
+          "default": "error",
+          "description": "Severity level of validation failure"
+        }
+      }
+    }
+  }
+}

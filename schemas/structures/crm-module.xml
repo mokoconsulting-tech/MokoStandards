@@ -183,31 +183,31 @@ See CHANGELOG.md for version history.
           <directory path="src/sql">
             <name>sql</name>
             <description>Database schema files</description>
-            <required>false</required>
+            <requirement-status>suggested</requirement-status>
           </directory>
 
           <directory path="src/css">
             <name>css</name>
             <description>Stylesheets</description>
-            <required>false</required>
+            <requirement-status>suggested</requirement-status>
           </directory>
 
           <directory path="src/js">
             <name>js</name>
             <description>JavaScript files</description>
-            <required>false</required>
+            <requirement-status>suggested</requirement-status>
           </directory>
 
           <directory path="src/class">
             <name>class</name>
             <description>PHP class files</description>
-            <required>false</required>
+            <requirement-status>suggested</requirement-status>
           </directory>
 
           <directory path="src/lib">
             <name>lib</name>
             <description>Library files</description>
-            <required>false</required>
+            <requirement-status>suggested</requirement-status>
           </directory>
         </subdirectories>
       </directory>
@@ -239,7 +239,7 @@ See CHANGELOG.md for version history.
           <file extension="md">
             <name>index.md</name>
             <description>Scripts documentation</description>
-            <required>false</required>
+            <requirement-status>suggested</requirement-status>
           </file>
         </files>
       </directory>
@@ -261,7 +261,7 @@ See CHANGELOG.md for version history.
           <directory path="tests/integration">
             <name>integration</name>
             <description>Integration tests</description>
-            <required>false</required>
+            <requirement-status>suggested</requirement-status>
           </directory>
         </subdirectories>
       </directory>
@@ -270,7 +270,7 @@ See CHANGELOG.md for version history.
       <directory path="templates">
         <name>templates</name>
         <description>Template files for code generation</description>
-        <required>false</required>
+        <requirement-status>suggested</requirement-status>
         <purpose>Contains templates used by build scripts</purpose>
       </directory>
 
@@ -278,14 +278,14 @@ See CHANGELOG.md for version history.
       <directory path=".github">
         <name>.github</name>
         <description>GitHub-specific configuration</description>
-        <required>false</required>
+        <requirement-status>suggested</requirement-status>
         <purpose>Contains GitHub Actions workflows, issue templates, etc.</purpose>
 
         <subdirectories>
           <directory path=".github/workflows">
             <name>workflows</name>
             <description>GitHub Actions workflows</description>
-            <required>false</required>
+            <requirement-status>suggested</requirement-status>
           </directory>
         </subdirectories>
       </directory>

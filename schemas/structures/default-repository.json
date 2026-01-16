@@ -1,0 +1,180 @@
+{
+  "schemaVersion": "1.0",
+  "metadata": {
+    "name": "Default Repository Structure",
+    "description": "Default repository structure applicable to all repository types with minimal requirements",
+    "repositoryType": "library",
+    "platform": "multi-platform",
+    "lastUpdated": "2026-01-16T00:00:00Z",
+    "maintainer": "Moko Consulting"
+  },
+  "structure": {
+    "rootFiles": [
+      {
+        "name": "README.md",
+        "extension": "md",
+        "description": "Project overview and documentation",
+        "requirementStatus": "required",
+        "audience": "general",
+        "template": "templates/docs/required/template-README.md"
+      },
+      {
+        "name": "LICENSE",
+        "extension": "",
+        "description": "License file (GPL-3.0-or-later)",
+        "requirementStatus": "required",
+        "audience": "general",
+        "template": "templates/docs/required/template-LICENSE.md"
+      },
+      {
+        "name": "CHANGELOG.md",
+        "extension": "md",
+        "description": "Version history and changes",
+        "requirementStatus": "required",
+        "audience": "general",
+        "template": "templates/docs/required/template-CHANGELOG.md"
+      },
+      {
+        "name": "CONTRIBUTING.md",
+        "extension": "md",
+        "description": "Contribution guidelines",
+        "requirementStatus": "required",
+        "audience": "contributor",
+        "template": "templates/docs/required/template-CONTRIBUTING.md"
+      },
+      {
+        "name": "SECURITY.md",
+        "extension": "md",
+        "description": "Security policy and vulnerability reporting",
+        "requirementStatus": "required",
+        "audience": "general",
+        "template": "templates/docs/required/template-SECURITY.md"
+      },
+      {
+        "name": "CODE_OF_CONDUCT.md",
+        "extension": "md",
+        "description": "Community code of conduct",
+        "requirementStatus": "suggested",
+        "audience": "contributor",
+        "template": "templates/docs/extra/template-CODE_OF_CONDUCT.md"
+      },
+      {
+        "name": ".gitignore",
+        "extension": "gitignore",
+        "description": "Git ignore patterns",
+        "requirementStatus": "required",
+        "alwaysOverwrite": false,
+        "audience": "developer"
+      },
+      {
+        "name": ".gitattributes",
+        "extension": "gitattributes",
+        "description": "Git attributes configuration",
+        "requirementStatus": "required",
+        "audience": "developer"
+      },
+      {
+        "name": ".editorconfig",
+        "extension": "editorconfig",
+        "description": "Editor configuration for consistent coding style",
+        "requirementStatus": "required",
+        "alwaysOverwrite": false,
+        "audience": "developer"
+      },
+      {
+        "name": "Makefile",
+        "description": "Build automation",
+        "requirementStatus": "suggested",
+        "audience": "developer"
+      }
+    ],
+    "directories": [
+      {
+        "name": "docs",
+        "path": "docs",
+        "description": "Documentation directory",
+        "requirementStatus": "required",
+        "purpose": "Contains comprehensive project documentation",
+        "files": [
+          {
+            "name": "index.md",
+            "extension": "md",
+            "description": "Documentation index",
+            "requirementStatus": "suggested"
+          }
+        ]
+      },
+      {
+        "name": "scripts",
+        "path": "scripts",
+        "description": "Build and automation scripts",
+        "requirementStatus": "required",
+        "purpose": "Contains scripts for building, testing, and deploying"
+      },
+      {
+        "name": "tests",
+        "path": "tests",
+        "description": "Test files",
+        "requirementStatus": "suggested",
+        "purpose": "Contains unit tests, integration tests, and test fixtures",
+        "subdirectories": [
+          {
+            "name": "unit",
+            "path": "tests/unit",
+            "description": "Unit tests",
+            "requirementStatus": "suggested"
+          },
+          {
+            "name": "integration",
+            "path": "tests/integration",
+            "description": "Integration tests",
+            "requirementStatus": "optional"
+          }
+        ]
+      },
+      {
+        "name": ".github",
+        "path": ".github",
+        "description": "GitHub-specific configuration",
+        "requirementStatus": "suggested",
+        "purpose": "Contains GitHub Actions workflows, issue templates, etc.",
+        "subdirectories": [
+          {
+            "name": "workflows",
+            "path": ".github/workflows",
+            "description": "GitHub Actions workflows",
+            "requirementStatus": "suggested"
+          }
+        ]
+      },
+      {
+        "name": "node_modules",
+        "path": "node_modules",
+        "description": "Node.js dependencies (generated)",
+        "requirementStatus": "not-allowed",
+        "purpose": "Generated directory that should not be committed"
+      },
+      {
+        "name": "vendor",
+        "path": "vendor",
+        "description": "PHP dependencies (generated)",
+        "requirementStatus": "not-allowed",
+        "purpose": "Generated directory that should not be committed"
+      },
+      {
+        "name": "build",
+        "path": "build",
+        "description": "Build artifacts (generated)",
+        "requirementStatus": "not-allowed",
+        "purpose": "Generated directory that should not be committed"
+      },
+      {
+        "name": "dist",
+        "path": "dist",
+        "description": "Distribution files (generated)",
+        "requirementStatus": "not-allowed",
+        "purpose": "Generated directory that should not be committed"
+      }
+    ]
+  }
+}

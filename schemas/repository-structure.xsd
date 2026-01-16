@@ -75,7 +75,7 @@
     <xs:sequence>
       <xs:element name="name" type="xs:string"/>
       <xs:element name="description" type="xs:string" minOccurs="0"/>
-      <xs:element name="required" type="xs:boolean" default="true"/>
+      <xs:element name="requirement-status" type="rs:RequirementStatusEnum" default="required"/>
       <xs:element name="always-overwrite" type="xs:boolean" default="true" minOccurs="0"/>
       <xs:element name="audience" type="rs:AudienceEnum" minOccurs="0"/>
       <xs:element name="template" type="xs:string" minOccurs="0"/>
@@ -84,6 +84,32 @@
     </xs:sequence>
     <xs:attribute name="extension" type="xs:string"/>
   </xs:complexType>
+
+  <!-- Requirement status enumeration -->
+  <xs:simpleType name="RequirementStatusEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="required">
+        <xs:annotation>
+          <xs:documentation>File or directory MUST be present. Missing items block production deployment.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="suggested">
+        <xs:annotation>
+          <xs:documentation>File or directory SHOULD be present. Missing items reduce repository health score but don't block deployment.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="optional">
+        <xs:annotation>
+          <xs:documentation>File or directory MAY be present. No impact on compliance or health score.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="not-allowed">
+        <xs:annotation>
+          <xs:documentation>File or directory MUST NOT be present. Presence is a compliance violation.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
 
   <!-- Audience enumeration -->
   <xs:simpleType name="AudienceEnum">
@@ -108,7 +134,7 @@
     <xs:sequence>
       <xs:element name="name" type="xs:string"/>
       <xs:element name="description" type="xs:string" minOccurs="0"/>
-      <xs:element name="required" type="xs:boolean" default="true"/>
+      <xs:element name="requirement-status" type="rs:RequirementStatusEnum" default="required"/>
       <xs:element name="purpose" type="xs:string" minOccurs="0"/>
       <xs:element name="files" type="rs:FilesType" minOccurs="0"/>
       <xs:element name="subdirectories" type="rs:DirectoriesType" minOccurs="0"/>

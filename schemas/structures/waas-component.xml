@@ -242,7 +242,21 @@
           <file extension="md">
             <name>index.md</name>
             <description>Scripts documentation</description>
+            <requirement-status>required</requirement-status>
+          </file>
+          
+          <file extension="sh">
+            <name>build_package.sh</name>
+            <description>Package building script for Joomla component</description>
             <requirement-status>suggested</requirement-status>
+            <template>templates/scripts/release/package_joomla.sh</template>
+          </file>
+          
+          <file extension="sh">
+            <name>validate_manifest.sh</name>
+            <description>Manifest validation script</description>
+            <requirement-status>suggested</requirement-status>
+            <template>templates/scripts/validate/manifest.sh</template>
           </file>
 
           <file extension="yml">
@@ -288,7 +302,30 @@
           <directory path=".github/workflows">
             <name>workflows</name>
             <description>GitHub Actions workflows</description>
-            <requirement-status>suggested</requirement-status>
+            <requirement-status>required</requirement-status>
+            
+            <files>
+              <file extension="yml">
+                <name>ci-joomla.yml</name>
+                <description>Joomla-specific CI workflow</description>
+                <requirement-status>required</requirement-status>
+                <template>templates/workflows/joomla/ci-joomla.yml</template>
+              </file>
+              
+              <file extension="yml">
+                <name>codeql-analysis.yml</name>
+                <description>CodeQL security analysis workflow</description>
+                <requirement-status>suggested</requirement-status>
+                <template>templates/workflows/generic/codeql-analysis.yml</template>
+              </file>
+              
+              <file extension="yml">
+                <name>standards-compliance.yml</name>
+                <description>MokoStandards compliance validation</description>
+                <requirement-status>required</requirement-status>
+                <template>.github/workflows/standards-compliance.yml</template>
+              </file>
+            </files>
           </directory>
         </subdirectories>
       </directory>

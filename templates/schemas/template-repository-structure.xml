@@ -1,11 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+
+This file is part of a Moko Consulting project.
+
+SPDX-License-Identifier: GPL-3.0-or-later
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+FILE INFORMATION
+DEFGROUP: MokoStandards.Templates.Schemas
+INGROUP: MokoStandards.Templates
+REPO: https://github.com/mokoconsulting-tech/MokoStandards
+PATH: /templates/schemas/template-repository-structure.xml
+VERSION: 01.00.00
+BRIEF: Template for defining custom repository structure schemas
+-->
 <repository-structure xmlns="http://mokoconsulting.com/schemas/repository-structure"
                       version="1.0"
                       schema-version="1.0">
   <metadata>
-    <name>Default Repository Structure</name>
-    <description>Default repository structure applicable to all repository types with minimal requirements</description>
-    <repository-type>library</repository-type>
+    <name>Template Repository Structure</name>
+    <description>Template for defining custom repository structure schemas</description>
+    <repository-type>template</repository-type>
     <platform>multi-platform</platform>
     <last-updated>2026-01-16T00:00:00Z</last-updated>
     <maintainer>Moko Consulting</maintainer>
@@ -24,7 +52,7 @@
 
       <file extension="">
         <name>LICENSE</name>
-        <description>License file (GPL-3.0-or-later)</description>
+        <description>License file</description>
         <requirement-status>required</requirement-status>
         <audience>general</audience>
         <template>templates/licenses/GPL-3.0</template>
@@ -54,14 +82,6 @@
         <template>templates/docs/required/template-SECURITY.md</template>
       </file>
 
-      <file extension="md">
-        <name>CODE_OF_CONDUCT.md</name>
-        <description>Community code of conduct</description>
-        <requirement-status>suggested</requirement-status>
-        <audience>contributor</audience>
-        <template>templates/docs/extra/template-CODE_OF_CONDUCT.md</template>
-      </file>
-
       <file extension="gitignore">
         <name>.gitignore</name>
         <description>Git ignore patterns</description>
@@ -70,25 +90,11 @@
         <audience>developer</audience>
       </file>
 
-      <file extension="gitattributes">
-        <name>.gitattributes</name>
-        <description>Git attributes configuration</description>
-        <requirement-status>required</requirement-status>
-        <audience>developer</audience>
-      </file>
-
       <file extension="editorconfig">
         <name>.editorconfig</name>
         <description>Editor configuration for consistent coding style</description>
         <requirement-status>required</requirement-status>
         <always-overwrite>false</always-overwrite>
-        <audience>developer</audience>
-      </file>
-
-      <file>
-        <name>Makefile</name>
-        <description>Build automation</description>
-        <requirement-status>suggested</requirement-status>
         <audience>developer</audience>
       </file>
     </root-files>
@@ -109,18 +115,6 @@
             <requirement-status>required</requirement-status>
             <template>templates/docs/index.md</template>
           </file>
-          
-          <file extension="md">
-            <name>API.md</name>
-            <description>API documentation</description>
-            <requirement-status>suggested</requirement-status>
-          </file>
-          
-          <file extension="md">
-            <name>ARCHITECTURE.md</name>
-            <description>Architecture documentation</description>
-            <requirement-status>suggested</requirement-status>
-          </file>
         </files>
       </directory>
 
@@ -132,13 +126,6 @@
         <purpose>Contains scripts for building, testing, and deploying</purpose>
         
         <files>
-          <file extension="sh">
-            <name>validate_structure.sh</name>
-            <description>Repository structure validation script</description>
-            <requirement-status>suggested</requirement-status>
-            <template>templates/scripts/validate/structure.sh</template>
-          </file>
-          
           <file extension="yml">
             <name>.mokostandards-sync.yml</name>
             <description>MokoStandards sync override configuration</description>
@@ -146,36 +133,6 @@
             <always-overwrite>false</always-overwrite>
           </file>
         </files>
-      </directory>
-
-      <!-- Source directory -->
-      <directory path="src">
-        <name>src</name>
-        <description>Source code directory</description>
-        <requirement-status>required</requirement-status>
-        <purpose>Contains application source code</purpose>
-      </directory>
-
-      <!-- Tests directory -->
-      <directory path="tests">
-        <name>tests</name>
-        <description>Test files</description>
-        <requirement-status>suggested</requirement-status>
-        <purpose>Contains unit tests, integration tests, and test fixtures</purpose>
-
-        <subdirectories>
-          <directory path="tests/unit">
-            <name>unit</name>
-            <description>Unit tests</description>
-            <requirement-status>suggested</requirement-status>
-          </directory>
-
-          <directory path="tests/integration">
-            <name>integration</name>
-            <description>Integration tests</description>
-            <requirement-status>optional</requirement-status>
-          </directory>
-        </subdirectories>
       </directory>
 
       <!-- .github directory -->
@@ -193,20 +150,6 @@
             
             <files>
               <file extension="yml">
-                <name>ci.yml</name>
-                <description>Continuous integration workflow</description>
-                <requirement-status>suggested</requirement-status>
-                <template>templates/workflows/generic/ci.yml</template>
-              </file>
-              
-              <file extension="yml">
-                <name>codeql-analysis.yml</name>
-                <description>CodeQL security analysis workflow</description>
-                <requirement-status>suggested</requirement-status>
-                <template>templates/workflows/generic/codeql-analysis.yml</template>
-              </file>
-              
-              <file extension="yml">
                 <name>standards-compliance.yml</name>
                 <description>MokoStandards compliance validation</description>
                 <requirement-status>required</requirement-status>
@@ -215,35 +158,6 @@
             </files>
           </directory>
         </subdirectories>
-      </directory>
-
-      <!-- Not-allowed directories (generated/build artifacts) -->
-      <directory path="node_modules">
-        <name>node_modules</name>
-        <description>Node.js dependencies (generated)</description>
-        <requirement-status>not-allowed</requirement-status>
-        <purpose>Generated directory that should not be committed</purpose>
-      </directory>
-
-      <directory path="vendor">
-        <name>vendor</name>
-        <description>PHP dependencies (generated)</description>
-        <requirement-status>not-allowed</requirement-status>
-        <purpose>Generated directory that should not be committed</purpose>
-      </directory>
-
-      <directory path="build">
-        <name>build</name>
-        <description>Build artifacts (generated)</description>
-        <requirement-status>not-allowed</requirement-status>
-        <purpose>Generated directory that should not be committed</purpose>
-      </directory>
-
-      <directory path="dist">
-        <name>dist</name>
-        <description>Distribution files (generated)</description>
-        <requirement-status>not-allowed</requirement-status>
-        <purpose>Generated directory that should not be committed</purpose>
       </directory>
     </directories>
   </structure>

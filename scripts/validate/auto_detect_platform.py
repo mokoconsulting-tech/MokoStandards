@@ -437,6 +437,11 @@ def main():
         default=None,
         help="Directory containing schema files (default: auto-detect)"
     )
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Output results in JSON format (for automation)"
+    )
     
     args = parser.parse_args()
     
@@ -457,17 +462,35 @@ def main():
         print("  Use --schema-dir to specify the location", file=sys.stderr)
         return 3
     
+    # Determine schema file
+    schema_map = {
+        PlatformType.JOOMLA: "waas-component.xml",
+        PlatformType.DOLIBARR: "crm-module.xml",
+        PlatformType.GENERIC: "default-repository.xml"
+    }
+    
+    # Detect platform
+    detector = PlatformDetector(args.repo_path)
+    platform, details = detector.detect()
+    
+    # JSON output mode (for automation)
+    if args.json:
+        output = {
+            "platform_type": platform,
+            "repo_path": str(Path(args.repo_path).resolve()),
+            "details": details,
+            "schema_file": schema_map.get(platform, "default-repository.xml")
+        }
+        print(json.dumps(output, indent=2))
+        return 0
+    
     print("=" * 70)
     print("Repository Platform Auto-Detection and Validation")
     print("=" * 70)
     print()
     
-    # Detect platform
     print(f"📁 Analyzing repository: {Path(args.repo_path).resolve()}")
     print()
-    
-    detector = PlatformDetector(args.repo_path)
-    platform, details = detector.detect()
     
     print(f"🔍 Platform Detection Results:")
     print(f"   Platform: {platform.upper()}")
@@ -480,11 +503,6 @@ def main():
     print()
     
     # Determine schema file
-    schema_map = {
-        PlatformType.JOOMLA: "waas-component.xml",
-        PlatformType.DOLIBARR: "crm-module.xml",
-        PlatformType.GENERIC: "default-repository.xml"
-    }
     schema_file = schema_dir / schema_map[platform]
     
     if not schema_file.exists():

@@ -113,6 +113,21 @@ Script templates and utilities for automation.
 
 **Documentation**: [scripts/index.md](./scripts/index.md)
 
+### Schemas (`schemas/`)
+
+Repository structure schema templates for defining custom repository types.
+
+**Templates:**
+- `template-repository-structure.xml` - Base template for custom schemas
+- Schema documentation and usage examples
+
+**Purpose**:
+- Define required files and directories for repository types
+- Enable automated structure validation
+- Support platform-specific requirements
+
+**Documentation**: [schemas/README.md](./schemas/README.md)
+
 ### Build (`build/`)
 
 Build system templates and configurations.

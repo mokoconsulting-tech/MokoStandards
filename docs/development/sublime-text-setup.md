@@ -45,6 +45,23 @@ choco install sublimetext4
 # Or download from: https://www.sublimetext.com/download
 ```
 
+**License Options:**
+
+Sublime Text requires a license for continued use after the evaluation period.
+
+**Option 1: Personal Purchase** (Recommended)
+- **Cost**: $99 USD one-time
+- **Purchase**: https://www.sublimetext.com/buy
+- **Benefits**: Keep license forever, use for personal projects, immediate access
+
+**Option 2: Organization License**
+- **For Moko Consulting organization members**: Open an issue to request a license
+- **Process**: Use template `.github/ISSUE_TEMPLATE/request-license.md`
+- **Timeline**: 1-2 business days
+- **Restriction**: Organization use only, return upon departure
+
+See `/docs/github-private/LICENSE_MANAGEMENT.md` for complete details.
+
 **macOS:**
 ```bash
 # Using Homebrew

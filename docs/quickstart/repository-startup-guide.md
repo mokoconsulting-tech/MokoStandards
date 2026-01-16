@@ -881,17 +881,39 @@ head -30 your-file.php
 
 **Generic Repository:**
 ```bash
-git clone https://github.com/mokoconsulting-tech/YOUR-REPO.git && cd YOUR-REPO && mkdir -p docs scripts tests && cp ~/MokoStandards/templates/docs/required/*.md ./ && cp ~/MokoStandards/.editorconfig ~/MokoStandards/.gitattributes ./
+# Clone and setup generic repository
+git clone https://github.com/mokoconsulting-tech/YOUR-REPO.git && \
+  cd YOUR-REPO && \
+  mkdir -p docs scripts tests && \
+  cp ~/MokoStandards/templates/docs/required/*.md ./ && \
+  cp ~/MokoStandards/.editorconfig ~/MokoStandards/.gitattributes ./
 ```
 
 **Joomla Repository:**
 ```bash
-git clone https://github.com/mokoconsulting-tech/YOUR-REPO.git && cd YOUR-REPO && mkdir -p site/{controllers,models,views} admin/{controllers,models,views,sql} media/{css,js,images} language docs scripts tests/unit && cp ~/MokoStandards/templates/docs/required/*.md ./ && cp ~/MokoStandards/Makefiles/Makefile.joomla ./Makefile && cp ~/MokoStandards/.editorconfig ~/MokoStandards/.gitattributes ./
+# Clone and setup Joomla repository
+git clone https://github.com/mokoconsulting-tech/YOUR-REPO.git && \
+  cd YOUR-REPO && \
+  mkdir -p site/{controllers,models,views} \
+           admin/{controllers,models,views,sql} \
+           media/{css,js,images} \
+           language docs scripts tests/unit && \
+  cp ~/MokoStandards/templates/docs/required/*.md ./ && \
+  cp ~/MokoStandards/Makefiles/Makefile.joomla ./Makefile && \
+  cp ~/MokoStandards/.editorconfig ~/MokoStandards/.gitattributes ./
 ```
 
 **Dolibarr Repository:**
 ```bash
-git clone https://github.com/mokoconsulting-tech/YOUR-REPO.git && cd YOUR-REPO && mkdir -p src/{core/modules,langs,class,lib,sql} docs scripts tests/unit && cp ~/MokoStandards/templates/docs/required/template-{CHANGELOG,CONTRIBUTING,SECURITY}.md ./ && cp ~/MokoStandards/Makefiles/Makefile.dolibarr ./Makefile && cp ~/MokoStandards/.editorconfig ~/MokoStandards/.gitattributes ./
+# Clone and setup Dolibarr repository
+git clone https://github.com/mokoconsulting-tech/YOUR-REPO.git && \
+  cd YOUR-REPO && \
+  mkdir -p src/{core/modules,langs,class,lib,sql} \
+           docs scripts tests/unit && \
+  cp ~/MokoStandards/templates/docs/required/template-{CHANGELOG,CONTRIBUTING,SECURITY}.md ./ && \
+  cp ~/MokoStandards/Makefiles/Makefile.dolibarr ./Makefile && \
+  cp ~/MokoStandards/.editorconfig ~/MokoStandards/.gitattributes ./ && \
+  touch src/README.md
 ```
 
 ## Related Documentation

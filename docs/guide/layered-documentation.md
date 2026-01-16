@@ -273,29 +273,6 @@ These files are **REQUIRED** for all repositories regardless of type:
 - ✅ Compliance-required projects (SOC 2, ISO 27001)
 - ✅ Projects with specific operational requirements
 
-**Location:** `/docs/policy/`
-
-**Purpose:** Defines binding policies, standards, and requirements for specific contexts (security, compliance, operations).
-
-**Compliance:** Required when context applies (e.g., WaaS projects must have WaaS policies).
-
-**Common Policy Types:**
-
-- Security policies
-- Data classification policies
-- Compliance policies
-- Operational policies
-- Development standards
-- Deployment procedures
-
-**When to Use:**
-
-- ✅ Enterprise or regulated environments
-- ✅ Multi-tenant platforms (WaaS, CRM)
-- ✅ Security-sensitive applications
-- ✅ Compliance-required projects (SOC 2, ISO 27001)
-- ✅ Projects with specific operational requirements
-
 ## Summary Tables
 
 ### All Repositories - File Requirements

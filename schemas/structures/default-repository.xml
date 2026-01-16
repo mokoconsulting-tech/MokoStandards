@@ -19,6 +19,16 @@
         <description>Project overview and documentation</description>
         <requirement-status>required</requirement-status>
         <audience>general</audience>
+        <source>
+          <path>templates/docs/required</path>
+          <filename>template-README.md</filename>
+          <type>template</type>
+        </source>
+        <destination>
+          <path>.</path>
+          <filename>README.md</filename>
+          <create-path>false</create-path>
+        </destination>
         <template>templates/docs/required/template-README.md</template>
       </file>
 
@@ -27,6 +37,16 @@
         <description>License file (GPL-3.0-or-later)</description>
         <requirement-status>required</requirement-status>
         <audience>general</audience>
+        <source>
+          <path>templates/licenses</path>
+          <filename>GPL-3.0</filename>
+          <type>template</type>
+        </source>
+        <destination>
+          <path>.</path>
+          <filename>LICENSE</filename>
+          <create-path>false</create-path>
+        </destination>
         <template>templates/licenses/GPL-3.0</template>
       </file>
 
@@ -35,6 +55,16 @@
         <description>Version history and changes</description>
         <requirement-status>required</requirement-status>
         <audience>general</audience>
+        <source>
+          <path>templates/docs/required</path>
+          <filename>template-CHANGELOG.md</filename>
+          <type>template</type>
+        </source>
+        <destination>
+          <path>.</path>
+          <filename>CHANGELOG.md</filename>
+          <create-path>false</create-path>
+        </destination>
         <template>templates/docs/required/template-CHANGELOG.md</template>
       </file>
 
@@ -43,6 +73,16 @@
         <description>Contribution guidelines</description>
         <requirement-status>required</requirement-status>
         <audience>contributor</audience>
+        <source>
+          <path>templates/docs/required</path>
+          <filename>template-CONTRIBUTING.md</filename>
+          <type>template</type>
+        </source>
+        <destination>
+          <path>.</path>
+          <filename>CONTRIBUTING.md</filename>
+          <create-path>false</create-path>
+        </destination>
         <template>templates/docs/required/template-CONTRIBUTING.md</template>
       </file>
 
@@ -51,6 +91,16 @@
         <description>Security policy and vulnerability reporting</description>
         <requirement-status>required</requirement-status>
         <audience>general</audience>
+        <source>
+          <path>templates/docs/required</path>
+          <filename>template-SECURITY.md</filename>
+          <type>template</type>
+        </source>
+        <destination>
+          <path>.</path>
+          <filename>SECURITY.md</filename>
+          <create-path>false</create-path>
+        </destination>
         <template>templates/docs/required/template-SECURITY.md</template>
       </file>
 
@@ -59,6 +109,16 @@
         <description>Community code of conduct</description>
         <requirement-status>suggested</requirement-status>
         <audience>contributor</audience>
+        <source>
+          <path>templates/docs/extra</path>
+          <filename>template-CODE_OF_CONDUCT.md</filename>
+          <type>template</type>
+        </source>
+        <destination>
+          <path>.</path>
+          <filename>CODE_OF_CONDUCT.md</filename>
+          <create-path>false</create-path>
+        </destination>
         <template>templates/docs/extra/template-CODE_OF_CONDUCT.md</template>
       </file>
 
@@ -196,6 +256,16 @@
                 <name>ci.yml</name>
                 <description>Continuous integration workflow</description>
                 <requirement-status>suggested</requirement-status>
+                <source>
+                  <path>templates/workflows/generic</path>
+                  <filename>ci.yml.template</filename>
+                  <type>template</type>
+                </source>
+                <destination>
+                  <path>.github/workflows</path>
+                  <filename>ci.yml</filename>
+                  <create-path>true</create-path>
+                </destination>
                 <template>templates/workflows/generic/ci.yml.template</template>
               </file>
               
@@ -203,6 +273,16 @@
                 <name>test.yml</name>
                 <description>Comprehensive testing workflow</description>
                 <requirement-status>optional</requirement-status>
+                <source>
+                  <path>templates/workflows/generic</path>
+                  <filename>test.yml.template</filename>
+                  <type>template</type>
+                </source>
+                <destination>
+                  <path>.github/workflows</path>
+                  <filename>test.yml</filename>
+                  <create-path>true</create-path>
+                </destination>
                 <template>templates/workflows/generic/test.yml.template</template>
               </file>
               
@@ -210,6 +290,16 @@
                 <name>code-quality.yml</name>
                 <description>Code quality and linting workflow</description>
                 <requirement-status>suggested</requirement-status>
+                <source>
+                  <path>templates/workflows/generic</path>
+                  <filename>code-quality.yml.template</filename>
+                  <type>template</type>
+                </source>
+                <destination>
+                  <path>.github/workflows</path>
+                  <filename>code-quality.yml</filename>
+                  <create-path>true</create-path>
+                </destination>
                 <template>templates/workflows/generic/code-quality.yml.template</template>
               </file>
               
@@ -217,6 +307,16 @@
                 <name>codeql-analysis.yml</name>
                 <description>CodeQL security analysis workflow</description>
                 <requirement-status>suggested</requirement-status>
+                <source>
+                  <path>templates/workflows/generic</path>
+                  <filename>codeql-analysis.yml.template</filename>
+                  <type>template</type>
+                </source>
+                <destination>
+                  <path>.github/workflows</path>
+                  <filename>codeql-analysis.yml</filename>
+                  <create-path>true</create-path>
+                </destination>
                 <template>templates/workflows/generic/codeql-analysis.yml.template</template>
               </file>
               
@@ -224,10 +324,53 @@
                 <name>deploy.yml</name>
                 <description>Deployment workflow</description>
                 <requirement-status>optional</requirement-status>
+                <source>
+                  <path>templates/workflows/generic</path>
+                  <filename>deploy.yml.template</filename>
+                  <type>template</type>
+                </source>
+                <destination>
+                  <path>.github/workflows</path>
+                  <filename>deploy.yml</filename>
+                  <create-path>true</create-path>
+                </destination>
                 <template>templates/workflows/generic/deploy.yml.template</template>
               </file>
               
               <file extension="yml">
+                <name>repo-health.yml</name>
+                <description>Repository health monitoring</description>
+                <requirement-status>suggested</requirement-status>
+                <source>
+                  <path>templates/workflows/generic</path>
+                  <filename>repo_health.yml.template</filename>
+                  <type>template</type>
+                </source>
+                <destination>
+                  <path>.github/workflows</path>
+                  <filename>repo-health.yml</filename>
+                  <create-path>true</create-path>
+                </destination>
+                <template>templates/workflows/generic/repo_health.yml.template</template>
+              </file>
+              
+              <file extension="yml">
+                <name>standards-compliance.yml</name>
+                <description>MokoStandards compliance validation</description>
+                <requirement-status>required</requirement-status>
+                <source>
+                  <path>.github/workflows</path>
+                  <filename>standards-compliance.yml</filename>
+                  <type>copy</type>
+                </source>
+                <destination>
+                  <path>.github/workflows</path>
+                  <filename>standards-compliance.yml</filename>
+                  <create-path>true</create-path>
+                </destination>
+                <template>.github/workflows/standards-compliance.yml</template>
+              </file>
+            </files>
                 <name>repo-health.yml</name>
                 <description>Repository health monitoring</description>
                 <requirement-status>suggested</requirement-status>

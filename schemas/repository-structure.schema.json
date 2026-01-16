@@ -103,6 +103,45 @@
           "default": "required",
           "description": "Requirement level: required (MUST be present), suggested (SHOULD be present), optional (MAY be present), not-allowed (MUST NOT be present)"
         },
+        "source": {
+          "type": "object",
+          "description": "Source file information for templates or stubs",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "Path to source file (relative to MokoStandards root)"
+            },
+            "filename": {
+              "type": "string",
+              "description": "Source filename"
+            },
+            "type": {
+              "type": "string",
+              "enum": ["template", "stub", "copy"],
+              "default": "template",
+              "description": "Type of source: template (copy from template), stub (generate stub), copy (direct copy)"
+            }
+          }
+        },
+        "destination": {
+          "type": "object",
+          "description": "Destination file information for placement in target repository",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "Destination path in target repository (relative to repo root)"
+            },
+            "filename": {
+              "type": "string",
+              "description": "Destination filename (may differ from source)"
+            },
+            "createPath": {
+              "type": "boolean",
+              "default": true,
+              "description": "Whether to create destination path if it doesn't exist"
+            }
+          }
+        },
         "alwaysOverwrite": {
           "type": "boolean",
           "default": true,
@@ -115,11 +154,11 @@
         },
         "template": {
           "type": "string",
-          "description": "Path to template file for generating this file"
+          "description": "Path to template file for generating this file (legacy, prefer source/destination)"
         },
         "stubContent": {
           "type": "string",
-          "description": "Default stub content for file generation"
+          "description": "Default stub content for file generation when no source is defined"
         },
         "validationRules": {
           "type": "array",

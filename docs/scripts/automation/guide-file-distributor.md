@@ -25,7 +25,7 @@ REPO: https://github.com/mokoconsulting-tech/
 FILE: guide-file-distributor.md
 VERSION: 01.00.00
 BRIEF: Operational guide for distributing a file across folder trees with PowerShell and Python utilities.
-PATH: /docs/guide/guide-file-distributor.md
+PATH: /docs/scripts/automation/guide-file-distributor.md
 NOTE:
 -->
 
@@ -100,9 +100,9 @@ When enabled, the tool will prompt for each folder.
 
 Recommended repository structure for operational artifacts:
 
-* `/scripts/tools/file-distributor/Write-FileDistributor.ps1`
-* `/scripts/tools/file-distributor/file_distributor.py`
-* `/docs/guide/guide-file-distributor.md`
+* `/scripts/automation/file-distributor.ps1`
+* `/scripts/automation/file-distributor.py`
+* `/docs/scripts/automation/guide-file-distributor.md`
 
 ## PowerShell execution
 
@@ -112,10 +112,10 @@ Run from an elevated or standard session based on required permissions.
 
 ```powershell
 # Example: run directly
-powershell -ExecutionPolicy Bypass -File .\Write-FileDistributor.ps1
+powershell -ExecutionPolicy Bypass -File .\file-distributor.ps1
 
 # Example: PowerShell 7
-pwsh -File .\Write-FileDistributor.ps1
+pwsh -File .\file-distributor.ps1
 ```
 
 ### UI workflow
@@ -127,6 +127,7 @@ pwsh -File .\Write-FileDistributor.ps1
 	* Dry run
 	* Overwrite
 	* Confirm each folder
+	* Include hidden folders
 	* Depth
 	* Audit log folder
 4. Execute and review the completion summary.
@@ -161,6 +162,7 @@ python3 ./file_distributor.py
 	* Dry run
 	* Overwrite
 	* Confirm each folder
+	* Include hidden folders
 	* Depth
 	* Audit log folder
 4. Execute and review the completion summary.
@@ -257,7 +259,7 @@ Store logs in a controlled directory with retention policy alignment, for exampl
 | Jurisdiction  | Tennessee, USA                                                                     |
 | Owner         | Moko Consulting                                                                    |
 | Repo          | [https://github.com/mokoconsulting-tech/](https://github.com/mokoconsulting-tech/) |
-| Path          | /docs/guide/guide-file-distributor.md                                              |
+| Path          | /docs/scripts/automation/guide-file-distributor.md                                 |
 | Version       | 01.00.00                                                                           |
 | Status        | Draft                                                                              |
 | Last Reviewed | 2026-01-15                                                                         |

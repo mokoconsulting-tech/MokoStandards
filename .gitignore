@@ -115,6 +115,7 @@ coverage.xml
 htmlcov/
 junit.xml
 reports/
+!docs/reports/
 test-results/
 tests/_output/
 .github/local/

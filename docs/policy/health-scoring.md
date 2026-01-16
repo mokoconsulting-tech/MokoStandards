@@ -352,5 +352,5 @@ A: Create `.github/health-exemptions.yml` and request admin approval.
 
 - [Workflow Templates](workflows/README.md)
 - [SFTP Deployment Guide](deployment/sftp.md)
-- [Project Type Detection](project-types.md)
+- [Project Type Detection](../reference/project-types.md)
 - [Repository Structure Standards](guide/repository-structure-schema.md)

@@ -166,7 +166,7 @@ Review and update incrementally:
 
 #### Project Management
 - **[Repository Inventory](docs/REPOSITORY_INVENTORY.md)** - Complete list of all coupled organization repositories
-- **[Project Types](docs/project-types.md)** - Automatic project detection (Joomla, Dolibarr, Generic)
+- **[Project Types](docs/reference/project-types.md)** - Automatic project detection (Joomla, Dolibarr, Generic)
 - **[Health Scoring](docs/health-scoring.md)** - Repository quality assessment (100-point scale)
 
 #### Build & Release
@@ -200,7 +200,7 @@ Moko Consulting uses a dual-repository strategy for centralized standards and wo
 - Confidential configurations and credentials
 - Proprietary AI prompts and automation
 
-**For Moko Consulting Internal Users**: See [PRIVATE_REPOSITORY_REFERENCE.md](docs/PRIVATE_REPOSITORY_REFERENCE.md) for:
+**For Moko Consulting Internal Users**: See [PRIVATE_REPOSITORY_REFERENCE.md](docs/guide/PRIVATE_REPOSITORY_REFERENCE.md) for:
 - Complete list of files in private repository
 - Access instructions for internal users
 - Public alternatives for external users

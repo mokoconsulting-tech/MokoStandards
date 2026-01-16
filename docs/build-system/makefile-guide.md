@@ -685,7 +685,7 @@ See the reference Makefiles for complete examples:
 ## See Also
 
 - [Build System Overview](README.md)
-- [Project Type Detection](../project-types.md)
+- [Project Type Detection](../reference/project-types.md)
 - [Workflow Integration](../workflows/README.md)
 - [Reference Makefiles](../../Makefiles/)
 

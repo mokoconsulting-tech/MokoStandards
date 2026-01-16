@@ -745,7 +745,7 @@ See `schemas/structures/` directory for example structure definitions.
 For issues or questions:
 - Open an issue in the MokoStandards repository
 - Contact: support@mokoconsulting.com
-- See [SUPPORT.md](../SUPPORT.md)
+- See [SUPPORT.md](SUPPORT.md)
 
 ---
 

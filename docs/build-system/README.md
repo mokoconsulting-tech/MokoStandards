@@ -24,7 +24,7 @@ The build system automatically detects your project type based on file presence 
 2. **Dolibarr**: Detected by `htdocs/` directory or `core/modules/` structure
 3. **Generic**: Default fallback for all other projects
 
-See [Project Type Detection](../project-types.md) for complete detection logic.
+See [Project Type Detection](../reference/project-types.md) for complete detection logic.
 
 ### Makefile Precedence System
 
@@ -541,7 +541,7 @@ build:
 ## See Also
 
 - [Makefile Creation Guide](makefile-guide.md)
-- [Project Type Detection](../project-types.md)
+- [Project Type Detection](../reference/project-types.md)
 - [Workflow Templates](../workflows/README.md)
 - [Build Universal Workflow](../../.github/workflow-templates/build-universal.yml)
 

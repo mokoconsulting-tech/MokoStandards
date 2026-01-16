@@ -6,6 +6,7 @@ This is a comprehensive catalog of all documentation in the MokoStandards reposi
 
 - [README](./README.md) - Documentation governance framework
 - [ROADMAP](./ROADMAP.md) - Documentation roadmap and future plans
+- [SUPPORT](./guide/SUPPORT.md) - Support channels and expectations
 
 ## Policies
 
@@ -13,6 +14,7 @@ Standards, requirements, and compliance documentation.
 
 - [branching-strategy](./policy/branching-strategy.md)
 - [change-management](./policy/change-management.md)
+- [code-review-guidelines](./policy/code-review-guidelines.md) - Code review standards
 - [coding-style-guide](./policy/coding-style-guide.md)
 - [data-classification](./policy/data-classification.md)
 - [dependency-management](./policy/dependency-management.md)
@@ -20,6 +22,9 @@ Standards, requirements, and compliance documentation.
 - [document-formatting](./policy/document-formatting.md)
 - [documentation-governance](./policy/documentation-governance.md)
 - [file-header-standards](./policy/file-header-standards.md)
+- [GOVERNANCE](./policy/GOVERNANCE.md) - Project governance and decision process
+- [health-scoring](./policy/health-scoring.md) - Repository health scoring system
+- [license-compliance](./policy/license-compliance.md) - License compliance policy
 - [merge-strategy](./policy/merge-strategy.md)
 - [risk-register](./policy/risk-register.md)
 - [scripting-standards](./policy/scripting-standards.md)
@@ -93,8 +98,11 @@ Step-by-step tutorials and how-to documentation.
 - [bulk-repository-updates](./guide/bulk-repository-updates.md)
 - [changelog-synchronization](./guide/changelog-synchronization.md)
 - [conflict-resolution](./guide/conflict-resolution.md)
+- [MIGRATION_TO_MOKOSTANDARDS](./guide/MIGRATION_TO_MOKOSTANDARDS.md) - Migration guide for adopting MokoStandards
+- [PRIVATE_REPOSITORY_REFERENCE](./guide/PRIVATE_REPOSITORY_REFERENCE.md) - Private repository architecture reference
 - [project-fields](./guide/project-fields.md)
 - [project-views](./guide/project-views.md)
+- [PUBLIC_ARCHITECTURE](./guide/PUBLIC_ARCHITECTURE.md) - Public architecture guide
 - [repository-organization](./guide/repository-organization.md) - Golden architecture pattern
 - [repository-split-plan](./guide/repository-split-plan.md)
 - [repository-structure-schema](./guide/repository-structure-schema.md)
@@ -140,6 +148,26 @@ Significant architectural decisions and their rationale.
 - [glossary](./products/mokocrm/glossary.md)
 - [glossary](./products/mokowaas/glossary.md)
 
+## Reference Documentation
+
+Technical references, directories, and catalogs.
+
+- [EMAIL_DIRECTORY](./reference/EMAIL_DIRECTORY.md) - Organization contact directory
+- [project-types](./reference/project-types.md) - Project type classification
+- [PROJECT_TYPE_DETECTION](./reference/PROJECT_TYPE_DETECTION.md) - Project type detection in CI/CD
+- [REPOSITORY_INVENTORY](./reference/REPOSITORY_INVENTORY.md) - Complete repository catalog
+
+## Reports and Status Documents
+
+Historical reports and implementation summaries.
+
+- [ENTERPRISE-READINESS](./reports/ENTERPRISE-READINESS.md) - Enterprise documentation roadmap
+- [ENTERPRISE_READINESS_SCRIPTS](./reports/ENTERPRISE_READINESS_SCRIPTS.md) - Scripts readiness assessment
+- [ENTERPRISE_READINESS_SUMMARY](./reports/ENTERPRISE_READINESS_SUMMARY.md) - Enterprise readiness summary
+- [IMPLEMENTATION_SUMMARY](./reports/IMPLEMENTATION_SUMMARY.md) - Smart projects implementation
+- [SCRIPT_DOCUMENTATION_SUMMARY](./reports/SCRIPT_DOCUMENTATION_SUMMARY.md) - Script documentation summary
+- [SECURITY_NOTES_REPO_HEALTH](./reports/SECURITY_NOTES_REPO_HEALTH.md) - Security notes for repo health
+
 ## Directory Structure
 
 Browse documentation by folder:
@@ -150,6 +178,8 @@ Browse documentation by folder:
 - [guide/](./guide/index.md) - How-to guides and tutorials
 - [policy/](./policy/index.md) - Policies and standards
 - [products/](./products/index.md) - Product-specific documentation
+- [reference/](./reference/index.md) - Technical references and directories
+- [reports/](./reports/index.md) - Reports and status documents
 
 ## Metadata
 

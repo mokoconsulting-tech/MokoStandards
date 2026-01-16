@@ -122,7 +122,7 @@ jobs:
     <version>1.0.0</version>
     <description>Organization-specific repository health configuration extending MokoStandards defaults</description>
     <author>Moko Consulting Engineering Team</author>
-    <date>2026-01-16</date>
+    <date>YYYY-MM-DD</date> <!-- Update to current date when implementing -->
     <extends>https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/schemas/repo-health-default.xml</extends>
   </metadata>
   
@@ -762,6 +762,8 @@ After implementation, your `.github-private` repository should have:
 - XML configuration extends the MokoStandards default configuration
 - Workflow template uses standard GitHub Actions syntax
 - Configuration is validated on every PR to prevent breaking changes
+- Update the date field in XML metadata to the current date when implementing
+- Email addresses are intentionally different: `security@mokoconsulting.tech` for security issues, `dev@mokoconsulting.tech` for general development support
 
 ## Support
 

@@ -1,0 +1,432 @@
+name: Enterprise Firewall Configuration
+
+# This workflow provides firewall configuration guidance for enterprise-ready sites
+# It generates firewall rules for allowing outbound access to trusted domains
+# including license providers, documentation sources, and package registries
+
+on:
+  workflow_dispatch:
+    inputs:
+      firewall_type:
+        description: 'Target firewall type'
+        required: true
+        type: choice
+        options:
+          - 'iptables'
+          - 'ufw'
+          - 'firewalld'
+          - 'aws-security-group'
+          - 'azure-nsg'
+          - 'gcp-firewall'
+          - 'cloudflare'
+          - 'all'
+        default: 'all'
+      output_format:
+        description: 'Output format'
+        required: true
+        type: choice
+        options:
+          - 'shell-script'
+          - 'json'
+          - 'yaml'
+          - 'markdown'
+          - 'all'
+        default: 'markdown'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  generate-firewall-rules:
+    name: Generate Firewall Rules
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Generate Firewall Configuration
+        id: generate
+        run: |
+          cat > generate_firewall_config.py << 'PYTHON_EOF'
+          #!/usr/bin/env python3
+          """
+          Enterprise Firewall Configuration Generator
+          
+          Generates firewall rules for enterprise-ready deployments allowing
+          access to trusted domains including license providers, documentation
+          sources, package registries, and platform-specific sites.
+          """
+          
+          import json
+          import yaml
+          import sys
+          from typing import List, Dict
+          
+          # Trusted domains from .github/copilot.yml
+          TRUSTED_DOMAINS = {
+              "license_providers": [
+                  "www.gnu.org",
+                  "opensource.org",
+                  "choosealicense.com",
+                  "spdx.org",
+                  "creativecommons.org",
+                  "apache.org",
+                  "fsf.org",
+              ],
+              "documentation_standards": [
+                  "semver.org",
+                  "keepachangelog.com",
+                  "conventionalcommits.org",
+              ],
+              "github_related": [
+                  "github.com",
+                  "api.github.com",
+                  "docs.github.com",
+                  "raw.githubusercontent.com",
+                  "ghcr.io",
+              ],
+              "package_registries": [
+                  "npmjs.com",
+                  "registry.npmjs.org",
+                  "pypi.org",
+                  "files.pythonhosted.org",
+                  "packagist.org",
+                  "repo.packagist.org",
+                  "rubygems.org",
+              ],
+              "standards_organizations": [
+                  "json-schema.org",
+                  "w3.org",
+                  "ietf.org",
+              ],
+              "platform_specific": [
+                  "joomla.org",
+                  "downloads.joomla.org",
+                  "docs.joomla.org",
+                  "php.net",
+                  "dolibarr.org",
+                  "wiki.dolibarr.org",
+              ],
+              "cdn_and_infrastructure": [
+                  "cdn.jsdelivr.net",
+                  "unpkg.com",
+                  "cdnjs.cloudflare.com",
+              ],
+          }
+          
+          def generate_iptables_rules(domains: List[str]) -> str:
+              """Generate iptables firewall rules"""
+              rules = ["#!/bin/bash", "", "# Enterprise Firewall Rules - iptables", ""]
+              rules.append("# Allow outbound HTTPS to trusted domains")
+              rules.append("")
+              
+              for domain in domains:
+                  rules.append(f"# Allow {domain}")
+                  rules.append(f"iptables -A OUTPUT -p tcp -d $(dig +short {domain} | head -1) --dport 443 -j ACCEPT")
+              
+              rules.append("")
+              rules.append("# Allow DNS lookups")
+              rules.append("iptables -A OUTPUT -p udp --dport 53 -j ACCEPT")
+              rules.append("iptables -A OUTPUT -p tcp --dport 53 -j ACCEPT")
+              
+              return "\n".join(rules)
+          
+          def generate_ufw_rules(domains: List[str]) -> str:
+              """Generate UFW firewall rules"""
+              rules = ["#!/bin/bash", "", "# Enterprise Firewall Rules - UFW", ""]
+              rules.append("# Allow outbound HTTPS to trusted domains")
+              rules.append("")
+              
+              for domain in domains:
+                  rules.append(f"# Allow {domain}")
+                  rules.append(f"ufw allow out to $(dig +short {domain} | head -1) port 443 proto tcp comment 'Allow {domain}'")
+              
+              rules.append("")
+              rules.append("# Allow DNS")
+              rules.append("ufw allow out 53/udp comment 'Allow DNS UDP'")
+              rules.append("ufw allow out 53/tcp comment 'Allow DNS TCP'")
+              
+              return "\n".join(rules)
+          
+          def generate_firewalld_rules(domains: List[str]) -> str:
+              """Generate firewalld rules"""
+              rules = ["#!/bin/bash", "", "# Enterprise Firewall Rules - firewalld", ""]
+              rules.append("# Add trusted domains to firewall")
+              rules.append("")
+              
+              for domain in domains:
+                  rules.append(f"# Allow {domain}")
+                  rules.append(f"firewall-cmd --permanent --add-rich-rule='rule family=ipv4 destination address=$(dig +short {domain} | head -1) port port=443 protocol=tcp accept'")
+              
+              rules.append("")
+              rules.append("# Reload firewall")
+              rules.append("firewall-cmd --reload")
+              
+              return "\n".join(rules)
+          
+          def generate_aws_security_group(domains: List[str]) -> Dict:
+              """Generate AWS Security Group rules (JSON format)"""
+              rules = {
+                  "SecurityGroupRules": {
+                      "Egress": []
+                  }
+              }
+              
+              for domain in domains:
+                  rules["SecurityGroupRules"]["Egress"].append({
+                      "Description": f"Allow HTTPS to {domain}",
+                      "IpProtocol": "tcp",
+                      "FromPort": 443,
+                      "ToPort": 443,
+                      "CidrIp": "0.0.0.0/0",  # In practice, resolve to specific IPs
+                      "Tags": [{
+                          "Key": "Domain",
+                          "Value": domain
+                      }]
+                  })
+              
+              # Add DNS
+              rules["SecurityGroupRules"]["Egress"].append({
+                  "Description": "Allow DNS",
+                  "IpProtocol": "udp",
+                  "FromPort": 53,
+                  "ToPort": 53,
+                  "CidrIp": "0.0.0.0/0"
+              })
+              
+              return rules
+          
+          def generate_markdown_documentation(domains_by_category: Dict[str, List[str]]) -> str:
+              """Generate markdown documentation"""
+              md = ["# Enterprise Firewall Configuration Guide", ""]
+              md.append("## Overview")
+              md.append("")
+              md.append("This document provides firewall configuration guidance for enterprise-ready deployments.")
+              md.append("It lists trusted domains that should be whitelisted for outbound access to ensure")
+              md.append("proper functionality of license validation, package management, and documentation access.")
+              md.append("")
+              
+              md.append("## Trusted Domains by Category")
+              md.append("")
+              
+              all_domains = []
+              for category, domains in domains_by_category.items():
+                  category_name = category.replace("_", " ").title()
+                  md.append(f"### {category_name}")
+                  md.append("")
+                  md.append("| Domain | Purpose |")
+                  md.append("|--------|---------|")
+                  
+                  for domain in domains:
+                      all_domains.append(domain)
+                      purpose = get_domain_purpose(domain)
+                      md.append(f"| `{domain}` | {purpose} |")
+                  
+                  md.append("")
+              
+              md.append("## Implementation Examples")
+              md.append("")
+              
+              md.append("### iptables Example")
+              md.append("")
+              md.append("```bash")
+              md.append("# Allow HTTPS to trusted domain")
+              md.append(f"iptables -A OUTPUT -p tcp -d $(dig +short {all_domains[0]}) --dport 443 -j ACCEPT")
+              md.append("```")
+              md.append("")
+              
+              md.append("### UFW Example")
+              md.append("")
+              md.append("```bash")
+              md.append("# Allow HTTPS to trusted domain")
+              md.append(f"ufw allow out to {all_domains[0]} port 443 proto tcp")
+              md.append("```")
+              md.append("")
+              
+              md.append("### AWS Security Group Example")
+              md.append("")
+              md.append("```json")
+              md.append("{")
+              md.append('  "IpPermissions": [{')
+              md.append('    "IpProtocol": "tcp",')
+              md.append('    "FromPort": 443,')
+              md.append('    "ToPort": 443,')
+              md.append('    "IpRanges": [{"CidrIp": "0.0.0.0/0", "Description": "HTTPS to trusted domains"}]')
+              md.append("  }]")
+              md.append("}")
+              md.append("```")
+              md.append("")
+              
+              md.append("## Ports Required")
+              md.append("")
+              md.append("| Port | Protocol | Purpose |")
+              md.append("|------|----------|---------|")
+              md.append("| 443 | TCP | HTTPS (secure web access) |")
+              md.append("| 80 | TCP | HTTP (redirects to HTTPS) |")
+              md.append("| 53 | UDP/TCP | DNS resolution |")
+              md.append("")
+              
+              md.append("## Security Considerations")
+              md.append("")
+              md.append("1. **DNS Resolution**: Ensure DNS queries are allowed (port 53 UDP/TCP)")
+              md.append("2. **Certificate Validation**: HTTPS requires ability to reach certificate authorities")
+              md.append("3. **Dynamic IPs**: Some domains use CDNs with dynamic IPs - consider using FQDNs in rules")
+              md.append("4. **Regular Updates**: Review and update whitelist as services change")
+              md.append("5. **Logging**: Enable logging for blocked connections to identify missing rules")
+              md.append("")
+              
+              md.append("## Compliance Notes")
+              md.append("")
+              md.append("- All listed domains provide read-only access to public information")
+              md.append("- License providers enable GPL compliance verification")
+              md.append("- Package registries support dependency security scanning")
+              md.append("- No authentication credentials are transmitted to these domains")
+              md.append("")
+              
+              return "\n".join(md)
+          
+          def get_domain_purpose(domain: str) -> str:
+              """Get human-readable purpose for a domain"""
+              purposes = {
+                  "www.gnu.org": "GNU licenses and documentation",
+                  "opensource.org": "Open Source Initiative resources",
+                  "choosealicense.com": "GitHub license selection tool",
+                  "spdx.org": "Software Package Data Exchange identifiers",
+                  "creativecommons.org": "Creative Commons licenses",
+                  "apache.org": "Apache Software Foundation licenses",
+                  "fsf.org": "Free Software Foundation resources",
+                  "semver.org": "Semantic versioning specification",
+                  "keepachangelog.com": "Changelog format standards",
+                  "conventionalcommits.org": "Commit message conventions",
+                  "github.com": "GitHub platform access",
+                  "api.github.com": "GitHub API access",
+                  "docs.github.com": "GitHub documentation",
+                  "raw.githubusercontent.com": "GitHub raw content access",
+                  "npmjs.com": "npm package registry",
+                  "pypi.org": "Python Package Index",
+                  "packagist.org": "PHP Composer package registry",
+                  "rubygems.org": "Ruby gems registry",
+                  "joomla.org": "Joomla CMS platform",
+                  "php.net": "PHP documentation and downloads",
+                  "dolibarr.org": "Dolibarr ERP/CRM platform",
+              }
+              return purposes.get(domain, "Trusted resource")
+          
+          def main():
+              firewall_type = "${{ github.event.inputs.firewall_type }}"
+              output_format = "${{ github.event.inputs.output_format }}"
+              
+              # Collect all domains
+              all_domains = []
+              for domains in TRUSTED_DOMAINS.values():
+                  all_domains.extend(domains)
+              
+              # Remove duplicates and sort
+              all_domains = sorted(set(all_domains))
+              
+              print(f"Generating firewall rules for {len(all_domains)} trusted domains...")
+              print("")
+              
+              # Generate based on firewall type
+              if firewall_type in ["iptables", "all"]:
+                  rules = generate_iptables_rules(all_domains)
+                  with open("firewall-rules-iptables.sh", "w") as f:
+                      f.write(rules)
+                  print("✓ Generated iptables rules: firewall-rules-iptables.sh")
+              
+              if firewall_type in ["ufw", "all"]:
+                  rules = generate_ufw_rules(all_domains)
+                  with open("firewall-rules-ufw.sh", "w") as f:
+                      f.write(rules)
+                  print("✓ Generated UFW rules: firewall-rules-ufw.sh")
+              
+              if firewall_type in ["firewalld", "all"]:
+                  rules = generate_firewalld_rules(all_domains)
+                  with open("firewall-rules-firewalld.sh", "w") as f:
+                      f.write(rules)
+                  print("✓ Generated firewalld rules: firewall-rules-firewalld.sh")
+              
+              if firewall_type in ["aws-security-group", "all"]:
+                  rules = generate_aws_security_group(all_domains)
+                  with open("firewall-rules-aws-sg.json", "w") as f:
+                      json.dump(rules, f, indent=2)
+                  print("✓ Generated AWS Security Group rules: firewall-rules-aws-sg.json")
+              
+              if output_format in ["yaml", "all"]:
+                  with open("trusted-domains.yml", "w") as f:
+                      yaml.dump(TRUSTED_DOMAINS, f, default_flow_style=False)
+                  print("✓ Generated YAML domain list: trusted-domains.yml")
+              
+              if output_format in ["json", "all"]:
+                  with open("trusted-domains.json", "w") as f:
+                      json.dump(TRUSTED_DOMAINS, f, indent=2)
+                  print("✓ Generated JSON domain list: trusted-domains.json")
+              
+              if output_format in ["markdown", "all"]:
+                  md = generate_markdown_documentation(TRUSTED_DOMAINS)
+                  with open("FIREWALL_CONFIGURATION.md", "w") as f:
+                      f.write(md)
+                  print("✓ Generated documentation: FIREWALL_CONFIGURATION.md")
+              
+              print("")
+              print("Domain Categories:")
+              for category, domains in TRUSTED_DOMAINS.items():
+                  print(f"  - {category}: {len(domains)} domains")
+              
+              print("")
+              print("Total unique domains: ", len(all_domains))
+          
+          if __name__ == "__main__":
+              main()
+          PYTHON_EOF
+          
+          chmod +x generate_firewall_config.py
+          python3 generate_firewall_config.py
+      
+      - name: Upload Firewall Configuration Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: firewall-configurations
+          path: |
+            firewall-rules-*.sh
+            firewall-rules-*.json
+            trusted-domains.*
+            FIREWALL_CONFIGURATION.md
+          retention-days: 90
+      
+      - name: Display Summary
+        run: |
+          echo "## Firewall Configuration Generated" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Firewall rules have been generated for enterprise-ready deployments." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Files Generated" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          ls -lh firewall-rules-* trusted-domains.* FIREWALL_CONFIGURATION.md 2>/dev/null | awk '{print "- " $9 " (" $5 ")"}' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Download Artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Download the generated firewall configurations from the workflow artifacts." >> $GITHUB_STEP_SUMMARY
+
+# Usage Instructions:
+# 
+# 1. Manually trigger this workflow from the Actions tab
+# 2. Select desired firewall type and output format
+# 3. Download generated artifacts
+# 4. Review and apply firewall rules to your environment
+# 5. Test connectivity to ensure all required domains are accessible
+# 
+# Important Notes:
+# - Review generated rules before applying to production
+# - Some domains may use CDNs with dynamic IPs
+# - Consider using FQDN-based rules where supported
+# - Test thoroughly in staging environment first
+# - Monitor logs for blocked connections
+# - Update rules as domains/services change

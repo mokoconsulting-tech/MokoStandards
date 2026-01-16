@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Templates
 INGROUP: MokoStandards
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /templates/index.md
-VERSION: 02.01.00
+VERSION: 02.02.00
 BRIEF: Comprehensive catalog of all templates in MokoStandards
 -->
 
@@ -61,19 +61,6 @@ GitHub Actions workflow templates for CI/CD automation.
 - Standards compliance validation
 
 **Documentation**: [workflows/README.md](./workflows/README.md)
-
-### Repositories (`repos/`)
-
-Reference repository structures by project type.
-
-**Categories:**
-- **Joomla**: Joomla component/module/plugin structures
-- **Dolibarr**: Dolibarr module structures
-- **Generic**: Platform-agnostic project structures
-
-**Purpose**: Demonstrate ideal repository organization and file placement
-
-**Documentation**: [repos/index.md](./repos/index.md)
 
 ### Configurations (`configs/`)
 
@@ -209,7 +196,7 @@ When customizing templates:
 ### Template Selection Guide
 
 **For New Repositories:**
-- Start with repository structure template from `repos/`
+- Review [Repository Organization Guide](../docs/guide/repository-organization.md) for structure
 - Add documentation templates from `docs/`
 - Copy workflow templates from `workflows/`
 - Add configuration templates from `configs/`
@@ -232,6 +219,8 @@ When customizing templates:
 - Apply `security/index.php` to all src directories in PHP projects (required)
 - Refer to [SEC-DIR-001](../docs/policy/security/directory-listing-prevention.md) for requirements
 
+**Note:** Repository structure templates have been moved to individual scaffold repositories. See the [Repository Organization Guide](../docs/guide/repository-organization.md) for details.
+
 ## Template Organization
 
 ### Directory Structure
@@ -244,11 +233,6 @@ templates/
 │   ├── dolibarr/        # Dolibarr-specific workflows
 │   ├── generic/         # Platform-agnostic workflows
 │   └── README.md
-├── repos/                # Repository structure templates
-│   ├── joomla/          # Joomla repository layouts
-│   ├── dolibarr/        # Dolibarr repository layouts
-│   ├── generic/         # Generic repository layouts
-│   └── index.md
 ├── configs/              # Configuration file templates
 │   ├── .editorconfig
 │   ├── .gitignore
@@ -275,6 +259,8 @@ templates/
 └── projects/             # Project management templates
     └── README.md
 ```
+
+**Note:** Repository structure templates (formerly in `repos/`) have been moved to individual scaffold repositories for better maintainability.
 
 ### Naming Conventions
 
@@ -398,3 +384,4 @@ To contribute new templates or improvements:
 | 01.00.00 | 2025-01-XX | rebuild_indexes.py              | Auto-generated initial index                    |
 | 02.00.00 | 2026-01-13 | GitHub Copilot                  | Comprehensive templates catalog creation        |
 | 02.01.00 | 2026-01-16 | GitHub Copilot                  | Added security templates section and reorganized for usability |
+| 02.02.00 | 2026-01-16 | GitHub Copilot                  | Removed repos/ - moved to individual scaffold repositories |

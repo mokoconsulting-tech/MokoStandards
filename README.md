@@ -383,24 +383,6 @@ This repository is organized to separate enforceable standards from reusable tem
     * Example validation, CI, and utility scripts.
     * Intended for reuse, vendoring, or adaptation.
 
-  * [`templates/repos/`](templates/repos/index.md)
-
-    * Reference repository layouts by platform or domain.
-
-    * [`templates/repos/joomla/`](templates/repos/joomla/index.md)
-
-      * Joomla specific reference layouts.
-
-      * [`templates/repos/joomla/component/`](templates/repos/joomla/component/index.md)
-
-        * Joomla component reference repository.
-        * Demonstrates manifests, packaging, docs, and CI integration.
-
-    * [`templates/repos/generic/`](templates/repos/generic/index.md)
-
-      * Platform agnostic reference repository layout.
-      * Used when no domain specific scaffold applies.
-
 ### Documentation templates
 
 * [`templates/docs/`](templates/docs/index.md)
@@ -432,20 +414,6 @@ This repository is organized to separate enforceable standards from reusable tem
   * Pull request templates
   * Internal workflow configurations
   * Separation ensures confidential organizational templates remain private
-
-### Repository reference layouts
-
-* [`templates/repos/joomla/component/`](templates/repos/joomla/component/index.md)
-
-  * Reference repository layout for Joomla components.
-  * Demonstrates expected folder structure, manifest placement, documentation layout, and CI integration points.
-  * Does not replace Joomla specific standards documents.
-
-* [`templates/repos/generic/`](templates/repos/generic/index.md)
-
-  * Reference repository layout for non Joomla and non Dolibarr projects.
-  * Serves as a baseline when no domain specific scaffold applies.
-  * Emphasizes portability, minimal assumptions, and CI friendliness.
 
 ### Design principles
 

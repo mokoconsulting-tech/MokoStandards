@@ -446,17 +446,14 @@ These templates are maintained as part of MokoStandards and updated periodically
 - **Non-breaking improvements** - Can be adopted at downstream projects' convenience
 - **Security updates** - Must be adopted immediately per security policy
 
-## Integration with Repository Templates
+## Integration with Repository Scaffolds
 
-These workflow templates complement the repository structure templates in `/templates/repos/`:
-
-- `/templates/repos/joomla/` - Contains complete repository layouts including these workflows
-- `/templates/repos/generic/` - Contains generic repository structure
-
-The separation allows:
+These workflow templates are designed to work with project-specific repository scaffolds maintained in individual repositories. The separation allows:
 - Workflow templates to be version-controlled and updated independently
 - Easy discovery and comparison of workflow configurations
 - Central management of CI/CD patterns across the organization
+
+Consult the organization's scaffold repositories for complete repository layouts that integrate these workflows.
 
 ## Best Practices
 

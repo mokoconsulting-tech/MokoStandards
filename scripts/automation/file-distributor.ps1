@@ -382,6 +382,7 @@ function Confirm-FolderAction {
   $btnYesToAll.Font = $font
   $btnYesToAll.Size = New-Object System.Drawing.Size(100, 30)
   $btnYesToAll.Location = New-Object System.Drawing.Point(224, 230)
+  # Note: Using Retry as a semantic placeholder for "Yes to All" since there's no built-in YesToAll DialogResult
   $btnYesToAll.DialogResult = [System.Windows.Forms.DialogResult]::Retry
 
   $btnCancel = New-Object System.Windows.Forms.Button
@@ -520,6 +521,7 @@ function Copy-FileToFolders {
           Write-Host "[CANCEL] User cancelled at: $folderPath"
           break
         }
+        # Check for "Yes to All" (represented by Retry DialogResult)
         if ($mb -eq [System.Windows.Forms.DialogResult]::Retry) {
           $yesToAll = $true
           $decision = "UserYesToAll"

@@ -10,6 +10,7 @@ This index provides navigation to documentation within this folder.
 - [development/](./development/index.md)
 - [onboarding/](./onboarding/index.md)
 - [operations/](./operations/index.md)
+- [validation/](./validation/index.md) - Platform auto-detection and validation
 - [waas/](./waas/index.md)
 
 ## Documents

@@ -10,10 +10,10 @@ Usage:
     
 Examples:
     # Validate current directory against CRM module structure
-    python validate_structure.py schemas/structures/crm-module.xml
+    python validate_structure.py scripts/definitions/crm-module.xml
     
     # Validate specific directory
-    python validate_structure.py schemas/structures/crm-module.xml /path/to/repo
+    python validate_structure.py scripts/definitions/crm-module.xml /path/to/repo
 """
 
 import sys
@@ -326,8 +326,8 @@ def main():
     if len(sys.argv) < 2:
         print("Usage: python validate_structure.py <structure_xml> [<repo_path>]", file=sys.stderr)
         print("\nExamples:", file=sys.stderr)
-        print("  python validate_structure.py schemas/structures/crm-module.xml", file=sys.stderr)
-        print("  python validate_structure.py schemas/structures/crm-module.xml /path/to/repo", file=sys.stderr)
+        print("  python validate_structure.py scripts/definitions/crm-module.xml", file=sys.stderr)
+        print("  python validate_structure.py scripts/definitions/crm-module.xml /path/to/repo", file=sys.stderr)
         sys.exit(1)
     
     structure_xml = sys.argv[1]

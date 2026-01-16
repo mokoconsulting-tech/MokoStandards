@@ -110,11 +110,11 @@ def run_command(cmd: List[str], cwd: Optional[str] = None) -> Tuple[bool, str, s
         return False, e.stdout.strip() if e.stdout else "", e.stderr.strip() if e.stderr else ""
 
 
-def get_org_repositories(org: str, exclude_archived: bool = True) -> List[str]:
+def get_org_repositories(org: str, exclude_archived: bool = True, include_templates: bool = True) -> List[str]:
     """Get list of repositories in the organization that begin with 'Moko'."""
     cmd = [
         "gh", "repo", "list", org,
-        "--json", "name,isArchived",
+        "--json", "name,isArchived,isTemplate",
         "--limit", "1000"
     ]
     
@@ -127,6 +127,9 @@ def get_org_repositories(org: str, exclude_archived: bool = True) -> List[str]:
         repos = json.loads(stdout)
         if exclude_archived:
             repos = [r for r in repos if not r.get("isArchived", False)]
+        # Include templates if requested (default: True)
+        if not include_templates:
+            repos = [r for r in repos if not r.get("isTemplate", False)]
         # Filter to only repositories beginning with "Moko"
         return [r["name"] for r in repos if r["name"].startswith("Moko")]
     except json.JSONDecodeError as e:
@@ -328,6 +331,43 @@ def set_missing_standards_options(org: str, repo: str, dry_run: bool = False) ->
     return True
 
 
+def detect_platform(repo_dir: str, source_dir: str) -> Optional[str]:
+    """
+    Detect the platform type of a repository using auto_detect_platform.py
+    
+    Args:
+        repo_dir: Path to the cloned repository
+        source_dir: Path to MokoStandards source directory
+        
+    Returns:
+        Platform type string (joomla, dolibarr, generic) or None if detection fails
+    """
+    script_path = Path(source_dir) / "scripts" / "validate" / "auto_detect_platform.py"
+    
+    if not script_path.exists():
+        print(f"    Warning: auto_detect_platform.py not found at {script_path}", file=sys.stderr)
+        return None
+    
+    try:
+        # Run platform detection script
+        cmd = ["python3", str(script_path), "--repo-path", repo_dir, "--json"]
+        success, stdout, stderr = run_command(cmd)
+        
+        if success and stdout:
+            try:
+                result = json.loads(stdout)
+                return result.get("platform_type", "generic")
+            except json.JSONDecodeError:
+                print(f"    Warning: Failed to parse platform detection output", file=sys.stderr)
+                return None
+        else:
+            print(f"    Warning: Platform detection failed: {stderr}", file=sys.stderr)
+            return None
+    except Exception as e:
+        print(f"    Warning: Platform detection error: {e}", file=sys.stderr)
+        return None
+
+
 def update_repository(
     org: str,
     repo: str,
@@ -364,6 +404,14 @@ def update_repository(
     print(f"  Cloning repository...")
     if not clone_repository(org, repo, str(repo_dir)):
         return False
+    
+    # Detect platform before creating branch
+    print(f"  Detecting platform type...")
+    platform_type = detect_platform(str(repo_dir), source_dir)
+    if platform_type:
+        print(f"    Detected platform: {platform_type}")
+    else:
+        print(f"    Platform detection skipped or failed, using defaults")
     
     # Create branch
     print(f"  Creating branch: {branch_name}")

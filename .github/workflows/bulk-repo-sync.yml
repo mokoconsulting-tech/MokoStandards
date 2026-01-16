@@ -111,6 +111,18 @@ jobs:
         run: |
           git config --global user.email "automation@mokoconsulting.tech"
           git config --global user.name "Moko Standards Bot"
+      
+      - name: Validate auto_detect_platform.py availability
+        run: |
+          if [ ! -f "scripts/validate/auto_detect_platform.py" ]; then
+            echo "## ❌ Error: auto_detect_platform.py Not Found" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "The platform detection script is required for repository sync operations." >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          echo "## ✅ Platform Detection Available" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Platform detection script validated and ready." >> $GITHUB_STEP_SUMMARY
           
       - name: Run bulk update script (dry-run)
         if: github.event_name == 'workflow_dispatch' && inputs.dry_run == true

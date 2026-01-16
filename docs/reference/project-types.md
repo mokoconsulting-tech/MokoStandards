@@ -446,9 +446,9 @@ See [Health Scoring System](health-scoring.md) for details.
 ### Repository Structure Schema
 
 XML schema validation adapts to project type:
-- `schemas/structures/crm-module.xml` for Dolibarr
-- `schemas/structures/waas-component.xml` for Joomla (future)
-- `schemas/structures/generic-project.xml` for others (future)
+- `scripts/definitions/crm-module.xml` for Dolibarr
+- `scripts/definitions/waas-component.xml` for Joomla (future)
+- `scripts/definitions/generic-project.xml` for others (future)
 
 See [Repository Structure Schema](guide/repository-structure-schema.md) for details.
 

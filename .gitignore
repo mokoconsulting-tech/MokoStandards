@@ -920,3 +920,4 @@ modulebuilder.txt
 # Keep-empty folders helper
 # ============================================================
 !.gitkeep
+validation-reports/

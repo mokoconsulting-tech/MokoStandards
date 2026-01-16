@@ -4,6 +4,10 @@
 
 This index provides navigation to documentation within this folder.
 
+## Documents
+
+- [repository-startup-guide](./repository-startup-guide.md)
+
 ## Metadata
 
 - **Document Type:** index

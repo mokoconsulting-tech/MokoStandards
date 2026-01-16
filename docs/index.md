@@ -102,6 +102,7 @@ Step-by-step tutorials and how-to documentation.
 - [bulk-repository-updates](./guide/bulk-repository-updates.md)
 - [changelog-synchronization](./guide/changelog-synchronization.md)
 - [conflict-resolution](./guide/conflict-resolution.md)
+- [layered-documentation](./guide/layered-documentation.md)
 - [project-fields](./guide/project-fields.md)
 - [project-views](./guide/project-views.md)
 - [repository-organization](./guide/repository-organization.md)
@@ -117,6 +118,7 @@ Step-by-step tutorials and how-to documentation.
 - [backup-restore-procedures](./guide/operations/backup-restore-procedures.md)
 - [database-administration-guide](./guide/operations/database-administration-guide.md)
 - [disaster-recovery-procedures](./guide/operations/disaster-recovery-procedures.md)
+- [enterprise-firewall-configuration](./guide/operations/enterprise-firewall-configuration.md)
 - [incident-response-runbooks](./guide/operations/incident-response-runbooks.md)
 
 ### WAAS

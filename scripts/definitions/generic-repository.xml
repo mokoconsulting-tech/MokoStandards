@@ -83,7 +83,7 @@
       <file>
         <name>Makefile</name>
         <description>Build automation</description>
-        <required>false</required>
+        <requirement-status>suggested</requirement-status>
         <audience>developer</audience>
       </file>
     </root-files>
@@ -94,7 +94,7 @@
       <directory path="src">
         <name>src</name>
         <description>Source code</description>
-        <required>false</required>
+        <requirement-status>suggested</requirement-status>
         <purpose>Contains application/library source code</purpose>
       </directory>
 
@@ -109,7 +109,7 @@
           <file extension="md">
             <name>index.md</name>
             <description>Documentation index</description>
-            <required>false</required>
+            <requirement-status>suggested</requirement-status>
           </file>
         </files>
       </directory>
@@ -125,13 +125,13 @@
           <file extension="md">
             <name>index.md</name>
             <description>Scripts documentation</description>
-            <required>false</required>
+            <requirement-status>suggested</requirement-status>
           </file>
 
           <file extension="yml">
             <name>.mokostandards-sync.yml</name>
             <description>MokoStandards sync override configuration - preserved during sync</description>
-            <required>false</required>
+            <requirement-status>optional</requirement-status>
             <always-overwrite>false</always-overwrite>
             <audience>developer</audience>
           </file>
@@ -142,7 +142,7 @@
       <directory path="tests">
         <name>tests</name>
         <description>Test files</description>
-        <required>false</required>
+        <requirement-status>suggested</requirement-status>
         <purpose>Contains unit tests, integration tests, and test fixtures</purpose>
       </directory>
 
@@ -150,20 +150,20 @@
       <directory path=".github">
         <name>.github</name>
         <description>GitHub-specific configuration</description>
-        <required>false</required>
+        <requirement-status>suggested</requirement-status>
         <purpose>Contains GitHub Actions workflows, issue templates, etc.</purpose>
 
         <subdirectories>
           <directory path=".github/workflows">
             <name>workflows</name>
             <description>GitHub Actions workflows</description>
-            <required>false</required>
+            <requirement-status>suggested</requirement-status>
           </directory>
 
           <directory path=".github/ISSUE_TEMPLATE">
             <name>ISSUE_TEMPLATE</name>
             <description>GitHub issue templates</description>
-            <required>false</required>
+            <requirement-status>suggested</requirement-status>
           </directory>
         </subdirectories>
       </directory>

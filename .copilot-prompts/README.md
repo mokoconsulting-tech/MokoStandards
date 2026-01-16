@@ -14,6 +14,22 @@ When implementing features in MokoStandards that require corresponding changes i
 
 ## Available Prompts
 
+### Comprehensive Framework Summary
+
+**File**: `comprehensive-framework-summary.md`
+
+**Purpose**: Complete overview of the MokoStandards framework including:
+- Schema System v2.0 with source/destination mapping
+- Platform auto-detection for Joomla (all types) and Dolibarr
+- Repository requirements validation
+- Template organization and naming conventions
+- Enterprise firewall configuration
+- Bulk repository sync with schema deployment
+- Issue template management approach
+- Recent updates and breaking changes
+
+**When to Use**: When onboarding new team members, implementing features across the framework, or needing a complete reference of capabilities.
+
 ### Repository Health System Integration
 
 **File**: `github-private-integration-repo-health.md`
@@ -65,4 +81,4 @@ When adding new features that span multiple repositories:
 ---
 
 **Maintained by**: Moko Consulting Engineering Team  
-**Last Updated**: 2026-01-08
+**Last Updated**: 2026-01-16

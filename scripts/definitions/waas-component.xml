@@ -23,9 +23,11 @@
 
       <file extension="">
         <name>LICENSE</name>
-        <description>License file (GPL-3.0-or-later)</description>
+        <description>License file (GPL-3.0-or-later) - Default for Joomla/WaaS components</description>
         <required>true</required>
         <audience>general</audience>
+        <template>templates/licenses/GPL-3.0</template>
+        <license-type>GPL-3.0-or-later</license-type>
       </file>
 
       <file extension="md">
@@ -61,6 +63,17 @@
         <description>Build automation using MokoStandards templates</description>
         <required>true</required>
         <audience>developer</audience>
+        <source>
+          <path>templates/makefiles</path>
+          <filename>Makefile.joomla.template</filename>
+          <type>template</type>
+        </source>
+        <destination>
+          <path>.</path>
+          <filename>Makefile</filename>
+          <create-path>false</create-path>
+        </destination>
+        <template>templates/makefiles/Makefile.joomla.template</template>
       </file>
 
       <file extension="gitignore">
@@ -117,13 +130,13 @@
           <directory path="site/controllers">
             <name>controllers</name>
             <description>Site controllers</description>
-            <required>false</required>
+            <requirement-status>suggested</requirement-status>
           </directory>
 
           <directory path="site/models">
             <name>models</name>
             <description>Site models</description>
-            <required>false</required>
+            <requirement-status>suggested</requirement-status>
           </directory>
 
           <directory path="site/views">
@@ -154,13 +167,13 @@
           <directory path="admin/controllers">
             <name>controllers</name>
             <description>Admin controllers</description>
-            <required>false</required>
+            <requirement-status>suggested</requirement-status>
           </directory>
 
           <directory path="admin/models">
             <name>models</name>
             <description>Admin models</description>
-            <required>false</required>
+            <requirement-status>suggested</requirement-status>
           </directory>
 
           <directory path="admin/views">
@@ -172,7 +185,7 @@
           <directory path="admin/sql">
             <name>sql</name>
             <description>Database schema files</description>
-            <required>false</required>
+            <requirement-status>suggested</requirement-status>
           </directory>
         </subdirectories>
       </directory>
@@ -181,26 +194,26 @@
       <directory path="media">
         <name>media</name>
         <description>Media files (CSS, JS, images)</description>
-        <required>false</required>
+        <requirement-status>suggested</requirement-status>
         <purpose>Contains static assets</purpose>
 
         <subdirectories>
           <directory path="media/css">
             <name>css</name>
             <description>Stylesheets</description>
-            <required>false</required>
+            <requirement-status>suggested</requirement-status>
           </directory>
 
           <directory path="media/js">
             <name>js</name>
             <description>JavaScript files</description>
-            <required>false</required>
+            <requirement-status>suggested</requirement-status>
           </directory>
 
           <directory path="media/images">
             <name>images</name>
             <description>Image files</description>
-            <required>false</required>
+            <requirement-status>suggested</requirement-status>
           </directory>
         </subdirectories>
       </directory>
@@ -240,13 +253,27 @@
           <file extension="md">
             <name>index.md</name>
             <description>Scripts documentation</description>
-            <required>false</required>
+            <requirement-status>required</requirement-status>
+          </file>
+          
+          <file extension="sh">
+            <name>build_package.sh</name>
+            <description>Package building script for Joomla component</description>
+            <requirement-status>suggested</requirement-status>
+            <template>templates/scripts/release/package_joomla.sh</template>
+          </file>
+          
+          <file extension="sh">
+            <name>validate_manifest.sh</name>
+            <description>Manifest validation script</description>
+            <requirement-status>suggested</requirement-status>
+            <template>templates/scripts/validate/manifest.sh</template>
           </file>
 
           <file extension="yml">
             <name>.mokostandards-sync.yml</name>
             <description>MokoStandards sync override configuration - preserved during sync</description>
-            <required>false</required>
+            <requirement-status>suggested</requirement-status>
             <always-overwrite>false</always-overwrite>
             <audience>developer</audience>
           </file>
@@ -270,7 +297,7 @@
           <directory path="tests/integration">
             <name>integration</name>
             <description>Integration tests</description>
-            <required>false</required>
+            <requirement-status>suggested</requirement-status>
           </directory>
         </subdirectories>
       </directory>
@@ -279,14 +306,37 @@
       <directory path=".github">
         <name>.github</name>
         <description>GitHub-specific configuration</description>
-        <required>false</required>
+        <requirement-status>suggested</requirement-status>
         <purpose>Contains GitHub Actions workflows, issue templates, etc.</purpose>
 
         <subdirectories>
           <directory path=".github/workflows">
             <name>workflows</name>
             <description>GitHub Actions workflows</description>
-            <required>false</required>
+            <requirement-status>required</requirement-status>
+            
+            <files>
+              <file extension="yml">
+                <name>ci-joomla.yml</name>
+                <description>Joomla-specific CI workflow</description>
+                <requirement-status>required</requirement-status>
+                <template>templates/workflows/joomla/ci-joomla.yml.template</template>
+              </file>
+              
+              <file extension="yml">
+                <name>codeql-analysis.yml</name>
+                <description>CodeQL security analysis workflow</description>
+                <requirement-status>suggested</requirement-status>
+                <template>templates/workflows/generic/codeql-analysis.yml.template</template>
+              </file>
+              
+              <file extension="yml">
+                <name>standards-compliance.yml</name>
+                <description>MokoStandards compliance validation</description>
+                <requirement-status>required</requirement-status>
+                <template>.github/workflows/standards-compliance.yml</template>
+              </file>
+            </files>
           </directory>
         </subdirectories>
       </directory>

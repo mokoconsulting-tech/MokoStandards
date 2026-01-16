@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+
+This file is part of a Moko Consulting project.
+
+SPDX-License-Identifier: GPL-3.0-or-later
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+FILE INFORMATION
+DEFGROUP: MokoStandards.Templates.Schemas
+INGROUP: MokoStandards.Templates
+REPO: https://github.com/mokoconsulting-tech/MokoStandards
+PATH: /templates/schemas/template-repository-structure.xml
+VERSION: 01.00.00
+BRIEF: Template for defining custom repository structure schemas
+-->
+<repository-structure xmlns="http://mokoconsulting.com/schemas/repository-structure"
+                      version="1.0"
+                      schema-version="1.0">
+  <metadata>
+    <name>Template Repository Structure</name>
+    <description>Template for defining custom repository structure schemas</description>
+    <repository-type>template</repository-type>
+    <platform>multi-platform</platform>
+    <last-updated>2026-01-16T00:00:00Z</last-updated>
+    <maintainer>Moko Consulting</maintainer>
+  </metadata>
+
+  <structure>
+    <!-- Root level files -->
+    <root-files>
+      <file extension="md">
+        <name>README.md</name>
+        <description>Project overview and documentation</description>
+        <requirement-status>required</requirement-status>
+        <audience>general</audience>
+        <template>templates/docs/required/template-README.md</template>
+      </file>
+
+      <file extension="">
+        <name>LICENSE</name>
+        <description>License file</description>
+        <requirement-status>required</requirement-status>
+        <audience>general</audience>
+        <template>templates/licenses/GPL-3.0</template>
+      </file>
+
+      <file extension="md">
+        <name>CHANGELOG.md</name>
+        <description>Version history and changes</description>
+        <requirement-status>required</requirement-status>
+        <audience>general</audience>
+        <template>templates/docs/required/template-CHANGELOG.md</template>
+      </file>
+
+      <file extension="md">
+        <name>CONTRIBUTING.md</name>
+        <description>Contribution guidelines</description>
+        <requirement-status>required</requirement-status>
+        <audience>contributor</audience>
+        <template>templates/docs/required/template-CONTRIBUTING.md</template>
+      </file>
+
+      <file extension="md">
+        <name>SECURITY.md</name>
+        <description>Security policy and vulnerability reporting</description>
+        <requirement-status>required</requirement-status>
+        <audience>general</audience>
+        <template>templates/docs/required/template-SECURITY.md</template>
+      </file>
+
+      <file extension="gitignore">
+        <name>.gitignore</name>
+        <description>Git ignore patterns</description>
+        <requirement-status>required</requirement-status>
+        <always-overwrite>false</always-overwrite>
+        <audience>developer</audience>
+      </file>
+
+      <file extension="editorconfig">
+        <name>.editorconfig</name>
+        <description>Editor configuration for consistent coding style</description>
+        <requirement-status>required</requirement-status>
+        <always-overwrite>false</always-overwrite>
+        <audience>developer</audience>
+      </file>
+    </root-files>
+
+    <!-- Directory structure -->
+    <directories>
+      <!-- Documentation directory -->
+      <directory path="docs">
+        <name>docs</name>
+        <description>Documentation directory</description>
+        <requirement-status>required</requirement-status>
+        <purpose>Contains comprehensive project documentation</purpose>
+
+        <files>
+          <file extension="md">
+            <name>index.md</name>
+            <description>Documentation index</description>
+            <requirement-status>required</requirement-status>
+            <template>templates/docs/index.md</template>
+          </file>
+        </files>
+      </directory>
+
+      <!-- Scripts directory -->
+      <directory path="scripts">
+        <name>scripts</name>
+        <description>Build and automation scripts</description>
+        <requirement-status>required</requirement-status>
+        <purpose>Contains scripts for building, testing, and deploying</purpose>
+        
+        <files>
+          <file extension="yml">
+            <name>.mokostandards-sync.yml</name>
+            <description>MokoStandards sync override configuration</description>
+            <requirement-status>optional</requirement-status>
+            <always-overwrite>false</always-overwrite>
+          </file>
+        </files>
+      </directory>
+
+      <!-- .github directory -->
+      <directory path=".github">
+        <name>.github</name>
+        <description>GitHub-specific configuration</description>
+        <requirement-status>required</requirement-status>
+        <purpose>Contains GitHub Actions workflows, issue templates, etc.</purpose>
+
+        <subdirectories>
+          <directory path=".github/workflows">
+            <name>workflows</name>
+            <description>GitHub Actions workflows</description>
+            <requirement-status>required</requirement-status>
+            
+            <files>
+              <file extension="yml">
+                <name>standards-compliance.yml</name>
+                <description>MokoStandards compliance validation</description>
+                <requirement-status>required</requirement-status>
+                <template>.github/workflows/standards-compliance.yml</template>
+              </file>
+            </files>
+          </directory>
+        </subdirectories>
+      </directory>
+    </directories>
+  </structure>
+</repository-structure>

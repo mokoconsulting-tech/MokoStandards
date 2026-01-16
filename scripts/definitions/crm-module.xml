@@ -67,9 +67,11 @@ See LICENSE file for details.
 
       <file extension="">
         <name>LICENSE</name>
-        <description>License file without extension</description>
+        <description>License file (GPL-3.0-or-later) - Default for Dolibarr/CRM modules</description>
         <required>true</required>
         <audience>general</audience>
+        <template>templates/licenses/GPL-3.0</template>
+        <license-type>GPL-3.0-or-later</license-type>
       </file>
 
       <file extension="md">
@@ -84,6 +86,17 @@ See LICENSE file for details.
         <description>Build automation using MokoStandards templates</description>
         <required>true</required>
         <audience>developer</audience>
+        <source>
+          <path>templates/makefiles</path>
+          <filename>Makefile.dolibarr.template</filename>
+          <type>template</type>
+        </source>
+        <destination>
+          <path>.</path>
+          <filename>Makefile</filename>
+          <create-path>false</create-path>
+        </destination>
+        <template>templates/makefiles/Makefile.dolibarr.template</template>
       </file>
 
       <file extension="editorconfig">
@@ -183,31 +196,31 @@ See CHANGELOG.md for version history.
           <directory path="src/sql">
             <name>sql</name>
             <description>Database schema files</description>
-            <required>false</required>
+            <requirement-status>suggested</requirement-status>
           </directory>
 
           <directory path="src/css">
             <name>css</name>
             <description>Stylesheets</description>
-            <required>false</required>
+            <requirement-status>suggested</requirement-status>
           </directory>
 
           <directory path="src/js">
             <name>js</name>
             <description>JavaScript files</description>
-            <required>false</required>
+            <requirement-status>suggested</requirement-status>
           </directory>
 
           <directory path="src/class">
             <name>class</name>
             <description>PHP class files</description>
-            <required>false</required>
+            <requirement-status>suggested</requirement-status>
           </directory>
 
           <directory path="src/lib">
             <name>lib</name>
             <description>Library files</description>
-            <required>false</required>
+            <requirement-status>suggested</requirement-status>
           </directory>
         </subdirectories>
       </directory>
@@ -239,7 +252,28 @@ See CHANGELOG.md for version history.
           <file extension="md">
             <name>index.md</name>
             <description>Scripts documentation</description>
-            <required>false</required>
+            <requirement-status>required</requirement-status>
+          </file>
+          
+          <file extension="sh">
+            <name>build_package.sh</name>
+            <description>Package building script for Dolibarr module</description>
+            <requirement-status>suggested</requirement-status>
+            <template>templates/scripts/release/package_dolibarr.sh</template>
+          </file>
+          
+          <file extension="sh">
+            <name>validate_module.sh</name>
+            <description>Module validation script</description>
+            <requirement-status>suggested</requirement-status>
+            <template>templates/scripts/validate/dolibarr_module.sh</template>
+          </file>
+          
+          <file extension="yml">
+            <name>.mokostandards-sync.yml</name>
+            <description>MokoStandards sync override configuration</description>
+            <requirement-status>optional</requirement-status>
+            <always-overwrite>false</always-overwrite>
           </file>
         </files>
       </directory>
@@ -261,7 +295,7 @@ See CHANGELOG.md for version history.
           <directory path="tests/integration">
             <name>integration</name>
             <description>Integration tests</description>
-            <required>false</required>
+            <requirement-status>suggested</requirement-status>
           </directory>
         </subdirectories>
       </directory>
@@ -270,7 +304,7 @@ See CHANGELOG.md for version history.
       <directory path="templates">
         <name>templates</name>
         <description>Template files for code generation</description>
-        <required>false</required>
+        <requirement-status>suggested</requirement-status>
         <purpose>Contains templates used by build scripts</purpose>
       </directory>
 
@@ -278,14 +312,37 @@ See CHANGELOG.md for version history.
       <directory path=".github">
         <name>.github</name>
         <description>GitHub-specific configuration</description>
-        <required>false</required>
+        <requirement-status>suggested</requirement-status>
         <purpose>Contains GitHub Actions workflows, issue templates, etc.</purpose>
 
         <subdirectories>
           <directory path=".github/workflows">
             <name>workflows</name>
             <description>GitHub Actions workflows</description>
-            <required>false</required>
+            <requirement-status>required</requirement-status>
+            
+            <files>
+              <file extension="yml">
+                <name>ci-dolibarr.yml</name>
+                <description>Dolibarr-specific CI workflow</description>
+                <requirement-status>required</requirement-status>
+                <template>templates/workflows/dolibarr/ci-dolibarr.yml.template</template>
+              </file>
+              
+              <file extension="yml">
+                <name>codeql-analysis.yml</name>
+                <description>CodeQL security analysis workflow</description>
+                <requirement-status>suggested</requirement-status>
+                <template>templates/workflows/generic/codeql-analysis.yml.template</template>
+              </file>
+              
+              <file extension="yml">
+                <name>standards-compliance.yml</name>
+                <description>MokoStandards compliance validation</description>
+                <requirement-status>required</requirement-status>
+                <template>.github/workflows/standards-compliance.yml</template>
+              </file>
+            </files>
           </directory>
         </subdirectories>
       </directory>

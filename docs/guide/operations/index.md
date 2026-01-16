@@ -9,6 +9,7 @@ This index provides navigation to documentation within this folder.
 - [backup-restore-procedures](./backup-restore-procedures.md)
 - [database-administration-guide](./database-administration-guide.md)
 - [disaster-recovery-procedures](./disaster-recovery-procedures.md)
+- [enterprise-firewall-configuration](./enterprise-firewall-configuration.md)
 - [incident-response-runbooks](./incident-response-runbooks.md)
 
 ## Metadata

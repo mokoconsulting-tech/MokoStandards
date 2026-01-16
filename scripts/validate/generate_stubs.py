@@ -16,16 +16,16 @@ Arguments:
 
 Examples:
     # Preview what would be created
-    python generate_stubs.py schemas/structures/crm-module.xml --dry-run
+    python generate_stubs.py scripts/definitions/crm-module.xml --dry-run
     
     # Generate stubs in current directory
-    python generate_stubs.py schemas/structures/crm-module.xml
+    python generate_stubs.py scripts/definitions/crm-module.xml
     
     # Generate stubs in specific directory
-    python generate_stubs.py schemas/structures/crm-module.xml /path/to/repo
+    python generate_stubs.py scripts/definitions/crm-module.xml /path/to/repo
     
     # Force overwrite existing files
-    python generate_stubs.py schemas/structures/crm-module.xml --force
+    python generate_stubs.py scripts/definitions/crm-module.xml --force
 """
 
 import sys
@@ -348,16 +348,16 @@ def main():
         epilog="""
 Examples:
   # Preview what would be created
-  python generate_stubs.py schemas/structures/crm-module.xml --dry-run
+  python generate_stubs.py scripts/definitions/crm-module.xml --dry-run
   
   # Generate stubs in current directory
-  python generate_stubs.py schemas/structures/crm-module.xml
+  python generate_stubs.py scripts/definitions/crm-module.xml
   
   # Generate stubs in specific directory
-  python generate_stubs.py schemas/structures/crm-module.xml /path/to/repo
+  python generate_stubs.py scripts/definitions/crm-module.xml /path/to/repo
   
   # Force overwrite existing files
-  python generate_stubs.py schemas/structures/crm-module.xml --force
+  python generate_stubs.py scripts/definitions/crm-module.xml --force
         """
     )
     

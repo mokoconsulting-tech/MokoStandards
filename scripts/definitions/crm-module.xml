@@ -86,6 +86,17 @@ See LICENSE file for details.
         <description>Build automation using MokoStandards templates</description>
         <required>true</required>
         <audience>developer</audience>
+        <source>
+          <path>templates/makefiles</path>
+          <filename>Makefile.dolibarr.template</filename>
+          <type>template</type>
+        </source>
+        <destination>
+          <path>.</path>
+          <filename>Makefile</filename>
+          <create-path>false</create-path>
+        </destination>
+        <template>templates/makefiles/Makefile.dolibarr.template</template>
       </file>
 
       <file extension="editorconfig">

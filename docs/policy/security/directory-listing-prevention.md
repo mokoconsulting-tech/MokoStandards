@@ -1,22 +1,33 @@
 # Directory Listing Security Policy
 
-**Status**: Active | **Version**: 01.00.00 | **Effective**: 2026-01-16
+**Status**: Active | **Version**: 01.01.00 | **Effective**: 2026-01-16
 
 ## Overview
 
-This policy requires all organization repositories to include redirect `index.html` files in source directories to prevent directory listing exposure on web servers.
+This policy requires all organization repositories to include redirect files (`index.html` and `index.php`) in source directories to prevent directory listing exposure on web servers.
 
 ## Policy Statement
 
-All organization repositories **MUST** include an `index.html` redirect file in:
+All organization repositories **MUST** include redirect files in:
 
 1. The `src/` directory (if present)
 2. All subdirectories under `src/`
 3. Any other directories that may be exposed via web servers
 
+### File Requirements by Project Type
+
+**PHP-based projects** (e.g., Dolibarr/MokoCRM):
+- `index.php` - Primary redirect (server-side)
+- `index.html` - Fallback redirect (client-side)
+
+**Non-PHP projects** (e.g., Node.js, static sites):
+- `index.html` - Primary redirect (client-side)
+
 ## Requirements
 
-### Mandatory Redirect File
+### Mandatory Redirect Files
+
+#### index.html (Required for all projects)
 
 Each directory must contain an `index.html` file that:
 
@@ -26,17 +37,35 @@ Each directory must contain an `index.html` file that:
 - Contains `noindex, nofollow` meta tags
 - Provides a manual link for accessibility
 
+#### index.php (Required for PHP projects)
+
+PHP-based projects must also include an `index.php` file that:
+
+- Uses PHP header redirect (highest priority)
+- Redirects to the repository root URL (`/`)
+- Includes HTML/JavaScript fallback
+- Contains `noindex, nofollow` meta tags
+- Prevents direct file access
+
 ### Template Location
 
-The standard redirect template is located at:
+The standard redirect templates are located at:
 ```
 templates/security/index.html
+templates/security/index.php
 ```
 
 ### Implementation
 
 When creating new repositories or directories:
 
+**For PHP projects:**
+```bash
+# Copy both templates to all src subdirectories
+find src -type d -exec sh -c 'cp templates/security/index.html "$1" && cp templates/security/index.php "$1"' _ {} \;
+```
+
+**For non-PHP projects:**
 ```bash
 # Copy index.html to all src subdirectories
 find src -type d -exec cp templates/security/index.html {} \;
@@ -94,22 +123,34 @@ Not required in:
 
 ### Repository Setup Checklist
 
+**For all projects:**
 - [ ] `index.html` exists in `src/`
 - [ ] `index.html` exists in all `src/` subdirectories
 - [ ] All `index.html` files redirect to `/`
 - [ ] Files include `noindex, nofollow` meta tags
 - [ ] Files use standard template from `templates/security/index.html`
 
+**Additional for PHP projects:**
+- [ ] `index.php` exists in `src/`
+- [ ] `index.php` exists in all `src/` subdirectories
+- [ ] All `index.php` files use header redirect
+- [ ] Files use standard template from `templates/security/index.php`
+
 ### Verification
 
 Verify compliance with:
 
+**Check for missing index.html files:**
 ```bash
-# Check for missing index.html files
 find src -type d ! -exec test -e {}/index.html \; -print
 ```
 
-Expected output: No directories listed (all have index.html)
+**Check for missing index.php files (PHP projects):**
+```bash
+find src -type d ! -exec test -e {}/index.php \; -print
+```
+
+Expected output: No directories listed (all have required index files)
 
 ### Enforcement
 
@@ -123,6 +164,13 @@ Expected output: No directories listed (all have index.html)
 
 When creating a new repository:
 
+**For PHP projects:**
+1. Copy templates: `cp templates/security/index.* src/`
+2. Replicate to subdirectories: `find src -type d -exec sh -c 'cp templates/security/index.html "$1" && cp templates/security/index.php "$1"' _ {} \;`
+3. Commit files with source code
+4. Verify in CI/CD pipeline
+
+**For non-PHP projects:**
 1. Copy template: `cp templates/security/index.html src/`
 2. Replicate to subdirectories: `find src -type d -exec cp templates/security/index.html {} \;`
 3. Commit files with source code
@@ -134,21 +182,22 @@ For repositories without redirect files:
 
 1. Review directory structure
 2. Identify directories served by web servers
-3. Apply template to all applicable directories
-4. Test redirect functionality
-5. Commit and deploy changes
+3. Determine if project is PHP-based
+4. Apply appropriate templates to all applicable directories
+5. Test redirect functionality
+6. Commit and deploy changes
 
 ### Maintenance
 
 When adding new directories:
 
-1. Copy `index.html` from parent directory or template
+1. Copy appropriate index files from parent directory or templates
 2. Verify redirect works correctly
 3. Include in same commit as directory creation
 
 ## Template Specification
 
-### Required Elements
+### Required Elements - index.html
 
 The `index.html` template must include:
 
@@ -168,23 +217,45 @@ The `index.html` template must include:
 <a href="/">click here</a>
 ```
 
+### Required Elements - index.php
+
+The `index.php` template must include:
+
+```php
+<?php
+// PHP header redirect (highest priority)
+header('Location: /');
+exit;
+?>
+<!-- HTML fallback (same as index.html) -->
+```
+
 ### Customization
 
 Templates may be customized for:
 - Branding (styling)
 - Alternative redirect targets (with approval)
-- Additional security headers
+- Additional security headers (PHP)
 
 Templates must NOT:
 - Remove redirect functionality
 - Change default target without security review
-- Include executable code beyond redirect
+- Include executable code beyond redirect (except header redirect in PHP)
+
+### PHP-Specific Requirements
+
+The `index.php` template must:
+- Use PHP header redirect as primary mechanism
+- Exit immediately after header redirect
+- Prevent execution without proper context
+- Include HTML fallback for edge cases
 
 ## Related Policies
 
 - [security-scanning](./security-scanning.md) - Automated security validation
 - [workflow-standards](./workflow-standards.md) - CI/CD security checks
 - [file-header-standards](./file-header-standards.md) - File metadata requirements
+- [crm/development-standards](../crm/development-standards.md) - PHP/Dolibarr standards
 
 ## Exceptions
 
@@ -207,12 +278,14 @@ Request exceptions via GitHub issue with `security-exception` label.
 | Approval Required | Yes |
 | Evidence Required | Yes |
 | Review Cycle | Annual |
-| Compliance Tags | Security, Web Security |
+| Compliance Tags | Security, Web Security, PHP Security |
 | Status | Active |
 | Effective Date | 2026-01-16 |
+| Last Updated | 2026-01-16 |
 
 ## Revision History
 
 | Date | Version | Change Description | Author |
 |------|---------|-------------------|--------|
+| 2026-01-16 | 01.01.00 | Added index.php requirement for PHP projects | GitHub Copilot |
 | 2026-01-16 | 01.00.00 | Initial policy creation | GitHub Copilot |

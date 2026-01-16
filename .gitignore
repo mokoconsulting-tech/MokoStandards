@@ -204,6 +204,7 @@ htdocs/custom/
 htdocs/cache/
 htdocs/tmp/
 htdocs/logs/
+modulebuilder.txt
 
 # ============================================================
 # Joomla Core

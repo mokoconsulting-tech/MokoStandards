@@ -64,6 +64,7 @@ Standards, requirements, and compliance documentation.
 - [audit-logging-monitoring](./policy/security/audit-logging-monitoring.md)
 - [backup-recovery](./policy/security/backup-recovery.md)
 - [data-privacy-gdpr-compliance](./policy/security/data-privacy-gdpr-compliance.md)
+- [directory-listing-prevention](./policy/security/directory-listing-prevention.md)
 - [disaster-recovery-business-continuity](./policy/security/disaster-recovery-business-continuity.md)
 - [encryption-standards](./policy/security/encryption-standards.md)
 - [vulnerability-management](./policy/security/vulnerability-management.md)

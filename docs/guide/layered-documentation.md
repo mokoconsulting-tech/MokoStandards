@@ -74,6 +74,7 @@ These files are **REQUIRED** for all repositories regardless of type:
 - Copyright information
 - Redistribution terms
 - Warranty disclaimers
+- **Note:** LICENSE file must NOT have an extension (use `LICENSE`, not `LICENSE.md` or `LICENSE.txt`)
 
 **SECURITY.md Requirements:**
 - Supported versions

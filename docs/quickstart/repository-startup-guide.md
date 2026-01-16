@@ -848,7 +848,7 @@ head -30 your-file.php
 ### Required Files - All Repository Types
 
 - ✅ README.md
-- ✅ LICENSE
+- ✅ LICENSE (no extension - use `LICENSE`, not `LICENSE.md`)
 - ✅ CHANGELOG.md
 - ✅ CONTRIBUTING.md
 - ✅ SECURITY.md

@@ -1,19 +1,18 @@
-# Docs Index: /docs/scripts
+# Docs Index: /docs/github-private
 
 ## Purpose
 
 This index provides navigation to documentation within this folder.
 
-## Subfolders
-
-- [automation/](./automation/index.md)
-- [lib/](./lib/index.md)
-- [maintenance/](./maintenance/index.md)
-- [validate/](./validate/index.md)
-
 ## Documents
 
+- [COPILOT_PROMPT](./COPILOT_PROMPT.md)
+- [ENTERPRISE_GITHUB_SETUP](./ENTERPRISE_GITHUB_SETUP.md)
+- [ISSUE_TEMPLATES](./ISSUE_TEMPLATES.md)
+- [LICENSE_MANAGEMENT](./LICENSE_MANAGEMENT.md)
 - [README](./README.md)
+- [SETUP_GITHUB_PRIVATE](./SETUP_GITHUB_PRIVATE.md)
+- [TEMPLATE_REPO_MIGRATION](./TEMPLATE_REPO_MIGRATION.md)
 
 ## Metadata
 

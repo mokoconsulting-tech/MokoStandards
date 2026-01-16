@@ -1,19 +1,12 @@
-# Docs Index: /docs/scripts
+# Docs Index: /docs/development
 
 ## Purpose
 
 This index provides navigation to documentation within this folder.
 
-## Subfolders
-
-- [automation/](./automation/index.md)
-- [lib/](./lib/index.md)
-- [maintenance/](./maintenance/index.md)
-- [validate/](./validate/index.md)
-
 ## Documents
 
-- [README](./README.md)
+- [sublime-text-setup](./sublime-text-setup.md)
 
 ## Metadata
 

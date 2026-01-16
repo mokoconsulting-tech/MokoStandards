@@ -322,7 +322,7 @@ See CHANGELOG.md for version history.
                 <name>codeql-analysis.yml</name>
                 <description>CodeQL security analysis workflow</description>
                 <requirement-status>suggested</requirement-status>
-                <template>templates/workflows/generic/codeql-analysis.yml</template>
+                <template>templates/workflows/generic/codeql-analysis.yml.template</template>
               </file>
               
               <file extension="yml">

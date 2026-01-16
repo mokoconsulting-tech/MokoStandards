@@ -37,28 +37,31 @@ This directory contains consolidated GitHub Actions workflow templates for use a
 
 ```
 templates/workflows/
-├── README.md              # This file
-├── ci-joomla.yml         # Joomla CI workflow (for backward compatibility)
-├── repo_health.yml       # Generic repo health workflow (for backward compatibility)
-├── version_branch.yml    # Version branch workflow (for backward compatibility)
-├── joomla/               # Joomla-specific workflow templates
-│   ├── ci.yml            # Continuous integration for Joomla projects
-│   ├── test.yml          # Testing workflow with PHPUnit and code quality
-│   ├── release.yml       # Automated release and package creation
-│   ├── repo_health.yml   # Repository health checks for Joomla
-│   └── version_branch.yml # Version branch automation
-├── dolibarr/             # Dolibarr-specific workflow templates
-│   ├── ci.yml            # Continuous integration for Dolibarr modules
-│   └── test.yml          # Testing workflow for Dolibarr modules
-└── generic/              # Generic/platform-agnostic workflow templates
-    ├── ci.yml            # Multi-language CI (Node.js, Python, PHP, Go, Ruby, Rust)
-    ├── test.yml          # Comprehensive testing (unit, integration, e2e)
-    ├── deploy.yml        # Deployment workflow for multiple environments
-    ├── code-quality.yml  # Code quality, linting, and static analysis
-    └── repo_health.yml   # Repository health checks for generic projects
+├── README.md                      # This file
+├── ci-joomla.yml.template         # Joomla CI workflow template
+├── repo_health.yml.template       # Generic repo health workflow template
+├── version_branch.yml.template    # Version branch workflow template
+├── repo_health_xml.yml.template   # XML-based repo health workflow template
+├── joomla/                        # Joomla-specific workflow templates
+│   ├── ci-joomla.yml.template     # Continuous integration for Joomla projects
+│   ├── test.yml.template          # Testing workflow with PHPUnit and code quality
+│   ├── release.yml.template       # Automated release and package creation
+│   ├── repo_health.yml.template   # Repository health checks for Joomla
+│   └── version_branch.yml.template # Version branch automation
+├── dolibarr/                      # Dolibarr-specific workflow templates
+│   ├── ci-dolibarr.yml.template   # Continuous integration for Dolibarr modules
+│   ├── test.yml.template          # Testing workflow for Dolibarr modules
+│   └── release.yml.template       # Automated release and deployment
+└── generic/                       # Generic/platform-agnostic workflow templates
+    ├── ci.yml.template            # Multi-language CI (Node.js, Python, PHP, Go, Ruby, Rust)
+    ├── test.yml.template          # Comprehensive testing (unit, integration, e2e)
+    ├── deploy.yml.template        # Deployment workflow for multiple environments
+    ├── code-quality.yml.template  # Code quality, linting, and static analysis
+    ├── codeql-analysis.yml.template # CodeQL security analysis
+    └── repo_health.yml.template   # Repository health checks for generic projects
 ```
 
-**Note**: The files in the root directory (ci-joomla.yml, repo_health.yml, version_branch.yml) are kept for backward compatibility with existing references. New projects should use the organized structure in the `joomla/` and `generic/` subdirectories.
+**Note**: All template workflow files use the `.yml.template` extension to clearly distinguish them from actual workflow files. When copying to your repository, rename them to `.yml` (e.g., `cp ci.yml.template .github/workflows/ci.yml`).
 
 ## Template Categories
 
@@ -66,28 +69,30 @@ templates/workflows/
 
 Workflow templates specifically designed for Joomla extensions (components, modules, plugins, libraries, packages, templates):
 
-- **ci.yml** - Continuous integration workflow with PHP validation, XML checking, and manifest verification
-- **test.yml** - Comprehensive testing with PHPUnit, code quality checks, and integration tests
-- **release.yml** - Automated release workflow for creating and publishing Joomla extension packages
-- **repo_health.yml** - Repository health monitoring including documentation checks and standards validation
-- **version_branch.yml** - Automated version branch management and release preparation
+- **ci-joomla.yml.template** - Continuous integration workflow with PHP validation, XML checking, and manifest verification
+- **test.yml.template** - Comprehensive testing with PHPUnit, code quality checks, and integration tests
+- **release.yml.template** - Automated release workflow for creating and publishing Joomla extension packages
+- **repo_health.yml.template** - Repository health monitoring including documentation checks and standards validation
+- **version_branch.yml.template** - Automated version branch management and release preparation
 
 ### Dolibarr Templates (`dolibarr/`)
 
 Workflow templates specifically designed for Dolibarr ERP/CRM modules:
 
-- **ci.yml** - Continuous integration for Dolibarr modules with structure validation, PHP syntax checking, and security checks
-- **test.yml** - Automated testing workflow with PHPUnit tests and Dolibarr environment integration
+- **ci-dolibarr.yml.template** - Continuous integration for Dolibarr modules with structure validation, PHP syntax checking, and security checks
+- **test.yml.template** - Automated testing workflow with PHPUnit tests and Dolibarr environment integration
+- **release.yml.template** - Automated release workflow for Dolibarr module packaging and deployment
 
 ### Generic Templates (`generic/`)
 
 Platform-agnostic workflow templates for multi-language software development:
 
-- **ci.yml** - Multi-language continuous integration with automatic language detection (supports Node.js, Python, PHP, Go, Ruby, Rust)
-- **test.yml** - Comprehensive testing workflow supporting unit tests, integration tests, and end-to-end tests
-- **deploy.yml** - Deployment workflow for staging and production environments with rollback capabilities
-- **code-quality.yml** - Code quality analysis with linting, formatting, static analysis, dependency checks, and security scanning
-- **repo_health.yml** - Repository health monitoring for generic projects
+- **ci.yml.template** - Multi-language continuous integration with automatic language detection (supports Node.js, Python, PHP, Go, Ruby, Rust)
+- **test.yml.template** - Comprehensive testing workflow supporting unit tests, integration tests, and end-to-end tests
+- **deploy.yml.template** - Deployment workflow for staging and production environments with rollback capabilities
+- **code-quality.yml.template** - Code quality analysis with linting, formatting, static analysis, dependency checks, and security scanning
+- **codeql-analysis.yml.template** - CodeQL security analysis for vulnerability detection
+- **repo_health.yml.template** - Repository health monitoring for generic projects
 
 ## Available Templates
 

@@ -72,26 +72,33 @@ Automation scripts for bulk repository operations, GitHub integrations, and orga
 - Valid project number (default: 7)
 
 ### file-distributor.py
-**Purpose:** Distribute files to multiple repositories  
-**Type:** Python 3.7+  
-**Usage:** `python3 file-distributor.py [options]`  
-**Documentation:** [📖 Guide](/docs/scripts/automation/file-distributor-py.md)
+**Purpose:** Enterprise file distributor with GUI for controlled folder-tree distribution  
+**Type:** Python 3.10+  
+**Usage:** `python3 file-distributor.py`  
+**Documentation:** [📖 Guide](/docs/scripts/automation/guide-file-distributor.md)
 
 **Key Features:**
-- Multi-repository file distribution
-- Template-based file generation
-- Dry-run support
+- GUI-driven file selection and configuration
+- Depth-based traversal control (0..N or -1 full recursive)
+- Dry-run preflight validation
+- Overwrite governance with optional per-folder confirmation
+- "Yes to All" confirmation option
+- Hidden folder inclusion control (cross-platform)
+- CSV and JSON audit logging
 
 ### file-distributor.ps1
-**Purpose:** PowerShell version of file distributor with GUI support  
-**Type:** PowerShell 7.0+  
-**Usage:** `pwsh file-distributor.ps1 [options]`  
-**Documentation:** [📖 Guide](/docs/scripts/automation/file-distributor-ps1.md)
+**Purpose:** PowerShell version with WinForms GUI  
+**Type:** PowerShell 5.1+ or PowerShell 7+  
+**Usage:** `pwsh file-distributor.ps1`  
+**Documentation:** [📖 Guide](/docs/scripts/automation/guide-file-distributor.md)
 
 **Key Features:**
-- Cross-platform PowerShell Core
-- Optional GUI for Windows
+- WinForms GUI for Windows
 - Same functionality as Python version
+- Depth-based traversal control
+- "Yes to All" confirmation option
+- Hidden folder inclusion control
+- CSV and JSON audit logging
 
 ## Quick Reference
 
@@ -101,8 +108,8 @@ Automation scripts for bulk repository operations, GitHub integrations, and orga
 | `bulk_update_repos.py` | Python 3.7+ | Multi-repo sync | gh CLI |
 | `create_repo_project.py` | Python 3.7+ | Single repo project | GH_PAT |
 | `sync_file_to_project.py` | Python 3.7+ | Doc-to-task sync | GH_TOKEN |
-| `file-distributor.py` | Python 3.7+ | File distribution | varies |
-| `file-distributor.ps1` | PowerShell 7.0+ | File distribution (GUI) | varies |
+| `file-distributor.py` | Python 3.10+ | Folder-tree file distribution | None |
+| `file-distributor.ps1` | PowerShell 5.1+ | Folder-tree file distribution (GUI) | None |
 
 ## Dependencies
 
@@ -128,8 +135,8 @@ Automation scripts for bulk repository operations, GitHub integrations, and orga
 
 ## Version Requirements
 
-- **Python:** 3.7+ (3.9+ recommended)
-- **PowerShell:** 7.0+ (PowerShell Core) for `.ps1` scripts
+- **Python:** 3.7+ (3.10+ recommended for file-distributor.py)
+- **PowerShell:** 5.1+ or 7.0+ (PowerShell Core) for `.ps1` scripts
 - **Bash:** 4.0+ (for shell script wrappers)
 - **GitHub CLI:** 2.0+ (`gh` command)
 

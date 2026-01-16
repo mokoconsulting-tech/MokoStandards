@@ -9,6 +9,7 @@ Purpose
   - Overwrite
   - Depth (0..N, or -1 for full recursive)
   - Confirm each folder
+  - Include hidden folders
   - Audit log folder
 - Copy the source file into each eligible folder.
 - Emit audit logs to CSV and JSON.
@@ -64,7 +65,7 @@ def default_log_dir() -> Path:
     return base
 
 
-def enumerate_folders_by_depth(root: Path, depth: int) -> List[Path]:
+def enumerate_folders_by_depth(root: Path, depth: int, include_hidden: bool = True) -> List[Path]:
     if not root.exists() or not root.is_dir():
         raise ValueError(f"Root directory not found: {root}")
 
@@ -73,9 +74,30 @@ def enumerate_folders_by_depth(root: Path, depth: int) -> List[Path]:
     if depth == 0:
         return folders
 
+    def is_hidden(p: Path) -> bool:
+        """Check if a path is hidden (cross-platform)"""
+        if not include_hidden:
+            # Unix-like systems: starts with dot
+            if p.name.startswith('.'):
+                return True
+            # Windows: check hidden attribute
+            if os.name == 'nt':
+                try:
+                    import stat
+                    return bool(p.stat().st_file_attributes & stat.FILE_ATTRIBUTE_HIDDEN)
+                except (AttributeError, OSError):
+                    pass
+        return False
+
     if depth == -1:
         for d, subdirs, _files in os.walk(root):
-            folders.append(Path(d))
+            current_dir = Path(d)
+            # Add the current directory if it's not the root (root is already added)
+            if current_dir != root:
+                folders.append(current_dir)
+            # Filter hidden subdirectories in-place if needed
+            if not include_hidden:
+                subdirs[:] = [sd for sd in subdirs if not is_hidden(current_dir / sd)]
         return folders
 
     if depth < -1:
@@ -88,7 +110,7 @@ def enumerate_folders_by_depth(root: Path, depth: int) -> List[Path]:
         for parent in current_level:
             try:
                 for child in parent.iterdir():
-                    if child.is_dir():
+                    if child.is_dir() and not is_hidden(child):
                         folders.append(child)
                         next_level.append(child)
             except PermissionError:
@@ -107,6 +129,7 @@ class Options:
     overwrite: bool
     depth: int
     confirm_each: bool
+    include_hidden: bool
     log_folder: Path
 
 
@@ -142,6 +165,7 @@ class OptionsDialog(tk.Toplevel):
         self.var_dry_run = tk.BooleanVar(value=True)
         self.var_overwrite = tk.BooleanVar(value=False)
         self.var_confirm_each = tk.BooleanVar(value=False)
+        self.var_include_hidden = tk.BooleanVar(value=True)
         self.var_depth = tk.IntVar(value=1)
 
         self.var_log_folder = tk.StringVar(value=str(default_log_dir()))
@@ -177,8 +201,11 @@ class OptionsDialog(tk.Toplevel):
         )
         chk_confirm.grid(row=4, column=0, columnspan=3, sticky="w", pady=(0, pady))
 
+        chk_hidden = tk.Checkbutton(frm, text="Include hidden folders", variable=self.var_include_hidden)
+        chk_hidden.grid(row=5, column=0, columnspan=3, sticky="w", pady=(0, pady))
+
         grp_depth = tk.LabelFrame(frm, text="Child Folder Depth")
-        grp_depth.grid(row=5, column=0, columnspan=3, sticky="we", pady=(pady, pady))
+        grp_depth.grid(row=6, column=0, columnspan=3, sticky="we", pady=(pady, pady))
         tk.Label(grp_depth, text="Depth (0 = root only, -1 = full recursive):").grid(row=0, column=0, sticky="w", padx=8, pady=6)
 
         spn = tk.Spinbox(grp_depth, from_=-1, to=50, textvariable=self.var_depth, width=6)
@@ -189,7 +216,7 @@ class OptionsDialog(tk.Toplevel):
         )
 
         grp_log = tk.LabelFrame(frm, text="Audit Logging")
-        grp_log.grid(row=6, column=0, columnspan=3, sticky="we", pady=(pady, pady))
+        grp_log.grid(row=7, column=0, columnspan=3, sticky="we", pady=(pady, pady))
 
         tk.Label(grp_log, text="Log folder:").grid(row=0, column=0, sticky="w", padx=8, pady=6)
         ent_log = tk.Entry(grp_log, textvariable=self.var_log_folder, width=70)
@@ -201,10 +228,10 @@ class OptionsDialog(tk.Toplevel):
         grp_log.columnconfigure(1, weight=1)
 
         btn_run = tk.Button(frm, text="Run", width=10, command=self._on_ok)
-        btn_run.grid(row=7, column=1, sticky="e", padx=8, pady=(10, 0))
+        btn_run.grid(row=8, column=1, sticky="e", padx=8, pady=(10, 0))
 
         btn_cancel = tk.Button(frm, text="Cancel", width=10, command=self._on_cancel)
-        btn_cancel.grid(row=7, column=2, sticky="e", padx=8, pady=(10, 0))
+        btn_cancel.grid(row=8, column=2, sticky="e", padx=8, pady=(10, 0))
 
     def _browse_log_folder(self) -> None:
         chosen = filedialog.askdirectory(title="Select a folder for audit logs")
@@ -227,6 +254,7 @@ class OptionsDialog(tk.Toplevel):
             overwrite=bool(self.var_overwrite.get()),
             depth=int(self.var_depth.get()),
             confirm_each=bool(self.var_confirm_each.get()),
+            include_hidden=bool(self.var_include_hidden.get()),
             log_folder=log_folder,
         )
         self.destroy()
@@ -356,7 +384,7 @@ def distribute_file(source_file: Path, root_dir: Path, opts: Options) -> Tuple[D
     source_hash = sha256_file(source_file)
     source_name = source_file.name
 
-    folders = enumerate_folders_by_depth(root_dir, opts.depth)
+    folders = enumerate_folders_by_depth(root_dir, opts.depth, opts.include_hidden)
 
     stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     csv_path = opts.log_folder / f"file-distributor_{stamp}.csv"
@@ -379,6 +407,7 @@ def distribute_file(source_file: Path, root_dir: Path, opts: Options) -> Tuple[D
         "overwrite": opts.overwrite,
         "depth": opts.depth,
         "confirm_each": opts.confirm_each,
+        "include_hidden": opts.include_hidden,
         "source_file": str(source_file),
         "root_dir": str(root_dir),
         "platform": platform.platform(),

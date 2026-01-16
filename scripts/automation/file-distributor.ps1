@@ -63,7 +63,8 @@ function Select-RootFolder {
 function Get-FoldersByDepth {
   param(
     [Parameter(Mandatory=$true)][string]$RootDir,
-    [Parameter(Mandatory=$true)][int]$Depth
+    [Parameter(Mandatory=$true)][int]$Depth,
+    [Parameter(Mandatory=$false)][bool]$IncludeHidden = $true
   )
 
   if (-not (Test-Path -LiteralPath $RootDir -PathType Container)) {
@@ -78,8 +79,16 @@ function Get-FoldersByDepth {
     return $folders
   }
 
+  $getChildArgs = @{
+    Directory = $true
+    ErrorAction = 'SilentlyContinue'
+  }
+  if ($IncludeHidden) {
+    $getChildArgs.Force = $true
+  }
+
   if ($Depth -eq -1) {
-    Get-ChildItem -LiteralPath $RootDir -Directory -Recurse -Force |
+    Get-ChildItem -LiteralPath $RootDir -Recurse @getChildArgs |
       ForEach-Object { $folders.Add($_.FullName) }
     return $folders
   }
@@ -95,7 +104,7 @@ function Get-FoldersByDepth {
     $nextLevel = New-Object System.Collections.Generic.List[string]
 
     foreach ($parent in $currentLevel) {
-      Get-ChildItem -LiteralPath $parent -Directory -Force -ErrorAction SilentlyContinue |
+      Get-ChildItem -LiteralPath $parent @getChildArgs |
         ForEach-Object {
           $nextLevel.Add($_.FullName)
           $folders.Add($_.FullName)
@@ -143,7 +152,7 @@ function Show-OptionsDialog {
   $form.FormBorderStyle = "FixedDialog"
   $form.MaximizeBox = $false
   $form.MinimizeBox = $false
-  $form.ClientSize = New-Object System.Drawing.Size(760, 380)
+  $form.ClientSize = New-Object System.Drawing.Size(760, 420)
   $form.Topmost = $true
 
   $font = New-Object System.Drawing.Font("Segoe UI", 9)
@@ -183,10 +192,17 @@ function Show-OptionsDialog {
   $chkConfirmEach.Text = "Confirm each folder (Yes, No, Yes to All, Cancel)"
   $chkConfirmEach.Checked = $false
 
+  $chkIncludeHidden = New-Object System.Windows.Forms.CheckBox
+  $chkIncludeHidden.Location = New-Object System.Drawing.Point(12, 194)
+  $chkIncludeHidden.Size = New-Object System.Drawing.Size(320, 24)
+  $chkIncludeHidden.Font = $font
+  $chkIncludeHidden.Text = "Include hidden folders"
+  $chkIncludeHidden.Checked = $true
+
   $grpDepth = New-Object System.Windows.Forms.GroupBox
   $grpDepth.Text = "Child Folder Depth"
   $grpDepth.Font = $font
-  $grpDepth.Location = New-Object System.Drawing.Point(12, 198)
+  $grpDepth.Location = New-Object System.Drawing.Point(12, 226)
   $grpDepth.Size = New-Object System.Drawing.Size(736, 80)
 
   $lblDepth = New-Object System.Windows.Forms.Label
@@ -214,7 +230,7 @@ function Show-OptionsDialog {
   $grpLog = New-Object System.Windows.Forms.GroupBox
   $grpLog.Text = "Audit Logging"
   $grpLog.Font = $font
-  $grpLog.Location = New-Object System.Drawing.Point(12, 286)
+  $grpLog.Location = New-Object System.Drawing.Point(12, 314)
   $grpLog.Size = New-Object System.Drawing.Size(736, 56)
 
   $lblLog = New-Object System.Windows.Forms.Label
@@ -241,7 +257,16 @@ function Show-OptionsDialog {
     $fb.ShowNewFolderButton = $true
     $res = $fb.ShowDialog()
     if ($res -eq [System.Windows.Forms.DialogResult]::OK -and -not [string]::IsNullOrWhiteSpace($fb.SelectedPath)) {
-      $txtLogFolder.Text = $fb.SelectedPath
+      if (Test-Path -LiteralPath $fb.SelectedPath -PathType Container) {
+        $txtLogFolder.Text = $fb.SelectedPath
+      } else {
+        [System.Windows.Forms.MessageBox]::Show(
+          "Selected path is not a valid directory.",
+          "Invalid Path",
+          [System.Windows.Forms.MessageBoxButtons]::OK,
+          [System.Windows.Forms.MessageBoxIcon]::Warning
+        ) | Out-Null
+      }
     }
   })
 
@@ -251,14 +276,14 @@ function Show-OptionsDialog {
   $btnOk.Text = "Run"
   $btnOk.Font = $font
   $btnOk.Size = New-Object System.Drawing.Size(90, 30)
-  $btnOk.Location = New-Object System.Drawing.Point(560, 350)
+  $btnOk.Location = New-Object System.Drawing.Point(560, 378)
   $btnOk.DialogResult = [System.Windows.Forms.DialogResult]::OK
 
   $btnCancel = New-Object System.Windows.Forms.Button
   $btnCancel.Text = "Cancel"
   $btnCancel.Font = $font
   $btnCancel.Size = New-Object System.Drawing.Size(90, 30)
-  $btnCancel.Location = New-Object System.Drawing.Point(658, 350)
+  $btnCancel.Location = New-Object System.Drawing.Point(658, 378)
   $btnCancel.DialogResult = [System.Windows.Forms.DialogResult]::Cancel
 
   $form.AcceptButton = $btnOk
@@ -266,7 +291,7 @@ function Show-OptionsDialog {
 
   $form.Controls.AddRange(@(
     $lblSource, $lblRoot,
-    $chkDryRun, $chkOverwrite, $chkConfirmEach,
+    $chkDryRun, $chkOverwrite, $chkConfirmEach, $chkIncludeHidden,
     $grpDepth,
     $grpLog,
     $btnOk, $btnCancel
@@ -291,6 +316,7 @@ function Show-OptionsDialog {
     DryRun         = [bool]$chkDryRun.Checked
     Overwrite      = [bool]$chkOverwrite.Checked
     ConfirmEach    = [bool]$chkConfirmEach.Checked
+    IncludeHidden  = [bool]$chkIncludeHidden.Checked
     Depth          = [int]$numDepth.Value
     LogFolder      = $logFolder
     LogCsvPath     = $csvPath
@@ -308,7 +334,23 @@ function Confirm-FolderAction {
   )
 
   $action = if ($Exists -and $Overwrite) { "OVERWRITE" } elseif ($Exists) { "SKIP" } else { "COPY" }
-  $msg = @(
+  
+  $form = New-Object System.Windows.Forms.Form
+  $form.Text = "Confirm Folder"
+  $form.StartPosition = "CenterScreen"
+  $form.FormBorderStyle = "FixedDialog"
+  $form.MaximizeBox = $false
+  $form.MinimizeBox = $false
+  $form.ClientSize = New-Object System.Drawing.Size(500, 280)
+  $form.Topmost = $true
+
+  $font = New-Object System.Drawing.Font("Segoe UI", 9)
+
+  $lblMessage = New-Object System.Windows.Forms.Label
+  $lblMessage.Font = $font
+  $lblMessage.Location = New-Object System.Drawing.Point(12, 12)
+  $lblMessage.Size = New-Object System.Drawing.Size(476, 200)
+  $lblMessage.Text = @(
     "Target folder:",
     $FolderPath,
     "",
@@ -318,14 +360,44 @@ function Confirm-FolderAction {
     "Target path:",
     $TargetPath,
     "",
-    "Planned action: $action",
-    "",
-    "Select Yes to proceed, No to skip, Cancel to abort."
+    "Planned action: $action"
   ) -join "`r`n"
 
-  $buttons = [System.Windows.Forms.MessageBoxButtons]::YesNoCancel
-  $icon = [System.Windows.Forms.MessageBoxIcon]::Question
-  return [System.Windows.Forms.MessageBox]::Show($msg, "Confirm Folder", $buttons, $icon)
+  $btnYes = New-Object System.Windows.Forms.Button
+  $btnYes.Text = "Yes"
+  $btnYes.Font = $font
+  $btnYes.Size = New-Object System.Drawing.Size(100, 30)
+  $btnYes.Location = New-Object System.Drawing.Point(12, 230)
+  $btnYes.DialogResult = [System.Windows.Forms.DialogResult]::Yes
+
+  $btnNo = New-Object System.Windows.Forms.Button
+  $btnNo.Text = "No"
+  $btnNo.Font = $font
+  $btnNo.Size = New-Object System.Drawing.Size(100, 30)
+  $btnNo.Location = New-Object System.Drawing.Point(118, 230)
+  $btnNo.DialogResult = [System.Windows.Forms.DialogResult]::No
+
+  $btnYesToAll = New-Object System.Windows.Forms.Button
+  $btnYesToAll.Text = "Yes to All"
+  $btnYesToAll.Font = $font
+  $btnYesToAll.Size = New-Object System.Drawing.Size(100, 30)
+  $btnYesToAll.Location = New-Object System.Drawing.Point(224, 230)
+  # Note: Using Retry as a semantic placeholder for "Yes to All" since there's no built-in YesToAll DialogResult
+  $btnYesToAll.DialogResult = [System.Windows.Forms.DialogResult]::Retry
+
+  $btnCancel = New-Object System.Windows.Forms.Button
+  $btnCancel.Text = "Cancel"
+  $btnCancel.Font = $font
+  $btnCancel.Size = New-Object System.Drawing.Size(100, 30)
+  $btnCancel.Location = New-Object System.Drawing.Point(330, 230)
+  $btnCancel.DialogResult = [System.Windows.Forms.DialogResult]::Cancel
+
+  $form.AcceptButton = $btnYes
+  $form.CancelButton = $btnCancel
+
+  $form.Controls.AddRange(@($lblMessage, $btnYes, $btnNo, $btnYesToAll, $btnCancel))
+
+  return $form.ShowDialog()
 }
 
 function Write-AuditLogs {
@@ -349,6 +421,7 @@ function Copy-FileToFolders {
     [Parameter(Mandatory=$true)][bool]$Overwrite,
     [Parameter(Mandatory=$true)][int]$Depth,
     [Parameter(Mandatory=$true)][bool]$ConfirmEach,
+    [Parameter(Mandatory=$false)][bool]$IncludeHidden = $true,
     [Parameter(Mandatory=$true)][string]$LogCsvPath,
     [Parameter(Mandatory=$true)][string]$LogJsonPath
   )
@@ -368,7 +441,7 @@ function Copy-FileToFolders {
   $sourceSize = $sourceItem.Length
   $sourceHash = (Get-FileHash -LiteralPath $SourceFile -Algorithm SHA256).Hash
 
-  $folders = Get-FoldersByDepth -RootDir $RootDir -Depth $Depth
+  $folders = Get-FoldersByDepth -RootDir $RootDir -Depth $Depth -IncludeHidden $IncludeHidden
 
   $records = New-Object System.Collections.Generic.List[object]
 
@@ -384,6 +457,8 @@ function Copy-FileToFolders {
     Cancelled    = $false
   }
 
+  $yesToAll = $false
+
   foreach ($folderPath in $folders) {
     $targetPath = Join-Path -Path $folderPath -ChildPath $sourceName
     $exists = Test-Path -LiteralPath $targetPath -PathType Leaf
@@ -397,7 +472,7 @@ function Copy-FileToFolders {
     $status = "Planned"
 
     try {
-      if ($ConfirmEach) {
+      if ($ConfirmEach -and -not $yesToAll) {
         $mb = Confirm-FolderAction -FolderPath $folderPath -TargetPath $targetPath -SourceName $sourceName -Overwrite $Overwrite -Exists $exists
         if ($mb -eq [System.Windows.Forms.DialogResult]::No) {
           $decision = "UserNo"
@@ -446,7 +521,16 @@ function Copy-FileToFolders {
           Write-Host "[CANCEL] User cancelled at: $folderPath"
           break
         }
-        $decision = "UserYes"
+        # Check for "Yes to All" (represented by Retry DialogResult)
+        if ($mb -eq [System.Windows.Forms.DialogResult]::Retry) {
+          $yesToAll = $true
+          $decision = "UserYesToAll"
+          Write-Host "[INFO] Yes to All selected - remaining folders will proceed without confirmation"
+        } else {
+          $decision = "UserYes"
+        }
+      } elseif ($yesToAll) {
+        $decision = "UserYesToAll"
       }
 
       if ($exists -and -not $Overwrite) {
@@ -603,14 +687,15 @@ try {
   $opts   = Show-OptionsDialog -SourceFile $source -RootDir $root
 
   Write-Host ""
-  Write-Host "Source file : $source"
-  Write-Host "Root folder : $root"
-  Write-Host "Dry Run     : $($opts.DryRun)"
-  Write-Host "Overwrite   : $($opts.Overwrite)"
-  Write-Host "ConfirmEach : $($opts.ConfirmEach)"
-  Write-Host "Depth       : $($opts.Depth)  (0=root only, -1=full recursive)"
-  Write-Host "Log CSV     : $($opts.LogCsvPath)"
-  Write-Host "Log JSON    : $($opts.LogJsonPath)"
+  Write-Host "Source file   : $source"
+  Write-Host "Root folder   : $root"
+  Write-Host "Dry Run       : $($opts.DryRun)"
+  Write-Host "Overwrite     : $($opts.Overwrite)"
+  Write-Host "ConfirmEach   : $($opts.ConfirmEach)"
+  Write-Host "IncludeHidden : $($opts.IncludeHidden)"
+  Write-Host "Depth         : $($opts.Depth)  (0=root only, -1=full recursive)"
+  Write-Host "Log CSV       : $($opts.LogCsvPath)"
+  Write-Host "Log JSON      : $($opts.LogJsonPath)"
   Write-Host ""
 
   Copy-FileToFolders `
@@ -620,6 +705,7 @@ try {
     -Overwrite $opts.Overwrite `
     -Depth $opts.Depth `
     -ConfirmEach $opts.ConfirmEach `
+    -IncludeHidden $opts.IncludeHidden `
     -LogCsvPath $opts.LogCsvPath `
     -LogJsonPath $opts.LogJsonPath
 }

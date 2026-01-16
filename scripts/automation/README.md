@@ -59,10 +59,10 @@ Automatically create GitHub Projects for organization repositories.
 ### create_repo_project.py
 Create a GitHub Project for a specific repository.
 
-### Copy File to Children
-Please see [`./docs/scripts/automation/guide-file-distributor.md`](./docs/scripts/automation/guide-file-distributor.md) 
- for details.
-- Enterprise-grade utility that distributes a selected source file across a controlled folder scope under a root directory using depth-limited traversal, optional per-folder confirmation, overwrite governance, dry-run preflight, and CSV/JSON audit logging.
-- Available in Powershell and Python.
-- 
+### file-distributor.ps1 and file-distributor.py
+Enterprise-grade utility that distributes a selected source file across a controlled folder scope under a root directory using depth-limited traversal, optional per-folder confirmation, overwrite governance, dry-run preflight, and CSV/JSON audit logging.
+- Available in PowerShell and Python
+- Copies a single file into child directories of a selected folder
+- Supports "Yes to All" confirmation and hidden folder control
+- See [guide-file-distributor.md](../../docs/scripts/automation/guide-file-distributor.md) for details
 

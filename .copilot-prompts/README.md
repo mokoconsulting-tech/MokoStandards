@@ -30,15 +30,27 @@ When implementing features in MokoStandards that require corresponding changes i
 
 **When to Use**: When onboarding new team members, implementing features across the framework, or needing a complete reference of capabilities.
 
-### Repository Health System Integration
+### Repository Health System Integration (Planning)
 
 **File**: `github-private-integration-repo-health.md`
 
-**Purpose**: Coordinates the XML-based repository health system implementation between:
+**Purpose**: High-level coordination document for the XML-based repository health system:
 - **MokoStandards** (public): Provides schemas, default configuration, and checking scripts
 - **.github-private** (private): Implements organization-specific configurations and workflows
 
-**When to Use**: When deploying the repository health system organization-wide or customizing it for internal needs.
+**When to Use**: When understanding the overall architecture and planning the repository health system deployment.
+
+### Repository Health System Execution (Implementation)
+
+**File**: `execute-github-private-repo-health.md`
+
+**Purpose**: Exact, actionable instructions for implementing the repository health system in .github-private:
+- Step-by-step file creation with exact content
+- Workflow templates ready to deploy
+- Validation scripts and custom check handlers
+- Complete documentation updates
+
+**When to Use**: When actually implementing the repository health system in .github-private. This prompt provides exact code and commands for a Copilot agent to execute.
 
 ## How to Use These Prompts
 

@@ -47,7 +47,8 @@ Both implementations support:
 * Dry Run execution for preflight validation.
 * Overwrite governance.
 * Depth-based traversal control, including full recursion.
-* Per-folder confirmation gates.
+* Per-folder confirmation gates with "Yes to All" option.
+* Hidden folder inclusion control.
 * Audit log export to CSV and JSON.
 
 ## Roles and responsibilities
@@ -77,6 +78,7 @@ Both implementations support:
 * Dry Run should be enabled by default for initial execution.
 * Overwrite should be disabled unless explicitly approved.
 * Depth should be minimized to the required scope.
+* Hidden folder inclusion should be evaluated based on use case and security requirements.
 
 ### Depth model
 
@@ -95,6 +97,15 @@ When enabled, the tool will prompt for each folder.
 * No: skip this folder.
 * Yes to All: execute for all remaining folders without additional prompts.
 * Cancel: terminate execution.
+
+### Hidden folder control
+
+Both utilities provide control over whether hidden folders are included in the distribution scope.
+
+* **Default behavior:** Hidden folders are included by default for maximum reach.
+* **PowerShell:** Uses the `-Force` flag with `Get-ChildItem` when hidden folders are enabled.
+* **Python:** Filters folders starting with `.` (Unix/Linux/macOS) and folders with the hidden file attribute (Windows).
+* **Governance note:** Operators should evaluate whether hidden folders (e.g., `.git`, `.vscode`, system folders) should be included based on operational requirements.
 
 ## Deployment and placement
 
@@ -262,10 +273,11 @@ Store logs in a controlled directory with retention policy alignment, for exampl
 | Path          | /docs/scripts/automation/guide-file-distributor.md                                 |
 | Version       | 01.00.00                                                                           |
 | Status        | Draft                                                                              |
-| Last Reviewed | 2026-01-15                                                                         |
+| Last Reviewed | 2026-01-16                                                                         |
 
 ## Revision History
 
 | Date       | Author   | Change        | Notes                                                         |
 | ---------- | -------- | ------------- | ------------------------------------------------------------- |
 | 2026-01-15 | Jonathan | Initial draft | Created operational guide with audit and governance controls. |
+| 2026-01-16 | Copilot  | Feature update | Added "Yes to All" confirmation and hidden folder control documentation. |

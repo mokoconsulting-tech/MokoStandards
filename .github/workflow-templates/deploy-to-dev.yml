@@ -3,11 +3,13 @@ name: Deploy to Dev Server
 # Workflow to deploy src directory to development server
 # Uses org secrets and repo variables with DEV_ prefix
 #
+# Required Org Variables:
+#   - DEV_FTP_PATH: Base deployment path on dev server
+#
 # Required Org Secrets:
 #   - DEV_FTP_HOST: Development server hostname
 #   - DEV_FTP_USER: Development server username
 #   - DEV_FTP_PASSWORD: Development server password (optional if using key)
-#   - DEV_FTP_PATH: Base deployment path on dev server
 #   - DEV_FTP_KEY: SSH private key for SFTP (optional)
 #   - DEV_FTP_PROTOCOL: Transfer protocol (ftp, ftps, sftp) - default: sftp
 #   - DEV_FTP_PORT: Server port (optional, defaults: 21 for FTP, 22 for SFTP)
@@ -133,7 +135,7 @@ jobs:
         env:
           DEV_FTP_HOST: ${{ secrets.DEV_FTP_HOST }}
           DEV_FTP_USER: ${{ secrets.DEV_FTP_USER }}
-          DEV_FTP_PATH: ${{ secrets.DEV_FTP_PATH }}
+          DEV_FTP_PATH: ${{ vars.DEV_FTP_PATH }}
           DEV_FTP_PATH_SUFFIX: ${{ vars.DEV_FTP_PATH_SUFFIX }}
         run: |
           echo "Validating deployment configuration..."
@@ -149,7 +151,7 @@ jobs:
           fi
           
           if [ -z "$DEV_FTP_PATH" ]; then
-            echo "::error::Missing required secret: DEV_FTP_PATH"
+            echo "::error::Missing required variable: DEV_FTP_PATH"
             exit 1
           fi
           
@@ -158,7 +160,7 @@ jobs:
       - name: Prepare deployment
         id: prepare
         env:
-          DEV_FTP_PATH: ${{ secrets.DEV_FTP_PATH }}
+          DEV_FTP_PATH: ${{ vars.DEV_FTP_PATH }}
           DEV_FTP_PATH_SUFFIX: ${{ vars.DEV_FTP_PATH_SUFFIX }}
         run: |
           # Combine base path with suffix (if provided)

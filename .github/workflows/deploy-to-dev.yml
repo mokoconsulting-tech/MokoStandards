@@ -121,7 +121,7 @@ jobs:
         env:
           DEV_FTP_HOST: ${{ secrets.DEV_FTP_HOST }}
           DEV_FTP_USER: ${{ secrets.DEV_FTP_USER }}
-          DEV_FTP_PATH: ${{ secrets.DEV_FTP_PATH }}
+          DEV_FTP_PATH: ${{ vars.DEV_FTP_PATH }}
           DEV_FTP_PATH_SUFFIX: ${{ vars.DEV_FTP_PATH_SUFFIX }}
         run: |
           echo "Validating deployment configuration..."
@@ -137,7 +137,7 @@ jobs:
           fi
           
           if [ -z "$DEV_FTP_PATH" ]; then
-            echo "::error::Missing required secret: DEV_FTP_PATH"
+            echo "::error::Missing required variable: DEV_FTP_PATH"
             exit 1
           fi
           
@@ -146,7 +146,7 @@ jobs:
       - name: Prepare deployment
         id: prepare
         env:
-          DEV_FTP_PATH: ${{ secrets.DEV_FTP_PATH }}
+          DEV_FTP_PATH: ${{ vars.DEV_FTP_PATH }}
           DEV_FTP_PATH_SUFFIX: ${{ vars.DEV_FTP_PATH_SUFFIX }}
         run: |
           # Combine base path with suffix (if provided)

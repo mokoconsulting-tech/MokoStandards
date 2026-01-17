@@ -18,6 +18,12 @@ This ensures only authorized personnel can deploy code to the development server
 
 ## Configuration
 
+### Organization Variables (Required)
+
+Set these variables at the organization level:
+
+- **`DEV_FTP_PATH`**: Base deployment path (e.g., `/var/www/html`)
+
 ### Organization Secrets (Required)
 
 Set these secrets at the organization level:
@@ -25,7 +31,6 @@ Set these secrets at the organization level:
 - **`DEV_FTP_HOST`**: Development server hostname (e.g., `dev.example.com`)
 - **`DEV_FTP_USER`**: FTP/SFTP username
 - **`DEV_FTP_PASSWORD`**: FTP/SFTP password (optional if using SSH key)
-- **`DEV_FTP_PATH`**: Base deployment path (e.g., `/var/www/html`)
 
 ### Organization Secrets (Optional)
 
@@ -98,12 +103,16 @@ python scripts/release/deploy_to_dev.py \
 
 ### Example 1: Basic SFTP Deployment
 
+**Organization Variables:**
+```
+DEV_FTP_PATH=/var/www/html
+```
+
 **Organization Secrets:**
 ```
 DEV_FTP_HOST=dev.example.com
 DEV_FTP_USER=deployuser
 DEV_FTP_KEY=<ssh-private-key>
-DEV_FTP_PATH=/var/www/html
 ```
 
 **Repository Variable:**
@@ -115,12 +124,16 @@ DEV_FTP_PATH_SUFFIX=/my-dolibarr-module
 
 ### Example 2: FTP Deployment
 
+**Organization Variables:**
+```
+DEV_FTP_PATH=/public_html
+```
+
 **Organization Secrets:**
 ```
 DEV_FTP_HOST=ftp.example.com
 DEV_FTP_USER=ftpuser
 DEV_FTP_PASSWORD=secretpass
-DEV_FTP_PATH=/public_html
 DEV_FTP_PROTOCOL=ftp
 DEV_FTP_PORT=21
 ```
@@ -139,10 +152,11 @@ Both deploy to the same server but different directories.
 ## Security Notes
 
 1. **Access Control**: Only org admins, repo admins, and repo maintainers can deploy to dev server
-2. **Use SFTP** when possible for encrypted transfers
-3. **SSH Keys** are preferred over passwords
-4. **Organization Secrets** ensure credentials are shared securely across repositories
-5. **Repository Variables** allow per-project customization without exposing secrets
+2. **Variables vs Secrets**: Paths are stored as variables (non-sensitive), credentials as secrets (sensitive)
+3. **Use SFTP** when possible for encrypted transfers
+4. **SSH Keys** are preferred over passwords
+5. **Organization Secrets** ensure credentials are shared securely across repositories
+6. **Repository Variables** allow per-project customization without exposing secrets
 
 ## Troubleshooting
 
@@ -157,10 +171,17 @@ Error: Deployment to dev server requires organization admin, repository admin, o
 ### Missing Configuration Error
 
 ```
-Error: Missing required secret: DEV_FTP_HOST
+Error: Missing required variable: DEV_FTP_PATH
 ```
 
-**Solution:** Ensure all required organization secrets are set.
+**Solution:** Ensure all required organization variables and secrets are set.
+
+Variables (non-sensitive):
+- `DEV_FTP_PATH` (org variable)
+- `DEV_FTP_PATH_SUFFIX` (repo variable, optional)
+
+Secrets (sensitive):
+- `DEV_FTP_HOST`, `DEV_FTP_USER`, `DEV_FTP_PASSWORD` or `DEV_FTP_KEY`
 
 ### Local Path Does Not Exist
 

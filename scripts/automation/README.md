@@ -39,9 +39,13 @@ The `--set-standards` flag automatically sets missing repository variables:
 - `RS_FTP_PATH_SUFFIX`: Release system FTP path suffix (e.g., `/{repo_name_lowercase}`)
 - `DEV_FTP_PATH_SUFFIX`: Development system FTP path suffix (e.g., `/{repo_name_lowercase}`)
 
+**Organization Variables Required:**
+- **Release System**: `RS_FTP_PATH`
+- **Development System**: `DEV_FTP_PATH`
+
 **Organization Secrets Required:**
-- **Release System**: `RS_FTP_HOST`, `RS_FTP_USER`, `RS_FTP_PASSWORD`, `RS_FTP_PATH`
-- **Development System**: `DEV_FTP_HOST`, `DEV_FTP_USER`, `DEV_FTP_PASSWORD`, `DEV_FTP_PATH`
+- **Release System**: `RS_FTP_HOST`, `RS_FTP_USER`, `RS_FTP_PASSWORD`
+- **Development System**: `DEV_FTP_HOST`, `DEV_FTP_USER`, `DEV_FTP_PASSWORD`
 - **Authentication**: `FTP_KEY` (optional SSH private key), `FTP_PROTOCOL`, `FTP_PORT`
 
 **System Configuration:**

@@ -1,4 +1,4 @@
-# Docs Index: /docs/templates
+# Docs Index: /docs/schemas
 
 ## Purpose
 
@@ -6,11 +6,7 @@ This index provides navigation to documentation within this folder.
 
 ## Subfolders
 
-- [workflows/](./workflows/index.md)
-
-## Documents
-
-- [README](./README.md)
+- [repohealth/](./repohealth/index.md)
 
 ## Metadata
 

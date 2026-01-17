@@ -21,7 +21,7 @@
 # DEFGROUP: GitHub.WorkflowTemplate
 # INGROUP: MokoStandards.Templates
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
-# PATH: /.github/workflow-templates/build-universal.yml
+# PATH: /.github/workflows/build.yml
 # VERSION: 01.00.00
 # BRIEF: Universal build workflow template with automatic project type detection
 # NOTE: Supports Joomla, Dolibarr, and Generic project types with Makefile precedence

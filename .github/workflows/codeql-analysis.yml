@@ -21,7 +21,7 @@
 # DEFGROUP: GitHub.Workflow
 # INGROUP: MokoStandards.Security
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
-# PATH: /.github/workflow-templates/codeql-analysis.yml
+# PATH: /.github/workflows/codeql-analysis.yml
 # VERSION: 01.01.00
 # BRIEF: CodeQL security scanning workflow for vulnerability detection
 # NOTE: Runs on push to main and PRs, weekly scheduled scans. Automatically detects supported languages.

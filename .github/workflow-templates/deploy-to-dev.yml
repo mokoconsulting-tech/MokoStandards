@@ -45,14 +45,75 @@ permissions:
   contents: read
 
 jobs:
+  check-permissions:
+    name: Check Deployment Permissions
+    runs-on: ubuntu-latest
+    outputs:
+      has-permission: ${{ steps.check.outputs.has-permission }}
+    steps:
+      - name: Check if user is org admin or repo maintainer
+        id: check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const actor = context.actor;
+            const org = context.repo.owner;
+            const repo = context.repo.repo;
+            
+            console.log(`Checking permissions for ${actor}`);
+            
+            try {
+              // Check if user is org admin
+              const orgMembership = await github.rest.orgs.getMembershipForUser({
+                org: org,
+                username: actor
+              });
+              
+              if (orgMembership.data.role === 'admin') {
+                console.log(`✓ ${actor} is an organization admin`);
+                core.setOutput('has-permission', 'true');
+                return;
+              }
+              
+              // Check if user has maintain or admin permission on repo
+              const repoPermission = await github.rest.repos.getCollaboratorPermissionLevel({
+                owner: org,
+                repo: repo,
+                username: actor
+              });
+              
+              const permission = repoPermission.data.permission;
+              console.log(`${actor} has '${permission}' permission on ${org}/${repo}`);
+              
+              if (permission === 'admin' || permission === 'maintain') {
+                console.log(`✓ ${actor} is a repository maintainer/admin`);
+                core.setOutput('has-permission', 'true');
+              } else {
+                console.log(`✗ ${actor} does not have sufficient permissions`);
+                core.setOutput('has-permission', 'false');
+              }
+            } catch (error) {
+              console.error(`Error checking permissions: ${error.message}`);
+              core.setOutput('has-permission', 'false');
+            }
+      
+      - name: Deny deployment
+        if: steps.check.outputs.has-permission != 'true'
+        run: |
+          echo "::error::Deployment to dev server requires organization admin or repository maintainer permissions"
+          echo "Current user does not have sufficient permissions to deploy to the development server."
+          exit 1
+
   deploy:
     name: Deploy to Development Server
     runs-on: ubuntu-latest
-    # Only deploy on merged PRs or direct pushes to dev branches
+    needs: check-permissions
+    # Only deploy on merged PRs or direct pushes to dev branches, and if user has permission
     if: |
-      github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'push' ||
-      (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+      needs.check-permissions.outputs.has-permission == 'true' &&
+      (github.event_name == 'workflow_dispatch' ||
+       github.event_name == 'push' ||
+       (github.event_name == 'pull_request' && github.event.pull_request.merged == true))
     
     steps:
       - name: Checkout repository

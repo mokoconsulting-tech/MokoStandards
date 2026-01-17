@@ -270,8 +270,29 @@ jobs:
           NOTES="${{ inputs.release_notes }}"
           
           if [ -z "$NOTES" ]; then
-            # Auto-generate from git log if not provided
-            NOTES=$(git log --pretty=format:"- %s" "v${VERSION}-rc"..HEAD 2>/dev/null || echo "Initial release")
+            # Check if RC tag exists
+            if git rev-parse "v${VERSION}-rc" >/dev/null 2>&1; then
+              # Auto-generate from git log between RC and HEAD
+              NOTES=$(git log --pretty=format:"- %s" "v${VERSION}-rc"..HEAD 2>/dev/null)
+            else
+              # RC tag doesn't exist, generate from all commits or mark as initial release
+              if [ "$(git rev-list --count HEAD)" -gt 0 ]; then
+                NOTES=$(git log --pretty=format:"- %s" HEAD --max-count=20 2>/dev/null)
+              else
+                NOTES="Initial release"
+              fi
+            fi
+          fi
+          
+          # Generate changes section
+          if git rev-parse "v${VERSION}-rc" >/dev/null 2>&1; then
+            CHANGES=$(git log --pretty=format:"- %s (%h)" "v${VERSION}-rc"..HEAD 2>/dev/null)
+          else
+            if [ "$(git rev-list --count HEAD)" -gt 0 ]; then
+              CHANGES=$(git log --pretty=format:"- %s (%h)" HEAD --max-count=20 2>/dev/null)
+            else
+              CHANGES="- Initial release"
+            fi
           fi
           
           # Save to file for GitHub release
@@ -281,7 +302,7 @@ jobs:
           $NOTES
           
           ### Changes
-          $(git log --pretty=format:"- %s (%h)" "v${VERSION}-rc"..HEAD 2>/dev/null || echo "- Initial release")
+          $CHANGES
           EOF
           
           echo "✅ Generated release notes" >> $GITHUB_STEP_SUMMARY

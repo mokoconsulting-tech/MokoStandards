@@ -186,6 +186,16 @@ venv/
 hypothesis/
 
 # ============================================================
+# Joomla Development
+# ============================================================
+# Custom user overrides for Joomla development
+user.css
+user.js
+
+# Joomla Module Builder auto-generated files
+modulebuilder.txt
+
+# ============================================================
 # Joomla Core
 # ============================================================
 /.htaccess

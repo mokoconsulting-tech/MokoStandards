@@ -83,6 +83,32 @@
         <always-overwrite>false</always-overwrite>
         <audience>developer</audience>
         <template>templates/configs/.gitignore.joomla</template>
+        <validation-rules>
+          <rule>
+            <type>content-pattern</type>
+            <description>Must contain sftp-config pattern to ignore SFTP sync configuration files</description>
+            <pattern>sftp-config</pattern>
+            <severity>error</severity>
+          </rule>
+          <rule>
+            <type>content-pattern</type>
+            <description>Must contain user.css pattern to ignore custom user CSS overrides</description>
+            <pattern>user\.css</pattern>
+            <severity>error</severity>
+          </rule>
+          <rule>
+            <type>content-pattern</type>
+            <description>Must contain user.js pattern to ignore custom user JavaScript overrides</description>
+            <pattern>user\.js</pattern>
+            <severity>error</severity>
+          </rule>
+          <rule>
+            <type>content-pattern</type>
+            <description>Must contain modulebuilder.txt pattern to ignore Joomla Module Builder artifacts</description>
+            <pattern>modulebuilder\.txt</pattern>
+            <severity>error</severity>
+          </rule>
+        </validation-rules>
       </file>
 
       <file extension="gitattributes">

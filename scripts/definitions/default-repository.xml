@@ -122,6 +122,24 @@
         <template>templates/docs/extra/template-CODE_OF_CONDUCT.md</template>
       </file>
 
+      <file extension="md">
+        <name>ROADMAP.md</name>
+        <description>Project roadmap with version goals and milestones</description>
+        <requirement-status>suggested</requirement-status>
+        <audience>general</audience>
+        <source>
+          <path>templates/docs/extra</path>
+          <filename>template-ROADMAP.md</filename>
+          <type>template</type>
+        </source>
+        <destination>
+          <path>.</path>
+          <filename>ROADMAP.md</filename>
+          <create-path>false</create-path>
+        </destination>
+        <template>templates/docs/extra/template-ROADMAP.md</template>
+      </file>
+
       <file extension="gitignore">
         <name>.gitignore</name>
         <description>Git ignore patterns</description>

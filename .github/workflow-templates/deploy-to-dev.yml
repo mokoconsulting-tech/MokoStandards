@@ -1,0 +1,190 @@
+name: Deploy to Dev Server
+
+# Workflow to deploy src directory to development server
+# Uses org secrets and repo variables with DEV_ prefix
+#
+# Required Org Secrets:
+#   - DEV_FTP_HOST: Development server hostname
+#   - DEV_FTP_USER: Development server username
+#   - DEV_FTP_PASSWORD: Development server password (optional if using key)
+#   - DEV_FTP_PATH: Base deployment path on dev server
+#   - DEV_FTP_KEY: SSH private key for SFTP (optional)
+#   - DEV_FTP_PROTOCOL: Transfer protocol (ftp, ftps, sftp) - default: sftp
+#   - DEV_FTP_PORT: Server port (optional, defaults: 21 for FTP, 22 for SFTP)
+#
+# Optional Repo Variables:
+#   - DEV_FTP_PATH_SUFFIX: Path suffix to append to base path (e.g., /module-name)
+
+on:
+  workflow_dispatch:
+    inputs:
+      src_directory:
+        description: 'Source directory to deploy'
+        required: false
+        default: 'src'
+        type: string
+  push:
+    branches:
+      - main
+      - master
+      - develop
+      - dev
+      - development
+    paths:
+      - 'src/**'
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+      - master
+      - develop
+      - dev
+      - development
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy to Development Server
+    runs-on: ubuntu-latest
+    # Only deploy on merged PRs or direct pushes to dev branches
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install paramiko
+      
+      - name: Validate configuration
+        env:
+          DEV_FTP_HOST: ${{ secrets.DEV_FTP_HOST }}
+          DEV_FTP_USER: ${{ secrets.DEV_FTP_USER }}
+          DEV_FTP_PATH: ${{ secrets.DEV_FTP_PATH }}
+          DEV_FTP_PATH_SUFFIX: ${{ vars.DEV_FTP_PATH_SUFFIX }}
+        run: |
+          echo "Validating deployment configuration..."
+          
+          if [ -z "$DEV_FTP_HOST" ]; then
+            echo "::error::Missing required secret: DEV_FTP_HOST"
+            exit 1
+          fi
+          
+          if [ -z "$DEV_FTP_USER" ]; then
+            echo "::error::Missing required secret: DEV_FTP_USER"
+            exit 1
+          fi
+          
+          if [ -z "$DEV_FTP_PATH" ]; then
+            echo "::error::Missing required secret: DEV_FTP_PATH"
+            exit 1
+          fi
+          
+          echo "✓ Configuration validated"
+      
+      - name: Prepare deployment
+        id: prepare
+        env:
+          DEV_FTP_PATH: ${{ secrets.DEV_FTP_PATH }}
+          DEV_FTP_PATH_SUFFIX: ${{ vars.DEV_FTP_PATH_SUFFIX }}
+        run: |
+          # Combine base path with suffix (if provided)
+          if [ -n "$DEV_FTP_PATH_SUFFIX" ]; then
+            REMOTE_PATH="${DEV_FTP_PATH}${DEV_FTP_PATH_SUFFIX}"
+          else
+            REMOTE_PATH="${DEV_FTP_PATH}"
+          fi
+          
+          echo "remote_path=${REMOTE_PATH}" >> $GITHUB_OUTPUT
+          
+          echo "### 🚀 Development Deployment" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Host:** ${{ secrets.DEV_FTP_HOST }}" >> $GITHUB_STEP_SUMMARY
+          echo "**User:** ${{ secrets.DEV_FTP_USER }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Remote Path:** ${REMOTE_PATH}" >> $GITHUB_STEP_SUMMARY
+          echo "**Local Path:** ${{ inputs.src_directory || 'src' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Protocol:** ${{ secrets.DEV_FTP_PROTOCOL || 'sftp' }}" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Setup SSH key
+        if: secrets.DEV_FTP_KEY != ''
+        env:
+          DEV_FTP_KEY: ${{ secrets.DEV_FTP_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$DEV_FTP_KEY" > ~/.ssh/dev_deploy_key
+          chmod 600 ~/.ssh/dev_deploy_key
+          echo "SSH key configured"
+      
+      - name: Deploy to dev server
+        env:
+          DEV_FTP_HOST: ${{ secrets.DEV_FTP_HOST }}
+          DEV_FTP_USER: ${{ secrets.DEV_FTP_USER }}
+          DEV_FTP_PASSWORD: ${{ secrets.DEV_FTP_PASSWORD }}
+          DEV_FTP_PROTOCOL: ${{ secrets.DEV_FTP_PROTOCOL }}
+          DEV_FTP_PORT: ${{ secrets.DEV_FTP_PORT }}
+          REMOTE_PATH: ${{ steps.prepare.outputs.remote_path }}
+        run: |
+          # Set defaults
+          PROTOCOL="${DEV_FTP_PROTOCOL:-sftp}"
+          PORT="${DEV_FTP_PORT}"
+          LOCAL_PATH="${{ inputs.src_directory }}"
+          if [ -z "$LOCAL_PATH" ]; then
+            LOCAL_PATH="src"
+          fi
+          
+          # Check if local path exists
+          if [ ! -d "$LOCAL_PATH" ]; then
+            echo "::warning::Local path '$LOCAL_PATH' does not exist. Skipping deployment."
+            exit 0
+          fi
+          
+          # Build deploy command
+          DEPLOY_CMD="python scripts/release/deploy_to_dev.py \
+            --host \"$DEV_FTP_HOST\" \
+            --user \"$DEV_FTP_USER\" \
+            --remote-path \"$REMOTE_PATH\" \
+            --local-path \"$LOCAL_PATH\" \
+            --protocol \"$PROTOCOL\""
+          
+          # Add port if specified
+          if [ -n "$PORT" ]; then
+            DEPLOY_CMD="$DEPLOY_CMD --port $PORT"
+          fi
+          
+          # Add authentication
+          if [ -f ~/.ssh/dev_deploy_key ]; then
+            DEPLOY_CMD="$DEPLOY_CMD --key-file ~/.ssh/dev_deploy_key"
+          elif [ -n "$DEV_FTP_PASSWORD" ]; then
+            DEPLOY_CMD="$DEPLOY_CMD --password \"$DEV_FTP_PASSWORD\""
+          fi
+          
+          # Execute deployment
+          eval $DEPLOY_CMD
+      
+      - name: Deployment summary
+        if: success()
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Deployment completed successfully!**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Files from \`${{ inputs.src_directory || 'src' }}\` have been deployed to the development server." >> $GITHUB_STEP_SUMMARY
+      
+      - name: Deployment failed
+        if: failure()
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "❌ **Deployment failed!**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Please check the logs above for error details." >> $GITHUB_STEP_SUMMARY

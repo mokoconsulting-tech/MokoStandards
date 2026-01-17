@@ -192,7 +192,7 @@ For your own private prompts, consider this structure:
 
 ## Related Documentation
 
-- [.github/copilot.yml](.github/copilot.yml) - Public Copilot configuration
+- [.github/copilot.yml](../.github/copilot.yml) - Public Copilot configuration
 - [docs/guide/PRIVATE_REPOSITORY_REFERENCE.md](guide/PRIVATE_REPOSITORY_REFERENCE.md) - Complete private file reference
 - [docs/guide/repository-split-plan.md](guide/repository-split-plan.md) - Public/private architecture guide
 

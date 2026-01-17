@@ -33,7 +33,7 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 1
     labels:
       - "dependencies"
       - "security"
@@ -45,13 +45,18 @@ updates:
       - "mokoconsulting-tech/maintainers"
     assignees:
       - "jmiller-moko"
+    # Group all updates together
+    groups:
+      github-actions:
+        patterns:
+          - "*"
     
   # Monitor Python dependencies for security updates
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
       interval: "monthly"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 1
     labels:
       - "dependencies"
       - "security"
@@ -64,20 +69,18 @@ updates:
       - "mokoconsulting-tech/maintainers"
     assignees:
       - "jmiller-moko"
-    # Group all patch updates together
+    # Group all updates together
     groups:
-      python-patches:
+      python-dependencies:
         patterns:
           - "*"
-        update-types:
-          - "patch"
   
   # Monitor npm dependencies for security updates
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "monthly"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 1
     labels:
       - "dependencies"
       - "security"
@@ -90,20 +93,18 @@ updates:
       - "mokoconsulting-tech/maintainers"
     assignees:
       - "jmiller-moko"
-    # Group all patch updates together
+    # Group all updates together
     groups:
-      npm-patches:
+      npm-dependencies:
         patterns:
           - "*"
-        update-types:
-          - "patch"
   
   # Monitor Composer dependencies for security updates
   - package-ecosystem: "composer"
     directory: "/"
     schedule:
       interval: "monthly"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 1
     labels:
       - "dependencies"
       - "security"
@@ -116,10 +117,8 @@ updates:
       - "mokoconsulting-tech/maintainers"
     assignees:
       - "jmiller-moko"
-    # Group all patch updates together
+    # Group all updates together
     groups:
-      composer-patches:
+      composer-dependencies:
         patterns:
           - "*"
-        update-types:
-          - "patch"

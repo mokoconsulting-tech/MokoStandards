@@ -451,11 +451,11 @@ def main():
     else:
         # Try to find schema directory relative to script location
         script_dir = Path(__file__).parent.parent.parent
-        schema_dir = script_dir / "schemas" / "structures"
+        schema_dir = script_dir / "scripts" / "definitions"
         
         if not schema_dir.exists():
             # Try relative to current directory
-            schema_dir = Path("schemas/structures")
+            schema_dir = Path("scripts/definitions")
     
     if not schema_dir.exists():
         print(f"✗ Error: Schema directory not found: {schema_dir}", file=sys.stderr)

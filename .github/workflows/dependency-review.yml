@@ -98,7 +98,7 @@ jobs:
           if npm audit --audit-level=moderate; then
             echo "✅ No moderate or higher severity vulnerabilities found" >> $GITHUB_STEP_SUMMARY
           else
-            echo "⚠️ Vulnerabilities detected - please review" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ Moderate or higher severity vulnerabilities detected - please review" >> $GITHUB_STEP_SUMMARY
             npm audit --audit-level=moderate || true
           fi
       

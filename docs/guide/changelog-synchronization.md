@@ -35,6 +35,8 @@ Dolibarr modules in the MokoCRM ecosystem require CHANGELOG files in two locatio
 - **Root CHANGELOG.md**: Repository-level changelog for developers
 - **src/ChangeLog.md**: Module-level changelog deployed with the module for end users
 
+> **Note**: The case-sensitive filename `ChangeLog.md` (not `CHANGELOG.md`) in the `src/` directory is a **Dolibarr-specific requirement**. This naming convention follows Dolibarr's module structure standards. For non-Dolibarr projects (Joomla, generic PHP), use `CHANGELOG.md` throughout.
+
 The CHANGELOG Sync workflow (`.github/workflows/sync-changelogs.yml`) automatically keeps these files synchronized, ensuring consistency between developer and end-user documentation.
 
 ## How It Works

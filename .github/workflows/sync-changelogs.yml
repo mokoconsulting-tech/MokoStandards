@@ -25,6 +25,7 @@
 # VERSION: 01.00.00
 # BRIEF: Synchronize CHANGELOG files between root and src directory for Dolibarr modules
 # NOTE: Automatically detects changes and syncs content bidirectionally
+# NOTE: Uses case-sensitive 'ChangeLog.md' in src/ (Dolibarr requirement, not used in Joomla/generic projects)
 
 name: Sync CHANGELOG Files
 

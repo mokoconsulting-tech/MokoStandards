@@ -68,9 +68,9 @@ jobs:
             echo "Root CHANGELOG.md exists"
           fi
           
-          if [ -f "src/CHANGELOG.md" ]; then
+          if [ -f "src/ChangeLog.md" ]; then
             SRC_EXISTS=true
-            echo "src/CHANGELOG.md exists"
+            echo "src/ChangeLog.md exists"
           fi
           
           echo "root_exists=$ROOT_EXISTS" >> $GITHUB_OUTPUT
@@ -80,7 +80,7 @@ jobs:
         id: check-sync
         if: steps.check-files.outputs.root_exists == 'true' && steps.check-files.outputs.src_exists == 'true'
         run: |
-          if diff -q CHANGELOG.md src/CHANGELOG.md > /dev/null 2>&1; then
+          if diff -q CHANGELOG.md src/ChangeLog.md > /dev/null 2>&1; then
             echo "in_sync=true" >> $GITHUB_OUTPUT
             echo "CHANGELOG files are already in sync"
           else
@@ -95,8 +95,8 @@ jobs:
           steps.check-files.outputs.src_exists == 'true' &&
           steps.check-sync.outputs.in_sync == 'false'
         run: |
-          echo "Syncing root CHANGELOG.md to src/CHANGELOG.md"
-          cp CHANGELOG.md src/CHANGELOG.md
+          echo "Syncing root CHANGELOG.md to src/ChangeLog.md"
+          cp CHANGELOG.md src/ChangeLog.md
           echo "sync_direction=root-to-src" >> $GITHUB_ENV
       
       - name: Sync src CHANGELOG to root
@@ -106,8 +106,8 @@ jobs:
           steps.check-files.outputs.src_exists == 'true' &&
           steps.check-sync.outputs.in_sync == 'false'
         run: |
-          echo "Syncing src/CHANGELOG.md to root CHANGELOG.md"
-          cp src/CHANGELOG.md CHANGELOG.md
+          echo "Syncing src/ChangeLog.md to root CHANGELOG.md"
+          cp src/ChangeLog.md CHANGELOG.md
           echo "sync_direction=src-to-root" >> $GITHUB_ENV
       
       - name: Check only mode
@@ -121,7 +121,7 @@ jobs:
             echo ""
             echo "To sync, run this workflow again with either:"
             echo "  - direction: root-to-src (copy root CHANGELOG.md to src/)"
-            echo "  - direction: src-to-root (copy src/CHANGELOG.md to root)"
+            echo "  - direction: src-to-root (copy src/ChangeLog.md to root)"
           fi
           echo "sync_direction=check-only" >> $GITHUB_ENV
       
@@ -136,7 +136,7 @@ jobs:
             echo "No changes to commit"
           else
             if [ "$sync_direction" == "root-to-src" ]; then
-              git add src/CHANGELOG.md
+              git add src/ChangeLog.md
               git commit -m "chore: sync CHANGELOG from root to src directory [automated]"
             elif [ "$sync_direction" == "src-to-root" ]; then
               git add CHANGELOG.md
@@ -178,9 +178,9 @@ jobs:
             if [ "${{ steps.check-sync.outputs.in_sync }}" == "true" ]; then
               echo "✅ CHANGELOG files are in sync" >> $GITHUB_STEP_SUMMARY
             elif [ "$sync_direction" == "root-to-src" ]; then
-              echo "✅ Synced root CHANGELOG.md → src/CHANGELOG.md" >> $GITHUB_STEP_SUMMARY
+              echo "✅ Synced root CHANGELOG.md → src/ChangeLog.md" >> $GITHUB_STEP_SUMMARY
             elif [ "$sync_direction" == "src-to-root" ]; then
-              echo "✅ Synced src/CHANGELOG.md → root CHANGELOG.md" >> $GITHUB_STEP_SUMMARY
+              echo "✅ Synced src/ChangeLog.md → root CHANGELOG.md" >> $GITHUB_STEP_SUMMARY
             elif [ "$sync_direction" == "conflict" ]; then
               echo "⚠️  Both CHANGELOG files were modified - manual resolution required" >> $GITHUB_STEP_SUMMARY
             else
@@ -191,6 +191,6 @@ jobs:
               echo "ℹ️  Root CHANGELOG.md not found" >> $GITHUB_STEP_SUMMARY
             fi
             if [ "${{ steps.check-files.outputs.src_exists }}" == "false" ]; then
-              echo "ℹ️  src/CHANGELOG.md not found" >> $GITHUB_STEP_SUMMARY
+              echo "ℹ️  src/ChangeLog.md not found" >> $GITHUB_STEP_SUMMARY
             fi
           fi

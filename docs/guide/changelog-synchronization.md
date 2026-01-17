@@ -33,7 +33,7 @@ BRIEF: Guide for automatic CHANGELOG synchronization in Dolibarr modules
 
 Dolibarr modules in the MokoCRM ecosystem require CHANGELOG files in two locations:
 - **Root CHANGELOG.md**: Repository-level changelog for developers
-- **src/CHANGELOG.md**: Module-level changelog deployed with the module for end users
+- **src/ChangeLog.md**: Module-level changelog deployed with the module for end users
 
 The CHANGELOG Sync workflow (`.github/workflows/sync-changelogs.yml`) automatically keeps these files synchronized, ensuring consistency between developer and end-user documentation.
 
@@ -43,7 +43,7 @@ The CHANGELOG Sync workflow (`.github/workflows/sync-changelogs.yml`) automatica
 
 The workflow monitors both CHANGELOG files and automatically detects which one was changed:
 
-1. **Root CHANGELOG updated**: Syncs changes to `src/CHANGELOG.md`
+1. **Root CHANGELOG updated**: Syncs changes to `src/ChangeLog.md`
 2. **src CHANGELOG updated**: Syncs changes to root `CHANGELOG.md`
 3. **Both updated**: Flags a conflict requiring manual resolution
 
@@ -58,11 +58,11 @@ The workflow runs on:
 
 ```
 If root CHANGELOG.md changed (and src didn't):
-  Copy root CHANGELOG.md → src/CHANGELOG.md
+  Copy root CHANGELOG.md → src/ChangeLog.md
   Commit: "chore: sync CHANGELOG from root to src directory [automated]"
 
-If src/CHANGELOG.md changed (and root didn't):
-  Copy src/CHANGELOG.md → root CHANGELOG.md
+If src/ChangeLog.md changed (and root didn't):
+  Copy src/ChangeLog.md → root CHANGELOG.md
   Commit: "chore: sync CHANGELOG from src to root directory [automated]"
 
 If both changed:
@@ -79,12 +79,12 @@ If both changed:
    vim CHANGELOG.md
    
    # Option 2: Update src CHANGELOG
-   vim src/CHANGELOG.md
+   vim src/ChangeLog.md
    ```
 
 2. **Commit your changes**:
    ```bash
-   git add CHANGELOG.md  # or src/CHANGELOG.md
+   git add CHANGELOG.md  # or src/ChangeLog.md
    git commit -m "docs: update changelog with new features"
    git push
    ```
@@ -120,12 +120,12 @@ If both CHANGELOG files are modified in the same commit:
 2. **Manually resolve** by ensuring both files have identical content:
    ```bash
    # Choose which version to keep
-   cp CHANGELOG.md src/CHANGELOG.md
+   cp CHANGELOG.md src/ChangeLog.md
    # OR
-   cp src/CHANGELOG.md CHANGELOG.md
+   cp src/ChangeLog.md CHANGELOG.md
    
    # Commit the resolution
-   git add CHANGELOG.md src/CHANGELOG.md
+   git add CHANGELOG.md src/ChangeLog.md
    git commit -m "docs: resolve CHANGELOG sync conflict"
    git push
    ```
@@ -136,13 +136,13 @@ If you need to manually sync the files:
 
 ```bash
 # Sync root to src
-cp CHANGELOG.md src/CHANGELOG.md
+cp CHANGELOG.md src/ChangeLog.md
 
 # Sync src to root
-cp src/CHANGELOG.md CHANGELOG.md
+cp src/ChangeLog.md CHANGELOG.md
 
 # Commit the sync
-git add CHANGELOG.md src/CHANGELOG.md
+git add CHANGELOG.md src/ChangeLog.md
 git commit -m "chore: manually sync CHANGELOG files"
 git push
 ```
@@ -153,7 +153,7 @@ Check if CHANGELOG files are in sync:
 
 ```bash
 # Compare the files
-diff CHANGELOG.md src/CHANGELOG.md
+diff CHANGELOG.md src/ChangeLog.md
 
 # No output means they're identical
 ```
@@ -171,9 +171,9 @@ The workflow is located at `.github/workflows/sync-changelogs.yml` and requires:
 on:
   push:
     branches: [main, dev/**, rc/**]
-    paths: ['CHANGELOG.md', 'src/CHANGELOG.md']
+    paths: ['CHANGELOG.md', 'src/ChangeLog.md']
   pull_request:
-    paths: ['CHANGELOG.md', 'src/CHANGELOG.md']
+    paths: ['CHANGELOG.md', 'src/ChangeLog.md']
   workflow_dispatch:
 ```
 

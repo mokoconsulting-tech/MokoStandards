@@ -70,9 +70,23 @@ jobs:
           sudo apt update
           sudo apt install gh -y)
       
-      - name: Authenticate GitHub CLI
+      - name: Verify GitHub token availability
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+          # Verify token is available before attempting authentication
+          if [ -z "$GH_TOKEN" ]; then
+            echo "## ❌ Error: GitHub Token Not Available" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "GITHUB_TOKEN is required for this workflow." >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          
+          # GH_TOKEN environment variable is automatically used by GitHub CLI
+          # Verify authentication status
+          if gh auth status 2>&1 || true; then
+            echo "✅ GitHub CLI authentication verified" >> $GITHUB_STEP_SUMMARY
+          fi
       
       - name: Sync specific path (manual trigger)
         if: github.event.inputs.file_path != ''

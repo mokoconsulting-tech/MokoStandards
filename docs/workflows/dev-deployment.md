@@ -11,7 +11,8 @@ The dev deployment workflow automatically pushes code changes to a development s
 
 **⚠️ Security Restriction:** Deployment can only be executed by:
 - Organization administrators
-- Repository maintainers (users with `maintain` or `admin` role on the repository)
+- Repository administrators (users with `admin` role on the repository)
+- Repository maintainers (users with `maintain` role on the repository)
 
 This ensures only authorized personnel can deploy code to the development server.
 
@@ -137,7 +138,7 @@ Both deploy to the same server but different directories.
 
 ## Security Notes
 
-1. **Access Control**: Only org admins and repo maintainers can deploy to dev server
+1. **Access Control**: Only org admins, repo admins, and repo maintainers can deploy to dev server
 2. **Use SFTP** when possible for encrypted transfers
 3. **SSH Keys** are preferred over passwords
 4. **Organization Secrets** ensure credentials are shared securely across repositories
@@ -148,10 +149,10 @@ Both deploy to the same server but different directories.
 ### Permission Denied
 
 ```
-Error: Deployment to dev server requires organization admin or repository maintainer permissions
+Error: Deployment to dev server requires organization admin, repository admin, or repository maintainer permissions
 ```
 
-**Solution:** Only organization administrators or users with `maintain`/`admin` role on the repository can deploy to the dev server. Contact your organization administrator to request appropriate permissions.
+**Solution:** Only organization administrators or users with `admin` or `maintain` role on the repository can deploy to the dev server. Contact your organization administrator to request appropriate permissions.
 
 ### Missing Configuration Error
 

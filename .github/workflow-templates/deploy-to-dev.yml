@@ -51,7 +51,7 @@ jobs:
     outputs:
       has-permission: ${{ steps.check.outputs.has-permission }}
     steps:
-      - name: Check if user is org admin or repo maintainer
+      - name: Check if user is org admin, repo admin, or repo maintainer
         id: check
         uses: actions/github-script@v7
         with:
@@ -86,7 +86,7 @@ jobs:
               console.log(`${actor} has '${permission}' permission on ${org}/${repo}`);
               
               if (permission === 'admin' || permission === 'maintain') {
-                console.log(`✓ ${actor} is a repository maintainer/admin`);
+                console.log(`✓ ${actor} is a repository admin or maintainer`);
                 core.setOutput('has-permission', 'true');
               } else {
                 console.log(`✗ ${actor} does not have sufficient permissions`);
@@ -100,7 +100,7 @@ jobs:
       - name: Deny deployment
         if: steps.check.outputs.has-permission != 'true'
         run: |
-          echo "::error::Deployment to dev server requires organization admin or repository maintainer permissions"
+          echo "::error::Deployment to dev server requires organization admin, repository admin, or repository maintainer permissions"
           echo "Current user does not have sufficient permissions to deploy to the development server."
           exit 1
 

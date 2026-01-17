@@ -87,21 +87,25 @@ Preview what would be updated without making changes:
 ### Workflow Files (Default)
 
 - `.github/dependabot.yml` → `.github/dependabot.yml` (monthly schedule with Python, JavaScript, PHP, and GitHub Actions)
+- `.github/copilot.yml` → `.github/copilot.yml` (GitHub Copilot coding agent configuration)
 - `.github/workflow-templates/build-universal.yml` → `.github/workflows/build.yml`
 - `.github/workflow-templates/codeql-analysis.yml` → `.github/workflows/codeql-analysis.yml` (scans Python, JavaScript, and PHP)
 - `.github/workflow-templates/dependency-review.yml` → `.github/workflows/dependency-review.yml`
 - `.github/workflow-templates/standards-compliance.yml` → `.github/workflows/standards-compliance.yml`
 - `.github/workflow-templates/release-cycle.yml` → `.github/workflows/release-cycle.yml`
+- `.github/workflow-templates/deploy-to-dev.yml` → `.github/workflows/deploy-to-dev.yml` (automatic deployment to dev server on PR merge)
 - `.github/workflows/reusable-build.yml` → `.github/workflows/reusable-build.yml`
 - `.github/workflows/reusable-ci-validation.yml` → `.github/workflows/reusable-ci-validation.yml`
 - `.github/workflows/reusable-release.yml` → `.github/workflows/reusable-release.yml`
 - `.github/workflows/sync-changelogs.yml` → `.github/workflows/sync-changelogs.yml` (syncs root and src CHANGELOG files for Dolibarr modules)
+- `.github/workflows/enterprise-firewall-setup.yml` → `.github/workflows/enterprise-firewall-setup.yml` (enterprise firewall configuration for coding agents)
 
 ### Scripts (Default)
 
 - `scripts/maintenance/validate_file_headers.py`
 - `scripts/maintenance/update_changelog.py`
 - `scripts/maintenance/release_version.py`
+- `scripts/release/deploy_to_dev.py` (deployment script for dev server)
 
 ## Workflow
 

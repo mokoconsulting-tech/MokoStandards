@@ -182,9 +182,13 @@ The repository includes `.github/workflows/bulk-repo-sync.yml` which automatical
 - `RS_FTP_PATH_SUFFIX` - Release system FTP path suffix (e.g., `/mokocrm`)
 - `DEV_FTP_PATH_SUFFIX` - Development system FTP path suffix (e.g., `/mokocrm`)
 
+**Organization Variables Used:**
+- Release System: `RS_FTP_PATH`
+- Development System: `DEV_FTP_PATH`
+
 **Organization Secrets Used:**
-- Release System: `RS_FTP_HOST`, `RS_FTP_USER`, `RS_FTP_PASSWORD`, `RS_FTP_PATH`
-- Development System: `DEV_FTP_HOST`, `DEV_FTP_USER`, `DEV_FTP_PASSWORD`, `DEV_FTP_PATH`
+- Release System: `RS_FTP_HOST`, `RS_FTP_USER`, `RS_FTP_PASSWORD`
+- Development System: `DEV_FTP_HOST`, `DEV_FTP_USER`, `DEV_FTP_PASSWORD`
 - Authentication: `FTP_KEY` (optional SSH key), `FTP_PROTOCOL`, `FTP_PORT`
 
 **What gets synced:**

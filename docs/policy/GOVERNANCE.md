@@ -45,11 +45,11 @@ Violations of standards or the Code of Conduct may result in rejected PRs or acc
 
 # Project Policies Index
 
-- [SECURITY.md](../../SECURITY.md) — vulnerability reporting
-- [SUPPORT.md](../guide/SUPPORT.md) — support channels
-- [CONTRIBUTING.md](../../CONTRIBUTING.md) — contribution guidelines
-- [.github/PULL_REQUEST_TEMPLATE.md](../../.github/PULL_REQUEST_TEMPLATE.md) — PR checklist
 - [.github/ISSUE_TEMPLATE/bug_report.md](../../.github/ISSUE_TEMPLATE/bug_report.md) — bug template
 - [.github/ISSUE_TEMPLATE/feature_request.md](../../.github/ISSUE_TEMPLATE/feature_request.md) — feature template
+- [.github/PULL_REQUEST_TEMPLATE.md](../../.github/PULL_REQUEST_TEMPLATE.md) — PR checklist
+- [CONTRIBUTING.md](../../CONTRIBUTING.md) — contribution guidelines
 - [docs/policy/](index.md) — coding standards and policies
 - [docs/ROADMAP.md](../ROADMAP.md) — versioning and release planning
+- [SECURITY.md](../../SECURITY.md) — vulnerability reporting
+- [SUPPORT.md](../guide/SUPPORT.md) — support channels

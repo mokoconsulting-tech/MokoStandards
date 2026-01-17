@@ -22,7 +22,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Guide
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
-PATH: /docs/COPILOT_PROMPT_FOR_.GITHUB-PRIVATE.md
+PATH: docs/COPILOT_PROMPT_FOR_.GITHUB-PRIVATE.md
 VERSION: 05.00.00
 BRIEF: Reference documentation for GitHub Copilot prompts stored in private repository
 -->
@@ -193,7 +193,7 @@ For your own private prompts, consider this structure:
 ## Related Documentation
 
 - [.github/copilot.yml](.github/copilot.yml) - Public Copilot configuration
-- [docs/guide/PRIVATE_REPOSITORY_REFERENCE.md](PRIVATE_REPOSITORY_REFERENCE.md) - Complete private file reference
+- [docs/guide/PRIVATE_REPOSITORY_REFERENCE.md](guide/PRIVATE_REPOSITORY_REFERENCE.md) - Complete private file reference
 - [docs/guide/repository-split-plan.md](guide/repository-split-plan.md) - Public/private architecture guide
 
 ## Migration History
@@ -263,7 +263,7 @@ This separation was implemented as part of the enterprise readiness initiative t
 | Field      | Value                                                                                                        |
 | ---------- | ------------------------------------------------------------------------------------------------------------ |
 | Document   | GitHub Copilot Prompt Reference for .github-private                                                          |
-| Path       | /docs/COPILOT_PROMPT_FOR_.GITHUB-PRIVATE.md                                                                 |
+| Path       | docs/COPILOT_PROMPT_FOR_.GITHUB-PRIVATE.md                                                                   |
 | Repository | [https://github.com/mokoconsulting-tech/MokoStandards](https://github.com/mokoconsulting-tech/MokoStandards) |
 | Owner      | Moko Consulting                                                                                              |
 | Scope      | Reference documentation                                                                                      |

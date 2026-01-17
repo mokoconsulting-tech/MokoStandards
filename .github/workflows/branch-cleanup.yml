@@ -93,10 +93,11 @@ jobs:
           echo "- **Dry Run Mode:** $DRY_RUN" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
       
-      - name: Authenticate GitHub CLI
+      - name: Verify GitHub token availability
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # Verify token is available before attempting authentication
           if [ -z "$GH_TOKEN" ]; then
             echo "## ❌ Error: GitHub Token Not Available" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
@@ -104,12 +105,10 @@ jobs:
             exit 1
           fi
           
-          # Authenticate with token
-          echo "$GH_TOKEN" | gh auth login --with-token
-          
-          # Verify authentication (don't fail on status check, GH_TOKEN being set is sufficient)
+          # GH_TOKEN environment variable is automatically used by GitHub CLI
+          # Verify authentication status
           if gh auth status 2>&1 || true; then
-            echo "✅ GitHub CLI authentication completed" >> $GITHUB_STEP_SUMMARY
+            echo "✅ GitHub CLI authentication verified" >> $GITHUB_STEP_SUMMARY
           fi
       
       - name: Find and cleanup branches

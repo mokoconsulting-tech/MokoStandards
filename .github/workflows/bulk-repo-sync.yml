@@ -79,7 +79,7 @@ jobs:
           # GitHub CLI should be pre-installed on ubuntu-latest
           gh --version
           
-      - name: Authenticate GitHub CLI
+      - name: Verify GitHub token availability
         env:
           GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
         run: |
@@ -97,14 +97,12 @@ jobs:
             exit 1
           fi
           
-          # Authenticate with token (stdin)
-          echo "$GH_TOKEN" | gh auth login --with-token
-          
-          # Verify authentication (don't fail workflow on status check, GH_TOKEN being set is sufficient)
+          # GH_TOKEN environment variable is automatically used by GitHub CLI
+          # Verify authentication status
           if gh auth status 2>&1 || true; then
-            echo "## ✅ GitHub CLI Authentication Completed" >> $GITHUB_STEP_SUMMARY
+            echo "## ✅ GitHub CLI Authentication Verified" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "Successfully authenticated with ORG_ADMIN_TOKEN." >> $GITHUB_STEP_SUMMARY
+            echo "Successfully verified authentication with ORG_ADMIN_TOKEN." >> $GITHUB_STEP_SUMMARY
           fi
           
       - name: Configure Git

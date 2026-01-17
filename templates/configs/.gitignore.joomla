@@ -191,6 +191,7 @@ hypothesis/
 # Custom user overrides for Joomla development
 user.css
 user.js
+colors_custom.css
 
 # Joomla Module Builder auto-generated files
 modulebuilder.txt

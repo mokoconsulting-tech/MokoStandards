@@ -108,6 +108,12 @@
             <pattern>modulebuilder\.txt</pattern>
             <severity>error</severity>
           </rule>
+          <rule>
+            <type>content-pattern</type>
+            <description>Must contain colors_custom.css pattern to ignore custom color scheme overrides</description>
+            <pattern>colors_custom\.css</pattern>
+            <severity>error</severity>
+          </rule>
         </validation-rules>
       </file>
 

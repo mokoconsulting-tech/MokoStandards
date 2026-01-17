@@ -52,6 +52,9 @@ DEFAULT_FILES_TO_SYNC = {
     # Dependabot configuration
     ".github/dependabot.yml": ".github/dependabot.yml",
     
+    # GitHub Copilot (coding agent) configuration
+    ".github/copilot.yml": ".github/copilot.yml",
+    
     # Workflow templates
     ".github/workflow-templates/build-universal.yml": ".github/workflows/build.yml",
     ".github/workflow-templates/codeql-analysis.yml": ".github/workflows/codeql-analysis.yml",
@@ -67,6 +70,9 @@ DEFAULT_FILES_TO_SYNC = {
     
     # Automation workflows
     ".github/workflows/sync-changelogs.yml": ".github/workflows/sync-changelogs.yml",
+    
+    # Enterprise firewall setup workflow
+    ".github/workflows/enterprise-firewall-setup.yml": ".github/workflows/enterprise-firewall-setup.yml",
     
     # Code quality configurations (optional - only copy if language is detected)
     # PHP configurations

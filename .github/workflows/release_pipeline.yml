@@ -767,7 +767,11 @@ jobs:
           AUTH_MODE="password"
 
           if [ "${AUTH_MODE}" = "password" ] && [ -z "${FTP_PASSWORD:-}" ]; then
-            echo "ERROR: FTP_PASSWORD required for channel ${CHANNEL}" >> "${GITHUB_STEP_SUMMARY}"
+            if [ "${CHANNEL}" = "rc" ]; then
+              echo "ERROR: DEV_FTP_PASSWORD secret required for channel ${CHANNEL}" >> "${GITHUB_STEP_SUMMARY}"
+            else
+              echo "ERROR: RS_FTP_PASSWORD secret required for channel ${CHANNEL}" >> "${GITHUB_STEP_SUMMARY}"
+            fi
             exit 1
           fi
 

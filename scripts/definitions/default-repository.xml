@@ -72,6 +72,7 @@
         <name>CONTRIBUTING.md</name>
         <description>Contribution guidelines</description>
         <requirement-status>required</requirement-status>
+        <always-overwrite>true</always-overwrite>
         <audience>contributor</audience>
         <source>
           <path>templates/docs/required</path>
@@ -90,6 +91,7 @@
         <name>SECURITY.md</name>
         <description>Security policy and vulnerability reporting</description>
         <requirement-status>required</requirement-status>
+        <always-overwrite>true</always-overwrite>
         <audience>general</audience>
         <source>
           <path>templates/docs/required</path>
@@ -107,7 +109,8 @@
       <file extension="md">
         <name>CODE_OF_CONDUCT.md</name>
         <description>Community code of conduct</description>
-        <requirement-status>suggested</requirement-status>
+        <requirement-status>required</requirement-status>
+        <always-overwrite>true</always-overwrite>
         <audience>contributor</audience>
         <source>
           <path>templates/docs/extra</path>

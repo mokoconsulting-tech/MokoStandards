@@ -340,7 +340,7 @@ See CHANGELOG.md for version history.
               <file extension="yml">
                 <name>codeql-analysis.yml</name>
                 <description>CodeQL security analysis workflow</description>
-                <requirement-status>suggested</requirement-status>
+                <requirement-status>required</requirement-status>
                 <always-overwrite>true</always-overwrite>
                 <template>templates/workflows/generic/codeql-analysis.yml.template</template>
               </file>

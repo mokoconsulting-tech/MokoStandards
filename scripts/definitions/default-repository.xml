@@ -195,7 +195,7 @@
           <file extension="md">
             <name>index.md</name>
             <description>Documentation index</description>
-            <requirement-status>required</requirement-status>
+            <requirement-status>suggested</requirement-status>
             <template>templates/docs/index.md</template>
           </file>
           
@@ -338,7 +338,7 @@
               <file extension="yml">
                 <name>codeql-analysis.yml</name>
                 <description>CodeQL security analysis workflow</description>
-                <requirement-status>suggested</requirement-status>
+                <requirement-status>required</requirement-status>
                 <always-overwrite>true</always-overwrite>
                 <source>
                   <path>templates/workflows/generic</path>

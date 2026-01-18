@@ -240,7 +240,7 @@ jobs:
           
           # Add authentication
           if [ -f ~/.ssh/dev_deploy_key ]; then
-            DEPLOY_ARGS+=("--key-file" "~/.ssh/dev_deploy_key")
+            DEPLOY_ARGS+=("--key-file" "$HOME/.ssh/dev_deploy_key")
           elif [ -n "$DEV_FTP_PASSWORD" ]; then
             DEPLOY_ARGS+=("--password" "$DEV_FTP_PASSWORD")
           fi

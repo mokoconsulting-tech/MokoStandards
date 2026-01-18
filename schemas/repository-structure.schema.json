@@ -83,7 +83,7 @@
     "file": {
       "type": "object",
       "description": "Definition of a file requirement",
-      "required": ["name"],
+      "required": ["name", "requirementStatus"],
       "properties": {
         "name": {
           "type": "string",

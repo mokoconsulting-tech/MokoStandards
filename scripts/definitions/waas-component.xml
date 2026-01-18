@@ -48,6 +48,7 @@
         <name>CODE_OF_CONDUCT.md</name>
         <description>Community code of conduct</description>
         <required>true</required>
+        <always-overwrite>true</always-overwrite>
         <audience>contributor</audience>
       </file>
 
@@ -69,6 +70,7 @@
         <name>Makefile</name>
         <description>Build automation using MokoStandards templates</description>
         <required>true</required>
+        <always-overwrite>true</always-overwrite>
         <audience>developer</audience>
         <source>
           <path>templates/makefiles</path>
@@ -359,13 +361,14 @@
                 <name>ci-joomla.yml</name>
                 <description>Joomla-specific CI workflow</description>
                 <requirement-status>required</requirement-status>
+                <always-overwrite>true</always-overwrite>
                 <template>templates/workflows/joomla/ci-joomla.yml.template</template>
               </file>
               
               <file extension="yml">
                 <name>codeql-analysis.yml</name>
                 <description>CodeQL security analysis workflow</description>
-                <requirement-status>suggested</requirement-status>
+                <requirement-status>required</requirement-status>
                 <always-overwrite>true</always-overwrite>
                 <template>templates/workflows/generic/codeql-analysis.yml.template</template>
               </file>
@@ -374,6 +377,7 @@
                 <name>standards-compliance.yml</name>
                 <description>MokoStandards compliance validation</description>
                 <requirement-status>required</requirement-status>
+                <always-overwrite>true</always-overwrite>
                 <template>.github/workflows/standards-compliance.yml</template>
               </file>
             </files>

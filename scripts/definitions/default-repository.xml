@@ -107,7 +107,8 @@
       <file extension="md">
         <name>CODE_OF_CONDUCT.md</name>
         <description>Community code of conduct</description>
-        <requirement-status>suggested</requirement-status>
+        <requirement-status>required</requirement-status>
+        <always-overwrite>true</always-overwrite>
         <audience>contributor</audience>
         <source>
           <path>templates/docs/extra</path>
@@ -166,7 +167,8 @@
       <file>
         <name>Makefile</name>
         <description>Build automation</description>
-        <requirement-status>suggested</requirement-status>
+        <requirement-status>required</requirement-status>
+        <always-overwrite>true</always-overwrite>
         <audience>developer</audience>
         <source>
           <path>templates/makefiles</path>
@@ -195,7 +197,7 @@
           <file extension="md">
             <name>index.md</name>
             <description>Documentation index</description>
-            <requirement-status>required</requirement-status>
+            <requirement-status>suggested</requirement-status>
             <template>templates/docs/index.md</template>
           </file>
           
@@ -284,7 +286,8 @@
               <file extension="yml">
                 <name>ci.yml</name>
                 <description>Continuous integration workflow</description>
-                <requirement-status>suggested</requirement-status>
+                <requirement-status>required</requirement-status>
+                <always-overwrite>true</always-overwrite>
                 <source>
                   <path>templates/workflows/generic</path>
                   <filename>ci.yml.template</filename>
@@ -319,7 +322,8 @@
               <file extension="yml">
                 <name>code-quality.yml</name>
                 <description>Code quality and linting workflow</description>
-                <requirement-status>suggested</requirement-status>
+                <requirement-status>required</requirement-status>
+                <always-overwrite>true</always-overwrite>
                 <source>
                   <path>templates/workflows/generic</path>
                   <filename>code-quality.yml.template</filename>
@@ -336,7 +340,7 @@
               <file extension="yml">
                 <name>codeql-analysis.yml</name>
                 <description>CodeQL security analysis workflow</description>
-                <requirement-status>suggested</requirement-status>
+                <requirement-status>required</requirement-status>
                 <always-overwrite>true</always-overwrite>
                 <source>
                   <path>templates/workflows/generic</path>
@@ -355,6 +359,7 @@
                 <name>deploy.yml</name>
                 <description>Deployment workflow</description>
                 <requirement-status>optional</requirement-status>
+                <always-overwrite>true</always-overwrite>
                 <source>
                   <path>templates/workflows/generic</path>
                   <filename>deploy.yml.template</filename>
@@ -371,7 +376,8 @@
               <file extension="yml">
                 <name>repo-health.yml</name>
                 <description>Repository health monitoring</description>
-                <requirement-status>suggested</requirement-status>
+                <requirement-status>required</requirement-status>
+                <always-overwrite>true</always-overwrite>
                 <source>
                   <path>templates/workflows/generic</path>
                   <filename>repo_health.yml.template</filename>
@@ -388,7 +394,7 @@
               <file extension="yml">
                 <name>release-cycle.yml</name>
                 <description>Release management workflow with automated release flow</description>
-                <requirement-status>optional</requirement-status>
+                <requirement-status>required</requirement-status>
                 <always-overwrite>true</always-overwrite>
                 <source>
                   <path>.github/workflows</path>
@@ -407,6 +413,7 @@
                 <name>standards-compliance.yml</name>
                 <description>MokoStandards compliance validation</description>
                 <requirement-status>required</requirement-status>
+                <always-overwrite>true</always-overwrite>
                 <source>
                   <path>.github/workflows</path>
                   <filename>standards-compliance.yml</filename>
@@ -417,19 +424,6 @@
                   <filename>standards-compliance.yml</filename>
                   <create-path>true</create-path>
                 </destination>
-                <template>.github/workflows/standards-compliance.yml</template>
-              </file>
-            </files>
-                <name>repo-health.yml</name>
-                <description>Repository health monitoring</description>
-                <requirement-status>suggested</requirement-status>
-                <template>templates/workflows/generic/repo_health.yml.template</template>
-              </file>
-              
-              <file extension="yml">
-                <name>standards-compliance.yml</name>
-                <description>MokoStandards compliance validation</description>
-                <requirement-status>required</requirement-status>
                 <template>.github/workflows/standards-compliance.yml</template>
               </file>
             </files>

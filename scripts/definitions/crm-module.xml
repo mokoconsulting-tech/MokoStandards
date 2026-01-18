@@ -92,6 +92,7 @@ See LICENSE file for details.
         <name>Makefile</name>
         <description>Build automation using MokoStandards templates</description>
         <required>true</required>
+        <always-overwrite>true</always-overwrite>
         <audience>developer</audience>
         <source>
           <path>templates/makefiles</path>
@@ -333,13 +334,14 @@ See CHANGELOG.md for version history.
                 <name>ci-dolibarr.yml</name>
                 <description>Dolibarr-specific CI workflow</description>
                 <requirement-status>required</requirement-status>
+                <always-overwrite>true</always-overwrite>
                 <template>templates/workflows/dolibarr/ci-dolibarr.yml.template</template>
               </file>
               
               <file extension="yml">
                 <name>codeql-analysis.yml</name>
                 <description>CodeQL security analysis workflow</description>
-                <requirement-status>suggested</requirement-status>
+                <requirement-status>required</requirement-status>
                 <always-overwrite>true</always-overwrite>
                 <template>templates/workflows/generic/codeql-analysis.yml.template</template>
               </file>
@@ -348,6 +350,7 @@ See CHANGELOG.md for version history.
                 <name>standards-compliance.yml</name>
                 <description>MokoStandards compliance validation</description>
                 <requirement-status>required</requirement-status>
+                <always-overwrite>true</always-overwrite>
                 <template>.github/workflows/standards-compliance.yml</template>
               </file>
             </files>

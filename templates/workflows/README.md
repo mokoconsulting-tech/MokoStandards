@@ -33,21 +33,87 @@ BRIEF: Documentation for consolidated GitHub workflow templates
 
 This directory contains consolidated GitHub Actions workflow templates for use across MokoStandards-governed repositories. These templates provide standardized CI/CD configurations for different project types.
 
+All workflow templates are documented in the unified repository schema at `schemas/unified-repository-schema.json`. The schema defines:
+- Platform compatibility (generic, joomla, dolibarr, shared)
+- Category (ci, build, test, release, deploy, quality, security, etc.)
+- Required secrets and variables
+- Permissions needed
+- Requirement level (required, recommended, optional)
+
+## Live Workflows vs Templates
+
+**Live Workflows** (.github/workflows/) - Always active for MokoStandards repo:
+- `standards-compliance.yml` - Repository standards validation
+- `confidentiality-scan.yml` - Security and confidentiality checks
+- `changelog_update.yml` - CHANGELOG management
+- `bulk-repo-sync.yml` - Bulk repository synchronization
+- `auto-create-org-projects.yml` - Organization project automation
+
+**Templates** (templates/workflows/) - For use in governed repositories:
+- All workflow templates organized by platform and purpose
+- 43 workflow templates available
+
 ## Structure
 
-```
-templates/workflows/
-├── README.md                      # This file
-├── ci-joomla.yml.template         # Joomla CI workflow template
-├── repo_health.yml.template       # Generic repo health workflow template
-├── version_branch.yml.template    # Version branch workflow template
-├── repo_health_xml.yml.template   # XML-based repo health workflow template
-├── joomla/                        # Joomla-specific workflow templates
-│   ├── ci-joomla.yml.template     # Continuous integration for Joomla projects
-│   ├── test.yml.template          # Testing workflow with PHPUnit and code quality
-│   ├── release.yml.template       # Automated release and package creation
-│   ├── repo_health.yml.template   # Repository health checks for Joomla
-│   └── version_branch.yml.template # Version branch automation
+The workflows are organized by platform and purpose:
+
+### Platform-Specific Templates
+
+**generic/** - Universal workflows for all project types
+- `ci.yml` - Generic continuous integration
+- `code-quality.yml` - Code quality checks
+- `codeql-analysis.yml` - Security analysis
+- `dependency-review.yml.template` - Dependency review
+- `deploy-to-dev.yml.template` - Development deployment
+- `repo-health.yml` - Repository health checks
+- `test.yml.template` - Generic testing workflow
+
+**joomla/** - Joomla extension workflows
+- `ci-joomla.yml.template` - Joomla-specific CI
+- `test.yml.template` - Joomla extension testing
+- `release.yml.template` - Joomla package creation
+- `repo_health.yml.template` - Joomla repo health
+- `version_branch.yml.template` - Version management
+
+**dolibarr/** - Dolibarr module workflows
+- `ci-dolibarr.yml.template` - Dolibarr CI
+- `test.yml.template` - Dolibarr module testing
+- `release.yml.template` - Dolibarr package creation
+- `sync-changelogs.yml.template` - Changelog synchronization
+
+### Release & Build Templates
+
+- `release-cycle.yml.template` - Full release cycle (main → dev → rc → version → main)
+- `release-pipeline.yml.template` - Automated release pipeline
+- `build.yml.template` - Universal build workflow
+- `version_branch.yml` - Version branch management
+- `branch-cleanup.yml.template` - Branch cleanup automation
+
+### Reusable Workflows
+
+- `reusable-build.yml.template` - Reusable build job
+- `reusable-ci-validation.yml` - Reusable CI validation
+- `reusable-deploy.yml` - Reusable deployment
+- `reusable-joomla-testing.yml` - Reusable Joomla tests
+- `reusable-php-quality.yml` - Reusable PHP quality checks
+- `reusable-platform-testing.yml` - Reusable platform testing
+- `reusable-project-detector.yml` - Project type detection
+- `reusable-release.yml.template` - Reusable release job
+- `reusable-script-executor.yml` - Reusable script execution
+
+### Shared Utilities
+
+**shared/** - Organization-wide utility workflows
+- `enterprise-firewall-setup.yml.template` - Firewall configuration
+- `rebuild-docs-indexes.yml.template` - Documentation indexing
+- `setup-project-v2.yml.template` - Project setup automation
+- `sync-docs-to-project.yml.template` - Documentation sync
+
+### Root Templates
+
+- `ci-joomla.yml.template` - Legacy Joomla CI template
+- `repo_health.yml.template` - Legacy repo health template
+- `repo_health_xml.yml.template` - XML-based repo health
 ├── dolibarr/                      # Dolibarr-specific workflow templates
 │   ├── ci-dolibarr.yml.template   # Continuous integration for Dolibarr modules
 │   ├── test.yml.template          # Testing workflow for Dolibarr modules

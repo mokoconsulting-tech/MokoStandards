@@ -2,14 +2,35 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "http://mokoconsulting.com/schemas/unified-repository-schema.json",
   "title": "Unified Repository Schema",
-  "description": "Bridge schema that connects repository structure requirements with health scoring, providing a unified view of repository standards",
-  "version": "1.0",
+  "description": "Bridge schema that connects repository structure requirements with health scoring and workflow templates, providing a unified view of repository standards",
+  "version": "2.0",
+  "changelog": [
+    {
+      "version": "2.0",
+      "date": "2026-01-18",
+      "changes": [
+        "Added workflows section for GitHub Actions workflow templates",
+        "Added workflowTemplate definition with comprehensive properties",
+        "Added scriptDependencies to workflow templates for tracking script requirements",
+        "Added support for script alternatives (e.g., PowerShell versions)",
+        "Added runtimeDependencies for package/module requirements",
+        "Enhanced workflow categorization and requirement levels"
+      ]
+    },
+    {
+      "version": "1.0",
+      "date": "2025-01-01",
+      "changes": [
+        "Initial unified schema connecting structure and health scoring"
+      ]
+    }
+  ],
   "type": "object",
   "required": ["schemaVersion", "metadata", "structure", "health"],
   "properties": {
     "schemaVersion": {
       "type": "string",
-      "const": "1.0",
+      "const": "2.0",
       "description": "Version of the unified schema specification"
     },
     "metadata": {
@@ -74,6 +95,97 @@
           "description": "Directory structure and requirements",
           "items": {
             "$ref": "#/definitions/structureDirectory"
+          }
+        }
+      }
+    },
+    "workflows": {
+      "type": "object",
+      "description": "GitHub Actions workflow templates available for this repository type",
+      "properties": {
+        "templates": {
+          "type": "array",
+          "description": "List of available workflow templates",
+          "items": {
+            "$ref": "#/definitions/workflowTemplate"
+          }
+        },
+        "required": {
+          "type": "array",
+          "description": "Workflows that are required for this repository type",
+          "items": {
+            "type": "string"
+          }
+        },
+        "recommended": {
+          "type": "array",
+          "description": "Workflows that are recommended for this repository type",
+          "items": {
+            "type": "string"
+          }
+        },
+        "releaseWorkflow": {
+          "type": "object",
+          "description": "Release workflow configuration and requirements",
+          "required": ["enabled"],
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Whether a release workflow is required for this repository type"
+            },
+            "template": {
+              "type": "string",
+              "description": "Default release workflow template to use (e.g., 'unified-platform-release', 'release-cycle')"
+            },
+            "strategy": {
+              "type": "string",
+              "enum": ["automated", "manual", "hybrid"],
+              "description": "Release strategy: automated (CI triggers), manual (workflow_dispatch), or hybrid"
+            },
+            "requiredApprovals": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Number of required approvals before release"
+            }
+          }
+        },
+        "testingWorkflow": {
+          "type": "object",
+          "description": "Testing workflow configuration and requirements",
+          "required": ["enabled"],
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Whether a testing workflow is required for this repository type"
+            },
+            "template": {
+              "type": "string",
+              "description": "Default testing workflow template to use (e.g., 'unified-platform-testing')"
+            },
+            "coverage": {
+              "type": "object",
+              "description": "Code coverage requirements",
+              "properties": {
+                "required": {
+                  "type": "boolean",
+                  "description": "Whether code coverage is required"
+                },
+                "minimumPercentage": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100,
+                  "description": "Minimum required code coverage percentage"
+                }
+              }
+            },
+            "testTypes": {
+              "type": "array",
+              "description": "Required types of tests",
+              "items": {
+                "type": "string",
+                "enum": ["unit", "integration", "e2e", "performance", "security"]
+              }
+            }
           }
         }
       }
@@ -428,6 +540,236 @@
             "script": {
               "type": "string",
               "description": "Script path for custom validation"
+            }
+          }
+        }
+      }
+    },
+    "workflowTemplate": {
+      "type": "object",
+      "description": "GitHub Actions workflow template definition",
+      "required": ["id", "name", "path", "platform", "category"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the workflow template"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable name of the workflow"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of what the workflow does"
+        },
+        "path": {
+          "type": "string",
+          "description": "Path to the workflow template file relative to templates/workflows/"
+        },
+        "platform": {
+          "type": "string",
+          "enum": ["generic", "joomla", "dolibarr", "shared", "all"],
+          "description": "Target platform for the workflow"
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "ci",
+            "build",
+            "test",
+            "release",
+            "deploy",
+            "quality",
+            "security",
+            "documentation",
+            "maintenance",
+            "reusable"
+          ],
+          "description": "Category of the workflow"
+        },
+        "triggers": {
+          "type": "array",
+          "description": "GitHub Actions triggers for this workflow",
+          "items": {
+            "type": "string",
+            "enum": [
+              "push",
+              "pull_request",
+              "workflow_dispatch",
+              "schedule",
+              "release",
+              "workflow_call"
+            ]
+          }
+        },
+        "requirementLevel": {
+          "type": "string",
+          "enum": ["required", "recommended", "optional"],
+          "default": "optional",
+          "description": "Requirement level for this repository type"
+        },
+        "dependencies": {
+          "type": "array",
+          "description": "Other workflows this template depends on",
+          "items": {
+            "type": "string"
+          }
+        },
+        "scriptDependencies": {
+          "type": "array",
+          "description": "Scripts required by this workflow",
+          "items": {
+            "type": "object",
+            "required": ["path", "language"],
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Path to the script relative to repository root (e.g., 'scripts/validate/manifest.py')"
+              },
+              "language": {
+                "type": "string",
+                "enum": ["python", "bash", "powershell", "javascript", "ruby", "perl"],
+                "description": "Script language/runtime"
+              },
+              "version": {
+                "type": "string",
+                "description": "Required version or version range (e.g., '>=3.8' for Python)"
+              },
+              "description": {
+                "type": "string",
+                "description": "What this script does in the workflow context"
+              },
+              "required": {
+                "type": "boolean",
+                "default": true,
+                "description": "Whether this script is required or optional"
+              },
+              "alternatives": {
+                "type": "array",
+                "description": "Alternative scripts that can be used (e.g., PowerShell version of Python script)",
+                "items": {
+                  "type": "object",
+                  "required": ["path", "language"],
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "description": "Path to alternative script"
+                    },
+                    "language": {
+                      "type": "string",
+                      "enum": ["python", "bash", "powershell", "javascript", "ruby", "perl"],
+                      "description": "Alternative script language"
+                    },
+                    "platform": {
+                      "type": "string",
+                      "enum": ["windows", "linux", "macos", "all"],
+                      "description": "Platform compatibility"
+                    }
+                  }
+                }
+              },
+              "runtimeDependencies": {
+                "type": "array",
+                "description": "Runtime dependencies (packages/modules) required by this script",
+                "items": {
+                  "type": "object",
+                  "required": ["name", "packageManager"],
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "Package/module name"
+                    },
+                    "packageManager": {
+                      "type": "string",
+                      "enum": ["pip", "npm", "gem", "cpan", "nuget", "apt", "brew", "chocolatey"],
+                      "description": "Package manager to install dependency"
+                    },
+                    "version": {
+                      "type": "string",
+                      "description": "Required version or version range"
+                    },
+                    "installCommand": {
+                      "type": "string",
+                      "description": "Specific command to install (overrides default)"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "secrets": {
+          "type": "array",
+          "description": "GitHub secrets required by this workflow",
+          "items": {
+            "type": "object",
+            "required": ["name", "description"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Secret name"
+              },
+              "description": {
+                "type": "string",
+                "description": "Secret description and usage"
+              },
+              "required": {
+                "type": "boolean",
+                "default": true,
+                "description": "Whether this secret is required"
+              }
+            }
+          }
+        },
+        "variables": {
+          "type": "array",
+          "description": "GitHub variables required by this workflow",
+          "items": {
+            "type": "object",
+            "required": ["name", "description"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Variable name"
+              },
+              "description": {
+                "type": "string",
+                "description": "Variable description"
+              },
+              "required": {
+                "type": "boolean",
+                "default": false,
+                "description": "Whether this variable is required"
+              },
+              "defaultValue": {
+                "type": "string",
+                "description": "Default value if not provided"
+              }
+            }
+          }
+        },
+        "permissions": {
+          "type": "object",
+          "description": "GitHub permissions required by this workflow",
+          "additionalProperties": {
+            "type": "string",
+            "enum": ["read", "write", "none"]
+          }
+        },
+        "examples": {
+          "type": "array",
+          "description": "Usage examples for this workflow",
+          "items": {
+            "type": "object",
+            "properties": {
+              "description": {
+                "type": "string",
+                "description": "Example description"
+              },
+              "configuration": {
+                "type": "string",
+                "description": "Example configuration snippet"
+              }
             }
           }
         }

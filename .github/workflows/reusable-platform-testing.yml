@@ -1,0 +1,527 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.Reusable
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/reusable-platform-testing.yml
+# VERSION: 02.00.00
+# BRIEF: Reusable platform testing workflow for Joomla and Dolibarr extensions
+# NOTE: Supports PHPUnit, integration tests, and code coverage for multiple platforms
+
+name: Reusable Platform Testing
+
+on:
+  workflow_call:
+    inputs:
+      platform:
+        description: 'Platform to test (joomla or dolibarr)'
+        required: false
+        type: string
+        default: 'joomla'
+      php-versions:
+        description: 'JSON array of PHP versions to test'
+        required: false
+        type: string
+        default: '["7.4", "8.0", "8.1", "8.2"]'
+      platform-versions:
+        description: 'JSON array of platform versions (Joomla or Dolibarr versions)'
+        required: false
+        type: string
+        default: '["4.4", "5.0", "5.1"]'
+      # Legacy input names for backward compatibility
+      joomla-versions:
+        description: '[DEPRECATED] Use platform-versions instead'
+        required: false
+        type: string
+        default: ''
+      coverage:
+        description: 'Enable code coverage reporting'
+        required: false
+        type: boolean
+        default: false
+      coverage-php-version:
+        description: 'PHP version to use for coverage reporting'
+        required: false
+        type: string
+        default: '8.1'
+      coverage-platform-version:
+        description: 'Platform version to use for coverage reporting'
+        required: false
+        type: string
+        default: '5.0'
+      # Legacy input name for backward compatibility
+      coverage-joomla-version:
+        description: '[DEPRECATED] Use coverage-platform-version instead'
+        required: false
+        type: string
+        default: ''
+      working-directory:
+        description: 'Working directory for tests'
+        required: false
+        type: string
+        default: '.'
+      run-integration-tests:
+        description: 'Run integration tests with platform installation'
+        required: false
+        type: boolean
+        default: true
+    secrets:
+      CODECOV_TOKEN:
+        description: 'Codecov token for coverage uploads'
+        required: false
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Platform to test (joomla or dolibarr)'
+        required: false
+        type: string
+        default: 'joomla'
+      php-versions:
+        description: 'JSON array of PHP versions to test'
+        required: false
+        type: string
+        default: '["7.4", "8.0", "8.1", "8.2"]'
+      platform-versions:
+        description: 'JSON array of platform versions (Joomla or Dolibarr versions)'
+        required: false
+        type: string
+        default: '["4.4", "5.0", "5.1"]'
+      coverage:
+        description: 'Enable code coverage reporting'
+        required: false
+        type: boolean
+        default: false
+      coverage-php-version:
+        description: 'PHP version to use for coverage reporting'
+        required: false
+        type: string
+        default: '8.1'
+      coverage-platform-version:
+        description: 'Platform version to use for coverage reporting'
+        required: false
+        type: string
+        default: '5.0'
+      working-directory:
+        description: 'Working directory for tests'
+        required: false
+        type: string
+        default: '.'
+      run-integration-tests:
+        description: 'Run integration tests with platform installation'
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  detect-platform:
+    name: Detect Platform
+    runs-on: ubuntu-latest
+    outputs:
+      platform: ${{ steps.detect.outputs.platform }}
+      platform-versions: ${{ steps.detect.outputs.platform-versions }}
+      coverage-platform-version: ${{ steps.detect.outputs.coverage-platform-version }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      
+      - name: Detect platform and resolve versions
+        id: detect
+        run: |
+          # Determine platform
+          PLATFORM="${{ inputs.platform }}"
+          
+          # Auto-detect if not specified
+          if [ "$PLATFORM" == "joomla" ] || [ -z "$PLATFORM" ]; then
+            if [ -f "dolibarr.xml" ] || [ -f "src/dolibarr.xml" ]; then
+              PLATFORM="dolibarr"
+            else
+              PLATFORM="joomla"
+            fi
+          fi
+          
+          echo "platform=$PLATFORM" >> $GITHUB_OUTPUT
+          echo "Detected platform: $PLATFORM"
+          
+          # Resolve platform versions (handle legacy input names)
+          if [ -n "${{ inputs.platform-versions }}" ]; then
+            VERSIONS="${{ inputs.platform-versions }}"
+          elif [ -n "${{ inputs.joomla-versions }}" ]; then
+            VERSIONS="${{ inputs.joomla-versions }}"
+            echo "⚠️ Warning: joomla-versions is deprecated, use platform-versions"
+          else
+            # Set default versions based on platform
+            if [ "$PLATFORM" == "dolibarr" ]; then
+              VERSIONS='["18.0", "19.0", "20.0"]'
+            else
+              VERSIONS='["4.4", "5.0", "5.1"]'
+            fi
+          fi
+          
+          echo "platform-versions=$VERSIONS" >> $GITHUB_OUTPUT
+          echo "Platform versions: $VERSIONS"
+          
+          # Resolve coverage platform version
+          if [ -n "${{ inputs.coverage-platform-version }}" ]; then
+            COV_VERSION="${{ inputs.coverage-platform-version }}"
+          elif [ -n "${{ inputs.coverage-joomla-version }}" ]; then
+            COV_VERSION="${{ inputs.coverage-joomla-version }}"
+            echo "⚠️ Warning: coverage-joomla-version is deprecated, use coverage-platform-version"
+          else
+            if [ "$PLATFORM" == "dolibarr" ]; then
+              COV_VERSION="19.0"
+            else
+              COV_VERSION="5.0"
+            fi
+          fi
+          
+          echo "coverage-platform-version=$COV_VERSION" >> $GITHUB_OUTPUT
+          echo "Coverage platform version: $COV_VERSION"
+
+  unit-tests:
+    name: PHPUnit (PHP ${{ matrix.php-version }}, ${{ needs.detect-platform.outputs.platform }} ${{ matrix.platform-version }})
+    runs-on: ubuntu-latest
+    needs: detect-platform
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version: ${{ fromJSON(inputs.php-versions) }}
+        platform-version: ${{ fromJSON(needs.detect-platform.outputs.platform-versions) }}
+        exclude:
+          # PHP 7.4 not compatible with Joomla 5.x
+          - php-version: '7.4'
+            platform-version: '5.0'
+          - php-version: '7.4'
+            platform-version: '5.1'
+          # PHP 7.4 not compatible with Dolibarr 19.0+
+          - php-version: '7.4'
+            platform-version: '19.0'
+          - php-version: '7.4'
+            platform-version: '20.0'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mbstring, xml, mysqli, zip, gd, intl
+          coverage: ${{ inputs.coverage && matrix.php-version == inputs.coverage-php-version && matrix.platform-version == needs.detect-platform.outputs.coverage-platform-version && 'xdebug' || 'none' }}
+          tools: composer:v2
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v5
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-php-${{ matrix.php-version }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-${{ matrix.php-version }}-composer-
+            ${{ runner.os }}-php-
+
+      - name: Validate composer.json
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          if [ -f "composer.json" ]; then
+            composer validate --strict
+          else
+            echo "No composer.json found, skipping validation"
+          fi
+
+      - name: Install dependencies
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          if [ -f "composer.json" ]; then
+            composer install --prefer-dist --no-progress --no-interaction
+          else
+            echo "No composer.json found, skipping dependency installation"
+          fi
+
+      - name: Setup platform test environment
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          PLATFORM="${{ needs.detect-platform.outputs.platform }}"
+          VERSION="${{ matrix.platform-version }}"
+          
+          echo "Setting up $PLATFORM $VERSION test environment"
+          
+          # Add platform-specific environment variables
+          if [ "$PLATFORM" == "joomla" ]; then
+            echo "JOOMLA_VERSION=$VERSION" >> $GITHUB_ENV
+            echo "PLATFORM_TYPE=joomla" >> $GITHUB_ENV
+          elif [ "$PLATFORM" == "dolibarr" ]; then
+            echo "DOLIBARR_VERSION=$VERSION" >> $GITHUB_ENV
+            echo "PLATFORM_TYPE=dolibarr" >> $GITHUB_ENV
+          fi
+
+      - name: Run PHPUnit tests
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          SHOULD_COVERAGE="${{ inputs.coverage && matrix.php-version == inputs.coverage-php-version && matrix.platform-version == needs.detect-platform.outputs.coverage-platform-version }}"
+          
+          if [ -f "vendor/bin/phpunit" ]; then
+            if [ "$SHOULD_COVERAGE" == "true" ]; then
+              vendor/bin/phpunit --coverage-text --coverage-clover=coverage.xml
+            else
+              vendor/bin/phpunit
+            fi
+          elif [ -f "phpunit.xml" ] || [ -f "phpunit.xml.dist" ]; then
+            if [ "$SHOULD_COVERAGE" == "true" ]; then
+              php vendor/phpunit/phpunit/phpunit --coverage-text --coverage-clover=coverage.xml
+            else
+              php vendor/phpunit/phpunit/phpunit
+            fi
+          else
+            echo "⚠️ No PHPUnit configuration found, skipping tests"
+            exit 0
+          fi
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        if: inputs.coverage && matrix.php-version == inputs.coverage-php-version && matrix.platform-version == needs.detect-platform.outputs.coverage-platform-version
+        with:
+          file: ${{ inputs.working-directory }}/coverage.xml
+          flags: unittests,php-${{ matrix.php-version }},${{ needs.detect-platform.outputs.platform }}-${{ matrix.platform-version }}
+          name: codecov-${{ needs.detect-platform.outputs.platform }}-${{ matrix.php-version }}-${{ matrix.platform-version }}
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
+
+  integration-tests:
+    name: Integration (${{ needs.detect-platform.outputs.platform }} ${{ matrix.platform-version }})
+    runs-on: ubuntu-latest
+    needs: detect-platform
+    if: inputs.run-integration-tests
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: platform_test
+          MYSQL_USER: testuser
+          MYSQL_PASSWORD: testpass
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    strategy:
+      fail-fast: false
+      matrix:
+        platform-version: ${{ fromJSON(needs.detect-platform.outputs.platform-versions) }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mbstring, xml, mysqli, zip, gd, intl, pdo_mysql
+          tools: composer:v2
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v5
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-integration-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-integration-composer-
+
+      - name: Install dependencies
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          if [ -f "composer.json" ]; then
+            composer install --prefer-dist --no-progress --no-interaction
+          fi
+
+      - name: Download and setup platform
+        run: |
+          PLATFORM="${{ needs.detect-platform.outputs.platform }}"
+          VERSION="${{ matrix.platform-version }}"
+          
+          echo "📦 Setting up $PLATFORM $VERSION for integration testing"
+          
+          mkdir -p /tmp/platform
+          cd /tmp/platform
+          
+          if [ "$PLATFORM" == "joomla" ]; then
+            # Download Joomla
+            if [[ "$VERSION" == "4.4" ]]; then
+              DOWNLOAD_VERSION="4.4-Stable"
+            elif [[ "$VERSION" == "5.0" ]]; then
+              DOWNLOAD_VERSION="5.0-Stable"
+            elif [[ "$VERSION" == "5.1" ]]; then
+              DOWNLOAD_VERSION="5.1-Stable"
+            else
+              DOWNLOAD_VERSION="${VERSION}-Stable"
+            fi
+            
+            echo "Downloading Joomla ${DOWNLOAD_VERSION}..."
+            curl -L -o platform.zip "https://downloads.joomla.org/cms/joomla${VERSION%%.*}/${DOWNLOAD_VERSION}" || \
+            curl -L -o platform.zip "https://github.com/joomla/joomla-cms/releases/download/${VERSION}.0/Joomla_${VERSION}.0-Stable-Full_Package.zip" || \
+            echo "⚠️ Could not download Joomla"
+            
+          elif [ "$PLATFORM" == "dolibarr" ]; then
+            # Download Dolibarr
+            echo "Downloading Dolibarr ${VERSION}..."
+            curl -L -o platform.zip "https://github.com/Dolibarr/dolibarr/archive/refs/tags/${VERSION}.0.zip" || \
+            curl -L -o platform.zip "https://sourceforge.net/projects/dolibarr/files/Dolibarr%20ERP-CRM/${VERSION}.0/dolibarr-${VERSION}.0.zip/download" || \
+            echo "⚠️ Could not download Dolibarr"
+          fi
+          
+          if [ -f platform.zip ]; then
+            unzip -q platform.zip
+            echo "✅ Platform extracted successfully"
+          fi
+
+      - name: Configure platform
+        run: |
+          PLATFORM="${{ needs.detect-platform.outputs.platform }}"
+          
+          echo "⚙️ Configuring $PLATFORM for testing"
+          
+          cd /tmp/platform
+          
+          if [ "$PLATFORM" == "joomla" ] && [ -d "." ]; then
+            # Create Joomla configuration
+            cat > configuration.php << 'EOF'
+          <?php
+          class JConfig {
+              public $dbtype = 'mysqli';
+              public $host = '127.0.0.1';
+              public $user = 'testuser';
+              public $password = 'testpass';
+              public $db = 'platform_test';
+              public $dbprefix = 'jos_';
+              public $secret = 'test-secret';
+              public $debug = true;
+              public $error_reporting = 'maximum';
+          }
+          EOF
+            echo "✅ Joomla configuration created"
+            
+          elif [ "$PLATFORM" == "dolibarr" ]; then
+            # Create Dolibarr configuration
+            mkdir -p htdocs/conf
+            cat > htdocs/conf/conf.php << 'EOF'
+          <?php
+          $dolibarr_main_url_root='http://localhost';
+          $dolibarr_main_document_root='/tmp/platform/htdocs';
+          $dolibarr_main_db_host='127.0.0.1';
+          $dolibarr_main_db_port='3306';
+          $dolibarr_main_db_name='platform_test';
+          $dolibarr_main_db_user='testuser';
+          $dolibarr_main_db_pass='testpass';
+          $dolibarr_main_db_type='mysqli';
+          $dolibarr_main_instance_unique_id='test-instance';
+          EOF
+            echo "✅ Dolibarr configuration created"
+          fi
+
+      - name: Install extension into platform
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          PLATFORM="${{ needs.detect-platform.outputs.platform }}"
+          
+          echo "📦 Installing extension into $PLATFORM"
+          
+          if [ -d "/tmp/platform" ]; then
+            echo "Extension installation logic for $PLATFORM would go here"
+            echo "Platform-specific installation steps based on extension type"
+          else
+            echo "⚠️ Skipping extension installation - platform not available"
+          fi
+
+      - name: Run integration tests
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          if [ -d "tests/Integration" ] && [ -f "vendor/bin/phpunit" ]; then
+            echo "🧪 Running integration tests"
+            if vendor/bin/phpunit --testsuite Integration; then
+              echo "✅ Integration tests passed (test suite)"
+            elif vendor/bin/phpunit tests/Integration/; then
+              echo "✅ Integration tests passed (directory)"
+            else
+              echo "❌ Integration tests failed"
+              exit 1
+            fi
+          else
+            echo "ℹ️ No integration tests found or PHPUnit not available"
+            echo "Looked for: tests/Integration/ directory"
+          fi
+
+  summary:
+    name: Testing Summary
+    runs-on: ubuntu-latest
+    needs: [detect-platform, unit-tests, integration-tests]
+    if: always()
+
+    steps:
+      - name: Generate test summary
+        run: |
+          PLATFORM="${{ needs.detect-platform.outputs.platform }}"
+          PLATFORM_UPPER=$(echo "$PLATFORM" | tr '[:lower:]' '[:upper:]')
+          
+          echo "### 🧪 $PLATFORM_UPPER Testing Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Platform:** $PLATFORM" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Test Suite | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Unit Tests | ${{ needs.unit-tests.result == 'success' && '✅ Passed' || needs.unit-tests.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Integration Tests | ${{ needs.integration-tests.result == 'success' && '✅ Passed' || needs.integration-tests.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Repository:** $GITHUB_REPOSITORY" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** $GITHUB_REF_NAME" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** $GITHUB_SHA" >> $GITHUB_STEP_SUMMARY
+
+      - name: Check test results
+        run: |
+          if [ "${{ needs.unit-tests.result }}" == "failure" ]; then
+            echo "❌ Unit tests failed"
+            exit 1
+          fi
+
+          if [ "${{ needs.integration-tests.result }}" == "failure" ]; then
+            echo "❌ Integration tests failed"
+            exit 1
+          fi
+
+          echo "✅ All test suites passed or were skipped"

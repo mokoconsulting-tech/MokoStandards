@@ -107,7 +107,8 @@
       <file extension="md">
         <name>CODE_OF_CONDUCT.md</name>
         <description>Community code of conduct</description>
-        <requirement-status>suggested</requirement-status>
+        <requirement-status>required</requirement-status>
+        <always-overwrite>true</always-overwrite>
         <audience>contributor</audience>
         <source>
           <path>templates/docs/extra</path>
@@ -166,7 +167,8 @@
       <file>
         <name>Makefile</name>
         <description>Build automation</description>
-        <requirement-status>suggested</requirement-status>
+        <requirement-status>required</requirement-status>
+        <always-overwrite>true</always-overwrite>
         <audience>developer</audience>
         <source>
           <path>templates/makefiles</path>
@@ -284,7 +286,7 @@
               <file extension="yml">
                 <name>ci.yml</name>
                 <description>Continuous integration workflow</description>
-                <requirement-status>suggested</requirement-status>
+                <requirement-status>required</requirement-status>
                 <always-overwrite>true</always-overwrite>
                 <source>
                   <path>templates/workflows/generic</path>
@@ -320,7 +322,7 @@
               <file extension="yml">
                 <name>code-quality.yml</name>
                 <description>Code quality and linting workflow</description>
-                <requirement-status>suggested</requirement-status>
+                <requirement-status>required</requirement-status>
                 <always-overwrite>true</always-overwrite>
                 <source>
                   <path>templates/workflows/generic</path>
@@ -374,7 +376,7 @@
               <file extension="yml">
                 <name>repo-health.yml</name>
                 <description>Repository health monitoring</description>
-                <requirement-status>suggested</requirement-status>
+                <requirement-status>required</requirement-status>
                 <always-overwrite>true</always-overwrite>
                 <source>
                   <path>templates/workflows/generic</path>

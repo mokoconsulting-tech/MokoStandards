@@ -48,6 +48,7 @@
         <name>CODE_OF_CONDUCT.md</name>
         <description>Community code of conduct</description>
         <required>true</required>
+        <always-overwrite>true</always-overwrite>
         <audience>contributor</audience>
       </file>
 
@@ -69,6 +70,7 @@
         <name>Makefile</name>
         <description>Build automation using MokoStandards templates</description>
         <required>true</required>
+        <always-overwrite>true</always-overwrite>
         <audience>developer</audience>
         <source>
           <path>templates/makefiles</path>

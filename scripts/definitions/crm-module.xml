@@ -92,6 +92,7 @@ See LICENSE file for details.
         <name>Makefile</name>
         <description>Build automation using MokoStandards templates</description>
         <required>true</required>
+        <always-overwrite>true</always-overwrite>
         <audience>developer</audience>
         <source>
           <path>templates/makefiles</path>

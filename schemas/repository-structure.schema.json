@@ -3,13 +3,13 @@
   "$id": "http://mokoconsulting.com/schemas/repository-structure.json",
   "title": "Repository Structure Schema",
   "description": "Schema for defining repository structure requirements, including files, directories, and validation rules",
-  "version": "1.0",
+  "version": "2.0",
   "type": "object",
   "required": ["metadata", "structure"],
   "properties": {
     "schemaVersion": {
       "type": "string",
-      "const": "1.0",
+      "const": "2.0",
       "description": "Version of the schema specification"
     },
     "metadata": {
@@ -74,6 +74,90 @@
           "description": "Directory structure and requirements",
           "items": {
             "$ref": "#/definitions/directory"
+          }
+        },
+        "repositoryRequirements": {
+          "type": "object",
+          "description": "Repository-level requirements including compliance, security, and operational policies",
+          "properties": {
+            "variables": {
+              "type": "array",
+              "description": "Repository variables configuration",
+              "items": {
+                "$ref": "#/definitions/variable"
+              }
+            },
+            "secrets": {
+              "type": "array",
+              "description": "Repository secrets requirements",
+              "items": {
+                "$ref": "#/definitions/secret"
+              }
+            },
+            "branchProtections": {
+              "type": "array",
+              "description": "Branch protection rules",
+              "items": {
+                "$ref": "#/definitions/branchProtection"
+              }
+            },
+            "repositorySettings": {
+              "type": "object",
+              "description": "Repository settings configuration",
+              "$ref": "#/definitions/repositorySettings"
+            },
+            "labels": {
+              "type": "array",
+              "description": "Repository labels for issues and PRs",
+              "items": {
+                "$ref": "#/definitions/label"
+              }
+            },
+            "complianceRequirements": {
+              "type": "object",
+              "description": "Regulatory and compliance standards the repository must adhere to",
+              "$ref": "#/definitions/complianceRequirements"
+            },
+            "securityPolicy": {
+              "type": "object",
+              "description": "Security scanning and vulnerability management requirements",
+              "$ref": "#/definitions/securityPolicy"
+            },
+            "dependencies": {
+              "type": "object",
+              "description": "Package dependencies with security and version requirements",
+              "$ref": "#/definitions/dependencies"
+            },
+            "qualityGates": {
+              "type": "object",
+              "description": "Code quality thresholds and test requirements",
+              "$ref": "#/definitions/qualityGates"
+            },
+            "ciCdRequirements": {
+              "type": "object",
+              "description": "Continuous integration and deployment workflow requirements",
+              "$ref": "#/definitions/ciCdRequirements"
+            },
+            "documentationRequirements": {
+              "type": "object",
+              "description": "Required documentation types and standards",
+              "$ref": "#/definitions/documentationRequirements"
+            },
+            "teamStructure": {
+              "type": "object",
+              "description": "Repository team structure including code owners and maintainers",
+              "$ref": "#/definitions/teamStructure"
+            },
+            "releaseManagement": {
+              "type": "object",
+              "description": "Release versioning strategy and changelog requirements",
+              "$ref": "#/definitions/releaseManagement"
+            },
+            "monitoring": {
+              "type": "object",
+              "description": "Application monitoring, health checks, and alerting configuration",
+              "$ref": "#/definitions/monitoring"
+            }
           }
         }
       }
@@ -252,6 +336,1108 @@
           "enum": ["error", "warning", "info"],
           "default": "error",
           "description": "Severity level of validation failure"
+        }
+      }
+    },
+    "variable": {
+      "type": "object",
+      "description": "Repository variable definition",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Variable name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Variable description"
+        },
+        "defaultValue": {
+          "type": "string",
+          "description": "Default value for the variable"
+        },
+        "required": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether the variable is required"
+        },
+        "scope": {
+          "type": "string",
+          "enum": ["repository", "environment", "organization"],
+          "default": "repository",
+          "description": "Scope of the variable"
+        }
+      }
+    },
+    "secret": {
+      "type": "object",
+      "description": "Repository secret requirement",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Secret name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Secret description"
+        },
+        "required": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether the secret is required"
+        },
+        "scope": {
+          "type": "string",
+          "enum": ["repository", "environment", "organization"],
+          "default": "repository",
+          "description": "Scope of the secret"
+        },
+        "usedIn": {
+          "type": "string",
+          "description": "Where the secret is used"
+        }
+      }
+    },
+    "branchProtection": {
+      "type": "object",
+      "description": "Branch protection rule",
+      "required": ["branchPattern"],
+      "properties": {
+        "branchPattern": {
+          "type": "string",
+          "description": "Branch name pattern (e.g., 'main', 'develop')"
+        },
+        "requirePullRequest": {
+          "type": "boolean",
+          "default": true,
+          "description": "Require pull request before merging"
+        },
+        "requiredApprovals": {
+          "type": "integer",
+          "description": "Number of required approvals"
+        },
+        "requireCodeOwnerReview": {
+          "type": "boolean",
+          "default": false,
+          "description": "Require code owner review"
+        },
+        "dismissStaleReviews": {
+          "type": "boolean",
+          "default": true,
+          "description": "Dismiss stale reviews on new commits"
+        },
+        "requireStatusChecks": {
+          "type": "boolean",
+          "default": true,
+          "description": "Require status checks to pass"
+        },
+        "requiredStatusChecks": {
+          "type": "array",
+          "description": "List of required status checks",
+          "items": {
+            "type": "string"
+          }
+        },
+        "enforceAdmins": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enforce restrictions for administrators"
+        },
+        "restrictPushes": {
+          "type": "boolean",
+          "default": true,
+          "description": "Restrict who can push to matching branches"
+        }
+      }
+    },
+    "repositorySettings": {
+      "type": "object",
+      "description": "Repository settings configuration",
+      "properties": {
+        "hasIssues": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable issues"
+        },
+        "hasProjects": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable projects"
+        },
+        "hasWiki": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable wiki"
+        },
+        "hasDiscussions": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable discussions"
+        },
+        "allowMergeCommit": {
+          "type": "boolean",
+          "default": true,
+          "description": "Allow merge commits"
+        },
+        "allowSquashMerge": {
+          "type": "boolean",
+          "default": true,
+          "description": "Allow squash merging"
+        },
+        "allowRebaseMerge": {
+          "type": "boolean",
+          "default": false,
+          "description": "Allow rebase merging"
+        },
+        "deleteBranchOnMerge": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically delete head branches"
+        },
+        "allowAutoMerge": {
+          "type": "boolean",
+          "default": false,
+          "description": "Allow auto-merge"
+        }
+      }
+    },
+    "label": {
+      "type": "object",
+      "description": "Repository label definition",
+      "required": ["name", "color"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Label name"
+        },
+        "color": {
+          "type": "string",
+          "description": "Label color (hex code)"
+        },
+        "description": {
+          "type": "string",
+          "description": "Label description"
+        }
+      }
+    },
+    "complianceRequirements": {
+      "type": "object",
+      "description": "Regulatory and compliance standards",
+      "properties": {
+        "frameworks": {
+          "type": "array",
+          "description": "Compliance frameworks",
+          "items": {
+            "$ref": "#/definitions/complianceFramework"
+          }
+        },
+        "dataClassification": {
+          "type": "string",
+          "enum": ["public", "internal", "confidential", "restricted"],
+          "description": "Data classification level"
+        },
+        "auditLoggingRequired": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether audit logging is required"
+        },
+        "dataResidencyRequirements": {
+          "type": "string",
+          "description": "Data residency requirements"
+        }
+      }
+    },
+    "complianceFramework": {
+      "type": "object",
+      "description": "Compliance framework definition",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "enum": ["SOC2", "GDPR", "HIPAA", "ISO27001", "PCI-DSS", "NIST", "FedRAMP", "CCPA"],
+          "description": "Compliance framework name"
+        },
+        "required": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether the framework is required"
+        },
+        "controls": {
+          "type": "array",
+          "description": "Compliance controls",
+          "items": {
+            "$ref": "#/definitions/complianceControl"
+          }
+        },
+        "evidenceRequirements": {
+          "type": "string",
+          "description": "Evidence requirements"
+        }
+      }
+    },
+    "complianceControl": {
+      "type": "object",
+      "description": "Compliance control definition",
+      "required": ["controlId", "description"],
+      "properties": {
+        "controlId": {
+          "type": "string",
+          "description": "Control identifier"
+        },
+        "description": {
+          "type": "string",
+          "description": "Control description"
+        },
+        "required": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether the control is required"
+        }
+      }
+    },
+    "securityPolicy": {
+      "type": "object",
+      "description": "Security scanning and vulnerability management",
+      "required": ["vulnerabilityScanning"],
+      "properties": {
+        "vulnerabilityScanning": {
+          "$ref": "#/definitions/vulnerabilityScanning"
+        },
+        "secretScanningEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable secret scanning"
+        },
+        "dependencyScanningEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable dependency scanning"
+        },
+        "codeScanningEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable code scanning"
+        },
+        "securityAdvisoriesEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable security advisories"
+        },
+        "allowedLicenses": {
+          "type": "array",
+          "description": "List of allowed licenses",
+          "items": {
+            "type": "string"
+          }
+        },
+        "securityContacts": {
+          "type": "array",
+          "description": "Security contacts",
+          "items": {
+            "$ref": "#/definitions/contact"
+          }
+        }
+      }
+    },
+    "vulnerabilityScanning": {
+      "type": "object",
+      "description": "Vulnerability scanning configuration",
+      "properties": {
+        "frequency": {
+          "type": "string",
+          "enum": ["on-push", "daily", "weekly", "monthly"],
+          "default": "on-push",
+          "description": "Scanning frequency"
+        },
+        "severityThreshold": {
+          "type": "string",
+          "enum": ["critical", "high", "medium", "low"],
+          "default": "medium",
+          "description": "Minimum severity threshold"
+        },
+        "blockOnVulnerability": {
+          "type": "boolean",
+          "default": true,
+          "description": "Block deployment on vulnerabilities"
+        },
+        "autoRemediationEnabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable automatic remediation"
+        }
+      }
+    },
+    "contact": {
+      "type": "object",
+      "description": "Contact information",
+      "required": ["name", "email"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Contact name"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Contact email"
+        },
+        "role": {
+          "type": "string",
+          "description": "Contact role"
+        }
+      }
+    },
+    "dependencies": {
+      "type": "object",
+      "description": "Package dependencies configuration",
+      "properties": {
+        "dependencyGroups": {
+          "type": "array",
+          "description": "Dependency groups by ecosystem",
+          "items": {
+            "$ref": "#/definitions/dependencyGroup"
+          }
+        },
+        "updateStrategy": {
+          "type": "string",
+          "enum": ["semver", "manual", "auto-patch", "auto-minor", "lockfile-only"],
+          "default": "semver",
+          "description": "Dependency update strategy"
+        },
+        "autoUpdateEnabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable automatic dependency updates"
+        }
+      }
+    },
+    "dependencyGroup": {
+      "type": "object",
+      "description": "Dependency group by ecosystem",
+      "required": ["ecosystem", "packages"],
+      "properties": {
+        "ecosystem": {
+          "type": "string",
+          "enum": ["npm", "pip", "composer", "maven", "nuget", "rubygems", "cargo", "go"],
+          "description": "Package ecosystem"
+        },
+        "packages": {
+          "type": "array",
+          "description": "Package list",
+          "items": {
+            "$ref": "#/definitions/package"
+          }
+        }
+      }
+    },
+    "package": {
+      "type": "object",
+      "description": "Package dependency definition",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Package name"
+        },
+        "versionConstraint": {
+          "type": "string",
+          "description": "Version constraint (e.g., '^1.0.0')"
+        },
+        "required": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether the package is required"
+        },
+        "securityCritical": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether the package is security critical"
+        },
+        "licenseApproved": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether the package license is approved"
+        }
+      }
+    },
+    "qualityGates": {
+      "type": "object",
+      "description": "Code quality thresholds",
+      "required": ["codeCoverage", "testRequirements"],
+      "properties": {
+        "codeCoverage": {
+          "$ref": "#/definitions/codeCoverage"
+        },
+        "complexityThresholds": {
+          "$ref": "#/definitions/complexityThresholds"
+        },
+        "testRequirements": {
+          "$ref": "#/definitions/testRequirements"
+        },
+        "codeQualityTools": {
+          "type": "array",
+          "description": "Code quality tools",
+          "items": {
+            "$ref": "#/definitions/qualityTool"
+          }
+        },
+        "performanceBenchmarks": {
+          "type": "array",
+          "description": "Performance benchmarks",
+          "items": {
+            "$ref": "#/definitions/performanceBenchmark"
+          }
+        }
+      }
+    },
+    "codeCoverage": {
+      "type": "object",
+      "description": "Code coverage requirements",
+      "properties": {
+        "minimumLineCoverage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Minimum line coverage percentage"
+        },
+        "minimumBranchCoverage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Minimum branch coverage percentage"
+        },
+        "required": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether code coverage is required"
+        },
+        "failBelowThreshold": {
+          "type": "boolean",
+          "default": true,
+          "description": "Fail build if below threshold"
+        }
+      }
+    },
+    "complexityThresholds": {
+      "type": "object",
+      "description": "Code complexity thresholds",
+      "properties": {
+        "cyclomaticComplexityMax": {
+          "type": "integer",
+          "description": "Maximum cyclomatic complexity"
+        },
+        "cognitiveComplexityMax": {
+          "type": "integer",
+          "description": "Maximum cognitive complexity"
+        },
+        "maintainabilityIndexMin": {
+          "type": "integer",
+          "description": "Minimum maintainability index"
+        }
+      }
+    },
+    "testRequirements": {
+      "type": "object",
+      "description": "Test requirements",
+      "properties": {
+        "unitTestsRequired": {
+          "type": "boolean",
+          "default": true,
+          "description": "Require unit tests"
+        },
+        "integrationTestsRequired": {
+          "type": "boolean",
+          "default": false,
+          "description": "Require integration tests"
+        },
+        "e2eTestsRequired": {
+          "type": "boolean",
+          "default": false,
+          "description": "Require end-to-end tests"
+        },
+        "minimumTestPassRate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "default": 100,
+          "description": "Minimum test pass rate percentage"
+        },
+        "flakyTestTolerance": {
+          "type": "integer",
+          "default": 0,
+          "description": "Number of tolerated flaky tests"
+        }
+      }
+    },
+    "qualityTool": {
+      "type": "object",
+      "description": "Code quality tool definition",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Tool name"
+        },
+        "required": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether the tool is required"
+        },
+        "configurationFile": {
+          "type": "string",
+          "description": "Path to configuration file"
+        }
+      }
+    },
+    "performanceBenchmark": {
+      "type": "object",
+      "description": "Performance benchmark definition",
+      "required": ["name", "threshold"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Benchmark name"
+        },
+        "threshold": {
+          "type": "string",
+          "description": "Performance threshold"
+        },
+        "required": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether the benchmark is required"
+        }
+      }
+    },
+    "ciCdRequirements": {
+      "type": "object",
+      "description": "CI/CD workflow requirements",
+      "required": ["workflowRequirements"],
+      "properties": {
+        "workflowRequirements": {
+          "$ref": "#/definitions/workflowRequirements"
+        },
+        "deploymentConfig": {
+          "$ref": "#/definitions/deploymentConfig"
+        },
+        "artifactRequirements": {
+          "$ref": "#/definitions/artifactRequirements"
+        },
+        "pipelineStages": {
+          "type": "array",
+          "description": "Pipeline stages",
+          "items": {
+            "$ref": "#/definitions/pipelineStage"
+          }
+        }
+      }
+    },
+    "workflowRequirements": {
+      "type": "object",
+      "description": "Workflow requirements",
+      "required": ["requiredWorkflows"],
+      "properties": {
+        "requiredWorkflows": {
+          "type": "array",
+          "description": "Required workflows",
+          "items": {
+            "$ref": "#/definitions/workflow"
+          }
+        },
+        "workflowTimeoutMinutes": {
+          "type": "integer",
+          "description": "Workflow timeout in minutes"
+        },
+        "concurrentBuildsAllowed": {
+          "type": "boolean",
+          "default": true,
+          "description": "Allow concurrent builds"
+        }
+      }
+    },
+    "workflow": {
+      "type": "object",
+      "description": "Workflow definition",
+      "required": ["name", "trigger"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Workflow name"
+        },
+        "trigger": {
+          "type": "string",
+          "enum": ["push", "pull-request", "schedule", "manual", "release"],
+          "description": "Workflow trigger"
+        },
+        "required": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether the workflow is required"
+        }
+      }
+    },
+    "deploymentConfig": {
+      "type": "object",
+      "description": "Deployment configuration",
+      "properties": {
+        "environments": {
+          "type": "array",
+          "description": "Deployment environments",
+          "items": {
+            "$ref": "#/definitions/environment"
+          }
+        },
+        "deploymentStrategy": {
+          "type": "string",
+          "enum": ["rolling", "blue-green", "canary", "recreate"],
+          "default": "rolling",
+          "description": "Deployment strategy"
+        },
+        "rollbackEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable rollback capability"
+        }
+      }
+    },
+    "environment": {
+      "type": "object",
+      "description": "Deployment environment",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Environment name"
+        },
+        "approvalRequired": {
+          "type": "boolean",
+          "default": false,
+          "description": "Require approval for deployment"
+        },
+        "protectionRules": {
+          "type": "string",
+          "description": "Protection rules"
+        }
+      }
+    },
+    "artifactRequirements": {
+      "type": "object",
+      "description": "Artifact requirements",
+      "properties": {
+        "artifactRetentionDays": {
+          "type": "integer",
+          "default": 90,
+          "description": "Artifact retention in days"
+        },
+        "artifactSigningRequired": {
+          "type": "boolean",
+          "default": false,
+          "description": "Require artifact signing"
+        },
+        "sbomGenerationRequired": {
+          "type": "boolean",
+          "default": false,
+          "description": "Require SBOM generation"
+        }
+      }
+    },
+    "pipelineStage": {
+      "type": "object",
+      "description": "Pipeline stage definition",
+      "required": ["name", "order"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Stage name"
+        },
+        "order": {
+          "type": "integer",
+          "description": "Stage execution order"
+        },
+        "required": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether the stage is required"
+        }
+      }
+    },
+    "documentationRequirements": {
+      "type": "object",
+      "description": "Documentation requirements",
+      "required": ["requiredDocuments"],
+      "properties": {
+        "requiredDocuments": {
+          "type": "array",
+          "description": "Required documents",
+          "items": {
+            "$ref": "#/definitions/requiredDocument"
+          }
+        },
+        "apiDocumentationRequired": {
+          "type": "boolean",
+          "default": false,
+          "description": "Require API documentation"
+        },
+        "inlineDocumentationRequired": {
+          "type": "boolean",
+          "default": true,
+          "description": "Require inline code documentation"
+        },
+        "documentationFormat": {
+          "type": "string",
+          "enum": ["markdown", "reStructuredText", "asciidoc", "html"],
+          "default": "markdown",
+          "description": "Documentation format"
+        },
+        "architectureDiagramsRequired": {
+          "type": "boolean",
+          "default": false,
+          "description": "Require architecture diagrams"
+        }
+      }
+    },
+    "requiredDocument": {
+      "type": "object",
+      "description": "Required document definition",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["README", "CONTRIBUTING", "CODE_OF_CONDUCT", "SECURITY", "LICENSE", "CHANGELOG", "API_REFERENCE", "ARCHITECTURE", "DEPLOYMENT", "TROUBLESHOOTING"],
+          "description": "Document type"
+        },
+        "required": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether the document is required"
+        },
+        "templatePath": {
+          "type": "string",
+          "description": "Path to document template"
+        }
+      }
+    },
+    "teamStructure": {
+      "type": "object",
+      "description": "Team structure definition",
+      "required": ["codeowners"],
+      "properties": {
+        "codeowners": {
+          "$ref": "#/definitions/codeowners"
+        },
+        "maintainers": {
+          "type": "array",
+          "description": "Repository maintainers",
+          "items": {
+            "$ref": "#/definitions/teamMember"
+          }
+        },
+        "contributors": {
+          "type": "array",
+          "description": "Repository contributors",
+          "items": {
+            "$ref": "#/definitions/teamMember"
+          }
+        },
+        "teams": {
+          "type": "array",
+          "description": "Repository teams",
+          "items": {
+            "$ref": "#/definitions/team"
+          }
+        }
+      }
+    },
+    "codeowners": {
+      "type": "object",
+      "description": "Code owners configuration",
+      "properties": {
+        "required": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether CODEOWNERS file is required"
+        },
+        "ownershipRules": {
+          "type": "array",
+          "description": "Ownership rules",
+          "items": {
+            "$ref": "#/definitions/ownershipRule"
+          }
+        }
+      }
+    },
+    "ownershipRule": {
+      "type": "object",
+      "description": "Code ownership rule",
+      "required": ["pathPattern", "owners"],
+      "properties": {
+        "pathPattern": {
+          "type": "string",
+          "description": "Path pattern (glob)"
+        },
+        "owners": {
+          "type": "array",
+          "description": "List of owners",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "teamMember": {
+      "type": "object",
+      "description": "Team member definition",
+      "required": ["username"],
+      "properties": {
+        "username": {
+          "type": "string",
+          "description": "GitHub username"
+        },
+        "role": {
+          "type": "string",
+          "description": "Member role"
+        },
+        "areasOfResponsibility": {
+          "type": "string",
+          "description": "Areas of responsibility"
+        }
+      }
+    },
+    "team": {
+      "type": "object",
+      "description": "Team definition",
+      "required": ["name", "permissionLevel"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Team name"
+        },
+        "permissionLevel": {
+          "type": "string",
+          "enum": ["read", "triage", "write", "maintain", "admin"],
+          "description": "Team permission level"
+        }
+      }
+    },
+    "releaseManagement": {
+      "type": "object",
+      "description": "Release management configuration",
+      "properties": {
+        "versioningStrategy": {
+          "type": "string",
+          "enum": ["semver", "calver", "custom"],
+          "default": "semver",
+          "description": "Versioning strategy"
+        },
+        "changelogRequired": {
+          "type": "boolean",
+          "default": true,
+          "description": "Require changelog"
+        },
+        "releaseNotesRequired": {
+          "type": "boolean",
+          "default": true,
+          "description": "Require release notes"
+        },
+        "releaseBranches": {
+          "$ref": "#/definitions/releaseBranches"
+        },
+        "hotfixPolicy": {
+          "$ref": "#/definitions/hotfixPolicy"
+        },
+        "deprecationPolicy": {
+          "$ref": "#/definitions/deprecationPolicy"
+        }
+      }
+    },
+    "releaseBranches": {
+      "type": "object",
+      "description": "Release branches configuration",
+      "properties": {
+        "pattern": {
+          "type": "string",
+          "description": "Branch name pattern"
+        },
+        "protectionRequired": {
+          "type": "boolean",
+          "default": true,
+          "description": "Require branch protection"
+        }
+      }
+    },
+    "hotfixPolicy": {
+      "type": "object",
+      "description": "Hotfix policy",
+      "properties": {
+        "allowed": {
+          "type": "boolean",
+          "default": true,
+          "description": "Allow hotfixes"
+        },
+        "branchPattern": {
+          "type": "string",
+          "description": "Hotfix branch pattern"
+        },
+        "approvalRequired": {
+          "type": "boolean",
+          "default": true,
+          "description": "Require approval for hotfixes"
+        }
+      }
+    },
+    "deprecationPolicy": {
+      "type": "object",
+      "description": "Deprecation policy",
+      "properties": {
+        "noticePeriodDays": {
+          "type": "integer",
+          "default": 90,
+          "description": "Deprecation notice period in days"
+        },
+        "breakingChangesAllowed": {
+          "type": "boolean",
+          "default": false,
+          "description": "Allow breaking changes"
+        }
+      }
+    },
+    "monitoring": {
+      "type": "object",
+      "description": "Monitoring configuration",
+      "required": ["healthChecks"],
+      "properties": {
+        "healthChecks": {
+          "$ref": "#/definitions/healthChecks"
+        },
+        "metrics": {
+          "$ref": "#/definitions/metrics"
+        },
+        "alerting": {
+          "$ref": "#/definitions/alerting"
+        },
+        "logging": {
+          "$ref": "#/definitions/logging"
+        }
+      }
+    },
+    "healthChecks": {
+      "type": "object",
+      "description": "Health checks configuration",
+      "properties": {
+        "required": {
+          "type": "boolean",
+          "default": false,
+          "description": "Require health checks"
+        },
+        "endpoint": {
+          "type": "string",
+          "description": "Health check endpoint"
+        },
+        "frequencySeconds": {
+          "type": "integer",
+          "description": "Health check frequency in seconds"
+        }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "description": "Metrics configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable metrics collection"
+        },
+        "metricsList": {
+          "type": "array",
+          "description": "List of metrics",
+          "items": {
+            "$ref": "#/definitions/metric"
+          }
+        }
+      }
+    },
+    "metric": {
+      "type": "object",
+      "description": "Metric definition",
+      "required": ["name", "type"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Metric name"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["counter", "gauge", "histogram", "summary"],
+          "description": "Metric type"
+        },
+        "required": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether the metric is required"
+        }
+      }
+    },
+    "alerting": {
+      "type": "object",
+      "description": "Alerting configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable alerting"
+        },
+        "alertChannels": {
+          "type": "array",
+          "description": "Alert channels",
+          "items": {
+            "$ref": "#/definitions/alertChannel"
+          }
+        }
+      }
+    },
+    "alertChannel": {
+      "type": "object",
+      "description": "Alert channel definition",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["email", "slack", "pagerduty", "webhook"],
+          "description": "Alert channel type"
+        },
+        "severityThreshold": {
+          "type": "string",
+          "enum": ["critical", "high", "medium", "low", "info"],
+          "default": "high",
+          "description": "Severity threshold for alerts"
+        }
+      }
+    },
+    "logging": {
+      "type": "object",
+      "description": "Logging configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable logging"
+        },
+        "logLevel": {
+          "type": "string",
+          "enum": ["debug", "info", "warning", "error", "critical"],
+          "default": "info",
+          "description": "Log level"
+        },
+        "structuredLoggingRequired": {
+          "type": "boolean",
+          "default": false,
+          "description": "Require structured logging"
+        },
+        "retentionDays": {
+          "type": "integer",
+          "description": "Log retention in days"
         }
       }
     }

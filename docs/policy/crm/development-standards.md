@@ -287,7 +287,8 @@ Dolibarr module numbers **185051 to 185099** are reserved for Moko Consulting us
 | MokoDoliHRM | 185060 | Reserved | Human Resource Management module for Dolibarr | TBD |
 | MokoDoliAuth | 185061 | Reserved |  | TBD |
 | MokoDoliOffline | 185062 | Reserved |  | TBD |
-| Available for Assignment | 185061-185099 | Reserved | Reserved for future Moko Consulting modules | - |
+| MokoDoliReleaseHelper | 185063 | Reserved | Release management and version control helper module for Dolibarr | TBD |
+| Available for Assignment | 185064-185099 | Reserved | Reserved for future Moko Consulting modules | - |
 
 **Module ID Reservation Process**:
 

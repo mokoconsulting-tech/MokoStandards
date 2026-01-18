@@ -64,16 +64,16 @@ jobs:
         run: |
           set -euo pipefail
           python3 scripts/docs/rebuild_indexes.py
-      
+
       - name: Commit index changes if any (PR)
         if: github.event_name == 'pull_request'
         shell: bash
         run: |
           set -euo pipefail
-          
+
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          
+
           if git diff --quiet docs/**/index.md; then
             echo "No index changes needed"
           else
@@ -96,10 +96,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          
+
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          
+
           if git diff --quiet; then
             echo "No changes to commit"
           else

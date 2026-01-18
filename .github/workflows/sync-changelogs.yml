@@ -50,33 +50,33 @@ jobs:
   sync-changelogs:
     name: Synchronize CHANGELOG Files
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Check if both CHANGELOG files exist
         id: check-files
         run: |
           ROOT_EXISTS=false
           SRC_EXISTS=false
-          
+
           if [ -f "CHANGELOG.md" ]; then
             ROOT_EXISTS=true
             echo "Root CHANGELOG.md exists"
           fi
-          
+
           if [ -f "src/ChangeLog.md" ]; then
             SRC_EXISTS=true
             echo "src/ChangeLog.md exists"
           fi
-          
+
           echo "root_exists=$ROOT_EXISTS" >> $GITHUB_OUTPUT
           echo "src_exists=$SRC_EXISTS" >> $GITHUB_OUTPUT
-      
+
       - name: Check if files are already in sync
         id: check-sync
         if: steps.check-files.outputs.root_exists == 'true' && steps.check-files.outputs.src_exists == 'true'
@@ -88,29 +88,29 @@ jobs:
             echo "in_sync=false" >> $GITHUB_OUTPUT
             echo "CHANGELOG files are out of sync"
           fi
-      
+
       - name: Sync root CHANGELOG to src
         if: |
           github.event.inputs.direction == 'root-to-src' &&
-          steps.check-files.outputs.root_exists == 'true' && 
+          steps.check-files.outputs.root_exists == 'true' &&
           steps.check-files.outputs.src_exists == 'true' &&
           steps.check-sync.outputs.in_sync == 'false'
         run: |
           echo "Syncing root CHANGELOG.md to src/ChangeLog.md"
           cp CHANGELOG.md src/ChangeLog.md
           echo "sync_direction=root-to-src" >> $GITHUB_ENV
-      
+
       - name: Sync src CHANGELOG to root
         if: |
           github.event.inputs.direction == 'src-to-root' &&
-          steps.check-files.outputs.root_exists == 'true' && 
+          steps.check-files.outputs.root_exists == 'true' &&
           steps.check-files.outputs.src_exists == 'true' &&
           steps.check-sync.outputs.in_sync == 'false'
         run: |
           echo "Syncing src/ChangeLog.md to root CHANGELOG.md"
           cp src/ChangeLog.md CHANGELOG.md
           echo "sync_direction=src-to-root" >> $GITHUB_ENV
-      
+
       - name: Check only mode
         if: github.event.inputs.direction == 'check-only'
         run: |
@@ -125,13 +125,13 @@ jobs:
             echo "  - direction: src-to-root (copy src/ChangeLog.md to root)"
           fi
           echo "sync_direction=check-only" >> $GITHUB_ENV
-      
+
       - name: Commit synchronized changes
         if: env.sync_direction != 'check-only' && env.sync_direction != ''
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          
+
           # Check if there are changes to commit
           if git diff --quiet; then
             echo "No changes to commit"
@@ -143,12 +143,12 @@ jobs:
               git add CHANGELOG.md
               git commit -m "chore: sync CHANGELOG from src to root directory [automated]"
             fi
-            
+
             # Push changes with retry logic
             MAX_RETRIES=3
             RETRY_COUNT=0
             PUSH_SUCCESS=false
-            
+
             while [ $RETRY_COUNT -lt $MAX_RETRIES ] && [ "$PUSH_SUCCESS" == "false" ]; do
               if git push; then
                 PUSH_SUCCESS=true
@@ -168,13 +168,13 @@ jobs:
               fi
             done
           fi
-      
+
       - name: Summary
         if: always()
         run: |
           echo "### CHANGELOG Sync Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           if [ "${{ steps.check-files.outputs.root_exists }}" == "true" ] && [ "${{ steps.check-files.outputs.src_exists }}" == "true" ]; then
             if [ "${{ steps.check-sync.outputs.in_sync }}" == "true" ]; then
               echo "✅ CHANGELOG files are in sync" >> $GITHUB_STEP_SUMMARY

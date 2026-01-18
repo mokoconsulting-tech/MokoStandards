@@ -195,7 +195,7 @@ jobs:
             echo "Using xmllint for basic XML validation..." >> $GITHUB_STEP_SUMMARY
             XML_FOUND=false
             ERROR_FOUND=false
-            
+
             while IFS= read -r file; do
               XML_FOUND=true
               if ! xmllint --noout "$file" 2>&1 | tee -a $GITHUB_STEP_SUMMARY; then
@@ -203,7 +203,7 @@ jobs:
                 ERROR_FOUND=true
               fi
             done < <(find . -name "*.xml" -type f ! -path "*/node_modules/*" ! -path "*/.git/*")
-            
+
             if [ "$ERROR_FOUND" = true ]; then
               echo "" >> $GITHUB_STEP_SUMMARY
               echo "❌ XML validation failed" >> $GITHUB_STEP_SUMMARY
@@ -257,14 +257,14 @@ jobs:
             # Basic PHP syntax check
             echo "Running basic PHP syntax check..." >> $GITHUB_STEP_SUMMARY
             ERROR_FOUND=false
-            
+
             while IFS= read -r file; do
               if ! php -l "$file" 2>&1 | tee -a $GITHUB_STEP_SUMMARY; then
                 echo "❌ Syntax error in: $file" >> $GITHUB_STEP_SUMMARY
                 ERROR_FOUND=true
               fi
             done < <(find . -name "*.php" -type f ! -path "*/vendor/*" ! -path "*/node_modules/*")
-            
+
             if [ "$ERROR_FOUND" = true ]; then
               echo "" >> $GITHUB_STEP_SUMMARY
               echo "❌ PHP syntax errors found" >> $GITHUB_STEP_SUMMARY
@@ -460,7 +460,7 @@ jobs:
 
             FOUND=0
             echo "Scanning for potential secrets..." >> $GITHUB_STEP_SUMMARY
-            
+
             for pattern in "${PATTERNS[@]}"; do
               # Use find to exclude directories and files, then grep the results
               while IFS= read -r file; do

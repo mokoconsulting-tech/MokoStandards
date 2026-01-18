@@ -54,7 +54,7 @@ jobs:
   create-projects:
     runs-on: ubuntu-latest
     name: Create Smart Projects for Org Repos
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -81,7 +81,7 @@ jobs:
         run: |
           DRY_RUN_FLAG=""
           VERBOSE_FLAG=""
-          
+
           # Use workflow dispatch inputs if triggered manually
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             if [ "${{ inputs.dry_run }}" = "true" ]; then
@@ -91,13 +91,13 @@ jobs:
               VERBOSE_FLAG="--verbose"
             fi
           fi
-          
+
           # For scheduled runs, always use dry-run for safety
           if [ "${{ github.event_name }}" = "schedule" ]; then
             DRY_RUN_FLAG="--dry-run"
             VERBOSE_FLAG="--verbose"
           fi
-          
+
           python3 scripts/automation/auto_create_org_projects.py $DRY_RUN_FLAG $VERBOSE_FLAG
 
       - name: Create summary
@@ -107,7 +107,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Organization:** mokoconsulting-tech" >> $GITHUB_STEP_SUMMARY
           echo "**Trigger:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
-          
+
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "**Dry Run:** ${{ inputs.dry_run }}" >> $GITHUB_STEP_SUMMARY
             echo "**Verbose:** ${{ inputs.verbose }}" >> $GITHUB_STEP_SUMMARY
@@ -115,11 +115,11 @@ jobs:
             echo "**Dry Run:** true (scheduled run)" >> $GITHUB_STEP_SUMMARY
             echo "**Verbose:** true" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           if [ "${{ github.event_name }}" = "schedule" ]; then
             echo "This was a scheduled dry-run. Review the logs and run manually without --dry-run if changes should be applied." >> $GITHUB_STEP_SUMMARY
           elif [ "${{ inputs.dry_run }}" = "true" ]; then

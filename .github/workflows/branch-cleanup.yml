@@ -32,7 +32,7 @@ on:
   # Run monthly on the 15th at 02:00 UTC
   schedule:
     - cron: '0 2 15 * *'
-  
+
   # Allow manual triggering with options
   workflow_dispatch:
     inputs:
@@ -64,13 +64,13 @@ jobs:
   cleanup:
     name: Cleanup Branches
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
           fetch-depth: 0  # Need full history to check branch age
-      
+
       - name: Setup environment
         id: setup
         run: |
@@ -79,12 +79,12 @@ jobs:
           DELETE_MERGED="${{ inputs.delete-merged != false }}"
           DELETE_STALE="${{ inputs.delete-stale != false }}"
           DRY_RUN="${{ inputs.dry-run == true }}"
-          
+
           echo "stale-days=$STALE_DAYS" >> $GITHUB_OUTPUT
           echo "delete-merged=$DELETE_MERGED" >> $GITHUB_OUTPUT
           echo "delete-stale=$DELETE_STALE" >> $GITHUB_OUTPUT
           echo "dry-run=$DRY_RUN" >> $GITHUB_OUTPUT
-          
+
           echo "## Branch Cleanup Configuration" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **Stale Days Threshold:** $STALE_DAYS" >> $GITHUB_STEP_SUMMARY
@@ -92,7 +92,7 @@ jobs:
           echo "- **Delete Stale Branches:** $DELETE_STALE" >> $GITHUB_STEP_SUMMARY
           echo "- **Dry Run Mode:** $DRY_RUN" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-      
+
       - name: Verify GitHub token availability
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -104,13 +104,13 @@ jobs:
             echo "GITHUB_TOKEN is required for this workflow." >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
-          
+
           # GH_TOKEN environment variable is automatically used by GitHub CLI
           # Verify authentication status
           if gh auth status 2>&1 || true; then
             echo "✅ GitHub CLI authentication verified" >> $GITHUB_STEP_SUMMARY
           fi
-      
+
       - name: Find and cleanup branches
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -120,14 +120,14 @@ jobs:
           DRY_RUN: ${{ steps.setup.outputs.dry-run }}
         run: |
           set -e
-          
+
           # Protected branch patterns
           EXCLUDE_PATTERNS=("main" "master" "develop" "dev" "staging" "production")
           EXCLUDE_PREFIXES=("dependabot/" "renovate/" "copilot/" "dev/" "rc/" "release/")
-          
+
           echo "## Branch Cleanup Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           # Detect default branch dynamically
           DEFAULT_BRANCH=$(git remote show origin | grep 'HEAD branch' | cut -d' ' -f5)
           if [ -z "$DEFAULT_BRANCH" ]; then
@@ -135,40 +135,40 @@ jobs:
           fi
           echo "**Default Branch:** \`$DEFAULT_BRANCH\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           # Function to check if branch is protected
           is_protected() {
             local branch="$1"
-            
+
             # Check exact matches
             for pattern in "${EXCLUDE_PATTERNS[@]}"; do
               if [ "$branch" = "$pattern" ]; then
                 return 0
               fi
             done
-            
+
             # Check prefixes
             for prefix in "${EXCLUDE_PREFIXES[@]}"; do
               if [[ "$branch" == "$prefix"* ]]; then
                 return 0
               fi
             done
-            
+
             return 1
           }
-          
+
           # Fetch all remote branches
           git fetch --all --prune
-          
+
           MERGED_COUNT=0
           STALE_COUNT=0
           PROTECTED_COUNT=0
           ERROR_COUNT=0
-          
+
           # Get current date in seconds
           CURRENT_DATE=$(date +%s)
           STALE_THRESHOLD=$((CURRENT_DATE - (STALE_DAYS * 86400)))
-          
+
           # List all remote branches except HEAD
           for branch in $(git branch -r | grep -v 'HEAD' | sed 's/origin\///'); do
             # Skip if protected
@@ -176,7 +176,7 @@ jobs:
               ((PROTECTED_COUNT++))
               continue
             fi
-            
+
             # Check if branch is merged into default branch
             IS_MERGED=false
             if [ "$DELETE_MERGED" = "true" ]; then
@@ -184,7 +184,7 @@ jobs:
                 IS_MERGED=true
               fi
             fi
-            
+
             # Check if branch is stale
             IS_STALE=false
             if [ "$DELETE_STALE" = "true" ] && [ "$IS_MERGED" = "false" ]; then
@@ -193,7 +193,7 @@ jobs:
                 IS_STALE=true
               fi
             fi
-            
+
             # Delete if merged or stale
             if [ "$IS_MERGED" = "true" ] || [ "$IS_STALE" = "true" ]; then
               REASON="unknown"
@@ -204,7 +204,7 @@ jobs:
                 REASON="stale (no commits for $STALE_DAYS days)"
                 ((STALE_COUNT++))
               fi
-              
+
               if [ "$DRY_RUN" = "true" ]; then
                 echo "- 🔍 **Would delete:** \`$branch\` ($REASON)" >> $GITHUB_STEP_SUMMARY
               else
@@ -217,7 +217,7 @@ jobs:
               fi
             fi
           done
-          
+
           # Summary
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Summary" >> $GITHUB_STEP_SUMMARY
@@ -232,13 +232,13 @@ jobs:
           if [ "$ERROR_COUNT" -gt 0 ]; then
             echo "- **Errors:** $ERROR_COUNT" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           if [ "$ERROR_COUNT" -gt 0 ] && [ "$DRY_RUN" = "false" ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "⚠️ Some branches could not be deleted. Check the logs above for details." >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
-      
+
       - name: Report completion
         if: always()
         run: |

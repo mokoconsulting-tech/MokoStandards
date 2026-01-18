@@ -1,71 +1,59 @@
 # MokoStandards Sync Override Configuration
 #
-# This file allows repositories to customize which files and scripts
-# are synchronized from MokoStandards during bulk updates.
-#
-# Place this file in your repository root as '.mokostandards-sync.yml'
+# This file prevents the bulk_update_repos.py script from recreating
+# "live" workflow files in the MokoStandards repository itself.
+# 
+# MokoStandards is a template/standards repository, so it should only
+# contain workflow templates and MokoStandards-specific automation,
+# not the "live" versions of workflows that get synced to other repos.
 #
 # Format: YAML
 # Schema Version: 1.0
 
 # Override sync behavior
 sync:
-  # Disable all syncing for this repository
+  # Enable syncing (but with exclusions below)
   enabled: true
   
-  # Files to exclude from sync (even if in DEFAULT_FILES_TO_SYNC)
+  # Files to exclude from sync
+  # These are "live" workflows that should NOT exist in MokoStandards
+  # because they are templates that get synced TO other repos
   exclude_files:
-    # - ".github/workflows/release-cycle.yml"
-    # - "phpcs.xml"
-  
-  # Files to include (in addition to defaults)
-  include_files:
-    # source_path: destination_path
-    # ".github/workflow-templates/custom.yml": ".github/workflows/custom.yml"
-  
-  # Scripts to exclude from sync
-  exclude_scripts:
-    # - "scripts/maintenance/release_version.py"
-  
-  # Scripts to include (in addition to defaults)
-  include_scripts:
-    # - "scripts/custom/my_script.py"
+    # Workflow files synced from templates - exclude the live versions
+    - ".github/workflows/build.yml"
+    - ".github/workflows/codeql-analysis.yml"
+    - ".github/workflows/code-quality.yml"
+    - ".github/workflows/dependency-review.yml"
+    - ".github/workflows/deploy-to-dev.yml"
+    - ".github/workflows/release-cycle.yml"
   
   # Files that should never be overwritten (always preserved)
   protected_files:
     - ".gitignore"
     - ".editorconfig"
-    # Add repository-specific files to protect
-  
-  # Branch name for sync updates (default: chore/sync-mokostandards-updates)
-  # branch: "chore/custom-sync-branch"
-  
-  # Commit message template
-  # commit_message: "chore: sync from MokoStandards"
-  
-  # Set to false to disable automatic PR creation
-  # create_pr: true
+    - ".mokostandards-sync.yml"
+    # Keep MokoStandards-specific workflows
+    - ".github/workflows/standards-compliance.yml"
+    - ".github/workflows/changelog_update.yml"
+    - ".github/workflows/bulk-repo-sync.yml"
+    - ".github/workflows/confidentiality-scan.yml"
+    - ".github/workflows/repo-health.yml"
+    - ".github/workflows/auto-create-org-projects.yml"
+    - ".github/workflows/sync-changelogs.yml"
+    # Keep reusable workflows (these are meant to be called, not synced)
+    - ".github/workflows/reusable-build.yml"
+    - ".github/workflows/reusable-ci-validation.yml"
+    - ".github/workflows/reusable-release.yml"
+    - ".github/workflows/reusable-php-quality.yml"
+    - ".github/workflows/reusable-platform-testing.yml"
+    - ".github/workflows/reusable-project-detector.yml"
+    # Keep enterprise firewall setup workflow
+    - ".github/workflows/enterprise-firewall-setup.yml"
 
 # Repository-specific settings
 repository:
-  # Standards compliance level (strict, moderate, relaxed)
-  # compliance_level: "moderate"
-  
-  # Skip specific validations
-  # skip_validations:
-  #   - "file-headers"
-  #   - "changelog-format"
-
-# File-specific overrides
-file_overrides:
-  # Customize behavior for specific files
-  # ".github/dependabot.yml":
-  #   always_overwrite: false
-  #   merge_strategy: "preserve_local"
-  
-  # ".github/workflows/build.yml":
-  #   always_overwrite: true
-  #   merge_strategy: "replace"
+  # This is the standards repository itself
+  compliance_level: "strict"
 
 # Version of this configuration format
 config_version: "1.0"

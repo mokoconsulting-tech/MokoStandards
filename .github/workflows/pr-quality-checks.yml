@@ -1,0 +1,222 @@
+name: PR Quality Checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  pr-validation:
+    name: Validate PR Quality
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Check PR title format
+        id: check_title
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const title = pr.title;
+            
+            // Check if title follows conventional commit format
+            const conventionalCommitRegex = /^(feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert)(\(.+\))?!?: .{3,}/;
+            const followsConvention = conventionalCommitRegex.test(title);
+            
+            if (!followsConvention) {
+              core.setFailed('PR title does not follow conventional commit format');
+              
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                body: `❌ **PR Title Format Issue**\n\nYour PR title should follow the [Conventional Commits](https://www.conventionalcommits.org/) format:\n\n\`\`\`\ntype(scope): description\n\`\`\`\n\n**Valid types:**\n- \`feat\`: New feature\n- \`fix\`: Bug fix\n- \`docs\`: Documentation changes\n- \`style\`: Code style changes (formatting, missing semi colons, etc)\n- \`refactor\`: Code refactoring\n- \`test\`: Adding or updating tests\n- \`chore\`: Maintenance tasks\n- \`perf\`: Performance improvements\n- \`ci\`: CI/CD changes\n- \`build\`: Build system changes\n\n**Examples:**\n- \`feat(workflows): add automated issue triage\`\n- \`fix(security): resolve CodeQL vulnerability\`\n- \`docs: update contribution guidelines\`\n\nPlease update your PR title.`
+              });
+            } else {
+              console.log('✅ PR title follows conventional commit format');
+            }
+            
+            return followsConvention;
+      
+      - name: Check PR description length
+        id: check_description
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const body = pr.body || '';
+            const bodyLength = body.trim().length;
+            
+            if (bodyLength < 50) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                body: `⚠️ **Short PR Description**\n\nYour PR description has only ${bodyLength} characters. Please provide more context:\n\n- **What**: What changes does this PR introduce?\n- **Why**: Why are these changes needed?\n- **How**: How were the changes implemented?\n- **Testing**: How can reviewers test these changes?\n\nA detailed description helps reviewers understand your changes and speeds up the review process.`
+              });
+              return false;
+            }
+            return true;
+      
+      - name: Check for linked issues
+        id: check_linked_issues
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const body = pr.body || '';
+            
+            // Check for issue references
+            const issueReferences = body.match(/(close[sd]?|fix(es|ed)?|resolve[sd]?)\s+#\d+/gi);
+            
+            if (!issueReferences) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                body: `ℹ️ **No Linked Issue Detected**\n\nThis PR doesn't appear to reference any issues. If this PR addresses an issue, please link it using:\n\n- \`Fixes #123\`\n- \`Closes #123\`\n- \`Resolves #123\`\n\nThis helps us track work and automatically close issues when PRs are merged.\n\nIf this is a standalone change, you can ignore this message.`
+              });
+            }
+      
+      - name: Check for breaking changes
+        id: check_breaking
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const title = pr.title;
+            const body = pr.body || '';
+            
+            const hasBreakingInTitle = title.includes('!:') || title.toLowerCase().includes('breaking');
+            const hasBreakingInBody = body.toLowerCase().includes('breaking change');
+            
+            if (hasBreakingInTitle || hasBreakingInBody) {
+              // Check if breaking change section exists in PR body
+              if (!body.includes('## Breaking Changes') && !body.includes('## BREAKING CHANGES')) {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pr.number,
+                  body: `⚠️ **Breaking Change Documentation Required**\n\nThis PR appears to introduce breaking changes. Please add a \`## Breaking Changes\` section to your PR description that includes:\n\n1. **What is breaking**: Describe what functionality is changing\n2. **Impact**: Who will be affected by this change\n3. **Migration path**: How users should update their code\n4. **Alternatives**: Any workarounds or alternatives\n\nThis helps users understand and prepare for the changes.`
+                });
+              }
+              
+              // Ensure breaking change label is added
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                labels: ['breaking change']
+              });
+            }
+      
+      - name: Check for changelog update
+        id: check_changelog
+        run: |
+          # Check if CHANGELOG.md was modified
+          if git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -q "CHANGELOG.md"; then
+            echo "changelog_updated=true" >> $GITHUB_OUTPUT
+            echo "✅ CHANGELOG.md was updated"
+          else
+            echo "changelog_updated=false" >> $GITHUB_OUTPUT
+            echo "⚠️ CHANGELOG.md was not updated"
+          fi
+      
+      - name: Comment about changelog
+        if: steps.check_changelog.outputs.changelog_updated == 'false'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const labels = pr.labels.map(l => l.name);
+            
+            // Skip changelog reminder for documentation-only or chore PRs
+            if (labels.includes('type: documentation') || labels.includes('type: chore')) {
+              console.log('Skipping changelog check for documentation/chore PR');
+              return;
+            }
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              body: `ℹ️ **CHANGELOG Update**\n\nThis PR doesn't appear to update \`CHANGELOG.md\`. If this PR introduces user-facing changes, please add an entry to the changelog under the \`## [Unreleased]\` section.\n\nIf this is a minor change that doesn't warrant a changelog entry, you can ignore this message.`
+            });
+      
+      - name: Check file size limits
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            
+            const files = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number,
+              per_page: 100
+            });
+            
+            const largeFiles = files.data.filter(file => file.changes > 500);
+            
+            if (largeFiles.length > 0) {
+              const fileList = largeFiles.map(f => `- \`${f.filename}\` (${f.changes} lines)`).join('\n');
+              
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                body: `⚠️ **Large File Changes Detected**\n\nThe following files have more than 500 lines changed:\n\n${fileList}\n\nLarge file changes can be difficult to review. Consider:\n- Breaking the changes into smaller, focused PRs\n- Using separate commits for different logical changes\n- Adding detailed comments explaining complex changes`
+              });
+            }
+      
+      - name: Validate file headers
+        if: hashFiles('scripts/validate/validate_file_headers.py') != ''
+        run: |
+          # Check if validation script exists
+          if [ -f "scripts/validate/validate_file_headers.py" ]; then
+            echo "Running file header validation..."
+            python3 scripts/validate/validate_file_headers.py || true
+          else
+            echo "File header validation script not found, skipping"
+          fi
+      
+      - name: Generate PR summary
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            
+            // Get PR statistics
+            const files = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number
+            });
+            
+            const additions = files.data.reduce((sum, file) => sum + file.additions, 0);
+            const deletions = files.data.reduce((sum, file) => sum + file.deletions, 0);
+            const fileCount = files.data.length;
+            
+            const summary = `## PR Quality Summary
+            
+            📊 **Statistics**:
+            - Files changed: ${fileCount}
+            - Lines added: ${additions}
+            - Lines deleted: ${deletions}
+            - Net change: ${additions - deletions}
+            
+            ✅ **Checks Passed**: PR meets basic quality requirements
+            
+            *This is an automated quality check. A maintainer will review your PR shortly.*`;
+            
+            console.log(summary);

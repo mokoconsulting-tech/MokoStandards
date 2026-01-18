@@ -2,14 +2,35 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "http://mokoconsulting.com/schemas/unified-repository-schema.json",
   "title": "Unified Repository Schema",
-  "description": "Bridge schema that connects repository structure requirements with health scoring, providing a unified view of repository standards",
-  "version": "1.0",
+  "description": "Bridge schema that connects repository structure requirements with health scoring and workflow templates, providing a unified view of repository standards",
+  "version": "2.0",
+  "changelog": [
+    {
+      "version": "2.0",
+      "date": "2026-01-18",
+      "changes": [
+        "Added workflows section for GitHub Actions workflow templates",
+        "Added workflowTemplate definition with comprehensive properties",
+        "Added scriptDependencies to workflow templates for tracking script requirements",
+        "Added support for script alternatives (e.g., PowerShell versions)",
+        "Added runtimeDependencies for package/module requirements",
+        "Enhanced workflow categorization and requirement levels"
+      ]
+    },
+    {
+      "version": "1.0",
+      "date": "2025-01-01",
+      "changes": [
+        "Initial unified schema connecting structure and health scoring"
+      ]
+    }
+  ],
   "type": "object",
   "required": ["schemaVersion", "metadata", "structure", "health"],
   "properties": {
     "schemaVersion": {
       "type": "string",
-      "const": "1.0",
+      "const": "2.0",
       "description": "Version of the unified schema specification"
     },
     "metadata": {
@@ -528,6 +549,89 @@
           "description": "Other workflows this template depends on",
           "items": {
             "type": "string"
+          }
+        },
+        "scriptDependencies": {
+          "type": "array",
+          "description": "Scripts required by this workflow",
+          "items": {
+            "type": "object",
+            "required": ["path", "language"],
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Path to the script relative to repository root (e.g., 'scripts/validate/manifest.py')"
+              },
+              "language": {
+                "type": "string",
+                "enum": ["python", "bash", "powershell", "javascript", "ruby", "perl"],
+                "description": "Script language/runtime"
+              },
+              "version": {
+                "type": "string",
+                "description": "Required version or version range (e.g., '>=3.8' for Python)"
+              },
+              "description": {
+                "type": "string",
+                "description": "What this script does in the workflow context"
+              },
+              "required": {
+                "type": "boolean",
+                "default": true,
+                "description": "Whether this script is required or optional"
+              },
+              "alternatives": {
+                "type": "array",
+                "description": "Alternative scripts that can be used (e.g., PowerShell version of Python script)",
+                "items": {
+                  "type": "object",
+                  "required": ["path", "language"],
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "description": "Path to alternative script"
+                    },
+                    "language": {
+                      "type": "string",
+                      "enum": ["python", "bash", "powershell", "javascript", "ruby", "perl"],
+                      "description": "Alternative script language"
+                    },
+                    "platform": {
+                      "type": "string",
+                      "enum": ["windows", "linux", "macos", "all"],
+                      "description": "Platform compatibility"
+                    }
+                  }
+                }
+              },
+              "runtimeDependencies": {
+                "type": "array",
+                "description": "Runtime dependencies (packages/modules) required by this script",
+                "items": {
+                  "type": "object",
+                  "required": ["name", "packageManager"],
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "Package/module name"
+                    },
+                    "packageManager": {
+                      "type": "string",
+                      "enum": ["pip", "npm", "gem", "cpan", "nuget", "apt", "brew", "chocolatey"],
+                      "description": "Package manager to install dependency"
+                    },
+                    "version": {
+                      "type": "string",
+                      "description": "Required version or version range"
+                    },
+                    "installCommand": {
+                      "type": "string",
+                      "description": "Specific command to install (overrides default)"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "secrets": {

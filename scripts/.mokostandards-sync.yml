@@ -7,6 +7,10 @@
 # contain workflow templates and MokoStandards-specific automation,
 # not the "live" versions of workflows that get synced to other repos.
 #
+# NOTE: This configuration is for future use. The bulk_update_repos.py
+# script does not yet read or process this file. This serves as
+# documentation of which files should be excluded from sync.
+#
 # Format: YAML
 # Schema Version: 1.0
 
@@ -20,11 +24,11 @@ sync:
   # because they are templates that get synced TO other repos
   exclude_files:
     # Workflow files synced from templates - exclude the live versions
-    - ".github/workflows/build.yml"  # corresponds to build-universal.yml template
-    - ".github/workflows/code-quality.yml"  # corresponds to code-quality.yml template
-    - ".github/workflows/dependency-review.yml"  # corresponds to dependency-review.yml template
-    - ".github/workflows/deploy-to-dev.yml"  # corresponds to deploy-to-dev.yml template
-    - ".github/workflows/release-cycle.yml"  # corresponds to release-cycle.yml template
+    - ".github/workflows/build.yml"  # corresponds to .github/workflow-templates/build-universal.yml
+    - ".github/workflows/code-quality.yml"  # corresponds to .github/workflow-templates/code-quality.yml
+    - ".github/workflows/dependency-review.yml"  # corresponds to .github/workflow-templates/dependency-review.yml
+    - ".github/workflows/deploy-to-dev.yml"  # corresponds to .github/workflow-templates/deploy-to-dev.yml
+    - ".github/workflows/release-cycle.yml"  # corresponds to .github/workflow-templates/release-cycle.yml
   
   # Files that should never be overwritten (always preserved)
   protected_files:

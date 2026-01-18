@@ -366,6 +366,7 @@
                 <name>codeql-analysis.yml</name>
                 <description>CodeQL security analysis workflow</description>
                 <requirement-status>suggested</requirement-status>
+                <always-overwrite>true</always-overwrite>
                 <template>templates/workflows/generic/codeql-analysis.yml.template</template>
               </file>
               

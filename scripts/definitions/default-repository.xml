@@ -302,6 +302,7 @@
                 <name>test.yml</name>
                 <description>Comprehensive testing workflow</description>
                 <requirement-status>optional</requirement-status>
+                <always-overwrite>true</always-overwrite>
                 <source>
                   <path>templates/workflows/generic</path>
                   <filename>test.yml.template</filename>
@@ -336,6 +337,7 @@
                 <name>codeql-analysis.yml</name>
                 <description>CodeQL security analysis workflow</description>
                 <requirement-status>suggested</requirement-status>
+                <always-overwrite>true</always-overwrite>
                 <source>
                   <path>templates/workflows/generic</path>
                   <filename>codeql-analysis.yml.template</filename>
@@ -381,6 +383,24 @@
                   <create-path>true</create-path>
                 </destination>
                 <template>templates/workflows/generic/repo_health.yml.template</template>
+              </file>
+
+              <file extension="yml">
+                <name>release-cycle.yml</name>
+                <description>Release management workflow with automated release flow</description>
+                <requirement-status>optional</requirement-status>
+                <always-overwrite>true</always-overwrite>
+                <source>
+                  <path>.github/workflows</path>
+                  <filename>release-cycle.yml</filename>
+                  <type>copy</type>
+                </source>
+                <destination>
+                  <path>.github/workflows</path>
+                  <filename>release-cycle.yml</filename>
+                  <create-path>true</create-path>
+                </destination>
+                <template>.github/workflows/release-cycle.yml</template>
               </file>
               
               <file extension="yml">

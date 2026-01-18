@@ -578,7 +578,7 @@
   <xs:simpleType name="DocumentationFormatEnum">
     <xs:restriction base="xs:string">
       <xs:enumeration value="markdown"/>
-      <xs:enumeration value="restructuredtext"/>
+      <xs:enumeration value="reStructuredText"/>
       <xs:enumeration value="asciidoc"/>
       <xs:enumeration value="html"/>
     </xs:restriction>
@@ -760,7 +760,7 @@
   <xs:complexType name="AlertChannelType">
     <xs:sequence>
       <xs:element name="type" type="rs:AlertChannelEnum"/>
-      <xs:element name="severity-threshold" type="rs:VulnerabilitySeverityEnum" default="high"/>
+      <xs:element name="severity-threshold" type="rs:AlertSeverityEnum" default="high"/>
     </xs:sequence>
   </xs:complexType>
 
@@ -770,6 +770,16 @@
       <xs:enumeration value="slack"/>
       <xs:enumeration value="pagerduty"/>
       <xs:enumeration value="webhook"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="AlertSeverityEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="critical"/>
+      <xs:enumeration value="high"/>
+      <xs:enumeration value="medium"/>
+      <xs:enumeration value="low"/>
+      <xs:enumeration value="info"/>
     </xs:restriction>
   </xs:simpleType>
 

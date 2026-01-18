@@ -167,9 +167,9 @@ jobs:
           echo "**Protocol:** ${{ secrets.DEV_FTP_PROTOCOL || 'sftp' }}" >> $GITHUB_STEP_SUMMARY
 
       - name: Setup SSH key
-        if: secrets.DEV_FTP_KEY != ''
         env:
           DEV_FTP_KEY: ${{ secrets.DEV_FTP_KEY }}
+        if: ${{ env.DEV_FTP_KEY != '' }}
         run: |
           mkdir -p ~/.ssh
           echo "$DEV_FTP_KEY" > ~/.ssh/dev_deploy_key

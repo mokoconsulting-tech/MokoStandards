@@ -77,6 +77,26 @@ Organization members can reference the private repository for access control pol
 
 See [Two-Tier Architecture Documentation](docs/policy/two-tier-architecture.md) for complete details on architecture and standards coordination.
 
+## Repository Templates
+
+For new projects, use one of our standardized repository templates that include pre-configured structure, documentation, and CI/CD workflows:
+
+### Joomla Templates
+- **[MokoStandards-Template-Joomla-Component](https://github.com/mokoconsulting-tech/MokoStandards-Template-Joomla-Component)** - For Joomla components
+- **[MokoStandards-Template-Joomla-Module](https://github.com/mokoconsulting-tech/MokoStandards-Template-Joomla-Module)** - For Joomla modules
+- **[MokoStandards-Template-Joomla-Plugin](https://github.com/mokoconsulting-tech/MokoStandards-Template-Joomla-Plugin)** - For Joomla plugins
+- **[MokoStandards-Template-Joomla-Library](https://github.com/mokoconsulting-tech/MokoStandards-Template-Joomla-Library)** - For Joomla libraries
+- **[MokoStandards-Template-Joomla-Package](https://github.com/mokoconsulting-tech/MokoStandards-Template-Joomla-Package)** - For Joomla packages
+- **[MokoStandards-Template-Joomla-Template](https://github.com/mokoconsulting-tech/MokoStandards-Template-Joomla-Template)** - For Joomla templates/themes
+
+### Dolibarr Templates
+- **[MokoStandards-Template-Dolibarr](https://github.com/mokoconsulting-tech/MokoStandards-Template-Dolibarr)** - For Dolibarr modules
+
+### Generic Templates
+- **[MokoStandards-Template-Generic](https://github.com/mokoconsulting-tech/MokoStandards-Template-Generic)** - For generic projects
+
+See [Repository Templates Reference](docs/reference/repository-templates.md) for detailed information on each template, selection guide, and usage instructions.
+
 ## Quick Start
 
 ### For New Projects

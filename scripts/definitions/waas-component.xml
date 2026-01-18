@@ -7,7 +7,7 @@
     <description>Standard repository structure for MokoWaaS (Joomla) components</description>
     <repository-type>waas-component</repository-type>
     <platform>mokowaas</platform>
-    <last-updated>2026-01-15T00:00:00Z</last-updated>
+    <last-updated>2026-01-18T06:20:00Z</last-updated>
     <maintainer>Moko Consulting</maintainer>
   </metadata>
 
@@ -289,6 +289,15 @@
         <purpose>Contains scripts for building, testing, and deploying</purpose>
 
         <files>
+          <file extension="txt">
+            <name>requirements.txt</name>
+            <description>Python dependencies for scripts (security: defusedxml for safe XML parsing)</description>
+            <requirement-status>suggested</requirement-status>
+            <stub-content><![CDATA[# Security dependencies for scripts
+defusedxml>=0.7.1  # Safe XML parsing to prevent XXE attacks
+]]></stub-content>
+          </file>
+          
           <file extension="md">
             <name>index.md</name>
             <description>Scripts documentation</description>

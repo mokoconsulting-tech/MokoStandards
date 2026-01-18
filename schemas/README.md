@@ -340,5 +340,14 @@ jobs:
 
 ---
 
-**Version**: 1.1.0  
-**Last Updated**: 2026-01-08
+**Version**: 1.2.0  
+**Last Updated**: 2026-01-18
+
+## Changelog
+
+### Version 1.2.0 (2026-01-18)
+- Added `scripts/requirements.txt` to all repository structure definitions
+- Updated security requirements: defusedxml>=0.7.1 for safe XML parsing
+- Added stub content for Python dependencies in scripts directory
+- Updated all schema definition timestamps
+- Enhanced security documentation for script dependencies

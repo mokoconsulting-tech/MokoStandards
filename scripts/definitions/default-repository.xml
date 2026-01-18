@@ -7,7 +7,7 @@
     <description>Default repository structure applicable to all repository types with minimal requirements</description>
     <repository-type>library</repository-type>
     <platform>multi-platform</platform>
-    <last-updated>2026-01-16T00:00:00Z</last-updated>
+    <last-updated>2026-01-18T06:20:00Z</last-updated>
     <maintainer>Moko Consulting</maintainer>
   </metadata>
 
@@ -221,6 +221,21 @@
         <purpose>Contains scripts for building, testing, and deploying</purpose>
         
         <files>
+          <file extension="txt">
+            <name>requirements.txt</name>
+            <description>Python dependencies for scripts (security: defusedxml for safe XML parsing)</description>
+            <requirement-status>suggested</requirement-status>
+            <stub-content><![CDATA[# Security dependencies for scripts
+defusedxml>=0.7.1  # Safe XML parsing to prevent XXE attacks
+
+# Optional dependencies for specific scripts
+# Uncomment as needed:
+# paramiko>=3.0.0  # For SFTP deployments
+# pyyaml>=6.0      # For YAML processing
+# requests>=2.31.0 # For GitHub API access
+]]></stub-content>
+          </file>
+          
           <file extension="sh">
             <name>validate_structure.sh</name>
             <description>Repository structure validation script</description>
@@ -417,19 +432,6 @@
                   <filename>standards-compliance.yml</filename>
                   <create-path>true</create-path>
                 </destination>
-                <template>.github/workflows/standards-compliance.yml</template>
-              </file>
-            </files>
-                <name>repo-health.yml</name>
-                <description>Repository health monitoring</description>
-                <requirement-status>suggested</requirement-status>
-                <template>templates/workflows/generic/repo_health.yml.template</template>
-              </file>
-              
-              <file extension="yml">
-                <name>standards-compliance.yml</name>
-                <description>MokoStandards compliance validation</description>
-                <requirement-status>required</requirement-status>
                 <template>.github/workflows/standards-compliance.yml</template>
               </file>
             </files>

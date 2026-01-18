@@ -265,5 +265,14 @@ See [Schema Guide](../../docs/schemas/repohealth/schema-guide.md) for complete d
 ---
 
 **Location**: `scripts/definitions/`  
-**Last Updated**: 2026-01-16  
+**Last Updated**: 2026-01-18  
 **Maintained By**: MokoStandards Team
+
+## Changelog
+
+### 2026-01-18
+- **Security Enhancement**: Added `scripts/requirements.txt` to all repository structure definitions
+- Added defusedxml>=0.7.1 requirement for safe XML parsing (prevents XXE attacks)
+- Updated all schema definition timestamps
+- Enhanced security documentation for Python script dependencies
+- All definitions now include stub content for requirements.txt with security notes

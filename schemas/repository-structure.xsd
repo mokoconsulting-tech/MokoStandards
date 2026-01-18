@@ -818,6 +818,21 @@
       <xs:element name="source" type="rs:SourceType" minOccurs="0"/>
       <xs:element name="destination" type="rs:DestinationType" minOccurs="0"/>
       <xs:element name="always-overwrite" type="xs:boolean" default="true" minOccurs="0"/>
+      <xs:element name="workflow-dependency" type="xs:boolean" default="false" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>If true, this file is required by workflows and must be force overwritten and required</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="copilot-enabled" type="xs:boolean" default="false" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>If true, use GitHub Copilot for AI-powered customization of this file</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="copilot-prompt" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Custom prompt for Copilot when generating or customizing this file</xs:documentation>
+        </xs:annotation>
+      </xs:element>
       <xs:element name="audience" type="rs:AudienceEnum" minOccurs="0"/>
       <xs:element name="template" type="xs:string" minOccurs="0"/>
       <xs:element name="stub-content" type="xs:string" minOccurs="0"/>

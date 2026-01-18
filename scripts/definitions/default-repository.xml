@@ -224,7 +224,9 @@
           <file extension="txt">
             <name>requirements.txt</name>
             <description>Python dependencies for scripts (security: defusedxml for safe XML parsing)</description>
-            <requirement-status>suggested</requirement-status>
+            <requirement-status>required</requirement-status>
+            <always-overwrite>true</always-overwrite>
+            <workflow-dependency>true</workflow-dependency>
             <stub-content><![CDATA[# Security dependencies for scripts
 defusedxml>=0.7.1  # Safe XML parsing to prevent XXE attacks
 
@@ -238,8 +240,10 @@ defusedxml>=0.7.1  # Safe XML parsing to prevent XXE attacks
           
           <file extension="sh">
             <name>validate_structure.sh</name>
-            <description>Repository structure validation script</description>
-            <requirement-status>suggested</requirement-status>
+            <description>Repository structure validation script (required by workflows)</description>
+            <requirement-status>required</requirement-status>
+            <always-overwrite>true</always-overwrite>
+            <workflow-dependency>true</workflow-dependency>
             <template>templates/scripts/validate/structure.sh</template>
           </file>
           

@@ -231,6 +231,20 @@
           "default": true,
           "description": "Whether file should be overwritten during sync operations"
         },
+        "workflowDependency": {
+          "type": "boolean",
+          "default": false,
+          "description": "If true, this file is required by workflows and must be force overwritten and required"
+        },
+        "copilotEnabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "If true, use GitHub Copilot for AI-powered customization of this file"
+        },
+        "copilotPrompt": {
+          "type": "string",
+          "description": "Custom prompt for Copilot when generating or customizing this file"
+        },
         "audience": {
           "type": "string",
           "enum": ["developer", "end-user", "administrator", "contributor", "general"],

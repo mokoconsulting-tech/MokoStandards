@@ -29,7 +29,7 @@
 name: Bulk Repository Sync
 
 on:
-  # Run monthly on the 1st at 00:00 UTC
+  # Run monthly on the 1st at 00:00 UTC (aligned with Dependabot)
   schedule:
     - cron: '0 0 1 * *'
 
@@ -46,6 +46,11 @@ on:
         type: string
       dry_run:
         description: 'Dry run mode (preview changes without applying)'
+        required: false
+        type: boolean
+        default: false
+      use_copilot:
+        description: 'Use GitHub Copilot for AI-powered file customization'
         required: false
         type: boolean
         default: false
@@ -139,6 +144,10 @@ jobs:
             ARGS="$ARGS --exclude ${{ inputs.exclude }}"
           fi
 
+          if [ "${{ inputs.use_copilot }}" == "true" ]; then
+            ARGS="$ARGS --use-copilot"
+          fi
+
           echo "## 🔍 Dry Run Mode" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Running bulk update in dry-run mode (no changes will be made)..." >> $GITHUB_STEP_SUMMARY
@@ -180,6 +189,10 @@ jobs:
             ARGS="$ARGS --exclude ${{ inputs.exclude }}"
           fi
 
+          if [ "${{ inputs.use_copilot }}" == "true" ]; then
+            ARGS="$ARGS --use-copilot"
+          fi
+
           echo "## 🚀 Bulk Repository Sync" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Mode:** Live (changes will be applied)" >> $GITHUB_STEP_SUMMARY
@@ -190,6 +203,9 @@ jobs:
           echo "- Respects \`always-overwrite\` flags" >> $GITHUB_STEP_SUMMARY
           echo "- Supports \`scripts/.mokostandards-sync.yml\` overrides" >> $GITHUB_STEP_SUMMARY
           echo "- Protected files: .gitignore, .editorconfig (and more)" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ inputs.use_copilot }}" == "true" ]; then
+            echo "- 🤖 AI-powered file customization with GitHub Copilot" >> $GITHUB_STEP_SUMMARY
+          fi
           echo "" >> $GITHUB_STEP_SUMMARY
 
           # Verify GH_TOKEN is available for git operations

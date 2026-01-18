@@ -42,6 +42,15 @@ try:
 except ImportError:
     yaml = None
 
+# Import Copilot helper if available
+try:
+    sys.path.insert(0, str(Path(__file__).parent.parent / 'lib'))
+    from copilot_helper import create_copilot_helper, CopilotHelper
+    COPILOT_AVAILABLE = True
+except ImportError:
+    COPILOT_AVAILABLE = False
+    CopilotHelper = None
+
 # Default organization
 DEFAULT_ORG = "mokoconsulting-tech"
 
@@ -377,6 +386,153 @@ def detect_platform(repo_dir: str, source_dir: str) -> Optional[str]:
         return None
 
 
+def generate_override_schema(
+    repo_name: str,
+    platform_type: str,
+    repo_dir: str
+) -> bool:
+    """
+    Generate an override schema definition file for the target repository.
+
+    Args:
+        repo_name: Repository name
+        platform_type: Platform type (joomla, dolibarr, generic)
+        repo_dir: Repository directory
+
+    Returns:
+        True if successful, False otherwise
+    """
+    from datetime import datetime
+
+    override_schema_content = f"""<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Repository-specific override schema definition
+  Generated automatically during MokoStandards sync
+  
+  This file can be customized to override default MokoStandards behaviors
+  for this specific repository.
+-->
+<repository-structure xmlns="http://mokoconsulting.com/schemas/repository-structure"
+                      version="2.0"
+                      schema-version="2.0">
+  <metadata>
+    <name>{repo_name} Override Schema</name>
+    <description>Repository-specific overrides for {repo_name}</description>
+    <repository-type>{platform_type or 'generic'}</repository-type>
+    <platform>{platform_type or 'multi-platform'}</platform>
+    <last-updated>{datetime.utcnow().isoformat()}Z</last-updated>
+    <maintainer>Repository Maintainers</maintainer>
+  </metadata>
+
+  <structure>
+    <!-- Root level overrides -->
+    <root-files>
+      <!-- Example: Override README requirements
+      <file extension="md">
+        <name>README.md</name>
+        <description>Project-specific README</description>
+        <requirement-status>required</requirement-status>
+        <always-overwrite>false</always-overwrite>
+        <copilot-enabled>true</copilot-enabled>
+        <copilot-prompt>Generate a README for {repo_name}, a {platform_type or 'generic'} project</copilot-prompt>
+      </file>
+      -->
+    </root-files>
+
+    <!-- Directory-level overrides -->
+    <directories>
+      <!-- Example: Override scripts directory
+      <directory path="scripts">
+        <name>scripts</name>
+        <description>Repository-specific scripts</description>
+        <requirement-status>required</requirement-status>
+        
+        <files>
+          <file extension="py">
+            <name>custom_script.py</name>
+            <description>Repository-specific automation script</description>
+            <requirement-status>optional</requirement-status>
+            <copilot-enabled>true</copilot-enabled>
+          </file>
+        </files>
+      </directory>
+      -->
+    </directories>
+
+    <!-- Repository-specific requirements -->
+    <repository-requirements>
+      <!-- Add repository-specific variables, secrets, etc. -->
+      
+      <!-- Example: Custom variables
+      <variables>
+        <variable>
+          <name>CUSTOM_VAR</name>
+          <description>Repository-specific variable</description>
+          <default-value>default</default-value>
+          <required>false</required>
+          <scope>repository</scope>
+        </variable>
+      </variables>
+      -->
+    </repository-requirements>
+  </structure>
+</repository-structure>
+"""
+
+    # Write override schema to scripts directory
+    scripts_dir = Path(repo_dir) / "scripts"
+    scripts_dir.mkdir(parents=True, exist_ok=True)
+    
+    override_file = scripts_dir / "repository-structure-override.xml"
+    
+    # Only create if it doesn't exist (don't overwrite existing overrides)
+    if not override_file.exists():
+        try:
+            with open(override_file, 'w', encoding='utf-8') as f:
+                f.write(override_schema_content)
+            print(f"    ✓ Generated override schema: scripts/repository-structure-override.xml")
+            return True
+        except Exception as e:
+            print(f"    ⚠ Failed to generate override schema: {e}", file=sys.stderr)
+            return False
+    else:
+        print(f"    ℹ Override schema already exists, skipping")
+        return True
+
+
+def should_customize_with_copilot(file_path: str) -> bool:
+    """
+    Determine if a file should be customized with Copilot.
+
+    Args:
+        file_path: Path to the file
+
+    Returns:
+        True if file should be customized with Copilot
+    """
+    # Customize README files
+    if 'README' in file_path.upper():
+        return True
+
+    # Customize certain workflow files
+    if file_path.endswith('.yml') or file_path.endswith('.yaml'):
+        customizable_workflows = [
+            'ci.yml',
+            'deploy',
+            'release',
+            'build.yml'
+        ]
+        return any(wf in file_path for wf in customizable_workflows)
+
+    # Customize configuration files
+    customizable_configs = [
+        '.editorconfig',
+        'CONTRIBUTING.md',
+        'CODE_OF_CONDUCT.md'
+    ]
+    return any(cfg in file_path for cfg in customizable_configs)
+
+
 def update_repository(
     org: str,
     repo: str,
@@ -389,15 +545,38 @@ def update_repository(
     pr_body: str,
     temp_dir: str,
     dry_run: bool = False,
-    set_standards: bool = False
+    set_standards: bool = False,
+    use_copilot: bool = False
 ) -> bool:
-    """Update a single repository with files and scripts."""
+    """
+    Update a single repository with files and scripts.
+
+    Args:
+        org: Organization name
+        repo: Repository name
+        source_dir: Source directory containing files to sync
+        files_to_sync: Dictionary of source->destination file paths
+        scripts_to_sync: List of scripts to sync
+        branch_name: Branch name for changes
+        commit_message: Commit message
+        pr_title: Pull request title
+        pr_body: Pull request body
+        temp_dir: Temporary directory for cloning
+        dry_run: If True, only show what would be done
+        set_standards: If True, set missing repository variables
+        use_copilot: If True, use GitHub Copilot for file customization
+
+    Returns:
+        True if successful, False otherwise
+    """
     print(f"\n{'[DRY RUN] ' if dry_run else ''}Processing repository: {org}/{repo}")
 
     if dry_run:
         print(f"  Would sync {len(files_to_sync)} files and {len(scripts_to_sync)} scripts")
         if set_standards:
             print(f"  Would check and set missing standards options")
+        if use_copilot:
+            print(f"  Would use Copilot for file customization")
         return True
 
     # Set missing standards options (repository variables) if requested
@@ -422,6 +601,22 @@ def update_repository(
     else:
         print(f"    Platform detection skipped or failed, using defaults")
 
+    # Initialize Copilot helper if requested
+    copilot_helper = None
+    if use_copilot and COPILOT_AVAILABLE:
+        repo_context = {
+            'name': repo,
+            'org': org,
+            'platform': platform_type or 'generic',
+            'type': platform_type or 'generic'
+        }
+        copilot_helper = create_copilot_helper(repo_context)
+        if copilot_helper.is_available():
+            print(f"  ✓ Copilot integration enabled")
+        else:
+            print(f"  ⚠ Copilot CLI not available, falling back to standard sync")
+            copilot_helper = None
+
     # Create branch
     print(f"  Creating branch: {branch_name}")
     if not create_branch(str(repo_dir), branch_name):
@@ -431,6 +626,26 @@ def update_repository(
     files_copied = 0
     for source_rel, dest_rel in files_to_sync.items():
         source_file = Path(source_dir) / source_rel
+        dest_file = Path(repo_dir) / dest_rel
+
+        # Try Copilot customization for specific file types
+        if copilot_helper and should_customize_with_copilot(dest_rel):
+            print(f"    Customizing with Copilot: {source_rel}")
+            success, content = copilot_helper.customize_file(
+                str(source_file),
+                {'platform': platform_type, 'repo': repo},
+                platform_type
+            )
+            if success:
+                # Write customized content
+                dest_file.parent.mkdir(parents=True, exist_ok=True)
+                with open(dest_file, 'w', encoding='utf-8') as f:
+                    f.write(content)
+                files_copied += 1
+                print(f"    ✓ Customized: {source_rel} -> {dest_rel}")
+                continue
+
+        # Standard file copy
         if copy_file(str(source_file), str(repo_dir), dest_rel):
             files_copied += 1
             print(f"    Copied: {source_rel} -> {dest_rel}")
@@ -441,6 +656,10 @@ def update_repository(
         if copy_file(str(source_file), str(repo_dir), script):
             files_copied += 1
             print(f"    Copied: {script}")
+
+    # Generate override schema definition
+    print(f"  Generating override schema definition...")
+    generate_override_schema(repo, platform_type, str(repo_dir))
 
     if files_copied == 0:
         print(f"  No files were copied, skipping commit")
@@ -547,6 +766,11 @@ def main():
         action='store_true',
         help='Set missing standards options (repository variables like RS_FTP_PATH_SUFFIX and DEV_FTP_PATH_SUFFIX)'
     )
+    parser.add_argument(
+        '--use-copilot',
+        action='store_true',
+        help='Use GitHub Copilot for AI-powered file generation and customization'
+    )
 
     args = parser.parse_args()
 
@@ -556,6 +780,19 @@ def main():
         print("Error: gh CLI is not installed or not in PATH", file=sys.stderr)
         print("Install from: https://cli.github.com/", file=sys.stderr)
         sys.exit(1)
+
+    # Check for Copilot if requested
+    if args.use_copilot:
+        if not COPILOT_AVAILABLE:
+            print("Warning: Copilot helper module not available", file=sys.stderr)
+            print("  Falling back to standard sync", file=sys.stderr)
+        else:
+            # Check if Copilot CLI is installed
+            success, _, _ = run_command(["gh", "copilot", "--version"])
+            if not success:
+                print("Warning: GitHub Copilot CLI extension not installed", file=sys.stderr)
+                print("  Install with: gh extension install github/gh-copilot", file=sys.stderr)
+                print("  Falling back to standard sync", file=sys.stderr)
 
     # Check for authentication
     success, _, _ = run_command(["gh", "auth", "status"])
@@ -621,7 +858,8 @@ def main():
                 args.pr_body,
                 str(temp_dir),
                 args.dry_run,
-                args.set_standards
+                args.set_standards,
+                args.use_copilot
             ):
                 success_count += 1
             else:

@@ -1,0 +1,423 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.WorkflowTemplate
+# INGROUP: MokoStandards.Templates
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/release-cycle.yml
+# VERSION: 01.00.00
+# BRIEF: Release management workflow with automated release flow
+# NOTE: Implements main → dev → rc → version → main cycle with semantic versioning
+
+name: Release Management
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Release action to perform'
+        required: true
+        type: choice
+        options:
+          - start-release
+          - create-rc
+          - finalize-release
+          - hotfix
+      version:
+        description: 'Version number (e.g., 1.2.3 for semantic versioning)'
+        required: true
+        type: string
+      release_notes:
+        description: 'Release notes or changelog summary (optional)'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  validate-version:
+    name: Validate Version Format
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.validate.outputs.version }}
+      major: ${{ steps.validate.outputs.major }}
+      minor: ${{ steps.validate.outputs.minor }}
+      patch: ${{ steps.validate.outputs.patch }}
+    
+    steps:
+      - name: Validate Semantic Version
+        id: validate
+        run: |
+          VERSION="${{ inputs.version }}"
+          
+          # Remove 'v' prefix if present
+          VERSION=${VERSION#v}
+          
+          # Validate semantic versioning format (MAJOR.MINOR.PATCH)
+          if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "❌ Invalid version format: $VERSION" >> $GITHUB_STEP_SUMMARY
+            echo "Expected format: MAJOR.MINOR.PATCH (e.g., 1.2.3)" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          
+          # Extract version components
+          MAJOR=$(echo "$VERSION" | cut -d. -f1)
+          MINOR=$(echo "$VERSION" | cut -d. -f2)
+          PATCH=$(echo "$VERSION" | cut -d. -f3)
+          
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "major=$MAJOR" >> $GITHUB_OUTPUT
+          echo "minor=$MINOR" >> $GITHUB_OUTPUT
+          echo "patch=$PATCH" >> $GITHUB_OUTPUT
+          
+          echo "✅ Valid semantic version: $VERSION" >> $GITHUB_STEP_SUMMARY
+          echo "- Major: $MAJOR" >> $GITHUB_STEP_SUMMARY
+          echo "- Minor: $MINOR" >> $GITHUB_STEP_SUMMARY
+          echo "- Patch: $PATCH" >> $GITHUB_STEP_SUMMARY
+
+  start-release:
+    name: Start Release (main → dev)
+    runs-on: ubuntu-latest
+    needs: validate-version
+    if: inputs.action == 'start-release'
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+      
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+      
+      - name: Create Development Branch
+        run: |
+          VERSION="${{ needs.validate-version.outputs.version }}"
+          DEV_BRANCH="dev/$VERSION"
+          
+          # Check if dev branch already exists
+          if git ls-remote --heads origin "$DEV_BRANCH" | grep -q "$DEV_BRANCH"; then
+            echo "⚠️ Development branch $DEV_BRANCH already exists" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          
+          # Create and push development branch
+          git checkout -b "$DEV_BRANCH"
+          git push origin "$DEV_BRANCH"
+          
+          echo "✅ Created development branch: $DEV_BRANCH" >> $GITHUB_STEP_SUMMARY
+          echo "Next steps:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Make changes in $DEV_BRANCH" >> $GITHUB_STEP_SUMMARY
+          echo "2. Run 'create-rc' action when ready for testing" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Update Version Files
+        run: |
+          VERSION="${{ needs.validate-version.outputs.version }}"
+          
+          # Update version in common files (customize for your project)
+          # Examples:
+          if [ -f "package.json" ]; then
+            npm version "$VERSION" --no-git-tag-version
+            git add package.json package-lock.json 2>/dev/null || true
+            echo "✅ Updated package.json" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ -f "composer.json" ]; then
+            # Update version in composer.json if it exists
+            if grep -q "\"version\":" composer.json; then
+              sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" composer.json
+              git add composer.json
+              echo "✅ Updated composer.json" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+          
+          # Commit changes if any
+          if ! git diff --staged --quiet; then
+            git commit -m "chore: bump version to $VERSION"
+            git push origin "dev/$VERSION"
+            echo "✅ Version files updated and committed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  create-rc:
+    name: Create Release Candidate (dev → rc)
+    runs-on: ubuntu-latest
+    needs: validate-version
+    if: inputs.action == 'create-rc'
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: dev/${{ needs.validate-version.outputs.version }}
+      
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+      
+      - name: Create Release Candidate Branch
+        run: |
+          VERSION="${{ needs.validate-version.outputs.version }}"
+          RC_BRANCH="rc/$VERSION"
+          DEV_BRANCH="dev/$VERSION"
+          
+          # Check if rc branch already exists
+          if git ls-remote --heads origin "$RC_BRANCH" | grep -q "$RC_BRANCH"; then
+            echo "⚠️ Release candidate branch $RC_BRANCH already exists" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          
+          # Create RC branch from dev
+          git checkout -b "$RC_BRANCH"
+          git push origin "$RC_BRANCH"
+          
+          echo "✅ Created release candidate branch: $RC_BRANCH" >> $GITHUB_STEP_SUMMARY
+          echo "Next steps:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Test thoroughly in $RC_BRANCH" >> $GITHUB_STEP_SUMMARY
+          echo "2. Fix any issues found (commit to $RC_BRANCH)" >> $GITHUB_STEP_SUMMARY
+          echo "3. Run 'finalize-release' action when ready to release" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Create Pre-release Tag
+        run: |
+          VERSION="${{ needs.validate-version.outputs.version }}"
+          TAG="v${VERSION}-rc"
+          
+          git tag -a "$TAG" -m "Release Candidate $VERSION"
+          git push origin "$TAG"
+          
+          echo "✅ Created pre-release tag: $TAG" >> $GITHUB_STEP_SUMMARY
+
+  finalize-release:
+    name: Finalize Release (rc → version → main)
+    runs-on: ubuntu-latest
+    needs: validate-version
+    if: inputs.action == 'finalize-release'
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: rc/${{ needs.validate-version.outputs.version }}
+      
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+      
+      - name: Create Version Branch
+        run: |
+          VERSION="${{ needs.validate-version.outputs.version }}"
+          VERSION_BRANCH="version/$VERSION"
+          
+          # Create version branch (permanent record)
+          git checkout -b "$VERSION_BRANCH"
+          git push origin "$VERSION_BRANCH"
+          
+          echo "✅ Created version branch: $VERSION_BRANCH" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Merge to Main
+        run: |
+          VERSION="${{ needs.validate-version.outputs.version }}"
+          
+          # Merge to main
+          git checkout main
+          git pull origin main
+          git merge --no-ff "version/$VERSION" -m "Release version $VERSION"
+          git push origin main
+          
+          echo "✅ Merged to main branch" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Create Release Tag
+        run: |
+          VERSION="${{ needs.validate-version.outputs.version }}"
+          TAG="v$VERSION"
+          
+          git tag -a "$TAG" -m "Release $VERSION"
+          git push origin "$TAG"
+          
+          echo "✅ Created release tag: $TAG" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Generate Release Notes
+        id: release_notes
+        run: |
+          VERSION="${{ needs.validate-version.outputs.version }}"
+          
+          # Generate changelog from commits
+          NOTES="${{ inputs.release_notes }}"
+          
+          if [ -z "$NOTES" ]; then
+            # Check if RC tag exists
+            if git rev-parse "v${VERSION}-rc" >/dev/null 2>&1; then
+              # Auto-generate from git log between RC and HEAD
+              NOTES=$(git log --pretty=format:"- %s" "v${VERSION}-rc"..HEAD 2>/dev/null)
+            else
+              # RC tag doesn't exist, generate from all commits or mark as initial release
+              if [ "$(git rev-list --count HEAD)" -gt 0 ]; then
+                NOTES=$(git log --pretty=format:"- %s" HEAD --max-count=20 2>/dev/null)
+              else
+                NOTES="Initial release"
+              fi
+            fi
+          fi
+          
+          # Generate changes section
+          if git rev-parse "v${VERSION}-rc" >/dev/null 2>&1; then
+            CHANGES=$(git log --pretty=format:"- %s (%h)" "v${VERSION}-rc"..HEAD 2>/dev/null)
+          else
+            if [ "$(git rev-list --count HEAD)" -gt 0 ]; then
+              CHANGES=$(git log --pretty=format:"- %s (%h)" HEAD --max-count=20 2>/dev/null)
+            else
+              CHANGES="- Initial release"
+            fi
+          fi
+          
+          # Save to file for GitHub release
+          cat > release_notes.md <<EOF
+          ## Release $VERSION
+          
+          $NOTES
+          
+          ### Changes
+          $CHANGES
+          EOF
+          
+          echo "✅ Generated release notes" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ needs.validate-version.outputs.version }}
+          name: Release ${{ needs.validate-version.outputs.version }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: false
+      
+      - name: Cleanup Development Branches
+        run: |
+          VERSION="${{ needs.validate-version.outputs.version }}"
+          
+          # Optionally delete dev and rc branches after release
+          # Uncomment if you want automatic cleanup:
+          # git push origin --delete "dev/$VERSION" 2>/dev/null || true
+          # git push origin --delete "rc/$VERSION" 2>/dev/null || true
+          
+          echo "ℹ️ Development branches retained for history" >> $GITHUB_STEP_SUMMARY
+          echo "To manually cleanup, run:" >> $GITHUB_STEP_SUMMARY
+          echo "  git push origin --delete dev/$VERSION" >> $GITHUB_STEP_SUMMARY
+          echo "  git push origin --delete rc/$VERSION" >> $GITHUB_STEP_SUMMARY
+
+  hotfix:
+    name: Create Hotfix Branch
+    runs-on: ubuntu-latest
+    needs: validate-version
+    if: inputs.action == 'hotfix'
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+      
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+      
+      - name: Create Hotfix Branch
+        run: |
+          VERSION="${{ needs.validate-version.outputs.version }}"
+          HOTFIX_BRANCH="hotfix/$VERSION"
+          
+          # Create hotfix branch from main
+          git checkout -b "$HOTFIX_BRANCH"
+          git push origin "$HOTFIX_BRANCH"
+          
+          echo "✅ Created hotfix branch: $HOTFIX_BRANCH" >> $GITHUB_STEP_SUMMARY
+          echo "Next steps:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Apply hotfix changes to $HOTFIX_BRANCH" >> $GITHUB_STEP_SUMMARY
+          echo "2. Test thoroughly" >> $GITHUB_STEP_SUMMARY
+          echo "3. Create PR to merge back to main" >> $GITHUB_STEP_SUMMARY
+          echo "4. After merge, create release tag manually or re-run finalize-release" >> $GITHUB_STEP_SUMMARY
+
+  summary:
+    name: Release Summary
+    runs-on: ubuntu-latest
+    needs: [validate-version, start-release, create-rc, finalize-release, hotfix]
+    if: always()
+    
+    steps:
+      - name: Generate Summary
+        run: |
+          echo "# Release Management Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Action**: ${{ inputs.action }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Version**: ${{ needs.validate-version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          case "${{ inputs.action }}" in
+            start-release)
+              echo "## Release Started" >> $GITHUB_STEP_SUMMARY
+              echo "- Development branch created: dev/${{ needs.validate-version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+              echo "- Version files updated" >> $GITHUB_STEP_SUMMARY
+              ;;
+            create-rc)
+              echo "## Release Candidate Created" >> $GITHUB_STEP_SUMMARY
+              echo "- RC branch created: rc/${{ needs.validate-version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+              echo "- Pre-release tag created: v${{ needs.validate-version.outputs.version }}-rc" >> $GITHUB_STEP_SUMMARY
+              ;;
+            finalize-release)
+              echo "## Release Finalized" >> $GITHUB_STEP_SUMMARY
+              echo "- Version branch created: version/${{ needs.validate-version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+              echo "- Merged to main" >> $GITHUB_STEP_SUMMARY
+              echo "- Release tag created: v${{ needs.validate-version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+              echo "- GitHub release published" >> $GITHUB_STEP_SUMMARY
+              ;;
+            hotfix)
+              echo "## Hotfix Branch Created" >> $GITHUB_STEP_SUMMARY
+              echo "- Hotfix branch created: hotfix/${{ needs.validate-version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+              ;;
+          esac
+
+# RELEASE FLOW DIAGRAM:
+#
+# Normal Release:
+#   main → dev/X.Y.Z → rc/X.Y.Z → version/X.Y.Z → main (tagged vX.Y.Z)
+#
+# Hotfix:
+#   main → hotfix/X.Y.Z → main (tagged vX.Y.Z)
+#
+# SEMANTIC VERSIONING:
+#   - MAJOR version: incompatible API changes
+#   - MINOR version: backwards-compatible functionality
+#   - PATCH version: backwards-compatible bug fixes
+#
+# CUSTOMIZATION:
+#   - Modify version file updates in start-release job
+#   - Add build/test steps before creating releases
+#   - Customize release notes generation
+#   - Add notification steps (Slack, email, etc.)

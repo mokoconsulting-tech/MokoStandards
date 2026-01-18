@@ -15,13 +15,13 @@ The health score is calculated across 8 categories with a maximum possible score
 | CI/CD Status | 15 | Continuous integration and deployment health |
 | Required Documentation | 16 | Core documentation files presence and quality |
 | Required Folders | 10 | Standard directory structure compliance |
-| Workflows | 10 | GitHub Actions workflow completeness |
+| Workflows | 12 | GitHub Actions workflow completeness |
 | Issue Templates | 5 | Issue and PR template availability |
 | Security | 15 | Security scanning and vulnerability management |
 | Repository Settings | 10 | GitHub repository configuration compliance |
 | Deployment Secrets | 20 | Deployment configuration and secrets management |
 
-**Total Maximum Score**: 101 points
+**Total Maximum Score**: 103 points
 
 ## Score Levels
 
@@ -84,9 +84,9 @@ Repositories are categorized into four health levels based on their total score:
 **Manual Override**: N/A for .github/, flexible for others based on project type
 **Remediation**: Create directories per repository structure standards
 
-### 4. Workflows (10 points)
+### 4. Workflows (12 points)
 
-**Maximum**: 10 points
+**Maximum**: 12 points
 
 | Workflow | Points | Requirements |
 |---|---|---|
@@ -94,10 +94,11 @@ Repositories are categorized into four health levels based on their total score:
 | CodeQL analysis | 3 | `.github/workflows/codeql-analysis.yml` present |
 | Repo health | 2 | `.github/workflows/repo_health.yml` present |
 | Platform-specific workflow | 2 | Joomla/Dolibarr-specific workflow if applicable |
+| Flush Actions Cache workflow | 2 | `.github/workflows/flush-actions-cache.yml` present |
 
 **Automated Check**: Workflow file presence and syntax validation
 **Manual Override**: Equivalent workflows may substitute
-**Remediation**: Copy workflows from MokoStandards `templates/workflows/`
+**Remediation**: Copy workflows from MokoStandards `templates/workflows/` or `.github/workflow-templates/`
 
 ### 5. Issue Templates (5 points)
 

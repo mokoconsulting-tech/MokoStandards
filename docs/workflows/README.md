@@ -16,6 +16,7 @@ MokoStandards provides workflow templates in two locations:
    - `codeql-analysis.yml` - Security scanning with CodeQL
    - `dependency-review.yml` - Dependency vulnerability scanning
    - `standards-compliance.yml` - MokoStandards compliance validation
+   - `flush-actions-cache.yml` - GitHub Actions cache management workflow
 
 2. **`templates/workflows/`** - Platform-specific workflow examples
    - `joomla/` - Joomla extension workflows
@@ -39,6 +40,9 @@ cp .github/workflow-templates/dependency-review.yml .github/workflows/
 
 # Copy standards compliance workflow
 cp .github/workflow-templates/standards-compliance.yml .github/workflows/
+
+# Optional: Copy cache management workflow
+cp .github/workflow-templates/flush-actions-cache.yml .github/workflows/
 ```
 
 Then customize the workflows for your project as needed.
@@ -156,7 +160,45 @@ on:
 
 **Usage**: Copy to `.github/workflows/standards-compliance.yml` to enable compliance checks.
 
-### 5. CodeQL Analysis (`codeql-analysis.yml`)
+### 5. Flush Actions Cache (`flush-actions-cache.yml`)
+
+**Location**: `.github/workflow-templates/flush-actions-cache.yml`
+
+Cache management workflow for flushing GitHub Actions caches on demand.
+
+**Features**:
+- **Manual trigger** - Run from Actions tab when needed
+- **Filter by branch** - Target specific branch caches
+- **Filter by key pattern** - Target specific dependency caches (composer, node)
+- **Dry-run mode** - Preview deletions before executing
+- **Comprehensive reporting** - Shows cache details before deletion
+- **Automatic script download** - Downloads latest flush script from MokoStandards
+
+**Trigger Pattern**:
+```yaml
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to filter caches (leave empty for all branches)'
+      key-pattern:
+        description: 'Key pattern to filter caches (e.g., composer, node)'
+      dry-run:
+        description: 'Dry run mode (show what would be deleted without deleting)'
+        type: boolean
+```
+
+**Common Use Cases**:
+- Clear all caches when corrupted
+- Clear branch-specific caches after branch deletion
+- Clear dependency caches after major updates (Composer, npm)
+- Preview cache usage with dry-run mode
+
+**Usage**: Copy to `.github/workflows/flush-actions-cache.yml` to enable cache management.
+
+See [flush_actions_cache.py documentation](/docs/scripts/maintenance/flush-actions-cache-py.md) for detailed script usage.
+
+### 6. CodeQL Analysis (`codeql-analysis.yml`)
 
 **Location**: `.github/workflow-templates/codeql-analysis.yml`
 

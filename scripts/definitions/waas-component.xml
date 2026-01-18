@@ -359,6 +359,7 @@
                 <name>ci-joomla.yml</name>
                 <description>Joomla-specific CI workflow</description>
                 <requirement-status>required</requirement-status>
+                <always-overwrite>true</always-overwrite>
                 <template>templates/workflows/joomla/ci-joomla.yml.template</template>
               </file>
               
@@ -374,6 +375,7 @@
                 <name>standards-compliance.yml</name>
                 <description>MokoStandards compliance validation</description>
                 <requirement-status>required</requirement-status>
+                <always-overwrite>true</always-overwrite>
                 <template>.github/workflows/standards-compliance.yml</template>
               </file>
             </files>

@@ -12,12 +12,15 @@ for the MokoStandards repository.
 
 ## Subfolders
 
-- [build/](./build/index.md) - Build and compilation scripts
+- [analysis/](./analysis/index.md) - Analysis and reporting
+- [automation/](./automation/index.md) - Repository automation and bulk operations
 - [docs/](./docs/index.md) - Documentation generation and maintenance
 - [fix/](./fix/index.md) - Repair and fix utilities
 - [lib/](./lib/index.md) - Shared library functions
+- [maintenance/](./maintenance/index.md) - Repository maintenance tasks
 - [release/](./release/index.md) - Release management scripts
 - [run/](./run/index.md) - Runtime and execution utilities
+- [tests/](./tests/index.md) - Test scripts
 - [validate/](./validate/index.md) - Validation and verification scripts
 
 ## Top-Level Scripts

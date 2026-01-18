@@ -333,6 +333,7 @@ See CHANGELOG.md for version history.
                 <name>ci-dolibarr.yml</name>
                 <description>Dolibarr-specific CI workflow</description>
                 <requirement-status>required</requirement-status>
+                <always-overwrite>true</always-overwrite>
                 <template>templates/workflows/dolibarr/ci-dolibarr.yml.template</template>
               </file>
               
@@ -348,6 +349,7 @@ See CHANGELOG.md for version history.
                 <name>standards-compliance.yml</name>
                 <description>MokoStandards compliance validation</description>
                 <requirement-status>required</requirement-status>
+                <always-overwrite>true</always-overwrite>
                 <template>.github/workflows/standards-compliance.yml</template>
               </file>
             </files>

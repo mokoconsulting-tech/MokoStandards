@@ -127,10 +127,22 @@ mokoworkflow_approval
 
 ### Module Family
 
-**All custom modules MUST use "Moko Consulting" as the module family:**
+**All custom modules MUST use "mokoconsulting" as the module family with proper family info:**
 
 ```php
-$this->family = "Moko Consulting";
+// Module family
+$this->family = "mokoconsulting";
+$this->familyinfo = array(
+    'mokoconsulting' => array(
+        'position' => '01',
+        'label'    => $langs->trans("Moko Consulting")
+    )
+);
+
+// Author
+$this->editor_name = 'Moko Consulting';
+$this->editor_url = 'https://www.mokoconsulting.tech';
+$this->editor_squarred_logo = 'logo.png@<module>';
 ```
 
 **Rationale**:
@@ -145,7 +157,7 @@ $this->family = "Moko Consulting";
 - "financial" - Accounting and finance
 - "hr" - Human resources
 - "projects" - Project management
-- "Moko Consulting" - **Our custom module family**
+- "mokoconsulting" - **Our custom module family**
 
 ### Module Structure
 
@@ -202,11 +214,23 @@ class modMokoModule extends DolibarrModules
         $this->numero = 185051; // Unique ID (Moko Consulting reserved: 185051-185099)
         $this->rights_class = 'mokomodule';
         
-        // Module information
-        $this->family = "Moko Consulting";
+        // Module family
+        $this->family = "mokoconsulting";
+        $this->familyinfo = array(
+            'mokoconsulting' => array(
+                'position' => '01',
+                'label'    => $langs->trans("Moko Consulting")
+            )
+        );
+        
         $this->module_position = '90';
         $this->name = preg_replace('/^mod/i', '', get_class($this));
         $this->description = "MokoCRM custom module description";
+        
+        // Author
+        $this->editor_name = 'Moko Consulting';
+        $this->editor_url = 'https://www.mokoconsulting.tech';
+        $this->editor_squarred_logo = 'logo.png@mokomodule';
         
         // Version
         $this->version = '1.0.0';
@@ -570,10 +594,21 @@ class InterfaceModMokoModuleMokoTriggers extends DolibarrTriggers
      */
     public function __construct($db)
     {
+        global $langs, $conf;
+        
         $this->db = $db;
         
         $this->name = preg_replace('/^Interface/i', '', get_class($this));
-        $this->family = "Moko Consulting";
+        
+        // Module family
+        $this->family = "mokoconsulting";
+        $this->familyinfo = array(
+            'mokoconsulting' => array(
+                'position' => '01',
+                'label'    => $langs->trans("Moko Consulting")
+            )
+        );
+        
         $this->description = "MokoModule triggers";
         $this->version = '1.0.0';
         $this->picto = 'mokomodule@mokomodule';

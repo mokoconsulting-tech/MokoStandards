@@ -169,12 +169,29 @@ class modMokoDoliForm extends DolibarrModules
 {
     public function __construct($db)
     {
+        global $langs, $conf;
+        
         $this->numero = 185056;  // Module ID (reserved in MokoStandards)
-        $this->family = "moko";
+        
+        // Module family
+        $this->family = "mokoconsulting";
+        $this->familyinfo = array(
+            'mokoconsulting' => array(
+                'position' => '01',
+                'label'    => $langs->trans("Moko Consulting")
+            )
+        );
+        
         $this->module_position = '50';
         $this->name = preg_replace('/^mod/i', '', get_class($this));
         $this->version = '1.0.0';
         $this->description = "Advanced form builder";
+        
+        // Author
+        $this->editor_name = 'Moko Consulting';
+        $this->editor_url = 'https://www.mokoconsulting.tech';
+        $this->editor_squarred_logo = 'logo.png@mokodoliForm';
+        
         // ... additional configuration
     }
 }

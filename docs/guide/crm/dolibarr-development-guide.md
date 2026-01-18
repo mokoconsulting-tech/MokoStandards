@@ -146,11 +146,25 @@ class modMokoExample extends DolibarrModules
         
         // Module identification
         $this->rights_class = 'mokoexample';
-        $this->family = "Moko Consulting";
+        
+        // Module family
+        $this->family = "mokoconsulting";
+        $this->familyinfo = array(
+            'mokoconsulting' => array(
+                'position' => '01',
+                'label'    => $langs->trans("Moko Consulting")
+            )
+        );
+        
         $this->module_position = '1000';
         $this->name = preg_replace('/^mod/i', '', get_class($this));
         $this->description = "Example Moko module for Dolibarr";
         $this->descriptionlong = "Demonstrates best practices for custom module development";
+        
+        // Author
+        $this->editor_name = 'Moko Consulting';
+        $this->editor_url = 'https://www.mokoconsulting.tech';
+        $this->editor_squarred_logo = 'logo.png@mokoexample';
         
         // Version
         $this->version = '1.0.0';

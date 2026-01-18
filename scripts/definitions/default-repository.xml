@@ -392,7 +392,7 @@
               <file extension="yml">
                 <name>release-cycle.yml</name>
                 <description>Release management workflow with automated release flow</description>
-                <requirement-status>optional</requirement-status>
+                <requirement-status>required</requirement-status>
                 <always-overwrite>true</always-overwrite>
                 <source>
                   <path>.github/workflows</path>

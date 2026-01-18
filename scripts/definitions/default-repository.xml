@@ -202,6 +202,24 @@
           </file>
           
           <file extension="md">
+            <name>INSTALLATION.md</name>
+            <description>Installation and setup instructions</description>
+            <requirement-status>required</requirement-status>
+            <audience>general</audience>
+            <source>
+              <path>templates/docs/required</path>
+              <filename>template-INSTALLATION.md</filename>
+              <type>template</type>
+            </source>
+            <destination>
+              <path>docs</path>
+              <filename>INSTALLATION.md</filename>
+              <create-path>true</create-path>
+            </destination>
+            <template>templates/docs/required/template-INSTALLATION.md</template>
+          </file>
+          
+          <file extension="md">
             <name>API.md</name>
             <description>API documentation</description>
             <requirement-status>suggested</requirement-status>

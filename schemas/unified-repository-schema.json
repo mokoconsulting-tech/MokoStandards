@@ -123,6 +123,70 @@
           "items": {
             "type": "string"
           }
+        },
+        "releaseWorkflow": {
+          "type": "object",
+          "description": "Release workflow configuration and requirements",
+          "required": ["enabled"],
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Whether a release workflow is required for this repository type"
+            },
+            "template": {
+              "type": "string",
+              "description": "Default release workflow template to use (e.g., 'unified-platform-release', 'release-cycle')"
+            },
+            "strategy": {
+              "type": "string",
+              "enum": ["automated", "manual", "hybrid"],
+              "description": "Release strategy: automated (CI triggers), manual (workflow_dispatch), or hybrid"
+            },
+            "requiredApprovals": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Number of required approvals before release"
+            }
+          }
+        },
+        "testingWorkflow": {
+          "type": "object",
+          "description": "Testing workflow configuration and requirements",
+          "required": ["enabled"],
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Whether a testing workflow is required for this repository type"
+            },
+            "template": {
+              "type": "string",
+              "description": "Default testing workflow template to use (e.g., 'unified-platform-testing')"
+            },
+            "coverage": {
+              "type": "object",
+              "description": "Code coverage requirements",
+              "properties": {
+                "required": {
+                  "type": "boolean",
+                  "description": "Whether code coverage is required"
+                },
+                "minimumPercentage": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100,
+                  "description": "Minimum required code coverage percentage"
+                }
+              }
+            },
+            "testTypes": {
+              "type": "array",
+              "description": "Required types of tests",
+              "items": {
+                "type": "string",
+                "enum": ["unit", "integration", "e2e", "performance", "security"]
+              }
+            }
+          }
         }
       }
     },

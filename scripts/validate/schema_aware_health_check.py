@@ -151,7 +151,10 @@ class SchemaAwareHealthChecker:
             return None
 
         try:
-            tree = ET.parse(self.schema_path)
+            # Disable external entity processing to prevent XXE attacks
+            parser = ET.XMLParser()
+            parser.entity = {}  # Disable entity expansion
+            tree = ET.parse(self.schema_path, parser=parser)
             self.log(f"Loaded structure schema: {self.schema_path}", "SUCCESS")
             return tree.getroot()
         except Exception as e:

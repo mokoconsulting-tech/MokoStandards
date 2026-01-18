@@ -197,19 +197,19 @@ class DolibarrChangelogSync:
 
     def calculate_checksum(self, file_path: Path) -> str:
         """
-        Calculate MD5 checksum of a file.
+        Calculate SHA-256 checksum of a file.
 
         Args:
             file_path: Path to file
 
         Returns:
-            MD5 checksum as hexadecimal string
+            SHA-256 checksum as hexadecimal string
         """
-        md5_hash = hashlib.md5()
+        sha256_hash = hashlib.sha256()
         with open(file_path, "rb") as f:
             for chunk in iter(lambda: f.read(4096), b""):
-                md5_hash.update(chunk)
-        return md5_hash.hexdigest()
+                sha256_hash.update(chunk)
+        return sha256_hash.hexdigest()
 
     def files_are_identical(self) -> bool:
         """

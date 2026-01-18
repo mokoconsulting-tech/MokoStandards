@@ -197,11 +197,18 @@ nano config/database.php
 # Set appropriate ownership
 sudo chown -R www-data:www-data /var/www/[project]
 
-# Set directory permissions
-chmod -R 755 /var/www/[project]
+# Set directory permissions (755)
+find /var/www/[project] -type d -exec chmod 755 {} \;
 
-# Set file permissions
+# Set file permissions (644 for most files)
 find /var/www/[project] -type f -exec chmod 644 {} \;
+
+# Make executable files executable (if needed)
+chmod +x /var/www/[project]/bin/*
+
+# Restrict sensitive directories (storage, cache, logs)
+chmod 750 /var/www/[project]/storage
+chmod 750 /var/www/[project]/cache
 ```
 
 ### Step 4: Initialize Application

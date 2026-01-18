@@ -22,7 +22,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Architecture
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
-PATH: /docs/TWO_TIER_ARCHITECTURE.md
+PATH: /docs/policy/two-tier-architecture.md
 VERSION: 01.00.00
 BRIEF: Two-tier architecture documentation for public standards and private enforcement
 -->
@@ -985,7 +985,7 @@ uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-ci-validation
 
 ## Related Documentation
 
-- [Repository Standards Application](REPOSITORY_STANDARDS_APPLICATION.md) - How to apply standards from MokoStandards
+- [Repository Standards Application](../guide/repository-standards-application.md) - How to apply standards from MokoStandards
 - [Private Repository Reference](guide/PRIVATE_REPOSITORY_REFERENCE.md) - Reference to private content
 - [Repository Split Plan](guide/repository-split-plan.md) - Technical implementation details
 
@@ -1013,7 +1013,7 @@ uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-ci-validation
 | Field      | Value                                                                                                        |
 | ---------- | ------------------------------------------------------------------------------------------------------------ |
 | Document   | Two-Tier Architecture                                                                                        |
-| Path       | /docs/TWO_TIER_ARCHITECTURE.md                                                                               |
+| Path       | /docs/policy/two-tier-architecture.md                                                                        |
 | Repository | [https://github.com/mokoconsulting-tech/MokoStandards](https://github.com/mokoconsulting-tech/MokoStandards) |
 | Owner      | Moko Consulting                                                                                              |
 | Scope      | Architecture documentation                                                                                   |

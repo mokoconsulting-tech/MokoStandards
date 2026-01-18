@@ -52,7 +52,7 @@ Use GitHub Issues for:
 1. Search existing issues to avoid duplicates
 2. Review documentation in `/docs/`
 3. Check the [CHANGELOG.md](../../CHANGELOG.md) for recent changes
-4. Consult the [ROADMAP.md](../ROADMAP.md) for planned features
+4. Consult the [ROADMAP.md](../policy/roadmap.md) for planned features
 
 **Issue Quality Requirements**:
 
@@ -218,7 +218,7 @@ Before requesting support, please review:
   * [`/docs/checklist/`](../checklist/index.md) - Compliance checklists
 * [`CONTRIBUTING.md`](../../CONTRIBUTING.md) - Contribution guidelines
 * [`CHANGELOG.md`](../../CHANGELOG.md) - Version history and changes
-* [`docs/ROADMAP.md`](../ROADMAP.md) - Future plans and priorities
+* [`docs/policy/roadmap.md`](../policy/roadmap.md) - Future plans and priorities
 
 ### Common Resources
 

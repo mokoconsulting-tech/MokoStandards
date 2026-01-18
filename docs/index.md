@@ -5,7 +5,7 @@ This is a comprehensive catalog of all documentation in the MokoStandards reposi
 ## Quick Links
 
 - [README](./README.md) - Documentation governance framework
-- [ROADMAP](./ROADMAP.md) - Documentation roadmap and future plans
+- [ROADMAP](./policy/roadmap.md) - Documentation roadmap and future plans
 
 ## Policies
 

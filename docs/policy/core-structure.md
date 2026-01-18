@@ -22,7 +22,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Structure
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
-PATH: /docs/CORE_STRUCTURE.md
+PATH: /docs/policy/core-structure.md
 VERSION: 01.00.00
 BRIEF: Core organization structure for docs and scripts folders across all organization repositories
 -->
@@ -522,7 +522,7 @@ For questions about core structure:
 | Field | Value |
 |-------|-------|
 | Document | Core Organization Structure |
-| Path | /docs/CORE_STRUCTURE.md |
+| Path | /docs/policy/core-structure.md |
 | Repository | https://github.com/mokoconsulting-tech/MokoStandards |
 | Owner | Moko Consulting |
 | Scope | Repository structure standards |

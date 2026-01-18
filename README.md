@@ -75,7 +75,7 @@ mokostandards:
 
 Organization members can reference the private repository for access control policies and confidential enforcement mechanisms.
 
-See [Two-Tier Architecture Documentation](docs/TWO_TIER_ARCHITECTURE.md) for complete details on architecture and standards coordination.
+See [Two-Tier Architecture Documentation](docs/policy/two-tier-architecture.md) for complete details on architecture and standards coordination.
 
 ## Quick Start
 
@@ -485,7 +485,7 @@ Key expectations:
 
 ## Roadmap
 
-See the authoritative roadmap document: [`/docs/ROADMAP.md`](docs/ROADMAP.md).
+See the authoritative roadmap document: [`/docs/policy/roadmap.md`](docs/policy/roadmap.md).
 
 ---
 

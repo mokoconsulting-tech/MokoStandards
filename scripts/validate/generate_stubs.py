@@ -67,7 +67,7 @@ class RepositoryStructureStubGenerator:
         self.dry_run = dry_run
         self.force = force
         self.actions: List[StubAction] = []
-        self.namespace = {'rs': 'http://mokoconsulting.com/schemas/repository-structure'}
+        self.namespace = {'rs': 'http://mokoconsulting.tech/schemas/repository-structure'}
 
         # Parse XML structure
         try:
@@ -149,7 +149,7 @@ class RepositoryStructureStubGenerator:
             'REPOSITORY_TYPE': self.metadata.get('repository-type', ''),
             'PLATFORM': self.metadata.get('platform', ''),
             'VERSION': '1.0.0',
-            'SUPPORT_EMAIL': 'support@mokoconsulting.com',
+            'SUPPORT_EMAIL': 'support@mokoconsulting.tech',
             'USAGE_INSTRUCTIONS': 'See documentation for detailed usage instructions.',
         }
 

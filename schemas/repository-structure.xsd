@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           targetNamespace="http://mokoconsulting.com/schemas/repository-structure"
-           xmlns:rs="http://mokoconsulting.com/schemas/repository-structure"
+           targetNamespace="http://mokoconsulting.tech/schemas/repository-structure"
+           xmlns:rs="http://mokoconsulting.tech/schemas/repository-structure"
            elementFormDefault="qualified">
 
   <!-- Root element for repository structure definition -->

@@ -35,7 +35,7 @@ except ImportError:
 
 
 # Namespace for repo health schema
-REPO_HEALTH_NS = "http://mokoconsulting.com/schemas/repo-health"
+REPO_HEALTH_NS = "http://mokoconsulting.tech/schemas/repo-health"
 
 # Default remote configuration URL
 DEFAULT_REMOTE_CONFIG = "https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/schemas/repo-health-default.xml"

@@ -21,7 +21,7 @@ Definition files can be in either XML or JSON format:
 ### XML Format
 - Extension: `.xml`
 - Schema: `schemas/repository-structure.xsd`
-- Namespace: `http://mokoconsulting.com/schemas/repository-structure`
+- Namespace: `http://mokoconsulting.tech/schemas/repository-structure`
 
 ### JSON Format
 - Extension: `.json`

@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://mokoconsulting.com/schemas/repository-structure.json",
+  "$id": "http://mokoconsulting.tech/schemas/repository-structure.json",
   "title": "Repository Structure Schema",
   "description": "Schema for defining repository structure requirements, including files, directories, and validation rules",
   "version": "2.0",

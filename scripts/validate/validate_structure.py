@@ -59,7 +59,7 @@ class RepositoryStructureValidator:
         self.structure_xml_path = structure_xml_path
         self.repo_path = Path(repo_path).resolve()
         self.results: List[ValidationResult] = []
-        self.namespace = {'rs': 'http://mokoconsulting.com/schemas/repository-structure'}
+        self.namespace = {'rs': 'http://mokoconsulting.tech/schemas/repository-structure'}
 
         # Parse XML structure
         try:

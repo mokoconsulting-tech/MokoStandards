@@ -341,7 +341,7 @@ All v2.0 features are **optional**. Existing v1.0 definitions will continue to w
 
 1. **Update Schema Version**:
    ```xml
-   <repository-structure xmlns="http://mokoconsulting.com/schemas/repository-structure"
+   <repository-structure xmlns="http://mokoconsulting.tech/schemas/repository-structure"
                          version="2.0"
                          schema-version="2.0">
    ```

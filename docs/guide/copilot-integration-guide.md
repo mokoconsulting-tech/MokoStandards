@@ -172,7 +172,7 @@ After sync, each repository will have `scripts/repository-structure-override.xml
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<repository-structure xmlns="http://mokoconsulting.com/schemas/repository-structure"
+<repository-structure xmlns="http://mokoconsulting.tech/schemas/repository-structure"
                       version="2.0"
                       schema-version="2.0">
   <metadata>

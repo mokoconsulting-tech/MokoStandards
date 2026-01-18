@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<repo-health xmlns="http://mokoconsulting.com/schemas/repo-health"
+<repo-health xmlns="http://mokoconsulting.tech/schemas/repo-health"
              version="1.0.0"
              schema-version="1.0">
   <metadata>

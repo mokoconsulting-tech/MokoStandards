@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           targetNamespace="http://mokoconsulting.com/schemas/repo-health"
-           xmlns:rh="http://mokoconsulting.com/schemas/repo-health"
+           targetNamespace="http://mokoconsulting.tech/schemas/repo-health"
+           xmlns:rh="http://mokoconsulting.tech/schemas/repo-health"
            elementFormDefault="qualified">
 
   <!-- Root element for repository health configuration -->

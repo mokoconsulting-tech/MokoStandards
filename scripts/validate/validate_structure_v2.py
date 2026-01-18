@@ -125,7 +125,7 @@ class RepositoryStructureValidator:
         """Load XML schema"""
         self.tree = ET.parse(self.schema_path)
         self.root = self.tree.getroot()
-        self.namespace = {'rs': 'http://mokoconsulting.com/schemas/repository-structure'}
+        self.namespace = {'rs': 'http://mokoconsulting.tech/schemas/repository-structure'}
         self.structure_data = self._parse_xml_to_dict()
 
     def _load_json_schema(self):

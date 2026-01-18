@@ -466,7 +466,7 @@ logging:
 <?xml version="1.0" encoding="UTF-8"?>
 <repository-structure version="1.0" 
                        schema-version="1.0"
-                       xmlns="http://mokoconsulting.com/schemas/repository-structure">
+                       xmlns="http://mokoconsulting.tech/schemas/repository-structure">
   
   <!-- Metadata -->
   <metadata>

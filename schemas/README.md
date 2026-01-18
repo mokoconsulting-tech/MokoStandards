@@ -339,7 +339,7 @@ jobs:
   - [Repository Health Scoring System](../docs/health-scoring.md)
   - [GitHub Private Integration Prompt](../.copilot-prompts/github-private-integration-repo-health.md)
 - Issues: Open in MokoStandards repository
-- Contact: support@mokoconsulting.com
+- Contact: support@mokoconsulting.tech
 
 ---
 

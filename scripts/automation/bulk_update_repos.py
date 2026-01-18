@@ -397,7 +397,7 @@ def generate_override_schema(
   This file can be customized to override default MokoStandards behaviors
   for this specific repository.
 -->
-<repository-structure xmlns="http://mokoconsulting.com/schemas/repository-structure"
+<repository-structure xmlns="http://mokoconsulting.tech/schemas/repository-structure"
                       version="2.0"
                       schema-version="2.0">
   <metadata>

@@ -33,7 +33,7 @@ except ImportError:
 
 
 # Namespace for repo health schema
-REPO_HEALTH_NS = "http://mokoconsulting.com/schemas/repo-health"
+REPO_HEALTH_NS = "http://mokoconsulting.tech/schemas/repo-health"
 NS_MAP = {"rh": REPO_HEALTH_NS}
 
 

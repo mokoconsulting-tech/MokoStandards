@@ -22,7 +22,7 @@ The system consists of the following components:
 ### 1. XML Schema (XSD)
 - **File**: `schemas/repository-structure.xsd`
 - **Purpose**: Defines the structure and validation rules for repository structure XML files
-- **Namespace**: `http://mokoconsulting.com/schemas/repository-structure`
+- **Namespace**: `http://mokoconsulting.tech/schemas/repository-structure`
 
 ### 2. Structure Definitions (XML)
 - **Location**: `scripts/definitions/`
@@ -329,7 +329,7 @@ Available placeholders for use in `stub-content`:
 - `{REPOSITORY_TYPE}` - Repository type from metadata
 - `{PLATFORM}` - Platform from metadata
 - `{VERSION}` - Default: "1.0.0"
-- `{SUPPORT_EMAIL}` - Default: "support@mokoconsulting.com"
+- `{SUPPORT_EMAIL}` - Default: "support@mokoconsulting.tech"
 - `{USAGE_INSTRUCTIONS}` - Default instruction text
 
 ### Example Output
@@ -520,7 +520,7 @@ Create a new XML file in `scripts/definitions/`:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<repository-structure xmlns="http://mokoconsulting.com/schemas/repository-structure"
+<repository-structure xmlns="http://mokoconsulting.tech/schemas/repository-structure"
                       version="1.0"
                       schema-version="1.0">
   <metadata>
@@ -744,7 +744,7 @@ See `scripts/definitions/` directory for example structure definitions.
 
 For issues or questions:
 - Open an issue in the MokoStandards repository
-- Contact: support@mokoconsulting.com
+- Contact: support@mokoconsulting.tech
 - See [SUPPORT.md](SUPPORT.md)
 
 ---

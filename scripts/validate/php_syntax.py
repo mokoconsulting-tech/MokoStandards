@@ -49,10 +49,10 @@ except ImportError:
 def check_php_file(file_path: Path) -> Tuple[bool, str]:
     """
     Check PHP syntax of a single file.
-    
+
     Args:
         file_path: Path to PHP file
-        
+
     Returns:
         Tuple of (is_valid, error_message)
     """
@@ -63,12 +63,12 @@ def check_php_file(file_path: Path) -> Tuple[bool, str]:
             text=True,
             timeout=10
         )
-        
+
         if result.returncode == 0:
             return (True, "")
         else:
             return (False, result.stderr or result.stdout)
-            
+
     except subprocess.TimeoutExpired:
         return (False, "Syntax check timed out")
     except Exception as e:
@@ -78,28 +78,28 @@ def check_php_file(file_path: Path) -> Tuple[bool, str]:
 def find_php_files(src_dir: str, exclude_dirs: List[str] = None) -> List[Path]:
     """
     Find all PHP files in a directory.
-    
+
     Args:
         src_dir: Directory to search
         exclude_dirs: Directories to exclude
-        
+
     Returns:
         List of PHP file paths
     """
     if exclude_dirs is None:
         exclude_dirs = ["vendor", "node_modules", ".git"]
-    
+
     src_path = Path(src_dir)
     if not src_path.is_dir():
         return []
-    
+
     php_files = []
     for php_file in src_path.rglob("*.php"):
         # Check if file is in an excluded directory
         if any(excluded in php_file.parts for excluded in exclude_dirs):
             continue
         php_files.append(php_file)
-    
+
     return sorted(php_files)
 
 
@@ -109,7 +109,7 @@ def main() -> int:
         description="Validate PHP syntax in all PHP files",
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    
+
     parser.add_argument(
         "-s", "--src-dir",
         default="src",
@@ -130,12 +130,12 @@ def main() -> int:
         nargs="*",
         help="Specific files to check (optional)"
     )
-    
+
     args = parser.parse_args()
-    
+
     # Check if PHP is available
     common.require_cmd("php")
-    
+
     try:
         # Determine which files to check
         if args.files:
@@ -146,19 +146,19 @@ def main() -> int:
         else:
             exclude_dirs = args.exclude or ["vendor", "node_modules", ".git"]
             php_files = find_php_files(args.src_dir, exclude_dirs)
-        
+
         if not php_files:
             common.die(f"No PHP files found in {args.src_dir}")
-        
+
         if args.verbose:
             common.log_section("PHP Syntax Validation")
             common.log_info(f"Checking {len(php_files)} PHP file(s)")
             print()
-        
+
         errors = []
         for php_file in php_files:
             is_valid, error_msg = check_php_file(php_file)
-            
+
             if is_valid:
                 if args.verbose:
                     common.log_success(f"OK: {php_file}")
@@ -168,11 +168,11 @@ def main() -> int:
                     common.log_error(f"FAILED: {php_file}")
                     if error_msg:
                         print(f"  {error_msg}")
-        
+
         # Output results
         if args.verbose:
             print()
-        
+
         if errors:
             result = {
                 "status": "error",
@@ -181,18 +181,18 @@ def main() -> int:
                 "failed": len(errors),
                 "errors": [{"file": str(f), "error": e} for f, e in errors]
             }
-            
+
             if not args.verbose:
                 common.json_output(result)
-            
+
             common.log_error(f"PHP syntax check failed: {len(errors)} error(s)")
-            
+
             if not args.verbose:
                 for file_path, error_msg in errors:
                     print(f"ERROR: {file_path}")
                     if error_msg:
                         print(f"  {error_msg}")
-            
+
             return 1
         else:
             result = {
@@ -200,15 +200,15 @@ def main() -> int:
                 "total": len(php_files),
                 "passed": len(php_files)
             }
-            
+
             if not args.verbose:
                 common.json_output(result)
                 print(f"php_syntax: ok ({len(php_files)} file(s) checked)")
             else:
                 common.log_success(f"All {len(php_files)} PHP file(s) are valid")
-            
+
             return 0
-            
+
     except Exception as e:
         common.log_error(f"Validation failed: {e}")
         return 1

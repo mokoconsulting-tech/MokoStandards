@@ -16,10 +16,10 @@ Usage:
 Examples:
     # Auto-detect current repository
     python3 auto_detect_platform.py
-    
+
     # Auto-detect specific repository
     python3 auto_detect_platform.py --repo-path /path/to/repo
-    
+
     # Generate documentation files in specific directory
     python3 auto_detect_platform.py --output-dir ./validation-reports
 
@@ -53,20 +53,20 @@ class PlatformType:
 
 class PlatformDetector:
     """Detects the platform type of a repository"""
-    
+
     def __init__(self, repo_path: str = "."):
         """
         Initialize platform detector
-        
+
         Args:
             repo_path: Path to repository to analyze
         """
         self.repo_path = Path(repo_path).resolve()
-        
+
     def detect(self) -> Tuple[str, Dict[str, any]]:
         """
         Detect the platform type of the repository
-        
+
         Returns:
             Tuple of (platform_type, detection_details)
         """
@@ -74,27 +74,27 @@ class PlatformDetector:
         joomla_result = self._detect_joomla()
         if joomla_result:
             return PlatformType.JOOMLA, joomla_result
-        
+
         # Check for Dolibarr module structure
         dolibarr_result = self._detect_dolibarr()
         if dolibarr_result:
             return PlatformType.DOLIBARR, dolibarr_result
-        
+
         # Default to generic
         return PlatformType.GENERIC, {
             "reason": "No platform-specific markers found",
             "checked": ["Joomla manifest", "Dolibarr module structure"]
         }
-    
+
     def _detect_joomla(self) -> Optional[Dict[str, any]]:
         """
         Detect Joomla component by looking for manifest files
-        
+
         Joomla components typically have:
         - A component XML manifest file (e.g., com_example.xml or componentname.xml)
         - site/ and admin/ directories
         - manifest.xml in root or subdirectories
-        
+
         Returns:
             Detection details if Joomla component found, None otherwise
         """
@@ -103,7 +103,7 @@ class PlatformDetector:
             "confidence": 0,
             "indicators": []
         }
-        
+
         # Look for Joomla-specific XML manifest patterns
         manifest_patterns = [
             "**/*.xml",
@@ -112,16 +112,16 @@ class PlatformDetector:
             "**/mod_*.xml",
             "**/plg_*.xml"
         ]
-        
+
         for pattern in manifest_patterns:
             for xml_file in self.repo_path.glob(pattern):
                 if xml_file.name in ['.git', 'vendor', 'node_modules']:
                     continue
-                    
+
                 try:
                     tree = ET.parse(xml_file)
                     root = tree.getroot()
-                    
+
                     # Check for Joomla-specific XML elements
                     if root.tag in ['extension', 'install']:
                         # Check for type attribute (component, module, plugin)
@@ -131,44 +131,44 @@ class PlatformDetector:
                             detection_info["indicators"].append(f"Joomla manifest: {xml_file.relative_to(self.repo_path)} (type={ext_type})")
                             detection_info["manifest_file"] = str(xml_file.relative_to(self.repo_path))
                             detection_info["extension_type"] = ext_type
-                        
+
                         # Check for Joomla version
                         for child in root:
                             if child.tag in ['version', 'joomla']:
                                 detection_info["confidence"] += 10
-                                
+
                 except (ET.ParseError, OSError):
                     pass
-        
+
         # Check for Joomla directory structure
         joomla_dirs = ['site', 'admin', 'administrator']
         for dir_name in joomla_dirs:
             if (self.repo_path / dir_name).is_dir():
                 detection_info["confidence"] += 15
                 detection_info["indicators"].append(f"Joomla directory: {dir_name}/")
-        
+
         # Check for Joomla-specific files
         joomla_files = ['index.html', 'language/en-GB']
         for file_pattern in joomla_files:
             if list(self.repo_path.glob(f"**/{file_pattern}")):
                 detection_info["confidence"] += 5
-        
+
         # Require at least 50% confidence
         if detection_info["confidence"] >= 50:
             return detection_info
-        
+
         return None
-    
+
     def _detect_dolibarr(self) -> Optional[Dict[str, any]]:
         """
         Detect Dolibarr module by looking for module structure
-        
+
         Dolibarr modules typically have:
         - A core/modules/ directory structure
         - Module descriptor files (modModule.class.php)
         - Dolibarr-specific PHP patterns
         - SQL files in sql/ directory
-        
+
         Returns:
             Detection details if Dolibarr module found, None otherwise
         """
@@ -177,21 +177,21 @@ class PlatformDetector:
             "confidence": 0,
             "indicators": []
         }
-        
+
         # Look for Dolibarr module descriptor files
         descriptor_patterns = [
             "**/mod*.class.php",
             "**/core/modules/**/*.php"
         ]
-        
+
         for pattern in descriptor_patterns:
             for php_file in self.repo_path.glob(pattern):
                 if any(skip in str(php_file) for skip in ['.git', 'vendor', 'node_modules']):
                     continue
-                    
+
                 try:
                     content = php_file.read_text(encoding='utf-8', errors='ignore')
-                    
+
                     # Check for Dolibarr-specific patterns
                     dolibarr_patterns = [
                         'extends DolibarrModules',
@@ -201,55 +201,55 @@ class PlatformDetector:
                         'DolibarrModules',
                         'dol_include_once'
                     ]
-                    
+
                     pattern_matches = sum(1 for p in dolibarr_patterns if p in content)
                     if pattern_matches >= 2:
                         detection_info["confidence"] += 60
                         detection_info["indicators"].append(f"Dolibarr module descriptor: {php_file.relative_to(self.repo_path)}")
                         detection_info["descriptor_file"] = str(php_file.relative_to(self.repo_path))
                         break
-                        
+
                 except (OSError, UnicodeDecodeError):
                     pass
-        
+
         # Check for Dolibarr directory structure
         dolibarr_dirs = ['core/modules', 'sql', 'class', 'lib', 'langs']
         for dir_name in dolibarr_dirs:
             if (self.repo_path / dir_name).exists():
                 detection_info["confidence"] += 10
                 detection_info["indicators"].append(f"Dolibarr directory: {dir_name}/")
-        
+
         # Check for Dolibarr-specific SQL files
         if (self.repo_path / 'sql').is_dir():
             sql_files = list((self.repo_path / 'sql').glob('*.sql'))
             if sql_files:
                 detection_info["confidence"] += 10
                 detection_info["indicators"].append(f"Dolibarr SQL files: {len(sql_files)} files in sql/")
-        
+
         # Require at least 50% confidence
         if detection_info["confidence"] >= 50:
             return detection_info
-        
+
         return None
 
 
 class ValidationDocumentationGenerator:
     """Generates documentation files from validation results"""
-    
+
     def __init__(self, output_dir: str = "./validation-reports"):
         """
         Initialize documentation generator
-        
+
         Args:
             output_dir: Directory to write documentation files
         """
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
-    
+
     def generate(self, platform: str, detection_details: Dict, validation_output: str, exit_code: int):
         """
         Generate documentation files for validation results
-        
+
         Args:
             platform: Detected platform type
             detection_details: Platform detection details
@@ -257,20 +257,20 @@ class ValidationDocumentationGenerator:
             exit_code: Exit code from validation
         """
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        
+
         # Generate detection report
         self._generate_detection_report(platform, detection_details, timestamp)
-        
+
         # Generate validation report
         self._generate_validation_report(platform, validation_output, exit_code, timestamp)
-        
+
         # Generate summary
         self._generate_summary(platform, detection_details, exit_code, timestamp)
-    
+
     def _generate_detection_report(self, platform: str, details: Dict, timestamp: str):
         """Generate platform detection report"""
         report_file = self.output_dir / f"detection_report_{timestamp}.md"
-        
+
         content = f"""# Platform Detection Report
 
 **Generated:** {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
@@ -285,18 +285,18 @@ class ValidationDocumentationGenerator:
 ### Detection Indicators
 
 """
-        
+
         if 'indicators' in details:
             for indicator in details['indicators']:
                 content += f"- ✓ {indicator}\n"
-        
+
         if 'manifest_file' in details:
             content += f"\n**Manifest File:** `{details['manifest_file']}`\n"
         if 'extension_type' in details:
             content += f"**Extension Type:** {details['extension_type']}\n"
         if 'descriptor_file' in details:
             content += f"\n**Descriptor File:** `{details['descriptor_file']}`\n"
-        
+
         content += f"""
 
 ## Schema Mapping
@@ -316,16 +316,16 @@ Based on detection, the following schema will be used:
 ---
 *Generated by auto_detect_platform.py*
 """
-        
+
         report_file.write_text(content)
         print(f"✓ Detection report: {report_file}")
-    
+
     def _generate_validation_report(self, platform: str, output: str, exit_code: int, timestamp: str):
         """Generate validation report"""
         report_file = self.output_dir / f"validation_report_{timestamp}.md"
-        
+
         status = "✓ PASSED" if exit_code == 0 else "✗ FAILED" if exit_code == 1 else "⚠ WARNINGS"
-        
+
         content = f"""# Repository Validation Report
 
 **Generated:** {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
@@ -349,16 +349,16 @@ Based on detection, the following schema will be used:
 ---
 *Generated by auto_detect_platform.py*
 """
-        
+
         report_file.write_text(content)
         print(f"✓ Validation report: {report_file}")
-    
+
     def _generate_summary(self, platform: str, details: Dict, exit_code: int, timestamp: str):
         """Generate summary report"""
         summary_file = self.output_dir / f"SUMMARY_{timestamp}.md"
-        
+
         status_emoji = "✓" if exit_code == 0 else "✗" if exit_code == 1 else "⚠"
-        
+
         content = f"""# Validation Summary
 
 {status_emoji} **Overall Status:** {"PASSED" if exit_code == 0 else "FAILED" if exit_code == 1 else "WARNINGS"}
@@ -381,7 +381,7 @@ Based on detection, the following schema will be used:
 ## Action Items
 
 """
-        
+
         if exit_code == 0:
             content += "✓ No action required - all validations passed!\n"
         elif exit_code == 1:
@@ -399,12 +399,12 @@ Based on detection, the following schema will be used:
 """
         else:
             content += "✗ **CONFIGURATION ERROR** - Check validation_report for details\n"
-        
+
         content += "\n---\n*Generated by auto_detect_platform.py*\n"
-        
+
         summary_file.write_text(content)
         print(f"✓ Summary: {summary_file}")
-    
+
     def _get_schema_filename(self, platform: str) -> str:
         """Get schema filename for platform"""
         schema_map = {
@@ -445,9 +445,9 @@ def main():
         action="store_true",
         help="Output results in JSON format (for automation)"
     )
-    
+
     args = parser.parse_args()
-    
+
     # Find schema directory
     if args.schema_dir:
         schema_dir = Path(args.schema_dir)
@@ -455,27 +455,27 @@ def main():
         # Try to find schema directory relative to script location
         script_dir = Path(__file__).parent.parent.parent
         schema_dir = script_dir / "scripts" / "definitions"
-        
+
         if not schema_dir.exists():
             # Try relative to current directory
             schema_dir = Path("scripts/definitions")
-    
+
     if not schema_dir.exists():
         print(f"✗ Error: Schema directory not found: {schema_dir}", file=sys.stderr)
         print("  Use --schema-dir to specify the location", file=sys.stderr)
         return 3
-    
+
     # Determine schema file
     schema_map = {
         PlatformType.JOOMLA: "waas-component.xml",
         PlatformType.DOLIBARR: "crm-module.xml",
         PlatformType.GENERIC: "default-repository.xml"
     }
-    
+
     # Detect platform
     detector = PlatformDetector(args.repo_path)
     platform, details = detector.detect()
-    
+
     # JSON output mode (for automation)
     if args.json:
         output = {
@@ -486,15 +486,15 @@ def main():
         }
         print(json.dumps(output, indent=2))
         return 0
-    
+
     print("=" * 70)
     print("Repository Platform Auto-Detection and Validation")
     print("=" * 70)
     print()
-    
+
     print(f"📁 Analyzing repository: {Path(args.repo_path).resolve()}")
     print()
-    
+
     print(f"🔍 Platform Detection Results:")
     print(f"   Platform: {platform.upper()}")
     if 'confidence' in details:
@@ -504,53 +504,53 @@ def main():
         for indicator in details['indicators']:
             print(f"      - {indicator}")
     print()
-    
+
     # Determine schema file
     schema_file = schema_dir / schema_map[platform]
-    
+
     if not schema_file.exists():
         print(f"✗ Error: Schema file not found: {schema_file}", file=sys.stderr)
         return 3
-    
+
     print(f"📋 Using schema: {schema_file.name}")
     print()
-    
+
     # Run validation
     print("🔬 Running validation...")
     print("-" * 70)
-    
+
     validator_script = Path(__file__).parent / "validate_structure_v2.py"
     if not validator_script.exists():
         print(f"✗ Error: Validator script not found: {validator_script}", file=sys.stderr)
         return 3
-    
+
     try:
         result = subprocess.run(
             [sys.executable, str(validator_script), "--schema", str(schema_file), "--repo-path", args.repo_path],
             capture_output=True,
             text=True
         )
-        
+
         print(result.stdout)
         if result.stderr:
             print(result.stderr, file=sys.stderr)
-        
+
         exit_code = result.returncode
-        
+
     except Exception as e:
         print(f"✗ Error running validation: {e}", file=sys.stderr)
         exit_code = 3
         result = type('obj', (object,), {'stdout': str(e), 'stderr': ''})()
-    
+
     print("-" * 70)
     print()
-    
+
     # Generate documentation
     print("📄 Generating documentation files...")
     doc_generator = ValidationDocumentationGenerator(args.output_dir)
     doc_generator.generate(platform, details, result.stdout, exit_code)
     print()
-    
+
     # Final status
     print("=" * 70)
     if exit_code == 0:
@@ -562,7 +562,7 @@ def main():
     else:
         print("✗ ERROR: Configuration or execution error")
     print("=" * 70)
-    
+
     return exit_code
 
 

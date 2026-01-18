@@ -1,0 +1,8 @@
+# Security dependencies for scripts
+defusedxml>=0.7.1
+
+# Optional dependencies for specific scripts
+# Uncomment as needed:
+# paramiko>=3.0.0  # For SFTP deployments (scripts/release/deploy_to_dev.py)
+# pyyaml>=6.0      # For YAML processing (scripts/automation/bulk_update_repos.py)
+# requests>=2.31.0 # For GitHub API access (scripts/lib/github_client.py)

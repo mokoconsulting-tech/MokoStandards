@@ -95,15 +95,15 @@ def is_exempt_file(filepath: Path) -> bool:
     """Check if file is exempt from header requirements."""
     if filepath.name in EXEMPT_FILES:
         return True
-    
+
     # Check if in vendor or node_modules
     if 'vendor' in filepath.parts or 'node_modules' in filepath.parts:
         return True
-    
+
     # Check if in .git directory
     if '.git' in filepath.parts:
         return True
-    
+
     return False
 
 
@@ -117,11 +117,11 @@ def check_copyright_header(content: str, filepath: Path) -> Tuple[bool, List[str
     """Check if file has proper copyright header."""
     issues = []
     first_section = content[:2000]
-    
+
     for pattern in REQUIRED_HEADER_PATTERNS:
         if pattern not in first_section:
             issues.append(f"Missing required pattern: {pattern}")
-    
+
     return len(issues) == 0, issues
 
 
@@ -129,22 +129,22 @@ def check_file_information(content: str, filepath: Path) -> Tuple[bool, List[str
     """Check if file has proper file information block."""
     issues = []
     first_section = content[:2000]
-    
+
     for pattern in REQUIRED_FILE_INFO_PATTERNS:
         if pattern not in first_section:
             issues.append(f"Missing required file info: {pattern}")
-    
+
     return len(issues) == 0, issues
 
 
 def check_markdown_metadata(content: str, filepath: Path) -> Tuple[bool, List[str]]:
     """Check if markdown file has metadata and revision history."""
     issues = []
-    
+
     for pattern in REQUIRED_MARKDOWN_METADATA:
         if pattern not in content:
             issues.append(f"Missing required section: {pattern}")
-    
+
     return len(issues) == 0, issues
 
 
@@ -157,17 +157,17 @@ def validate_file(filepath: Path) -> Dict[str, any]:
         'exempt': False,
         'generated': False,
     }
-    
+
     # Check if exempt
     if is_exempt_file(filepath):
         result['exempt'] = True
         return result
-    
+
     # Check file extension
     if filepath.suffix not in HEADER_REQUIRED_EXTENSIONS:
         result['exempt'] = True
         return result
-    
+
     # Read file content
     try:
         with open(filepath, 'r', encoding='utf-8') as f:
@@ -176,31 +176,31 @@ def validate_file(filepath: Path) -> Dict[str, any]:
         result['valid'] = False
         result['issues'].append(f"Error reading file: {e}")
         return result
-    
+
     # Check if generated
     if is_generated_file(content):
         result['generated'] = True
         return result
-    
+
     # Check copyright header
     valid, issues = check_copyright_header(content, filepath)
     if not valid:
         result['valid'] = False
         result['issues'].extend(issues)
-    
+
     # Check file information
     valid, issues = check_file_information(content, filepath)
     if not valid:
         result['valid'] = False
         result['issues'].extend(issues)
-    
+
     # Additional checks for markdown files
     if filepath.suffix == '.md':
         valid, issues = check_markdown_metadata(content, filepath)
         if not valid:
             result['valid'] = False
             result['issues'].extend(issues)
-    
+
     return result
 
 
@@ -215,17 +215,17 @@ def validate_repository(repo_path: Path) -> Dict[str, any]:
         'generated': 0,
         'files': [],
     }
-    
+
     # Find all tracked files
     for filepath in repo_path.rglob('*'):
         if not filepath.is_file():
             continue
-        
+
         results['total'] += 1
-        
+
         result = validate_file(filepath)
         results['files'].append(result)
-        
+
         if result['exempt']:
             results['exempt'] += 1
         elif result['generated']:
@@ -236,7 +236,7 @@ def validate_repository(repo_path: Path) -> Dict[str, any]:
                 results['valid'] += 1
             else:
                 results['invalid'] += 1
-    
+
     return results
 
 
@@ -253,7 +253,7 @@ def print_report(results: Dict[str, any], verbose: bool = False):
     print(f"Exempt files:          {results['exempt']}")
     print(f"Generated files:       {results['generated']}")
     print()
-    
+
     if results['invalid'] > 0:
         print("FILES WITH ISSUES:")
         print("-" * 70)
@@ -263,7 +263,7 @@ def print_report(results: Dict[str, any], verbose: bool = False):
                 for issue in file_result['issues']:
                     print(f"  ✗ {issue}")
         print()
-    
+
     if verbose and results['valid'] > 0:
         print("\nVALID FILES:")
         print("-" * 70)
@@ -271,9 +271,9 @@ def print_report(results: Dict[str, any], verbose: bool = False):
             if file_result['valid']:
                 print(f"  ✓ {file_result['path']}")
         print()
-    
+
     print("=" * 70)
-    
+
     if results['invalid'] > 0:
         compliance_rate = (results['valid'] / results['validated'] * 100) if results['validated'] > 0 else 0
         print(f"Compliance Rate: {compliance_rate:.1f}%")
@@ -288,7 +288,7 @@ def print_report(results: Dict[str, any], verbose: bool = False):
 def main():
     """Main entry point."""
     import argparse
-    
+
     parser = argparse.ArgumentParser(
         description='Validate copyright headers and file information'
     )
@@ -307,24 +307,24 @@ def main():
         action='store_true',
         help='Exit with error code if invalid headers found'
     )
-    
+
     args = parser.parse_args()
-    
+
     repo_path = Path(args.path).resolve()
-    
+
     if not repo_path.exists():
         print(f"Error: Path does not exist: {repo_path}", file=sys.stderr)
         sys.exit(1)
-    
+
     print(f"Validating files in: {repo_path}")
     print()
-    
+
     results = validate_repository(repo_path)
     success = print_report(results, args.verbose)
-    
+
     if args.fail_on_invalid and not success:
         sys.exit(1)
-    
+
     sys.exit(0 if success else 0)
 
 

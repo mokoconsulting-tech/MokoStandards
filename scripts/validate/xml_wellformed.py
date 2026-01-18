@@ -52,10 +52,10 @@ except ImportError:
 def check_xml_file(file_path: Path) -> Tuple[bool, str]:
     """
     Check if an XML file is well-formed.
-    
+
     Args:
         file_path: Path to XML file
-        
+
     Returns:
         Tuple of (is_valid, error_message)
     """
@@ -71,28 +71,28 @@ def check_xml_file(file_path: Path) -> Tuple[bool, str]:
 def find_xml_files(src_dir: str, exclude_dirs: List[str] = None) -> List[Path]:
     """
     Find all XML files in a directory.
-    
+
     Args:
         src_dir: Directory to search
         exclude_dirs: Directories to exclude
-        
+
     Returns:
         List of XML file paths
     """
     if exclude_dirs is None:
         exclude_dirs = ["vendor", "node_modules", ".git"]
-    
+
     src_path = Path(src_dir)
     if not src_path.is_dir():
         return []
-    
+
     xml_files = []
     for xml_file in src_path.rglob("*.xml"):
         # Check if file is in an excluded directory
         if any(excluded in xml_file.parts for excluded in exclude_dirs):
             continue
         xml_files.append(xml_file)
-    
+
     return sorted(xml_files)
 
 
@@ -102,7 +102,7 @@ def main() -> int:
         description="Validate XML well-formedness in all XML files",
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    
+
     parser.add_argument(
         "-s", "--src-dir",
         default="src",
@@ -123,9 +123,9 @@ def main() -> int:
         nargs="*",
         help="Specific files to check (optional)"
     )
-    
+
     args = parser.parse_args()
-    
+
     try:
         # Determine which files to check
         if args.files:
@@ -136,19 +136,19 @@ def main() -> int:
         else:
             exclude_dirs = args.exclude or ["vendor", "node_modules", ".git"]
             xml_files = find_xml_files(args.src_dir, exclude_dirs)
-        
+
         if not xml_files:
             common.die(f"No XML files found in {args.src_dir}")
-        
+
         if args.verbose:
             common.log_section("XML Well-formedness Validation")
             common.log_info(f"Checking {len(xml_files)} XML file(s)")
             print()
-        
+
         errors = []
         for xml_file in xml_files:
             is_valid, error_msg = check_xml_file(xml_file)
-            
+
             if is_valid:
                 if args.verbose:
                     common.log_success(f"OK: {xml_file}")
@@ -158,11 +158,11 @@ def main() -> int:
                     common.log_error(f"FAILED: {xml_file}")
                     if error_msg:
                         print(f"  {error_msg}")
-        
+
         # Output results
         if args.verbose:
             print()
-        
+
         if errors:
             result = {
                 "status": "error",
@@ -172,18 +172,18 @@ def main() -> int:
                 "failed": len(errors),
                 "errors": [{"file": str(f), "error": e} for f, e in errors]
             }
-            
+
             if not args.verbose:
                 common.json_output(result)
-            
+
             common.log_error(f"XML validation failed: {len(errors)} error(s)")
-            
+
             if not args.verbose:
                 for file_path, error_msg in errors:
                     print(f"ERROR: {file_path}")
                     if error_msg:
                         print(f"  {error_msg}")
-            
+
             return 1
         else:
             result = {
@@ -191,15 +191,15 @@ def main() -> int:
                 "src_dir": args.src_dir,
                 "xml_count": len(xml_files)
             }
-            
+
             if not args.verbose:
                 common.json_output(result)
                 print(f"xml_wellformed: ok")
             else:
                 common.log_success(f"All {len(xml_files)} XML file(s) are well-formed")
-            
+
             return 0
-            
+
     except Exception as e:
         common.log_error(f"Validation failed: {e}")
         return 1

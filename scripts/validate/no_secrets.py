@@ -80,16 +80,16 @@ EXCLUDE_DIRS = {
 def scan_file(filepath: Path, patterns: List[re.Pattern]) -> List[Dict[str, str]]:
     """
     Scan a file for secret patterns.
-    
+
     Args:
         filepath: Path to file to scan
         patterns: Compiled regex patterns to search for
-        
+
     Returns:
         List of matches with file, line number, and content
     """
     hits = []
-    
+
     try:
         with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
             for line_num, line in enumerate(f, 1):
@@ -102,33 +102,33 @@ def scan_file(filepath: Path, patterns: List[re.Pattern]) -> List[Dict[str, str]
                         })
     except Exception as e:
         common.log_warn(f"Could not read {filepath}: {e}")
-    
+
     return hits
 
 
 def scan_directory(src_dir: str, patterns: List[re.Pattern]) -> List[Dict[str, str]]:
     """
     Recursively scan directory for secrets.
-    
+
     Args:
         src_dir: Directory to scan
         patterns: Compiled regex patterns
-        
+
     Returns:
         List of all matches
     """
     src_path = Path(src_dir)
     all_hits = []
-    
+
     for item in src_path.rglob("*"):
         # Skip directories
         if not item.is_file():
             continue
-        
+
         # Skip excluded directories
         if any(excluded in item.parts for excluded in EXCLUDE_DIRS):
             continue
-        
+
         # Skip binary files (heuristic)
         try:
             with open(item, 'rb') as f:
@@ -137,11 +137,11 @@ def scan_directory(src_dir: str, patterns: List[re.Pattern]) -> List[Dict[str, s
                     continue
         except Exception:
             continue
-        
+
         # Scan the file
         hits = scan_file(item, patterns)
         all_hits.extend(hits)
-    
+
     return all_hits
 
 
@@ -155,9 +155,9 @@ def main() -> int:
         default=os.environ.get("SRC_DIR", "src"),
         help="Source directory to scan (default: src)"
     )
-    
+
     args = parser.parse_args()
-    
+
     # Check if source directory exists
     if not Path(args.src_dir).is_dir():
         result = {
@@ -166,39 +166,39 @@ def main() -> int:
         }
         common.json_output(result)
         return 1
-    
+
     # Compile patterns
     compiled_patterns = [re.compile(pattern) for pattern in SECRET_PATTERNS]
-    
+
     # Scan directory
     hits = scan_directory(args.src_dir, compiled_patterns)
-    
+
     if hits:
         # Limit to first 50 hits
         hits = hits[:50]
-        
+
         result = {
             "status": "fail",
             "error": "secret_pattern_detected",
             "hits": [{"hit": f"{h['file']}:{h['line']}: {h['content']}"} for h in hits]
         }
-        
+
         common.json_output(result)
-        
+
         # Also print human-readable output
         print("\nERROR: Potential secrets detected!", file=sys.stderr)
         print(f"\nFound {len(hits)} potential secret(s):", file=sys.stderr)
         for hit in hits[:10]:  # Show first 10 in detail
             print(f"  {hit['file']}:{hit['line']}", file=sys.stderr)
             print(f"    {hit['content']}", file=sys.stderr)
-        
+
         if len(hits) > 10:
             print(f"  ... and {len(hits) - 10} more", file=sys.stderr)
-        
+
         print("\nPlease remove any secrets and use environment variables or secret management instead.", file=sys.stderr)
-        
+
         return 1
-    
+
     result = {
         "status": "ok",
         "src_dir": args.src_dir

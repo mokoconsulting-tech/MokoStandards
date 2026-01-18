@@ -67,13 +67,13 @@ def is_gui_available() -> bool:
     """Check if GUI is available on this system"""
     if not GUI_AVAILABLE:
         return False
-    
+
     # Check if display is available (Linux/Mac)
     if sys.platform != 'win32':
         display = sys.platform.startswith('darwin') or 'DISPLAY' in sys.environ
         if not display:
             return False
-    
+
     try:
         # Test if we can create a window
         root = tk.Tk()
@@ -87,11 +87,11 @@ def is_gui_available() -> bool:
 def should_use_gui(force_gui: bool = False, force_cli: bool = False) -> bool:
     """
     Determine if GUI should be used
-    
+
     Args:
         force_gui: Force GUI mode (will error if not available)
         force_cli: Force CLI mode even if GUI available
-        
+
     Returns:
         True if GUI should be used
     """
@@ -101,7 +101,7 @@ def should_use_gui(force_gui: bool = False, force_cli: bool = False) -> bool:
         if not is_gui_available():
             raise RuntimeError("GUI mode requested but GUI not available")
         return True
-    
+
     # Auto-detect: use GUI if available and no pipe/redirect
     return is_gui_available() and sys.stdout.isatty()
 
@@ -118,26 +118,26 @@ def select_file(
 ) -> Optional[Path]:
     """
     Select a file using GUI or CLI prompt
-    
+
     Args:
         title: Dialog title
         filetypes: List of (description, pattern) tuples
         initialdir: Initial directory
         use_gui: Use GUI if available
-        
+
     Returns:
         Selected file path or None
     """
     if use_gui and is_gui_available():
         root = tk.Tk()
         root.withdraw()
-        
+
         filename = filedialog.askopenfilename(
             title=title,
             filetypes=filetypes or [("All files", "*.*")],
             initialdir=initialdir
         )
-        
+
         root.destroy()
         return Path(filename) if filename else None
     else:
@@ -156,24 +156,24 @@ def select_directory(
 ) -> Optional[Path]:
     """
     Select a directory using GUI or CLI prompt
-    
+
     Args:
         title: Dialog title
         initialdir: Initial directory
         use_gui: Use GUI if available
-        
+
     Returns:
         Selected directory path or None
     """
     if use_gui and is_gui_available():
         root = tk.Tk()
         root.withdraw()
-        
+
         dirname = filedialog.askdirectory(
             title=title,
             initialdir=initialdir
         )
-        
+
         root.destroy()
         return Path(dirname) if dirname else None
     else:
@@ -192,21 +192,21 @@ def confirm(
 ) -> bool:
     """
     Show confirmation dialog
-    
+
     Args:
         message: Confirmation message
         title: Dialog title
         use_gui: Use GUI if available
-        
+
     Returns:
         True if confirmed, False otherwise
     """
     if use_gui and is_gui_available():
         root = tk.Tk()
         root.withdraw()
-        
+
         result = messagebox.askyesno(title, message)
-        
+
         root.destroy()
         return result
     else:
@@ -282,35 +282,35 @@ class FormField:
 
 class SimpleForm:
     """Simple input form with GUI or CLI fallback"""
-    
+
     def __init__(self, title: str, fields: List[FormField], use_gui: bool = True):
         self.title = title
         self.fields = fields
         self.use_gui = use_gui and is_gui_available()
         self.values: Dict[str, str] = {}
-    
+
     def show(self) -> Optional[Dict[str, str]]:
         """Show form and return values"""
         if self.use_gui:
             return self._show_gui()
         else:
             return self._show_cli()
-    
+
     def _show_gui(self) -> Optional[Dict[str, str]]:
         """Show GUI form"""
         root = tk.Tk()
         root.title(self.title)
         root.geometry("500x400")
-        
+
         # Create form fields
         entries = {}
         row = 0
-        
+
         for field in self.fields:
             # Label
             label = ttk.Label(root, text=field.label + ("*" if field.required else ""))
             label.grid(row=row, column=0, sticky="w", padx=10, pady=5)
-            
+
             # Input widget
             if field.field_type == "choice" and field.choices:
                 widget = ttk.Combobox(root, values=field.choices, width=40)
@@ -322,17 +322,17 @@ class SimpleForm:
                 widget = ttk.Entry(root, width=40)
                 if field.default:
                     widget.insert(0, field.default)
-            
+
             widget.grid(row=row, column=1, padx=10, pady=5)
             entries[field.name] = widget
             row += 1
-        
+
         # Buttons
         button_frame = ttk.Frame(root)
         button_frame.grid(row=row, column=0, columnspan=2, pady=20)
-        
+
         result = {"submitted": False}
-        
+
         def on_submit():
             # Validate and collect values
             for field in self.fields:
@@ -343,26 +343,26 @@ class SimpleForm:
                 self.values[field.name] = value
             result["submitted"] = True
             root.quit()
-        
+
         def on_cancel():
             root.quit()
-        
+
         submit_btn = ttk.Button(button_frame, text="Submit", command=on_submit)
         submit_btn.pack(side="left", padx=5)
-        
+
         cancel_btn = ttk.Button(button_frame, text="Cancel", command=on_cancel)
         cancel_btn.pack(side="left", padx=5)
-        
+
         root.mainloop()
         root.destroy()
-        
+
         return self.values if result["submitted"] else None
-    
+
     def _show_cli(self) -> Optional[Dict[str, str]]:
         """Show CLI form"""
         print(f"\n{self.title}")
         print("=" * len(self.title))
-        
+
         for field in self.fields:
             while True:
                 prompt = f"{field.label}"
@@ -371,22 +371,22 @@ class SimpleForm:
                 if field.required:
                     prompt += " *"
                 prompt += ": "
-                
+
                 if field.field_type == "choice" and field.choices:
                     print(f"Choices: {', '.join(field.choices)}")
-                
+
                 value = input(prompt).strip()
-                
+
                 if not value and field.default:
                     value = field.default
-                
+
                 if field.required and not value:
                     print("❌ This field is required")
                     continue
-                
+
                 self.values[field.name] = value
                 break
-        
+
         # Confirm submission
         print("\nValues entered:")
         for name, value in self.values.items():
@@ -395,10 +395,10 @@ class SimpleForm:
                 print(f"  {field.label}: ******")
             else:
                 print(f"  {field.label}: {value}")
-        
+
         if not confirm("Submit these values?", use_gui=False):
             return None
-        
+
         return self.values
 
 
@@ -408,27 +408,27 @@ class SimpleForm:
 
 class ProgressWindow:
     """Progress indicator with GUI or CLI fallback"""
-    
+
     def __init__(self, title: str = "Processing", use_gui: bool = True):
         self.title = title
         self.use_gui = use_gui and is_gui_available()
         self.root = None
         self.progress_var = None
         self.status_label = None
-        
+
         if self.use_gui:
             self._create_gui()
-    
+
     def _create_gui(self):
         """Create GUI progress window"""
         self.root = tk.Tk()
         self.root.title(self.title)
         self.root.geometry("400x150")
-        
+
         # Status label
         self.status_label = ttk.Label(self.root, text="Starting...", font=("Arial", 10))
         self.status_label.pack(pady=20)
-        
+
         # Progress bar
         self.progress_var = tk.DoubleVar()
         progress_bar = ttk.Progressbar(
@@ -439,13 +439,13 @@ class ProgressWindow:
             length=350
         )
         progress_bar.pack(pady=10)
-        
+
         # Cancel button (optional)
         cancel_btn = ttk.Button(self.root, text="Cancel", command=self.root.quit)
         cancel_btn.pack(pady=10)
-        
+
         self.root.update()
-    
+
     def update(self, percent: float, status: str = ""):
         """Update progress"""
         if self.use_gui and self.root:
@@ -459,7 +459,7 @@ class ProgressWindow:
             filled = int(bar_length * percent / 100)
             bar = "█" * filled + "░" * (bar_length - filled)
             print(f"\r{status} [{bar}] {percent:.1f}%", end="", flush=True)
-    
+
     def close(self):
         """Close progress window"""
         if self.use_gui and self.root:
@@ -474,17 +474,17 @@ class ProgressWindow:
 
 if __name__ == "__main__":
     import time
-    
+
     print(f"GUI Available: {is_gui_available()}")
     print(f"Should use GUI: {should_use_gui()}")
-    
+
     # Test file selection
     if confirm("Test file selection?"):
         file_path = select_file(title="Select a Python file",
                                filetypes=[("Python files", "*.py"), ("All files", "*.*")])
         if file_path:
             print(f"Selected: {file_path}")
-    
+
     # Test form
     if confirm("Test input form?"):
         form = SimpleForm(
@@ -499,7 +499,7 @@ if __name__ == "__main__":
         values = form.show()
         if values:
             print(f"Form values: {values}")
-    
+
     # Test progress
     if confirm("Test progress indicator?"):
         with ProgressWindow("Processing Files") as progress:

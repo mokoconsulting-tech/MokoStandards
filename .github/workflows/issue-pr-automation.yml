@@ -1,0 +1,361 @@
+name: Issue and PR Automation
+
+on:
+  issues:
+    types: [opened, reopened, labeled]
+  pull_request_target:
+    types: [opened, reopened, ready_for_review, synchronize]
+  issue_comment:
+    types: [created]
+
+permissions:
+  issues: write
+  pull-requests: write
+  contents: read
+
+jobs:
+  triage-issue:
+    name: Triage New Issue
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issues' && (github.event.action == 'opened' || github.event.action == 'reopened')
+    
+    steps:
+      - name: Add triage label
+        uses: actions/github-script@v8
+        with:
+          script: |
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['needs-triage']
+            });
+      
+      - name: Add priority label based on keywords
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const title = issue.title.toLowerCase();
+            const body = issue.body ? issue.body.toLowerCase() : '';
+            const combined = title + ' ' + body;
+            
+            let priority = null;
+            
+            // Critical keywords
+            if (combined.includes('critical') || combined.includes('urgent') || 
+                combined.includes('security') || combined.includes('production down')) {
+              priority = 'priority: critical';
+            }
+            // High priority keywords
+            else if (combined.includes('high priority') || combined.includes('important') ||
+                     combined.includes('blocker') || combined.includes('blocking')) {
+              priority = 'priority: high';
+            }
+            // Low priority keywords
+            else if (combined.includes('low priority') || combined.includes('nice to have') ||
+                     combined.includes('future') || combined.includes('enhancement')) {
+              priority = 'priority: low';
+            }
+            // Default to medium
+            else {
+              priority = 'priority: medium';
+            }
+            
+            if (priority) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: [priority]
+              });
+            }
+      
+      - name: Add category labels
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const labels = issue.labels.map(l => l.name);
+            const title = issue.title.toLowerCase();
+            const body = issue.body ? issue.body.toLowerCase() : '';
+            
+            const categoryLabels = [];
+            
+            // Detect category from content
+            if (title.includes('workflow') || body.includes('github actions') || body.includes('.github/workflows')) {
+              categoryLabels.push('category: workflows');
+            }
+            if (title.includes('security') || body.includes('vulnerability') || body.includes('cve')) {
+              categoryLabels.push('category: security');
+            }
+            if (title.includes('doc') || labels.includes('documentation')) {
+              categoryLabels.push('category: documentation');
+            }
+            if (title.includes('script') || body.includes('automation')) {
+              categoryLabels.push('category: automation');
+            }
+            if (title.includes('policy') || body.includes('standard')) {
+              categoryLabels.push('category: policy');
+            }
+            
+            if (categoryLabels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: categoryLabels
+              });
+            }
+      
+      - name: Add SLA comment
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const labels = issue.labels.map(l => l.name);
+            
+            let sla = '';
+            if (labels.includes('priority: critical')) {
+              sla = '⏱️ **SLA**: 24 hours for first response, 7 days for resolution';
+            } else if (labels.includes('priority: high')) {
+              sla = '⏱️ **SLA**: 3 business days for first response, 14 days for resolution';
+            } else if (labels.includes('priority: medium')) {
+              sla = '⏱️ **SLA**: 5 business days for first response, 30 days for resolution';
+            } else {
+              sla = '⏱️ **SLA**: 10 business days for first response, 60 days for resolution';
+            }
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              body: `Thank you for opening this issue! 🙏\n\n${sla}\n\nA maintainer will review this issue shortly. In the meantime, please ensure you've provided all necessary information.`
+            });
+
+  triage-pr:
+    name: Triage Pull Request
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request_target' && (github.event.action == 'opened' || github.event.action == 'reopened')
+    
+    steps:
+      - name: Add size label
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            
+            // Get PR files
+            const files = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number
+            });
+            
+            // Calculate total changes
+            const additions = files.data.reduce((sum, file) => sum + file.additions, 0);
+            const deletions = files.data.reduce((sum, file) => sum + file.deletions, 0);
+            const total = additions + deletions;
+            
+            let sizeLabel = '';
+            if (total < 10) {
+              sizeLabel = 'size: xs';
+            } else if (total < 50) {
+              sizeLabel = 'size: s';
+            } else if (total < 250) {
+              sizeLabel = 'size: m';
+            } else if (total < 1000) {
+              sizeLabel = 'size: l';
+            } else {
+              sizeLabel = 'size: xl';
+            }
+            
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              labels: [sizeLabel]
+            });
+            
+            // Add warning for large PRs
+            if (total >= 1000) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                body: '⚠️ **Large Pull Request Detected**\n\nThis PR has **' + total + ' lines changed**. Consider breaking it into smaller, more focused PRs for easier review.'
+              });
+            }
+      
+      - name: Add type labels
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const title = pr.title.toLowerCase();
+            const body = pr.body ? pr.body.toLowerCase() : '';
+            
+            const typeLabels = [];
+            
+            // Detect PR type from title prefix or content
+            if (title.startsWith('fix:') || title.startsWith('fix(') || body.includes('fixes #')) {
+              typeLabels.push('type: bug fix');
+            }
+            if (title.startsWith('feat:') || title.startsWith('feat(') || body.includes('new feature')) {
+              typeLabels.push('type: feature');
+            }
+            if (title.startsWith('docs:') || title.startsWith('docs(')) {
+              typeLabels.push('type: documentation');
+            }
+            if (title.startsWith('chore:') || title.startsWith('chore(')) {
+              typeLabels.push('type: chore');
+            }
+            if (title.startsWith('refactor:') || title.startsWith('refactor(')) {
+              typeLabels.push('type: refactoring');
+            }
+            if (title.includes('breaking') || body.includes('breaking change')) {
+              typeLabels.push('breaking change');
+            }
+            
+            if (typeLabels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                labels: typeLabels
+              });
+            }
+      
+      - name: Check PR description
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const body = pr.body || '';
+            
+            // Check if PR description is too short
+            if (body.trim().length < 50) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                body: '⚠️ **Incomplete PR Description**\n\nPlease provide a more detailed description of your changes. A good PR description should include:\n\n- What changes were made\n- Why these changes were necessary\n- How to test the changes\n- Any related issues'
+              });
+              
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                labels: ['needs-description']
+              });
+            }
+      
+      - name: Welcome first-time contributors
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            
+            // Check if this is the author's first PR
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'all',
+              per_page: 100
+            });
+            
+            const authorPRs = prs.filter(p => p.user.login === pr.user.login);
+            
+            if (authorPRs.length === 1) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                body: `🎉 **Welcome @${pr.user.login}!**\n\nThank you for your first contribution to MokoStandards! We appreciate your effort and look forward to reviewing your changes.\n\nA maintainer will review your PR shortly. Please ensure:\n- Your code follows our coding standards\n- All tests pass\n- Documentation is updated if needed\n\nFeel free to ask questions in the comments if you need help!`
+              });
+              
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                labels: ['first-time-contributor']
+              });
+            }
+
+  remove-triage-on-label:
+    name: Remove Triage Label
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issues' && github.event.action == 'labeled'
+    
+    steps:
+      - name: Remove needs-triage when other labels added
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const labels = issue.labels.map(l => l.name);
+            const addedLabel = context.payload.label.name;
+            
+            // If a priority or category label was added, remove needs-triage
+            if ((addedLabel.startsWith('priority:') || addedLabel.startsWith('category:') || 
+                 addedLabel === 'bug' || addedLabel === 'enhancement') && 
+                labels.includes('needs-triage')) {
+              
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                name: 'needs-triage'
+              });
+            }
+
+  track-response-time:
+    name: Track First Response Time
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issue_comment' && github.event.action == 'created'
+    
+    steps:
+      - name: Record first response
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const comment = context.payload.comment;
+            
+            // Only track if this is the first comment from a maintainer/collaborator
+            const permission = await github.rest.repos.getCollaboratorPermissionLevel({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              username: comment.user.login
+            });
+            
+            const isMaintainer = ['admin', 'maintain', 'write'].includes(permission.data.permission);
+            
+            if (isMaintainer && issue.comments === 1) {
+              // Calculate response time
+              const createdAt = new Date(issue.created_at);
+              const respondedAt = new Date(comment.created_at);
+              const responseTimeHours = Math.round((respondedAt - createdAt) / (1000 * 60 * 60));
+              
+              // Remove needs-triage label
+              try {
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  name: 'needs-triage'
+                });
+              } catch (error) {
+                // Label might not exist, ignore
+              }
+              
+              // Add a reaction to acknowledge
+              await github.rest.reactions.createForIssueComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: comment.id,
+                content: 'rocket'
+              });
+              
+              console.log(`First response time: ${responseTimeHours} hours`);
+            }

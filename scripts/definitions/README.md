@@ -265,5 +265,30 @@ See [Schema Guide](../../docs/schemas/repohealth/schema-guide.md) for complete d
 ---
 
 **Location**: `scripts/definitions/`  
-**Last Updated**: 2026-01-16  
+**Last Updated**: 2026-01-18  
 **Maintained By**: MokoStandards Team
+
+## Changelog
+
+### 2026-01-18 - Version 2.0 (Enterprise Ready)
+- **Major Release**: Expanded schemas to version 2.0 with comprehensive enterprise features
+- **New Sections Added**:
+  - Compliance requirements (SOC2, GDPR, HIPAA, ISO27001, PCI-DSS, NIST, FedRAMP, CCPA)
+  - Security policy (vulnerability/secret/dependency/code scanning)
+  - Dependencies management (multi-ecosystem with security requirements)
+  - Quality gates (coverage, complexity, test requirements, benchmarks)
+  - CI/CD requirements (workflows, deployment, artifacts, pipelines)
+  - Documentation requirements (README, API docs, architecture, runbooks)
+  - Team structure (CODEOWNERS, maintainers, contributors, permissions)
+  - Release management (versioning, changelog, hotfix/deprecation policies)
+  - Monitoring (health checks, metrics, alerting, logging)
+- **Schema Updates**: Updated repository-structure.xsd and .schema.json to v2.0
+- **Definition Updates**: default-repository.xml expanded with enterprise examples
+- **Backward Compatibility**: All new sections optional, v1.0 definitions still work
+
+### 2026-01-18 - Version 1.2
+- **Security Enhancement**: Added `scripts/requirements.txt` to all repository structure definitions
+- Added defusedxml>=0.7.1 requirement for safe XML parsing (prevents XXE attacks)
+- Updated all schema definition timestamps
+- Enhanced security documentation for Python script dependencies
+- All definitions now include stub content for requirements.txt with security notes

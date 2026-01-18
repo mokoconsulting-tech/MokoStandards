@@ -2,22 +2,7 @@
 """
 Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
 
-This file is part of a Moko Consulting project.
-
 SPDX-License-Identifier: GPL-3.0-or-later
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 FILE INFORMATION
 DEFGROUP: MokoStandards.Automation
@@ -33,6 +18,7 @@ import json
 import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -40,6 +26,15 @@ try:
     import yaml
 except ImportError:
     yaml = None
+
+# Import Copilot helper if available
+try:
+    sys.path.insert(0, str(Path(__file__).parent.parent / 'lib'))
+    from copilot_helper import create_copilot_helper, CopilotHelper
+    COPILOT_AVAILABLE = True
+except ImportError:
+    COPILOT_AVAILABLE = False
+    CopilotHelper = None
 
 # Default organization
 DEFAULT_ORG = "mokoconsulting-tech"
@@ -51,10 +46,10 @@ SYNC_OVERRIDE_FILE = "scripts/.mokostandards-sync.yml"
 DEFAULT_FILES_TO_SYNC = {
     # Dependabot configuration
     ".github/dependabot.yml": ".github/dependabot.yml",
-    
+
     # GitHub Copilot (coding agent) configuration
     ".github/copilot.yml": ".github/copilot.yml",
-    
+
     # Workflow templates
     ".github/workflow-templates/build-universal.yml": ".github/workflows/build.yml",
     ".github/workflow-templates/codeql-analysis.yml": ".github/workflows/codeql-analysis.yml",
@@ -63,32 +58,32 @@ DEFAULT_FILES_TO_SYNC = {
     ".github/workflow-templates/code-quality.yml": ".github/workflows/code-quality.yml",
     ".github/workflow-templates/release-cycle.yml": ".github/workflows/release-cycle.yml",
     ".github/workflow-templates/deploy-to-dev.yml": ".github/workflows/deploy-to-dev.yml",
-    
+
     # Reusable workflows
     ".github/workflows/reusable-build.yml": ".github/workflows/reusable-build.yml",
     ".github/workflows/reusable-ci-validation.yml": ".github/workflows/reusable-ci-validation.yml",
     ".github/workflows/reusable-release.yml": ".github/workflows/reusable-release.yml",
-    
+
     # Automation workflows
     ".github/workflows/sync-changelogs.yml": ".github/workflows/sync-changelogs.yml",
-    
+
     # Enterprise firewall setup workflow
     ".github/workflows/enterprise-firewall-setup.yml": ".github/workflows/enterprise-firewall-setup.yml",
-    
+
     # Code quality configurations (optional - only copy if language is detected)
     # PHP configurations
     "templates/configs/phpcs.xml": "phpcs.xml",
     "templates/configs/phpstan.neon": "phpstan.neon",
     "templates/configs/psalm.xml": "psalm.xml",
-    
+
     # JavaScript/TypeScript configurations
     "templates/configs/.eslintrc.json": ".eslintrc.json",
     "templates/configs/.prettierrc.json": ".prettierrc.json",
-    
+
     # Python configurations
     "templates/configs/.pylintrc": ".pylintrc",
     "templates/configs/pyproject.toml": "pyproject.toml",
-    
+
     # HTML configurations
     "templates/configs/.htmlhintrc": ".htmlhintrc",
 }
@@ -125,12 +120,12 @@ def get_org_repositories(org: str, exclude_archived: bool = True, include_templa
         "--json", "name,isArchived,isTemplate",
         "--limit", "1000"
     ]
-    
+
     success, stdout, stderr = run_command(cmd)
     if not success:
         print(f"Error fetching repositories: {stderr}", file=sys.stderr)
         return []
-    
+
     try:
         repos = json.loads(stdout)
         if exclude_archived:
@@ -150,22 +145,22 @@ def clone_repository(org: str, repo: str, target_dir: str) -> bool:
     # Use gh CLI to clone with authentication, fixing HTTPS clone failures
     # that required manual credentials in CI environment
     cmd = ["gh", "repo", "clone", f"{org}/{repo}", target_dir]
-    
+
     success, stdout, stderr = run_command(cmd)
     if not success:
         print(f"Error cloning {repo}: {stderr}", file=sys.stderr)
         return False
-    
+
     # Configure git to use gh as credential helper for push operations
     # This ensures that subsequent git push commands can authenticate
     cmd = ["git", "config", "--local", "credential.helper", ""]
     run_command(cmd, cwd=target_dir)
-    
+
     cmd = ["git", "config", "--local", "credential.helper", "!gh auth git-credential"]
     success, _, stderr = run_command(cmd, cwd=target_dir)
     if not success:
         print(f"Warning: Could not configure gh credential helper: {stderr}", file=sys.stderr)
-    
+
     return True
 
 
@@ -174,19 +169,19 @@ def create_branch(repo_dir: str, branch_name: str) -> bool:
     # Check if branch already exists
     cmd = ["git", "rev-parse", "--verify", branch_name]
     success, _, _ = run_command(cmd, cwd=repo_dir)
-    
+
     if success:
         # Branch exists, checkout
         cmd = ["git", "checkout", branch_name]
     else:
         # Create new branch
         cmd = ["git", "checkout", "-b", branch_name]
-    
+
     success, stdout, stderr = run_command(cmd, cwd=repo_dir)
     if not success:
         print(f"Error creating/checking out branch: {stderr}", file=sys.stderr)
         return False
-    
+
     return True
 
 
@@ -196,10 +191,10 @@ def copy_file(source_file: str, dest_dir: str, dest_path: str) -> bool:
     if not source.exists():
         print(f"Warning: Source file does not exist: {source_file}", file=sys.stderr)
         return False
-    
+
     dest = Path(dest_dir) / dest_path
     dest.parent.mkdir(parents=True, exist_ok=True)
-    
+
     try:
         shutil.copy2(source, dest)
         return True
@@ -216,7 +211,7 @@ def commit_changes(repo_dir: str, message: str) -> bool:
     if not success:
         print(f"Error adding files: {stderr}", file=sys.stderr)
         return False
-    
+
     # Check if there are changes to commit
     cmd = ["git", "diff", "--cached", "--quiet"]
     success, _, _ = run_command(cmd, cwd=repo_dir)
@@ -224,14 +219,14 @@ def commit_changes(repo_dir: str, message: str) -> bool:
         # No changes to commit
         print("No changes to commit")
         return True
-    
+
     # Commit changes
     cmd = ["git", "commit", "-m", message]
     success, _, stderr = run_command(cmd, cwd=repo_dir)
     if not success:
         print(f"Error committing changes: {stderr}", file=sys.stderr)
         return False
-    
+
     return True
 
 
@@ -239,13 +234,13 @@ def push_branch(repo_dir: str, branch_name: str) -> bool:
     """Push branch to remote using gh CLI for proper authentication."""
     # First, ensure the branch is up to date locally
     cmd = ["git", "push", "-u", "origin", branch_name]
-    
+
     # Git should now use gh's credential helper configured during clone
     success, _, stderr = run_command(cmd, cwd=repo_dir)
     if not success:
         print(f"Error pushing branch: {stderr}", file=sys.stderr)
         return False
-    
+
     return True
 
 
@@ -258,7 +253,7 @@ def create_pull_request(org: str, repo: str, branch_name: str, title: str, body:
         "--title", title,
         "--body", body
     ]
-    
+
     success, stdout, stderr = run_command(cmd)
     if not success:
         # Check if PR already exists
@@ -267,7 +262,7 @@ def create_pull_request(org: str, repo: str, branch_name: str, title: str, body:
             return True
         print(f"Error creating pull request: {stderr}", file=sys.stderr)
         return False
-    
+
     print(f"Created pull request: {stdout}")
     return True
 
@@ -278,7 +273,7 @@ def get_repository_variable(org: str, repo: str, var_name: str) -> Optional[str]
         "gh", "variable", "get", var_name,
         "--repo", f"{org}/{repo}"
     ]
-    
+
     success, stdout, stderr = run_command(cmd)
     if success:
         return stdout
@@ -292,12 +287,12 @@ def set_repository_variable(org: str, repo: str, var_name: str, var_value: str) 
         "--repo", f"{org}/{repo}",
         "--body", var_value
     ]
-    
+
     success, stdout, stderr = run_command(cmd)
     if not success:
         print(f"Error setting variable {var_name}: {stderr}", file=sys.stderr)
         return False
-    
+
     return True
 
 
@@ -305,10 +300,10 @@ def set_missing_standards_options(org: str, repo: str, dry_run: bool = False) ->
     """Set missing standards options (repository variables)."""
     # Create path suffix variable based on lowercase repo name
     path_suffix = f"/{repo.lower()}"
-    
+
     # Check if RS_FTP_PATH_SUFFIX already exists (release system)
     existing_rs_value = get_repository_variable(org, repo, "RS_FTP_PATH_SUFFIX")
-    
+
     if existing_rs_value is None:
         if dry_run:
             print(f"  [DRY RUN] Would set RS_FTP_PATH_SUFFIX = {path_suffix}")
@@ -320,10 +315,10 @@ def set_missing_standards_options(org: str, repo: str, dry_run: bool = False) ->
             print(f"  ✓ Set RS_FTP_PATH_SUFFIX")
     else:
         print(f"  RS_FTP_PATH_SUFFIX already exists: {existing_rs_value}")
-    
+
     # Check if DEV_FTP_PATH_SUFFIX already exists (dev system)
     existing_dev_value = get_repository_variable(org, repo, "DEV_FTP_PATH_SUFFIX")
-    
+
     if existing_dev_value is None:
         if dry_run:
             print(f"  [DRY RUN] Would set DEV_FTP_PATH_SUFFIX = {path_suffix}")
@@ -335,32 +330,32 @@ def set_missing_standards_options(org: str, repo: str, dry_run: bool = False) ->
             print(f"  ✓ Set DEV_FTP_PATH_SUFFIX")
     else:
         print(f"  DEV_FTP_PATH_SUFFIX already exists: {existing_dev_value}")
-    
+
     return True
 
 
 def detect_platform(repo_dir: str, source_dir: str) -> Optional[str]:
     """
     Detect the platform type of a repository using auto_detect_platform.py
-    
+
     Args:
         repo_dir: Path to the cloned repository
         source_dir: Path to MokoStandards source directory
-        
+
     Returns:
         Platform type string (joomla, dolibarr, generic) or None if detection fails
     """
     script_path = Path(source_dir) / "scripts" / "validate" / "auto_detect_platform.py"
-    
+
     if not script_path.exists():
         print(f"    Warning: auto_detect_platform.py not found at {script_path}", file=sys.stderr)
         return None
-    
+
     try:
         # Run platform detection script
         cmd = ["python3", str(script_path), "--repo-path", repo_dir, "--json"]
         success, stdout, stderr = run_command(cmd)
-        
+
         if success and stdout:
             try:
                 result = json.loads(stdout)
@@ -376,6 +371,153 @@ def detect_platform(repo_dir: str, source_dir: str) -> Optional[str]:
         return None
 
 
+def generate_override_schema(
+    repo_name: str,
+    platform_type: str,
+    repo_dir: str
+) -> bool:
+    """
+    Generate an override schema definition file for the target repository.
+
+    Args:
+        repo_name: Repository name
+        platform_type: Platform type (joomla, dolibarr, generic)
+        repo_dir: Repository directory
+
+    Returns:
+        True if successful, False otherwise
+    """
+    from datetime import datetime
+
+    override_schema_content = f"""<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Repository-specific override schema definition
+  Generated automatically during MokoStandards sync
+  
+  This file can be customized to override default MokoStandards behaviors
+  for this specific repository.
+-->
+<repository-structure xmlns="http://mokoconsulting.com/schemas/repository-structure"
+                      version="2.0"
+                      schema-version="2.0">
+  <metadata>
+    <name>{repo_name} Override Schema</name>
+    <description>Repository-specific overrides for {repo_name}</description>
+    <repository-type>{platform_type or 'generic'}</repository-type>
+    <platform>{platform_type or 'multi-platform'}</platform>
+    <last-updated>{datetime.utcnow().isoformat()}Z</last-updated>
+    <maintainer>Repository Maintainers</maintainer>
+  </metadata>
+
+  <structure>
+    <!-- Root level overrides -->
+    <root-files>
+      <!-- Example: Override README requirements
+      <file extension="md">
+        <name>README.md</name>
+        <description>Project-specific README</description>
+        <requirement-status>required</requirement-status>
+        <always-overwrite>false</always-overwrite>
+        <copilot-enabled>true</copilot-enabled>
+        <copilot-prompt>Generate a README for {repo_name}, a {platform_type or 'generic'} project</copilot-prompt>
+      </file>
+      -->
+    </root-files>
+
+    <!-- Directory-level overrides -->
+    <directories>
+      <!-- Example: Override scripts directory
+      <directory path="scripts">
+        <name>scripts</name>
+        <description>Repository-specific scripts</description>
+        <requirement-status>required</requirement-status>
+        
+        <files>
+          <file extension="py">
+            <name>custom_script.py</name>
+            <description>Repository-specific automation script</description>
+            <requirement-status>optional</requirement-status>
+            <copilot-enabled>true</copilot-enabled>
+          </file>
+        </files>
+      </directory>
+      -->
+    </directories>
+
+    <!-- Repository-specific requirements -->
+    <repository-requirements>
+      <!-- Add repository-specific variables, secrets, etc. -->
+      
+      <!-- Example: Custom variables
+      <variables>
+        <variable>
+          <name>CUSTOM_VAR</name>
+          <description>Repository-specific variable</description>
+          <default-value>default</default-value>
+          <required>false</required>
+          <scope>repository</scope>
+        </variable>
+      </variables>
+      -->
+    </repository-requirements>
+  </structure>
+</repository-structure>
+"""
+
+    # Write override schema to scripts directory
+    scripts_dir = Path(repo_dir) / "scripts"
+    scripts_dir.mkdir(parents=True, exist_ok=True)
+    
+    override_file = scripts_dir / "repository-structure-override.xml"
+    
+    # Only create if it doesn't exist (don't overwrite existing overrides)
+    if not override_file.exists():
+        try:
+            with open(override_file, 'w', encoding='utf-8') as f:
+                f.write(override_schema_content)
+            print(f"    ✓ Generated override schema: scripts/repository-structure-override.xml")
+            return True
+        except Exception as e:
+            print(f"    ⚠ Failed to generate override schema: {e}", file=sys.stderr)
+            return False
+    else:
+        print(f"    ℹ Override schema already exists, skipping")
+        return True
+
+
+def should_customize_with_copilot(file_path: str) -> bool:
+    """
+    Determine if a file should be customized with Copilot.
+
+    Args:
+        file_path: Path to the file
+
+    Returns:
+        True if file should be customized with Copilot
+    """
+    # Customize README files
+    if 'README' in file_path.upper():
+        return True
+
+    # Customize certain workflow files
+    if file_path.endswith('.yml') or file_path.endswith('.yaml'):
+        customizable_workflows = [
+            'ci.yml',
+            'deploy',
+            'release',
+            'build.yml'
+        ]
+        return any(wf in file_path for wf in customizable_workflows)
+
+    # Customize configuration files
+    customizable_configs = [
+        '.editorconfig',
+        'CONTRIBUTING.md',
+        'CODE_OF_CONDUCT.md'
+    ]
+    return any(cfg in file_path for cfg in customizable_configs)
+
+
 def update_repository(
     org: str,
     repo: str,
@@ -388,31 +530,54 @@ def update_repository(
     pr_body: str,
     temp_dir: str,
     dry_run: bool = False,
-    set_standards: bool = False
+    set_standards: bool = False,
+    use_copilot: bool = False
 ) -> bool:
-    """Update a single repository with files and scripts."""
+    """
+    Update a single repository with files and scripts.
+
+    Args:
+        org: Organization name
+        repo: Repository name
+        source_dir: Source directory containing files to sync
+        files_to_sync: Dictionary of source->destination file paths
+        scripts_to_sync: List of scripts to sync
+        branch_name: Branch name for changes
+        commit_message: Commit message
+        pr_title: Pull request title
+        pr_body: Pull request body
+        temp_dir: Temporary directory for cloning
+        dry_run: If True, only show what would be done
+        set_standards: If True, set missing repository variables
+        use_copilot: If True, use GitHub Copilot for file customization
+
+    Returns:
+        True if successful, False otherwise
+    """
     print(f"\n{'[DRY RUN] ' if dry_run else ''}Processing repository: {org}/{repo}")
-    
+
     if dry_run:
         print(f"  Would sync {len(files_to_sync)} files and {len(scripts_to_sync)} scripts")
         if set_standards:
             print(f"  Would check and set missing standards options")
+        if use_copilot:
+            print(f"  Would use Copilot for file customization")
         return True
-    
+
     # Set missing standards options (repository variables) if requested
     if set_standards:
         print(f"  Checking standards options...")
         if not set_missing_standards_options(org, repo, dry_run):
             print(f"  Warning: Failed to set some standards options", file=sys.stderr)
-    
+
     # Create temporary directory for this repo
     repo_dir = Path(temp_dir) / repo
-    
+
     # Clone repository
     print(f"  Cloning repository...")
     if not clone_repository(org, repo, str(repo_dir)):
         return False
-    
+
     # Detect platform before creating branch
     print(f"  Detecting platform type...")
     platform_type = detect_platform(str(repo_dir), source_dir)
@@ -420,46 +585,86 @@ def update_repository(
         print(f"    Detected platform: {platform_type}")
     else:
         print(f"    Platform detection skipped or failed, using defaults")
-    
+
+    # Initialize Copilot helper if requested
+    copilot_helper = None
+    if use_copilot and COPILOT_AVAILABLE:
+        repo_context = {
+            'name': repo,
+            'org': org,
+            'platform': platform_type or 'generic',
+            'type': platform_type or 'generic'
+        }
+        copilot_helper = create_copilot_helper(repo_context)
+        if copilot_helper.is_available():
+            print(f"  ✓ Copilot integration enabled")
+        else:
+            print(f"  ⚠ Copilot CLI not available, falling back to standard sync")
+            copilot_helper = None
+
     # Create branch
     print(f"  Creating branch: {branch_name}")
     if not create_branch(str(repo_dir), branch_name):
         return False
-    
+
     # Copy files
     files_copied = 0
     for source_rel, dest_rel in files_to_sync.items():
         source_file = Path(source_dir) / source_rel
+        dest_file = Path(repo_dir) / dest_rel
+
+        # Try Copilot customization for specific file types
+        if copilot_helper and should_customize_with_copilot(dest_rel):
+            print(f"    Customizing with Copilot: {source_rel}")
+            success, content = copilot_helper.customize_file(
+                str(source_file),
+                {'platform': platform_type, 'repo': repo},
+                platform_type
+            )
+            if success:
+                # Write customized content
+                dest_file.parent.mkdir(parents=True, exist_ok=True)
+                with open(dest_file, 'w', encoding='utf-8') as f:
+                    f.write(content)
+                files_copied += 1
+                print(f"    ✓ Customized: {source_rel} -> {dest_rel}")
+                continue
+
+        # Standard file copy
         if copy_file(str(source_file), str(repo_dir), dest_rel):
             files_copied += 1
             print(f"    Copied: {source_rel} -> {dest_rel}")
-    
+
     # Copy scripts
     for script in scripts_to_sync:
         source_file = Path(source_dir) / script
         if copy_file(str(source_file), str(repo_dir), script):
             files_copied += 1
             print(f"    Copied: {script}")
-    
+
+    # Generate override schema definition
+    print(f"  Generating override schema definition...")
+    generate_override_schema(repo, platform_type, str(repo_dir))
+
     if files_copied == 0:
         print(f"  No files were copied, skipping commit")
         return True
-    
+
     # Commit changes
     print(f"  Committing changes...")
     if not commit_changes(str(repo_dir), commit_message):
         return False
-    
+
     # Push branch
     print(f"  Pushing branch...")
     if not push_branch(str(repo_dir), branch_name):
         return False
-    
+
     # Create pull request
     print(f"  Creating pull request...")
     if not create_pull_request(org, repo, branch_name, pr_title, pr_body):
         return False
-    
+
     print(f"  ✓ Successfully updated {org}/{repo}")
     return True
 
@@ -532,8 +737,8 @@ def main():
     )
     parser.add_argument(
         '--temp-dir',
-        default='/tmp/bulk-update-repos',
-        help='Temporary directory for cloning repositories'
+        default=None,  # Will use tempfile.mkdtemp() for secure temp directory
+        help='Temporary directory for cloning repositories (default: secure temp dir)'
     )
     parser.add_argument(
         '--yes',
@@ -546,27 +751,45 @@ def main():
         action='store_true',
         help='Set missing standards options (repository variables like RS_FTP_PATH_SUFFIX and DEV_FTP_PATH_SUFFIX)'
     )
-    
+    parser.add_argument(
+        '--use-copilot',
+        action='store_true',
+        help='Use GitHub Copilot for AI-powered file generation and customization'
+    )
+
     args = parser.parse_args()
-    
+
     # Check for gh CLI
     success, _, _ = run_command(["gh", "--version"])
     if not success:
         print("Error: gh CLI is not installed or not in PATH", file=sys.stderr)
         print("Install from: https://cli.github.com/", file=sys.stderr)
         sys.exit(1)
-    
+
+    # Check for Copilot if requested
+    if args.use_copilot:
+        if not COPILOT_AVAILABLE:
+            print("Warning: Copilot helper module not available", file=sys.stderr)
+            print("  Falling back to standard sync", file=sys.stderr)
+        else:
+            # Check if Copilot CLI is installed
+            success, _, _ = run_command(["gh", "copilot", "--version"])
+            if not success:
+                print("Warning: GitHub Copilot CLI extension not installed", file=sys.stderr)
+                print("  Install with: gh extension install github/gh-copilot", file=sys.stderr)
+                print("  Falling back to standard sync", file=sys.stderr)
+
     # Check for authentication
     success, _, _ = run_command(["gh", "auth", "status"])
     if not success:
         print("Error: Not authenticated with gh CLI", file=sys.stderr)
         print("Run: gh auth login", file=sys.stderr)
         sys.exit(1)
-    
+
     # Determine files to sync
     files_to_sync = {} if args.scripts_only else DEFAULT_FILES_TO_SYNC.copy()
     scripts_to_sync = [] if args.files_only else DEFAULT_SCRIPTS_TO_SYNC.copy()
-    
+
     # Get repositories to update
     if args.repos:
         repos = args.repos
@@ -576,29 +799,36 @@ def main():
         if not repos:
             print("No repositories found or error fetching repositories", file=sys.stderr)
             sys.exit(1)
-    
+
     # Apply exclusions
     repos = [r for r in repos if r not in args.exclude]
-    
+
     print(f"\n{'DRY RUN: ' if args.dry_run else ''}Will update {len(repos)} repositories:")
     for repo in repos:
         print(f"  - {repo}")
-    
+
     if not args.dry_run and not args.yes:
         response = input("\nContinue? (yes/no): ")
         if response.lower() not in ['yes', 'y']:
             print("Aborted")
             sys.exit(0)
-    
-    # Create temp directory
-    temp_dir = Path(args.temp_dir)
-    if not args.dry_run:
-        temp_dir.mkdir(parents=True, exist_ok=True)
-    
+
+    # Create temp directory securely
+    if args.temp_dir:
+        temp_dir = Path(args.temp_dir)
+        if not args.dry_run:
+            temp_dir.mkdir(parents=True, exist_ok=True)
+    else:
+        # Use secure temporary directory
+        if not args.dry_run:
+            temp_dir = Path(tempfile.mkdtemp(prefix='bulk-update-repos-'))
+        else:
+            temp_dir = Path(tempfile.gettempdir()) / 'bulk-update-repos-dry-run'
+
     # Update each repository
     success_count = 0
     failed_repos = []
-    
+
     for repo in repos:
         try:
             if update_repository(
@@ -613,7 +843,8 @@ def main():
                 args.pr_body,
                 str(temp_dir),
                 args.dry_run,
-                args.set_standards
+                args.set_standards,
+                args.use_copilot
             ):
                 success_count += 1
             else:
@@ -621,17 +852,17 @@ def main():
         except Exception as e:
             print(f"Error updating {repo}: {e}", file=sys.stderr)
             failed_repos.append(repo)
-    
+
     # Summary
     print(f"\n{'DRY RUN ' if args.dry_run else ''}Summary:")
     print(f"  Successfully {'would update' if args.dry_run else 'updated'}: {success_count}/{len(repos)} repositories")
-    
+
     if failed_repos:
         print(f"  Failed repositories:")
         for repo in failed_repos:
             print(f"    - {repo}")
         sys.exit(1)
-    
+
     sys.exit(0)
 
 

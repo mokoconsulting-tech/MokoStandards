@@ -1,21 +1,6 @@
 # Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
 #
-# This file is part of a Moko Consulting project.
-#
 # SPDX-License-Identifier: GPL-3.0-or-later
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
 # FILE INFORMATION
 # DEFGROUP: GitHub.WorkflowTemplate
@@ -209,6 +194,68 @@ jobs:
           git push origin "$TAG"
           
           echo "✅ Created pre-release tag: $TAG" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Detect Project Type (Joomla/Dolibarr)
+        id: detect_project
+        run: |
+          PROJECT_TYPE="none"
+          
+          # Detect Joomla extension (simple heuristic)
+          if find . -maxdepth 3 -type f -name "joomla.xml" -print -quit | grep -q .; then
+            PROJECT_TYPE="joomla"
+          # Detect Dolibarr module (simple heuristic)
+          elif find . -maxdepth 3 -type f \( -name "module_descriptor.json" -o -name "module.mod.php" \) -print -quit | grep -q .; then
+            PROJECT_TYPE="dolibarr"
+          fi
+          
+          echo "project_type=$PROJECT_TYPE" >> "$GITHUB_OUTPUT"
+          
+          if [ "$PROJECT_TYPE" = "none" ]; then
+            echo "ℹ️ No Joomla or Dolibarr project detected. Skipping packaging steps." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "✅ Detected project type: $PROJECT_TYPE" >> "$GITHUB_STEP_SUMMARY"
+          fi
+      
+      - name: Setup PHP for Packaging
+        if: ${{ steps.detect_project.outputs.project_type != 'none' }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+      
+      - name: Build Extension Package
+        if: ${{ steps.detect_project.outputs.project_type != 'none' }}
+        run: |
+          PROJECT_TYPE="${{ steps.detect_project.outputs.project_type }}"
+          VERSION="${{ needs.validate-version.outputs.version }}"
+          
+          mkdir -p dist
+          
+          if [ "$PROJECT_TYPE" = "joomla" ]; then
+            PACKAGE_NAME="joomla-extension-$VERSION-rc.zip"
+          elif [ "$PROJECT_TYPE" = "dolibarr" ]; then
+            PACKAGE_NAME="dolibarr-module-$VERSION-rc.zip"
+          else
+            echo "Unknown project type: $PROJECT_TYPE" >&2
+            exit 1
+          fi
+          
+          echo "ℹ️ Building $PROJECT_TYPE package: dist/$PACKAGE_NAME" >> "$GITHUB_STEP_SUMMARY"
+          
+          # Create a distribution zip excluding VCS and build artifacts
+          zip -r "dist/$PACKAGE_NAME" . \
+            -x "dist/*" ".git/*" ".github/*" "node_modules/*" "vendor/*"
+          
+          echo "✅ Built package dist/$PACKAGE_NAME" >> "$GITHUB_STEP_SUMMARY"
+      
+      - name: Deploy Package via FTP
+        if: ${{ steps.detect_project.outputs.project_type != 'none' && secrets.FTP_SERVER != '' && secrets.FTP_USERNAME != '' && secrets.FTP_PASSWORD != '' }}
+        uses: SamKirkland/FTP-Deploy-Action@v4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: dist/
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}
 
   finalize-release:
     name: Finalize Release (rc → version → main)
@@ -271,7 +318,17 @@ jobs:
           
           if [ -z "$NOTES" ]; then
             # Auto-generate from git log if not provided
-            NOTES=$(git log --pretty=format:"- %s" "v${VERSION}-rc"..HEAD 2>/dev/null || echo "Initial release")
+            # Try to get commits since RC tag, fallback to all commits if RC doesn't exist
+            if git rev-parse "v${VERSION}-rc" >/dev/null 2>&1; then
+              NOTES=$(git log --pretty=format:"- %s" "v${VERSION}-rc"..HEAD 2>/dev/null)
+            else
+              NOTES=$(git log --pretty=format:"- %s" HEAD 2>/dev/null)
+            fi
+            
+            # If still empty, use default message
+            if [ -z "$NOTES" ]; then
+              NOTES="Initial release"
+            fi
           fi
           
           # Save to file for GitHub release
@@ -281,7 +338,11 @@ jobs:
           $NOTES
           
           ### Changes
-          $(git log --pretty=format:"- %s (%h)" "v${VERSION}-rc"..HEAD 2>/dev/null || echo "- Initial release")
+          $(if git rev-parse "v${VERSION}-rc" >/dev/null 2>&1; then
+            git log --pretty=format:"- %s (%h)" "v${VERSION}-rc"..HEAD 2>/dev/null
+          else
+            git log --pretty=format:"- %s (%h)" HEAD 2>/dev/null
+          fi || echo "- Initial release")
           EOF
           
           echo "✅ Generated release notes" >> $GITHUB_STEP_SUMMARY
@@ -294,6 +355,68 @@ jobs:
           body_path: release_notes.md
           draft: false
           prerelease: false
+      
+      - name: Detect Project Type (Joomla/Dolibarr)
+        id: detect_project
+        run: |
+          PROJECT_TYPE="none"
+          
+          # Detect Joomla extension (simple heuristic)
+          if find . -maxdepth 3 -type f -name "joomla.xml" -print -quit | grep -q .; then
+            PROJECT_TYPE="joomla"
+          # Detect Dolibarr module (simple heuristic)
+          elif find . -maxdepth 3 -type f \( -name "module_descriptor.json" -o -name "module.mod.php" \) -print -quit | grep -q .; then
+            PROJECT_TYPE="dolibarr"
+          fi
+          
+          echo "project_type=$PROJECT_TYPE" >> "$GITHUB_OUTPUT"
+          
+          if [ "$PROJECT_TYPE" = "none" ]; then
+            echo "ℹ️ No Joomla or Dolibarr project detected. Skipping packaging steps." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "✅ Detected project type: $PROJECT_TYPE" >> "$GITHUB_STEP_SUMMARY"
+          fi
+      
+      - name: Setup PHP for Packaging
+        if: ${{ steps.detect_project.outputs.project_type != 'none' }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+      
+      - name: Build Extension Package
+        if: ${{ steps.detect_project.outputs.project_type != 'none' }}
+        run: |
+          PROJECT_TYPE="${{ steps.detect_project.outputs.project_type }}"
+          VERSION="${{ needs.validate-version.outputs.version }}"
+          
+          mkdir -p dist
+          
+          if [ "$PROJECT_TYPE" = "joomla" ]; then
+            PACKAGE_NAME="joomla-extension-$VERSION.zip"
+          elif [ "$PROJECT_TYPE" = "dolibarr" ]; then
+            PACKAGE_NAME="dolibarr-module-$VERSION.zip"
+          else
+            echo "Unknown project type: $PROJECT_TYPE" >&2
+            exit 1
+          fi
+          
+          echo "ℹ️ Building $PROJECT_TYPE package: dist/$PACKAGE_NAME" >> "$GITHUB_STEP_SUMMARY"
+          
+          # Create a distribution zip excluding VCS and build artifacts
+          zip -r "dist/$PACKAGE_NAME" . \
+            -x "dist/*" ".git/*" ".github/*" "node_modules/*" "vendor/*"
+          
+          echo "✅ Built package dist/$PACKAGE_NAME" >> "$GITHUB_STEP_SUMMARY"
+      
+      - name: Deploy Package via FTP
+        if: ${{ steps.detect_project.outputs.project_type != 'none' && secrets.FTP_SERVER != '' && secrets.FTP_USERNAME != '' && secrets.FTP_PASSWORD != '' }}
+        uses: SamKirkland/FTP-Deploy-Action@v4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: dist/
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}
       
       - name: Cleanup Development Branches
         run: |

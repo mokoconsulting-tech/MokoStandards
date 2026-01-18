@@ -2,8 +2,6 @@
 # ============================================================================
 # Copyright (C) 2025 Moko Consulting <hello@mokoconsulting.tech>
 #
-# This file is part of a Moko Consulting project.
-#
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # FILE INFORMATION
@@ -28,7 +26,10 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 from typing import Optional, Tuple
-from xml.etree import ElementTree as ET
+try:
+    from defusedxml import ElementTree as ET
+except ImportError:
+    from xml.etree import ElementTree as ET
 
 
 # Namespace for repo health schema

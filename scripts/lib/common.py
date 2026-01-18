@@ -1,22 +1,7 @@
 #!/usr/bin/env python3
 # Copyright (C) 2025 Moko Consulting <hello@mokoconsulting.tech>
 #
-# This file is part of a Moko Consulting project.
-#
 # SPDX-License-Identifier: GPL-3.0-or-later
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# (./LICENSE).
 #
 # FILE INFORMATION
 # DEFGROUP: MokoStandards.Scripts
@@ -78,7 +63,7 @@ def generate_python_header(
 ) -> str:
     """
     Generate a Moko Consulting standard file header for Python files.
-    
+
     Args:
         file_path: Relative path from repository root (e.g., /scripts/lib/common.py)
         brief: Brief description of the file
@@ -86,7 +71,7 @@ def generate_python_header(
         ingroup: Parent documentation group
         version: File version (default: repository version)
         note: Optional additional note
-    
+
     Returns:
         String containing the complete file header
     """
@@ -94,23 +79,7 @@ def generate_python_header(
         "#!/usr/bin/env python3",
         f"# {COPYRIGHT}",
         "#",
-        "# This file is part of a Moko Consulting project.",
-        "#",
-        f"# SPDX-License-Identifier: {LICENSE}",
-        "#",
-        "# This program is free software; you can redistribute it and/or modify",
-        "# it under the terms of the GNU General Public License as published by",
-        "# the Free Software Foundation; either version 3 of the License, or",
-        "# (at your option) any later version.",
-        "#",
-        "# This program is distributed in the hope that it will be useful,",
-        "# but WITHOUT ANY WARRANTY; without even the implied warranty of",
-        "# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the",
-        "# GNU General Public License for more details.",
-        "#",
-        "# You should have received a copy of the GNU General Public License",
-        "# (./LICENSE).",
-        "#",
+#
         "# FILE INFORMATION",
         f"# DEFGROUP: {defgroup}",
         f"# INGROUP: {ingroup}",
@@ -120,10 +89,10 @@ def generate_python_header(
         f"# BRIEF: {brief}",
         f"# PATH: {file_path}",
     ]
-    
+
     if note:
         lines.append(f"# NOTE: {note}")
-    
+
     return "\n".join(lines) + "\n"
 
 
@@ -137,7 +106,7 @@ def generate_shell_header(
 ) -> str:
     """
     Generate a Moko Consulting standard file header for shell scripts.
-    
+
     Args:
         file_path: Relative path from repository root
         brief: Brief description of the file
@@ -145,7 +114,7 @@ def generate_shell_header(
         ingroup: Parent documentation group
         version: File version (default: repository version)
         note: Optional additional note
-    
+
     Returns:
         String containing the complete file header
     """
@@ -153,23 +122,7 @@ def generate_shell_header(
         "#!/usr/bin/env bash",
         f"# {COPYRIGHT}",
         "#",
-        "# This file is part of a Moko Consulting project.",
-        "#",
-        f"# SPDX-License-Identifier: {LICENSE}",
-        "#",
-        "# This program is free software; you can redistribute it and/or modify",
-        "# it under the terms of the GNU General Public License as published by",
-        "# the Free Software Foundation; either version 3 of the License, or",
-        "# (at your option) any later version.",
-        "#",
-        "# This program is distributed in the hope that it will be useful,",
-        "# but WITHOUT ANY WARRANTY; without even the implied warranty of",
-        "# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the",
-        "# GNU General Public License for more details.",
-        "#",
-        "# You should have received a copy of the GNU General Public License",
-        "# (./LICENSE).",
-        "#",
+#
         "# FILE INFORMATION",
         f"# DEFGROUP: {defgroup}",
         f"# INGROUP: {ingroup}",
@@ -179,10 +132,10 @@ def generate_shell_header(
         f"# BRIEF: {brief}",
         f"# PATH: {file_path}",
     ]
-    
+
     if note:
         lines.append(f"# NOTE: {note}")
-    
+
     return "\n".join(lines) + "\n"
 
 
@@ -212,7 +165,7 @@ def log_error(message: str) -> None:
 
 def log_debug(message: str, debug: Optional[bool] = None) -> None:
     """Print a debug message if debug mode is enabled.
-    
+
     Args:
         message: Debug message to print
         debug: Override debug mode (default: check DEBUG environment variable)
@@ -226,7 +179,7 @@ def log_debug(message: str, debug: Optional[bool] = None) -> None:
 def json_output(data: dict) -> None:
     """
     Output data in JSON format.
-    
+
     Args:
         data: Dictionary to output as JSON
     """
@@ -241,7 +194,7 @@ def json_output(data: dict) -> None:
 def die(message: str, exit_code: int = EXIT_ERROR) -> None:
     """
     Print an error message and exit with the specified code.
-    
+
     Args:
         message: Error message to display
         exit_code: Exit code (default: EXIT_ERROR)
@@ -253,11 +206,11 @@ def die(message: str, exit_code: int = EXIT_ERROR) -> None:
 def require_file(file_path: Union[str, Path], description: str = "File") -> Path:
     """
     Ensure a file exists, or exit with error.
-    
+
     Args:
         file_path: Path to file
         description: Description for error message
-    
+
     Returns:
         Path object for the file
     """
@@ -272,11 +225,11 @@ def require_file(file_path: Union[str, Path], description: str = "File") -> Path
 def require_dir(dir_path: Union[str, Path], description: str = "Directory") -> Path:
     """
     Ensure a directory exists, or exit with error.
-    
+
     Args:
         dir_path: Path to directory
         description: Description for error message
-    
+
     Returns:
         Path object for the directory
     """
@@ -295,36 +248,36 @@ def require_dir(dir_path: Union[str, Path], description: str = "Directory") -> P
 def get_repo_root() -> Path:
     """
     Find the repository root by looking for .git directory.
-    
+
     Returns:
         Path to repository root
-    
+
     Raises:
         SystemExit if repository root cannot be found
     """
     current = Path.cwd().resolve()
-    
+
     while current != current.parent:
         if (current / ".git").exists():
             return current
         current = current.parent
-    
+
     die("Not in a git repository", EXIT_ERROR)
 
 
 def get_relative_path(file_path: Union[str, Path], from_root: bool = True) -> str:
     """
     Get relative path from repository root or current directory.
-    
+
     Args:
         file_path: Path to file
         from_root: If True, relative to repo root; if False, relative to cwd
-    
+
     Returns:
         Relative path as string
     """
     path = Path(file_path).resolve()
-    
+
     if from_root:
         root = get_repo_root()
         try:
@@ -346,11 +299,11 @@ def get_relative_path(file_path: Union[str, Path], from_root: bool = True) -> st
 def ensure_dir(dir_path: Union[str, Path], description: str = "Directory") -> Path:
     """
     Ensure directory exists, creating it if necessary.
-    
+
     Args:
         dir_path: Path to directory
         description: Description for logging
-    
+
     Returns:
         Path object for the directory
     """
@@ -364,21 +317,21 @@ def ensure_dir(dir_path: Union[str, Path], description: str = "Directory") -> Pa
 def is_excluded_path(path: Union[str, Path], exclusions: Set[str]) -> bool:
     """
     Check if a path matches any exclusion pattern.
-    
+
     Args:
         path: Path to check
         exclusions: Set of directory/file names to exclude
-    
+
     Returns:
         True if path should be excluded
     """
     path_obj = Path(path)
-    
+
     # Check if any part of the path matches exclusions
     for part in path_obj.parts:
         if part in exclusions or part.startswith('.'):
             return True
-    
+
     return False
 
 
@@ -394,13 +347,13 @@ def retry(
 ):
     """
     Decorator for automatic retry with exponential backoff.
-    
+
     Args:
         max_attempts: Maximum number of attempts
         backoff_base: Base for exponential backoff (seconds)
         exceptions: Tuple of exceptions to catch and retry
         on_retry: Optional callback function called on each retry (attempt_num, exception)
-    
+
     Example:
         @retry(max_attempts=3, backoff_base=2.0)
         def fetch_data():
@@ -411,31 +364,31 @@ def retry(
         @wraps(func)
         def wrapper(*args, **kwargs) -> Any:
             last_exception = None
-            
+
             for attempt in range(1, max_attempts + 1):
                 try:
                     return func(*args, **kwargs)
                 except exceptions as e:
                     last_exception = e
-                    
+
                     if attempt < max_attempts:
                         # Calculate backoff time
                         backoff_time = backoff_base ** (attempt - 1)
-                        
+
                         # Call retry callback if provided
                         if on_retry:
                             on_retry(attempt, e)
                         else:
                             log_warning(f"Attempt {attempt}/{max_attempts} failed: {e}")
                             log_info(f"Retrying in {backoff_time:.1f} seconds...")
-                        
+
                         time.sleep(backoff_time)
                     else:
                         log_error(f"All {max_attempts} attempts failed")
-            
+
             # Re-raise the last exception
             raise last_exception
-        
+
         return wrapper
     return decorator
 
@@ -443,39 +396,39 @@ def retry(
 class RateLimiter:
     """
     Simple rate limiter for API calls.
-    
+
     Example:
         limiter = RateLimiter(requests_per_hour=5000)
-        
+
         for item in items:
             limiter.acquire()
             make_api_call(item)
     """
-    
+
     def __init__(self, requests_per_hour: int = 5000):
         """
         Initialize rate limiter.
-        
+
         Args:
             requests_per_hour: Maximum requests per hour
         """
         self.requests_per_hour = requests_per_hour
         self.min_interval = 3600.0 / requests_per_hour  # seconds between requests
         self.last_request_time = 0.0
-    
+
     def acquire(self):
         """Acquire permission for one request (blocks if needed)"""
         current_time = time.time()
         elapsed = current_time - self.last_request_time
-        
+
         if elapsed < self.min_interval:
             sleep_time = self.min_interval - elapsed
             if sleep_time > 1.0:
                 log_debug(f"Rate limiting: sleeping {sleep_time:.2f}s")
             time.sleep(sleep_time)
-        
+
         self.last_request_time = time.time()
-    
+
     def can_proceed(self) -> bool:
         """Check if we can proceed without blocking"""
         current_time = time.time()
@@ -490,7 +443,7 @@ class RateLimiter:
 if __name__ == "__main__":
     print("MokoStandards Common Library v" + VERSION)
     print("=" * 70)
-    
+
     # Test header generation
     print("\nPython Header Example:")
     print("-" * 70)
@@ -499,7 +452,7 @@ if __name__ == "__main__":
         "Example Python script",
         note="This is a test"
     ))
-    
+
     print("\nShell Header Example:")
     print("-" * 70)
     print(generate_shell_header(
@@ -507,7 +460,7 @@ if __name__ == "__main__":
         "Example shell script",
         note="This is a test"
     ))
-    
+
     # Test repository utilities
     print("\nRepository Info:")
     print("-" * 70)
@@ -517,5 +470,5 @@ if __name__ == "__main__":
         print(f"Current dir relative to root: {get_relative_path(Path.cwd())}")
     except SystemExit:
         print("Not in a git repository")
-    
+
     print("\n✅ Common library loaded successfully")

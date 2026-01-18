@@ -12,7 +12,7 @@
         <xs:element name="structure" type="rs:StructureType"/>
       </xs:sequence>
       <xs:attribute name="version" type="xs:string" use="required"/>
-      <xs:attribute name="schema-version" type="xs:string" fixed="1.0"/>
+      <xs:attribute name="schema-version" type="xs:string" fixed="2.0"/>
     </xs:complexType>
   </xs:element>
 
@@ -72,6 +72,15 @@
       <xs:element name="branch-protections" type="rs:BranchProtectionsType" minOccurs="0"/>
       <xs:element name="repository-settings" type="rs:RepositorySettingsType" minOccurs="0"/>
       <xs:element name="labels" type="rs:LabelsType" minOccurs="0"/>
+      <xs:element name="compliance-requirements" type="rs:ComplianceRequirementsType" minOccurs="0"/>
+      <xs:element name="security-policy" type="rs:SecurityPolicyType" minOccurs="0"/>
+      <xs:element name="dependencies" type="rs:DependenciesType" minOccurs="0"/>
+      <xs:element name="quality-gates" type="rs:QualityGatesType" minOccurs="0"/>
+      <xs:element name="ci-cd-requirements" type="rs:CiCdRequirementsType" minOccurs="0"/>
+      <xs:element name="documentation-requirements" type="rs:DocumentationRequirementsType" minOccurs="0"/>
+      <xs:element name="team-structure" type="rs:TeamStructureType" minOccurs="0"/>
+      <xs:element name="release-management" type="rs:ReleaseManagementType" minOccurs="0"/>
+      <xs:element name="monitoring" type="rs:MonitoringType" minOccurs="0"/>
     </xs:sequence>
   </xs:complexType>
 
@@ -182,6 +191,617 @@
     </xs:sequence>
   </xs:complexType>
 
+  <!-- Compliance Requirements -->
+  <xs:complexType name="ComplianceRequirementsType">
+    <xs:annotation>
+      <xs:documentation>Regulatory and compliance standards the repository must adhere to</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="framework" type="rs:ComplianceFrameworkType" maxOccurs="unbounded"/>
+      <xs:element name="data-classification" type="rs:DataClassificationEnum" minOccurs="0"/>
+      <xs:element name="audit-logging-required" type="xs:boolean" default="false"/>
+      <xs:element name="data-residency-requirements" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ComplianceFrameworkType">
+    <xs:sequence>
+      <xs:element name="name" type="rs:ComplianceFrameworkEnum"/>
+      <xs:element name="required" type="xs:boolean" default="true"/>
+      <xs:element name="controls" type="rs:ControlsType" minOccurs="0"/>
+      <xs:element name="evidence-requirements" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="ComplianceFrameworkEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="SOC2"/>
+      <xs:enumeration value="GDPR"/>
+      <xs:enumeration value="HIPAA"/>
+      <xs:enumeration value="ISO27001"/>
+      <xs:enumeration value="PCI-DSS"/>
+      <xs:enumeration value="NIST"/>
+      <xs:enumeration value="FedRAMP"/>
+      <xs:enumeration value="CCPA"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="DataClassificationEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="public"/>
+      <xs:enumeration value="internal"/>
+      <xs:enumeration value="confidential"/>
+      <xs:enumeration value="restricted"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="ControlsType">
+    <xs:sequence>
+      <xs:element name="control" type="rs:ControlType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ControlType">
+    <xs:sequence>
+      <xs:element name="control-id" type="xs:string"/>
+      <xs:element name="description" type="xs:string"/>
+      <xs:element name="required" type="xs:boolean" default="true"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Security Policy -->
+  <xs:complexType name="SecurityPolicyType">
+    <xs:annotation>
+      <xs:documentation>Security scanning and vulnerability management requirements</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="vulnerability-scanning" type="rs:VulnerabilityScanningType"/>
+      <xs:element name="secret-scanning-enabled" type="xs:boolean" default="true"/>
+      <xs:element name="dependency-scanning-enabled" type="xs:boolean" default="true"/>
+      <xs:element name="code-scanning-enabled" type="xs:boolean" default="true"/>
+      <xs:element name="security-advisories-enabled" type="xs:boolean" default="true"/>
+      <xs:element name="allowed-licenses" type="rs:AllowedLicensesType" minOccurs="0"/>
+      <xs:element name="security-contacts" type="rs:SecurityContactsType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="VulnerabilityScanningType">
+    <xs:sequence>
+      <xs:element name="frequency" type="rs:ScanFrequencyEnum" default="on-push"/>
+      <xs:element name="severity-threshold" type="rs:VulnerabilitySeverityEnum" default="medium"/>
+      <xs:element name="block-on-vulnerability" type="xs:boolean" default="true"/>
+      <xs:element name="auto-remediation-enabled" type="xs:boolean" default="false"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="ScanFrequencyEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="on-push"/>
+      <xs:enumeration value="daily"/>
+      <xs:enumeration value="weekly"/>
+      <xs:enumeration value="monthly"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="VulnerabilitySeverityEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="critical"/>
+      <xs:enumeration value="high"/>
+      <xs:enumeration value="medium"/>
+      <xs:enumeration value="low"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="AllowedLicensesType">
+    <xs:sequence>
+      <xs:element name="license" type="xs:string" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SecurityContactsType">
+    <xs:sequence>
+      <xs:element name="contact" type="rs:ContactType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ContactType">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="email" type="xs:string"/>
+      <xs:element name="role" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Dependencies -->
+  <xs:complexType name="DependenciesType">
+    <xs:annotation>
+      <xs:documentation>Package dependencies with security and version requirements</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="dependency-group" type="rs:DependencyGroupType" maxOccurs="unbounded"/>
+      <xs:element name="update-strategy" type="rs:UpdateStrategyEnum" default="semver"/>
+      <xs:element name="auto-update-enabled" type="xs:boolean" default="false"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DependencyGroupType">
+    <xs:sequence>
+      <xs:element name="ecosystem" type="rs:EcosystemEnum"/>
+      <xs:element name="package" type="rs:PackageType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PackageType">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="version-constraint" type="xs:string" minOccurs="0"/>
+      <xs:element name="required" type="xs:boolean" default="true"/>
+      <xs:element name="security-critical" type="xs:boolean" default="false"/>
+      <xs:element name="license-approved" type="xs:boolean" default="true"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="EcosystemEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="npm"/>
+      <xs:enumeration value="pip"/>
+      <xs:enumeration value="composer"/>
+      <xs:enumeration value="maven"/>
+      <xs:enumeration value="nuget"/>
+      <xs:enumeration value="rubygems"/>
+      <xs:enumeration value="cargo"/>
+      <xs:enumeration value="go"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="UpdateStrategyEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="semver"/>
+      <xs:enumeration value="manual"/>
+      <xs:enumeration value="auto-patch"/>
+      <xs:enumeration value="auto-minor"/>
+      <xs:enumeration value="lockfile-only"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Quality Gates -->
+  <xs:complexType name="QualityGatesType">
+    <xs:annotation>
+      <xs:documentation>Code quality thresholds and test requirements</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="code-coverage" type="rs:CodeCoverageType"/>
+      <xs:element name="complexity-thresholds" type="rs:ComplexityThresholdsType" minOccurs="0"/>
+      <xs:element name="test-requirements" type="rs:TestRequirementsType"/>
+      <xs:element name="code-quality-tools" type="rs:CodeQualityToolsType" minOccurs="0"/>
+      <xs:element name="performance-benchmarks" type="rs:PerformanceBenchmarksType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CodeCoverageType">
+    <xs:sequence>
+      <xs:element name="minimum-line-coverage" type="rs:PercentageType"/>
+      <xs:element name="minimum-branch-coverage" type="rs:PercentageType"/>
+      <xs:element name="required" type="xs:boolean" default="true"/>
+      <xs:element name="fail-below-threshold" type="xs:boolean" default="true"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="PercentageType">
+    <xs:restriction base="xs:decimal">
+      <xs:minInclusive value="0"/>
+      <xs:maxInclusive value="100"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="ComplexityThresholdsType">
+    <xs:sequence>
+      <xs:element name="cyclomatic-complexity-max" type="xs:int" minOccurs="0"/>
+      <xs:element name="cognitive-complexity-max" type="xs:int" minOccurs="0"/>
+      <xs:element name="maintainability-index-min" type="xs:int" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TestRequirementsType">
+    <xs:sequence>
+      <xs:element name="unit-tests-required" type="xs:boolean" default="true"/>
+      <xs:element name="integration-tests-required" type="xs:boolean" default="false"/>
+      <xs:element name="e2e-tests-required" type="xs:boolean" default="false"/>
+      <xs:element name="minimum-test-pass-rate" type="rs:PercentageType" default="100"/>
+      <xs:element name="flaky-test-tolerance" type="xs:int" default="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CodeQualityToolsType">
+    <xs:sequence>
+      <xs:element name="tool" type="rs:QualityToolType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="QualityToolType">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="required" type="xs:boolean" default="true"/>
+      <xs:element name="configuration-file" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PerformanceBenchmarksType">
+    <xs:sequence>
+      <xs:element name="benchmark" type="rs:BenchmarkType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="BenchmarkType">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="threshold" type="xs:string"/>
+      <xs:element name="required" type="xs:boolean" default="false"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- CI/CD Requirements -->
+  <xs:complexType name="CiCdRequirementsType">
+    <xs:annotation>
+      <xs:documentation>Continuous integration and deployment workflow requirements</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="workflow-requirements" type="rs:WorkflowRequirementsType"/>
+      <xs:element name="deployment-config" type="rs:DeploymentConfigType" minOccurs="0"/>
+      <xs:element name="artifact-requirements" type="rs:ArtifactRequirementsType" minOccurs="0"/>
+      <xs:element name="pipeline-stages" type="rs:PipelineStagesType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="WorkflowRequirementsType">
+    <xs:sequence>
+      <xs:element name="required-workflows" type="rs:RequiredWorkflowsType"/>
+      <xs:element name="workflow-timeout-minutes" type="xs:int" minOccurs="0"/>
+      <xs:element name="concurrent-builds-allowed" type="xs:boolean" default="true"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="RequiredWorkflowsType">
+    <xs:sequence>
+      <xs:element name="workflow" type="rs:WorkflowType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="WorkflowType">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="trigger" type="rs:WorkflowTriggerEnum"/>
+      <xs:element name="required" type="xs:boolean" default="true"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="WorkflowTriggerEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="push"/>
+      <xs:enumeration value="pull-request"/>
+      <xs:enumeration value="schedule"/>
+      <xs:enumeration value="manual"/>
+      <xs:enumeration value="release"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="DeploymentConfigType">
+    <xs:sequence>
+      <xs:element name="environment" type="rs:EnvironmentType" maxOccurs="unbounded"/>
+      <xs:element name="deployment-strategy" type="rs:DeploymentStrategyEnum" default="rolling"/>
+      <xs:element name="rollback-enabled" type="xs:boolean" default="true"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="EnvironmentType">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="approval-required" type="xs:boolean" default="false"/>
+      <xs:element name="protection-rules" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="DeploymentStrategyEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="rolling"/>
+      <xs:enumeration value="blue-green"/>
+      <xs:enumeration value="canary"/>
+      <xs:enumeration value="recreate"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="ArtifactRequirementsType">
+    <xs:sequence>
+      <xs:element name="artifact-retention-days" type="xs:int" default="90"/>
+      <xs:element name="artifact-signing-required" type="xs:boolean" default="false"/>
+      <xs:element name="sbom-generation-required" type="xs:boolean" default="false"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PipelineStagesType">
+    <xs:sequence>
+      <xs:element name="stage" type="rs:PipelineStageType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PipelineStageType">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="order" type="xs:int"/>
+      <xs:element name="required" type="xs:boolean" default="true"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Documentation Requirements -->
+  <xs:complexType name="DocumentationRequirementsType">
+    <xs:annotation>
+      <xs:documentation>Required documentation types and standards</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="required-documents" type="rs:RequiredDocumentsType"/>
+      <xs:element name="api-documentation-required" type="xs:boolean" default="false"/>
+      <xs:element name="inline-documentation-required" type="xs:boolean" default="true"/>
+      <xs:element name="documentation-format" type="rs:DocumentationFormatEnum" default="markdown"/>
+      <xs:element name="architecture-diagrams-required" type="xs:boolean" default="false"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="RequiredDocumentsType">
+    <xs:sequence>
+      <xs:element name="document" type="rs:DocumentType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DocumentType">
+    <xs:sequence>
+      <xs:element name="type" type="rs:DocumentTypeEnum"/>
+      <xs:element name="required" type="xs:boolean" default="true"/>
+      <xs:element name="template-path" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="DocumentTypeEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="README"/>
+      <xs:enumeration value="CONTRIBUTING"/>
+      <xs:enumeration value="CODE_OF_CONDUCT"/>
+      <xs:enumeration value="SECURITY"/>
+      <xs:enumeration value="LICENSE"/>
+      <xs:enumeration value="CHANGELOG"/>
+      <xs:enumeration value="API_REFERENCE"/>
+      <xs:enumeration value="ARCHITECTURE"/>
+      <xs:enumeration value="DEPLOYMENT"/>
+      <xs:enumeration value="TROUBLESHOOTING"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="DocumentationFormatEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="markdown"/>
+      <xs:enumeration value="reStructuredText"/>
+      <xs:enumeration value="asciidoc"/>
+      <xs:enumeration value="html"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Team Structure -->
+  <xs:complexType name="TeamStructureType">
+    <xs:annotation>
+      <xs:documentation>Repository team structure including code owners and maintainers</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="codeowners" type="rs:CodeownersType"/>
+      <xs:element name="maintainers" type="rs:MaintainersType" minOccurs="0"/>
+      <xs:element name="contributors" type="rs:ContributorsType" minOccurs="0"/>
+      <xs:element name="teams" type="rs:TeamsType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CodeownersType">
+    <xs:sequence>
+      <xs:element name="required" type="xs:boolean" default="true"/>
+      <xs:element name="ownership-rule" type="rs:OwnershipRuleType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="OwnershipRuleType">
+    <xs:sequence>
+      <xs:element name="path-pattern" type="xs:string"/>
+      <xs:element name="owners" type="rs:OwnersType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="OwnersType">
+    <xs:sequence>
+      <xs:element name="owner" type="xs:string" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="MaintainersType">
+    <xs:sequence>
+      <xs:element name="maintainer" type="rs:MemberType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ContributorsType">
+    <xs:sequence>
+      <xs:element name="contributor" type="rs:MemberType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="MemberType">
+    <xs:sequence>
+      <xs:element name="username" type="xs:string"/>
+      <xs:element name="role" type="xs:string" minOccurs="0"/>
+      <xs:element name="areas-of-responsibility" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TeamsType">
+    <xs:sequence>
+      <xs:element name="team" type="rs:TeamType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TeamType">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="permission-level" type="rs:PermissionLevelEnum"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="PermissionLevelEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="read"/>
+      <xs:enumeration value="triage"/>
+      <xs:enumeration value="write"/>
+      <xs:enumeration value="maintain"/>
+      <xs:enumeration value="admin"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Release Management -->
+  <xs:complexType name="ReleaseManagementType">
+    <xs:annotation>
+      <xs:documentation>Release versioning strategy and changelog requirements</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="versioning-strategy" type="rs:VersioningStrategyEnum" default="semver"/>
+      <xs:element name="changelog-required" type="xs:boolean" default="true"/>
+      <xs:element name="release-notes-required" type="xs:boolean" default="true"/>
+      <xs:element name="release-branches" type="rs:ReleaseBranchesType" minOccurs="0"/>
+      <xs:element name="hotfix-policy" type="rs:HotfixPolicyType" minOccurs="0"/>
+      <xs:element name="deprecation-policy" type="rs:DeprecationPolicyType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="VersioningStrategyEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="semver"/>
+      <xs:enumeration value="calver"/>
+      <xs:enumeration value="custom"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="ReleaseBranchesType">
+    <xs:sequence>
+      <xs:element name="pattern" type="xs:string"/>
+      <xs:element name="protection-required" type="xs:boolean" default="true"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="HotfixPolicyType">
+    <xs:sequence>
+      <xs:element name="allowed" type="xs:boolean" default="true"/>
+      <xs:element name="branch-pattern" type="xs:string" minOccurs="0"/>
+      <xs:element name="approval-required" type="xs:boolean" default="true"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DeprecationPolicyType">
+    <xs:sequence>
+      <xs:element name="notice-period-days" type="xs:int" default="90"/>
+      <xs:element name="breaking-changes-allowed" type="xs:boolean" default="false"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Monitoring -->
+  <xs:complexType name="MonitoringType">
+    <xs:annotation>
+      <xs:documentation>Application monitoring, health checks, and alerting configuration</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="health-checks" type="rs:HealthChecksType"/>
+      <xs:element name="metrics" type="rs:MetricsType" minOccurs="0"/>
+      <xs:element name="alerting" type="rs:AlertingType" minOccurs="0"/>
+      <xs:element name="logging" type="rs:LoggingType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="HealthChecksType">
+    <xs:sequence>
+      <xs:element name="required" type="xs:boolean" default="false"/>
+      <xs:element name="endpoint" type="xs:string" minOccurs="0"/>
+      <xs:element name="frequency-seconds" type="xs:int" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="MetricsType">
+    <xs:sequence>
+      <xs:element name="enabled" type="xs:boolean" default="false"/>
+      <xs:element name="metric" type="rs:MetricType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="MetricType">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="type" type="rs:MetricTypeEnum"/>
+      <xs:element name="required" type="xs:boolean" default="false"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="MetricTypeEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="counter"/>
+      <xs:enumeration value="gauge"/>
+      <xs:enumeration value="histogram"/>
+      <xs:enumeration value="summary"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="AlertingType">
+    <xs:sequence>
+      <xs:element name="enabled" type="xs:boolean" default="false"/>
+      <xs:element name="alert-channel" type="rs:AlertChannelType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="AlertChannelType">
+    <xs:sequence>
+      <xs:element name="type" type="rs:AlertChannelEnum"/>
+      <xs:element name="severity-threshold" type="rs:AlertSeverityEnum" default="high"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="AlertChannelEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="email"/>
+      <xs:enumeration value="slack"/>
+      <xs:enumeration value="pagerduty"/>
+      <xs:enumeration value="webhook"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="AlertSeverityEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="critical"/>
+      <xs:enumeration value="high"/>
+      <xs:enumeration value="medium"/>
+      <xs:enumeration value="low"/>
+      <xs:enumeration value="info"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="LoggingType">
+    <xs:sequence>
+      <xs:element name="enabled" type="xs:boolean" default="true"/>
+      <xs:element name="log-level" type="rs:LogLevelEnum" default="info"/>
+      <xs:element name="structured-logging-required" type="xs:boolean" default="false"/>
+      <xs:element name="retention-days" type="xs:int" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="LogLevelEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="debug"/>
+      <xs:enumeration value="info"/>
+      <xs:enumeration value="warning"/>
+      <xs:enumeration value="error"/>
+      <xs:enumeration value="critical"/>
+    </xs:restriction>
+  </xs:simpleType>
+
   <!-- Files collection -->
   <xs:complexType name="FilesType">
     <xs:sequence>
@@ -198,6 +818,21 @@
       <xs:element name="source" type="rs:SourceType" minOccurs="0"/>
       <xs:element name="destination" type="rs:DestinationType" minOccurs="0"/>
       <xs:element name="always-overwrite" type="xs:boolean" default="true" minOccurs="0"/>
+      <xs:element name="workflow-dependency" type="xs:boolean" default="false" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>If true, this file is required by workflows and must be force overwritten and required</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="copilot-enabled" type="xs:boolean" default="false" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>If true, use GitHub Copilot for AI-powered customization of this file</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="copilot-prompt" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Custom prompt for Copilot when generating or customizing this file</xs:documentation>
+        </xs:annotation>
+      </xs:element>
       <xs:element name="audience" type="rs:AudienceEnum" minOccurs="0"/>
       <xs:element name="template" type="xs:string" minOccurs="0"/>
       <xs:element name="stub-content" type="xs:string" minOccurs="0"/>

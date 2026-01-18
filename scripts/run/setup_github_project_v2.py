@@ -1,22 +1,7 @@
 #!/usr/bin/env python3
 # Copyright (C) 2025 Moko Consulting <hello@mokoconsulting.tech>
 #
-# This file is part of a Moko Consulting project.
-#
 # SPDX-License-Identifier: GPL-3.0-or-later
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
 # FILE INFORMATION
 # DEFGROUP: MokoStandards.Scripts
@@ -78,7 +63,7 @@ class GitHubProjectV2Setup:
         self.skipped_items = []
         self.errors = []
         self.view_ids = {}
-    
+
     def log_verbose(self, message: str):
         """Print verbose log message."""
         if self.verbose:
@@ -89,7 +74,7 @@ class GitHubProjectV2Setup:
         self.log_verbose("Executing GraphQL query...")
         if variables and self.verbose:
             self.log_verbose(f"Variables: {json.dumps(variables, indent=2)}")
-        
+
         try:
             if self.token:
                 # Use direct API call with token
@@ -102,7 +87,7 @@ class GitHubProjectV2Setup:
                     self.errors.append(error_msg)
                     print(f"ERROR: {error_msg}", file=sys.stderr)
                     return {}
-                
+
                 headers = {
                     "Authorization": f"Bearer {self.token}",
                     "Content-Type": "application/json"
@@ -110,23 +95,23 @@ class GitHubProjectV2Setup:
                 payload = {"query": query}
                 if variables:
                     payload["variables"] = variables
-                
+
                 self.log_verbose("Making API request to GitHub GraphQL endpoint...")
-                
+
                 response = requests.post(
                     "https://api.github.com/graphql",
                     headers=headers,
                     json=payload,
                     timeout=30
                 )
-                
+
                 self.log_verbose(f"Response status code: {response.status_code}")
                 response.raise_for_status()
                 result = response.json()
-                
+
                 if "errors" in result and self.verbose:
                     self.log_verbose(f"GraphQL errors in response: {json.dumps(result['errors'], indent=2)}")
-                
+
                 return result
             else:
                 # Use gh CLI
@@ -137,21 +122,21 @@ class GitHubProjectV2Setup:
                             cmd.extend(["-F", f"{key}={json.dumps(value)}"])
                         else:
                             cmd.extend(["-f", f"{key}={value}"])
-                
+
                 self.log_verbose("Running gh CLI command...")
-                
+
                 result = subprocess.run(
                     cmd,
                     capture_output=True,
                     text=True,
                     check=True
                 )
-                
+
                 response_data = json.loads(result.stdout)
-                
+
                 if "errors" in response_data and self.verbose:
                     self.log_verbose(f"GraphQL errors in response: {json.dumps(response_data['errors'], indent=2)}")
-                
+
                 return response_data
         except subprocess.CalledProcessError as e:
             error_msg = f"GraphQL subprocess error: {e.stderr}"
@@ -248,7 +233,7 @@ class GitHubProjectV2Setup:
         }
         """
         result = self.run_graphql(mutation, {"orgId": org_id, "title": self.project_title})
-        
+
         if result and "data" in result and result["data"].get("createProjectV2"):
             project = result["data"]["createProjectV2"]["projectV2"]
             self.project_id = project["id"]
@@ -288,25 +273,25 @@ class GitHubProjectV2Setup:
             }
         }
         """
-        
+
         option_list = [{"name": opt} for opt in options]
-        
+
         result = self.run_graphql(mutation, {
             "projectId": self.project_id,
             "name": name,
             "options": option_list
         })
-        
+
         if result and "data" in result and result["data"].get("createProjectV2Field"):
             field_data = result["data"]["createProjectV2Field"]["projectV2Field"]
             field_id = field_data["id"]
-            
+
             # Store option IDs for later use
             if "options" in field_data:
                 self.field_option_ids[name] = {
                     opt["name"]: opt["id"] for opt in field_data["options"]
                 }
-            
+
             print(f"  ✅ Created field: {name} ({len(options)} options)")
             return field_id
         else:
@@ -334,12 +319,12 @@ class GitHubProjectV2Setup:
             }
         }
         """
-        
+
         result = self.run_graphql(mutation, {
             "projectId": self.project_id,
             "name": name
         })
-        
+
         if result and "data" in result and result["data"].get("createProjectV2Field"):
             field_id = result["data"]["createProjectV2Field"]["projectV2Field"]["id"]
             print(f"  ✅ Created field: {name}")
@@ -354,7 +339,7 @@ class GitHubProjectV2Setup:
     def create_all_fields(self) -> bool:
         """Create all custom fields."""
         print("\n📋 Creating custom fields...")
-        
+
         # Single-select fields (as per requirements)
         single_select_fields = {
             "Status": ["Planned", "In Progress", "In Review", "Approved", "Published", "Blocked", "Archived"],
@@ -368,7 +353,7 @@ class GitHubProjectV2Setup:
             "Review Cycle": ["Annual", "Semiannual", "Quarterly", "Ad hoc"],
             "Retention": ["Indefinite", "7 Years", "5 Years", "3 Years"],
         }
-        
+
         for field_name, options in single_select_fields.items():
             field_id = self.create_single_select_field(field_name, options)
             if field_id:
@@ -376,7 +361,7 @@ class GitHubProjectV2Setup:
             else:
                 print(f"❌ STOP: Failed to create field '{field_name}'")
                 return False
-        
+
         # Text fields (as per requirements)
         text_fields = [
             "Document Path",
@@ -385,7 +370,7 @@ class GitHubProjectV2Setup:
             "RACI",
             "KPIs"
         ]
-        
+
         for field_name in text_fields:
             field_id = self.create_text_field(field_name)
             if field_id:
@@ -393,34 +378,34 @@ class GitHubProjectV2Setup:
             else:
                 print(f"❌ STOP: Failed to create field '{field_name}'")
                 return False
-        
+
         print(f"\n✅ Created {len(self.field_ids)} custom fields")
         print("\nℹ️  Optional: You can add multi-select fields such as 'Compliance Tags'")
         print("    and 'Evidence Artifacts' manually in the GitHub UI (not managed by this script).")
-        
+
         return True
 
     def scan_repository(self, repo_path: Path) -> List[Tuple[Path, str]]:
         """Scan repository for documentation files."""
         print("\n🔍 Scanning repository...")
-        
+
         docs_path = repo_path / "docs"
         templates_path = repo_path / "templates"
-        
+
         files = []
-        
+
         # Scan docs directory
         if docs_path.exists():
             for md_file in docs_path.rglob("*.md"):
                 rel_path = md_file.relative_to(repo_path)
                 files.append((rel_path, "Documentation"))
-        
+
         # Scan templates directory
         if templates_path.exists():
             for md_file in templates_path.rglob("*.md"):
                 rel_path = md_file.relative_to(repo_path)
                 files.append((rel_path, "Template"))
-        
+
         print(f"✅ Found {len(files)} documents")
         return sorted(files)
 
@@ -461,15 +446,15 @@ class GitHubProjectV2Setup:
     def create_project_item(self, file_path: Path, purpose: str) -> bool:
         """Create a project item for a document."""
         title = file_path.stem
-        
+
         doc_type = self.infer_document_type(file_path)
         doc_subtype = self.infer_document_subtype(file_path, doc_type)
         approval_required = self.get_approval_required(doc_type)
-        
+
         body = f"""Document Path: {file_path}
 Purpose: {purpose} tracking
 Source: Imported from repository scan"""
-        
+
         mutation = """
         mutation($projectId: ID!, $title: String!, $body: String!) {
             addProjectV2DraftIssue(input: {
@@ -483,32 +468,32 @@ Source: Imported from repository scan"""
             }
         }
         """
-        
+
         result = self.run_graphql(mutation, {
             "projectId": self.project_id,
             "title": title,
             "body": body
         })
-        
+
         if result and "data" in result and result["data"].get("addProjectV2DraftIssue"):
             item_id = result["data"]["addProjectV2DraftIssue"]["projectItem"]["id"]
             self.created_items.append(str(file_path))
-            
+
             # Set field values for the item
             self.set_item_fields(item_id, file_path, doc_type, doc_subtype, approval_required)
-            
+
             return True
         else:
             self.skipped_items.append(str(file_path))
             return False
 
-    def set_item_fields(self, item_id: str, file_path: Path, doc_type: str, 
+    def set_item_fields(self, item_id: str, file_path: Path, doc_type: str,
                        doc_subtype: str, approval_required: str):
         """Set field values for a project item."""
         # Set Document Path (text field)
         if "Document Path" in self.field_ids:
             self.set_text_field(item_id, "Document Path", str(file_path))
-        
+
         # Set single-select fields
         field_values = {
             "Status": "Planned",
@@ -522,7 +507,7 @@ Source: Imported from repository scan"""
             "Review Cycle": "Annual",
             "Retention": "Indefinite"
         }
-        
+
         for field_name, value in field_values.items():
             if field_name in self.field_ids and field_name in self.field_option_ids:
                 option_id = self.field_option_ids[field_name].get(value)
@@ -547,7 +532,7 @@ Source: Imported from repository scan"""
             }
         }
         """
-        
+
         self.run_graphql(mutation, {
             "projectId": self.project_id,
             "itemId": item_id,
@@ -573,7 +558,7 @@ Source: Imported from repository scan"""
             }
         }
         """
-        
+
         self.run_graphql(mutation, {
             "projectId": self.project_id,
             "itemId": item_id,
@@ -584,9 +569,9 @@ Source: Imported from repository scan"""
     def populate_project(self, repo_path: Path) -> bool:
         """Populate project with documentation items."""
         print("\n📝 Creating project items...")
-        
+
         files = self.scan_repository(repo_path)
-        
+
         total = len(files)
         for idx, (file_path, purpose) in enumerate(files, 1):
             success = self.create_project_item(file_path, purpose)
@@ -595,7 +580,7 @@ Source: Imported from repository scan"""
             else:
                 print(f"  [{idx}/{total}] ⚠️  Skipped: {file_path}")
                 self.log_verbose(f"Skipped item details: {file_path}")
-        
+
         print(f"\n✅ Created {len(self.created_items)} items")
         if self.skipped_items:
             print(f"⚠️  Skipped {len(self.skipped_items)} items")
@@ -603,19 +588,19 @@ Source: Imported from repository scan"""
                 self.log_verbose("Skipped items list:")
                 for item in self.skipped_items:
                     self.log_verbose(f"  - {item}")
-        
+
         return True
 
     def create_project_views(self) -> bool:
         """Create project views (Board, Table, Roadmap).
-        
+
         Note: GitHub Projects v2 API has limitations for view creation.
         This method documents the views that should be created manually.
         """
         print("\n👁️  Creating project views...")
         print("⚠️  Note: GitHub Projects v2 API has limited support for programmatic view creation.")
         print("   The following views should be created manually in the GitHub UI:")
-        
+
         views_to_document = [
             {
                 "name": "Documentation Board",
@@ -636,7 +621,7 @@ Source: Imported from repository scan"""
                 "date_field": "Review Cycle or custom date field"
             }
         ]
-        
+
         for idx, view_config in enumerate(views_to_document, 1):
             print(f"\n  {idx}. {view_config['name']}")
             print(f"     Layout: {view_config['layout']}")
@@ -648,7 +633,7 @@ Source: Imported from repository scan"""
             if "date_field" in view_config:
                 print(f"     Date field: {view_config['date_field']}")
             self.view_ids[view_config['name']] = "manual_creation_required"
-        
+
         print(f"\n✅ Documented {len(self.view_ids)} views for manual creation")
         print("   See: https://docs.github.com/en/issues/planning-and-tracking-with-projects/customizing-views-in-your-project")
         return True
@@ -665,10 +650,10 @@ Source: Imported from repository scan"""
         print(f"👁️  Views: {len(self.view_ids)} documented (manual creation required)")
         print(f"📄 Documents Scanned: {len(self.created_items) + len(self.skipped_items)}")
         print(f"✅ Project Items Created: {len(self.created_items)}")
-        
+
         if self.skipped_items:
             print(f"⚠️  Items Skipped: {len(self.skipped_items)}")
-        
+
         if self.errors:
             print(f"\n❌ Errors Encountered: {len(self.errors)}")
             if self.verbose:
@@ -689,7 +674,7 @@ Source: Imported from repository scan"""
                     print(f"   ... and {len(self.errors) - 5} more (use --verbose for full details)")
         else:
             print("\n✅ No errors encountered")
-        
+
         print("\n" + "="*70)
 
 
@@ -708,37 +693,37 @@ def main():
         action='store_true',
         help='Skip creating project views (Board, Table, Roadmap)'
     )
-    
+
     args = parser.parse_args()
-    
+
     print("="*70)
     print("GitHub Project v2 Setup")
     print("MokoStandards Documentation Control Register")
     print("="*70)
-    
+
     if args.verbose:
         print("\n[VERBOSE MODE ENABLED]")
-    
+
     # Configuration
     ORG = "mokoconsulting-tech"
     PROJECT_TITLE = "MokoStandards Documentation Control Register"
-    
+
     # Determine repository path (supports CI environments and local execution)
     # Priority: GITHUB_WORKSPACE > current working directory
     repo_path_str = os.environ.get("GITHUB_WORKSPACE", os.getcwd())
     REPO_PATH = Path(repo_path_str).resolve()
-    
+
     print(f"\n📂 Repository path: {REPO_PATH}")
-    
+
     # Get token from environment (GH_PAT secret)
     token = os.environ.get("GH_PAT")
-    
+
     if args.verbose and token:
         print(f"[VERBOSE] GH_PAT token found (length: {len(token)})")
-    
+
     # Initialize setup
     setup = GitHubProjectV2Setup(ORG, PROJECT_TITLE, token, verbose=args.verbose)
-    
+
     # Step 1: Verify authentication
     print("\n🔐 Step 1: Verifying authentication...")
     if not setup.verify_auth():
@@ -747,7 +732,7 @@ def main():
         print("  1. Set GH_PAT environment variable: export GH_PAT='your_token'")
         print("  2. Authenticate gh CLI: gh auth login")
         sys.exit(1)
-    
+
     # Step 2: Get organization ID
     print("\n🏢 Step 2: Getting organization ID...")
     org_id = setup.get_org_id()
@@ -755,36 +740,36 @@ def main():
         print("\n❌ STOP: Failed to get organization ID")
         print("Ensure the token has 'read:org' permission")
         sys.exit(1)
-    
+
     # Step 3: Create project
     print("\n📁 Step 3: Creating GitHub Project v2...")
     if not setup.create_project(org_id):
         print("\n❌ STOP: Failed to create project")
         print("Ensure the token has 'project' (write) permission")
         sys.exit(1)
-    
+
     # Step 4: Create custom fields
     print("\n🔧 Step 4: Creating custom fields...")
     if not setup.create_all_fields():
         print("\n❌ STOP: Failed to create custom fields")
         sys.exit(1)
-    
+
     # Step 5: Scan and populate
     print("\n📚 Step 5: Scanning repository and creating items...")
     if not setup.populate_project(REPO_PATH):
         print("\n❌ STOP: Failed to populate project")
         sys.exit(1)
-    
+
     # Step 6: Document views (unless skipped)
     if not args.skip_views:
         print("\n👁️  Step 6: Documenting project views...")
         setup.create_project_views()
     else:
         print("\n⏭️  Step 6: Skipping view documentation (--skip-views flag)")
-    
+
     # Print summary
     setup.print_summary()
-    
+
     print("\n✅ Project v2 setup completed successfully!")
     print(f"\nView your project at:")
     print(f"https://github.com/orgs/{ORG}/projects/{setup.project_number}")

@@ -30,6 +30,7 @@ This index provides navigation to documentation within this folder.
 - [health-scoring](./health-scoring.md)
 - [license-compliance](./license-compliance.md)
 - [merge-strategy](./merge-strategy.md)
+- [request-management](./request-management.md)
 - [risk-register](./risk-register.md)
 - [scripting-standards](./scripting-standards.md)
 - [security-scanning](./security-scanning.md)

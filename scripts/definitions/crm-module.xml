@@ -7,7 +7,7 @@
     <description>Standard repository structure for MokoCRM (Dolibarr) modules</description>
     <repository-type>crm-module</repository-type>
     <platform>mokokrm</platform>
-    <last-updated>2026-01-07T00:00:00Z</last-updated>
+    <last-updated>2026-01-18T06:20:00Z</last-updated>
     <maintainer>Moko Consulting</maintainer>
   </metadata>
 
@@ -256,6 +256,15 @@ See CHANGELOG.md for version history.
         <purpose>Contains scripts for building, testing, and deploying</purpose>
 
         <files>
+          <file extension="txt">
+            <name>requirements.txt</name>
+            <description>Python dependencies for scripts (security: defusedxml for safe XML parsing)</description>
+            <requirement-status>suggested</requirement-status>
+            <stub-content><![CDATA[# Security dependencies for scripts
+defusedxml>=0.7.1  # Safe XML parsing to prevent XXE attacks
+]]></stub-content>
+          </file>
+          
           <file extension="md">
             <name>index.md</name>
             <description>Scripts documentation</description>

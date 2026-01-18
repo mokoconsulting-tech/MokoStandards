@@ -1,0 +1,120 @@
+name: Sync Repository Labels
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/labels.yml'
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  sync-labels:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Sync labels
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            const yaml = require('js-yaml');
+            
+            // Define standard labels
+            const labels = [
+              // Priority labels
+              { name: 'priority: critical', color: 'B60205', description: 'Critical priority - requires immediate attention' },
+              { name: 'priority: high', color: 'D93F0B', description: 'High priority - should be addressed soon' },
+              { name: 'priority: medium', color: 'FFA500', description: 'Medium priority - normal timeline' },
+              { name: 'priority: low', color: 'FBCA04', description: 'Low priority - can be deferred' },
+              
+              // Type labels
+              { name: 'type: bug fix', color: 'EE0701', description: 'Bug fix' },
+              { name: 'type: feature', color: '0E8A16', description: 'New feature or enhancement' },
+              { name: 'type: documentation', color: '0075CA', description: 'Documentation changes' },
+              { name: 'type: chore', color: 'FEF2C0', description: 'Maintenance or chore task' },
+              { name: 'type: refactoring', color: 'C5DEF5', description: 'Code refactoring' },
+              
+              // Category labels
+              { name: 'category: workflows', color: '5319E7', description: 'GitHub Actions workflows' },
+              { name: 'category: security', color: 'D73A4A', description: 'Security-related' },
+              { name: 'category: documentation', color: '0075CA', description: 'Documentation updates' },
+              { name: 'category: automation', color: '1D76DB', description: 'Automation scripts and tools' },
+              { name: 'category: policy', color: '006B75', description: 'Policy and standards' },
+              
+              // Size labels
+              { name: 'size: xs', color: '00FF00', description: 'Extra small PR (<10 lines)' },
+              { name: 'size: s', color: '7FFF00', description: 'Small PR (10-49 lines)' },
+              { name: 'size: m', color: 'FFFF00', description: 'Medium PR (50-249 lines)' },
+              { name: 'size: l', color: 'FFA500', description: 'Large PR (250-999 lines)' },
+              { name: 'size: xl', color: 'FF0000', description: 'Extra large PR (1000+ lines)' },
+              
+              // Status labels
+              { name: 'needs-triage', color: 'EDEDED', description: 'Needs initial review and categorization' },
+              { name: 'needs-description', color: 'E99695', description: 'Needs a more detailed description' },
+              { name: 'stale', color: 'EEEEEE', description: 'Inactive for extended period' },
+              { name: 'on-hold', color: 'D4C5F9', description: 'Work paused, do not mark as stale' },
+              { name: 'wip', color: 'F9D0C4', description: 'Work in progress' },
+              
+              // Special labels
+              { name: 'breaking change', color: 'D73A4A', description: 'Introduces breaking changes' },
+              { name: 'first-time-contributor', color: '7057FF', description: 'First contribution from author' },
+              { name: 'good first issue', color: '7057FF', description: 'Good for newcomers' },
+              { name: 'help wanted', color: '008672', description: 'Extra attention is needed' },
+              { name: 'pinned', color: 'D4C5F9', description: 'Should not be auto-closed' },
+              
+              // Standard GitHub labels (keep existing)
+              { name: 'bug', color: 'D73A4A', description: 'Something is not working' },
+              { name: 'enhancement', color: '0E8A16', description: 'New feature or request' },
+              { name: 'documentation', color: '0075CA', description: 'Improvements or additions to documentation' },
+              { name: 'dependencies', color: '0366D6', description: 'Pull requests that update a dependency file' },
+              { name: 'security', color: 'D73A4A', description: 'Security issue or vulnerability' },
+              { name: 'automated', color: 'B6E3FF', description: 'Automated update' },
+            ];
+            
+            // Get existing labels
+            const { data: existingLabels } = await github.rest.issues.listLabelsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100
+            });
+            
+            const existingLabelMap = new Map(existingLabels.map(l => [l.name, l]));
+            
+            // Create or update labels
+            for (const label of labels) {
+              const existing = existingLabelMap.get(label.name);
+              
+              if (existing) {
+                // Update if color or description changed
+                if (existing.color.toLowerCase() !== label.color.toLowerCase() || 
+                    existing.description !== label.description) {
+                  console.log(`Updating label: ${label.name}`);
+                  await github.rest.issues.updateLabel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    name: label.name,
+                    color: label.color,
+                    description: label.description
+                  });
+                }
+              } else {
+                // Create new label
+                console.log(`Creating label: ${label.name}`);
+                await github.rest.issues.createLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label.name,
+                  color: label.color,
+                  description: label.description
+                });
+              }
+            }
+            
+            console.log('✅ Label sync complete');

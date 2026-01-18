@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <repository-structure xmlns="http://mokoconsulting.com/schemas/repository-structure"
-                      version="1.0"
-                      schema-version="1.0">
+                      version="2.0"
+                      schema-version="2.0">
   <metadata>
     <name>Default Repository Structure</name>
-    <description>Default repository structure applicable to all repository types with minimal requirements</description>
+    <description>Default repository structure applicable to all repository types with minimal requirements. Version 2.0 includes enterprise-ready features for compliance, security, quality gates, and governance.</description>
     <repository-type>library</repository-type>
     <platform>multi-platform</platform>
-    <last-updated>2026-01-16T00:00:00Z</last-updated>
+    <last-updated>2026-01-18T06:34:00Z</last-updated>
     <maintainer>Moko Consulting</maintainer>
   </metadata>
 
@@ -72,6 +72,7 @@
         <name>CONTRIBUTING.md</name>
         <description>Contribution guidelines</description>
         <requirement-status>required</requirement-status>
+        <always-overwrite>true</always-overwrite>
         <audience>contributor</audience>
         <source>
           <path>templates/docs/required</path>
@@ -90,6 +91,7 @@
         <name>SECURITY.md</name>
         <description>Security policy and vulnerability reporting</description>
         <requirement-status>required</requirement-status>
+        <always-overwrite>true</always-overwrite>
         <audience>general</audience>
         <source>
           <path>templates/docs/required</path>
@@ -107,7 +109,8 @@
       <file extension="md">
         <name>CODE_OF_CONDUCT.md</name>
         <description>Community code of conduct</description>
-        <requirement-status>suggested</requirement-status>
+        <requirement-status>required</requirement-status>
+        <always-overwrite>true</always-overwrite>
         <audience>contributor</audience>
         <source>
           <path>templates/docs/extra</path>
@@ -221,10 +224,29 @@
         <purpose>Contains scripts for building, testing, and deploying</purpose>
         
         <files>
+          <file extension="txt">
+            <name>requirements.txt</name>
+            <description>Python dependencies for scripts (security: defusedxml for safe XML parsing)</description>
+            <requirement-status>required</requirement-status>
+            <always-overwrite>true</always-overwrite>
+            <workflow-dependency>true</workflow-dependency>
+            <stub-content><![CDATA[# Security dependencies for scripts
+defusedxml>=0.7.1  # Safe XML parsing to prevent XXE attacks
+
+# Optional dependencies for specific scripts
+# Uncomment as needed:
+# paramiko>=3.0.0  # For SFTP deployments
+# pyyaml>=6.0      # For YAML processing
+# requests>=2.31.0 # For GitHub API access
+]]></stub-content>
+          </file>
+          
           <file extension="sh">
             <name>validate_structure.sh</name>
-            <description>Repository structure validation script</description>
-            <requirement-status>suggested</requirement-status>
+            <description>Repository structure validation script (required by workflows)</description>
+            <requirement-status>required</requirement-status>
+            <always-overwrite>true</always-overwrite>
+            <workflow-dependency>true</workflow-dependency>
             <template>templates/scripts/validate/structure.sh</template>
           </file>
           
@@ -420,19 +442,6 @@
                 <template>.github/workflows/standards-compliance.yml</template>
               </file>
             </files>
-                <name>repo-health.yml</name>
-                <description>Repository health monitoring</description>
-                <requirement-status>suggested</requirement-status>
-                <template>templates/workflows/generic/repo_health.yml.template</template>
-              </file>
-              
-              <file extension="yml">
-                <name>standards-compliance.yml</name>
-                <description>MokoStandards compliance validation</description>
-                <requirement-status>required</requirement-status>
-                <template>.github/workflows/standards-compliance.yml</template>
-              </file>
-            </files>
           </directory>
         </subdirectories>
       </directory>
@@ -578,6 +587,234 @@
           <description>Security vulnerability or concern</description>
         </label>
       </labels>
+
+      <!-- Compliance Requirements -->
+      <compliance-requirements>
+        <framework>
+          <name>SOC2</name>
+          <required>false</required>
+          <type>Type II</type>
+          <controls>
+            <control>Access Control</control>
+            <control>Change Management</control>
+            <control>Data Protection</control>
+          </controls>
+        </framework>
+        
+        <framework>
+          <name>ISO27001</name>
+          <required>false</required>
+          <certification-required>false</certification-required>
+        </framework>
+      </compliance-requirements>
+
+      <!-- Security Policy -->
+      <security-policy>
+        <vulnerability-scanning>
+          <enabled>true</enabled>
+          <frequency>weekly</frequency>
+          <tools>
+            <tool>CodeQL</tool>
+            <tool>Dependabot</tool>
+          </tools>
+        </vulnerability-scanning>
+        
+        <secret-scanning>
+          <enabled>true</enabled>
+          <push-protection>true</push-protection>
+        </secret-scanning>
+        
+        <dependency-scanning>
+          <enabled>true</enabled>
+          <auto-merge-patches>false</auto-merge-patches>
+        </dependency-scanning>
+        
+        <code-scanning>
+          <enabled>true</enabled>
+          <languages>
+            <language>python</language>
+            <language>javascript</language>
+          </languages>
+        </code-scanning>
+      </security-policy>
+
+      <!-- Dependencies -->
+      <dependencies>
+        <dependency>
+          <name>defusedxml</name>
+          <ecosystem>pip</ecosystem>
+          <version-constraint>>=0.7.1</version-constraint>
+          <required>true</required>
+          <security-critical>true</security-critical>
+          <purpose>Safe XML parsing to prevent XXE attacks</purpose>
+        </dependency>
+      </dependencies>
+
+      <!-- Quality Gates -->
+      <quality-gates>
+        <code-coverage>
+          <minimum-percentage>80</minimum-percentage>
+          <enforcement-level>warning</enforcement-level>
+        </code-coverage>
+        
+        <complexity-threshold>
+          <max-cyclomatic-complexity>15</max-cyclomatic-complexity>
+          <max-cognitive-complexity>20</max-cognitive-complexity>
+        </complexity-threshold>
+        
+        <test-requirements>
+          <unit-tests>
+            <required>true</required>
+            <minimum-coverage>80</minimum-coverage>
+          </unit-tests>
+          
+          <integration-tests>
+            <required>false</required>
+            <minimum-coverage>60</minimum-coverage>
+          </integration-tests>
+        </test-requirements>
+      </quality-gates>
+
+      <!-- CI/CD Requirements -->
+      <ci-cd-requirements>
+        <required-workflows>
+          <workflow>
+            <name>ci</name>
+            <description>Continuous integration workflow</description>
+            <required>true</required>
+            <triggers>
+              <trigger>push</trigger>
+              <trigger>pull_request</trigger>
+            </triggers>
+          </workflow>
+          
+          <workflow>
+            <name>codeql-analysis</name>
+            <description>Security code scanning</description>
+            <required>true</required>
+            <triggers>
+              <trigger>push</trigger>
+              <trigger>schedule</trigger>
+            </triggers>
+          </workflow>
+        </required-workflows>
+        
+        <deployment-requirements>
+          <strategy>continuous-deployment</strategy>
+          <environments>
+            <environment>
+              <name>development</name>
+              <auto-deploy>true</auto-deploy>
+            </environment>
+            <environment>
+              <name>production</name>
+              <auto-deploy>false</auto-deploy>
+              <requires-approval>true</requires-approval>
+            </environment>
+          </environments>
+        </deployment-requirements>
+      </ci-cd-requirements>
+
+      <!-- Documentation Requirements -->
+      <documentation-requirements>
+        <required-documents>
+          <document>
+            <type>readme</type>
+            <required>true</required>
+            <min-sections>5</min-sections>
+          </document>
+          
+          <document>
+            <type>contributing</type>
+            <required>true</required>
+          </document>
+          
+          <document>
+            <type>security</type>
+            <required>true</required>
+          </document>
+          
+          <document>
+            <type>changelog</type>
+            <required>true</required>
+            <format>keep-a-changelog</format>
+          </document>
+          
+          <document>
+            <type>license</type>
+            <required>true</required>
+          </document>
+        </required-documents>
+      </documentation-requirements>
+
+      <!-- Team Structure -->
+      <team-structure>
+        <codeowners>
+          <required>true</required>
+          <path>.github/CODEOWNERS</path>
+          <min-owners>1</min-owners>
+        </codeowners>
+        
+        <teams>
+          <team>
+            <name>maintainers</name>
+            <role>maintain</role>
+            <min-members>2</min-members>
+          </team>
+          
+          <team>
+            <name>reviewers</name>
+            <role>write</role>
+            <min-members>2</min-members>
+          </team>
+        </teams>
+      </team-structure>
+
+      <!-- Release Management -->
+      <release-management>
+        <versioning-strategy>semantic</versioning-strategy>
+        <changelog-required>true</changelog-required>
+        <release-notes-required>true</release-notes-required>
+        
+        <hotfix-policy>
+          <allowed>true</allowed>
+          <requires-approval>true</requires-approval>
+          <notification-required>true</notification-required>
+        </hotfix-policy>
+        
+        <deprecation-policy>
+          <notice-period-days>90</notice-period-days>
+          <changelog-required>true</changelog-required>
+        </deprecation-policy>
+      </release-management>
+
+      <!-- Monitoring -->
+      <monitoring>
+        <health-checks>
+          <enabled>true</enabled>
+          <endpoints>
+            <endpoint>
+              <path>/health</path>
+              <interval-seconds>60</interval-seconds>
+            </endpoint>
+          </endpoints>
+        </health-checks>
+        
+        <metrics>
+          <enabled>true</enabled>
+          <retention-days>30</retention-days>
+        </metrics>
+        
+        <alerting>
+          <enabled>false</enabled>
+        </alerting>
+        
+        <logging>
+          <level>INFO</level>
+          <structured>true</structured>
+          <retention-days>30</retention-days>
+        </logging>
+      </monitoring>
     </repository-requirements>
   </structure>
 </repository-structure>

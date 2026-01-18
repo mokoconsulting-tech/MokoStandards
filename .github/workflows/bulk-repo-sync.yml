@@ -1,21 +1,6 @@
 # Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
 #
-# This file is part of a Moko Consulting project.
-#
 # SPDX-License-Identifier: GPL-3.0-or-later
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
 # FILE INFORMATION
 # DEFGROUP: GitHub.Workflows
@@ -29,7 +14,20 @@
 name: Bulk Repository Sync
 
 on:
-  # Run monthly on the 1st at 00:00 UTC
+  # Run after any update to MokoStandards main branch
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/**'
+      - 'scripts/**'
+      - 'templates/**'
+      - 'schemas/**'
+      - '.pylintrc'
+      - '.editorconfig'
+      - 'dependabot.yml'
+
+  # Run monthly on the 1st at 00:00 UTC (aligned with Dependabot)
   schedule:
     - cron: '0 0 1 * *'
 
@@ -46,6 +44,11 @@ on:
         type: string
       dry_run:
         description: 'Dry run mode (preview changes without applying)'
+        required: false
+        type: boolean
+        default: false
+      use_copilot:
+        description: 'Use GitHub Copilot for AI-powered file customization'
         required: false
         type: boolean
         default: false
@@ -139,6 +142,10 @@ jobs:
             ARGS="$ARGS --exclude ${{ inputs.exclude }}"
           fi
 
+          if [ "${{ inputs.use_copilot }}" == "true" ]; then
+            ARGS="$ARGS --use-copilot"
+          fi
+
           echo "## 🔍 Dry Run Mode" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Running bulk update in dry-run mode (no changes will be made)..." >> $GITHUB_STEP_SUMMARY
@@ -158,7 +165,7 @@ jobs:
           fi
 
       - name: Run bulk update script
-        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.dry_run != true)
+        if: github.event_name == 'schedule' || github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.dry_run != true)
         env:
           GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
         run: |
@@ -166,8 +173,8 @@ jobs:
 
           ARGS="--yes"
 
-          # Default exclusions for scheduled runs
-          if [ "${{ github.event_name }}" == "schedule" ]; then
+          # Default exclusions for scheduled and push runs
+          if [ "${{ github.event_name }}" == "schedule" ] || [ "${{ github.event_name }}" == "push" ]; then
             ARGS="$ARGS --exclude MokoStandards MokoStandards-Private"
           fi
 
@@ -180,9 +187,25 @@ jobs:
             ARGS="$ARGS --exclude ${{ inputs.exclude }}"
           fi
 
+          if [ "${{ inputs.use_copilot }}" == "true" ]; then
+            ARGS="$ARGS --use-copilot"
+          fi
+
           echo "## 🚀 Bulk Repository Sync" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Mode:** Live (changes will be applied)" >> $GITHUB_STEP_SUMMARY
+          
+          # Show trigger information
+          if [ "${{ github.event_name }}" == "push" ]; then
+            echo "**Trigger:** Automatic (push to main branch)" >> $GITHUB_STEP_SUMMARY
+            echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+            echo "**Author:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ github.event_name }}" == "schedule" ]; then
+            echo "**Trigger:** Scheduled (monthly)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Trigger:** Manual" >> $GITHUB_STEP_SUMMARY
+          fi
+          
           echo "**Arguments:** \`$ARGS\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 📋 Sync Features" >> $GITHUB_STEP_SUMMARY
@@ -190,6 +213,9 @@ jobs:
           echo "- Respects \`always-overwrite\` flags" >> $GITHUB_STEP_SUMMARY
           echo "- Supports \`scripts/.mokostandards-sync.yml\` overrides" >> $GITHUB_STEP_SUMMARY
           echo "- Protected files: .gitignore, .editorconfig (and more)" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ inputs.use_copilot }}" == "true" ]; then
+            echo "- 🤖 AI-powered file customization with GitHub Copilot" >> $GITHUB_STEP_SUMMARY
+          fi
           echo "" >> $GITHUB_STEP_SUMMARY
 
           # Verify GH_TOKEN is available for git operations
@@ -228,9 +254,19 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Workflow Details**" >> $GITHUB_STEP_SUMMARY
           echo "- Event: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+          
+          if [ "${{ github.event_name }}" == "push" ]; then
+            echo "- Trigger: Automatic (MokoStandards updated)" >> $GITHUB_STEP_SUMMARY
+            echo "- Branch: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+            echo "- Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ github.event_name }}" == "schedule" ]; then
+            echo "- Trigger: Scheduled (monthly sync)" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "- Trigger: Manual" >> $GITHUB_STEP_SUMMARY
             echo "- Dry run: ${{ inputs.dry_run }}" >> $GITHUB_STEP_SUMMARY
             echo "- Repos: ${{ inputs.repos || 'all' }}" >> $GITHUB_STEP_SUMMARY
             echo "- Exclude: ${{ inputs.exclude || 'none' }}" >> $GITHUB_STEP_SUMMARY
+            echo "- Copilot: ${{ inputs.use_copilot }}" >> $GITHUB_STEP_SUMMARY
           fi
+          
           echo "- Completed at: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> $GITHUB_STEP_SUMMARY

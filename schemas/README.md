@@ -118,6 +118,9 @@ For comprehensive documentation, see:
 3. **Template Substitution**: Generate customized content
 4. **Dual README Support**: Separate developer and end-user documentation
 5. **Flexible Rules**: Define custom validation rules per file/directory
+6. **AI-Powered Generation**: GitHub Copilot integration for intelligent file customization
+7. **Workflow Dependencies**: Automatic protection of workflow-critical scripts
+8. **Override Schemas**: Repository-specific customization templates
 
 ## Example: MokoCRM Module Structure
 
@@ -340,5 +343,104 @@ jobs:
 
 ---
 
-**Version**: 1.1.0  
-**Last Updated**: 2026-01-08
+**Version**: 2.0.0  
+**Last Updated**: 2026-01-18
+
+## GitHub Copilot Integration 🤖
+
+The repository structure schema now supports AI-powered file generation and customization using GitHub Copilot.
+
+### Copilot-Enabled Files
+
+Files in the schema can be marked with `copilot-enabled` to enable AI-powered customization during repository synchronization:
+
+```xml
+<file name="README.md" 
+      requirement-status="required" 
+      copilot-enabled="true"
+      copilot-prompt="Generate a comprehensive README with project description, installation, usage, and contribution guidelines">
+  <stub-content><!-- fallback content --></stub-content>
+</file>
+```
+
+### Features
+
+- **Context-Aware Generation**: Copilot analyzes repository type (Joomla, Dolibarr, generic) and generates appropriate content
+- **Custom Prompts**: Per-file AI prompts for precise customization
+- **Automatic Fallback**: Uses stub content if Copilot is unavailable
+- **README Sections**: Generates project-specific sections based on repository context
+- **Workflow Optimization**: Suggests improvements for GitHub Actions workflows
+- **Config Customization**: Adapts configurations to detected platform type
+
+### Usage
+
+Enable Copilot integration during bulk repository sync:
+
+```bash
+python scripts/automation/bulk_update_repos.py --use-copilot
+```
+
+Or via workflow dispatch:
+```yaml
+# .github/workflows/bulk-repo-sync.yml
+# Manual trigger with Copilot option
+workflow_dispatch:
+  inputs:
+    use_copilot:
+      description: 'Enable AI-powered file customization'
+      type: boolean
+      default: false
+```
+
+### Schema Fields
+
+- `copilot-enabled` (boolean): Enable AI generation for this file
+- `copilot-prompt` (string): Custom AI instruction for file generation
+- `workflow-dependency` (boolean): Mark script as critical for workflows (always overwrite)
+
+### Override Schemas
+
+Each synced repository receives `scripts/repository-structure-override.xml` with templates for:
+- Repository-specific file requirements
+- Custom Copilot prompts per file
+- Always-overwrite flags
+- Platform-specific customizations
+
+See [Copilot Integration Guide](../docs/guide/copilot-integration-guide.md) for comprehensive documentation.
+
+---
+
+## Changelog
+
+### Version 2.0.0 (2026-01-18) - Enterprise Ready
+**Major Release**: Comprehensive enterprise features added to schema
+
+#### New Enterprise Sections
+1. **Compliance Requirements**: Support for SOC2, GDPR, HIPAA, ISO27001, PCI-DSS, NIST, FedRAMP, CCPA
+2. **Security Policy**: Vulnerability scanning, secret scanning, dependency scanning, code scanning
+3. **Dependencies**: Multi-ecosystem package management (npm, pip, composer, maven, etc.) with security requirements
+4. **Quality Gates**: Code coverage thresholds, complexity limits, test requirements, performance benchmarks
+5. **CI/CD Requirements**: Workflow requirements, deployment strategies, artifact management, pipeline stages
+6. **Documentation Requirements**: Required documentation types (README, API docs, architecture, runbooks)
+7. **Team Structure**: CODEOWNERS, maintainers, contributors, team permissions
+8. **Release Management**: Versioning strategies (semver/calver), changelog requirements, hotfix/deprecation policies
+9. **Monitoring**: Health checks, metrics collection, alerting, structured logging
+
+#### Schema Enhancements
+- Updated from version 1.0 to 2.0
+- Added 48+ new complex types to XSD schema
+- Extended JSON schema with enterprise properties
+- All new sections are optional (minOccurs="0")
+- Comprehensive enum types for standardization
+- Default repository definition updated with examples
+
+#### Breaking Changes
+- Schema version changed to 2.0 (use schema-version="2.0" in XML files)
+- Old 1.0 definitions still compatible (new sections optional)
+
+### Version 1.2.0 (2026-01-18)
+- Added `scripts/requirements.txt` to all repository structure definitions
+- Updated security requirements: defusedxml>=0.7.1 for safe XML parsing
+- Added stub content for Python dependencies in scripts directory
+- Updated all schema definition timestamps
+- Enhanced security documentation for script dependencies

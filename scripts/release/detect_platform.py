@@ -4,22 +4,7 @@ Detect extension platform and type.
 
 Copyright (C) 2025 Moko Consulting <hello@mokoconsulting.tech>
 
-This file is part of a Moko Consulting project.
-
 SPDX-License-Identifier: GPL-3.0-or-later
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program (./LICENSE.md).
 
 FILE INFORMATION
 DEFGROUP: Script.Release
@@ -51,7 +36,7 @@ def main() -> int:
         description="Detect extension platform and type",
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    
+
     parser.add_argument(
         "src_dir",
         nargs="?",
@@ -64,16 +49,16 @@ def main() -> int:
         default="pipe",
         help="Output format (default: pipe)"
     )
-    
+
     args = parser.parse_args()
-    
+
     try:
         ext_info = extension_utils.get_extension_info(args.src_dir)
-        
+
         if not ext_info:
             print(f"ERROR: No extension detected in {args.src_dir}", file=sys.stderr)
             return 1
-        
+
         if args.format == "pipe":
             # Format: platform|ext_type
             print(f"{ext_info.platform.value}|{ext_info.extension_type}")
@@ -86,9 +71,9 @@ def main() -> int:
                 "version": ext_info.version
             }
             print(json.dumps(data))
-        
+
         return 0
-        
+
     except Exception as e:
         print(f"ERROR: {e}", file=sys.stderr)
         return 1

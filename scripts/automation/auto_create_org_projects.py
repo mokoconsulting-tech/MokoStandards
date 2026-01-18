@@ -2,22 +2,7 @@
 """
 Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
 
-This file is part of a Moko Consulting project.
-
 SPDX-License-Identifier: GPL-3.0-or-later
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 FILE INFORMATION
 DEFGROUP: MokoStandards.Automation
@@ -88,7 +73,7 @@ class OrgProjectsCreator:
     def run_graphql(self, query: str, variables: Optional[Dict] = None) -> Dict:
         """Execute a GraphQL query."""
         self.log_verbose("Executing GraphQL query...")
-        
+
         if self.dry_run:
             self.log_verbose("[DRY RUN] Skipping actual API call")
             return {"data": {}}
@@ -97,7 +82,7 @@ class OrgProjectsCreator:
             if self.token:
                 if requests is None:
                     raise ImportError("requests library required for token authentication")
-                
+
                 headers = {
                     "Authorization": f"Bearer {self.token}",
                     "Content-Type": "application/json"
@@ -105,7 +90,7 @@ class OrgProjectsCreator:
                 payload = {"query": query}
                 if variables:
                     payload["variables"] = variables
-                
+
                 response = requests.post(
                     "https://api.github.com/graphql",
                     headers=headers,
@@ -123,7 +108,7 @@ class OrgProjectsCreator:
                             cmd.extend(["-F", f"{key}={json.dumps(value)}"])
                         else:
                             cmd.extend(["-f", f"{key}={value}"])
-                
+
                 result = subprocess.run(cmd, capture_output=True, text=True, check=True)
                 return json.loads(result.stdout)
         except Exception as e:
@@ -135,7 +120,7 @@ class OrgProjectsCreator:
     def get_org_repositories(self) -> List[Dict]:
         """Get all repositories in the organization."""
         print(f"\n🔍 Fetching repositories from {self.org}...")
-        
+
         query = """
         query($org: String!, $cursor: String) {
             organization(login: $org) {
@@ -161,58 +146,58 @@ class OrgProjectsCreator:
             }
         }
         """
-        
+
         repositories = []
         cursor = None
-        
+
         while True:
             variables = {"org": self.org}
             if cursor:
                 variables["cursor"] = cursor
-            
+
             result = self.run_graphql(query, variables)
-            
+
             if not result or "data" not in result:
                 break
-            
+
             org_data = result["data"].get("organization", {})
             repos_data = org_data.get("repositories", {})
             nodes = repos_data.get("nodes", [])
-            
+
             repositories.extend(nodes)
-            
+
             page_info = repos_data.get("pageInfo", {})
             if not page_info.get("hasNextPage"):
                 break
-            
+
             cursor = page_info.get("endCursor")
-        
+
         # Filter out archived repos
         active_repos = [r for r in repositories if not r.get("isArchived", False)]
-        
+
         print(f"✅ Found {len(repositories)} total repositories ({len(active_repos)} active)")
         return active_repos
 
     def detect_project_type(self, repo_name: str, default_branch: str = "main") -> str:
         """Detect project type from repository contents."""
         self.log_verbose(f"Detecting project type for {repo_name}...")
-        
+
         joomla_indicators = 0
         dolibarr_indicators = 0
-        
+
         try:
             result = subprocess.run(
-                ["gh", "api", f"repos/{self.org}/{repo_name}/contents", 
+                ["gh", "api", f"repos/{self.org}/{repo_name}/contents",
                  "-f", f"ref={default_branch}"],
                 capture_output=True,
                 text=True,
                 check=False
             )
-            
+
             if result.returncode == 0:
                 contents = json.loads(result.stdout)
                 file_names = [item.get("name", "") for item in contents]
-                
+
                 # Check for Joomla patterns with multiple indicators
                 for name in file_names:
                     if name.endswith(".xml"):
@@ -231,11 +216,11 @@ class OrgProjectsCreator:
                                 joomla_indicators += 2
                             if any(x in manifest_content for x in ["<extension", "<install", "<component", "<module", "<plugin"]):
                                 joomla_indicators += 1
-                    
+
                     # Additional Joomla indicators
                     if name in ["administrator", "components", "modules", "plugins"]:
                         joomla_indicators += 1
-                
+
                 # Check for Dolibarr patterns with multiple indicators
                 for name in file_names:
                     if name.startswith("mod") and name.endswith(".class.php"):
@@ -244,22 +229,22 @@ class OrgProjectsCreator:
                         dolibarr_indicators += 2
                     if name in ["core", "class"]:
                         dolibarr_indicators += 1
-                
+
                 # Decide based on indicators
                 if joomla_indicators >= 2:
                     return "joomla"
                 if dolibarr_indicators >= 2:
                     return "dolibarr"
-        
+
         except Exception as e:
             self.log_verbose(f"Error detecting project type: {e}")
-        
+
         return "generic"
 
     def check_roadmap_exists(self, repo_name: str, default_branch: str = "main") -> bool:
         """Check if ROADMAP.md exists in repository."""
         self.log_verbose(f"Checking for roadmap in {repo_name}...")
-        
+
         try:
             result = subprocess.run(
                 ["gh", "api", f"repos/{self.org}/{repo_name}/contents/docs/ROADMAP.md",
@@ -284,7 +269,7 @@ This document defines the roadmap for {repo_name}, tracking planned features, im
 ## Project Type: {project_type.capitalize()}
 
 """
-        
+
         if project_type == "joomla":
             base_content += """## Version 1.0.0 — Initial Release
 
@@ -411,10 +396,10 @@ Focus: Major feature additions and improvements
 * ⬜ Enhanced security
 * ⬜ Comprehensive testing
 """
-        
+
         # Get current date once
         current_date = datetime.now().strftime("%Y-%m-%d")
-        
+
         base_content += f"""
 ---
 
@@ -432,21 +417,21 @@ Last Updated: {current_date}
 | ---------- | -------- | ------ | ------------------------ |
 | {current_date} | 01.00.00 | Auto   | Initial roadmap creation |
 """
-        
+
         return base_content
 
     def create_or_update_roadmap(self, repo_name: str, project_type: str, default_branch: str = "main") -> bool:
         """Create or update roadmap in repository."""
         print(f"  📋 Creating/updating roadmap for {repo_name}...")
-        
+
         if self.dry_run:
             print(f"  [DRY RUN] Would create roadmap for {repo_name}")
             self.roadmaps_created.append(repo_name)
             return True
-        
+
         # Generate roadmap content
         roadmap_content = self.generate_roadmap_content(repo_name, project_type)
-        
+
         # Create docs directory if it doesn't exist (using gh CLI)
         try:
             # Check if docs directory exists
@@ -456,11 +441,11 @@ Last Updated: {current_date}
                 capture_output=True,
                 check=False
             )
-            
+
             # Create roadmap file (this will require push access)
             # Note: This uses gh api to create/update file
             encoded_content = base64.b64encode(roadmap_content.encode()).decode()
-            
+
             # Check if file exists
             check_result = subprocess.run(
                 ["gh", "api", f"repos/{self.org}/{repo_name}/contents/docs/ROADMAP.md",
@@ -469,12 +454,12 @@ Last Updated: {current_date}
                 text=True,
                 check=False
             )
-            
+
             if check_result.returncode == 0:
                 # File exists, update it
                 existing_data = json.loads(check_result.stdout)
                 sha = existing_data.get("sha")
-                
+
                 subprocess.run(
                     ["gh", "api", f"repos/{self.org}/{repo_name}/contents/docs/ROADMAP.md",
                      "-X", "PUT",
@@ -496,11 +481,11 @@ Last Updated: {current_date}
                     capture_output=True,
                     check=True
                 )
-            
+
             print(f"  ✅ Roadmap created/updated for {repo_name}")
             self.roadmaps_created.append(repo_name)
             return True
-            
+
         except Exception as e:
             error_msg = f"Failed to create roadmap for {repo_name}: {e}"
             self.errors.append(error_msg)
@@ -511,7 +496,7 @@ Last Updated: {current_date}
         """Load project configuration template."""
         templates_dir = Path(__file__).parent.parent / "templates" / "projects"
         config_file = templates_dir / f"{project_type}-project-config.json"
-        
+
         try:
             with open(config_file, 'r') as f:
                 return json.load(f)
@@ -523,26 +508,26 @@ Last Updated: {current_date}
         """Create a GitHub Project for a repository."""
         repo_name = repo["name"]
         print(f"\n📁 Creating project for {repo_name} ({project_type})...")
-        
+
         if self.dry_run:
             print(f"  [DRY RUN] Would create {project_type} project for {repo_name}")
             self.created_projects.append(repo_name)
             return True
-        
+
         # Load project configuration
         config = self.load_project_config(project_type)
         if not config:
             print(f"  ⚠️  No config found for {project_type}, using generic")
             config = self.load_project_config("generic")
-        
+
         if not config:
             print(f"  ❌ Failed to load project config")
             return False
-        
+
         # Create project using GraphQL API
-        # This is a simplified version - full implementation would use 
+        # This is a simplified version - full implementation would use
         # the existing setup_github_project_v2.py as a library
-        
+
         print(f"  ✅ Project creation queued for {repo_name}")
         self.created_projects.append(repo_name)
         return True
@@ -552,51 +537,51 @@ Last Updated: {current_date}
         print("\n" + "="*70)
         print("Auto-Create Smart Projects for Organization Repositories")
         print("="*70)
-        
+
         if self.dry_run:
             print("\n[DRY RUN MODE - No actual changes will be made]")
-        
+
         # Get all repositories
         repos = self.get_org_repositories()
-        
+
         if not repos:
             print("❌ No repositories found")
             return
-        
+
         # Process each repository
         for repo in repos:
             repo_name = repo["name"]
             default_branch = repo.get("defaultBranchRef", {}).get("name", "main")
-            
+
             # Skip MokoStandards (project 7 already exists)
             if repo_name == "MokoStandards":
                 print(f"\n⏭️  Skipping {repo_name} (Project #{MOKOSTANDARDS_PROJECT_ID} already exists)")
                 self.skipped_repos.append(f"{repo_name} (existing)")
                 continue
-            
+
             print(f"\n{'='*70}")
             print(f"Processing: {repo_name}")
             print(f"{'='*70}")
-            
+
             # Detect project type
             project_type = self.detect_project_type(repo_name, default_branch)
             print(f"  📦 Detected type: {project_type}")
-            
+
             # Check for roadmap
             has_roadmap = self.check_roadmap_exists(repo_name, default_branch)
-            
+
             if not has_roadmap:
                 print(f"  ⚠️  No roadmap found, creating one...")
                 self.create_or_update_roadmap(repo_name, project_type, default_branch)
             else:
                 print(f"  ✅ Roadmap already exists")
-            
+
             # Create project
             success = self.create_project_for_repo(repo, project_type)
-            
+
             if not success:
                 self.skipped_repos.append(f"{repo_name} (failed)")
-        
+
         # Print summary
         self.print_summary()
 
@@ -605,34 +590,34 @@ Last Updated: {current_date}
         print("\n" + "="*70)
         print("SUMMARY REPORT")
         print("="*70)
-        
+
         print(f"\n📊 Organization: {self.org}")
         print(f"✅ Projects Created: {len(self.created_projects)}")
         print(f"📋 Roadmaps Created: {len(self.roadmaps_created)}")
         print(f"⏭️  Repositories Skipped: {len(self.skipped_repos)}")
-        
+
         if self.created_projects:
             print(f"\n✅ Created Projects:")
             for repo in self.created_projects:
                 print(f"   - {repo}")
-        
+
         if self.roadmaps_created:
             print(f"\n📋 Created Roadmaps:")
             for repo in self.roadmaps_created:
                 print(f"   - {repo}")
-        
+
         if self.skipped_repos:
             print(f"\n⏭️  Skipped Repositories:")
             for repo in self.skipped_repos:
                 print(f"   - {repo}")
-        
+
         if self.errors:
             print(f"\n❌ Errors Encountered: {len(self.errors)}")
             for error in self.errors[:10]:
                 print(f"   - {error}")
             if len(self.errors) > 10:
                 print(f"   ... and {len(self.errors) - 10} more")
-        
+
         print("\n" + "="*70)
 
 
@@ -656,17 +641,17 @@ def main():
         action='store_true',
         help='Show what would be done without making changes'
     )
-    
+
     args = parser.parse_args()
-    
+
     # Get token from environment
     token = os.environ.get("GH_PAT") or os.environ.get("GITHUB_TOKEN")
-    
+
     if not token and not args.dry_run:
         print("❌ GitHub token required. Set GH_PAT or GITHUB_TOKEN environment variable")
         print("   Or authenticate with: gh auth login")
         sys.exit(1)
-    
+
     # Check if using GITHUB_TOKEN (which has limited permissions)
     if token and token.startswith("ghs_") and not args.dry_run:
         print("❌ Organization operations require a Personal Access Token (PAT)")
@@ -679,7 +664,7 @@ def main():
         print("")
         print("   See: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens")
         sys.exit(1)
-    
+
     # Create and run processor
     processor = OrgProjectsCreator(
         org=args.org,
@@ -687,9 +672,9 @@ def main():
         verbose=args.verbose,
         dry_run=args.dry_run
     )
-    
+
     processor.process_repositories()
-    
+
     print("\n✅ Processing complete!")
 
 

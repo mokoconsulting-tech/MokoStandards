@@ -398,10 +398,9 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### CodeQL Language Configuration" >> $GITHUB_STEP_SUMMARY
           
-          # Download validation script from MokoStandards
-          # Using main branch reference. For production, pin to a specific commit for integrity:
-          # SCRIPT_URL="https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/<commit-sha>/scripts/validate/validate_codeql_config.py"
-          SCRIPT_URL="https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/scripts/validate/validate_codeql_config.py"
+          # Download validation script from MokoStandards (pinned to specific commit for integrity)
+          SCRIPT_URL="https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/75ecb19a2c30447a56548db71bb8a66c023d61b8/scripts/validate/validate_codeql_config.py"
+          EXPECTED_SHA256="1f83c642c8312786da63fe9eb89145f473eb81249ed48e3a741255939df9b96e"
           
           echo "📥 Downloading validation script..." >> $GITHUB_STEP_SUMMARY
           if ! curl -sSLf "$SCRIPT_URL" -o /tmp/validate_codeql_config.py; then
@@ -409,13 +408,16 @@ jobs:
             exit 1
           fi
           
-          # Verify script was downloaded and is not empty
-          if [ ! -s /tmp/validate_codeql_config.py ]; then
-            echo "❌ Downloaded script is empty" >> $GITHUB_STEP_SUMMARY
+          # Verify script integrity with SHA256
+          ACTUAL_SHA256=$(sha256sum /tmp/validate_codeql_config.py | cut -d' ' -f1)
+          if [ "$ACTUAL_SHA256" != "$EXPECTED_SHA256" ]; then
+            echo "❌ Script integrity verification failed!" >> $GITHUB_STEP_SUMMARY
+            echo "Expected: $EXPECTED_SHA256" >> $GITHUB_STEP_SUMMARY
+            echo "Actual: $ACTUAL_SHA256" >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
           
-          echo "✅ Validation script downloaded successfully" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Validation script downloaded and verified successfully" >> $GITHUB_STEP_SUMMARY
           
           # Run validation
           if python3 /tmp/validate_codeql_config.py > /tmp/codeql_validation.txt 2>&1; then

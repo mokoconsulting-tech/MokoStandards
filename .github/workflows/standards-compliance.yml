@@ -400,6 +400,7 @@ jobs:
           
           # Download validation script from MokoStandards (pinned to specific commit for integrity)
           SCRIPT_URL="https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/75ecb19a2c30447a56548db71bb8a66c023d61b8/scripts/validate/validate_codeql_config.py"
+          # SHA256 hash generated from: sha256sum scripts/validate/validate_codeql_config.py at commit 75ecb19a2c30447a56548db71bb8a66c023d61b8
           EXPECTED_SHA256="1f83c642c8312786da63fe9eb89145f473eb81249ed48e3a741255939df9b96e"
           
           echo "📥 Downloading validation script..." >> $GITHUB_STEP_SUMMARY

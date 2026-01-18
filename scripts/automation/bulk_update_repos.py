@@ -99,7 +99,13 @@ DEFAULT_SCRIPTS_TO_SYNC = [
     "scripts/maintenance/update_changelog.py",
     "scripts/maintenance/release_version.py",
     "scripts/validate/validate_codeql_config.py",
+    "scripts/validate/auto_detect_platform.py",
+    "scripts/validate/validate_structure_v2.py",
     "scripts/release/deploy_to_dev.py",
+    # Schema definitions needed by auto_detect_platform.py
+    "scripts/definitions/crm-module.xml",
+    "scripts/definitions/default-repository.xml",
+    "scripts/definitions/waas-component.xml",
 ]
 
 

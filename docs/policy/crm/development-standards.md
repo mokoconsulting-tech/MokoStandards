@@ -594,7 +594,7 @@ class InterfaceModMokoModuleMokoTriggers extends DolibarrTriggers
      */
     public function __construct($db)
     {
-        global $langs;
+        global $langs, $conf;
         
         $this->db = $db;
         

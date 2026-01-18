@@ -169,7 +169,7 @@ class modMokoDoliForm extends DolibarrModules
 {
     public function __construct($db)
     {
-        global $langs;
+        global $langs, $conf;
         
         $this->numero = 185056;  // Module ID (reserved in MokoStandards)
         

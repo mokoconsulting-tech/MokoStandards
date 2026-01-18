@@ -194,7 +194,7 @@ class modYourModule extends DolibarrModules
 {
     public function __construct($db)
     {
-        global $langs;
+        global $langs, $conf;
         
         parent::__construct($db);
         

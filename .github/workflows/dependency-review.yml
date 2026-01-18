@@ -90,13 +90,10 @@ jobs:
             echo "ℹ️ No package.json found, skipping npm audit" >> $GITHUB_STEP_SUMMARY
             exit 0
           fi
-
-          # Setup Node.js
-          echo "Setting up Node.js..."
           
           echo "### npm Audit Results" >> $GITHUB_STEP_SUMMARY
 
-          # Install node if needed (already available in ubuntu-latest)
+          # Node.js is pre-installed in ubuntu-latest runners
           # Run audit and capture results
           if npm audit --audit-level=moderate; then
             echo "✅ No moderate or higher severity vulnerabilities found" >> $GITHUB_STEP_SUMMARY
@@ -124,21 +121,31 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Check for composer.json and Run Composer Audit
+      - name: Check for composer.json
+        id: check
         run: |
-          if [ ! -f "composer.json" ]; then
+          if [ -f "composer.json" ]; then
+            echo "found=true" >> $GITHUB_OUTPUT
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
             echo "ℹ️ No composer.json found, skipping Composer audit" >> $GITHUB_STEP_SUMMARY
-            exit 0
           fi
 
-          # Setup PHP
-          sudo apt-get update
-          sudo apt-get install -y php php-cli php-mbstring php-xml php-zip composer
+      - name: Setup PHP
+        if: steps.check.outputs.found == 'true'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          tools: composer:v2
 
+      - name: Install Dependencies
+        if: steps.check.outputs.found == 'true'
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Run Composer Audit
+        if: steps.check.outputs.found == 'true'
+        run: |
           echo "### Composer Audit Results" >> $GITHUB_STEP_SUMMARY
-
-          # Install dependencies
-          composer install --no-interaction --prefer-dist
 
           # Run audit and capture results
           if composer audit; then
@@ -149,12 +156,8 @@ jobs:
           fi
 
       - name: Check for Outdated Packages
+        if: steps.check.outputs.found == 'true'
         run: |
-          if [ ! -f "composer.json" ]; then
-            echo "ℹ️ No composer.json found, skipping outdated packages check" >> $GITHUB_STEP_SUMMARY
-            exit 0
-          fi
-          
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Outdated Composer Packages" >> $GITHUB_STEP_SUMMARY
           composer outdated --direct || echo "All packages are up to date" >> $GITHUB_STEP_SUMMARY
@@ -167,18 +170,29 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Check for Python files and Run Safety Check
+      - name: Check for Python dependency files
+        id: check
         run: |
-          if [ ! -f "requirements.txt" ] && [ ! -f "pyproject.toml" ] && [ ! -f "Pipfile" ]; then
+          if [ -f "requirements.txt" ] || [ -f "pyproject.toml" ] || [ -f "Pipfile" ]; then
+            echo "found=true" >> $GITHUB_OUTPUT
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
             echo "ℹ️ No Python dependency files found, skipping safety check" >> $GITHUB_STEP_SUMMARY
-            exit 0
           fi
 
-          # Setup Python
-          sudo apt-get update
-          sudo apt-get install -y python3 python3-pip
-          pip3 install safety
+      - name: Setup Python
+        if: steps.check.outputs.found == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
+      - name: Install Safety
+        if: steps.check.outputs.found == 'true'
+        run: pip install safety
+
+      - name: Run Safety Check
+        if: steps.check.outputs.found == 'true'
+        run: |
           echo "### Python Safety Check Results" >> $GITHUB_STEP_SUMMARY
 
           # Check requirements.txt if exists

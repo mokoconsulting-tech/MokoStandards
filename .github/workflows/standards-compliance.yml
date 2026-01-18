@@ -414,8 +414,23 @@ jobs:
           echo "### CodeQL Language Configuration" >> $GITHUB_STEP_SUMMARY
           
           # Download validation script from MokoStandards
+          # Using main branch reference. For production, pin to a specific commit for integrity:
+          # SCRIPT_URL="https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/<commit-sha>/scripts/validate/validate_codeql_config.py"
           SCRIPT_URL="https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/scripts/validate/validate_codeql_config.py"
-          curl -sSL "$SCRIPT_URL" -o /tmp/validate_codeql_config.py
+          
+          echo "📥 Downloading validation script..." >> $GITHUB_STEP_SUMMARY
+          if ! curl -sSLf "$SCRIPT_URL" -o /tmp/validate_codeql_config.py; then
+            echo "❌ Failed to download validation script" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          
+          # Verify script was downloaded and is not empty
+          if [ ! -s /tmp/validate_codeql_config.py ]; then
+            echo "❌ Downloaded script is empty" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          
+          echo "✅ Validation script downloaded successfully" >> $GITHUB_STEP_SUMMARY
           
           # Run validation
           if python3 /tmp/validate_codeql_config.py > /tmp/codeql_validation.txt 2>&1; then

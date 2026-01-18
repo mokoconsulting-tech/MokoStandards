@@ -78,6 +78,33 @@
         }
       }
     },
+    "workflows": {
+      "type": "object",
+      "description": "GitHub Actions workflow templates available for this repository type",
+      "properties": {
+        "templates": {
+          "type": "array",
+          "description": "List of available workflow templates",
+          "items": {
+            "$ref": "#/definitions/workflowTemplate"
+          }
+        },
+        "required": {
+          "type": "array",
+          "description": "Workflows that are required for this repository type",
+          "items": {
+            "type": "string"
+          }
+        },
+        "recommended": {
+          "type": "array",
+          "description": "Workflows that are recommended for this repository type",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "health": {
       "type": "object",
       "description": "Health scoring configuration (from repo-health schema)",
@@ -428,6 +455,153 @@
             "script": {
               "type": "string",
               "description": "Script path for custom validation"
+            }
+          }
+        }
+      }
+    },
+    "workflowTemplate": {
+      "type": "object",
+      "description": "GitHub Actions workflow template definition",
+      "required": ["id", "name", "path", "platform", "category"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the workflow template"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable name of the workflow"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of what the workflow does"
+        },
+        "path": {
+          "type": "string",
+          "description": "Path to the workflow template file relative to templates/workflows/"
+        },
+        "platform": {
+          "type": "string",
+          "enum": ["generic", "joomla", "dolibarr", "shared", "all"],
+          "description": "Target platform for the workflow"
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "ci",
+            "build",
+            "test",
+            "release",
+            "deploy",
+            "quality",
+            "security",
+            "documentation",
+            "maintenance",
+            "reusable"
+          ],
+          "description": "Category of the workflow"
+        },
+        "triggers": {
+          "type": "array",
+          "description": "GitHub Actions triggers for this workflow",
+          "items": {
+            "type": "string",
+            "enum": [
+              "push",
+              "pull_request",
+              "workflow_dispatch",
+              "schedule",
+              "release",
+              "workflow_call"
+            ]
+          }
+        },
+        "requirementLevel": {
+          "type": "string",
+          "enum": ["required", "recommended", "optional"],
+          "default": "optional",
+          "description": "Requirement level for this repository type"
+        },
+        "dependencies": {
+          "type": "array",
+          "description": "Other workflows this template depends on",
+          "items": {
+            "type": "string"
+          }
+        },
+        "secrets": {
+          "type": "array",
+          "description": "GitHub secrets required by this workflow",
+          "items": {
+            "type": "object",
+            "required": ["name", "description"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Secret name"
+              },
+              "description": {
+                "type": "string",
+                "description": "Secret description and usage"
+              },
+              "required": {
+                "type": "boolean",
+                "default": true,
+                "description": "Whether this secret is required"
+              }
+            }
+          }
+        },
+        "variables": {
+          "type": "array",
+          "description": "GitHub variables required by this workflow",
+          "items": {
+            "type": "object",
+            "required": ["name", "description"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Variable name"
+              },
+              "description": {
+                "type": "string",
+                "description": "Variable description"
+              },
+              "required": {
+                "type": "boolean",
+                "default": false,
+                "description": "Whether this variable is required"
+              },
+              "defaultValue": {
+                "type": "string",
+                "description": "Default value if not provided"
+              }
+            }
+          }
+        },
+        "permissions": {
+          "type": "object",
+          "description": "GitHub permissions required by this workflow",
+          "additionalProperties": {
+            "type": "string",
+            "enum": ["read", "write", "none"]
+          }
+        },
+        "examples": {
+          "type": "array",
+          "description": "Usage examples for this workflow",
+          "items": {
+            "type": "object",
+            "properties": {
+              "description": {
+                "type": "string",
+                "description": "Example description"
+              },
+              "configuration": {
+                "type": "string",
+                "description": "Example configuration snippet"
+              }
             }
           }
         }

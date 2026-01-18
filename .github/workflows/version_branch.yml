@@ -4,17 +4,17 @@ on:
   # Run monthly on the 1st at 03:00 UTC for automated version planning
   schedule:
     - cron: '0 3 1 * *'
-  
+
   # Run on pull requests to version branches for validation
   pull_request:
     branches:
       - version/**
       - rc/**
-  
+
   # Run on release creation for version tracking
   release:
     types: [published, created]
-  
+
   # Allow manual triggering with full options
   workflow_dispatch:
     inputs:
@@ -314,9 +314,9 @@ jobs:
           # 2. rc/X.Y.Z      - release candidate versions
           # 3. dev/X.Y.Z     - development versions
           #
-          # Rule: If a version exists in a higher priority branch, 
+          # Rule: If a version exists in a higher priority branch,
           # do not allow creating it in a lower priority branch
-          
+
           echo "[INFO] Checking version hierarchy for: ${NEW_VERSION}"
           echo "[INFO] Current branch prefix: ${BRANCH_PREFIX}"
 
@@ -336,21 +336,21 @@ jobs:
               ;;
             "dev/")
               echo "[INFO] Creating dev branch - checking if version exists in stable or RC"
-              
+
               # Check stable versions
               if git ls-remote --exit-code --heads origin "version/${NEW_VERSION}" >/dev/null 2>&1; then
                 echo "[FATAL] Version ${NEW_VERSION} already exists in stable branch: version/${NEW_VERSION}" >&2
                 echo "[FATAL] Cannot create dev version for a version that already exists in stable" >&2
                 exit 2
               fi
-              
+
               # Check RC versions
               if git ls-remote --exit-code --heads origin "rc/${NEW_VERSION}" >/dev/null 2>&1; then
                 echo "[FATAL] Version ${NEW_VERSION} already exists in RC branch: rc/${NEW_VERSION}" >&2
                 echo "[FATAL] Cannot create dev version for a version that already exists in RC" >&2
                 exit 2
               fi
-              
+
               echo "[INFO] ✓ No conflict with stable or RC versions"
               ;;
             *)

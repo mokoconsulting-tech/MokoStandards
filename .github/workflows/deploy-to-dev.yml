@@ -47,32 +47,32 @@ jobs:
             const actor = context.actor;
             const org = context.repo.owner;
             const repo = context.repo.repo;
-            
+
             console.log(`Checking permissions for ${actor}`);
-            
+
             try {
               // Check if user is org admin
               const orgMembership = await github.rest.orgs.getMembershipForUser({
                 org: org,
                 username: actor
               });
-              
+
               if (orgMembership.data.role === 'admin') {
                 console.log(`✓ ${actor} is an organization admin`);
                 core.setOutput('has-permission', 'true');
                 return;
               }
-              
+
               // Check if user has maintain or admin permission on repo
               const repoPermission = await github.rest.repos.getCollaboratorPermissionLevel({
                 owner: org,
                 repo: repo,
                 username: actor
               });
-              
+
               const permission = repoPermission.data.permission;
               console.log(`${actor} has '${permission}' permission on ${org}/${repo}`);
-              
+
               if (permission === 'admin' || permission === 'maintain') {
                 console.log(`✓ ${actor} is a repository admin or maintainer`);
                 core.setOutput('has-permission', 'true');
@@ -84,7 +84,7 @@ jobs:
               console.error(`Error checking permissions: ${error.message}`);
               core.setOutput('has-permission', 'false');
             }
-      
+
       - name: Deny deployment
         if: steps.check.outputs.has-permission != 'true'
         run: |
@@ -102,21 +102,21 @@ jobs:
       (github.event_name == 'workflow_dispatch' ||
        github.event_name == 'push' ||
        (github.event_name == 'pull_request' && github.event.pull_request.merged == true))
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
-      
+
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
           python-version: '3.x'
-      
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install paramiko
-      
+
       - name: Validate configuration
         env:
           DEV_FTP_HOST: ${{ secrets.DEV_FTP_HOST }}
@@ -125,24 +125,24 @@ jobs:
           DEV_FTP_PATH_SUFFIX: ${{ vars.DEV_FTP_PATH_SUFFIX }}
         run: |
           echo "Validating deployment configuration..."
-          
+
           if [ -z "$DEV_FTP_HOST" ]; then
             echo "::error::Missing required secret: DEV_FTP_HOST"
             exit 1
           fi
-          
+
           if [ -z "$DEV_FTP_USER" ]; then
             echo "::error::Missing required secret: DEV_FTP_USER"
             exit 1
           fi
-          
+
           if [ -z "$DEV_FTP_PATH" ]; then
             echo "::error::Missing required variable: DEV_FTP_PATH"
             exit 1
           fi
-          
+
           echo "✓ Configuration validated"
-      
+
       - name: Prepare deployment
         id: prepare
         env:
@@ -155,9 +155,9 @@ jobs:
           else
             REMOTE_PATH="${DEV_FTP_PATH}"
           fi
-          
+
           echo "remote_path=${REMOTE_PATH}" >> $GITHUB_OUTPUT
-          
+
           echo "### 🚀 Development Deployment" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Host:** ${{ secrets.DEV_FTP_HOST }}" >> $GITHUB_STEP_SUMMARY
@@ -165,7 +165,7 @@ jobs:
           echo "**Remote Path:** ${REMOTE_PATH}" >> $GITHUB_STEP_SUMMARY
           echo "**Local Path:** ${{ inputs.src_directory || 'src' }}" >> $GITHUB_STEP_SUMMARY
           echo "**Protocol:** ${{ secrets.DEV_FTP_PROTOCOL || 'sftp' }}" >> $GITHUB_STEP_SUMMARY
-      
+
       - name: Setup SSH key
         if: secrets.DEV_FTP_KEY != ''
         env:
@@ -175,7 +175,7 @@ jobs:
           echo "$DEV_FTP_KEY" > ~/.ssh/dev_deploy_key
           chmod 600 ~/.ssh/dev_deploy_key
           echo "SSH key configured"
-      
+
       - name: Deploy to dev server
         env:
           DEV_FTP_HOST: ${{ secrets.DEV_FTP_HOST }}
@@ -192,13 +192,13 @@ jobs:
           if [ -z "$LOCAL_PATH" ]; then
             LOCAL_PATH="src"
           fi
-          
+
           # Check if local path exists
           if [ ! -d "$LOCAL_PATH" ]; then
             echo "::warning::Local path '$LOCAL_PATH' does not exist. Skipping deployment."
             exit 0
           fi
-          
+
           # Build deploy command
           DEPLOY_CMD="python scripts/release/deploy_to_dev.py \
             --host \"$DEV_FTP_HOST\" \
@@ -206,22 +206,22 @@ jobs:
             --remote-path \"$REMOTE_PATH\" \
             --local-path \"$LOCAL_PATH\" \
             --protocol \"$PROTOCOL\""
-          
+
           # Add port if specified
           if [ -n "$PORT" ]; then
             DEPLOY_CMD="$DEPLOY_CMD --port $PORT"
           fi
-          
+
           # Add authentication
           if [ -f ~/.ssh/dev_deploy_key ]; then
             DEPLOY_CMD="$DEPLOY_CMD --key-file ~/.ssh/dev_deploy_key"
           elif [ -n "$DEV_FTP_PASSWORD" ]; then
             DEPLOY_CMD="$DEPLOY_CMD --password \"$DEV_FTP_PASSWORD\""
           fi
-          
+
           # Execute deployment
           eval $DEPLOY_CMD
-      
+
       - name: Deployment summary
         if: success()
         run: |
@@ -229,7 +229,7 @@ jobs:
           echo "✅ **Deployment completed successfully!**" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Files from \`${{ inputs.src_directory || 'src' }}\` have been deployed to the development server." >> $GITHUB_STEP_SUMMARY
-      
+
       - name: Deployment failed
         if: failure()
         run: |

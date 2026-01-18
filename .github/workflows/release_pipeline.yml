@@ -106,14 +106,14 @@ jobs:
               # Use Python library for cross-platform compatibility
               # Note: Single-line format required for YAML compatibility
               VERSION=$(python3 -c "import sys; sys.path.insert(0, '${GITHUB_WORKSPACE}/scripts/lib'); import extension_utils; ext_info = extension_utils.get_extension_info('${GITHUB_WORKSPACE}/src'); print(ext_info.version) if ext_info else sys.exit(1)")
-              
+
               if [ -z "${VERSION}" ]; then
                 echo "ERROR: Failed to extract version from manifest" >> "${GITHUB_STEP_SUMMARY}"
                 exit 1
               fi
-              
+
               echo "Inferred version ${VERSION} from manifest on main branch" >> "${GITHUB_STEP_SUMMARY}"
-              
+
               SOURCE_BRANCH="${REF_NAME}"
               SOURCE_PREFIX="main"
               TARGET_BRANCH="version/${VERSION}"

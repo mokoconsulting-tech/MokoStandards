@@ -30,12 +30,12 @@ name: "CodeQL Security Scanning"
 
 on:
   push:
-    branches: 
+    branches:
       - main
       - dev/**
       - rc/**
   pull_request:
-    branches: 
+    branches:
       - main
       - dev/**
       - rc/**
@@ -58,11 +58,11 @@ jobs:
       has-javascript: ${{ steps.detect.outputs.has-javascript }}
       has-php: ${{ steps.detect.outputs.has-php }}
       languages: ${{ steps.detect.outputs.languages }}
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
-      
+
       - name: Detect Languages
         id: detect
         run: |
@@ -82,7 +82,7 @@ jobs:
             echo "✗ No Python files detected"
             LANGUAGES='[]'
           fi
-          
+
           # Detect JavaScript/TypeScript files
           if find . -type f \( -name "*.js" -o -name "*.ts" -o -name "*.jsx" -o -name "*.tsx" \) \
             -not -path "./node_modules/*" \
@@ -102,7 +102,7 @@ jobs:
             echo "has-javascript=false" >> $GITHUB_OUTPUT
             echo "✗ No JavaScript/TypeScript files detected"
           fi
-          
+
           # Detect PHP files
           if find . -type f -name "*.php" \
             -not -path "./node_modules/*" \
@@ -122,13 +122,13 @@ jobs:
             echo "has-php=false" >> $GITHUB_OUTPUT
             echo "✗ No PHP files detected"
           fi
-          
+
           # Output detected languages as JSON array
           echo "languages=$LANGUAGES" >> $GITHUB_OUTPUT
-          
+
           # Output human-readable list
           LANGUAGES_LIST=$(echo "$LANGUAGES" | jq -r '.[]' | tr '\n' ', ' | sed 's/,$//')
-          
+
           if [ "$LANGUAGES" = "[]" ]; then
             echo ""
             echo "⚠️ No supported languages detected for CodeQL analysis"
@@ -137,7 +137,7 @@ jobs:
             echo ""
             echo "📊 Languages detected for CodeQL analysis: $LANGUAGES_LIST"
           fi
-      
+
       - name: Summary
         run: |
           echo "## CodeQL Language Detection" >> $GITHUB_STEP_SUMMARY
@@ -160,7 +160,7 @@ jobs:
     needs: detect-languages
     # Only run if at least one supported language is detected
     if: needs.detect-languages.outputs.languages != '[]'
-    
+
     strategy:
       fail-fast: false
       matrix:
@@ -180,7 +180,7 @@ jobs:
         # If you wish to specify custom queries, you can do so here or in a config file.
         # By default, queries listed here will override any specified in a config file.
         # Prefix the list here with "+" to use these queries and those in the config file.
-        
+
         # For more details on CodeQL's query packs, refer to: https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#using-queries-in-ql-packs
         queries: +security-extended,security-and-quality
 

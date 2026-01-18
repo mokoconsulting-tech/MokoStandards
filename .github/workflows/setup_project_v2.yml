@@ -20,7 +20,7 @@ permissions:
 jobs:
   setup_project:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -44,20 +44,20 @@ jobs:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
           set -euo pipefail
-          
+
           # Build command with optional flags
           CMD="python3 scripts/setup_github_project_v2.py"
-          
+
           if [ "${{ inputs.verbose }}" = "true" ]; then
             CMD="$CMD --verbose"
             echo "Running with verbose logging enabled"
           fi
-          
+
           if [ "${{ inputs.skip_views }}" = "true" ]; then
             CMD="$CMD --skip-views"
             echo "Running with view creation skipped"
           fi
-          
+
           echo "Executing: $CMD"
           $CMD
 
@@ -67,7 +67,7 @@ jobs:
         run: |
           echo "## GitHub Project v2 Setup" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           if [ "${{ job.status }}" = "success" ]; then
             echo "✅ Project setup completed successfully" >> $GITHUB_STEP_SUMMARY
           else
@@ -77,7 +77,7 @@ jobs:
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**Tip:** Re-run the workflow with 'verbose' enabled for detailed debugging information." >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Configuration" >> $GITHUB_STEP_SUMMARY
           echo "- Verbose logging: ${{ inputs.verbose }}" >> $GITHUB_STEP_SUMMARY

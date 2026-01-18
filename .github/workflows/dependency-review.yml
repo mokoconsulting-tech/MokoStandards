@@ -43,27 +43,27 @@ jobs:
   dependency-review:
     name: Dependency Security Review
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-      
+
       - name: Dependency Review
         uses: actions/dependency-review-action@v4
         with:
           # Fail on critical or high severity vulnerabilities
           fail-on-severity: moderate
-          
+
           # Allow specific licenses (customize for your project)
           # Common open-source licenses
           allow-licenses: GPL-3.0, GPL-3.0-or-later, MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC, LGPL-3.0
-          
+
           # Deny specific licenses (customize as needed)
           # deny-licenses: AGPL-3.0, GPL-2.0
-          
+
           # Comment on PR with results
           comment-summary-in-pr: always
-      
+
       - name: Generate Dependency Report
         if: always()
         run: |
@@ -80,20 +80,20 @@ jobs:
     name: npm Audit
     runs-on: ubuntu-latest
     if: hashFiles('package.json') != ''
-    
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-      
+
       - name: Run npm Audit
         run: |
           echo "### npm Audit Results" >> $GITHUB_STEP_SUMMARY
-          
+
           # Run audit and capture results
           if npm audit --audit-level=moderate; then
             echo "✅ No moderate or higher severity vulnerabilities found" >> $GITHUB_STEP_SUMMARY
@@ -101,7 +101,7 @@ jobs:
             echo "⚠️ Moderate or higher severity vulnerabilities detected - please review" >> $GITHUB_STEP_SUMMARY
             npm audit --audit-level=moderate || true
           fi
-      
+
       - name: Check for Outdated Packages
         run: |
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -112,24 +112,24 @@ jobs:
     name: Composer Audit
     runs-on: ubuntu-latest
     if: hashFiles('composer.json') != ''
-    
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-      
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
           tools: composer:v2
-      
+
       - name: Install Dependencies
         run: composer install --no-interaction --prefer-dist
-      
+
       - name: Run Composer Audit
         run: |
           echo "### Composer Audit Results" >> $GITHUB_STEP_SUMMARY
-          
+
           # Run audit and capture results
           if composer audit; then
             echo "✅ No vulnerabilities found in Composer dependencies" >> $GITHUB_STEP_SUMMARY
@@ -137,7 +137,7 @@ jobs:
             echo "⚠️ Vulnerabilities detected - please review" >> $GITHUB_STEP_SUMMARY
             composer audit || true
           fi
-      
+
       - name: Check for Outdated Packages
         run: |
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -148,23 +148,23 @@ jobs:
     name: Python Safety Check
     runs-on: ubuntu-latest
     if: hashFiles('requirements.txt', 'pyproject.toml', 'Pipfile') != ''
-    
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-      
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      
+
       - name: Install Safety
         run: pip install safety
-      
+
       - name: Run Safety Check
         run: |
           echo "### Python Safety Check Results" >> $GITHUB_STEP_SUMMARY
-          
+
           # Check requirements.txt if exists
           if [ -f "requirements.txt" ]; then
             if safety check -r requirements.txt; then
@@ -180,18 +180,18 @@ jobs:
   license-check:
     name: License Compliance Check
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-      
+
       - name: Check License File
         run: |
           echo "### License Compliance" >> $GITHUB_STEP_SUMMARY
-          
+
           if [ -f "LICENSE" ] || [ -f "LICENSE.md" ] || [ -f "LICENSE.txt" ]; then
             echo "✅ LICENSE file present" >> $GITHUB_STEP_SUMMARY
-            
+
             # Check for GPL-3.0 (MokoStandards default)
             if grep -qi "GNU GENERAL PUBLIC LICENSE" LICENSE* 2>/dev/null; then
               echo "✅ GPL-3.0 or compatible license detected" >> $GITHUB_STEP_SUMMARY
@@ -203,29 +203,29 @@ jobs:
             echo "Please add a LICENSE file to the repository root" >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
-      
+
       - name: Check SPDX Headers (Optional)
         run: |
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### SPDX Header Compliance" >> $GITHUB_STEP_SUMMARY
-          
+
           # Check for SPDX identifiers in source files
           MISSING_HEADERS=0
-          
+
           # Check PHP files
           if find . -name "*.php" -type f ! -path "./vendor/*" | head -1 | grep -q .; then
             TOTAL_PHP=$(find . -name "*.php" -type f ! -path "./vendor/*" | wc -l)
             WITH_SPDX=$(find . -name "*.php" -type f ! -path "./vendor/*" -exec grep -l "SPDX-License-Identifier" {} \; | wc -l)
             echo "- PHP files: $WITH_SPDX/$TOTAL_PHP with SPDX headers" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           # Check JavaScript files
           if find . -name "*.js" -type f ! -path "./node_modules/*" ! -path "./vendor/*" | head -1 | grep -q .; then
             TOTAL_JS=$(find . -name "*.js" -type f ! -path "./node_modules/*" ! -path "./vendor/*" | wc -l)
             WITH_SPDX_JS=$(find . -name "*.js" -type f ! -path "./node_modules/*" ! -path "./vendor/*" -exec grep -l "SPDX-License-Identifier" {} \; | wc -l)
             echo "- JavaScript files: $WITH_SPDX_JS/$TOTAL_JS with SPDX headers" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           echo "ℹ️ SPDX headers are recommended but not required for this check" >> $GITHUB_STEP_SUMMARY
 
   summary:
@@ -233,7 +233,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [dependency-review, npm-audit, composer-audit, python-safety, license-check]
     if: always()
-    
+
     steps:
       - name: Generate Final Summary
         run: |

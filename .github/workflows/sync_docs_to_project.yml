@@ -50,18 +50,18 @@ jobs:
   sync-to-project:
     name: Sync Files to Project
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      
+
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
           python-version: '3.x'
-      
+
       - name: Install GitHub CLI
         run: |
           type -p gh >/dev/null || (curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
@@ -69,7 +69,7 @@ jobs:
           echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
           sudo apt update
           sudo apt install gh -y)
-      
+
       - name: Verify GitHub token availability
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -81,26 +81,26 @@ jobs:
             echo "GITHUB_TOKEN is required for this workflow." >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
-          
+
           # GH_TOKEN environment variable is automatically used by GitHub CLI
           # Verify authentication status
           if gh auth status 2>&1 || true; then
             echo "✅ GitHub CLI authentication verified" >> $GITHUB_STEP_SUMMARY
           fi
-      
+
       - name: Sync specific path (manual trigger)
         if: github.event.inputs.file_path != ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Syncing specific path: ${{ github.event.inputs.file_path }}"
-          
+
           # Make script executable
           chmod +x scripts/sync_file_to_project.py
-          
+
           FILE_PATH="${{ github.event.inputs.file_path }}"
           PROJECT_NUM="${{ github.event.inputs.project_number }}"
-          
+
           if [ -f "$FILE_PATH" ]; then
             python3 scripts/sync_file_to_project.py "$FILE_PATH" "$PROJECT_NUM"
           elif [ -d "$FILE_PATH" ]; then
@@ -109,7 +109,7 @@ jobs:
             echo "Error: Path does not exist: $FILE_PATH"
             exit 1
           fi
-      
+
       - name: Summary
         if: always()
         run: |
@@ -119,11 +119,11 @@ jobs:
             echo "- Event: ${{ github.event_name }}"
             echo "- Repository: ${{ github.repository }}"
             echo "- Branch: ${{ github.ref_name }}"
-            
+
             if [ -n "${{ github.event.inputs.file_path }}" ]; then
               echo "- Path synced: ${{ github.event.inputs.file_path }}"
             fi
-            
+
             echo ""
             echo "Tasks have been created or updated in Project #${{ github.event.inputs.project_number }}"
           } >> "$GITHUB_STEP_SUMMARY"

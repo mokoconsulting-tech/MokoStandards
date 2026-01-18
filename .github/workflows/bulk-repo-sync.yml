@@ -29,6 +29,19 @@
 name: Bulk Repository Sync
 
 on:
+  # Run after any update to MokoStandards main branch
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/**'
+      - 'scripts/**'
+      - 'templates/**'
+      - 'schemas/**'
+      - '.pylintrc'
+      - '.editorconfig'
+      - 'dependabot.yml'
+
   # Run monthly on the 1st at 00:00 UTC (aligned with Dependabot)
   schedule:
     - cron: '0 0 1 * *'
@@ -167,7 +180,7 @@ jobs:
           fi
 
       - name: Run bulk update script
-        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.dry_run != true)
+        if: github.event_name == 'schedule' || github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.dry_run != true)
         env:
           GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
         run: |
@@ -175,8 +188,8 @@ jobs:
 
           ARGS="--yes"
 
-          # Default exclusions for scheduled runs
-          if [ "${{ github.event_name }}" == "schedule" ]; then
+          # Default exclusions for scheduled and push runs
+          if [ "${{ github.event_name }}" == "schedule" ] || [ "${{ github.event_name }}" == "push" ]; then
             ARGS="$ARGS --exclude MokoStandards MokoStandards-Private"
           fi
 
@@ -196,6 +209,18 @@ jobs:
           echo "## 🚀 Bulk Repository Sync" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Mode:** Live (changes will be applied)" >> $GITHUB_STEP_SUMMARY
+          
+          # Show trigger information
+          if [ "${{ github.event_name }}" == "push" ]; then
+            echo "**Trigger:** Automatic (push to main branch)" >> $GITHUB_STEP_SUMMARY
+            echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+            echo "**Author:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ github.event_name }}" == "schedule" ]; then
+            echo "**Trigger:** Scheduled (monthly)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Trigger:** Manual" >> $GITHUB_STEP_SUMMARY
+          fi
+          
           echo "**Arguments:** \`$ARGS\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 📋 Sync Features" >> $GITHUB_STEP_SUMMARY
@@ -244,9 +269,19 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Workflow Details**" >> $GITHUB_STEP_SUMMARY
           echo "- Event: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+          
+          if [ "${{ github.event_name }}" == "push" ]; then
+            echo "- Trigger: Automatic (MokoStandards updated)" >> $GITHUB_STEP_SUMMARY
+            echo "- Branch: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+            echo "- Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ github.event_name }}" == "schedule" ]; then
+            echo "- Trigger: Scheduled (monthly sync)" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "- Trigger: Manual" >> $GITHUB_STEP_SUMMARY
             echo "- Dry run: ${{ inputs.dry_run }}" >> $GITHUB_STEP_SUMMARY
             echo "- Repos: ${{ inputs.repos || 'all' }}" >> $GITHUB_STEP_SUMMARY
             echo "- Exclude: ${{ inputs.exclude || 'none' }}" >> $GITHUB_STEP_SUMMARY
+            echo "- Copilot: ${{ inputs.use_copilot }}" >> $GITHUB_STEP_SUMMARY
           fi
+          
           echo "- Completed at: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> $GITHUB_STEP_SUMMARY

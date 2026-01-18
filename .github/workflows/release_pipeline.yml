@@ -475,16 +475,14 @@ jobs:
 
       - name: Validate required secrets and variables
         env:
-          RS_FTP_HOST: ${{ secrets.RS_FTP_HOST }}
-          RS_FTP_USER: ${{ secrets.RS_FTP_USER }}
-          RS_FTP_PASSWORD: ${{ secrets.RS_FTP_PASSWORD }}
-          RS_FTP_PATH: ${{ vars.RS_FTP_PATH }}
-          RS_FTP_PATH_SUFFIX: ${{ vars.RS_FTP_PATH_SUFFIX }}
-          DEV_FTP_HOST: ${{ secrets.DEV_FTP_HOST }}
-          DEV_FTP_USER: ${{ secrets.DEV_FTP_USER }}
-          DEV_FTP_PASSWORD: ${{ secrets.DEV_FTP_PASSWORD }}
-          DEV_FTP_PATH: ${{ vars.DEV_FTP_PATH }}
-          DEV_FTP_PATH_SUFFIX: ${{ vars.DEV_FTP_PATH_SUFFIX }}
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_KEY: ${{ secrets.FTP_KEY }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_PATH: ${{ secrets.FTP_PATH }}
+          FTP_PROTOCOL: ${{ secrets.FTP_PROTOCOL }}
+          FTP_PORT: ${{ secrets.FTP_PORT }}
+          FTP_PATH_SUFFIX: ${{ vars.FTP_PATH_SUFFIX }}
           CHANNEL: ${{ needs.guard.outputs.channel }}
           DEPLOY_DRY_RUN: ${{ vars.DEPLOY_DRY_RUN }}
         run: |
@@ -492,34 +490,32 @@ jobs:
 
           missing=()
 
-          # Select FTP credentials based on channel
-          if [ "${CHANNEL}" = "rc" ]; then
-            FTP_HOST="${DEV_FTP_HOST:-}"
-            FTP_USER="${DEV_FTP_USER:-}"
-            FTP_PASSWORD="${DEV_FTP_PASSWORD:-}"
-            FTP_PATH="${DEV_FTP_PATH:-}"
-            FTP_PATH_SUFFIX="${DEV_FTP_PATH_SUFFIX:-}"
-            PREFIX="DEV"
-          else
-            FTP_HOST="${RS_FTP_HOST:-}"
-            FTP_USER="${RS_FTP_USER:-}"
-            FTP_PASSWORD="${RS_FTP_PASSWORD:-}"
-            FTP_PATH="${RS_FTP_PATH:-}"
-            FTP_PATH_SUFFIX="${RS_FTP_PATH_SUFFIX:-}"
-            PREFIX="RS"
+          [ -n "${FTP_SERVER:-}" ] || missing+=("FTP_SERVER")
+          [ -n "${FTP_USER:-}" ] || missing+=("FTP_USER")
+          [ -n "${FTP_PATH:-}" ] || missing+=("FTP_PATH")
+
+          proto="${FTP_PROTOCOL:-sftp}"
+          if [ -n "${FTP_PROTOCOL:-}" ] && [ "${proto}" != "sftp" ]; then
+            missing+=("FTP_PROTOCOL_INVALID")
           fi
 
-          [ -n "${FTP_HOST}" ] || missing+=("${PREFIX}_FTP_HOST")
-          [ -n "${FTP_USER}" ] || missing+=("${PREFIX}_FTP_USER")
-          [ -n "${FTP_PATH}" ] || missing+=("${PREFIX}_FTP_PATH")
+          key_present=false
+          if [ -n "${FTP_KEY:-}" ]; then
+            key_present=true
+          fi
 
           pw_present=false
-          if [ -n "${FTP_PASSWORD}" ]; then
+          if [ -n "${FTP_PASSWORD:-}" ]; then
             pw_present=true
           fi
 
-          if [ "${pw_present}" != "true" ]; then
-            missing+=("${PREFIX}_FTP_PASSWORD")
+          auth_mode="password"
+          if [ "${key_present}" = "true" ]; then
+            auth_mode="key"
+          fi
+
+          if [ "${auth_mode}" = "password" ] && [ "${pw_present}" != "true" ]; then
+            missing+=("FTP_PASSWORD_REQUIRED")
           fi
 
           {
@@ -531,8 +527,9 @@ jobs:
               printf '%s"%s"' "${sep}" "${m}"
               sep=",";
             done
-            printf '],"channel":"%s","deploy_dry_run":"%s","credential_presence":{"FTP_PASSWORD":"%s"}}\n' \
+            printf '],"channel":"%s","deploy_dry_run":"%s","credential_presence":{"FTP_KEY":"%s","FTP_PASSWORD":"%s"}}\n' \
               "${CHANNEL}" "${DEPLOY_DRY_RUN:-false}" \
+              "$( [ "${key_present}" = "true" ] && echo present || echo missing )" \
               "$( [ "${pw_present}" = "true" ] && echo present || echo missing )"
             echo "\`\`\`"
           } >> "${GITHUB_STEP_SUMMARY}"
@@ -715,16 +712,14 @@ jobs:
       - name: Upload ZIP to SFTP (key-preferred, password-fallback, overwrite, verified)
         id: sftp
         env:
-          RS_FTP_HOST: ${{ secrets.RS_FTP_HOST }}
-          RS_FTP_USER: ${{ secrets.RS_FTP_USER }}
-          RS_FTP_PASSWORD: ${{ secrets.RS_FTP_PASSWORD }}
-          RS_FTP_PATH: ${{ vars.RS_FTP_PATH }}
-          RS_FTP_PATH_SUFFIX: ${{ vars.RS_FTP_PATH_SUFFIX }}
-          DEV_FTP_HOST: ${{ secrets.DEV_FTP_HOST }}
-          DEV_FTP_USER: ${{ secrets.DEV_FTP_USER }}
-          DEV_FTP_PASSWORD: ${{ secrets.DEV_FTP_PASSWORD }}
-          DEV_FTP_PATH: ${{ vars.DEV_FTP_PATH }}
-          DEV_FTP_PATH_SUFFIX: ${{ vars.DEV_FTP_PATH_SUFFIX }}
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_KEY: ${{ secrets.FTP_KEY }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_PATH: ${{ secrets.FTP_PATH }}
+          FTP_PROTOCOL: ${{ secrets.FTP_PROTOCOL }}
+          FTP_PORT: ${{ secrets.FTP_PORT }}
+          FTP_PATH_SUFFIX: ${{ vars.FTP_PATH_SUFFIX }}
           CHANNEL: ${{ needs.guard.outputs.channel }}
           DEPLOY_DRY_RUN: ${{ vars.DEPLOY_DRY_RUN }}
         run: |
@@ -733,31 +728,24 @@ jobs:
           ZIP="${{ steps.build.outputs.zip_name }}"
           DIST_DIR="${{ steps.build.outputs.dist_dir }}"
 
-          # Select FTP credentials based on channel
-          if [ "${CHANNEL}" = "rc" ]; then
-            FTP_HOST="${DEV_FTP_HOST}"
-            FTP_USER="${DEV_FTP_USER}"
-            FTP_PASSWORD="${DEV_FTP_PASSWORD}"
-            FTP_PATH="${DEV_FTP_PATH}"
-            FTP_PATH_SUFFIX="${DEV_FTP_PATH_SUFFIX:-}"
-          else
-            FTP_HOST="${RS_FTP_HOST}"
-            FTP_USER="${RS_FTP_USER}"
-            FTP_PASSWORD="${RS_FTP_PASSWORD}"
-            FTP_PATH="${RS_FTP_PATH}"
-            FTP_PATH_SUFFIX="${RS_FTP_PATH_SUFFIX:-}"
+          : "${FTP_SERVER:?Missing secret FTP_SERVER}"
+          : "${FTP_USER:?Missing secret FTP_USER}"
+          : "${FTP_PATH:?Missing secret FTP_PATH}"
+
+          PROTOCOL="${FTP_PROTOCOL:-sftp}"
+          if [ "${PROTOCOL}" != "sftp" ]; then
+            echo "ERROR: Only SFTP permitted" >> "${GITHUB_STEP_SUMMARY}"
+            exit 1
           fi
 
-          : "${FTP_HOST:?Missing FTP_HOST for channel ${CHANNEL}}"
-          : "${FTP_USER:?Missing FTP_USER for channel ${CHANNEL}}"
-          : "${FTP_PATH:?Missing FTP_PATH for channel ${CHANNEL}}"
+          PORT="${FTP_PORT:-}"
+          if [ -n "${PORT}" ]; then
+            HOSTPORT="${FTP_SERVER}:${PORT}"
+          else
+            HOSTPORT="${FTP_SERVER}"
+          fi
 
-          # SFTP protocol (hardcoded)
-          PROTOCOL="sftp"
-          PORT=""
-          HOSTPORT="${FTP_HOST}"
-
-          SUFFIX="${FTP_PATH_SUFFIX}"
+          SUFFIX="${FTP_PATH_SUFFIX:-}"
           if [ -n "${SUFFIX}" ]; then
             REMOTE_PATH="${FTP_PATH%/}/${SUFFIX%/}/${CHANNEL}"
           else
@@ -765,13 +753,12 @@ jobs:
           fi
 
           AUTH_MODE="password"
+          if [ -n "${FTP_KEY:-}" ]; then
+            AUTH_MODE="key"
+          fi
 
           if [ "${AUTH_MODE}" = "password" ] && [ -z "${FTP_PASSWORD:-}" ]; then
-            if [ "${CHANNEL}" = "rc" ]; then
-              echo "ERROR: DEV_FTP_PASSWORD secret required for channel ${CHANNEL}" >> "${GITHUB_STEP_SUMMARY}"
-            else
-              echo "ERROR: RS_FTP_PASSWORD secret required for channel ${CHANNEL}" >> "${GITHUB_STEP_SUMMARY}"
-            fi
+            echo "ERROR: FTP_PASSWORD required when FTP_KEY is not provided" >> "${GITHUB_STEP_SUMMARY}"
             exit 1
           fi
 
@@ -786,7 +773,7 @@ jobs:
             printf '{'
             printf '"protocol":"sftp",'
             printf '"auth_mode":"%s",' "${AUTH_MODE}"
-            printf '"host":"%s",' "${FTP_HOST}"
+            printf '"host":"%s",' "${FTP_SERVER}"
             printf '"port":"%s",' "${PORT:-default}"
             printf '"remote_path":"%s",' "${REMOTE_PATH}"
             printf '"overwrite":true,'
@@ -796,21 +783,51 @@ jobs:
           } >> "${GITHUB_STEP_SUMMARY}"
 
           sudo apt-get update -y
-          sudo apt-get install -y lftp openssh-client
+          sudo apt-get install -y lftp openssh-client putty-tools
 
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
 
-          ssh-keyscan -H "${FTP_HOST}" >> ~/.ssh/known_hosts
+          if [ "${AUTH_MODE}" = "key" ]; then
+            if printf '%s' "${FTP_KEY}" | head -n 1 | grep -q '^PuTTY-User-Key-File-'; then
+              printf '%s' "${FTP_KEY}" > ~/.ssh/key.ppk
+              chmod 600 ~/.ssh/key.ppk
 
-          CONNECT="set sftp:connect-program 'ssh -a -x -o PubkeyAuthentication=no -o PasswordAuthentication=yes'"
-          OPEN="open -u '${FTP_USER}','${FTP_PASSWORD}', sftp://${HOSTPORT}"
+              if grep -Eq '^Encryption: *none[[:space:]]*$' ~/.ssh/key.ppk; then
+                PPK_PASSPHRASE=""
+              else
+                PPK_PASSPHRASE="${FTP_PASSWORD:-}"
+              fi
+
+              if [ -n "${PPK_PASSPHRASE}" ]; then
+                puttygen ~/.ssh/key.ppk -O private-openssh --passphrase "${PPK_PASSPHRASE}" -o ~/.ssh/id_rsa
+              else
+                puttygen ~/.ssh/key.ppk -O private-openssh -o ~/.ssh/id_rsa
+              fi
+
+              rm -f ~/.ssh/key.ppk
+              chmod 600 ~/.ssh/id_rsa
+            else
+              printf '%s' "${FTP_KEY}" > ~/.ssh/id_rsa
+              chmod 600 ~/.ssh/id_rsa
+            fi
+          fi
+
+          ssh-keyscan -H "${FTP_SERVER}" >> ~/.ssh/known_hosts
+
+          if [ "${AUTH_MODE}" = "key" ]; then
+            CONNECT="set sftp:connect-program 'ssh -a -x -i ~/.ssh/id_rsa -o PubkeyAuthentication=yes -o PasswordAuthentication=no'"
+            OPEN="open -u '${FTP_USER}', sftp://${HOSTPORT}"
+          else
+            CONNECT="set sftp:connect-program 'ssh -a -x -o PubkeyAuthentication=no -o PasswordAuthentication=yes'"
+            OPEN="open -u '${FTP_USER}','${FTP_PASSWORD}', sftp://${HOSTPORT}"
+          fi
 
           if [ "${DRY_RUN}" = "true" ]; then
             echo "Dry run enabled. Upload skipped." >> "${GITHUB_STEP_SUMMARY}"
             echo "auth_mode=${AUTH_MODE}" >> "${GITHUB_OUTPUT}"
             echo "remote_path=${REMOTE_PATH}" >> "${GITHUB_OUTPUT}"
-            echo "host=${FTP_HOST}" >> "${GITHUB_OUTPUT}"
+            echo "host=${FTP_SERVER}" >> "${GITHUB_OUTPUT}"
             echo "port=${PORT:-default}" >> "${GITHUB_OUTPUT}"
             exit 0
           fi
@@ -847,13 +864,13 @@ jobs:
           {
             echo "### SFTP upload report"
             echo "\`\`\`json"
-            echo "{\"status\":\"ok\",\"protocol\":\"sftp\",\"auth_mode\":\"${AUTH_MODE}\",\"host\":\"${FTP_HOST}\",\"port\":\"${PORT:-default}\",\"remote_path\":\"${REMOTE_PATH}\",\"zip\":\"${ZIP}\",\"zip_bytes_local\":${ZIP_BYTES_LOCAL},\"overwrite\":true}"
+            echo "{\"status\":\"ok\",\"protocol\":\"sftp\",\"auth_mode\":\"${AUTH_MODE}\",\"host\":\"${FTP_SERVER}\",\"port\":\"${PORT:-default}\",\"remote_path\":\"${REMOTE_PATH}\",\"zip\":\"${ZIP}\",\"zip_bytes_local\":${ZIP_BYTES_LOCAL},\"overwrite\":true}"
             echo "\`\`\`"
           } >> "${GITHUB_STEP_SUMMARY}"
 
           echo "auth_mode=${AUTH_MODE}" >> "${GITHUB_OUTPUT}"
           echo "remote_path=${REMOTE_PATH}" >> "${GITHUB_OUTPUT}"
-          echo "host=${FTP_HOST}" >> "${GITHUB_OUTPUT}"
+          echo "host=${FTP_SERVER}" >> "${GITHUB_OUTPUT}"
           echo "port=${PORT:-default}" >> "${GITHUB_OUTPUT}"
 
       - name: Create Git tag

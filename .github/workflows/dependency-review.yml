@@ -84,16 +84,17 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Check for package.json and Run npm Audit
+      - name: Setup Node.js
+        if: ${{ hashFiles('package.json') != '' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Run npm Audit
+        if: ${{ hashFiles('package.json') != '' }}
         run: |
-          if [ ! -f "package.json" ]; then
-            echo "ℹ️ No package.json found, skipping npm audit" >> $GITHUB_STEP_SUMMARY
-            exit 0
-          fi
-          
           echo "### npm Audit Results" >> $GITHUB_STEP_SUMMARY
 
-          # Node.js is pre-installed in ubuntu-latest runners
           # Run audit and capture results
           if npm audit --audit-level=moderate; then
             echo "✅ No moderate or higher severity vulnerabilities found" >> $GITHUB_STEP_SUMMARY
@@ -103,12 +104,8 @@ jobs:
           fi
 
       - name: Check for Outdated Packages
+        if: ${{ hashFiles('package.json') != '' }}
         run: |
-          if [ ! -f "package.json" ]; then
-            echo "ℹ️ No package.json found, skipping outdated packages check" >> $GITHUB_STEP_SUMMARY
-            exit 0
-          fi
-          
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Outdated Packages" >> $GITHUB_STEP_SUMMARY
           npm outdated || echo "All packages are up to date" >> $GITHUB_STEP_SUMMARY
@@ -121,29 +118,19 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Check for composer.json
-        id: check
-        run: |
-          if [ -f "composer.json" ]; then
-            echo "found=true" >> $GITHUB_OUTPUT
-          else
-            echo "found=false" >> $GITHUB_OUTPUT
-            echo "ℹ️ No composer.json found, skipping Composer audit" >> $GITHUB_STEP_SUMMARY
-          fi
-
       - name: Setup PHP
-        if: steps.check.outputs.found == 'true'
+        if: ${{ hashFiles('composer.json') != '' }}
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
           tools: composer:v2
 
       - name: Install Dependencies
-        if: steps.check.outputs.found == 'true'
+        if: ${{ hashFiles('composer.json') != '' }}
         run: composer install --no-interaction --prefer-dist
 
       - name: Run Composer Audit
-        if: steps.check.outputs.found == 'true'
+        if: ${{ hashFiles('composer.json') != '' }}
         run: |
           echo "### Composer Audit Results" >> $GITHUB_STEP_SUMMARY
 
@@ -156,7 +143,7 @@ jobs:
           fi
 
       - name: Check for Outdated Packages
-        if: steps.check.outputs.found == 'true'
+        if: ${{ hashFiles('composer.json') != '' }}
         run: |
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Outdated Composer Packages" >> $GITHUB_STEP_SUMMARY
@@ -170,28 +157,18 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Check for Python dependency files
-        id: check
-        run: |
-          if [ -f "requirements.txt" ] || [ -f "pyproject.toml" ] || [ -f "Pipfile" ]; then
-            echo "found=true" >> $GITHUB_OUTPUT
-          else
-            echo "found=false" >> $GITHUB_OUTPUT
-            echo "ℹ️ No Python dependency files found, skipping safety check" >> $GITHUB_STEP_SUMMARY
-          fi
-
       - name: Setup Python
-        if: steps.check.outputs.found == 'true'
+        if: ${{ hashFiles('requirements.txt', 'pyproject.toml', 'Pipfile') != '' }}
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
       - name: Install Safety
-        if: steps.check.outputs.found == 'true'
+        if: ${{ hashFiles('requirements.txt', 'pyproject.toml', 'Pipfile') != '' }}
         run: pip install safety
 
       - name: Run Safety Check
-        if: steps.check.outputs.found == 'true'
+        if: ${{ hashFiles('requirements.txt', 'pyproject.toml', 'Pipfile') != '' }}
         run: |
           echo "### Python Safety Check Results" >> $GITHUB_STEP_SUMMARY
 

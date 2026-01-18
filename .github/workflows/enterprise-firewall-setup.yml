@@ -476,6 +476,7 @@ jobs:
           PYTHON_EOF
 
           chmod +x generate_firewall_config.py
+          pip install PyYAML
           python3 generate_firewall_config.py
 
       - name: Upload Firewall Configuration Artifacts

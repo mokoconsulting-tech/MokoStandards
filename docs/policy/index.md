@@ -31,6 +31,7 @@ This index provides navigation to documentation within this folder.
 - [license-compliance](./license-compliance.md)
 - [merge-strategy](./merge-strategy.md)
 - [risk-register](./risk-register.md)
+- [roadmap-standards](./roadmap-standards.md)
 - [scripting-standards](./scripting-standards.md)
 - [security-scanning](./security-scanning.md)
 - [vendor-risk](./vendor-risk.md)

@@ -126,7 +126,7 @@ Repository structure schema templates for defining custom repository types.
 - Enable automated structure validation
 - Support platform-specific requirements
 
-**Documentation**: [schemas/README.md](./schemas/README.md)
+**Documentation**: [docs/reference/schemas.md](./docs/reference/schemas.md)
 
 ### Build (`build/`)
 

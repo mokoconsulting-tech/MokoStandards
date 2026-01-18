@@ -1,0 +1,437 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://mokoconsulting.com/schemas/unified-repository-schema.json",
+  "title": "Unified Repository Schema",
+  "description": "Bridge schema that connects repository structure requirements with health scoring, providing a unified view of repository standards",
+  "version": "1.0",
+  "type": "object",
+  "required": ["schemaVersion", "metadata", "structure", "health"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0",
+      "description": "Version of the unified schema specification"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Metadata about the repository definition",
+      "required": ["name", "description", "repositoryType", "platform", "lastUpdated", "maintainer"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the repository definition"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the repository type"
+        },
+        "repositoryType": {
+          "type": "string",
+          "enum": [
+            "standards",
+            "waas-component",
+            "waas-module",
+            "waas-plugin",
+            "waas-template",
+            "waas-library",
+            "waas-package",
+            "crm-module",
+            "crm-plugin",
+            "application",
+            "library"
+          ],
+          "description": "Type of repository"
+        },
+        "platform": {
+          "type": "string",
+          "enum": ["mokowaas", "mokokrm", "standards", "multi-platform"],
+          "description": "Target platform"
+        },
+        "lastUpdated": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp of last update"
+        },
+        "maintainer": {
+          "type": "string",
+          "description": "Organization or person maintaining this definition"
+        }
+      }
+    },
+    "structure": {
+      "type": "object",
+      "description": "Repository structure requirements (from repository-structure schema)",
+      "properties": {
+        "rootFiles": {
+          "type": "array",
+          "description": "Files expected at repository root",
+          "items": {
+            "$ref": "#/definitions/structureFile"
+          }
+        },
+        "directories": {
+          "type": "array",
+          "description": "Directory structure and requirements",
+          "items": {
+            "$ref": "#/definitions/structureDirectory"
+          }
+        }
+      }
+    },
+    "health": {
+      "type": "object",
+      "description": "Health scoring configuration (from repo-health schema)",
+      "required": ["scoring", "categories", "checks"],
+      "properties": {
+        "scoring": {
+          "type": "object",
+          "description": "Scoring configuration",
+          "required": ["totalPoints", "thresholds"],
+          "properties": {
+            "totalPoints": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Maximum possible health score"
+            },
+            "thresholds": {
+              "type": "array",
+              "description": "Health level thresholds",
+              "items": {
+                "$ref": "#/definitions/healthThreshold"
+              }
+            }
+          }
+        },
+        "categories": {
+          "type": "array",
+          "description": "Categories of health checks",
+          "items": {
+            "$ref": "#/definitions/healthCategory"
+          }
+        },
+        "checks": {
+          "type": "array",
+          "description": "Individual health checks",
+          "items": {
+            "$ref": "#/definitions/healthCheck"
+          }
+        }
+      }
+    },
+    "mapping": {
+      "type": "object",
+      "description": "Mapping between structure requirements and health checks",
+      "properties": {
+        "fileToHealthCheck": {
+          "type": "array",
+          "description": "Maps structure files to health check IDs",
+          "items": {
+            "type": "object",
+            "required": ["fileName", "healthCheckId"],
+            "properties": {
+              "fileName": {
+                "type": "string",
+                "description": "File name from structure definition"
+              },
+              "healthCheckId": {
+                "type": "string",
+                "description": "Corresponding health check ID"
+              },
+              "points": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Points awarded for this file"
+              }
+            }
+          }
+        },
+        "directoryToHealthCheck": {
+          "type": "array",
+          "description": "Maps structure directories to health check IDs",
+          "items": {
+            "type": "object",
+            "required": ["directoryName", "healthCheckId"],
+            "properties": {
+              "directoryName": {
+                "type": "string",
+                "description": "Directory name from structure definition"
+              },
+              "healthCheckId": {
+                "type": "string",
+                "description": "Corresponding health check ID"
+              },
+              "points": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Points awarded for this directory"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "structureFile": {
+      "type": "object",
+      "description": "File requirement from structure schema",
+      "required": ["name", "requirementStatus"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "File name"
+        },
+        "extension": {
+          "type": "string",
+          "description": "File extension"
+        },
+        "description": {
+          "type": "string",
+          "description": "File purpose description"
+        },
+        "requirementStatus": {
+          "type": "string",
+          "enum": ["required", "suggested", "optional", "not-allowed"],
+          "description": "Requirement level"
+        },
+        "healthPoints": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Health points awarded when file exists and meets criteria"
+        },
+        "validationRules": {
+          "type": "array",
+          "description": "Validation rules for the file",
+          "items": {
+            "$ref": "#/definitions/validationRule"
+          }
+        }
+      }
+    },
+    "structureDirectory": {
+      "type": "object",
+      "description": "Directory requirement from structure schema",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Directory name"
+        },
+        "path": {
+          "type": "string",
+          "description": "Directory path"
+        },
+        "description": {
+          "type": "string",
+          "description": "Directory purpose"
+        },
+        "requirementStatus": {
+          "type": "string",
+          "enum": ["required", "suggested", "optional", "not-allowed"],
+          "description": "Requirement level"
+        },
+        "healthPoints": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Health points awarded when directory exists"
+        },
+        "files": {
+          "type": "array",
+          "description": "Files within directory",
+          "items": {
+            "$ref": "#/definitions/structureFile"
+          }
+        },
+        "subdirectories": {
+          "type": "array",
+          "description": "Subdirectories",
+          "items": {
+            "$ref": "#/definitions/structureDirectory"
+          }
+        }
+      }
+    },
+    "validationRule": {
+      "type": "object",
+      "description": "Validation rule for files or directories",
+      "required": ["type", "description"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "naming-convention",
+            "content-pattern",
+            "file-exists",
+            "directory-exists",
+            "min-size",
+            "max-size",
+            "header-required",
+            "license-required",
+            "custom"
+          ],
+          "description": "Type of validation"
+        },
+        "description": {
+          "type": "string",
+          "description": "Rule description"
+        },
+        "pattern": {
+          "type": "string",
+          "description": "Regex pattern for validation"
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["error", "warning", "info"],
+          "default": "error",
+          "description": "Severity of validation failure"
+        },
+        "healthImpact": {
+          "type": "integer",
+          "description": "Points deducted if validation fails"
+        }
+      }
+    },
+    "healthThreshold": {
+      "type": "object",
+      "description": "Health level threshold definition",
+      "required": ["level", "minPercentage", "maxPercentage"],
+      "properties": {
+        "level": {
+          "type": "string",
+          "enum": ["excellent", "good", "fair", "poor"],
+          "description": "Health level name"
+        },
+        "minPercentage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Minimum percentage for this level"
+        },
+        "maxPercentage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Maximum percentage for this level"
+        },
+        "indicator": {
+          "type": "string",
+          "description": "Visual indicator (e.g., emoji)"
+        },
+        "description": {
+          "type": "string",
+          "description": "Level description"
+        }
+      }
+    },
+    "healthCategory": {
+      "type": "object",
+      "description": "Category of health checks",
+      "required": ["id", "name", "maxPoints"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Category identifier"
+        },
+        "name": {
+          "type": "string",
+          "description": "Category name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Category description"
+        },
+        "maxPoints": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Maximum points for this category"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether category is enabled"
+        },
+        "weight": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Category weight in overall score"
+        }
+      }
+    },
+    "healthCheck": {
+      "type": "object",
+      "description": "Individual health check definition",
+      "required": ["id", "category", "name", "type"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique check identifier"
+        },
+        "category": {
+          "type": "string",
+          "description": "Category this check belongs to"
+        },
+        "name": {
+          "type": "string",
+          "description": "Check name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Check description"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "file-exists",
+            "directory-exists",
+            "content-validation",
+            "naming-convention",
+            "license-check",
+            "documentation-check",
+            "structure-check",
+            "custom"
+          ],
+          "description": "Type of health check"
+        },
+        "points": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Points awarded when check passes"
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["critical", "high", "medium", "low", "info"],
+          "default": "medium",
+          "description": "Check severity"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether check is enabled"
+        },
+        "linkedStructureElement": {
+          "type": "string",
+          "description": "Reference to structure element (file or directory name)"
+        },
+        "validationLogic": {
+          "type": "object",
+          "description": "Validation logic for the check",
+          "properties": {
+            "command": {
+              "type": "string",
+              "description": "Command to execute for validation"
+            },
+            "pattern": {
+              "type": "string",
+              "description": "Regex pattern for validation"
+            },
+            "script": {
+              "type": "string",
+              "description": "Script path for custom validation"
+            }
+          }
+        }
+      }
+    }
+  }
+}

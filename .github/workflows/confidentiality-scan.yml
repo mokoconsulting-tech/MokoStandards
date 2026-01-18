@@ -1,0 +1,337 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.Security
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/confidentiality-scan.yml
+# VERSION: 01.00.00
+# BRIEF: Scan for confidential data leakage in public repository
+# NOTE: Prevents organization-specific references and sensitive data from being committed
+
+name: Confidentiality Scan
+
+on:
+  pull_request:
+    branches:
+      - main
+      - dev/**
+      - rc/**
+      - version/**
+  push:
+    branches:
+      - main
+      - dev/**
+      - rc/**
+      - version/**
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  checks: write
+
+jobs:
+  scan-confidential-data:
+    name: Scan for Confidential Data
+    runs-on: ubuntu-latest
+    
+    env:
+      EXCLUDED_FILES: ':!.github/workflows/confidentiality-scan.yml :!docs/TWO_TIER_ARCHITECTURE.md :!docs/guide/PRIVATE_REPOSITORY_REFERENCE.md :!STANDARDS_COORDINATION.md :!.github/PRIVATE_TEMPLATES.md'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Scan for organization-specific references
+        id: org_scan
+        run: |
+          echo "Scanning for organization-specific references..."
+          
+          # Define forbidden patterns
+          FORBIDDEN_PATTERNS=(
+            "@mokoconsulting-tech/[a-zA-Z0-9_-]+"
+            "\.github-private"
+            "CONFIDENTIAL"
+            "INTERNAL ONLY"
+            "DO NOT SHARE"
+            "ftp\.[a-zA-Z0-9_-]+\.mokoconsulting\.tech"
+            "mokoconsulting-tech\.slack\.com"
+            "private\.mokoconsulting\.tech"
+          )
+          
+          # Initialize results
+          VIOLATIONS_FOUND=0
+          VIOLATION_DETAILS=""
+          
+          # Scan each pattern
+          for pattern in "${FORBIDDEN_PATTERNS[@]}"; do
+            echo "Checking pattern: $pattern"
+            
+            # Search for pattern (case insensitive)
+            matches=$(git grep -i -n -I -E "$pattern" -- $EXCLUDED_FILES || true)
+            
+            if [ -n "$matches" ]; then
+              VIOLATIONS_FOUND=$((VIOLATIONS_FOUND + 1))
+              VIOLATION_DETAILS="${VIOLATION_DETAILS}
+### Pattern: \`${pattern}\`
+\`\`\`
+${matches}
+\`\`\`
+"
+            fi
+          done
+          
+          # Save results
+          echo "violations_found=${VIOLATIONS_FOUND}" >> $GITHUB_OUTPUT
+          
+          # Save details to file for later use
+          if [ -n "$VIOLATION_DETAILS" ]; then
+            echo "$VIOLATION_DETAILS" > /tmp/violation_details.txt
+          fi
+          
+          if [ $VIOLATIONS_FOUND -gt 0 ]; then
+            echo "❌ Found ${VIOLATIONS_FOUND} pattern(s) with forbidden content"
+            exit 1
+          else
+            echo "✅ No forbidden patterns found"
+            exit 0
+          fi
+      
+      - name: Scan for potential secrets
+        id: secret_scan
+        if: success() || failure()
+        run: |
+          echo "Scanning for potential secrets..."
+          
+          # Define secret patterns
+          SECRET_PATTERNS=(
+            "password\s*=\s*['\"][^'\"]+['\"]"
+            "api[_-]?key\s*=\s*['\"][^'\"]+['\"]"
+            "secret[_-]?key\s*=\s*['\"][^'\"]+['\"]"
+            "token\s*=\s*['\"][^'\"]+['\"]"
+            "-----BEGIN\s+(RSA|DSA|EC|OPENSSH)\s+PRIVATE\s+KEY-----"
+            "AKIA[0-9A-Z]{16}"
+            "ghp_[a-zA-Z0-9]{36}"
+            "gho_[a-zA-Z0-9]{36}"
+            "ghu_[a-zA-Z0-9]{36}"
+          )
+          
+          SECRETS_FOUND=0
+          SECRET_DETAILS=""
+          
+          for pattern in "${SECRET_PATTERNS[@]}"; do
+            echo "Checking secret pattern: $pattern"
+            
+            # Search for pattern (case insensitive, exclude example files)
+            matches=$(git grep -i -n -I -E "$pattern" -- ':!*.md' ':!*.example' ':!*.sample' ':!docs/*' $EXCLUDED_FILES || true)
+            
+            if [ -n "$matches" ]; then
+              SECRETS_FOUND=$((SECRETS_FOUND + 1))
+              # Mask potential secret values in output
+              masked_matches=$(echo "$matches" | sed -E 's/(password|api[_-]?key|secret[_-]?key|token)\s*=\s*['\''"][^'\''"]+['\''"]/\1=***REDACTED***/gi')
+              SECRET_DETAILS="${SECRET_DETAILS}
+### Potential Secret Pattern: \`${pattern}\`
+\`\`\`
+${masked_matches}
+\`\`\`
+"
+            fi
+          done
+          
+          echo "secrets_found=${SECRETS_FOUND}" >> $GITHUB_OUTPUT
+          
+          # Save details
+          if [ -n "$SECRET_DETAILS" ]; then
+            echo "$SECRET_DETAILS" > /tmp/secret_details.txt
+          fi
+          
+          if [ $SECRETS_FOUND -gt 0 ]; then
+            echo "⚠️ Found ${SECRETS_FOUND} potential secret pattern(s)"
+            exit 1
+          else
+            echo "✅ No potential secrets found"
+            exit 0
+          fi
+      
+      - name: Scan for internal documentation references
+        id: doc_scan
+        if: success() || failure()
+        run: |
+          echo "Scanning for internal documentation references..."
+          
+          # Patterns that suggest internal documentation
+          INTERNAL_DOC_PATTERNS=(
+            "see internal documentation"
+            "refer to internal wiki"
+            "contact the team"
+            "ask the maintainers"
+            "internal process"
+            "proprietary"
+          )
+          
+          INTERNAL_DOCS_FOUND=0
+          INTERNAL_DOC_DETAILS=""
+          
+          # Only check markdown files
+          for pattern in "${INTERNAL_DOC_PATTERNS[@]}"; do
+            echo "Checking internal doc pattern: $pattern"
+            
+            matches=$(git grep -i -n -I "$pattern" -- '*.md' $EXCLUDED_FILES || true)
+            
+            if [ -n "$matches" ]; then
+              # This is a warning, not a hard failure
+              INTERNAL_DOCS_FOUND=$((INTERNAL_DOCS_FOUND + 1))
+              INTERNAL_DOC_DETAILS="${INTERNAL_DOC_DETAILS}
+### Potential Internal Reference: \`${pattern}\`
+\`\`\`
+${matches}
+\`\`\`
+"
+            fi
+          done
+          
+          echo "internal_docs_found=${INTERNAL_DOCS_FOUND}" >> $GITHUB_OUTPUT
+          
+          if [ $INTERNAL_DOCS_FOUND -gt 0 ]; then
+            echo "⚠️ Found ${INTERNAL_DOCS_FOUND} potential internal documentation reference(s)"
+            if [ -n "$INTERNAL_DOC_DETAILS" ]; then
+              echo "$INTERNAL_DOC_DETAILS" > /tmp/internal_doc_details.txt
+            fi
+          else
+            echo "✅ No internal documentation references found"
+          fi
+      
+      - name: Create check run
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            
+            const orgViolations = '${{ steps.org_scan.outcome }}' === 'failure';
+            const secretsFound = '${{ steps.secret_scan.outcome }}' === 'failure';
+            const internalDocsFound = '${{ steps.doc_scan.outputs.internal_docs_found }}' > 0;
+            
+            let conclusion = 'success';
+            let summary = '✅ No confidentiality issues detected.';
+            let text = 'The confidentiality scan completed successfully with no violations.';
+            
+            if (orgViolations || secretsFound) {
+              conclusion = 'failure';
+              summary = '❌ Confidentiality violations detected!';
+              text = '## Confidentiality Scan Results\n\n';
+              
+              if (orgViolations) {
+                text += '### ❌ Organization-Specific References Found\n\n';
+                text += 'The scan detected organization-specific references that should not be in the public repository.\n\n';
+                text += '**Action Required**: Remove or generalize these references before merging.\n\n';
+              }
+              
+              if (secretsFound) {
+                text += '### ❌ Potential Secrets Detected\n\n';
+                text += 'The scan detected patterns that may indicate secrets or credentials.\n\n';
+                text += '**Action Required**: Remove secrets and use environment variables or GitHub Secrets instead.\n\n';
+              }
+              
+              if (internalDocsFound) {
+                text += '### ⚠️ Internal Documentation References Found\n\n';
+                text += 'The scan detected potential references to internal documentation.\n\n';
+                text += '**Action Recommended**: Review these references and ensure they are appropriate for public documentation.\n\n';
+              }
+              
+              text += '\n---\n\n';
+              text += '## Remediation Steps\n\n';
+              text += '1. Review the violations listed above\n';
+              text += '2. Remove or generalize organization-specific references\n';
+              text += '3. Replace hardcoded secrets with GitHub Secrets\n';
+              text += '4. Update internal references to public equivalents\n';
+              text += '5. Re-run the workflow to verify fixes\n\n';
+              text += '## Need Help?\n\n';
+              text += '- Review [Two-Tier Architecture](docs/TWO_TIER_ARCHITECTURE.md) for guidance\n';
+              text += '- See [Standards Coordination](STANDARDS_COORDINATION.md) for best practices\n';
+            } else if (internalDocsFound) {
+              conclusion = 'neutral';
+              summary = '⚠️ Potential internal references detected (review recommended).';
+              text = '## Confidentiality Scan Results\n\n';
+              text += '### ⚠️ Internal Documentation References Found\n\n';
+              text += 'The scan detected potential references to internal documentation. Review these to ensure they are appropriate for public documentation.\n\n';
+            }
+            
+            await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: 'Confidentiality Scan',
+              head_sha: context.sha,
+              conclusion: conclusion,
+              output: {
+                title: 'Confidentiality Scan Results',
+                summary: summary,
+                text: text
+              }
+            });
+      
+      - name: Comment on PR
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = `## ❌ Confidentiality Scan Failed
+
+This PR contains content that should not be in the public repository.
+
+### Issues Detected:
+- ${{ steps.org_scan.outcome == 'failure' && '❌ Organization-specific references found' || '✅ No organization references' }}
+- ${{ steps.secret_scan.outcome == 'failure' && '❌ Potential secrets detected' || '✅ No secrets detected' }}
+- ${{ steps.doc_scan.outputs.internal_docs_found > 0 && '⚠️ Internal documentation references found' || '✅ No internal doc references' }}
+
+### Action Required:
+1. Review the check run details for specific violations
+2. Remove or generalize organization-specific content
+3. Replace any hardcoded secrets with GitHub Secrets
+4. Update internal references to public equivalents
+
+### Resources:
+- [Two-Tier Architecture](docs/TWO_TIER_ARCHITECTURE.md)
+- [Standards Coordination](STANDARDS_COORDINATION.md)
+- [Private Repository Reference](docs/guide/PRIVATE_REPOSITORY_REFERENCE.md)
+
+Once you've addressed the issues, push your changes and the workflow will run again.`;
+
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+      
+      - name: Fail if violations found
+        if: steps.org_scan.outcome == 'failure' || steps.secret_scan.outcome == 'failure'
+        run: |
+          echo "❌ Confidentiality scan failed due to violations"
+          echo "Review the check run and PR comment for details"
+          exit 1

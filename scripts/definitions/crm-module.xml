@@ -65,6 +65,13 @@ See LICENSE file for details.
         <audience>contributor</audience>
       </file>
 
+      <file extension="md">
+        <name>ROADMAP.md</name>
+        <description>Project roadmap with version goals and milestones</description>
+        <required>false</required>
+        <audience>general</audience>
+      </file>
+
       <file extension="">
         <name>LICENSE</name>
         <description>License file (GPL-3.0-or-later) - Default for Dolibarr/CRM modules</description>

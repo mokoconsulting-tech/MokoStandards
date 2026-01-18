@@ -52,6 +52,31 @@ Excluded:
 * Example extensions or templates
 * Repo specific workflows that only make sense inside a given scaffold repo
 
+## Two-Tier Standards Architecture
+
+MokoStandards is part of a two-tier standards architecture:
+
+- **Tier 2 (This Repository - MokoStandards)**: Public coding standards, community guidelines, platform-specific standards for Joomla, Dolibarr, and generic PHP projects
+- **Tier 1 (.github-private)**: Private access control, confidential enforcement, internal policies (organization members only)
+
+### For Public Projects
+
+Configure your repository to use MokoStandards for coding standards and quality guidelines:
+
+```yaml
+# .mokostandards.yml
+mokostandards:
+  repo: mokoconsulting-tech/MokoStandards
+  branch: main
+  templates_path: templates/repo
+```
+
+### For Internal Projects  
+
+Organization members can reference the private repository for access control policies and confidential enforcement mechanisms.
+
+See [Two-Tier Architecture Documentation](docs/TWO_TIER_ARCHITECTURE.md) and [Standards Coordination](STANDARDS_COORDINATION.md) for complete details.
+
 ## Quick Start
 
 ### For New Projects

@@ -52,6 +52,13 @@
       </file>
 
       <file extension="md">
+        <name>ROADMAP.md</name>
+        <description>Project roadmap with version goals and milestones</description>
+        <required>false</required>
+        <audience>general</audience>
+      </file>
+
+      <file extension="md">
         <name>CONTRIBUTING.md</name>
         <description>Contribution guidelines</description>
         <required>true</required>

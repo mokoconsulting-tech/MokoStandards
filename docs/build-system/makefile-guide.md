@@ -1,6 +1,6 @@
 # Makefile Creation Guide
 
-**Status**: Active | **Version**: 01.00.00 | **Effective**: 2026-01-07
+**Status**: Active | **Version**: 02.00.00 | **Effective**: 2026-01-13
 
 ## Overview
 
@@ -682,6 +682,692 @@ See the reference Makefiles for complete examples:
 - [Makefile.dolibarr](../../Makefiles/Makefile.dolibarr)
 - [Makefile.generic](../../Makefiles/Makefile.generic)
 
+## Advanced Makefile Patterns
+
+### Parallel Execution
+
+Make supports parallel job execution with the `-j` flag, which can significantly speed up builds:
+
+```makefile
+# Enable parallel builds by default
+MAKEFLAGS += -j$(shell nproc)
+
+# Or allow users to control parallelism
+.PHONY: build-parallel
+build-parallel:
+	@$(MAKE) -j4 compile-css compile-js compile-assets
+
+# Ensure certain targets run sequentially
+.NOTPARALLEL: clean install-deps
+```
+
+**Best practices for parallel execution**:
+- Ensure targets are independent and don't share mutable state
+- Use `.NOTPARALLEL:` for targets that must run sequentially
+- Be cautious with file system operations that might conflict
+- Test parallel builds thoroughly before enabling by default
+
+### Pattern Rules
+
+Pattern rules allow you to define recipes that apply to multiple files:
+
+```makefile
+# Compile all TypeScript files to JavaScript
+%.js: %.ts
+	@echo "Compiling $<..."
+	@tsc $< --outFile $@
+
+# Minify all JavaScript files
+%.min.js: %.js
+	@echo "Minifying $<..."
+	@uglifyjs $< -o $@
+
+# Compile SCSS to CSS
+%.css: %.scss
+	@echo "Compiling $<..."
+	@sass $< $@
+
+# Optimize all images
+dist/%.png: src/%.png
+	@mkdir -p $(dir $@)
+	@optipng -o7 $< -out $@
+```
+
+**Pattern rule variables**:
+- `$@` - Target name
+- `$<` - First prerequisite
+- `$^` - All prerequisites
+- `$?` - Prerequisites newer than target
+- `$*` - Stem matched by `%`
+
+### Automatic Variables
+
+Automatic variables reduce repetition and make rules more maintainable:
+
+```makefile
+# Standard automatic variables
+build: $(SOURCES)
+	@echo "Target: $@"           # Current target name
+	@echo "First prerequisite: $<"   # First dependency
+	@echo "All prerequisites: $^"    # All dependencies
+	@echo "Newer prerequisites: $?"  # Dependencies newer than target
+	@echo "Target directory: $(@D)"  # Directory part of target
+	@echo "Target file: $(@F)"       # File part of target
+
+# Practical example: compile all sources
+SOURCES := $(wildcard src/*.c)
+OBJECTS := $(patsubst src/%.c,build/%.o,$(SOURCES))
+
+build/%.o: src/%.c
+	@mkdir -p $(@D)
+	@$(CC) $(CFLAGS) -c $< -o $@
+
+# Link all objects
+$(PROJECT): $(OBJECTS)
+	@$(CC) $(LDFLAGS) $^ -o $@
+```
+
+### Static Pattern Rules
+
+Static pattern rules apply a pattern to a specific list of targets:
+
+```makefile
+MODULES := auth session database cache
+MODULE_TESTS := $(addsuffix .test,$(MODULES))
+
+# Test all modules using a static pattern
+$(MODULE_TESTS): %.test: tests/%.php
+	@echo "Testing $*..."
+	@phpunit $<
+
+.PHONY: test-modules
+test-modules: $(MODULE_TESTS)
+```
+
+### Recursive Make (Advanced)
+
+For projects with subdirectories, recursive make can help organize builds:
+
+```makefile
+SUBDIRS := lib src tools
+
+.PHONY: all $(SUBDIRS)
+all: $(SUBDIRS)
+
+$(SUBDIRS):
+	@echo "Building $@..."
+	@$(MAKE) -C $@
+
+# Prevent parallel execution of subdirectories if they have dependencies
+src: lib
+tools: lib src
+```
+
+**Warning**: Recursive make can be difficult to maintain. Consider alternatives like include directives for better dependency tracking.
+
+## Makefile Best Practices
+
+### PHONY Target Management
+
+Always declare phony targets to prevent conflicts with files:
+
+```makefile
+# Declare all phony targets at once
+.PHONY: help install-deps build clean test package deploy
+.PHONY: lint format validate release
+.PHONY: dev-install dev-server dev-watch
+
+# Or declare them inline
+.PHONY: help
+help:
+	@echo "Available targets..."
+```
+
+**Why PHONY matters**:
+- Prevents conflicts with files named `test`, `clean`, etc.
+- Ensures targets always run, even if a file with that name exists
+- Improves performance by skipping timestamp checks
+
+### Proper Escaping
+
+Handle special characters and spaces correctly:
+
+```makefile
+# Escape dollar signs in shell commands
+.PHONY: show-env
+show-env:
+	@echo "PATH is: $$PATH"
+	@echo "USER is: $$USER"
+
+# Handle spaces in paths
+INSTALL_DIR := /path/with spaces/install
+install:
+	@mkdir -p "$(INSTALL_DIR)"
+	@cp build/* "$(INSTALL_DIR)/"
+
+# Escape quotes
+.PHONY: message
+message:
+	@echo "He said \"Hello\""
+
+# Multi-line commands
+.PHONY: complex
+complex:
+	@echo "Line 1"; \
+	echo "Line 2"; \
+	echo "Line 3"
+```
+
+### Error Handling
+
+Implement robust error handling:
+
+```makefile
+# Exit on first error
+.PHONY: strict-build
+strict-build:
+	set -e; \
+	command1; \
+	command2; \
+	command3
+
+# Continue on error but report failures
+.PHONY: best-effort
+best-effort:
+	-command_that_might_fail
+	@echo "Continuing despite errors..."
+
+# Check exit codes explicitly
+.PHONY: conditional
+conditional:
+	@if ! command_to_check; then \
+		echo "Command failed, trying alternative..."; \
+		alternative_command || exit 1; \
+	fi
+
+# Cleanup on error
+.PHONY: build-with-cleanup
+build-with-cleanup:
+	@trap 'rm -f temp.file' EXIT; \
+	touch temp.file; \
+	long_running_command
+```
+
+### Variable Best Practices
+
+```makefile
+# Use := for immediate expansion (more predictable)
+BUILD_TIME := $(shell date +%Y%m%d)
+VERSION := 1.0.0
+
+# Use = for recursive expansion (evaluated when used)
+FULL_VERSION = $(VERSION)-$(BUILD_HASH)
+BUILD_HASH = $(shell git rev-parse --short HEAD)
+
+# Provide defaults with ?=
+PREFIX ?= /usr/local
+BUILD_TYPE ?= debug
+
+# Append with +=
+CFLAGS += -Wall -Wextra
+
+# Use override to allow command-line overrides
+override CFLAGS += -std=c11
+
+# Environment variables with default
+SHELL := $(or $(SHELL),/bin/bash)
+```
+
+### Documentation Best Practices
+
+```makefile
+# Self-documenting Makefile
+.PHONY: help
+help: ## Show this help message
+	@echo "$(PROJECT_NAME) v$(VERSION)"
+	@echo ""
+	@echo "Usage: make [target]"
+	@echo ""
+	@echo "Targets:"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
+		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+
+# Group targets with comments
+# ==============================================================================
+# BUILD TARGETS
+# ==============================================================================
+
+.PHONY: build
+build: ## Build the project
+	@echo "Building..."
+
+.PHONY: clean
+clean: ## Clean build artifacts
+	@echo "Cleaning..."
+
+# ==============================================================================
+# DEVELOPMENT TARGETS
+# ==============================================================================
+
+.PHONY: dev-server
+dev-server: ## Start development server
+	@echo "Starting server..."
+```
+
+## CI/CD Integration
+
+### Using Makefiles in GitHub Actions
+
+Makefiles provide a consistent interface for CI/CD workflows:
+
+```yaml
+# .github/workflows/ci.yml
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup environment
+        run: make install-deps
+      
+      - name: Lint code
+        run: make lint
+      
+      - name: Run tests
+        run: make test
+      
+      - name: Build package
+        run: make build
+      
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+```
+
+### CI-Specific Targets
+
+Create targets optimized for CI environments:
+
+```makefile
+.PHONY: ci
+ci: ci-validate ci-test ci-build ## Run complete CI pipeline
+	@echo "✓ CI pipeline complete"
+
+.PHONY: ci-validate
+ci-validate: ## Run validation checks for CI
+	@echo "Running CI validation..."
+	@make lint
+	@make validate-structure
+	@make check-licenses
+
+.PHONY: ci-test
+ci-test: ## Run tests with CI-specific settings
+	@echo "Running CI tests..."
+	@$(PHPUNIT) --coverage-clover=coverage.xml --log-junit=junit.xml
+
+.PHONY: ci-build
+ci-build: ## Build for CI with optimizations
+	@echo "Building for CI..."
+	@BUILD_TYPE=production make build
+
+# Non-interactive mode for CI
+CI ?= false
+ifeq ($(CI),true)
+	COMPOSER_FLAGS := --no-interaction --no-progress
+	NPM_FLAGS := --no-progress
+else
+	COMPOSER_FLAGS :=
+	NPM_FLAGS :=
+endif
+
+.PHONY: install-deps
+install-deps:
+	@$(COMPOSER) install $(COMPOSER_FLAGS)
+```
+
+### Environment Detection
+
+Adapt behavior based on environment:
+
+```makefile
+# Detect CI environment
+CI_ENV := false
+ifdef CI
+	CI_ENV := true
+endif
+ifdef GITHUB_ACTIONS
+	CI_ENV := true
+endif
+ifdef GITLAB_CI
+	CI_ENV := true
+endif
+
+# Adjust settings for CI
+ifeq ($(CI_ENV),true)
+	# Disable color output in CI
+	COLOR_RESET :=
+	COLOR_GREEN :=
+	COLOR_RED :=
+	
+	# Use CI-optimized commands
+	NPM := npm ci
+	COMPOSER := composer install --no-dev
+else
+	# Local development settings
+	NPM := npm install
+	COMPOSER := composer install
+endif
+```
+
+### Caching for CI
+
+Implement caching strategies:
+
+```makefile
+# Cache directories
+CACHE_DIR := .make-cache
+DEP_CACHE := $(CACHE_DIR)/deps.stamp
+BUILD_CACHE := $(CACHE_DIR)/build.stamp
+
+$(CACHE_DIR):
+	@mkdir -p $(CACHE_DIR)
+
+# Cache dependency installation
+$(DEP_CACHE): composer.json package.json | $(CACHE_DIR)
+	@$(COMPOSER) install
+	@$(NPM) install
+	@touch $(DEP_CACHE)
+
+.PHONY: install-deps
+install-deps: $(DEP_CACHE)
+
+# Cache build
+$(BUILD_CACHE): $(SOURCES) $(DEP_CACHE) | $(CACHE_DIR)
+	@make build-internal
+	@touch $(BUILD_CACHE)
+
+.PHONY: build
+build: $(BUILD_CACHE)
+```
+
+## Debugging Makefiles
+
+### Dry Run Mode
+
+Use `-n` flag to see what would be executed:
+
+```bash
+# Show commands without executing
+make -n build
+
+# Combine with other flags for detailed output
+make -n -d build
+```
+
+### Debug Flags
+
+```bash
+# Basic debug output
+make --debug
+
+# Debug specific types
+make --debug=basic      # Basic debug info
+make --debug=verbose    # Verbose debug info
+make --debug=implicit   # Implicit rule search
+make --debug=jobs       # Job control info
+make --debug=all        # Everything
+
+# Print database of rules and variables
+make -p
+```
+
+### Variable Inspection
+
+Add targets to inspect variables:
+
+```makefile
+.PHONY: debug-vars
+debug-vars: ## Show all variable values
+	@echo "PROJECT_NAME: $(PROJECT_NAME)"
+	@echo "VERSION: $(VERSION)"
+	@echo "SRC_DIR: $(SRC_DIR)"
+	@echo "BUILD_DIR: $(BUILD_DIR)"
+	@echo "SOURCES: $(SOURCES)"
+	@echo "OBJECTS: $(OBJECTS)"
+
+# Print a specific variable from command line
+.PHONY: print-%
+print-%:
+	@echo $* = $($*)
+
+# Usage: make print-SOURCES
+```
+
+### Tracing Execution
+
+```makefile
+# Enable tracing for specific targets
+.PHONY: trace-build
+trace-build:
+	@set -x; \
+	command1; \
+	command2; \
+	set +x
+
+# Conditional tracing
+DEBUG ?= false
+ifeq ($(DEBUG),true)
+	SHELL := /bin/bash -x
+endif
+```
+
+### Common Issues and Solutions
+
+#### Issue: Target Not Running
+
+**Problem**: Target doesn't execute even though prerequisites changed
+
+**Solution**:
+```makefile
+# Ensure target is PHONY if it doesn't create a file
+.PHONY: problematic-target
+problematic-target:
+	@echo "Now it runs"
+```
+
+#### Issue: Variables Not Expanding
+
+**Problem**: Variable shows literal `$(VAR)` instead of value
+
+**Solution**:
+```makefile
+# Use := for immediate expansion
+VAR := $(shell echo "value")
+
+# Or check evaluation order
+$(info VAR at parse time: $(VAR))
+
+target:
+	@echo "VAR at run time: $(VAR)"
+```
+
+#### Issue: Whitespace Errors
+
+**Problem**: `*** missing separator` error
+
+**Solution**:
+```makefile
+# Ensure recipe lines use TABS not spaces
+target:
+	@echo "This line starts with a TAB"
+	@echo "Not spaces"
+
+# Show whitespace in your editor
+# Most editors have a "show whitespace" option
+```
+
+#### Issue: Shell Differences
+
+**Problem**: Commands work in terminal but fail in make
+
+**Solution**:
+```makefile
+# Explicitly set shell
+SHELL := /bin/bash
+
+# Use shell-specific features explicitly
+.PHONY: bash-features
+bash-features:
+	@bash -c 'array=(a b c); echo "$${array[@]}"'
+```
+
+## Platform-Specific Considerations
+
+### GNU Make vs BSD Make
+
+MokoStandards targets GNU Make, but understanding differences helps portability:
+
+**GNU Make Features** (not in BSD Make):
+```makefile
+# Conditional assignment
+VAR ?= default
+
+# Pattern-specific variables
+%.o: CFLAGS += -O2
+
+# Target-specific variables
+debug: CFLAGS += -g
+
+# Multiple targets from pattern
+%.o %.d: %.c
+	$(CC) -MD -c $< -o $@
+```
+
+**Portable Alternatives**:
+```makefile
+# Instead of VAR ?= default
+VAR = $(if $(VAR),$(VAR),default)
+
+# Instead of pattern-specific variables
+# Use target-specific variables on explicit targets
+
+# Check for GNU Make
+ifeq ($(MAKE_VERSION),)
+	$(error GNU Make required)
+endif
+```
+
+### Cross-Platform Path Handling
+
+```makefile
+# Detect OS
+UNAME := $(shell uname -s)
+
+ifeq ($(UNAME),Darwin)
+	# macOS
+	PLATFORM := macos
+	OPEN := open
+	SED := sed -i ''
+else ifeq ($(UNAME),Linux)
+	# Linux
+	PLATFORM := linux
+	OPEN := xdg-open
+	SED := sed -i
+else ifneq (,$(findstring MINGW,$(UNAME)))
+	# Windows (MinGW)
+	PLATFORM := windows
+	OPEN := start
+	SED := sed -i
+endif
+
+# Path separators
+ifeq ($(PLATFORM),windows)
+	PATH_SEP := \\
+	NULL_DEVICE := NUL
+else
+	PATH_SEP := /
+	NULL_DEVICE := /dev/null
+endif
+```
+
+### Handling Line Endings
+
+```makefile
+# Normalize line endings
+.PHONY: fix-line-endings
+fix-line-endings:
+ifeq ($(PLATFORM),windows)
+	@unix2dos src/*.php
+else
+	@dos2unix src/*.php
+endif
+```
+
+### Case Sensitivity
+
+```makefile
+# macOS/Windows: case-insensitive by default
+# Linux: case-sensitive
+
+# Be explicit about case
+ifeq ($(shell uname -s),Darwin)
+	# macOS filesystem usually case-insensitive
+	CASE_SENSITIVE := false
+else
+	CASE_SENSITIVE := true
+endif
+```
+
+### Tool Availability
+
+```makefile
+# Check for platform-specific tools
+HAS_BREW := $(shell command -v brew 2>$(NULL_DEVICE))
+HAS_APT := $(shell command -v apt-get 2>$(NULL_DEVICE))
+HAS_YUM := $(shell command -v yum 2>$(NULL_DEVICE))
+
+.PHONY: install-system-deps
+install-system-deps:
+ifdef HAS_BREW
+	@brew install php composer node
+else ifdef HAS_APT
+	@sudo apt-get install -y php composer nodejs npm
+else ifdef HAS_YUM
+	@sudo yum install -y php composer nodejs npm
+else
+	@echo "Unknown package manager. Install dependencies manually."
+endif
+```
+
+### Performance Considerations
+
+```makefile
+# Linux: use nproc for CPU count
+# macOS: use sysctl
+NPROCS := $(shell nproc 2>$(NULL_DEVICE) || sysctl -n hw.ncpu)
+
+# Enable parallel builds based on CPU count
+MAKEFLAGS += -j$(NPROCS)
+
+# Platform-specific optimizations
+ifeq ($(PLATFORM),macos)
+	# macOS-specific optimizations
+	CFLAGS += -fast
+else ifeq ($(PLATFORM),linux)
+	# Linux-specific optimizations
+	CFLAGS += -O3 -march=native
+endif
+```
+
 ## See Also
 
 - [Build System Overview](README.md)
@@ -698,11 +1384,12 @@ See the reference Makefiles for complete examples:
 | Repository | https://github.com/mokoconsulting-tech/MokoStandards |
 | Owner | Moko Consulting |
 | Status | Active |
-| Version | 01.00.00 |
-| Effective | 2026-01-07 |
+| Version | 02.00.00 |
+| Effective | 2026-01-13 |
 
 ## Version History
 
 | Version | Date | Changes |
 |---|---|---|
 | 01.00.00 | 2026-01-07 | Initial Makefile creation guide with standards and best practices |
+| 02.00.00 | 2026-01-13 | Added advanced patterns, best practices, CI/CD integration, debugging, and platform-specific sections |

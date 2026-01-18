@@ -93,7 +93,6 @@ Standards, requirements, and compliance documentation.
 
 Step-by-step tutorials and how-to documentation.
 
-- [MIGRATION_TO_MOKOSTANDARDS](./guide/MIGRATION_TO_MOKOSTANDARDS.md)
 - [PRIVATE_REPOSITORY_REFERENCE](./guide/PRIVATE_REPOSITORY_REFERENCE.md)
 - [PUBLIC_ARCHITECTURE](./guide/PUBLIC_ARCHITECTURE.md)
 - [SUPPORT](./guide/SUPPORT.md)

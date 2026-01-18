@@ -288,7 +288,6 @@ Planned improvements to project detection:
 ## Related Documentation
 
 - [Reusable CI Validation](../.github/workflows/REUSABLE_WORKFLOWS.md)
-- [Migration Guide](MIGRATION_TO_MOKOSTANDARDS.md)
 - [Public Architecture](PUBLIC_ARCHITECTURE.md)
 
 ## Contributing

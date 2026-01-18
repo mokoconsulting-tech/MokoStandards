@@ -466,10 +466,6 @@ Continuously improve your workflows:
 - Gather developer feedback
 - Update standards regularly
 
-## Migration Path
-
-See [MIGRATION_TO_MOKOSTANDARDS.md](MIGRATION_TO_MOKOSTANDARDS.md) for step-by-step migration guidance.
-
 ## Performance Optimization
 
 ### Caching
@@ -526,7 +522,6 @@ jobs:
 ## Related Documentation
 
 - [Project Type Detection](PROJECT_TYPE_DETECTION.md)
-- [Migration Guide](MIGRATION_TO_MOKOSTANDARDS.md)
 - [Health Scoring](../policy/health-scoring.md)
 - [Reusable Workflows](../.github/workflows/REUSABLE_WORKFLOWS.md)
 

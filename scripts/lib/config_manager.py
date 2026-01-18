@@ -76,7 +76,7 @@ class GitHubConfig:
 class AutomationConfig:
     """Automation scripts configuration"""
     default_branch: str = "chore/sync-mokostandards-updates"
-    temp_dir: str = "/tmp/mokostandards"
+    temp_dir: str = ""  # Empty means use secure tempfile.mkdtemp()
     confirmation_required: bool = True
 
 
@@ -227,7 +227,7 @@ class ConfigManager:
             },
             'automation': {
                 'default_branch': 'chore/sync-mokostandards-updates',
-                'temp_dir': '/tmp/mokostandards',
+                'temp_dir': '',  # Empty means use secure tempfile.mkdtemp()
                 'confirmation_required': True
             },
             'validation': {

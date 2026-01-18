@@ -33,6 +33,7 @@ import json
 import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -532,8 +533,8 @@ def main():
     )
     parser.add_argument(
         '--temp-dir',
-        default='/tmp/bulk-update-repos',
-        help='Temporary directory for cloning repositories'
+        default=None,  # Will use tempfile.mkdtemp() for secure temp directory
+        help='Temporary directory for cloning repositories (default: secure temp dir)'
     )
     parser.add_argument(
         '--yes',
@@ -590,10 +591,17 @@ def main():
             print("Aborted")
             sys.exit(0)
     
-    # Create temp directory
-    temp_dir = Path(args.temp_dir)
-    if not args.dry_run:
-        temp_dir.mkdir(parents=True, exist_ok=True)
+    # Create temp directory securely
+    if args.temp_dir:
+        temp_dir = Path(args.temp_dir)
+        if not args.dry_run:
+            temp_dir.mkdir(parents=True, exist_ok=True)
+    else:
+        # Use secure temporary directory
+        if not args.dry_run:
+            temp_dir = Path(tempfile.mkdtemp(prefix='bulk-update-repos-'))
+        else:
+            temp_dir = Path(tempfile.gettempdir()) / 'bulk-update-repos-dry-run'
     
     # Update each repository
     success_count = 0

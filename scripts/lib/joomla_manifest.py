@@ -30,7 +30,11 @@ VERSION: 01.00.00
 BRIEF: Joomla manifest parsing and validation utilities
 """
 
-import xml.etree.ElementTree as ET
+try:
+    from defusedxml import ElementTree as ET
+except ImportError:
+    # Fallback to standard library if defusedxml is not available
+    import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass

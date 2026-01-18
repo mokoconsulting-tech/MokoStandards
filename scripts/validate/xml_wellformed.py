@@ -32,7 +32,10 @@ BRIEF: Validate XML well-formedness in all XML files
 
 import argparse
 import sys
-import xml.etree.ElementTree as ET
+try:
+    from defusedxml import ElementTree as ET
+except ImportError:
+    import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import List, Tuple
 

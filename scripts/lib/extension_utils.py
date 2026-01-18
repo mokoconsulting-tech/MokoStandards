@@ -31,11 +31,16 @@ BRIEF: Platform-aware extension utilities for Joomla and Dolibarr
 """
 
 import re
-import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 from typing import Optional, Union
+
+try:
+    from defusedxml import ElementTree as ET
+except ImportError:
+    # Fallback to standard library if defusedxml is not available
+    import xml.etree.ElementTree as ET
 
 
 class Platform(Enum):

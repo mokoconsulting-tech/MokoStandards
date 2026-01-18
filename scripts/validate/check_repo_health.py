@@ -30,7 +30,10 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 from typing import Dict, List, Tuple
-from xml.etree import ElementTree as ET
+try:
+    from defusedxml import ElementTree as ET
+except ImportError:
+    from xml.etree import ElementTree as ET
 
 
 # Namespace for repo health schema

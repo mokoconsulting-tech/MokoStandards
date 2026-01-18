@@ -29,7 +29,10 @@ Exit codes:
 import sys
 import os
 import argparse
-import xml.etree.ElementTree as ET
+try:
+    from defusedxml import ElementTree as ET
+except ImportError:
+    import xml.etree.ElementTree as ET
 import json
 from pathlib import Path
 from typing import List, Dict, Tuple, Optional, Any

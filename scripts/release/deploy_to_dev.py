@@ -26,7 +26,15 @@ REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /scripts/release/deploy_to_dev.py
 VERSION: 01.00.00
 BRIEF: Deploy src directory to development server via FTP/SFTP
+
+SECURITY NOTE: This script supports FTP for legacy systems, but FTP is insecure.
+Prefer SFTP (SSH File Transfer Protocol) whenever possible. FTP transmits credentials
+and data in plaintext. If you must use FTP, consider using FTPS (FTP over TLS).
 """
+
+# Security warning about FTP usage
+import warnings
+warnings.filterwarnings('default', category=DeprecationWarning)
 
 import argparse
 import ftplib
@@ -43,7 +51,11 @@ except ImportError:
 
 def deploy_ftp(host: str, user: str, password: str, remote_path: str, 
                local_path: str, port: int = 21, use_tls: bool = False) -> bool:
-    """Deploy files via FTP or FTPS."""
+    """Deploy files via FTP or FTPS.
+    
+    Security Warning: FTP transmits credentials and data in plaintext.
+    Use FTPS (use_tls=True) or prefer SFTP for secure transfers.
+    """
     try:
         # Connect to FTP server
         if use_tls:
@@ -55,6 +67,8 @@ def deploy_ftp(host: str, user: str, password: str, remote_path: str,
         else:
             ftp = ftplib.FTP()
             print(f"Connecting to {host}:{port} (FTP)...")
+            print("⚠️  WARNING: Using unencrypted FTP - credentials and data sent in plaintext!")
+            print("   Consider using SFTP or FTPS for secure transfers.")
             ftp.connect(host, port)
             ftp.login(user, password)
         
@@ -134,9 +148,13 @@ def deploy_sftp(host: str, user: str, password: Optional[str], remote_path: str,
     try:
         # Setup SSH client
         ssh = paramiko.SSHClient()
+        # WARNING: AutoAddPolicy automatically trusts unknown host keys.
+        # For production use, consider using RejectPolicy and managing known_hosts file.
+        # This policy is used here for development deployments where convenience is prioritized.
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         
         print(f"Connecting to {host}:{port} (SFTP)...")
+        print("⚠️  Warning: Using AutoAddPolicy - host key is not verified")
         
         # Connect with key or password
         if key_file:

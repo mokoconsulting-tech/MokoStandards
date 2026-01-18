@@ -18,7 +18,10 @@ Examples:
 
 import sys
 import os
-import xml.etree.ElementTree as ET
+try:
+    from defusedxml import ElementTree as ET
+except ImportError:
+    import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import List, Dict, Tuple
 import re

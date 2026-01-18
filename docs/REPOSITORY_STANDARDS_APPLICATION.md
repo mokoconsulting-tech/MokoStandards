@@ -891,8 +891,7 @@ steps:
 
 ## Related Documentation
 
-- [Two-Tier Architecture](TWO_TIER_ARCHITECTURE.md) - Understanding the public/private separation
-- [Standards Coordination](../STANDARDS_COORDINATION.md) - How standards are coordinated
+- [Two-Tier Architecture](TWO_TIER_ARCHITECTURE.md) - Understanding the public/private separation and standards coordination
 - [Joomla Development Standard](policy/joomla-development-standard.md) - Joomla-specific guidelines
 - [Security Scanning Standard](policy/security-scanning-standard.md) - Security requirements
 - [Contributing Guidelines](../CONTRIBUTING.md) - How to contribute to MokoStandards

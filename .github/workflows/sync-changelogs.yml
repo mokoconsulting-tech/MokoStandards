@@ -1,0 +1,197 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.Automation
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/sync-changelogs.yml
+# VERSION: 01.00.00
+# BRIEF: Synchronize CHANGELOG files between root and src directory for Dolibarr modules
+# NOTE: Automatically detects changes and syncs content bidirectionally
+# NOTE: Uses case-sensitive 'ChangeLog.md' in src/ (Dolibarr requirement, not used in Joomla/generic projects)
+
+name: Sync CHANGELOG Files
+
+on:
+  workflow_dispatch:
+    inputs:
+      direction:
+        description: 'Sync direction'
+        required: true
+        type: choice
+        options:
+          - 'root-to-src'
+          - 'src-to-root'
+          - 'check-only'
+        default: 'check-only'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync-changelogs:
+    name: Synchronize CHANGELOG Files
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check if both CHANGELOG files exist
+        id: check-files
+        run: |
+          ROOT_EXISTS=false
+          SRC_EXISTS=false
+
+          if [ -f "CHANGELOG.md" ]; then
+            ROOT_EXISTS=true
+            echo "Root CHANGELOG.md exists"
+          fi
+
+          if [ -f "src/ChangeLog.md" ]; then
+            SRC_EXISTS=true
+            echo "src/ChangeLog.md exists"
+          fi
+
+          echo "root_exists=$ROOT_EXISTS" >> $GITHUB_OUTPUT
+          echo "src_exists=$SRC_EXISTS" >> $GITHUB_OUTPUT
+
+      - name: Check if files are already in sync
+        id: check-sync
+        if: steps.check-files.outputs.root_exists == 'true' && steps.check-files.outputs.src_exists == 'true'
+        run: |
+          if diff -q CHANGELOG.md src/ChangeLog.md > /dev/null 2>&1; then
+            echo "in_sync=true" >> $GITHUB_OUTPUT
+            echo "CHANGELOG files are already in sync"
+          else
+            echo "in_sync=false" >> $GITHUB_OUTPUT
+            echo "CHANGELOG files are out of sync"
+          fi
+
+      - name: Sync root CHANGELOG to src
+        if: |
+          github.event.inputs.direction == 'root-to-src' &&
+          steps.check-files.outputs.root_exists == 'true' &&
+          steps.check-files.outputs.src_exists == 'true' &&
+          steps.check-sync.outputs.in_sync == 'false'
+        run: |
+          echo "Syncing root CHANGELOG.md to src/ChangeLog.md"
+          cp CHANGELOG.md src/ChangeLog.md
+          echo "sync_direction=root-to-src" >> $GITHUB_ENV
+
+      - name: Sync src CHANGELOG to root
+        if: |
+          github.event.inputs.direction == 'src-to-root' &&
+          steps.check-files.outputs.root_exists == 'true' &&
+          steps.check-files.outputs.src_exists == 'true' &&
+          steps.check-sync.outputs.in_sync == 'false'
+        run: |
+          echo "Syncing src/ChangeLog.md to root CHANGELOG.md"
+          cp src/ChangeLog.md CHANGELOG.md
+          echo "sync_direction=src-to-root" >> $GITHUB_ENV
+
+      - name: Check only mode
+        if: github.event.inputs.direction == 'check-only'
+        run: |
+          echo "Running in check-only mode"
+          if [ "${{ steps.check-sync.outputs.in_sync }}" == "true" ]; then
+            echo "✅ CHANGELOG files are in sync"
+          else
+            echo "⚠️  CHANGELOG files are out of sync"
+            echo ""
+            echo "To sync, run this workflow again with either:"
+            echo "  - direction: root-to-src (copy root CHANGELOG.md to src/)"
+            echo "  - direction: src-to-root (copy src/ChangeLog.md to root)"
+          fi
+          echo "sync_direction=check-only" >> $GITHUB_ENV
+
+      - name: Commit synchronized changes
+        if: env.sync_direction != 'check-only' && env.sync_direction != ''
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+          # Check if there are changes to commit
+          if git diff --quiet; then
+            echo "No changes to commit"
+          else
+            if [ "$sync_direction" == "root-to-src" ]; then
+              git add src/ChangeLog.md
+              git commit -m "chore: sync CHANGELOG from root to src directory [automated]"
+            elif [ "$sync_direction" == "src-to-root" ]; then
+              git add CHANGELOG.md
+              git commit -m "chore: sync CHANGELOG from src to root directory [automated]"
+            fi
+
+            # Push changes with retry logic
+            MAX_RETRIES=3
+            RETRY_COUNT=0
+            PUSH_SUCCESS=false
+
+            while [ $RETRY_COUNT -lt $MAX_RETRIES ] && [ "$PUSH_SUCCESS" == "false" ]; do
+              if git push; then
+                PUSH_SUCCESS=true
+                echo "Successfully pushed changes"
+              else
+                RETRY_COUNT=$((RETRY_COUNT + 1))
+                if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
+                  echo "Push failed, retrying ($RETRY_COUNT/$MAX_RETRIES)..."
+                  sleep 2
+                  git pull --rebase
+                else
+                  echo "Failed to push after $MAX_RETRIES attempts"
+                  echo "This may be due to protected branch settings or concurrent pushes"
+                  echo "Please manually sync and push the changes"
+                  exit 1
+                fi
+              fi
+            done
+          fi
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "### CHANGELOG Sync Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ steps.check-files.outputs.root_exists }}" == "true" ] && [ "${{ steps.check-files.outputs.src_exists }}" == "true" ]; then
+            if [ "${{ steps.check-sync.outputs.in_sync }}" == "true" ]; then
+              echo "✅ CHANGELOG files are in sync" >> $GITHUB_STEP_SUMMARY
+            elif [ "$sync_direction" == "root-to-src" ]; then
+              echo "✅ Synced root CHANGELOG.md → src/ChangeLog.md" >> $GITHUB_STEP_SUMMARY
+            elif [ "$sync_direction" == "src-to-root" ]; then
+              echo "✅ Synced src/ChangeLog.md → root CHANGELOG.md" >> $GITHUB_STEP_SUMMARY
+            elif [ "$sync_direction" == "conflict" ]; then
+              echo "⚠️  Both CHANGELOG files were modified - manual resolution required" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "ℹ️  No sync needed" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            if [ "${{ steps.check-files.outputs.root_exists }}" == "false" ]; then
+              echo "ℹ️  Root CHANGELOG.md not found" >> $GITHUB_STEP_SUMMARY
+            fi
+            if [ "${{ steps.check-files.outputs.src_exists }}" == "false" ]; then
+              echo "ℹ️  src/ChangeLog.md not found" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi

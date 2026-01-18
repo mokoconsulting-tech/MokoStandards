@@ -41,6 +41,13 @@ on:
       - dev/**
       - rc/**
       - version/**
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to scan (default: current branch)'
+        required: false
+        type: string
+        default: ''
 
 permissions:
   contents: read

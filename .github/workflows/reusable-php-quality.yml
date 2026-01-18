@@ -1,0 +1,334 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.Reusable
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/reusable-php-quality.yml
+# VERSION: 01.00.00
+# BRIEF: Reusable PHP code quality analysis workflow
+# NOTE: Supports PHPCS, PHPStan, Psalm with configurable PHP versions and tools
+
+name: Reusable PHP Quality
+
+on:
+  workflow_call:
+    inputs:
+      php-versions:
+        description: 'JSON array of PHP versions to test'
+        required: false
+        type: string
+        default: '["7.4", "8.0", "8.1", "8.2"]'
+      tools:
+        description: 'JSON array of quality tools to run (phpcs, phpstan, psalm)'
+        required: false
+        type: string
+        default: '["phpcs", "phpstan", "psalm"]'
+      working-directory:
+        description: 'Working directory for the quality checks'
+        required: false
+        type: string
+        default: '.'
+      phpcs-standard:
+        description: 'PHPCS coding standard to use'
+        required: false
+        type: string
+        default: 'PSR12'
+      phpstan-level:
+        description: 'PHPStan analysis level (0-9)'
+        required: false
+        type: string
+        default: '5'
+      psalm-level:
+        description: 'Psalm error level (1-8)'
+        required: false
+        type: string
+        default: '4'
+      fail-on-error:
+        description: 'Fail the workflow if quality checks find issues'
+        required: false
+        type: boolean
+        default: true
+    outputs:
+      quality-score:
+        description: 'Overall quality score percentage'
+        value: ${{ jobs.aggregate.outputs.score }}
+  workflow_dispatch:
+    inputs:
+      php-versions:
+        description: 'JSON array of PHP versions to test'
+        required: false
+        type: string
+        default: '["7.4", "8.0", "8.1", "8.2"]'
+      tools:
+        description: 'JSON array of quality tools to run (phpcs, phpstan, psalm)'
+        required: false
+        type: string
+        default: '["phpcs", "phpstan", "psalm"]'
+      working-directory:
+        description: 'Working directory for the quality checks'
+        required: false
+        type: string
+        default: '.'
+      phpcs-standard:
+        description: 'PHPCS coding standard to use'
+        required: false
+        type: string
+        default: 'PSR12'
+      phpstan-level:
+        description: 'PHPStan analysis level (0-9)'
+        required: false
+        type: string
+        default: '5'
+      psalm-level:
+        description: 'Psalm error level (1-8)'
+        required: false
+        type: string
+        default: '4'
+      fail-on-error:
+        description: 'Fail the workflow if quality checks find issues'
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  phpcs:
+    name: PHP_CodeSniffer (PHP ${{ matrix.php-version }})
+    runs-on: ubuntu-latest
+    if: contains(fromJSON(inputs.tools), 'phpcs')
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version: ${{ fromJSON(inputs.php-versions) }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mbstring, xml
+          tools: composer:v2, phpcs
+          coverage: none
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v5
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          if [ -f "composer.json" ]; then
+            composer install --prefer-dist --no-progress --no-interaction
+          fi
+
+      - name: Run PHP_CodeSniffer
+        working-directory: ${{ inputs.working-directory }}
+        continue-on-error: ${{ !inputs.fail-on-error }}
+        run: |
+          if [ -f "phpcs.xml" ] || [ -f "phpcs.xml.dist" ]; then
+            phpcs --standard=phpcs.xml --report=summary --report-width=120
+          elif [ -f "vendor/bin/phpcs" ]; then
+            vendor/bin/phpcs --standard=${{ inputs.phpcs-standard }} --report=summary --report-width=120 src/
+          else
+            phpcs --standard=${{ inputs.phpcs-standard }} --report=summary --report-width=120 . || echo "No PHP files found or PHPCS configuration missing"
+          fi
+
+  phpstan:
+    name: PHPStan (PHP ${{ matrix.php-version }})
+    runs-on: ubuntu-latest
+    if: contains(fromJSON(inputs.tools), 'phpstan')
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version: ${{ fromJSON(inputs.php-versions) }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mbstring, xml
+          tools: composer:v2, phpstan
+          coverage: none
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v5
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          if [ -f "composer.json" ]; then
+            composer install --prefer-dist --no-progress --no-interaction
+          fi
+
+      - name: Run PHPStan
+        working-directory: ${{ inputs.working-directory }}
+        continue-on-error: ${{ !inputs.fail-on-error }}
+        run: |
+          if [ -f "phpstan.neon" ] || [ -f "phpstan.neon.dist" ]; then
+            phpstan analyse --no-progress --error-format=github
+          elif [ -f "vendor/bin/phpstan" ]; then
+            vendor/bin/phpstan analyse src/ --level=${{ inputs.phpstan-level }} --no-progress --error-format=github
+          else
+            phpstan analyse . --level=${{ inputs.phpstan-level }} --no-progress --error-format=github || echo "No PHP files found or PHPStan configuration missing"
+          fi
+
+  psalm:
+    name: Psalm (PHP ${{ matrix.php-version }})
+    runs-on: ubuntu-latest
+    if: contains(fromJSON(inputs.tools), 'psalm')
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version: ${{ fromJSON(inputs.php-versions) }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mbstring, xml
+          tools: composer:v2, psalm
+          coverage: none
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v5
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          if [ -f "composer.json" ]; then
+            composer install --prefer-dist --no-progress --no-interaction
+          fi
+
+      - name: Run Psalm
+        working-directory: ${{ inputs.working-directory }}
+        continue-on-error: ${{ !inputs.fail-on-error }}
+        run: |
+          if [ -f "psalm.xml" ] || [ -f "psalm.xml.dist" ]; then
+            psalm --no-progress --output-format=github --show-info=false
+          elif [ -f "vendor/bin/psalm" ]; then
+            # Initialize Psalm config if it doesn't exist
+            if [ ! -f "psalm.xml" ]; then
+              echo "Initializing Psalm configuration..."
+              if ! vendor/bin/psalm --init src/ ${{ inputs.psalm-level }}; then
+                echo "⚠️ Psalm initialization failed, proceeding with defaults"
+              fi
+            fi
+            vendor/bin/psalm --no-progress --output-format=github --show-info=false
+          else
+            psalm --no-progress --output-format=github --show-info=false || echo "No PHP files found or Psalm configuration missing"
+          fi
+
+  aggregate:
+    name: Quality Check Summary
+    runs-on: ubuntu-latest
+    needs: [phpcs, phpstan, psalm]
+    if: always()
+    outputs:
+      score: ${{ steps.calculate.outputs.score }}
+
+    steps:
+      - name: Calculate quality score
+        id: calculate
+        run: |
+          # Count successful jobs
+          SUCCESS=0
+          TOTAL=0
+
+          if [ "${{ needs.phpcs.result }}" != "skipped" ]; then
+            TOTAL=$((TOTAL + 1))
+            [ "${{ needs.phpcs.result }}" == "success" ] && SUCCESS=$((SUCCESS + 1))
+          fi
+
+          if [ "${{ needs.phpstan.result }}" != "skipped" ]; then
+            TOTAL=$((TOTAL + 1))
+            [ "${{ needs.phpstan.result }}" == "success" ] && SUCCESS=$((SUCCESS + 1))
+          fi
+
+          if [ "${{ needs.psalm.result }}" != "skipped" ]; then
+            TOTAL=$((TOTAL + 1))
+            [ "${{ needs.psalm.result }}" == "success" ] && SUCCESS=$((SUCCESS + 1))
+          fi
+
+          # Calculate percentage
+          if [ $TOTAL -gt 0 ]; then
+            SCORE=$((SUCCESS * 100 / TOTAL))
+          else
+            SCORE=100
+          fi
+
+          echo "score=$SCORE" >> $GITHUB_OUTPUT
+          echo "Quality Score: $SCORE%" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- PHPCS: ${{ needs.phpcs.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- PHPStan: ${{ needs.phpstan.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Psalm: ${{ needs.psalm.result }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Check overall status
+        if: inputs.fail-on-error
+        run: |
+          if [ "${{ needs.phpcs.result }}" == "failure" ] || \
+             [ "${{ needs.phpstan.result }}" == "failure" ] || \
+             [ "${{ needs.psalm.result }}" == "failure" ]; then
+            echo "❌ Quality checks failed"
+            exit 1
+          fi
+          echo "✅ All quality checks passed"

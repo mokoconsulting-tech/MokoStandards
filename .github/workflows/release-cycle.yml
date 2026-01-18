@@ -160,10 +160,42 @@ jobs:
             echo "✅ Version files updated and committed" >> $GITHUB_STEP_SUMMARY
           fi
 
+  detect-project:
+    name: Detect Project Type
+    runs-on: ubuntu-latest
+    needs: validate-version
+    if: inputs.action == 'create-rc' || inputs.action == 'finalize-release'
+    outputs:
+      project-type: ${{ steps.detect.outputs.project_type }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect project type
+        id: detect
+        run: |
+          # Check for Joomla indicators
+          if [ -f "joomla.xml" ] || \
+             find . -maxdepth 2 \( -name "mod_*.xml" -o -name "plg_*.xml" -o -name "com_*.xml" -o -name "pkg_*.xml" -o -name "tpl_*.xml" \) 2>/dev/null | head -1 | grep -q .; then
+            echo "project_type=joomla" >> $GITHUB_OUTPUT
+            echo "✅ Detected project type: Joomla" >> $GITHUB_STEP_SUMMARY
+          # Check for Dolibarr indicators
+          elif [ -d "htdocs" ] || [ -d "core/modules" ] || \
+               ([ -f "composer.json" ] && grep -q "dolibarr" composer.json 2>/dev/null); then
+            echo "project_type=dolibarr" >> $GITHUB_OUTPUT
+            echo "✅ Detected project type: Dolibarr" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "project_type=generic" >> $GITHUB_OUTPUT
+            echo "ℹ️ Detected project type: Generic" >> $GITHUB_STEP_SUMMARY
+          fi
+
   create-rc:
     name: Create Release Candidate (dev → rc)
     runs-on: ubuntu-latest
-    needs: validate-version
+    needs: [validate-version, detect-project]
     if: inputs.action == 'create-rc'
 
     steps:
@@ -210,10 +242,163 @@ jobs:
 
           echo "✅ Created pre-release tag: $TAG" >> $GITHUB_STEP_SUMMARY
 
+      - name: Setup PHP
+        if: needs.detect-project.outputs.project-type == 'joomla' || needs.detect-project.outputs.project-type == 'dolibarr'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mbstring, xml, zip
+
+      - name: Build Joomla Package
+        if: needs.detect-project.outputs.project-type == 'joomla'
+        run: |
+          VERSION="${{ needs.validate-version.outputs.version }}"
+          mkdir -p build/package
+
+          # Copy files excluding development artifacts
+          rsync -av \
+            --exclude='build' \
+            --exclude='tests' \
+            --exclude='.git*' \
+            --exclude='composer.json' \
+            --exclude='composer.lock' \
+            --exclude='phpunit.xml*' \
+            --exclude='phpcs.xml*' \
+            --exclude='phpstan.neon*' \
+            --exclude='psalm.xml*' \
+            --exclude='node_modules' \
+            --exclude='.github' \
+            --exclude='package.json' \
+            --exclude='package-lock.json' \
+            . build/package/
+
+          # Determine extension name from manifest
+          MANIFEST=$(find . -maxdepth 1 -name "*.xml" -not -name "phpunit.xml*" -type f | head -1)
+          if [ -n "$MANIFEST" ]; then
+            EXT_NAME=$(basename "$MANIFEST" .xml)
+          else
+            EXT_NAME=$(basename "$GITHUB_REPOSITORY" | sed 's/^joomla-//')
+          fi
+
+          # Create ZIP package
+          cd build/package
+          PACKAGE_NAME="${EXT_NAME}-${VERSION}-rc.zip"
+          zip -r "../${PACKAGE_NAME}" .
+          cd ../..
+
+          echo "PACKAGE_NAME=${PACKAGE_NAME}" >> $GITHUB_ENV
+          echo "PACKAGE_PATH=build/${PACKAGE_NAME}" >> $GITHUB_ENV
+          echo "✅ Created Joomla RC package: ${PACKAGE_NAME}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Build Dolibarr Package
+        if: needs.detect-project.outputs.project-type == 'dolibarr'
+        run: |
+          VERSION="${{ needs.validate-version.outputs.version }}"
+          mkdir -p build/package
+
+          # Copy module files
+          rsync -av \
+            --exclude='build' \
+            --exclude='tests' \
+            --exclude='.git*' \
+            --exclude='node_modules' \
+            --exclude='.github' \
+            . build/package/
+
+          # Determine module name
+          if [ -f "core/modules/modMyModule.class.php" ]; then
+            MODULE_NAME=$(grep -oP "class mod\K\w+" core/modules/*.php | head -1)
+          else
+            MODULE_NAME=$(basename "$GITHUB_REPOSITORY" | sed 's/^dolibarr-//')
+          fi
+
+          # Create ZIP package
+          cd build/package
+          PACKAGE_NAME="${MODULE_NAME}-${VERSION}-rc.zip"
+          zip -r "../${PACKAGE_NAME}" .
+          cd ../..
+
+          echo "PACKAGE_NAME=${PACKAGE_NAME}" >> $GITHUB_ENV
+          echo "PACKAGE_PATH=build/${PACKAGE_NAME}" >> $GITHUB_ENV
+          echo "✅ Created Dolibarr RC package: ${PACKAGE_NAME}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Setup Python for FTP Upload
+        if: needs.detect-project.outputs.project-type == 'joomla' || needs.detect-project.outputs.project-type == 'dolibarr'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install Python Dependencies
+        if: needs.detect-project.outputs.project-type == 'joomla' || needs.detect-project.outputs.project-type == 'dolibarr'
+        run: pip install paramiko
+
+      - name: Upload RC Package to FTP
+        if: needs.detect-project.outputs.project-type == 'joomla' || needs.detect-project.outputs.project-type == 'dolibarr'
+        env:
+          RS_FTP_HOST: ${{ secrets.RS_FTP_HOST }}
+          RS_FTP_USER: ${{ secrets.RS_FTP_USER }}
+          RS_FTP_PASSWORD: ${{ secrets.RS_FTP_PASSWORD }}
+          RS_FTP_KEY: ${{ secrets.RS_FTP_KEY }}
+          RS_FTP_PATH: ${{ vars.RS_FTP_PATH }}
+          RS_FTP_PATH_SUFFIX: ${{ vars.RS_FTP_PATH_SUFFIX }}
+          RS_FTP_PORT: ${{ secrets.RS_FTP_PORT }}
+          RS_FTP_PROTOCOL: ${{ secrets.RS_FTP_PROTOCOL }}
+        run: |
+          if [ -z "$RS_FTP_HOST" ]; then
+            echo "⚠️ RS_FTP_HOST not configured, skipping FTP upload" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+
+          if [ ! -f "$PACKAGE_PATH" ]; then
+            echo "⚠️ Package not found, skipping FTP upload" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+
+          # Build deploy command
+          PROTOCOL="${RS_FTP_PROTOCOL:-sftp}"
+          PORT="${RS_FTP_PORT}"
+
+          # Combine base path with suffix if provided
+          if [ -n "$RS_FTP_PATH_SUFFIX" ]; then
+            REMOTE_PATH="${RS_FTP_PATH}${RS_FTP_PATH_SUFFIX}"
+          else
+            REMOTE_PATH="${RS_FTP_PATH:-.}"
+          fi
+
+          DEPLOY_CMD="python scripts/release/deploy_to_dev.py \
+            --host \"$RS_FTP_HOST\" \
+            --user \"$RS_FTP_USER\" \
+            --remote-path \"$REMOTE_PATH\" \
+            --local-path \"$PACKAGE_PATH\" \
+            --protocol \"$PROTOCOL\""
+
+          # Add port if specified
+          if [ -n "$PORT" ]; then
+            DEPLOY_CMD="$DEPLOY_CMD --port $PORT"
+          fi
+
+          # Add authentication
+          if [ -n "$RS_FTP_KEY" ]; then
+            mkdir -p ~/.ssh
+            echo "$RS_FTP_KEY" > ~/.ssh/rs_deploy_key
+            chmod 600 ~/.ssh/rs_deploy_key
+            DEPLOY_CMD="$DEPLOY_CMD --key-file ~/.ssh/rs_deploy_key"
+          elif [ -n "$RS_FTP_PASSWORD" ]; then
+            DEPLOY_CMD="$DEPLOY_CMD --password \"$RS_FTP_PASSWORD\""
+          fi
+
+          # Execute upload
+          eval $DEPLOY_CMD
+
+          echo "✅ Uploaded RC package to FTP server" >> $GITHUB_STEP_SUMMARY
+          echo "- Host: $RS_FTP_HOST" >> $GITHUB_STEP_SUMMARY
+          echo "- Package: $PACKAGE_NAME" >> $GITHUB_STEP_SUMMARY
+          echo "- Path: $REMOTE_PATH" >> $GITHUB_STEP_SUMMARY
+
   finalize-release:
     name: Finalize Release (rc → version → main)
     runs-on: ubuntu-latest
-    needs: validate-version
+    needs: [validate-version, detect-project]
     if: inputs.action == 'finalize-release'
 
     steps:
@@ -316,6 +501,167 @@ jobs:
           draft: false
           prerelease: false
 
+      - name: Setup PHP
+        if: needs.detect-project.outputs.project-type == 'joomla' || needs.detect-project.outputs.project-type == 'dolibarr'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mbstring, xml, zip
+
+      - name: Build Joomla Final Package
+        if: needs.detect-project.outputs.project-type == 'joomla'
+        run: |
+          VERSION="${{ needs.validate-version.outputs.version }}"
+          mkdir -p build/package
+
+          # Copy files excluding development artifacts
+          rsync -av \
+            --exclude='build' \
+            --exclude='tests' \
+            --exclude='.git*' \
+            --exclude='composer.json' \
+            --exclude='composer.lock' \
+            --exclude='phpunit.xml*' \
+            --exclude='phpcs.xml*' \
+            --exclude='phpstan.neon*' \
+            --exclude='psalm.xml*' \
+            --exclude='node_modules' \
+            --exclude='.github' \
+            --exclude='package.json' \
+            --exclude='package-lock.json' \
+            . build/package/
+
+          # Determine extension name from manifest
+          MANIFEST=$(find . -maxdepth 1 -name "*.xml" -not -name "phpunit.xml*" -type f | head -1)
+          if [ -n "$MANIFEST" ]; then
+            EXT_NAME=$(basename "$MANIFEST" .xml)
+          else
+            EXT_NAME=$(basename "$GITHUB_REPOSITORY" | sed 's/^joomla-//')
+          fi
+
+          # Create ZIP package
+          cd build/package
+          PACKAGE_NAME="${EXT_NAME}-${VERSION}.zip"
+          zip -r "../${PACKAGE_NAME}" .
+          cd ../..
+
+          echo "PACKAGE_NAME=${PACKAGE_NAME}" >> $GITHUB_ENV
+          echo "PACKAGE_PATH=build/${PACKAGE_NAME}" >> $GITHUB_ENV
+          echo "✅ Created Joomla final package: ${PACKAGE_NAME}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Build Dolibarr Final Package
+        if: needs.detect-project.outputs.project-type == 'dolibarr'
+        run: |
+          VERSION="${{ needs.validate-version.outputs.version }}"
+          mkdir -p build/package
+
+          # Copy module files
+          rsync -av \
+            --exclude='build' \
+            --exclude='tests' \
+            --exclude='.git*' \
+            --exclude='node_modules' \
+            --exclude='.github' \
+            . build/package/
+
+          # Determine module name
+          if [ -f "core/modules/modMyModule.class.php" ]; then
+            MODULE_NAME=$(grep -oP "class mod\K\w+" core/modules/*.php | head -1)
+          else
+            MODULE_NAME=$(basename "$GITHUB_REPOSITORY" | sed 's/^dolibarr-//')
+          fi
+
+          # Create ZIP package
+          cd build/package
+          PACKAGE_NAME="${MODULE_NAME}-${VERSION}.zip"
+          zip -r "../${PACKAGE_NAME}" .
+          cd ../..
+
+          echo "PACKAGE_NAME=${PACKAGE_NAME}" >> $GITHUB_ENV
+          echo "PACKAGE_PATH=build/${PACKAGE_NAME}" >> $GITHUB_ENV
+          echo "✅ Created Dolibarr final package: ${PACKAGE_NAME}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload Final Package to GitHub Release
+        if: needs.detect-project.outputs.project-type == 'joomla' || needs.detect-project.outputs.project-type == 'dolibarr'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ needs.validate-version.outputs.version }}
+          files: |
+            ${{ env.PACKAGE_PATH }}
+
+      - name: Setup Python for FTP Upload
+        if: needs.detect-project.outputs.project-type == 'joomla' || needs.detect-project.outputs.project-type == 'dolibarr'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install Python Dependencies
+        if: needs.detect-project.outputs.project-type == 'joomla' || needs.detect-project.outputs.project-type == 'dolibarr'
+        run: pip install paramiko
+
+      - name: Upload Final Package to FTP
+        if: needs.detect-project.outputs.project-type == 'joomla' || needs.detect-project.outputs.project-type == 'dolibarr'
+        env:
+          RS_FTP_HOST: ${{ secrets.RS_FTP_HOST }}
+          RS_FTP_USER: ${{ secrets.RS_FTP_USER }}
+          RS_FTP_PASSWORD: ${{ secrets.RS_FTP_PASSWORD }}
+          RS_FTP_KEY: ${{ secrets.RS_FTP_KEY }}
+          RS_FTP_PATH: ${{ vars.RS_FTP_PATH }}
+          RS_FTP_PATH_SUFFIX: ${{ vars.RS_FTP_PATH_SUFFIX }}
+          RS_FTP_PORT: ${{ secrets.RS_FTP_PORT }}
+          RS_FTP_PROTOCOL: ${{ secrets.RS_FTP_PROTOCOL }}
+        run: |
+          if [ -z "$RS_FTP_HOST" ]; then
+            echo "⚠️ RS_FTP_HOST not configured, skipping FTP upload" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+
+          if [ ! -f "$PACKAGE_PATH" ]; then
+            echo "⚠️ Package not found, skipping FTP upload" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+
+          # Build deploy command
+          PROTOCOL="${RS_FTP_PROTOCOL:-sftp}"
+          PORT="${RS_FTP_PORT}"
+
+          # Combine base path with suffix if provided
+          if [ -n "$RS_FTP_PATH_SUFFIX" ]; then
+            REMOTE_PATH="${RS_FTP_PATH}${RS_FTP_PATH_SUFFIX}"
+          else
+            REMOTE_PATH="${RS_FTP_PATH:-.}"
+          fi
+
+          DEPLOY_CMD="python scripts/release/deploy_to_dev.py \
+            --host \"$RS_FTP_HOST\" \
+            --user \"$RS_FTP_USER\" \
+            --remote-path \"$REMOTE_PATH\" \
+            --local-path \"$PACKAGE_PATH\" \
+            --protocol \"$PROTOCOL\""
+
+          # Add port if specified
+          if [ -n "$PORT" ]; then
+            DEPLOY_CMD="$DEPLOY_CMD --port $PORT"
+          fi
+
+          # Add authentication
+          if [ -n "$RS_FTP_KEY" ]; then
+            mkdir -p ~/.ssh
+            echo "$RS_FTP_KEY" > ~/.ssh/rs_deploy_key
+            chmod 600 ~/.ssh/rs_deploy_key
+            DEPLOY_CMD="$DEPLOY_CMD --key-file ~/.ssh/rs_deploy_key"
+          elif [ -n "$RS_FTP_PASSWORD" ]; then
+            DEPLOY_CMD="$DEPLOY_CMD --password \"$RS_FTP_PASSWORD\""
+          fi
+
+          # Execute upload
+          eval $DEPLOY_CMD
+
+          echo "✅ Uploaded final package to FTP server" >> $GITHUB_STEP_SUMMARY
+          echo "- Host: $RS_FTP_HOST" >> $GITHUB_STEP_SUMMARY
+          echo "- Package: $PACKAGE_NAME" >> $GITHUB_STEP_SUMMARY
+          echo "- Path: $REMOTE_PATH" >> $GITHUB_STEP_SUMMARY
+
       - name: Cleanup Development Branches
         run: |
           VERSION="${{ needs.validate-version.outputs.version }}"
@@ -367,7 +713,7 @@ jobs:
   summary:
     name: Release Summary
     runs-on: ubuntu-latest
-    needs: [validate-version, start-release, create-rc, finalize-release, hotfix]
+    needs: [validate-version, detect-project, start-release, create-rc, finalize-release, hotfix]
     if: always()
 
     steps:

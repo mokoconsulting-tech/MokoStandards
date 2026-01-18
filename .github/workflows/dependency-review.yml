@@ -79,18 +79,19 @@ jobs:
   npm-audit:
     name: npm Audit
     runs-on: ubuntu-latest
-    if: hashFiles('package.json') != ''
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Setup Node.js
+        if: ${{ hashFiles('package.json') != '' }}
         uses: actions/setup-node@v4
         with:
           node-version: '18'
 
       - name: Run npm Audit
+        if: ${{ hashFiles('package.json') != '' }}
         run: |
           echo "### npm Audit Results" >> $GITHUB_STEP_SUMMARY
 
@@ -103,6 +104,7 @@ jobs:
           fi
 
       - name: Check for Outdated Packages
+        if: ${{ hashFiles('package.json') != '' }}
         run: |
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Outdated Packages" >> $GITHUB_STEP_SUMMARY
@@ -111,22 +113,24 @@ jobs:
   composer-audit:
     name: Composer Audit
     runs-on: ubuntu-latest
-    if: hashFiles('composer.json') != ''
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Setup PHP
+        if: ${{ hashFiles('composer.json') != '' }}
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
           tools: composer:v2
 
       - name: Install Dependencies
+        if: ${{ hashFiles('composer.json') != '' }}
         run: composer install --no-interaction --prefer-dist
 
       - name: Run Composer Audit
+        if: ${{ hashFiles('composer.json') != '' }}
         run: |
           echo "### Composer Audit Results" >> $GITHUB_STEP_SUMMARY
 
@@ -139,6 +143,7 @@ jobs:
           fi
 
       - name: Check for Outdated Packages
+        if: ${{ hashFiles('composer.json') != '' }}
         run: |
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Outdated Composer Packages" >> $GITHUB_STEP_SUMMARY
@@ -147,21 +152,23 @@ jobs:
   python-safety:
     name: Python Safety Check
     runs-on: ubuntu-latest
-    if: hashFiles('requirements.txt', 'pyproject.toml', 'Pipfile') != ''
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Setup Python
+        if: ${{ hashFiles('requirements.txt', 'pyproject.toml', 'Pipfile') != '' }}
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
       - name: Install Safety
+        if: ${{ hashFiles('requirements.txt', 'pyproject.toml', 'Pipfile') != '' }}
         run: pip install safety
 
       - name: Run Safety Check
+        if: ${{ hashFiles('requirements.txt', 'pyproject.toml', 'Pipfile') != '' }}
         run: |
           echo "### Python Safety Check Results" >> $GITHUB_STEP_SUMMARY
 

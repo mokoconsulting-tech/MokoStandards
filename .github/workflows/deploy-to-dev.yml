@@ -65,19 +65,7 @@ jobs:
             console.log(`Checking permissions for ${actor}`);
             
             try {
-              // Check if user is org admin
-              const orgMembership = await github.rest.orgs.getMembershipForUser({
-                org: org,
-                username: actor
-              });
-              
-              if (orgMembership.data.role === 'admin') {
-                console.log(`✓ ${actor} is an organization admin`);
-                core.setOutput('has-permission', 'true');
-                return;
-              }
-              
-              // Check if user has maintain or admin permission on repo
+              // First check repository permissions
               const repoPermission = await github.rest.repos.getCollaboratorPermissionLevel({
                 owner: org,
                 repo: repo,
@@ -90,10 +78,27 @@ jobs:
               if (permission === 'admin' || permission === 'maintain') {
                 console.log(`✓ ${actor} is a repository admin or maintainer`);
                 core.setOutput('has-permission', 'true');
-              } else {
-                console.log(`✗ ${actor} does not have sufficient permissions`);
-                core.setOutput('has-permission', 'false');
+                return;
               }
+              
+              // If not repo admin/maintainer, check if user is org admin
+              try {
+                const orgMembership = await github.rest.orgs.getMembershipForUser({
+                  org: org,
+                  username: actor
+                });
+                
+                if (orgMembership.data.role === 'admin') {
+                  console.log(`✓ ${actor} is an organization admin`);
+                  core.setOutput('has-permission', 'true');
+                  return;
+                }
+              } catch (orgError) {
+                console.log(`Note: Could not check org membership (may be a personal repo): ${orgError.message}`);
+              }
+              
+              console.log(`✗ ${actor} does not have sufficient permissions`);
+              core.setOutput('has-permission', 'false');
             } catch (error) {
               console.error(`Error checking permissions: ${error.message}`);
               core.setOutput('has-permission', 'false');
@@ -213,28 +218,35 @@ jobs:
             exit 0
           fi
           
-          # Build deploy command
-          DEPLOY_CMD="python scripts/release/deploy_to_dev.py \
-            --host \"$DEV_FTP_HOST\" \
-            --user \"$DEV_FTP_USER\" \
-            --remote-path \"$REMOTE_PATH\" \
-            --local-path \"$LOCAL_PATH\" \
-            --protocol \"$PROTOCOL\""
+          # Ensure deployment script exists
+          if [ ! -f scripts/release/deploy_to_dev.py ]; then
+            echo "::error::Deployment script 'scripts/release/deploy_to_dev.py' not found. Please add it to the repository or update the workflow."
+            exit 1
+          fi
+          
+          # Build deploy command arguments
+          DEPLOY_ARGS=(
+            "--host" "$DEV_FTP_HOST"
+            "--user" "$DEV_FTP_USER"
+            "--remote-path" "$REMOTE_PATH"
+            "--local-path" "$LOCAL_PATH"
+            "--protocol" "$PROTOCOL"
+          )
           
           # Add port if specified
           if [ -n "$PORT" ]; then
-            DEPLOY_CMD="$DEPLOY_CMD --port $PORT"
+            DEPLOY_ARGS+=("--port" "$PORT")
           fi
           
           # Add authentication
           if [ -f ~/.ssh/dev_deploy_key ]; then
-            DEPLOY_CMD="$DEPLOY_CMD --key-file ~/.ssh/dev_deploy_key"
+            DEPLOY_ARGS+=("--key-file" "$HOME/.ssh/dev_deploy_key")
           elif [ -n "$DEV_FTP_PASSWORD" ]; then
-            DEPLOY_CMD="$DEPLOY_CMD --password \"$DEV_FTP_PASSWORD\""
+            DEPLOY_ARGS+=("--password" "$DEV_FTP_PASSWORD")
           fi
           
           # Execute deployment
-          eval $DEPLOY_CMD
+          python scripts/release/deploy_to_dev.py "${DEPLOY_ARGS[@]}"
       
       - name: Deployment summary
         if: success()

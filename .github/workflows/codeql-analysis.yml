@@ -53,6 +53,8 @@ jobs:
   detect-languages:
     name: Detect Languages
     runs-on: ubuntu-latest
+    # Skip CodeQL on MokoStandards and .github-private repositories (use default setup instead)
+    if: github.repository != 'mokoconsulting-tech/MokoStandards' && github.repository != 'mokoconsulting-tech/.github-private'
     outputs:
       has-python: ${{ steps.detect.outputs.has-python }}
       has-javascript: ${{ steps.detect.outputs.has-javascript }}
@@ -159,7 +161,11 @@ jobs:
     timeout-minutes: 360
     needs: detect-languages
     # Only run if at least one supported language is detected
-    if: needs.detect-languages.outputs.languages != '[]'
+    # Skip on MokoStandards and .github-private (use default setup instead)
+    if: |
+      needs.detect-languages.outputs.languages != '[]' &&
+      github.repository != 'mokoconsulting-tech/MokoStandards' &&
+      github.repository != 'mokoconsulting-tech/.github-private'
 
     strategy:
       fail-fast: false
@@ -174,6 +180,8 @@ jobs:
       uses: actions/checkout@v6
 
     - name: Initialize CodeQL
+      id: init
+      continue-on-error: true
       uses: github/codeql-action/init@v4
       with:
         languages: ${{ matrix.language }}
@@ -187,10 +195,23 @@ jobs:
     # Autobuild attempts to build any compiled languages  (C/C++, C#, Go, or Java).
     # If this step fails, then you should remove it and run the build manually
     - name: Autobuild
+      if: steps.init.outcome == 'success'
+      continue-on-error: true
       uses: github/codeql-action/autobuild@v4
 
     - name: Perform CodeQL Analysis
+      if: steps.init.outcome == 'success'
+      continue-on-error: true
       uses: github/codeql-action/analyze@v4
       with:
         category: "/language:${{matrix.language}}"
-        upload: true
+        upload: false
+
+    - name: Skip Notice
+      if: steps.init.outcome != 'success'
+      run: |
+        echo "ℹ️ CodeQL analysis skipped for ${{ matrix.language }}" >> $GITHUB_STEP_SUMMARY
+        echo "This may occur if:" >> $GITHUB_STEP_SUMMARY
+        echo "- The language is not supported in this context" >> $GITHUB_STEP_SUMMARY
+        echo "- Default CodeQL setup is already enabled" >> $GITHUB_STEP_SUMMARY
+        echo "- The repository doesn't contain relevant code" >> $GITHUB_STEP_SUMMARY

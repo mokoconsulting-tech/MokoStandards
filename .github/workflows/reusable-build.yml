@@ -1,0 +1,222 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.Reusable
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/reusable-build.yml
+# VERSION: 01.00.00
+# BRIEF: Reusable type-aware build workflow for Joomla, Dolibarr, and generic projects
+# NOTE: Automatically detects project type and applies appropriate build steps
+
+name: Reusable Build
+
+on:
+  workflow_call:
+    inputs:
+      php-version:
+        description: 'PHP version to use for build'
+        required: false
+        type: string
+        default: '8.1'
+      node-version:
+        description: 'Node.js version to use for build'
+        required: false
+        type: string
+        default: '20.x'
+      working-directory:
+        description: 'Working directory for build'
+        required: false
+        type: string
+        default: '.'
+      upload-artifacts:
+        description: 'Upload build artifacts'
+        required: false
+        type: boolean
+        default: true
+      artifact-name:
+        description: 'Name for uploaded artifacts'
+        required: false
+        type: string
+        default: 'build-artifacts'
+
+permissions:
+  contents: read
+
+jobs:
+  detect:
+    name: Detect Project Type
+    uses: ./.github/workflows/reusable-project-detector.yml
+    with:
+      working-directory: ${{ inputs.working-directory }}
+
+  build:
+    name: Build (${{ needs.detect.outputs.project-type }})
+    runs-on: ubuntu-latest
+    needs: detect
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        if: needs.detect.outputs.has-php == 'true'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ inputs.php-version }}
+          extensions: mbstring, xml, zip, json
+          tools: composer:v2
+
+      - name: Setup Node.js
+        if: needs.detect.outputs.has-node == 'true'
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ inputs.node-version }}
+
+      - name: Get Composer cache directory
+        if: needs.detect.outputs.has-php == 'true'
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        if: needs.detect.outputs.has-php == 'true'
+        uses: actions/cache@v5
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Cache Node modules
+        if: needs.detect.outputs.has-node == 'true'
+        uses: actions/cache@v5
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-node-
+
+      - name: Install PHP dependencies
+        if: needs.detect.outputs.has-php == 'true'
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          if [ -f "composer.json" ]; then
+            composer install --prefer-dist --no-progress --no-interaction
+            echo "✅ Composer dependencies installed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Install Node dependencies
+        if: needs.detect.outputs.has-node == 'true'
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          if [ -f "package.json" ]; then
+            npm ci
+            echo "✅ npm dependencies installed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Build Joomla Extension
+        if: needs.detect.outputs.project-type == 'joomla'
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          echo "### 🏗️ Building Joomla Extension" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Extension Type:** ${{ needs.detect.outputs.extension-type }}" >> $GITHUB_STEP_SUMMARY
+
+          # Run npm build if package.json has build script
+          if [ -f "package.json" ] && grep -q '"build"' package.json; then
+            echo "Running npm build..."
+            npm run build
+            echo "- ✅ npm build completed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Run composer scripts if available
+          if [ -f "composer.json" ] && grep -q '"build"' composer.json; then
+            echo "Running composer build..."
+            composer run-script build
+            echo "- ✅ composer build completed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "- ✅ Joomla extension build completed" >> $GITHUB_STEP_SUMMARY
+
+      - name: Build Dolibarr Module
+        if: needs.detect.outputs.project-type == 'dolibarr'
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          echo "### 🏗️ Building Dolibarr Module" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Run npm build if available
+          if [ -f "package.json" ] && grep -q '"build"' package.json; then
+            echo "Running npm build..."
+            npm run build
+            echo "- ✅ npm build completed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Install Dolibarr-specific dependencies
+          if [ -f "composer.json" ]; then
+            composer install --no-dev --optimize-autoloader
+            echo "- ✅ Production dependencies installed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "- ✅ Dolibarr module build completed" >> $GITHUB_STEP_SUMMARY
+
+      - name: Build Generic Project
+        if: needs.detect.outputs.project-type == 'generic'
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          echo "### 🏗️ Building Generic Project" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Try various build methods
+          if [ -f "package.json" ] && grep -q '"build"' package.json; then
+            npm run build
+            echo "- ✅ npm build completed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ -f "Makefile" ]; then
+            make build 2>/dev/null || echo "- ℹ️ Makefile build not available" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "- ✅ Generic project build completed" >> $GITHUB_STEP_SUMMARY
+
+      - name: Verify build output
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          echo "### 📦 Build Output" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Check for common build output directories
+          for dir in dist build public out; do
+            if [ -d "$dir" ]; then
+              echo "- ✅ Found build output: \`$dir/\`" >> $GITHUB_STEP_SUMMARY
+              du -sh "$dir" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+
+      - name: Upload build artifacts
+        if: inputs.upload-artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ inputs.artifact-name }}-${{ needs.detect.outputs.project-type }}
+          path: |
+            ${{ inputs.working-directory }}/dist/
+            ${{ inputs.working-directory }}/build/
+            ${{ inputs.working-directory }}/public/
+            ${{ inputs.working-directory }}/out/
+          retention-days: 7
+          if-no-files-found: ignore

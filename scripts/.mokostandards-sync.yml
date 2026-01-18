@@ -20,12 +20,11 @@ sync:
   # because they are templates that get synced TO other repos
   exclude_files:
     # Workflow files synced from templates - exclude the live versions
-    - ".github/workflows/build.yml"
-    - ".github/workflows/codeql-analysis.yml"
-    - ".github/workflows/code-quality.yml"
-    - ".github/workflows/dependency-review.yml"
-    - ".github/workflows/deploy-to-dev.yml"
-    - ".github/workflows/release-cycle.yml"
+    - ".github/workflows/build.yml"  # corresponds to build-universal.yml template
+    - ".github/workflows/code-quality.yml"  # corresponds to code-quality.yml template
+    - ".github/workflows/dependency-review.yml"  # corresponds to dependency-review.yml template
+    - ".github/workflows/deploy-to-dev.yml"  # corresponds to deploy-to-dev.yml template
+    - ".github/workflows/release-cycle.yml"  # corresponds to release-cycle.yml template
   
   # Files that should never be overwritten (always preserved)
   protected_files:

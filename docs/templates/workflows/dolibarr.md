@@ -194,15 +194,30 @@ class modYourModule extends DolibarrModules
 {
     public function __construct($db)
     {
+        global $langs;
+        
         parent::__construct($db);
         
         $this->numero = 123456; // Unique module number
         $this->rights_class = 'yourmodule';
         
-        $this->family = "crm";
+        // Module family
+        $this->family = "mokoconsulting";
+        $this->familyinfo = array(
+            'mokoconsulting' => array(
+                'position' => '01',
+                'label'    => $langs->trans("Moko Consulting")
+            )
+        );
+        
         $this->module_position = '90';
         $this->name = preg_replace('/^mod/i', '', get_class($this));
         $this->description = "Module description";
+        
+        // Author
+        $this->editor_name = 'Moko Consulting';
+        $this->editor_url = 'https://www.mokoconsulting.tech';
+        $this->editor_squarred_logo = 'logo.png@<module>';
         
         $this->version = '1.0.0';
         $this->const_name = 'MAIN_MODULE_'.strtoupper($this->name);

@@ -47,7 +47,7 @@ from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable, Dict, Generator, List, Optional, Protocol, Set
+from typing import Any, Callable, Dict, Generator, List, Optional, Protocol, Set, Type
 
 # Add lib to path
 sys.path.insert(0, str(Path(__file__).parent))
@@ -665,9 +665,9 @@ class ValidationRunner:
         self.config = config or get_config()
         self.verbose = verbose
         self.progress_callback = progress_callback
-        self.validators: List[type[Validator]] = []
+        self.validators: List[Type[Validator]] = []
     
-    def add_validator(self, validator_class: type[Validator]) -> None:
+    def add_validator(self, validator_class: Type[Validator]) -> None:
         """Add a validator class to the runner.
         
         Args:

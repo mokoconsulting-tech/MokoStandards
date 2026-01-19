@@ -5,7 +5,7 @@ This is a comprehensive catalog of all documentation in the MokoStandards reposi
 ## Quick Links
 
 - [README](./README.md) - Documentation governance framework
-- [ROADMAP](./policy/roadmap.md) - Documentation roadmap and future plans
+- [ROADMAP](./ROADMAP.md) - Documentation roadmap and future plans
 
 ## Policies
 
@@ -16,6 +16,7 @@ Standards, requirements, and compliance documentation.
 - [change-management](./policy/change-management.md)
 - [code-review-guidelines](./policy/code-review-guidelines.md)
 - [coding-style-guide](./policy/coding-style-guide.md)
+- [core-structure](./policy/core-structure.md)
 - [data-classification](./policy/data-classification.md)
 - [dependency-management](./policy/dependency-management.md)
 - [directory-index-requirements](./policy/directory-index-requirements.md)
@@ -26,8 +27,11 @@ Standards, requirements, and compliance documentation.
 - [license-compliance](./policy/license-compliance.md)
 - [merge-strategy](./policy/merge-strategy.md)
 - [risk-register](./policy/risk-register.md)
+- [roadmap](./policy/roadmap.md)
+- [roadmap-standards](./policy/roadmap-standards.md)
 - [scripting-standards](./policy/scripting-standards.md)
 - [security-scanning](./policy/security-scanning.md)
+- [two-tier-architecture](./policy/two-tier-architecture.md)
 - [vendor-risk](./policy/vendor-risk.md)
 - [workflow-standards](./policy/workflow-standards.md)
 
@@ -97,6 +101,7 @@ Step-by-step tutorials and how-to documentation.
 - [PUBLIC_ARCHITECTURE](./guide/PUBLIC_ARCHITECTURE.md)
 - [SUPPORT](./guide/SUPPORT.md)
 - [audit-readiness](./guide/audit-readiness.md)
+- [branch-synchronization](./guide/branch-synchronization.md)
 - [branching-quick-reference](./guide/branching-quick-reference.md)
 - [bulk-repository-updates](./guide/bulk-repository-updates.md)
 - [changelog-synchronization](./guide/changelog-synchronization.md)
@@ -106,6 +111,7 @@ Step-by-step tutorials and how-to documentation.
 - [project-views](./guide/project-views.md)
 - [repository-organization](./guide/repository-organization.md)
 - [repository-split-plan](./guide/repository-split-plan.md)
+- [repository-standards-application](./guide/repository-standards-application.md)
 - [repository-structure-schema](./guide/repository-structure-schema.md)
 
 ### CRM
@@ -119,6 +125,10 @@ Step-by-step tutorials and how-to documentation.
 - [disaster-recovery-procedures](./guide/operations/disaster-recovery-procedures.md)
 - [enterprise-firewall-configuration](./guide/operations/enterprise-firewall-configuration.md)
 - [incident-response-runbooks](./guide/operations/incident-response-runbooks.md)
+
+### VALIDATION
+
+- [auto-detection](./guide/validation/auto-detection.md)
 
 ### WAAS
 
@@ -148,12 +158,16 @@ Step-by-step tutorials and how-to documentation.
 - [EMAIL_DIRECTORY](./reference/EMAIL_DIRECTORY.md)
 - [PROJECT_TYPE_DETECTION](./reference/PROJECT_TYPE_DETECTION.md)
 - [REPOSITORY_INVENTORY](./reference/REPOSITORY_INVENTORY.md)
+- [copilot-prompt-github-private](./reference/copilot-prompt-github-private.md)
 - [project-types](./reference/project-types.md)
+- [repository-templates](./reference/repository-templates.md)
+- [schemas](./reference/schemas.md)
 
 ## Reports
 
 - [ENTERPRISE-READINESS](./reports/ENTERPRISE-READINESS.md)
 - [ENTERPRISE_READINESS_SCRIPTS](./reports/ENTERPRISE_READINESS_SCRIPTS.md)
+- [ENTERPRISE_READINESS_STATUS](./reports/ENTERPRISE_READINESS_STATUS.md)
 - [ENTERPRISE_READINESS_SUMMARY](./reports/ENTERPRISE_READINESS_SUMMARY.md)
 - [IMPLEMENTATION_SUMMARY](./reports/IMPLEMENTATION_SUMMARY.md)
 - [SCRIPT_DOCUMENTATION_SUMMARY](./reports/SCRIPT_DOCUMENTATION_SUMMARY.md)

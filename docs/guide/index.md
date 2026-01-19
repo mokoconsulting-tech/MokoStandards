@@ -16,6 +16,7 @@ This index provides navigation to documentation within this folder.
 ## Documents
 
 - [audit-readiness](./audit-readiness.md)
+- [branch-synchronization](./branch-synchronization.md)
 - [branching-quick-reference](./branching-quick-reference.md)
 - [bulk-repository-updates](./bulk-repository-updates.md)
 - [changelog-synchronization](./changelog-synchronization.md)
@@ -27,6 +28,7 @@ This index provides navigation to documentation within this folder.
 - [PUBLIC_ARCHITECTURE](./PUBLIC_ARCHITECTURE.md)
 - [repository-organization](./repository-organization.md)
 - [repository-split-plan](./repository-split-plan.md)
+- [repository-standards-application](./repository-standards-application.md)
 - [repository-structure-schema](./repository-structure-schema.md)
 - [SUPPORT](./SUPPORT.md)
 

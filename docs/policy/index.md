@@ -20,6 +20,7 @@ This index provides navigation to documentation within this folder.
 - [change-management](./change-management.md)
 - [code-review-guidelines](./code-review-guidelines.md)
 - [coding-style-guide](./coding-style-guide.md)
+- [core-structure](./core-structure.md)
 - [data-classification](./data-classification.md)
 - [dependency-management](./dependency-management.md)
 - [directory-index-requirements](./directory-index-requirements.md)
@@ -32,8 +33,10 @@ This index provides navigation to documentation within this folder.
 - [merge-strategy](./merge-strategy.md)
 - [risk-register](./risk-register.md)
 - [roadmap-standards](./roadmap-standards.md)
+- [roadmap](./roadmap.md)
 - [scripting-standards](./scripting-standards.md)
 - [security-scanning](./security-scanning.md)
+- [two-tier-architecture](./two-tier-architecture.md)
 - [vendor-risk](./vendor-risk.md)
 - [workflow-standards](./workflow-standards.md)
 

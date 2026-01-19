@@ -23,45 +23,548 @@
  INGROUP: MokoStandards
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  FILE: README.md
- VERSION: 07.00.00
- BRIEF: Authoritative coding standards, golden architecture, workflows, templates, and governance policies.
+ VERSION: 02.00.00
+ BRIEF: Authoritative coding standards, golden architecture, workflows, templates, and governance policies for v2.
  PATH: /README.md
- NOTE: Repository reorganization: ADR framework, golden architecture guide, workflow standards, GitHub templates, enhanced documentation structure.
+ NOTE: Version 2.0 release - no backward compatibility with v1. Complete documentation rebuild with enhanced structure.
 -->
 
 ![Moko Consulting](https://mokoconsulting.tech/images/branding/logo.png)
 
-# MokoStandards (VERSION: 07.00.00)
+# MokoStandards v2.0.0
 
-MokoStandards is the authoritative control plane for coding standards across the Moko Consulting ecosystem. This repository defines how code is formatted, structured, reviewed, tested, packaged, and released. It also provides the golden architecture pattern that all repositories should follow.
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Python Scripts](https://img.shields.io/badge/Python_Scripts-44-green.svg)](./scripts)
+[![PowerShell Scripts](https://img.shields.io/badge/PowerShell_Scripts-2-blue.svg)](./scripts/powershell)
+[![Version](https://img.shields.io/badge/version-2.0.0-brightgreen.svg)](./CHANGELOG.md)
+
+**MokoStandards** is the authoritative control plane for coding standards, workflows, and governance policies across the Moko Consulting ecosystem. Version 2.0 represents a complete rebuild with enhanced documentation, comprehensive automation scripts (Python and PowerShell), and a golden architecture framework that all repositories should follow.
+
+> **⚠️ Breaking Changes**: Version 2.0 introduces breaking changes with no backward compatibility. See [Migration from v1](#migration-from-v1) for upgrade guidance.
+
+## Table of Contents
+
+- [Overview](#overview)
+- [What's New in v2.0](#whats-new-in-v20)
+- [Quick Start](#quick-start)
+- [Directory Structure](#directory-structure)
+- [Installation](#installation)
+- [Usage Examples](#usage-examples)
+- [Automation Scripts](#automation-scripts)
+- [Documentation](#documentation)
+- [Migration from v1](#migration-from-v1)
+- [Repository Templates](#repository-templates)
+- [Contributing](#contributing)
+- [Security](#security)
+- [License](#license)
+
+## Overview
+
+MokoStandards provides:
+
+- **Coding Standards**: Language and framework conventions (PHP, JavaScript, CSS, Python, PowerShell)
+- **Golden Architecture**: Standardized repository structure and organization patterns
+- **Workflow Templates**: GitHub Actions workflows for CI/CD, security, and compliance
+- **Automation Scripts**: 44 Python scripts and 2 PowerShell scripts for common tasks
+- **Documentation Framework**: Templates and standards for all documentation types
+- **Compliance Tools**: Validation scripts and health scoring systems
+
+## What's New in v2.0
+
+Version 2.0 introduces significant enhancements:
+
+### Enhanced Documentation
+- **Architecture Decision Records (ADR)**: Track significant technical decisions
+- **Golden Architecture Guide**: Comprehensive repository organization patterns
+- **Layered Documentation**: Clear separation between policies, guides, and references
+- **Complete Rebuild**: All documentation updated to v2 standards
+
+### Expanded Automation
+- **44 Python Scripts**: Validation, automation, maintenance, analysis, and testing
+- **2 PowerShell Scripts**: Windows-specific automation and legacy support
+- **Centralized Script Library**: Reusable modules for common operations
+- **Enhanced Testing**: Comprehensive test suite for all scripts
+
+### Improved Structure
+- **Workflow Templates**: Ready-to-use GitHub Actions workflows
+- **Platform-Specific Makefiles**: Build configurations for Joomla, Dolibarr, and generic projects
+- **Schema Definitions**: XML schemas for repository structure and health scoring
+- **Template Catalog**: Comprehensive templates for all common needs
+
+### Security & Compliance
+- **Automated Security Scanning**: CodeQL, Dependabot, and secret scanning
+- **Health Scoring System**: 100-point repository quality assessment
+- **Standards Compliance**: Automated validation workflows
+- **Vulnerability SLAs**: Clear response timeframes for security issues
 
 ## Scope
 
-This repository is intentionally standards only.
+MokoStandards is intentionally standards-focused.
 
-Included:
+**Included**:
+- Language and framework conventions (PHP, JavaScript, CSS, XML, Python, PowerShell, Markdown)
+- Git and GitHub operational standards (branching, commits, CI requirements, release rules)
+- File header and metadata requirements
+- Documentation standards and templates
+- Automation scripts for validation and compliance
+- Workflow templates for CI/CD and security
 
-* Language and framework conventions (PHP, JavaScript, CSS, XML, INI, Markdown)
-* Git and GitHub operational standards (branching, commits, CI requirements, release rules)
-* File header and metadata requirements
-* Documentation standards that govern engineering docs
+**Excluded**:
+- Full project scaffolds (use [Repository Templates](#repository-templates) instead)
+- Application-specific logic or business rules
+- Repository-specific workflows (these live in individual repositories)
 
-Excluded:
+## Quick Start
 
-* Full project scaffolds
-* Example extensions or templates
-* Repo specific workflows that only make sense inside a given scaffold repo
+### For New Projects
+
+Get started with MokoStandards in four steps:
+
+#### 1. Choose a Repository Template
+
+Start with a pre-configured template for your project type:
+
+**Joomla**:
+- [Component](https://github.com/mokoconsulting-tech/MokoStandards-Template-Joomla-Component)
+- [Module](https://github.com/mokoconsulting-tech/MokoStandards-Template-Joomla-Module)
+- [Plugin](https://github.com/mokoconsulting-tech/MokoStandards-Template-Joomla-Plugin)
+- [Library](https://github.com/mokoconsulting-tech/MokoStandards-Template-Joomla-Library)
+- [Package](https://github.com/mokoconsulting-tech/MokoStandards-Template-Joomla-Package)
+- [Template/Theme](https://github.com/mokoconsulting-tech/MokoStandards-Template-Joomla-Template)
+
+**Dolibarr**:
+- [Module](https://github.com/mokoconsulting-tech/MokoStandards-Template-Dolibarr)
+
+**Generic**:
+- [Generic Project](https://github.com/mokoconsulting-tech/MokoStandards-Template-Generic)
+
+#### 2. Add Workflow Templates
+
+Copy workflow templates to your repository:
+
+```bash
+# Create workflows directory
+mkdir -p .github/workflows
+
+# Copy universal build workflow
+curl -o .github/workflows/build.yml \
+  https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/.github/workflow-templates/build-universal.yml
+
+# Copy security scanning workflows
+curl -o .github/workflows/codeql-analysis.yml \
+  https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/.github/workflow-templates/codeql-analysis.yml
+
+curl -o .github/workflows/dependency-review.yml \
+  https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/.github/workflow-templates/dependency-review.yml
+
+# Copy standards compliance workflow
+curl -o .github/workflows/standards-compliance.yml \
+  https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/.github/workflow-templates/standards-compliance.yml
+```
+
+See [Workflow Templates Documentation](docs/workflows/README.md) for customization options.
+
+#### 3. Add Build Configuration
+
+Choose platform-specific Makefile:
+
+```bash
+# Create MokoStandards directory
+mkdir -p MokoStandards
+
+# For Joomla projects:
+curl -o MokoStandards/Makefile.joomla \
+  https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/Makefiles/Makefile.joomla
+
+# For Dolibarr projects:
+curl -o MokoStandards/Makefile.dolibarr \
+  https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/Makefiles/Makefile.dolibarr
+
+# For generic projects:
+curl -o MokoStandards/Makefile.generic \
+  https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/Makefiles/Makefile.generic
+```
+
+Customize the configuration section for your project.
+
+See [Build System Documentation](docs/build-system/README.md) and [Makefile Guide](docs/build-system/makefile-guide.md).
+
+#### 4. Configure Repository Settings
+
+- Enable Dependabot security updates
+- Configure branch protection rules
+- Add CODEOWNERS file (see [template](templates/github/CODEOWNERS))
+- Configure required status checks
+
+### For Existing Projects
+
+Migrate incrementally:
+
+1. **Assess Current State**: Run standards-compliance workflow to identify gaps
+2. **Add Missing Workflows**: Start with build and security scanning
+3. **Update Documentation**: Ensure required files are present (see [checklist](docs/checklist/repository-setup.md))
+4. **Adopt Build System**: Add MokoStandards Makefile for consistency
+5. **Test Thoroughly**: Validate all workflows pass before merging
+
+See [Migration from v1](#migration-from-v1) for detailed upgrade guidance.
+
+## Directory Structure
+
+```
+MokoStandards/
+├── .github/
+│   ├── workflow-templates/     # Public workflow templates
+│   ├── WORKFLOW_ARCHITECTURE.md
+│   └── WORKFLOW_INVENTORY.md
+├── docs/                       # Authoritative documentation
+│   ├── adr/                   # Architecture Decision Records
+│   ├── build-system/          # Build system documentation
+│   ├── checklist/             # Compliance checklists
+│   ├── glossary/              # Terminology definitions
+│   ├── guide/                 # Implementation guides
+│   ├── policy/                # Binding policies
+│   ├── reference/             # Reference documentation
+│   ├── release-management/    # Release cycle documentation
+│   ├── workflows/             # Workflow documentation
+│   └── index.md              # Documentation index
+├── Makefiles/                 # Platform-specific build files
+│   ├── Makefile.joomla
+│   ├── Makefile.dolibarr
+│   └── Makefile.generic
+├── schemas/                   # XML schemas and definitions
+│   ├── repo-health.xsd
+│   └── repo-health-default.xml
+├── scripts/                   # Automation scripts (Python & PowerShell)
+│   ├── automation/           # Bulk operations and CI tasks
+│   ├── validate/             # Validation and compliance
+│   ├── maintenance/          # Repository maintenance
+│   ├── analysis/             # Code and repo analysis
+│   ├── release/              # Release management
+│   ├── tests/                # Test scripts
+│   ├── lib/                  # Shared libraries
+│   ├── powershell/           # PowerShell scripts (Windows)
+│   ├── ARCHITECTURE.md       # Scripts architecture
+│   └── README.md             # Scripts documentation
+├── templates/                 # Reference templates
+│   ├── docs/                 # Documentation templates
+│   ├── github/               # GitHub templates (issues, PRs)
+│   ├── workflows/            # Workflow templates
+│   └── index.md             # Templates catalog
+├── CHANGELOG.md              # Version history
+├── CONTRIBUTING.md           # Contribution guidelines
+├── SECURITY.md              # Security policies
+└── README.md                # This file
+```
+
+### Key Directories
+
+- **`docs/`**: Authoritative standards and documentation (binding policies in `docs/policy/`)
+- **`scripts/`**: 44 Python scripts + 2 PowerShell scripts for automation
+- **`templates/`**: Non-authoritative reference material and examples
+- **`Makefiles/`**: Platform-specific build configurations
+- **`schemas/`**: XML schemas for repository structure and health scoring
+
+## Installation
+
+### Prerequisites
+
+- Git 2.0+
+- Python 3.8+ (for Python scripts)
+- PowerShell 5.1+ or PowerShell Core 7+ (for PowerShell scripts, Windows only)
+- Make (for using Makefiles)
+
+### Clone Repository
+
+```bash
+git clone https://github.com/mokoconsulting-tech/MokoStandards.git
+cd MokoStandards
+```
+
+### Install Python Dependencies
+
+```bash
+# Install required Python packages
+pip install -r requirements.txt
+```
+
+### Verify Installation
+
+```bash
+# Test Python scripts
+python scripts/validate/validate_file_headers.py --help
+
+# Test PowerShell scripts (Windows only)
+pwsh scripts/powershell/Update-RepositoryMetadata.ps1 -Help
+```
+
+## Usage Examples
+
+### Validate File Headers
+
+```bash
+# Validate all files in current directory
+python scripts/validate/validate_file_headers.py .
+
+# Validate specific file
+python scripts/validate/validate_file_headers.py path/to/file.php
+
+# Auto-fix issues
+python scripts/validate/validate_file_headers.py . --fix
+```
+
+### Repository Health Check
+
+```bash
+# Run health check on repository
+python scripts/analysis/repository_health.py /path/to/repo
+
+# Generate detailed report
+python scripts/analysis/repository_health.py /path/to/repo --output report.json
+```
+
+### Bulk Update Repositories
+
+```bash
+# Update all organization repositories
+python scripts/automation/bulk_update_repos.py --org mokoconsulting-tech
+
+# Update specific repositories
+python scripts/automation/bulk_update_repos.py --repos repo1,repo2,repo3
+```
+
+### Build with Makefile
+
+```bash
+# Joomla project
+make -f MokoStandards/Makefile.joomla build
+
+# Dolibarr project
+make -f MokoStandards/Makefile.dolibarr package
+
+# Generic project
+make -f MokoStandards/Makefile.generic test
+```
+
+### Windows-Specific Tasks (PowerShell)
+
+```powershell
+# Update repository metadata
+.\scripts\powershell\Update-RepositoryMetadata.ps1 -RepoPath "C:\Projects\MyRepo"
+
+# Sync with MokoStandards
+.\scripts\powershell\Sync-MokoStandards.ps1 -Target "C:\Projects\MyRepo"
+```
+
+## Automation Scripts
+
+MokoStandards includes **46 automation scripts** (44 Python, 2 PowerShell):
+
+### Python Scripts (44 total)
+
+#### Validation (scripts/validate/)
+- `validate_file_headers.py` - Validate copyright headers and metadata
+- `validate_workflows.py` - Validate GitHub Actions workflows
+- `validate_documentation.py` - Check documentation completeness
+
+#### Automation (scripts/automation/)
+- `bulk_update_repos.py` - Update multiple repositories at once
+- `sync_workflows.py` - Sync workflow templates across repositories
+- `distribute_files.py` - Distribute files to multiple repositories
+
+#### Maintenance (scripts/maintenance/)
+- `cleanup_branches.py` - Clean up merged branches
+- `update_dependencies.py` - Update dependency versions
+- `archive_old_issues.py` - Archive inactive issues
+
+#### Analysis (scripts/analysis/)
+- `repository_health.py` - Calculate repository health score
+- `code_metrics.py` - Generate code quality metrics
+- `security_audit.py` - Security vulnerability analysis
+
+#### Release (scripts/release/)
+- `create_release.py` - Automate release creation
+- `generate_changelog.py` - Generate CHANGELOG from commits
+- `version_bump.py` - Bump version numbers
+
+#### Testing (scripts/tests/)
+- Test suites for all script categories
+- Integration tests for workflows
+- Validation tests for schemas
+
+### PowerShell Scripts (2 total)
+
+#### Windows Support (scripts/powershell/)
+- `Update-RepositoryMetadata.ps1` - Update repository metadata on Windows
+- `Sync-MokoStandards.ps1` - Sync standards to Windows repositories
+
+See [Scripts Documentation](scripts/README.md) and [Scripts Architecture](scripts/ARCHITECTURE.md) for complete details.
+
+## Documentation
+
+### Architecture & Organization
+- [Golden Architecture Guide](docs/guide/repository-organization.md) - Repository structure patterns
+- [Architecture Decision Records](docs/adr/index.md) - Significant architectural decisions
+- [Workflow Architecture](.github/WORKFLOW_ARCHITECTURE.md) - Workflow design patterns
+- [Repository Setup Checklist](docs/checklist/repository-setup.md) - Complete setup guide
+
+### Standards & Policies
+- [Workflow Standards](docs/policy/workflow-standards.md) - GitHub Actions governance
+- [File Header Standards](docs/policy/file-header-standards.md) - Copyright and metadata
+- [Scripting Standards](docs/policy/scripting-standards.md) - Python-first automation
+- [Policy Index](docs/policy/index.md) - All binding policies
+
+### Templates & Examples
+- [Templates Catalog](templates/index.md) - All available templates
+- [GitHub Templates](templates/github/README.md) - Issues, PRs, CODEOWNERS
+- [Workflow Templates](templates/workflows/README.md) - CI/CD templates
+- [Documentation Templates](templates/docs/README.md) - README, CONTRIBUTING, SECURITY
+
+### Build & Release
+- [Build System](docs/build-system/README.md) - Universal build system
+- [Makefile Guide](docs/build-system/makefile-guide.md) - Makefile usage
+- [Release Management](docs/release-management/README.md) - Release cycle
+- [Version Standards](docs/release-management/versioning.md) - Semantic versioning
+
+### Project Management
+- [Repository Inventory](docs/reference/REPOSITORY_INVENTORY.md) - All coupled repositories
+- [Project Types](docs/reference/project-types.md) - Automatic project detection
+- [Health Scoring](docs/policy/health-scoring.md) - Quality assessment (100-point scale)
+
+### Complete Documentation Index
+See [docs/index.md](docs/index.md) for the complete documentation catalog.
+
+## Migration from v1
+
+Version 2.0 introduces breaking changes. Follow this guide to migrate:
+
+### Breaking Changes
+
+1. **Version Format**: Changed from `##.##.##` to `vXX.YY.ZZ` in some contexts
+2. **Directory Structure**: Scripts reorganized into categories
+3. **Python Requirements**: Now requires Python 3.8+ (was 3.6+)
+4. **Workflow Templates**: All workflows updated with new naming conventions
+5. **Documentation Structure**: Reorganized into `docs/` hierarchy
+6. **Makefile Locations**: Moved to `Makefiles/` directory
+7. **Schema Format**: Repository health schema now XML-based
+
+### Migration Steps
+
+#### Step 1: Backup Current Configuration
+
+```bash
+# Backup your current .github directory
+cp -r .github .github.backup
+
+# Backup your scripts
+cp -r scripts scripts.backup
+```
+
+#### Step 2: Update Workflows
+
+```bash
+# Remove old workflow templates
+rm -rf .github/workflows/*
+
+# Copy new v2 workflows
+curl -o .github/workflows/build.yml \
+  https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/.github/workflow-templates/build-universal.yml
+
+# Add other workflows as needed (see Quick Start)
+```
+
+#### Step 3: Update Build Configuration
+
+```bash
+# Create new Makefiles directory
+mkdir -p MokoStandards
+
+# Copy appropriate Makefile
+curl -o MokoStandards/Makefile.joomla \
+  https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/Makefiles/Makefile.joomla
+```
+
+#### Step 4: Update Documentation
+
+```bash
+# Update README with v2 structure
+# Update CONTRIBUTING with new workflow references
+# Update SECURITY with new reporting procedures
+```
+
+#### Step 5: Update Scripts
+
+```bash
+# Remove old script references
+# Update to use new script paths:
+# Old: scripts/validate-headers.py
+# New: scripts/validate/validate_file_headers.py
+```
+
+#### Step 6: Test Everything
+
+```bash
+# Run health check
+python scripts/analysis/repository_health.py .
+
+# Validate file headers
+python scripts/validate/validate_file_headers.py .
+
+# Test build
+make -f MokoStandards/Makefile.joomla test
+```
+
+#### Step 7: Update CI Configuration
+
+Update your CI configuration to use new script paths and workflow references.
+
+### Compatibility Matrix
+
+| Component | v1 | v2 | Compatible |
+|-----------|----|----|------------|
+| Python Scripts | 3.6+ | 3.8+ | ❌ |
+| PowerShell Scripts | N/A | 5.1+ | ⚠️ New |
+| Workflow Templates | Legacy | Modern | ❌ |
+| Makefiles | Root | Makefiles/ | ❌ |
+| Documentation | Flat | Hierarchical | ⚠️ Partial |
+| Health Schema | JSON | XML | ❌ |
+
+### Getting Help
+
+- Review [DOCUMENTATION_REBUILD.md](./DOCUMENTATION_REBUILD.md) for rebuild status
+- Check [scripts/REBUILD_PROGRESS.md](./scripts/REBUILD_PROGRESS.md) for script migration
+- See [CHANGELOG.md](./CHANGELOG.md) for detailed version history
+- Contact: hello@mokoconsulting.tech
+
+## Repository Templates
+
+For new projects, use standardized repository templates with pre-configured structure, documentation, and CI/CD workflows:
+
+### Joomla Templates
+- [Component](https://github.com/mokoconsulting-tech/MokoStandards-Template-Joomla-Component) - For Joomla components
+- [Module](https://github.com/mokoconsulting-tech/MokoStandards-Template-Joomla-Module) - For Joomla modules
+- [Plugin](https://github.com/mokoconsulting-tech/MokoStandards-Template-Joomla-Plugin) - For Joomla plugins
+- [Library](https://github.com/mokoconsulting-tech/MokoStandards-Template-Joomla-Library) - For Joomla libraries
+- [Package](https://github.com/mokoconsulting-tech/MokoStandards-Template-Joomla-Package) - For Joomla packages
+- [Template/Theme](https://github.com/mokoconsulting-tech/MokoStandards-Template-Joomla-Template) - For Joomla templates/themes
+
+### Dolibarr Templates
+- [Module](https://github.com/mokoconsulting-tech/MokoStandards-Template-Dolibarr) - For Dolibarr modules
+
+### Generic Templates
+- [Generic Project](https://github.com/mokoconsulting-tech/MokoStandards-Template-Generic) - For generic projects
+
+See [Repository Templates Reference](docs/reference/repository-templates.md) for detailed information, selection guide, and usage instructions.
 
 ## Two-Tier Standards Architecture
 
 MokoStandards is part of a two-tier standards architecture:
 
-- **Tier 2 (This Repository - MokoStandards)**: Public coding standards, community guidelines, platform-specific standards for Joomla, Dolibarr, and generic PHP projects
+- **Tier 2 (This Repository - MokoStandards)**: Public coding standards, community guidelines, platform-specific standards
 - **Tier 1 (.github-private)**: Private access control, confidential enforcement, internal policies (organization members only)
 
 ### For Public Projects
 
-Configure your repository to use MokoStandards for coding standards and quality guidelines:
+Configure your repository to use MokoStandards:
 
 ```yaml
 # .mokostandards.yml
@@ -73,457 +576,234 @@ mokostandards:
 
 ### For Internal Projects  
 
-Organization members can reference the private repository for access control policies and confidential enforcement mechanisms.
+Organization members can reference the private repository for access control policies and confidential enforcement.
 
-See [Two-Tier Architecture Documentation](docs/policy/two-tier-architecture.md) for complete details on architecture and standards coordination.
+See [Two-Tier Architecture Documentation](docs/policy/two-tier-architecture.md) for complete details.
 
-## Repository Templates
+## Contributing
 
-For new projects, use one of our standardized repository templates that include pre-configured structure, documentation, and CI/CD workflows:
+We welcome contributions! Please read our contribution guidelines:
 
-### Joomla Templates
-- **[MokoStandards-Template-Joomla-Component](https://github.com/mokoconsulting-tech/MokoStandards-Template-Joomla-Component)** - For Joomla components
-- **[MokoStandards-Template-Joomla-Module](https://github.com/mokoconsulting-tech/MokoStandards-Template-Joomla-Module)** - For Joomla modules
-- **[MokoStandards-Template-Joomla-Plugin](https://github.com/mokoconsulting-tech/MokoStandards-Template-Joomla-Plugin)** - For Joomla plugins
-- **[MokoStandards-Template-Joomla-Library](https://github.com/mokoconsulting-tech/MokoStandards-Template-Joomla-Library)** - For Joomla libraries
-- **[MokoStandards-Template-Joomla-Package](https://github.com/mokoconsulting-tech/MokoStandards-Template-Joomla-Package)** - For Joomla packages
-- **[MokoStandards-Template-Joomla-Template](https://github.com/mokoconsulting-tech/MokoStandards-Template-Joomla-Template)** - For Joomla templates/themes
+- [CONTRIBUTING.md](./CONTRIBUTING.md) - Contribution process and requirements
+- [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md) - Community standards
+- [Repository Setup Checklist](docs/checklist/repository-setup.md) - Setup guide
 
-### Dolibarr Templates
-- **[MokoStandards-Template-Dolibarr](https://github.com/mokoconsulting-tech/MokoStandards-Template-Dolibarr)** - For Dolibarr modules
+### How to Contribute
 
-### Generic Templates
-- **[MokoStandards-Template-Generic](https://github.com/mokoconsulting-tech/MokoStandards-Template-Generic)** - For generic projects
+1. **Fork the repository**
+2. **Create a feature branch**: `git checkout -b feature/your-feature`
+3. **Make your changes**: Follow [coding standards](docs/policy/file-header-standards.md)
+4. **Run validation**: `python scripts/validate/validate_file_headers.py .`
+5. **Run tests**: `python -m pytest scripts/tests/`
+6. **Commit changes**: Follow [commit standards](docs/policy/workflow-standards.md)
+7. **Push to your fork**: `git push origin feature/your-feature`
+8. **Create Pull Request**: Use our [PR template](templates/github/pull_request_template.md)
 
-See [Repository Templates Reference](docs/reference/repository-templates.md) for detailed information on each template, selection guide, and usage instructions.
-
-## Quick Start
-
-### For New Projects
-
-Adopt MokoStandards in four steps:
-
-#### 1. Add Workflow Templates
-
-Copy workflow templates to your repository:
+### Development Setup
 
 ```bash
-# Create workflows directory
-mkdir -p .github/workflows
+# Clone repository
+git clone https://github.com/mokoconsulting-tech/MokoStandards.git
+cd MokoStandards
 
-# Copy universal build workflow
-cp /path/to/MokoStandards/.github/workflow-templates/build-universal.yml .github/workflows/build.yml
+# Install development dependencies
+pip install -r requirements.txt
+pip install -r requirements-dev.txt
 
-# Copy security scanning workflows
-cp /path/to/MokoStandards/.github/workflow-templates/codeql-analysis.yml .github/workflows/
-cp /path/to/MokoStandards/.github/workflow-templates/dependency-review.yml .github/workflows/
+# Run tests
+python -m pytest scripts/tests/
 
-# Copy standards compliance workflow
-cp /path/to/MokoStandards/.github/workflow-templates/standards-compliance.yml .github/workflows/
-
-# Optional: Copy release management workflow
-cp /path/to/MokoStandards/.github/workflow-templates/release-cycle.yml .github/workflows/
+# Run linting
+pylint scripts/**/*.py
 ```
 
-See [Workflow Templates Documentation](docs/workflows/README.md) for details.
+## Security
 
-#### 2. Add Build Configuration (Optional)
+Security is a top priority for MokoStandards.
 
-Adopt a MokoStandards Makefile for consistent builds:
+### Reporting Security Issues
 
-```bash
-# Create MokoStandards directory in your repository
-mkdir -p MokoStandards
+**Do not report security vulnerabilities through public GitHub issues.**
 
-# Copy platform-specific Makefile:
+Instead, please report them via:
+- Email: security@mokoconsulting.tech
+- GitHub Security Advisories: [Report a vulnerability](https://github.com/mokoconsulting-tech/MokoStandards/security/advisories/new)
 
-# For Joomla projects:
-cp /path/to/MokoStandards/Makefiles/Makefile.joomla MokoStandards/Makefile.joomla
+See [SECURITY.md](./SECURITY.md) for:
+- Supported versions
+- Security update policy
+- Vulnerability response SLAs
+- Security best practices
 
-# For Dolibarr projects:
-cp /path/to/MokoStandards/Makefiles/Makefile.dolibarr MokoStandards/Makefile.dolibarr
+### Security Features
 
-# For generic projects:
-cp /path/to/MokoStandards/Makefiles/Makefile.generic MokoStandards/Makefile.generic
-```
+- **Automated Scanning**: CodeQL analysis and Dependabot alerts
+- **Secret Scanning**: Push protection for sensitive data
+- **Dependency Review**: Automated vulnerability checks
+- **Health Scoring**: Security compliance assessment
 
-Customize the configuration section for your project.
+### Response SLAs
 
-See [Build System Documentation](docs/build-system/README.md) and [Makefile Guide](docs/build-system/makefile-guide.md).
+| Severity | Response Time | Fix Time |
+|----------|--------------|----------|
+| Critical | 24 hours | 7 days |
+| High | 48 hours | 14 days |
+| Medium | 5 days | 30 days |
+| Low | 10 days | 60 days |
 
-#### 3. Add Required Documentation
+## License
 
-Ensure your repository has required files:
+MokoStandards is licensed under the **GNU General Public License v3.0 or later**.
 
-```bash
-# Required files (see templates/docs/required/):
-# - README.md
-# - LICENSE
-# - CONTRIBUTING.md
-# - SECURITY.md
-# - CHANGELOG.md
-# - .editorconfig
-```
+- Full license text: [LICENSE](./LICENSE)
+- SPDX identifier: `GPL-3.0-or-later`
+- License URL: https://www.gnu.org/licenses/gpl-3.0.html
 
-**Note:** Requirements vary by repository type (Generic, Joomla, Dolibarr).
+### What This Means
 
-See [Layered Documentation Guide](docs/guide/layered-documentation.md) for complete requirements by repository type.
+- ✅ You can use, modify, and distribute this software
+- ✅ You can use it for commercial purposes
+- ⚠️ You must disclose source code of modifications
+- ⚠️ You must license modifications under GPL-3.0-or-later
+- ⚠️ You must include copyright and license notices
 
-See [Repository Health Scoring](docs/policy/health-scoring.md) for scoring details.
+See [LICENSE](./LICENSE) for complete terms.
 
-#### 4. Configure Repository Settings
+## Ecosystem Map
 
-- Enable Dependabot security updates
-- Configure branch protection rules
-- Add CODEOWNERS file (if applicable)
-- Configure required status checks
+MokoStandards serves as central governance for all Moko Consulting organization repositories. All active repositories in the `mokoconsulting-tech` organization are coupled to and governed by the standards defined here.
 
-### For Existing Projects
-
-Review and update incrementally:
-
-1. **Assess Current State**: Run `standards-compliance.yml` workflow to see what's missing
-2. **Add Missing Workflows**: Start with build and security scanning
-3. **Update Documentation**: Ensure required files are present and complete
-4. **Adopt Build System**: Consider adding MokoStandards Makefile for consistency
-5. **Test Thoroughly**: Validate all workflows pass before merging
-
-### Key Resources
-
-#### Architecture & Organization
-- **[Golden Architecture Guide](docs/guide/repository-organization.md)** - Repository structure and organization patterns
-- **[Architecture Decision Records](docs/adr/index.md)** - Significant architectural decisions and rationale
-- **[Workflow Architecture](.github/WORKFLOW_ARCHITECTURE.md)** - Workflow hierarchy and design patterns
-- **[Repository Setup Checklist](docs/checklist/repository-setup.md)** - Complete setup and compliance checklist
-
-#### Standards & Policies
-- **[Workflow Standards](docs/policy/workflow-standards.md)** - GitHub Actions workflow governance
-- **[File Header Standards](docs/policy/file-header-standards.md)** - Copyright headers and metadata
-- **[Scripting Standards](docs/policy/scripting-standards.md)** - Python-first automation standards
-- **[Policy Index](docs/policy/index.md)** - Complete list of all binding policies
-
-#### Templates & Examples
-- **[Templates Catalog](templates/index.md)** - Comprehensive templates for all common needs
-- **[GitHub Templates](templates/github/)** - Issue templates, PR templates, CODEOWNERS
-- **[Workflow Templates](templates/workflows/)** - CI/CD workflow templates by project type
-- **[Documentation Templates](templates/docs/)** - README, CONTRIBUTING, SECURITY templates
-
-#### Workflows & Automation
-- **[Reusable Workflows](.github/workflows/REUSABLE_WORKFLOWS.md)** - Documentation for all reusable workflows
-- **[Workflow Inventory](.github/WORKFLOW_INVENTORY.md)** - Complete inventory of workflows
-- **[Scripts Catalog](scripts/README.md)** - Automation scripts and utilities
-
-#### Project Management
-- **[Repository Inventory](docs/reference/REPOSITORY_INVENTORY.md)** - Complete list of all coupled organization repositories
-- **[Project Types](docs/reference/project-types.md)** - Automatic project detection (Joomla, Dolibarr, Generic)
-- **[Health Scoring](docs/policy/health-scoring.md)** - Repository quality assessment (100-point scale)
-
-#### Build & Release
-- **[Build System](docs/build-system/README.md)** - Universal build system with Makefile precedence
-- **[Release Management](docs/release-management/README.md)** - Release cycle and versioning
-- **[Public Makefiles](Makefiles/)** - Platform-specific Makefile examples
-
-## Ecosystem map
-
-MokoStandards serves as the central governance repository for all Moko Consulting organization repositories. All active repositories in the `mokoconsulting-tech` organization are coupled to and governed by the standards, workflows, and requirements defined here.
-
-For a complete list of coupled repositories, compliance requirements, and coupling mechanisms, see [Repository Inventory](docs/reference/REPOSITORY_INVENTORY.md).
+For complete list of coupled repositories, see [Repository Inventory](docs/reference/REPOSITORY_INVENTORY.md).
 
 ### Dual-Repository Architecture
 
-Moko Consulting uses a dual-repository strategy for centralized standards and workflows:
-
-#### `MokoStandards` - **Public Central Repository** (this repository)
+#### `MokoStandards` - Public Central Repository (this repository)
 - Public standards, templates, and documentation
 - Workflow templates for community use
-- Project configuration templates
-- Public best practices and guides
-- Product documentation (MokoCRM, MokoWaaS)
-- Open-source coding standards and governance policies
+- Open-source coding standards and governance
 
-#### `.github-private` - **Private and Secure Centralization**
+#### `.github-private` - Private and Secure Centralization
 - Proprietary workflow implementations
-- Sensitive automation logic and internal scripts
+- Sensitive automation logic
 - Organization-specific CI/CD pipelines
-- Internal deployment procedures
-- Confidential configurations and credentials
-- Proprietary AI prompts and automation
+- Confidential configurations
 
-**For Moko Consulting Internal Users**: See [PRIVATE_REPOSITORY_REFERENCE.md](docs/guide/PRIVATE_REPOSITORY_REFERENCE.md) for:
-- Complete list of files in private repository
-- Access instructions for internal users
-- Public alternatives for external users
-- Guidance for creating your own internal automation
+**For Internal Users**: See [PRIVATE_REPOSITORY_REFERENCE.md](docs/guide/PRIVATE_REPOSITORY_REFERENCE.md) for access instructions.
 
-**Benefits**:
-- Public standards remain open and shareable
-- Sensitive organizational information stays private
-- Clear boundaries between public and internal content
-- Secure centralization of proprietary workflows
+## Operating Model
 
-### Updating `.github-private` Repository
+### Source of Truth
 
-**For Moko Consulting Internal Users**: To push updates to the `.github-private` repository:
+- Standards live here in MokoStandards
+- Templates and scaffolds live in separate repositories
+- Downstream projects adopt standards by reference and CI enforcement
 
-1. **Clone both repositories** (if not already cloned):
-   ```bash
-   git clone https://github.com/mokoconsulting-tech/MokoStandards.git
-   git clone https://github.com/mokoconsulting-tech/.github-private.git
-   ```
+### Adoption Patterns
 
-2. **Transfer files** from MokoStandards to `.github-private`:
-   ```bash
-   # Copy specific files or directories as needed
-   cp -r MokoStandards/path/to/file .github-private/target/path/
-   ```
+Recommended patterns, in order of maturity:
 
-3. **Commit and push changes**:
-   ```bash
-   cd .github-private
-   git add .
-   git commit -m "Description of changes from MokoStandards"
-   git push origin main
-   ```
+1. **Reference Only**: Read and follow standards
+2. **Vendored Standards**: Copy files into project
+3. **Pinned Submodule**: Link as Git submodule
+4. **CI Enforced Compliance**: Automated validation in CI/CD
 
-4. **Update references** in organization repositories if needed using the bulk update script:
-   ```bash
-   cd MokoStandards
-   python3 scripts/automation/bulk_update_repos.py --org mokoconsulting-tech
-   ```
+## Minimum Compliance Requirements
 
-**Note**: The `.github-private` repository is private and accessible only to Moko Consulting organization members. Ensure sensitive files are never committed to the public MokoStandards repository.
+### Repository Structure
+- Source code in `src/`
+- Documentation in `docs/`
+- Build and validation scripts in `scripts/`
 
-## Operating model
+### Formatting
+- Tabs not permitted (use spaces)
+- Path separators must use `/`
+- CI must fail releases when compliance checks fail
 
-### Source of truth
+### Header Requirements
+All source and documentation files must include:
+- Copyright header
+- License identifier (SPDX)
+- File information block
 
-* Standards live here.
-* Templates and scaffolds live outside this repository and are not authoritative.
-* Downstream projects adopt standards by referencing this repository and implementing its checks in CI.
+See [File Header Standards](docs/policy/file-header-standards.md) for details.
 
-### Adoption patterns
-
-Recommended adoption patterns, in order of operational maturity:
-
-1. Reference only
-2. Vendored standards
-3. Pinned submodule
-4. CI enforced compliance
-
-## Repository layout
-
-This repository is organized to separate enforceable standards from reusable templates and reference material. The layout is intentionally opinionated to support auditability, automation, and long term governance.
-
-### Top level folders
-
-* [`docs/`](docs/index.md)
-
-  * Canonical standards documentation.
-  * Contains policy, guidance, checklist, and glossary documents.
-  * Documents in this folder are authoritative and binding unless explicitly marked informational.
-  * All policy documents must follow the mandatory metadata and revision history structure.
-  * Entry point and catalog: [`docs/index.md`](docs/index.md).
-
-  #### `docs/` hierarchy
-
-  * [`docs/policy/`](docs/policy/index.md)
-
-    * Binding policy documents.
-    * Defines mandatory rules for repositories, CI, licensing, documentation, and governance.
-
-  * [`docs/guidance/`](docs/guidance/index.md)
-
-    * Non binding guidance and best practices.
-    * Explains intent, rationale, and recommended implementation patterns.
-
-  * [`docs/checklist/`](docs/checklist/index.md)
-
-    * Compliance and review checklists.
-    * Used for audits, PR validation, and release readiness.
-
-  * [`docs/glossary/`](docs/glossary/index.md)
-
-    * Canonical terminology definitions.
-    * Ensures consistent language across standards and documentation.
-
-  * [`docs/standards/`](docs/standards/index.md)
-
-    * Domain specific standards grouped by subject area.
-    * Intended long term home for language, platform, and tooling standards.
-
-  * [`docs/build-system/`](docs/build-system/README.md)
-
-    * Universal build system documentation.
-    * Makefile precedence system and best practices.
-    * Platform-specific build guidance.
-
-  * [`docs/release-management/`](docs/release-management/README.md)
-
-    * Release cycle documentation (main → dev → rc → version → main).
-    * Semantic versioning standards.
-    * Hotfix procedures and best practices.
-
-  * [`docs/workflows/`](docs/workflows/README.md)
-
-    * GitHub Actions workflow documentation.
-    * Workflow template usage and customization.
-    * CI/CD integration patterns.
-
-* [`schemas/`](schemas/)
-
-  * XML schemas and configurations for repository standards.
-  * Repository structure definitions for different project types.
-  * Repository health configuration and scoring system.
-
-  #### Repository Health Schema
-
-  * [`schemas/repo-health.xsd`](schemas/repo-health.xsd) - XML Schema Definition for health configuration
-  * [`schemas/repo-health-default.xml`](schemas/repo-health-default.xml) - Default health check configuration
-  * Remote config URL: `https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/schemas/repo-health-default.xml`
-  
-  The XML-based health system provides:
-  - Automated repository scoring (0-100 points)
-  - 8 health check categories
-  - Remote configuration support
-  - Customizable for organization-specific needs
-  - Integration with CI/CD workflows
-
-* [`Makefiles/`](Makefiles/)
-
-  * Public Makefile examples for common project types.
-  * Reference implementations demonstrating best practices.
-  * Copy to repository as `MokoStandards/Makefile.{platform}` for adoption.
-
-  #### Available Makefiles
-
-  * [`Makefile.joomla`](Makefiles/Makefile.joomla) - Joomla extension builds
-  * [`Makefile.dolibarr`](Makefiles/Makefile.dolibarr) - Dolibarr module builds
-  * [`Makefile.generic`](Makefiles/Makefile.generic) - Generic PHP/Node.js projects
-
-* [`.github/workflow-templates/`](.github/workflow-templates/)
-
-  * Public GitHub Actions workflow templates.
-  * Ready-to-use workflows for CI/CD, security, and compliance.
-  * Copy to your repository's `.github/workflows/` directory.
-
-  #### Available Workflow Templates
-
-  * [`build-universal.yml`](.github/workflow-templates/build-universal.yml) - Universal build with project detection
-  * [`release-cycle.yml`](.github/workflow-templates/release-cycle.yml) - Automated release management
-  * [`codeql-analysis.yml`](.github/workflow-templates/codeql-analysis.yml) - Security scanning
-  * [`dependency-review.yml`](.github/workflow-templates/dependency-review.yml) - Dependency vulnerability scanning
-  * [`standards-compliance.yml`](.github/workflow-templates/standards-compliance.yml) - Standards validation
-
-* [`templates/`](templates/index.md)
-
-  * Non authoritative reference material.
-  * Provides concrete examples of how standards may be implemented.
-  * Content here may evolve faster than standards and must not be treated as requirements.
-
-  #### `templates/` hierarchy
-
-  * [`templates/docs/`](templates/docs/index.md)
-
-    * Documentation templates aligned with standards in `docs/`.
-    * Includes policy, guidance, checklist, glossary, and structural templates.
-
-  * [`templates/scripts/`](templates/scripts/index.md)
-
-    * Example validation, CI, and utility scripts.
-    * Intended for reuse, vendoring, or adaptation.
-
-### Documentation templates
-
-* [`templates/docs/`](templates/docs/index.md)
-
-  * Markdown templates aligned with standards defined in `docs/`.
-  * Includes policy templates, guidance templates, checklists, glossaries, and sample document structures.
-  * Intended to accelerate creation of compliant documentation without redefining standards.
-
-### Script templates
-
-* [`templates/scripts/`](templates/scripts/index.md)
-
-  * Example validation, CI, and utility scripts.
-  * Scripts are designed to be portable and adaptable.
-  * Downstream repositories may vendor, mirror, or reimplement these scripts as needed.
-
-### GitHub templates and workflows
-
-* **Public workflow templates**: [`templates/workflows/`](templates/workflows/README.md)
-
-  * CI/CD workflow templates for Joomla and generic projects
-  * Repository health monitoring workflows
-  * Version branch automation
-
-* **Private GitHub templates**: Maintained in separate repository `mokoconsulting-tech/MokoStandards-github-private`
-
-  * CODEOWNERS files
-  * Issue templates
-  * Pull request templates
-  * Internal workflow configurations
-  * Separation ensures confidential organizational templates remain private
-
-### Design principles
-
-* Standards are defined once and referenced everywhere.
-* Templates illustrate standards but never override them.
-* Folder intent must be obvious without external documentation.
-* Layout stability is prioritized over short term convenience.
-
-## Minimum compliance requirements
-
-### Repository structure
-
-* Source code lives in `src/`.
-* Documentation lives in `docs/`.
-* Build and validation scripts live in `scripts/`.
-
-### Formatting requirements
-
-* Tabs are not permitted in files unless the language syntax requires it.
-* Path separators must use `/` when represented in configuration, manifests, and documentation.
-* CI should fail releases when compliance checks fail.
-
-### Header and metadata requirements
-
-All source and documentation files must meet the Moko Consulting header and file information standard unless explicitly exempted.
-
-Exemptions:
-
-* JSON files must not contain injected comment headers.
-
-## How this repository should be used
-
-Downstream repositories of any type must treat MokoStandards as the authoritative source for coding, documentation, governance, and CI requirements.
-
-Key expectations:
-
-* Standards are not redefined downstream.
-* Deviations require explicit documentation and approval.
-* CI enforcement is the preferred adoption mechanism.
+**Exemptions**: JSON files must not contain comment headers.
 
 ## Roadmap
 
-See the authoritative roadmap document: [`/docs/policy/roadmap.md`](docs/policy/roadmap.md).
+See [docs/policy/roadmap.md](docs/policy/roadmap.md) for the authoritative roadmap.
+
+**Upcoming Features**:
+- Enhanced validation tools
+- Additional language support
+- Improved automation scripts
+- Extended template library
+
+## Links & Resources
+
+### Documentation
+- [Complete Documentation Index](docs/index.md)
+- [Documentation Rebuild Status](./DOCUMENTATION_REBUILD.md)
+- [Scripts Rebuild Progress](./scripts/REBUILD_PROGRESS.md)
+
+### Scripts
+- [Scripts Overview](scripts/README.md)
+- [Scripts Architecture](scripts/ARCHITECTURE.md)
+- [PowerShell Scripts](scripts/powershell/README.md)
+
+### Workflows
+- [Workflow Templates](templates/workflows/README.md)
+- [Workflow Architecture](.github/WORKFLOW_ARCHITECTURE.md)
+- [Workflow Inventory](.github/WORKFLOW_INVENTORY.md)
+
+### References
+- [Repository Inventory](docs/reference/REPOSITORY_INVENTORY.md)
+- [Repository Templates](docs/reference/repository-templates.md)
+- [Health Scoring System](docs/policy/health-scoring.md)
+
+## Support & Contact
+
+- **Email**: hello@mokoconsulting.tech
+- **Security**: security@mokoconsulting.tech
+- **Website**: https://mokoconsulting.tech
+- **GitHub**: https://github.com/mokoconsulting-tech
+
+## Citation
+
+If you use MokoStandards in your work, please cite it:
+
+```bibtex
+@software{mokostandards2026,
+  author = {Miller, Jonathan and {Moko Consulting}},
+  title = {MokoStandards: Authoritative Coding Standards and Governance},
+  year = {2026},
+  version = {2.0.0},
+  url = {https://github.com/mokoconsulting-tech/MokoStandards},
+  license = {GPL-3.0-or-later}
+}
+```
+
+See [CITATION.cff](./CITATION.cff) for machine-readable citation information.
 
 ---
 
 ## Metadata
 
-* Document: README.md
-* Repository: [https://github.com/mokoconsulting-tech/MokoStandards](https://github.com/mokoconsulting-tech/MokoStandards)
-* Owner: Moko Consulting
-* Scope: Coding standards and cross repository index
-* Lifecycle: Active
-* Audience: Engineering, maintainers, reviewers
+- **Document**: README.md
+- **Repository**: https://github.com/mokoconsulting-tech/MokoStandards
+- **Version**: 02.00.00 (v2.0.0)
+- **Owner**: Moko Consulting
+- **Scope**: Coding standards and governance
+- **Lifecycle**: Active
+- **Audience**: Engineering, maintainers, contributors
 
 ## Revision History
 
-| Version  | Date       | Author                          | Notes                                                            |
-| -------- | ---------- | ------------------------------- | ---------------------------------------------------------------- |
-| 01.00.00 | 2025-12-17 | Jonathan Miller (@jmiller-moko) | Initial standards first rebaseline and ecosystem linking.        |
-| 04.01.00 | 2026-01-03 | Jonathan Miller (@jmiller-moko) | Version alignment with current MokoStandards standards baseline. |
-| 05.00.00 | 2026-01-04 | Jonathan Miller (@jmiller-moko) | Enterprise readiness: security automation, workflow consolidation, complete public/private separation. |
-| 06.00.00 | 2026-01-07 | GitHub Copilot                  | Added public workflow templates, Makefiles directory, build system documentation, release management docs, and comprehensive quick start guide. |
-| 07.00.00 | 2026-01-13 | GitHub Copilot                  | Repository reorganization: ADR framework, golden architecture guide, workflow standards policy, GitHub templates, enhanced documentation structure, and comprehensive compliance tools. Repository now exemplifies the standards it defines. |
+| Version | Date | Author | Notes |
+|---------|------|--------|-------|
+| 01.00.00 | 2025-12-17 | Jonathan Miller (@jmiller-moko) | Initial standards baseline |
+| 02.00.00 | 2026-01-19 | GitHub Copilot | Complete v2.0 rebuild with enhanced structure, automation scripts, comprehensive documentation |
+
+---
+
+**MokoStandards v2.0.0** - Empowering consistent, secure, and maintainable code across the Moko Consulting ecosystem.

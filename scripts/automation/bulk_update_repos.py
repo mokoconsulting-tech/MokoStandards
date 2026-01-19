@@ -23,9 +23,9 @@ FILE INFORMATION
 DEFGROUP: MokoStandards.Automation
 INGROUP: MokoStandards.Scripts
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
-PATH: /scripts/bulk_update_repos.py
-VERSION: 01.00.00
-BRIEF: Bulk update script to push workflows, scripts, and configurations to organization repositories
+PATH: /scripts/automation/bulk_update_repos.py
+VERSION: 02.00.00
+BRIEF: Schema-driven bulk repository sync - Clean v2 implementation
 """
 
 import argparse
@@ -34,12 +34,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
-
-try:
-    import yaml
-except ImportError:
-    yaml = None
+from typing import Dict, List, Optional, Tuple, Any
 
 # Default organization
 DEFAULT_ORG = "mokoconsulting-tech"
@@ -47,53 +42,83 @@ DEFAULT_ORG = "mokoconsulting-tech"
 # Sync override file name (located in scripts/ directory of target repo)
 SYNC_OVERRIDE_FILE = "scripts/.mokostandards-sync.yml"
 
-# Files to sync with their destination paths
-DEFAULT_FILES_TO_SYNC = {
-    # Dependabot configuration
-    ".github/dependabot.yml": ".github/dependabot.yml",
-    
-    # GitHub Copilot (coding agent) configuration
-    ".github/copilot.yml": ".github/copilot.yml",
-    
-    # Workflow templates
-    ".github/workflow-templates/build-universal.yml": ".github/workflows/build.yml",
-    ".github/workflow-templates/codeql-analysis.yml": ".github/workflows/codeql-analysis.yml",
-    ".github/workflow-templates/dependency-review.yml": ".github/workflows/dependency-review.yml",
-    ".github/workflow-templates/standards-compliance.yml": ".github/workflows/standards-compliance.yml",
-    ".github/workflow-templates/code-quality.yml": ".github/workflows/code-quality.yml",
-    ".github/workflow-templates/release-cycle.yml": ".github/workflows/release-cycle.yml",
-    ".github/workflow-templates/deploy-to-dev.yml": ".github/workflows/deploy-to-dev.yml",
-    
-    # Reusable workflows
-    ".github/workflows/reusable-build.yml": ".github/workflows/reusable-build.yml",
-    ".github/workflows/reusable-ci-validation.yml": ".github/workflows/reusable-ci-validation.yml",
-    ".github/workflows/reusable-release.yml": ".github/workflows/reusable-release.yml",
-    
-    # Automation workflows
-    ".github/workflows/sync-changelogs.yml": ".github/workflows/sync-changelogs.yml",
-    
-    # Enterprise firewall setup workflow
-    ".github/workflows/enterprise-firewall-setup.yml": ".github/workflows/enterprise-firewall-setup.yml",
-    
-    # Code quality configurations (optional - only copy if language is detected)
-    # PHP configurations
-    "templates/configs/phpcs.xml": "phpcs.xml",
-    "templates/configs/phpstan.neon": "phpstan.neon",
-    "templates/configs/psalm.xml": "psalm.xml",
-    
-    # JavaScript/TypeScript configurations
-    "templates/configs/.eslintrc.json": ".eslintrc.json",
-    "templates/configs/.prettierrc.json": ".prettierrc.json",
-    
-    # Python configurations
-    "templates/configs/.pylintrc": ".pylintrc",
-    "templates/configs/pyproject.toml": "pyproject.toml",
-    
-    # HTML configurations
-    "templates/configs/.htmlhintrc": ".htmlhintrc",
-}
 
-# Scripts to sync
+class FileSyncConfig:
+    """Configuration for files to sync to target repositories"""
+    
+    # Core configuration files (always sync)
+    CORE_CONFIGS = {
+        ".github/dependabot.yml": ".github/dependabot.yml",
+        ".github/copilot.yml": ".github/copilot.yml",
+    }
+    
+    # Workflow templates by category (conditional based on platform)
+    WORKFLOW_TEMPLATES = {
+        # Universal workflows (all repositories)
+        "universal": {
+            "templates/workflows/build.yml.template": ".github/workflows/build.yml",
+            "templates/workflows/unified-ci.yml.template": ".github/workflows/ci.yml",
+        },
+        
+        # Generic platform workflows
+        "generic": {
+            "templates/workflows/generic/code-quality.yml": ".github/workflows/code-quality.yml",
+            "templates/workflows/generic/codeql-analysis.yml": ".github/workflows/codeql-analysis.yml",
+            "templates/workflows/generic/repo-health.yml": ".github/workflows/repo-health.yml",
+        },
+        
+        # Dolibarr-specific workflows
+        "dolibarr": {
+            "templates/workflows/dolibarr/release.yml.template": ".github/workflows/release.yml",
+            "templates/workflows/dolibarr/sync-changelogs.yml.template": ".github/workflows/sync-changelogs.yml",
+        },
+        
+        # Joomla-specific workflows
+        "joomla": {
+            "templates/workflows/joomla/release.yml.template": ".github/workflows/release.yml",
+            "templates/workflows/joomla/repo_health.yml.template": ".github/workflows/repo-health.yml",
+        },
+    }
+    
+    # Reusable workflows (all repositories)
+    REUSABLE_WORKFLOWS = {
+        "templates/workflows/reusable-build.yml.template": ".github/workflows/reusable-build.yml",
+        "templates/workflows/reusable-ci-validation.yml": ".github/workflows/reusable-ci-validation.yml",
+        "templates/workflows/reusable-release.yml.template": ".github/workflows/reusable-release.yml",
+        "templates/workflows/reusable-php-quality.yml": ".github/workflows/reusable-php-quality.yml",
+        "templates/workflows/reusable-platform-testing.yml": ".github/workflows/reusable-platform-testing.yml",
+        "templates/workflows/reusable-project-detector.yml": ".github/workflows/reusable-project-detector.yml",
+        "templates/workflows/reusable-deploy.yml": ".github/workflows/reusable-deploy.yml",
+        "templates/workflows/reusable-script-executor.yml": ".github/workflows/reusable-script-executor.yml",
+    }
+    
+    # Shared automation workflows (conditional)
+    SHARED_AUTOMATION = {
+        ".github/workflows/enterprise-firewall-setup.yml": ".github/workflows/enterprise-firewall-setup.yml",
+    }
+    
+    # Language-specific configuration files
+    LANGUAGE_CONFIGS = {
+        "php": {
+            "templates/configs/phpcs.xml": "phpcs.xml",
+            "templates/configs/phpstan.neon": "phpstan.neon",
+            "templates/configs/psalm.xml": "psalm.xml",
+        },
+        "javascript": {
+            "templates/configs/.eslintrc.json": ".eslintrc.json",
+            "templates/configs/.prettierrc.json": ".prettierrc.json",
+        },
+        "python": {
+            "templates/configs/.pylintrc": ".pylintrc",
+            "templates/configs/pyproject.toml": "pyproject.toml",
+        },
+        "html": {
+            "templates/configs/.htmlhintrc": ".htmlhintrc",
+        },
+    }
+
+
+# Scripts to sync (required for platform detection and validation)
 DEFAULT_SCRIPTS_TO_SYNC = [
     "scripts/maintenance/validate_file_headers.py",
     "scripts/maintenance/update_changelog.py",
@@ -151,200 +176,6 @@ def get_org_repositories(org: str, exclude_archived: bool = True, include_templa
         return []
 
 
-def clone_repository(org: str, repo: str, target_dir: str) -> bool:
-    """Clone a repository to a temporary directory."""
-    # Use gh CLI to clone with authentication, fixing HTTPS clone failures
-    # that required manual credentials in CI environment
-    cmd = ["gh", "repo", "clone", f"{org}/{repo}", target_dir]
-    
-    success, stdout, stderr = run_command(cmd)
-    if not success:
-        print(f"Error cloning {repo}: {stderr}", file=sys.stderr)
-        return False
-    
-    # Configure git to use gh as credential helper for push operations
-    # This ensures that subsequent git push commands can authenticate
-    cmd = ["git", "config", "--local", "credential.helper", ""]
-    run_command(cmd, cwd=target_dir)
-    
-    cmd = ["git", "config", "--local", "credential.helper", "!gh auth git-credential"]
-    success, _, stderr = run_command(cmd, cwd=target_dir)
-    if not success:
-        print(f"Warning: Could not configure gh credential helper: {stderr}", file=sys.stderr)
-    
-    return True
-
-
-def create_branch(repo_dir: str, branch_name: str) -> bool:
-    """Create and checkout a new branch in the repository."""
-    # Check if branch already exists
-    cmd = ["git", "rev-parse", "--verify", branch_name]
-    success, _, _ = run_command(cmd, cwd=repo_dir)
-    
-    if success:
-        # Branch exists, checkout
-        cmd = ["git", "checkout", branch_name]
-    else:
-        # Create new branch
-        cmd = ["git", "checkout", "-b", branch_name]
-    
-    success, stdout, stderr = run_command(cmd, cwd=repo_dir)
-    if not success:
-        print(f"Error creating/checking out branch: {stderr}", file=sys.stderr)
-        return False
-    
-    return True
-
-
-def copy_file(source_file: str, dest_dir: str, dest_path: str) -> bool:
-    """Copy a file from source to destination, creating directories as needed."""
-    source = Path(source_file)
-    if not source.exists():
-        print(f"Warning: Source file does not exist: {source_file}", file=sys.stderr)
-        return False
-    
-    dest = Path(dest_dir) / dest_path
-    dest.parent.mkdir(parents=True, exist_ok=True)
-    
-    try:
-        shutil.copy2(source, dest)
-        return True
-    except Exception as e:
-        print(f"Error copying {source_file} to {dest}: {e}", file=sys.stderr)
-        return False
-
-
-def commit_changes(repo_dir: str, message: str) -> bool:
-    """Commit changes in the repository."""
-    # Add all changes
-    cmd = ["git", "add", "."]
-    success, _, stderr = run_command(cmd, cwd=repo_dir)
-    if not success:
-        print(f"Error adding files: {stderr}", file=sys.stderr)
-        return False
-    
-    # Check if there are changes to commit
-    cmd = ["git", "diff", "--cached", "--quiet"]
-    success, _, _ = run_command(cmd, cwd=repo_dir)
-    if success:
-        # No changes to commit
-        print("No changes to commit")
-        return True
-    
-    # Commit changes
-    cmd = ["git", "commit", "-m", message]
-    success, _, stderr = run_command(cmd, cwd=repo_dir)
-    if not success:
-        print(f"Error committing changes: {stderr}", file=sys.stderr)
-        return False
-    
-    return True
-
-
-def push_branch(repo_dir: str, branch_name: str) -> bool:
-    """Push branch to remote using gh CLI for proper authentication."""
-    # First, ensure the branch is up to date locally
-    cmd = ["git", "push", "-u", "origin", branch_name]
-    
-    # Git should now use gh's credential helper configured during clone
-    success, _, stderr = run_command(cmd, cwd=repo_dir)
-    if not success:
-        print(f"Error pushing branch: {stderr}", file=sys.stderr)
-        return False
-    
-    return True
-
-
-def create_pull_request(org: str, repo: str, branch_name: str, title: str, body: str) -> bool:
-    """Create a pull request for the branch."""
-    cmd = [
-        "gh", "pr", "create",
-        "--repo", f"{org}/{repo}",
-        "--head", branch_name,
-        "--title", title,
-        "--body", body
-    ]
-    
-    success, stdout, stderr = run_command(cmd)
-    if not success:
-        # Check if PR already exists
-        if "already exists" in stderr.lower():
-            print(f"Pull request already exists for branch {branch_name}")
-            return True
-        print(f"Error creating pull request: {stderr}", file=sys.stderr)
-        return False
-    
-    print(f"Created pull request: {stdout}")
-    return True
-
-
-def get_repository_variable(org: str, repo: str, var_name: str) -> Optional[str]:
-    """Get a repository variable value."""
-    cmd = [
-        "gh", "variable", "get", var_name,
-        "--repo", f"{org}/{repo}"
-    ]
-    
-    success, stdout, stderr = run_command(cmd)
-    if success:
-        return stdout
-    return None
-
-
-def set_repository_variable(org: str, repo: str, var_name: str, var_value: str) -> bool:
-    """Set a repository variable."""
-    cmd = [
-        "gh", "variable", "set", var_name,
-        "--repo", f"{org}/{repo}",
-        "--body", var_value
-    ]
-    
-    success, stdout, stderr = run_command(cmd)
-    if not success:
-        print(f"Error setting variable {var_name}: {stderr}", file=sys.stderr)
-        return False
-    
-    return True
-
-
-def set_missing_standards_options(org: str, repo: str, dry_run: bool = False) -> bool:
-    """Set missing standards options (repository variables)."""
-    # Create path suffix variable based on lowercase repo name
-    path_suffix = f"/{repo.lower()}"
-    
-    # Check if RS_FTP_PATH_SUFFIX already exists (release system)
-    existing_rs_value = get_repository_variable(org, repo, "RS_FTP_PATH_SUFFIX")
-    
-    if existing_rs_value is None:
-        if dry_run:
-            print(f"  [DRY RUN] Would set RS_FTP_PATH_SUFFIX = {path_suffix}")
-        else:
-            print(f"  Setting RS_FTP_PATH_SUFFIX = {path_suffix}")
-            if not set_repository_variable(org, repo, "RS_FTP_PATH_SUFFIX", path_suffix):
-                print(f"  Warning: Failed to set RS_FTP_PATH_SUFFIX", file=sys.stderr)
-                return False
-            print(f"  ✓ Set RS_FTP_PATH_SUFFIX")
-    else:
-        print(f"  RS_FTP_PATH_SUFFIX already exists: {existing_rs_value}")
-    
-    # Check if DEV_FTP_PATH_SUFFIX already exists (dev system)
-    existing_dev_value = get_repository_variable(org, repo, "DEV_FTP_PATH_SUFFIX")
-    
-    if existing_dev_value is None:
-        if dry_run:
-            print(f"  [DRY RUN] Would set DEV_FTP_PATH_SUFFIX = {path_suffix}")
-        else:
-            print(f"  Setting DEV_FTP_PATH_SUFFIX = {path_suffix}")
-            if not set_repository_variable(org, repo, "DEV_FTP_PATH_SUFFIX", path_suffix):
-                print(f"  Warning: Failed to set DEV_FTP_PATH_SUFFIX", file=sys.stderr)
-                return False
-            print(f"  ✓ Set DEV_FTP_PATH_SUFFIX")
-    else:
-        print(f"  DEV_FTP_PATH_SUFFIX already exists: {existing_dev_value}")
-    
-    return True
-
-
 def detect_platform(repo_dir: str, source_dir: str) -> Optional[str]:
     """
     Detect the platform type of a repository using auto_detect_platform.py
@@ -382,98 +213,326 @@ def detect_platform(repo_dir: str, source_dir: str) -> Optional[str]:
         return None
 
 
+def get_files_to_sync(platform: str = "generic") -> Dict[str, str]:
+    """
+    Get the list of files to sync based on platform type.
+    
+    Args:
+        platform: Platform type (generic, dolibarr, joomla)
+        
+    Returns:
+        Dictionary mapping source files to destination paths
+    """
+    files = {}
+    
+    # Always include core configs
+    files.update(FileSyncConfig.CORE_CONFIGS)
+    
+    # Add universal workflows
+    files.update(FileSyncConfig.WORKFLOW_TEMPLATES["universal"])
+    
+    # Add platform-specific workflows
+    if platform in FileSyncConfig.WORKFLOW_TEMPLATES:
+        files.update(FileSyncConfig.WORKFLOW_TEMPLATES[platform])
+    else:
+        # Default to generic if platform not recognized
+        files.update(FileSyncConfig.WORKFLOW_TEMPLATES["generic"])
+    
+    # Add reusable workflows
+    files.update(FileSyncConfig.REUSABLE_WORKFLOWS)
+    
+    # Add shared automation (can be conditional based on needs)
+    files.update(FileSyncConfig.SHARED_AUTOMATION)
+    
+    return files
+
+
+def validate_source_files(files_to_sync: Dict[str, str], source_dir: str) -> Tuple[List[str], List[str]]:
+    """
+    Validate that all source files exist before attempting sync.
+    
+    Returns:
+        Tuple of (existing_files, missing_files)
+    """
+    existing = []
+    missing = []
+    
+    for source_rel, _ in files_to_sync.items():
+        source_path = Path(source_dir) / source_rel
+        if source_path.exists():
+            existing.append(source_rel)
+        else:
+            missing.append(source_rel)
+    
+    return existing, missing
+
+
+def copy_file(source_file: str, dest_dir: str, dest_path: str) -> Tuple[bool, str]:
+    """
+    Copy a file from source to destination, creating directories as needed.
+    
+    Returns:
+        Tuple of (success, action) where action is 'created' or 'overwritten'
+    """
+    source = Path(source_file)
+    if not source.exists():
+        print(f"Warning: Source file does not exist: {source_file}", file=sys.stderr)
+        return False, "missing"
+    
+    dest = Path(dest_dir) / dest_path
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Check if file already exists to determine action
+    action = "overwritten" if dest.exists() else "created"
+    
+    try:
+        shutil.copy2(source, dest)
+        return True, action
+    except Exception as e:
+        print(f"Error copying {source_file} to {dest}: {e}", file=sys.stderr)
+        return False, "error"
+
+
+def clone_repository(org: str, repo: str, target_dir: str) -> bool:
+    """Clone a repository to a temporary directory."""
+    # Use gh CLI to clone with authentication
+    cmd = ["gh", "repo", "clone", f"{org}/{repo}", target_dir]
+    
+    success, stdout, stderr = run_command(cmd)
+    if not success:
+        print(f"Error cloning {repo}: {stderr}", file=sys.stderr)
+        return False
+    
+    # Configure git to use gh as credential helper for push operations
+    cmd = ["git", "config", "--local", "credential.helper", ""]
+    run_command(cmd, cwd=target_dir)
+    
+    cmd = ["git", "config", "--local", "credential.helper", "!gh auth git-credential"]
+    success, _, stderr = run_command(cmd, cwd=target_dir)
+    if not success:
+        print(f"Warning: Could not configure gh credential helper: {stderr}", file=sys.stderr)
+    
+    return True
+
+
+def create_branch(repo_dir: str, branch_name: str) -> bool:
+    """Create and checkout a new branch in the repository."""
+    # Check if branch already exists
+    cmd = ["git", "rev-parse", "--verify", branch_name]
+    success, _, _ = run_command(cmd, cwd=repo_dir)
+    
+    if success:
+        # Branch exists, checkout
+        cmd = ["git", "checkout", branch_name]
+    else:
+        # Create new branch
+        cmd = ["git", "checkout", "-b", branch_name]
+    
+    success, stdout, stderr = run_command(cmd, cwd=repo_dir)
+    if not success:
+        print(f"Error creating/checking out branch: {stderr}", file=sys.stderr)
+        return False
+    
+    return True
+
+
+def commit_changes(repo_dir: str, message: str) -> bool:
+    """Commit changes in the repository."""
+    # Add all changes
+    cmd = ["git", "add", "."]
+    success, _, stderr = run_command(cmd, cwd=repo_dir)
+    if not success:
+        print(f"Error adding files: {stderr}", file=sys.stderr)
+        return False
+    
+    # Check if there are changes to commit
+    cmd = ["git", "diff", "--cached", "--quiet"]
+    success, _, _ = run_command(cmd, cwd=repo_dir)
+    if success:
+        # No changes to commit
+        print("No changes to commit")
+        return True
+    
+    # Commit changes
+    cmd = ["git", "commit", "-m", message]
+    success, _, stderr = run_command(cmd, cwd=repo_dir)
+    if not success:
+        print(f"Error committing changes: {stderr}", file=sys.stderr)
+        return False
+    
+    return True
+
+
+def push_branch(repo_dir: str, branch_name: str) -> bool:
+    """Push branch to remote using gh CLI for proper authentication."""
+    cmd = ["git", "push", "-u", "origin", branch_name]
+    
+    success, _, stderr = run_command(cmd, cwd=repo_dir)
+    if not success:
+        print(f"Error pushing branch: {stderr}", file=sys.stderr)
+        return False
+    
+    return True
+
+
+def create_pull_request(org: str, repo: str, branch_name: str, title: str, body: str) -> bool:
+    """Create a pull request for the branch."""
+    cmd = [
+        "gh", "pr", "create",
+        "--repo", f"{org}/{repo}",
+        "--head", branch_name,
+        "--title", title,
+        "--body", body
+    ]
+    
+    success, stdout, stderr = run_command(cmd)
+    if not success:
+        # Check if PR already exists
+        if "already exists" in stderr.lower():
+            print(f"Pull request already exists for branch {branch_name}")
+            return True
+        print(f"Error creating pull request: {stderr}", file=sys.stderr)
+        return False
+    
+    print(f"Created pull request: {stdout}")
+    return True
+
+
 def update_repository(
     org: str,
     repo: str,
     source_dir: str,
-    files_to_sync: Dict[str, str],
-    scripts_to_sync: List[str],
     branch_name: str,
     commit_message: str,
     pr_title: str,
     pr_body: str,
     temp_dir: str,
     dry_run: bool = False,
-    set_standards: bool = False
-) -> bool:
-    """Update a single repository with files and scripts."""
+) -> Tuple[bool, Dict[str, Any]]:
+    """
+    Update a single repository with files and scripts.
+    
+    Returns:
+        Tuple of (success, stats) where stats contains:
+        - files_created: count of new files
+        - files_overwritten: count of updated files
+        - files_copied: list of copied file paths
+        - files_overwritten_list: list of overwritten file paths
+        - platform: detected platform type
+    """
+    stats = {
+        "files_created": 0,
+        "files_overwritten": 0,
+        "files_copied": [],
+        "files_overwritten_list": [],
+        "platform": "unknown",
+    }
+    
     print(f"\n{'[DRY RUN] ' if dry_run else ''}Processing repository: {org}/{repo}")
-    
-    if dry_run:
-        print(f"  Would sync {len(files_to_sync)} files and {len(scripts_to_sync)} scripts")
-        if set_standards:
-            print(f"  Would check and set missing standards options")
-        return True
-    
-    # Set missing standards options (repository variables) if requested
-    if set_standards:
-        print(f"  Checking standards options...")
-        if not set_missing_standards_options(org, repo, dry_run):
-            print(f"  Warning: Failed to set some standards options", file=sys.stderr)
     
     # Create temporary directory for this repo
     repo_dir = Path(temp_dir) / repo
     
+    if dry_run:
+        print(f"  Would clone and sync repository")
+        return True, stats
+    
     # Clone repository
     print(f"  Cloning repository...")
     if not clone_repository(org, repo, str(repo_dir)):
-        return False
+        return False, stats
     
     # Detect platform before creating branch
     print(f"  Detecting platform type...")
     platform_type = detect_platform(str(repo_dir), source_dir)
     if platform_type:
         print(f"    Detected platform: {platform_type}")
+        stats["platform"] = platform_type
     else:
-        print(f"    Platform detection skipped or failed, using defaults")
+        print(f"    Platform detection failed, using generic defaults")
+        platform_type = "generic"
+        stats["platform"] = "generic"
+    
+    # Get files to sync based on platform
+    files_to_sync = get_files_to_sync(platform_type)
+    
+    # Validate source files exist
+    existing, missing = validate_source_files(files_to_sync, source_dir)
+    if missing:
+        print(f"  Warning: {len(missing)} source files missing:")
+        for f in missing[:5]:  # Show first 5 missing files
+            print(f"    - {f}")
+        if len(missing) > 5:
+            print(f"    ... and {len(missing) - 5} more")
+        # Filter out missing files
+        files_to_sync = {k: v for k, v in files_to_sync.items() if k in existing}
     
     # Create branch
     print(f"  Creating branch: {branch_name}")
     if not create_branch(str(repo_dir), branch_name):
-        return False
+        return False, stats
     
-    # Copy files
-    files_copied = 0
+    # Copy files and track actions
     for source_rel, dest_rel in files_to_sync.items():
         source_file = Path(source_dir) / source_rel
-        if copy_file(str(source_file), str(repo_dir), dest_rel):
-            files_copied += 1
-            print(f"    Copied: {source_rel} -> {dest_rel}")
+        success, action = copy_file(str(source_file), str(repo_dir), dest_rel)
+        if success:
+            if action == "created":
+                stats["files_created"] += 1
+                stats["files_copied"].append(dest_rel)
+                print(f"    ✓ Created: {dest_rel}")
+            elif action == "overwritten":
+                stats["files_overwritten"] += 1
+                stats["files_overwritten_list"].append(dest_rel)
+                print(f"    ↻ Updated: {dest_rel}")
     
-    # Copy scripts
-    for script in scripts_to_sync:
+    # Copy scripts and track actions
+    for script in DEFAULT_SCRIPTS_TO_SYNC:
         source_file = Path(source_dir) / script
-        if copy_file(str(source_file), str(repo_dir), script):
-            files_copied += 1
-            print(f"    Copied: {script}")
+        success, action = copy_file(str(source_file), str(repo_dir), script)
+        if success:
+            if action == "created":
+                stats["files_created"] += 1
+                stats["files_copied"].append(script)
+                print(f"    ✓ Created: {script}")
+            elif action == "overwritten":
+                stats["files_overwritten"] += 1
+                stats["files_overwritten_list"].append(script)
+                print(f"    ↻ Updated: {script}")
     
-    if files_copied == 0:
+    total_files = stats["files_created"] + stats["files_overwritten"]
+    
+    if total_files == 0:
         print(f"  No files were copied, skipping commit")
-        return True
+        return True, stats
     
     # Commit changes
     print(f"  Committing changes...")
     if not commit_changes(str(repo_dir), commit_message):
-        return False
+        return False, stats
     
     # Push branch
     print(f"  Pushing branch...")
     if not push_branch(str(repo_dir), branch_name):
-        return False
+        return False, stats
     
     # Create pull request
     print(f"  Creating pull request...")
     if not create_pull_request(org, repo, branch_name, pr_title, pr_body):
-        return False
+        return False, stats
     
     print(f"  ✓ Successfully updated {org}/{repo}")
-    return True
+    print(f"    - Platform: {stats['platform']}")
+    print(f"    - Created: {stats['files_created']} files")
+    print(f"    - Updated: {stats['files_overwritten']} files")
+    
+    return True, stats
 
 
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(
-        description='Bulk update organization repositories with workflows, scripts, and configurations'
+        description='Schema-driven bulk repository sync (v2)'
     )
     parser.add_argument(
         '--org',
@@ -515,21 +574,13 @@ def main():
         '--pr-body',
         default='This PR syncs workflows, scripts, and configurations from the MokoStandards repository.\n\n'
                 'Updated files:\n'
-                '- GitHub workflows (CI, CodeQL, dependency review, build, release)\n'
-                '- Dependabot configuration (monthly schedule)\n'
-                '- Maintenance scripts (validation, changelog, release)\n\n'
+                '- GitHub workflows (CI, build, release, etc.)\n'
+                '- Dependabot configuration\n'
+                '- Maintenance scripts\n'
+                '- Platform-specific configurations\n\n'
+                'Files are synced based on detected platform type (generic/dolibarr/joomla).\n\n'
                 'Please review and merge if appropriate for this repository.',
         help='Pull request body'
-    )
-    parser.add_argument(
-        '--files-only',
-        action='store_true',
-        help='Only sync workflow files, not scripts'
-    )
-    parser.add_argument(
-        '--scripts-only',
-        action='store_true',
-        help='Only sync scripts, not workflow files'
     )
     parser.add_argument(
         '--dry-run',
@@ -547,11 +598,6 @@ def main():
         action='store_true',
         help='Skip confirmation prompt (use for automation)'
     )
-    parser.add_argument(
-        '--set-standards',
-        action='store_true',
-        help='Set missing standards options (repository variables like RS_FTP_PATH_SUFFIX and DEV_FTP_PATH_SUFFIX)'
-    )
     
     args = parser.parse_args()
     
@@ -568,10 +614,6 @@ def main():
         print("Error: Not authenticated with gh CLI", file=sys.stderr)
         print("Run: gh auth login", file=sys.stderr)
         sys.exit(1)
-    
-    # Determine files to sync
-    files_to_sync = {} if args.scripts_only else DEFAULT_FILES_TO_SYNC.copy()
-    scripts_to_sync = [] if args.files_only else DEFAULT_SCRIPTS_TO_SYNC.copy()
     
     # Get repositories to update
     if args.repos:
@@ -604,24 +646,28 @@ def main():
     # Update each repository
     success_count = 0
     failed_repos = []
+    all_stats = {}
+    total_created = 0
+    total_overwritten = 0
     
     for repo in repos:
         try:
-            if update_repository(
+            success, stats = update_repository(
                 args.org,
                 repo,
                 args.source_dir,
-                files_to_sync,
-                scripts_to_sync,
                 args.branch,
                 args.commit_message,
                 args.pr_title,
                 args.pr_body,
                 str(temp_dir),
                 args.dry_run,
-                args.set_standards
-            ):
+            )
+            if success:
                 success_count += 1
+                all_stats[repo] = stats
+                total_created += stats["files_created"]
+                total_overwritten += stats["files_overwritten"]
             else:
                 failed_repos.append(repo)
         except Exception as e:
@@ -629,15 +675,30 @@ def main():
             failed_repos.append(repo)
     
     # Summary
-    print(f"\n{'DRY RUN ' if args.dry_run else ''}Summary:")
-    print(f"  Successfully {'would update' if args.dry_run else 'updated'}: {success_count}/{len(repos)} repositories")
+    print(f"\n{'=' * 70}")
+    print(f"{'DRY RUN ' if args.dry_run else ''}SUMMARY")
+    print(f"{'=' * 70}")
+    print(f"Successfully {'would update' if args.dry_run else 'updated'}: {success_count}/{len(repos)} repositories")
+    print(f"\nFile Operations:")
+    print(f"  - Total files created: {total_created}")
+    print(f"  - Total files updated: {total_overwritten}")
+    print(f"  - Total operations: {total_created + total_overwritten}")
+    
+    if all_stats:
+        print(f"\nPer-Repository Details:")
+        for repo, stats in all_stats.items():
+            if stats["files_created"] > 0 or stats["files_overwritten"] > 0:
+                print(f"  {repo}:")
+                print(f"    Platform: {stats['platform']}")
+                print(f"    Created: {stats['files_created']}, Updated: {stats['files_overwritten']}")
     
     if failed_repos:
-        print(f"  Failed repositories:")
+        print(f"\nFailed Repositories ({len(failed_repos)}):")
         for repo in failed_repos:
-            print(f"    - {repo}")
+            print(f"  - {repo}")
         sys.exit(1)
     
+    print(f"\n{'=' * 70}")
     sys.exit(0)
 
 

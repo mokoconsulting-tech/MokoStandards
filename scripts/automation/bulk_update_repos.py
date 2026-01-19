@@ -61,7 +61,7 @@ DEFAULT_FILES_TO_SYNC = {
     "templates/workflows/release-cycle.yml.template": ".github/workflows/release-cycle.yml",
     
     # Reusable workflows (from templates/workflows/)
-    "templates/workflows/reusable-build.yml": ".github/workflows/reusable-build.yml",
+    "templates/workflows/reusable-build.yml.template": ".github/workflows/reusable-build.yml",
     "templates/workflows/reusable-ci-validation.yml": ".github/workflows/reusable-ci-validation.yml",
     "templates/workflows/reusable-release.yml.template": ".github/workflows/reusable-release.yml",
     "templates/workflows/reusable-php-quality.yml": ".github/workflows/reusable-php-quality.yml",

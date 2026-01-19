@@ -264,9 +264,9 @@ function ConvertFrom-YamlFile {
         return ConvertFrom-Yaml $content
     }
     else {
-        # Fallback: Simple YAML parser for basic key-value pairs
-        Write-Warning "powershell-yaml module not installed. Using basic YAML parser."
+        Write-Warning "powershell-yaml module not installed. Cannot load YAML configuration."
         Write-Warning "Install with: Install-Module -Name powershell-yaml"
+        Write-Warning "Continuing with default configuration values."
         return @{}
     }
 }

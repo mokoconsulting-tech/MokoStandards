@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Example configuration file for file-distributor.ps1 v02.00.00",
+  "SourceFile": "C:\\path\\to\\your\\source\\file.txt",
+  "RootDirectory": "C:\\path\\to\\root\\directory",
+  "Depth": 1,
+  "DryRun": true,
+  "Overwrite": false,
+  "ConfirmEach": false,
+  "IncludeHidden": true,
+  "LogDirectory": "C:\\path\\to\\logs"
+}

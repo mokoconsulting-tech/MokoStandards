@@ -87,7 +87,7 @@ git push origin feature/your-feature-name
 
 **Required**:
 - Git 2.0+
-- Python 3.9+ (scripts and automation)
+- Python 3.8+ (scripts and automation)
 - Text editor with Python support (VS Code, PyCharm, etc.)
 
 **Optional**:
@@ -167,7 +167,7 @@ Examples:
     python script_name.py --verbose --output result.json
 
 Requirements:
-    Python 3.9+
+    Python 3.8+
     Optional: list external dependencies
 """
 
@@ -560,15 +560,15 @@ BRIEF: Brief description of purpose
 **Run before committing:**
 
 ```bash
-# Python syntax check
-python -m py_compile scripts/**/*.py
+# Python syntax check (check all scripts)
+find scripts -name "*.py" -type f -exec python -m py_compile {} +
 
 # Type checking (if mypy configured)
 mypy scripts/
 
 # Linting (if configured)
-pylint scripts/**/*.py
-flake8 scripts/
+find scripts -name "*.py" -type f | xargs pylint
+find scripts -name "*.py" -type f | xargs flake8
 
 # Format checking (if Black configured)
 black --check scripts/

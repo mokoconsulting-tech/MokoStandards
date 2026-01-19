@@ -55,19 +55,18 @@ DEFAULT_FILES_TO_SYNC = {
     # GitHub Copilot (coding agent) configuration
     ".github/copilot.yml": ".github/copilot.yml",
     
-    # Workflow templates
-    ".github/workflow-templates/build-universal.yml": ".github/workflows/build.yml",
-    ".github/workflow-templates/codeql-analysis.yml": ".github/workflows/codeql-analysis.yml",
-    ".github/workflow-templates/dependency-review.yml": ".github/workflows/dependency-review.yml",
-    ".github/workflow-templates/standards-compliance.yml": ".github/workflows/standards-compliance.yml",
-    ".github/workflow-templates/code-quality.yml": ".github/workflows/code-quality.yml",
-    ".github/workflow-templates/release-cycle.yml": ".github/workflows/release-cycle.yml",
-    ".github/workflow-templates/deploy-to-dev.yml": ".github/workflows/deploy-to-dev.yml",
+    # Workflow templates (from templates/workflows/ with .template extension)
+    "templates/workflows/build.yml.template": ".github/workflows/build.yml",
+    "templates/workflows/unified-ci.yml.template": ".github/workflows/ci.yml",
+    "templates/workflows/release-cycle.yml.template": ".github/workflows/release-cycle.yml",
     
-    # Reusable workflows
-    ".github/workflows/reusable-build.yml": ".github/workflows/reusable-build.yml",
-    ".github/workflows/reusable-ci-validation.yml": ".github/workflows/reusable-ci-validation.yml",
-    ".github/workflows/reusable-release.yml": ".github/workflows/reusable-release.yml",
+    # Reusable workflows (from templates/workflows/)
+    "templates/workflows/reusable-build.yml": ".github/workflows/reusable-build.yml",
+    "templates/workflows/reusable-ci-validation.yml": ".github/workflows/reusable-ci-validation.yml",
+    "templates/workflows/reusable-release.yml.template": ".github/workflows/reusable-release.yml",
+    "templates/workflows/reusable-php-quality.yml": ".github/workflows/reusable-php-quality.yml",
+    "templates/workflows/reusable-platform-testing.yml": ".github/workflows/reusable-platform-testing.yml",
+    "templates/workflows/reusable-project-detector.yml": ".github/workflows/reusable-project-detector.yml",
     
     # Automation workflows
     ".github/workflows/sync-changelogs.yml": ".github/workflows/sync-changelogs.yml",

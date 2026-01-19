@@ -110,17 +110,47 @@ jobs:
           git config --global user.email "automation@mokoconsulting.tech"
           git config --global user.name "Moko Standards Bot"
 
-      - name: Validate auto_detect_platform.py availability
+      - name: Validate required files availability
         run: |
+          MISSING_FILES=()
+          
+          # Check for platform detection script
           if [ ! -f "scripts/validate/auto_detect_platform.py" ]; then
-            echo "## ❌ Error: auto_detect_platform.py Not Found" >> $GITHUB_STEP_SUMMARY
+            MISSING_FILES+=("scripts/validate/auto_detect_platform.py")
+          fi
+          
+          # Check for schema definition files required by bulk_update_repos.py
+          if [ ! -f "scripts/definitions/crm-module.xml" ]; then
+            MISSING_FILES+=("scripts/definitions/crm-module.xml")
+          fi
+          
+          if [ ! -f "scripts/definitions/default-repository.xml" ]; then
+            MISSING_FILES+=("scripts/definitions/default-repository.xml")
+          fi
+          
+          if [ ! -f "scripts/definitions/waas-component.xml" ]; then
+            MISSING_FILES+=("scripts/definitions/waas-component.xml")
+          fi
+          
+          # Report errors if any files are missing
+          if [ ${#MISSING_FILES[@]} -ne 0 ]; then
+            echo "## ❌ Error: Required Files Not Found" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "The platform detection script is required for repository sync operations." >> $GITHUB_STEP_SUMMARY
+            echo "The following files are required for repository sync operations but were not found:" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            for file in "${MISSING_FILES[@]}"; do
+              echo "- \`$file\`" >> $GITHUB_STEP_SUMMARY
+            done
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Please ensure all required files exist in the repository." >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
-          echo "## ✅ Platform Detection Available" >> $GITHUB_STEP_SUMMARY
+          
+          echo "## ✅ Required Files Available" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Platform detection script validated and ready." >> $GITHUB_STEP_SUMMARY
+          echo "All required files for repository sync validated and ready:" >> $GITHUB_STEP_SUMMARY
+          echo "- Platform detection script" >> $GITHUB_STEP_SUMMARY
+          echo "- Schema definition files (crm-module, default-repository, waas-component)" >> $GITHUB_STEP_SUMMARY
 
       - name: Run bulk update script (dry-run)
         if: github.event_name == 'workflow_dispatch' && inputs.dry_run == true

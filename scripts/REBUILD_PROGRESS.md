@@ -17,7 +17,7 @@ Beginning systematic rebuild following dependency order.
 3. ✅ `scripts/REBUILD_PROGRESS.md` - This progress tracker
 
 ### Scripts (1/44)
-1. ✅ `scripts/automation/bulk_update_repos_v2.py` - Complete rewrite with:
+1. ✅ `scripts/automation/bulk_update_repos.py (v2)` - Complete rewrite with:
    - Schema-driven file organization
    - Platform-aware workflow deployment
    - File operation tracking (created/overwritten)
@@ -63,7 +63,7 @@ Beginning systematic rebuild following dependency order.
 - [ ] `validate/paths.py`
 
 ### Automation Scripts (1/8 complete)
-- [x] `automation/bulk_update_repos_v2.py` ✅
+- [x] `automation/bulk_update_repos.py (v2)` ✅
 - [ ] `automation/auto_create_org_projects.py`
 - [ ] `automation/sync_dolibarr_changelog.py`
 - [ ] `automation/sync_file_to_project.py`

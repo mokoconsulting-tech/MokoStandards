@@ -32,7 +32,7 @@ Complete top-down rebuild of all 44 scripts and 15 workflows following modern be
 
 - [x] Architecture documentation (`scripts/ARCHITECTURE.md`)
 - [x] Rebuild strategy (`scripts/REBUILD_STRATEGY.md`)  
-- [x] `automation/bulk_update_repos_v2.py` - Complete rewrite
+- [x] `automation/bulk_update_repos.py (v2)` - Complete rewrite
 - [ ] `lib/common.py` - Enhanced with better error handling
 - [ ] `lib/validation_framework.py` - Add more base classes
 - [ ] `lib/config_manager.py` - Schema-driven configuration
@@ -335,7 +335,7 @@ If critical issues arise:
 ### Completed (3%)
 - ✅ Architecture documentation
 - ✅ Rebuild strategy
-- ✅ `bulk_update_repos_v2.py` - Complete rewrite
+- ✅ `bulk_update_repos.py (v2)` - Complete rewrite
 - ✅ `bulk-repo-sync.yml` - Enhanced validation
 
 ### In Progress

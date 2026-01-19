@@ -50,7 +50,7 @@ scripts/
 │   └── generate_stubs.py  # Stub generation
 │
 ├── automation/            # Automation scripts (depend on lib/, validate/)
-│   ├── bulk_update_repos_v2.py  # Bulk repository sync
+│   ├── bulk_update_repos.py (v2)  # Bulk repository sync
 │   ├── auto_create_org_projects.py # Organization project automation
 │   ├── sync_dolibarr_changelog.py  # Dolibarr changelog sync
 │   ├── sync_file_to_project.py     # File sync to projects
@@ -146,7 +146,7 @@ All validation modules follow the pattern:
 
 ## Automation Modules (`automation/`)
 
-### bulk_update_repos_v2.py
+### bulk_update_repos.py (v2)
 **Status**: ✅ Rebuilt (2026-01-19)  
 **Purpose**: Schema-driven bulk repository synchronization  
 **Dependencies**: `lib/`, `validate/auto_detect_platform`

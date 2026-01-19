@@ -58,7 +58,7 @@ This directory is undergoing a complete top-down rebuild of all 44 scripts and 1
 4. ✅ `README_REBUILD.md` - This file
 
 ### Code
-1. ✅ `automation/bulk_update_repos_v2.py` - Complete rewrite (713 lines)
+1. ✅ `automation/bulk_update_repos.py (v2)` - Complete rewrite (713 lines)
    - Platform-aware sync
    - File operation tracking
    - Comprehensive reporting
@@ -91,7 +91,7 @@ scripts/
 │   ├── validate_structure_v2.py
 │   └── ...
 ├── automation/            ← Depends on lib/ + validate/
-│   ├── bulk_update_repos_v2.py ✅
+│   ├── bulk_update_repos.py (v2) ✅
 │   └── ...
 └── release/maintenance/   ← Depends on lib/ + validate/
     └── ...

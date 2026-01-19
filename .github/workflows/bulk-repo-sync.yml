@@ -24,7 +24,7 @@
 # PATH: /.github/workflows/bulk-repo-sync.yml
 # VERSION: 01.00.00
 # BRIEF: Monthly automation to sync workflows, scripts, and configurations to organization repositories
-# NOTE: Runs bulk_update_repos.py script to deploy MokoStandards to all org repos
+# NOTE: Runs bulk_update_repos.py (v2) script to deploy MokoStandards to all org repos
 
 name: Bulk Repository Sync
 
@@ -176,7 +176,7 @@ jobs:
           echo "**Arguments:** \`$ARGS\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          if python3 scripts/automation/bulk_update_repos_v2.py $ARGS 2>&1 | tee /tmp/bulk_update.log; then
+          if python3 scripts/automation/bulk_update_repos.py $ARGS 2>&1 | tee /tmp/bulk_update.log; then
             echo "### ✅ Dry Run Completed Successfully" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "Review the logs above to see what changes would be made." >> $GITHUB_STEP_SUMMARY
@@ -231,7 +231,7 @@ jobs:
           fi
 
           # Run the script with automatic confirmation via --yes flag
-          if python3 scripts/automation/bulk_update_repos_v2.py $ARGS 2>&1 | tee /tmp/bulk_update.log; then
+          if python3 scripts/automation/bulk_update_repos.py $ARGS 2>&1 | tee /tmp/bulk_update.log; then
             echo "### ✅ Bulk Update Completed Successfully" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "All repositories have been updated with the latest standards." >> $GITHUB_STEP_SUMMARY

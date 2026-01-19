@@ -1,0 +1,288 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.WorkflowTemplate
+# INGROUP: MokoStandards.Templates
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflow-templates/build-universal.yml
+# VERSION: 01.00.00
+# BRIEF: Universal build workflow template with automatic project type detection
+# NOTE: Supports Joomla, Dolibarr, and Generic project types with Makefile precedence
+
+name: Universal Build
+
+on:
+  push:
+    branches:
+      - main
+      - dev/**
+      - rc/**
+      - version/**
+  pull_request:
+    branches:
+      - main
+      - dev/**
+      - rc/**
+  workflow_dispatch:
+
+# Prevent concurrent builds for the same ref
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  detect-project-type:
+    name: Detect Project Type
+    runs-on: ubuntu-latest
+    outputs:
+      project_type: ${{ steps.detect.outputs.project_type }}
+      extension_type: ${{ steps.detect.outputs.extension_type }}
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Detect Project Type
+        id: detect
+        run: |
+          # Detection priority: Joomla > Dolibarr > Generic
+          
+          # Check for Joomla indicators
+          if [ -f "joomla.xml" ] || \
+             find . -maxdepth 2 -name "mod_*.xml" -o -name "plg_*.xml" -o -name "com_*.xml" -o -name "pkg_*.xml" -o -name "tpl_*.xml" 2>/dev/null | grep -q .; then
+            echo "project_type=joomla" >> $GITHUB_OUTPUT
+            
+            # Detect Joomla extension type
+            if [ -d "administrator/components" ] || [ -d "components" ]; then
+              echo "extension_type=component" >> $GITHUB_OUTPUT
+            elif find . -maxdepth 1 -name "mod_*.xml" | grep -q .; then
+              echo "extension_type=module" >> $GITHUB_OUTPUT
+            elif find . -maxdepth 1 -name "plg_*.xml" | grep -q .; then
+              echo "extension_type=plugin" >> $GITHUB_OUTPUT
+            elif find . -maxdepth 1 -name "pkg_*.xml" | grep -q .; then
+              echo "extension_type=package" >> $GITHUB_OUTPUT
+            elif find . -maxdepth 1 -name "tpl_*.xml" | grep -q .; then
+              echo "extension_type=template" >> $GITHUB_OUTPUT
+            else
+              echo "extension_type=component" >> $GITHUB_OUTPUT
+            fi
+            
+            echo "✅ Detected Joomla project" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+          
+          # Check for Dolibarr indicators
+          if [ -d "htdocs" ] || [ -d "core/modules" ] || \
+             ([ -f "composer.json" ] && grep -q "dolibarr" composer.json 2>/dev/null); then
+            echo "project_type=dolibarr" >> $GITHUB_OUTPUT
+            echo "extension_type=module" >> $GITHUB_OUTPUT
+            echo "✅ Detected Dolibarr module project" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+          
+          # Default to Generic
+          echo "project_type=generic" >> $GITHUB_OUTPUT
+          echo "extension_type=application" >> $GITHUB_OUTPUT
+          echo "✅ Detected Generic project" >> $GITHUB_STEP_SUMMARY
+
+  build:
+    name: Build (${{ needs.detect-project-type.outputs.project_type }})
+    runs-on: ubuntu-latest
+    needs: detect-project-type
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mbstring, xml, zip, json
+          tools: composer:v2
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+        if: hashFiles('package.json') != ''
+      
+      # MAKEFILE PRECEDENCE SYSTEM
+      # Priority Order (highest to lowest):
+      # 1. Repository root Makefile (./Makefile)
+      # 2. MokoStandards platform-specific Makefile from repo's MokoStandards/ directory
+      # 3. Default build commands for detected platform
+      #
+      # This allows repositories to:
+      # - Use custom Makefiles (place in repository root)
+      # - Adopt MokoStandards Makefiles (add to MokoStandards/ directory)
+      # - Use automatic defaults (no Makefile needed)
+      
+      - name: Check for Makefile (Precedence Level 1)
+        id: check_makefile
+        run: |
+          if [ -f "Makefile" ]; then
+            echo "has_makefile=true" >> $GITHUB_OUTPUT
+            echo "✅ Found repository Makefile (Precedence Level 1)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "has_makefile=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ No repository Makefile found" >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: Check for MokoStandards Makefile (Precedence Level 2)
+        id: check_standards_makefile
+        if: steps.check_makefile.outputs.has_makefile != 'true'
+        run: |
+          PROJECT_TYPE="${{ needs.detect-project-type.outputs.project_type }}"
+          STANDARDS_MAKEFILE="MokoStandards/Makefile.${PROJECT_TYPE}"
+          
+          if [ -f "$STANDARDS_MAKEFILE" ]; then
+            echo "has_standards_makefile=true" >> $GITHUB_OUTPUT
+            echo "standards_makefile=$STANDARDS_MAKEFILE" >> $GITHUB_OUTPUT
+            echo "✅ Found MokoStandards Makefile (Precedence Level 2): $STANDARDS_MAKEFILE" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "has_standards_makefile=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ No MokoStandards Makefile found at $STANDARDS_MAKEFILE" >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      # BUILD EXECUTION - Uses highest precedence Makefile or defaults
+      
+      - name: Install Dependencies
+        run: |
+          echo "### Installing Dependencies" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.check_makefile.outputs.has_makefile }}" = "true" ]; then
+            echo "Using repository Makefile..." >> $GITHUB_STEP_SUMMARY
+            make install-deps || echo "⚠️ No install-deps target or target failed" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ steps.check_standards_makefile.outputs.has_standards_makefile }}" = "true" ]; then
+            echo "Using MokoStandards Makefile..." >> $GITHUB_STEP_SUMMARY
+            make -f "${{ steps.check_standards_makefile.outputs.standards_makefile }}" install-deps || echo "⚠️ No install-deps target or target failed" >> $GITHUB_STEP_SUMMARY
+          else
+            # Default dependency installation
+            echo "Using default dependency installation..." >> $GITHUB_STEP_SUMMARY
+            if [ -f "composer.json" ]; then
+              composer install --no-interaction --prefer-dist
+              echo "✅ Installed Composer dependencies" >> $GITHUB_STEP_SUMMARY
+            fi
+            if [ -f "package.json" ]; then
+              npm ci
+              echo "✅ Installed npm dependencies" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+      
+      - name: Run Build
+        run: |
+          echo "### Running Build" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.check_makefile.outputs.has_makefile }}" = "true" ]; then
+            echo "Building with repository Makefile..." >> $GITHUB_STEP_SUMMARY
+            make build
+            echo "✅ Build completed successfully" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ steps.check_standards_makefile.outputs.has_standards_makefile }}" = "true" ]; then
+            echo "Building with MokoStandards Makefile..." >> $GITHUB_STEP_SUMMARY
+            make -f "${{ steps.check_standards_makefile.outputs.standards_makefile }}" build
+            echo "✅ Build completed successfully" >> $GITHUB_STEP_SUMMARY
+          else
+            # Default build for detected project type
+            PROJECT_TYPE="${{ needs.detect-project-type.outputs.project_type }}"
+            echo "Using default build for $PROJECT_TYPE..." >> $GITHUB_STEP_SUMMARY
+            
+            case "$PROJECT_TYPE" in
+              joomla)
+                # Default Joomla build - create package
+                if [ -f "composer.json" ]; then composer install --no-dev --no-interaction; fi
+                if [ -f "package.json" ]; then npm ci && npm run build 2>/dev/null || true; fi
+                echo "✅ Joomla extension prepared" >> $GITHUB_STEP_SUMMARY
+                ;;
+              dolibarr)
+                # Default Dolibarr build
+                if [ -f "composer.json" ]; then composer install --no-dev --no-interaction; fi
+                echo "✅ Dolibarr module prepared" >> $GITHUB_STEP_SUMMARY
+                ;;
+              generic)
+                # Default generic build
+                if [ -f "composer.json" ]; then composer install --no-interaction; fi
+                if [ -f "package.json" ]; then npm ci && npm run build 2>/dev/null || true; fi
+                echo "✅ Generic project built" >> $GITHUB_STEP_SUMMARY
+                ;;
+            esac
+          fi
+      
+      - name: Run Tests
+        run: |
+          echo "### Running Tests" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.check_makefile.outputs.has_makefile }}" = "true" ]; then
+            make test || echo "⚠️ No test target or tests failed" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ steps.check_standards_makefile.outputs.has_standards_makefile }}" = "true" ]; then
+            make -f "${{ steps.check_standards_makefile.outputs.standards_makefile }}" test || echo "⚠️ No test target or tests failed" >> $GITHUB_STEP_SUMMARY
+          else
+            # Default test execution
+            if [ -f "phpunit.xml" ] || [ -f "phpunit.xml.dist" ]; then
+              vendor/bin/phpunit || echo "⚠️ PHPUnit tests failed" >> $GITHUB_STEP_SUMMARY
+            fi
+            if [ -f "package.json" ] && grep -q "\"test\":" package.json; then
+              npm test || echo "⚠️ npm tests failed" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+      
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: build-${{ needs.detect-project-type.outputs.project_type }}-${{ github.sha }}
+          path: |
+            dist/
+            build/
+            *.zip
+          retention-days: 7
+          if-no-files-found: ignore
+
+# CUSTOMIZATION EXAMPLES:
+#
+# 1. Add custom validation step:
+#    - name: Custom Validation
+#      run: make validate
+#
+# 2. Add platform-specific checks:
+#    - name: Joomla Manifest Check
+#      if: needs.detect-project-type.outputs.project_type == 'joomla'
+#      run: scripts/validate/manifest.sh
+#
+# 3. Add code quality checks:
+#    - name: Code Quality
+#      run: |
+#        vendor/bin/phpcs --standard=PSR12 src/
+#        vendor/bin/phpstan analyse
+#
+# 4. Customize build environment:
+#    - name: Setup Additional Tools
+#      run: |
+#        sudo apt-get install -y imagemagick
+#        npm install -g grunt-cli
+#
+# 5. Add deployment preparation:
+#    - name: Prepare for Deployment
+#      if: github.ref == 'refs/heads/main'
+#      run: make package

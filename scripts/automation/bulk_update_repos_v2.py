@@ -34,12 +34,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
-
-try:
-    import yaml
-except ImportError:
-    yaml = None
+from typing import Dict, List, Optional, Tuple, Any
 
 # Default organization
 DEFAULT_ORG = "mokoconsulting-tech"
@@ -413,7 +408,7 @@ def update_repository(
     pr_body: str,
     temp_dir: str,
     dry_run: bool = False,
-) -> Tuple[bool, Dict[str, any]]:
+) -> Tuple[bool, Dict[str, Any]]:
     """
     Update a single repository with files and scripts.
     

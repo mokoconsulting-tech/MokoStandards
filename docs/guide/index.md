@@ -16,6 +16,7 @@ This index provides navigation to documentation within this folder.
 ## Documents
 
 - [audit-readiness](./audit-readiness.md)
+- [branch-synchronization](./branch-synchronization.md)
 - [branching-quick-reference](./branching-quick-reference.md)
 - [bulk-repository-updates](./bulk-repository-updates.md)
 - [changelog-synchronization](./changelog-synchronization.md)

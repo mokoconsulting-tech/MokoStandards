@@ -1,215 +1,1009 @@
 <!--
- Copyright (C) 2025 Moko Consulting <hello@mokoconsulting.tech>
+ Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
 
  This file is part of a Moko Consulting project.
 
- SPDX-LICENSE-IDENTIFIER: GPL-3.0-or-later
+ SPDX-License-Identifier: GPL-3.0-or-later
 
- This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 3 of the License, or
+ (at your option) any later version.
 
- This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the IMPLIED WARRANTY of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License (./LICENSE).
+ You should have received a copy of the GNU General Public License
+ along with this program (./LICENSE).
  
  # FILE INFORMATION
  DEFGROUP: MokoStandards
  INGROUP: MokoStandards.Documentation
  REPO: https://github.com/mokoconsulting-tech/MokoStandards/
- VERSION: 05.00.00
+ VERSION: 02.00.00
  PATH: ./CONTRIBUTING.md
- BRIEF: How to contribute; commit, PR, testing and security policies
- NOTE: Short and practical; see README for overview
- -->
-# Contributing
+ BRIEF: v2.0 contribution guidelines with Python/PowerShell standards, Google docstrings, 100% type hints
+ NOTE: Breaking changes from v1 - no backward compatibility
+-->
 
-Thank you for your interest in contributing. This document defines the baseline expectations, workflows, and quality gates for any change entering this repository.
+# Contributing to MokoStandards v2.0
 
-The objective is to keep contributions predictable, reviewable, and compliant with MokoStandards while enabling a sustainable delivery pipeline.
+Welcome! Thank you for your interest in contributing to MokoStandards. This guide defines contribution requirements, development standards, and workflows for the v2.0 release. Version 2.0 introduces breaking changes with enhanced automation, comprehensive documentation, and strict code quality standards.
 
-## Governance and scope
+## Table of Contents
 
-This CONTRIBUTING file operates alongside the following governance assets:
+- [Code of Conduct](#code-of-conduct)
+- [Quick Start](#quick-start)
+- [Getting Started](#getting-started)
+- [Code Standards](#code-standards)
+- [Testing Guidelines](#testing-guidelines)
+- [Pull Request Process](#pull-request-process)
+- [Issue Guidelines](#issue-guidelines)
+- [Code Review Process](#code-review-process)
+- [Documentation Standards](#documentation-standards)
+- [Version Numbering](#version-numbering)
+- [Questions and Support](#questions-and-support)
 
-* `README.md` for project overview and onboarding
-* `LICENSE` for legal terms and reuse constraints
-* `CODE_OF_CONDUCT.md` for behavioral expectations
-* [GOVERNANCE.md](docs/policy/GOVERNANCE.md) (where present) for decision making, ownership, and escalation
+## Code of Conduct
 
-In case of conflict, legal terms in `LICENSE` take precedence, followed by [GOVERNANCE.md](docs/policy/GOVERNANCE.md) and then this document.
+This project adheres to the [Contributor Covenant Code of Conduct](./CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to hello@mokoconsulting.tech.
 
-## Alignment with MokoStandards
+## Quick Start
 
-All Moko Consulting projects are expected to comply with the shared standards defined in the `MokoStandards` repository.
+```bash
+# 1. Fork and clone
+git clone https://github.com/YOUR_USERNAME/MokoStandards.git
+cd MokoStandards
 
-* Source of truth: [https://github.com/mokoconsulting-tech/MokoStandards](https://github.com/mokoconsulting-tech/MokoStandards)
-* Repository inventory: [Repository Inventory](docs/reference/REPOSITORY_INVENTORY.md) - Complete list of coupled organization repositories
-* Areas covered: headers, licensing, coding style, documentation layout, and CI expectations
+# 2. Create feature branch
+git checkout -b feature/your-feature-name
 
-Per project policy, this file should reference standards rather than redefining them. Any deviation must be explicitly documented in [GOVERNANCE.md](docs/policy/GOVERNANCE.md) or an architecture decision record (ADR).
+# 3. Install dependencies
+pip install -r requirements.txt
 
-## Ways to contribute
+# 4. Make changes following v2 standards
+# - Python: 100% type hints, Google docstrings
+# - PowerShell: Full comment-based help
+# - All: Proper file headers
 
-Contributions are welcome across multiple workstreams:
+# 5. Test your changes
+python -m pytest scripts/tests/
+python scripts/validate/validate_file_headers.py .
 
-* Bug reports and defect reproduction scenarios
-* Feature requests aligned with the project roadmap
-* Code changes, including refactors and technical debt reduction
-* Documentation improvements and clarifications
-* Test coverage (unit, integration, and regression scenarios)
-* Operational assets such as runbooks, deployment notes, and incident templates
+# 6. Commit and push
+git add .
+git commit -m "Add: Brief description of changes"
+git push origin feature/your-feature-name
 
-Before investing significant effort, contributors are encouraged to review the open issues and roadmap documents to avoid misalignment.
+# 7. Open Pull Request
+# Use PR template and reference related issues
+```
 
-## Communication channels
+## Getting Started
 
-Typical communication paths include:
+### Prerequisites
 
-* GitHub Issues for bug reports, feature requests, and questions
-* GitHub Discussions for design conversations, Q&A, and community engagement
-* Pull Requests for change proposals
+**Required**:
+- Git 2.0+
+- Python 3.9+ (scripts and automation)
+- Text editor with Python support (VS Code, PyCharm, etc.)
 
-Project maintainers may document additional channels (for example, email, chat, or ticketing) in `README.md` or [GOVERNANCE.md](docs/policy/GOVERNANCE.md).
+**Optional**:
+- PowerShell 5.1+ or PowerShell Core 7+ (Windows scripts)
+- Make (for Makefile usage)
+- GitHub CLI (`gh`) for workflow automation
 
-## Issue workflow
+### Development Environment Setup
 
-Use GitHub Issues as the system of record for all work.
+#### 1. Fork and Clone
 
-When opening an issue:
+```bash
+# Fork repository on GitHub first, then:
+git clone https://github.com/YOUR_USERNAME/MokoStandards.git
+cd MokoStandards
+git remote add upstream https://github.com/mokoconsulting-tech/MokoStandards.git
+```
 
-1. Search existing issues to avoid duplication.
-2. Select the appropriate issue template if available.
-3. Provide a concise, action oriented title.
-4. Supply a clear description including:
+#### 2. Install Python Dependencies
 
-	* Expected behavior
-	* Actual behavior
-	* Minimal steps to reproduce
-	* Environment details (version, platform, configuration)
-5. Attach logs, screenshots, or configuration snippets as needed, after removing sensitive data.
+```bash
+# Create virtual environment (recommended)
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-Maintainers will triage issues based on impact, risk, and alignment with the roadmap. Not all requests will be accepted, but all will be reviewed in good faith.
+# Install dependencies
+pip install -r requirements.txt
 
-## Pull request workflow
+# Verify installation
+python --version  # Should be 3.9+
+python scripts/validate/validate_file_headers.py --help
+```
 
-Pull Requests (PRs) are the primary integration path for changes.
+#### 3. Configure Git
 
-Standard workflow:
+```bash
+# Use provided commit message template
+git config commit.template .gitmessage
 
-1. Open or reference an issue describing the problem or enhancement.
-2. Fork the repository or create a feature branch from the canonical default branch (commonly `main` or `master`).
-3. Implement changes aligned with the coding standards and file header requirements.
-4. Add or update tests to validate the behavior.
-5. Update documentation where behavior, configuration, or interfaces change.
-6. Run the full test and linting suite locally before opening the PR.
-7. Open a PR with:
+# Configure your identity
+git config user.name "Your Name"
+git config user.email "your.email@example.com"
+```
 
-	* A precise, descriptive title
-	* A summary of changes
-	* Explicit linkage to the corresponding issue
-	* Notes on testing performed and any known limitations
+#### 4. Verify Setup
 
-PRs must pass automated checks before they will be considered for review. The maintainer team reserves the right to request revisions, split changes, or defer work that does not align with the current release plan.
-
-## Merge strategy
-
-This repository uses **squash merge** as the only permitted merge method for pull requests to the main branch. This ensures a clean, linear git history where each commit represents a complete, reviewed change.
-
-Key implications for contributors:
-
-* **PR Title is Important**: The PR title becomes the commit message subject. Make it clear and descriptive.
-* **PR Description is Important**: The PR description becomes the commit message body. Include rationale and summary of changes.
-* **Automatic Cleanup**: Branches are automatically deleted after merge.
-* **No Merge Commits**: Regular merge commits and rebase merges are disabled.
-
-For complete details, see the [Merge Strategy Policy](docs/policy/merge-strategy.md).
-
-## Branching and versioning
-
-Unless specified otherwise in [GOVERNANCE.md](docs/policy/GOVERNANCE.md) or a dedicated versioning policy:
-
-* Default development branch: `main`
-* Feature work: short lived feature branches named using a predictable convention, for example `feature/<short-description>` or `fix/<short-description>`
-* Releases: tagged using semantic versioning (`MAJOR.MINOR.PATCH`)
-
-Release specific branching, hotfix flows, and environment promotion rules should be documented in a separate Versioning and Branching Policy document when applicable.
-
-## Coding standards and file headers
-
-This project adheres to the coding conventions and header rules defined in MokoStandards. At a minimum:
-
-* All source and configuration files must include the standard SPDX compatible header where applicable.
-* Language specific style guides (for example PHP, JavaScript, Python) must be followed.
-* INI files must use `;` for comments.
-* CSS files must begin with `@charset "utf-8";`.
-* JSON files must not include license headers, but must remain valid JSON.
-
-Where a project introduces additional conventions, they should reference MokoStandards and document only the incremental rules.
-
-## Commit message guidelines
-
-Commit messages are part of the project audit trail. They should be structured and descriptive.
-
-Recommended format:
-
-* Short subject line in the imperative mood, for example `Add`, `Fix`, `Refactor`
-* Optional body that explains the rationale, constraints, and side effects
-* Reference to related issues using `Fixes #<id>` or `Refs #<id>` as appropriate
-
-Avoid bundling unrelated changes into a single commit. Small, logically grouped commits improve traceability and rollback options.
-
-## Testing expectations
-
-Before opening a PR, contributors are expected to:
-
-* Run all available automated tests (unit, integration, and other configured checks)
-* Ensure linting and static analysis pass without new violations
-* Confirm that documentation builds or site generation steps complete successfully, where applicable
-
-For new features or non trivial fixes, please include tests that:
-
-* Reproduce the defect, or
-* Demonstrate the new behavior
-
-If tests are not included, the PR should clearly state why (for example, infrastructure limitations, complex external dependencies, or pure documentation changes).
-
-## Documentation contributions
-
-Documentation is a first class asset in this ecosystem.
-
-When contributing documentation:
-
-* Align with the established docs hierarchy (for example `docs/` and `docs-extended/` where used)
-* Apply the shared template structure for new documents
-* Include appropriate navigation, metadata, and revision history sections when required by the documentation standards
-
-Minor corrections such as typo fixes are welcome, but larger structural changes should be coordinated via an issue or design note first.
-
-## Security and responsible disclosure
-
-Security sensitive issues must not be reported in public issues.
-
-If this repository defines a security contact channel (for example `SECURITY.md` or a dedicated email address), use that channel to share details.
-
-Provide enough information for maintainers to reproduce and understand the impact. The team will coordinate fixes and disclosure timelines as appropriate.
-
-## License and contributor agreement
-
-Unless stated otherwise, contributions to this repository are accepted under the same license as the project, typically GPL 3.0 or later.
-
-By submitting a contribution, you confirm that:
-
-* You have the right to contribute the code or content.
-* You agree that your contribution will be licensed under the project license.
-* You will not submit content that infringes third party rights.
-
-If the project later adopts a formal contributor license agreement (CLA) or additional terms, those requirements will be documented in [GOVERNANCE.md](docs/policy/GOVERNANCE.md) or a dedicated `CLA` reference file.
-
-## Escalation and decision making
-
-If you disagree with a review decision or prioritization decision:
-
-1. Engage constructively in the PR discussion and request clarification.
-2. Reference any relevant governance rules or design records.
-3. Where needed, request maintainer arbitration as documented in [GOVERNANCE.md](docs/policy/GOVERNANCE.md).
-
-The objective is to maintain a collaborative, predictable contribution environment that supports long term maintainability and stakeholder trust.
+```bash
+# Run validation scripts
+python scripts/validate/validate_file_headers.py .
+python scripts/validate/validate_workflows.py .github/workflows/
+
+# Run tests
+python -m pytest scripts/tests/ -v
+```
+
+## Code Standards
+
+### Python Standards (Primary Language)
+
+MokoStandards v2 uses **Python as the primary automation language**. All new scripts must be written in Python following these standards.
+
+#### File Structure
+
+```python
+#!/usr/bin/env python3
+"""
+Brief one-line description.
+
+Detailed description of what this script does and why it exists.
+Multiple paragraphs are allowed.
+
+Usage:
+    python script_name.py [options] arguments
+
+Examples:
+    python script_name.py --input file.txt
+    python script_name.py --verbose --output result.json
+
+Requirements:
+    Python 3.9+
+    Optional: list external dependencies
+"""
+
+import argparse
+import sys
+from pathlib import Path
+from typing import List, Optional, Dict, Tuple
+
+# Constants
+DEFAULT_VALUE: str = "value"
+MAX_RETRIES: int = 3
+
+
+def main() -> int:
+    """Main entry point."""
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+```
+
+#### Type Hints (REQUIRED - 100% Coverage)
+
+**All function signatures MUST include complete type hints:**
+
+```python
+from typing import Dict, List, Optional, Tuple, Union
+
+# ✅ Correct: Full type hints
+def process_files(
+    paths: List[str],
+    output_dir: str,
+    verbose: bool = False
+) -> Tuple[int, List[str]]:
+    """Process multiple files and return count and errors."""
+    errors: List[str] = []
+    count: int = 0
+    
+    for path in paths:
+        count += 1
+    
+    return count, errors
+
+# ✅ Correct: Optional return type
+def get_config(name: str) -> Optional[Dict[str, str]]:
+    """Get configuration by name, returns None if not found."""
+    if name == "default":
+        return {"key": "value"}
+    return None
+
+# ❌ Incorrect: Missing type hints
+def process_files(paths, output_dir, verbose=False):
+    pass
+```
+
+#### Google-Style Docstrings (REQUIRED)
+
+**All public functions, classes, and methods MUST have Google-style docstrings:**
+
+```python
+def sync_file_to_project(
+    file_path: str,
+    project_number: int = 7,
+    is_folder: bool = False
+) -> bool:
+    """
+    Sync a file or folder to GitHub Project.
+    
+    This function synchronizes documentation files or folders to a GitHub
+    Project board for tracking purposes. It validates the path, checks
+    permissions, and updates the project board via GitHub API.
+    
+    Args:
+        file_path: Path to file or folder to sync (relative or absolute)
+        project_number: GitHub Project number (default: 7)
+        is_folder: Whether path is a folder (default: False)
+    
+    Returns:
+        True if sync successful, False otherwise
+    
+    Raises:
+        ValueError: If file_path is invalid or inaccessible
+        RuntimeError: If GitHub API call fails
+        PermissionError: If insufficient permissions for file
+    
+    Examples:
+        >>> sync_file_to_project("docs/policy/new.md")
+        True
+        >>> sync_file_to_project("docs/guide/", is_folder=True)
+        True
+    
+    Note:
+        Requires GITHUB_TOKEN environment variable to be set.
+    """
+    pass
+```
+
+**Docstring Sections**:
+- **Brief**: One-line summary (first line)
+- **Description**: Detailed explanation (optional, after blank line)
+- **Args**: All parameters with types and descriptions
+- **Returns**: Return value description and type
+- **Raises**: All exceptions that may be raised
+- **Examples**: Usage examples (optional but recommended)
+- **Note/Warning**: Important information (optional)
+
+#### Naming Conventions
+
+**Files**: `snake_case`
+```python
+validate_file_headers.py
+sync_file_to_project.py
+repository_health.py
+```
+
+**Functions**: `snake_case`, verb-noun pattern
+```python
+def create_issue() -> None:
+def update_project(project_id: int) -> bool:
+def get_file_content(path: str) -> str:
+```
+
+**Classes**: `PascalCase`, noun phrases
+```python
+class ProjectManager:
+class GitHubClient:
+class DocumentParser:
+```
+
+**Constants**: `UPPER_SNAKE_CASE`
+```python
+DEFAULT_PROJECT_NUMBER: int = 7
+MAX_RETRIES: int = 3
+API_TIMEOUT: float = 30.0
+```
+
+**Variables**: `snake_case`, descriptive
+```python
+file_path: str = "docs/policy.md"
+issue_count: int = 0
+is_valid: bool = True
+has_permission: bool = False
+```
+
+#### Error Handling
+
+```python
+import sys
+from pathlib import Path
+from typing import Optional
+
+def load_file(path: str) -> Optional[str]:
+    """
+    Load file contents with comprehensive error handling.
+    
+    Args:
+        path: Path to file
+    
+    Returns:
+        File contents as string, or None on error
+    
+    Raises:
+        FileNotFoundError: If file does not exist
+        PermissionError: If insufficient permissions
+        UnicodeDecodeError: If file encoding is invalid
+    """
+    file_path = Path(path)
+    
+    if not file_path.exists():
+        print(f"Error: File not found: {path}", file=sys.stderr)
+        raise FileNotFoundError(f"File not found: {path}")
+    
+    try:
+        return file_path.read_text(encoding="utf-8")
+    except PermissionError as e:
+        print(f"Error: Permission denied: {path}", file=sys.stderr)
+        raise
+    except UnicodeDecodeError as e:
+        print(f"Error: Invalid UTF-8 encoding: {path}", file=sys.stderr)
+        raise
+
+# Exit codes for scripts
+def main() -> int:
+    """Main entry point with proper exit codes."""
+    try:
+        content = load_file("example.txt")
+        print(content)
+        return 0  # Success
+    except Exception as e:
+        print(f"Fatal error: {e}", file=sys.stderr)
+        return 1  # Failure
+```
+
+#### Command-Line Arguments
+
+**Use `argparse` for all CLI scripts:**
+
+```python
+import argparse
+from typing import Optional
+
+def parse_arguments() -> argparse.Namespace:
+    """
+    Parse command-line arguments.
+    
+    Returns:
+        Parsed arguments namespace
+    """
+    parser = argparse.ArgumentParser(
+        description="Sync documentation to GitHub Project",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  %(prog)s docs/policy/new.md
+  %(prog)s docs/guide/ --folder
+  %(prog)s --project 8 --verbose docs/adr/
+        """
+    )
+    
+    parser.add_argument(
+        "path",
+        help="Path to file or folder to sync"
+    )
+    parser.add_argument(
+        "--project",
+        type=int,
+        default=7,
+        help="Project number (default: %(default)s)"
+    )
+    parser.add_argument(
+        "--folder",
+        action="store_true",
+        help="Treat path as folder"
+    )
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Enable verbose output"
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version="%(prog)s 2.0.0"
+    )
+    
+    return parser.parse_args()
+```
+
+### PowerShell Standards (Windows Support)
+
+**PowerShell scripts are allowed for Windows-specific functionality** but must follow strict standards.
+
+#### File Structure
+
+```powershell
+<#
+.SYNOPSIS
+    Brief one-line description.
+
+.DESCRIPTION
+    Detailed description of what this script does and why it exists.
+    Multiple paragraphs are allowed.
+
+.PARAMETER RepoPath
+    Path to repository root directory.
+
+.PARAMETER Verbose
+    Enable verbose output.
+
+.EXAMPLE
+    .\Update-RepositoryMetadata.ps1 -RepoPath "C:\Projects\MyRepo"
+    
+    Updates metadata for repository at specified path.
+
+.EXAMPLE
+    .\Update-RepositoryMetadata.ps1 -RepoPath "C:\Projects\MyRepo" -Verbose
+    
+    Updates metadata with verbose output enabled.
+
+.NOTES
+    File Name      : Update-RepositoryMetadata.ps1
+    Prerequisite   : PowerShell 5.1+
+    Copyright      : 2026 Moko Consulting
+    License        : GPL-3.0-or-later
+
+.LINK
+    https://github.com/mokoconsulting-tech/MokoStandards
+#>
+
+[CmdletBinding()]
+param (
+    [Parameter(Mandatory = $true)]
+    [ValidateScript({Test-Path $_})]
+    [string]$RepoPath,
+    
+    [Parameter(Mandatory = $false)]
+    [switch]$Verbose
+)
+
+# Strict mode
+Set-StrictMode -Version Latest
+$ErrorActionPreference = "Stop"
+
+# Main logic here
+```
+
+#### PowerShell Naming Conventions
+
+**Functions**: `Verb-Noun` (PascalCase)
+```powershell
+function Update-RepositoryMetadata { }
+function Get-FileContent { }
+function Test-ValidationRules { }
+```
+
+**Variables**: `$PascalCase`
+```powershell
+$RepoPath = "C:\Projects\MyRepo"
+$FileCount = 0
+$IsValid = $true
+```
+
+### File Headers (REQUIRED)
+
+**All files MUST include proper copyright headers:**
+
+#### Python Files
+
+```python
+#!/usr/bin/env python3
+"""
+Brief description.
+
+Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+
+This file is part of a Moko Consulting project.
+
+SPDX-License-Identifier: GPL-3.0-or-later
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program (./LICENSE).
+
+FILE INFORMATION
+DEFGROUP: MokoStandards.Scripts
+INGROUP: MokoStandards.Automation
+REPO: https://github.com/mokoconsulting-tech/MokoStandards
+PATH: /scripts/category/script_name.py
+VERSION: 02.00.00
+BRIEF: Brief description of purpose
+"""
+```
+
+#### Markdown Files
+
+```markdown
+<!--
+ Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+
+ This file is part of a Moko Consulting project.
+
+ SPDX-License-Identifier: GPL-3.0-or-later
+
+ [Full license text...]
+
+ # FILE INFORMATION
+ DEFGROUP: MokoStandards.Documentation
+ INGROUP: MokoStandards
+ REPO: https://github.com/mokoconsulting-tech/MokoStandards
+ PATH: /path/to/file.md
+ VERSION: 02.00.00
+ BRIEF: Brief description
+-->
+
+# Document Title
+```
+
+### Code Quality Tools
+
+**Run before committing:**
+
+```bash
+# Python syntax check
+python -m py_compile scripts/**/*.py
+
+# Type checking (if mypy configured)
+mypy scripts/
+
+# Linting (if configured)
+pylint scripts/**/*.py
+flake8 scripts/
+
+# Format checking (if Black configured)
+black --check scripts/
+```
+
+## Testing Guidelines
+
+### Unit Tests (Required for Complex Logic)
+
+**Location**: `scripts/tests/`
+
+**Framework**: `unittest` or `pytest`
+
+```python
+# In scripts/tests/test_my_script.py
+import unittest
+from pathlib import Path
+from scripts.automation.my_script import process_file, validate_path
+
+
+class TestProcessFile(unittest.TestCase):
+    """Test process_file function."""
+    
+    def setUp(self) -> None:
+        """Set up test fixtures."""
+        self.test_dir = Path("tests/fixtures")
+        self.test_file = self.test_dir / "test.txt"
+    
+    def test_process_valid_file(self) -> None:
+        """Test processing valid file."""
+        result = process_file(str(self.test_file))
+        self.assertTrue(result)
+    
+    def test_process_invalid_file(self) -> None:
+        """Test processing non-existent file."""
+        with self.assertRaises(FileNotFoundError):
+            process_file("nonexistent.txt")
+    
+    def test_process_with_invalid_encoding(self) -> None:
+        """Test processing file with invalid encoding."""
+        invalid_file = self.test_dir / "invalid_encoding.txt"
+        with self.assertRaises(UnicodeDecodeError):
+            process_file(str(invalid_file))
+
+
+if __name__ == "__main__":
+    unittest.main()
+```
+
+### Manual Testing Checklist
+
+Before submitting PR:
+
+- [ ] Test with valid inputs
+- [ ] Test with invalid inputs
+- [ ] Test with missing arguments
+- [ ] Test `--help` output
+- [ ] Test error messages are clear
+- [ ] Test in clean environment (new terminal)
+- [ ] Test on different platforms (if applicable)
+
+### Running Tests
+
+```bash
+# Run all tests
+python -m pytest scripts/tests/ -v
+
+# Run specific test file
+python -m pytest scripts/tests/test_my_script.py -v
+
+# Run with coverage
+python -m pytest scripts/tests/ --cov=scripts --cov-report=html
+
+# Run single test function
+python -m pytest scripts/tests/test_my_script.py::TestProcessFile::test_process_valid_file
+```
+
+## Pull Request Process
+
+### 1. Before Creating PR
+
+```bash
+# Ensure branch is up to date
+git fetch upstream
+git rebase upstream/main
+
+# Run validation
+python scripts/validate/validate_file_headers.py .
+python -m pytest scripts/tests/
+
+# Commit changes
+git add .
+git commit -m "Add: Clear description of changes"
+git push origin feature/your-feature
+```
+
+### 2. Creating the PR
+
+**Use the Pull Request template:**
+
+```markdown
+## Description
+Clear and concise description of changes.
+
+## Related Issues
+Fixes #123
+Relates to #456
+
+## Type of Change
+- [ ] Bug fix (non-breaking change fixing an issue)
+- [ ] New feature (non-breaking change adding functionality)
+- [ ] Breaking change (fix or feature causing existing functionality to change)
+- [ ] Documentation update
+
+## Testing Performed
+- [ ] Unit tests added/updated
+- [ ] Manual testing completed
+- [ ] All tests passing locally
+
+## Checklist
+- [ ] Code follows v2 standards (100% type hints, Google docstrings)
+- [ ] File headers updated
+- [ ] Documentation updated
+- [ ] Tests added/updated
+- [ ] No breaking changes (or documented)
+- [ ] Self-review completed
+```
+
+### 3. PR Requirements
+
+**All PRs must**:
+- Pass automated CI/CD checks
+- Include tests for new functionality
+- Update documentation
+- Follow code standards
+- Have clear commit messages
+- Reference related issues
+
+### 4. Review Process
+
+**Timeline**:
+- Initial review: 2-3 business days
+- Follow-up reviews: 1-2 business days
+- Final approval: 1 business day
+
+**Addressing Feedback**:
+```bash
+# Make requested changes
+git add .
+git commit -m "Fix: Address review feedback"
+git push origin feature/your-feature
+
+# If major changes, run tests again
+python -m pytest scripts/tests/ -v
+```
+
+### 5. Merge Strategy
+
+MokoStandards uses **squash merge** exclusively:
+
+- PR title becomes commit message subject
+- PR description becomes commit message body
+- All commits squashed into single commit
+- Branch automatically deleted after merge
+
+**Make your PR title and description clear and descriptive!**
+
+## Issue Guidelines
+
+### Reporting Bugs
+
+**Use the Bug Report template:**
+
+```markdown
+**Describe the bug**
+Clear and concise description.
+
+**To Reproduce**
+Steps to reproduce:
+1. Go to '...'
+2. Run command '....'
+3. See error
+
+**Expected behavior**
+What should happen.
+
+**Actual behavior**
+What actually happens.
+
+**Environment**
+- OS: [e.g., Ubuntu 22.04, Windows 11, macOS 14]
+- Python version: [e.g., 3.9.7]
+- MokoStandards version: [e.g., 2.0.0]
+
+**Logs/Screenshots**
+Attach relevant logs or screenshots (remove sensitive data).
+
+**Additional context**
+Any other relevant information.
+```
+
+### Requesting Features
+
+**Use the Feature Request template:**
+
+```markdown
+**Is your feature request related to a problem?**
+Clear description of the problem.
+
+**Describe the solution you'd like**
+Clear and concise description of desired solution.
+
+**Describe alternatives you've considered**
+Alternative solutions or features considered.
+
+**Use cases**
+Describe how this feature would be used.
+
+**Additional context**
+Any other relevant information.
+```
+
+### Asking Questions
+
+**Use GitHub Discussions** for:
+- General questions
+- Design discussions
+- Usage help
+- Community engagement
+
+**Use GitHub Issues** for:
+- Bug reports
+- Feature requests
+- Specific problems
+
+## Code Review Process
+
+### For Contributors
+
+**Before requesting review**:
+- [ ] Self-review completed
+- [ ] All tests passing
+- [ ] Documentation updated
+- [ ] Code follows standards
+- [ ] No debug code or comments
+
+**During review**:
+- Respond to feedback promptly
+- Ask questions if unclear
+- Make requested changes
+- Push updates to same branch
+
+### For Reviewers
+
+**Review checklist**:
+- [ ] Code follows v2 standards
+- [ ] 100% type hints present
+- [ ] Google docstrings complete
+- [ ] File headers correct
+- [ ] Tests adequate
+- [ ] Documentation updated
+- [ ] No security issues
+- [ ] No hardcoded credentials
+- [ ] Error handling proper
+- [ ] Performance acceptable
+
+**Providing feedback**:
+- Be constructive and respectful
+- Explain reasoning
+- Suggest improvements
+- Approve when ready
+
+## Documentation Standards
+
+### Documentation Files
+
+**All documentation must**:
+- Include proper file header
+- Use clear, concise language
+- Follow markdown conventions
+- Include table of contents (if long)
+- Have examples where appropriate
+- Be spell-checked
+
+### Markdown Style
+
+```markdown
+# H1 - Main Title (One per document)
+
+## H2 - Major Sections
+
+### H3 - Subsections
+
+#### H4 - Minor Subsections
+
+**Bold** for emphasis
+*Italic* for subtle emphasis
+`code` for inline code
+```
+
+### Code Examples
+
+````markdown
+```python
+# Include language identifier
+def example_function(param: str) -> bool:
+    """Example with full type hints and docstring."""
+    return True
+```
+
+```bash
+# Shell commands
+python script.py --help
+```
+````
+
+### Links
+
+```markdown
+# Relative links to internal docs
+[Contributing Guide](./CONTRIBUTING.md)
+[Policy](docs/policy/scripting-standards.md)
+
+# External links
+[Python Documentation](https://docs.python.org/3/)
+```
+
+## Version Numbering
+
+MokoStandards v2 uses **semantic versioning** with format: `vXX.YY.ZZ`
+
+### Version Format
+
+```
+v02.03.04
+  │  │  │
+  │  │  └─ Patch (bug fixes, typos)
+  │  └──── Minor (new features, non-breaking)
+  └─────── Major (breaking changes)
+```
+
+### Examples
+
+- `v02.00.00` - Major v2 release (breaking changes from v1)
+- `v02.01.00` - Minor update (new features, backward compatible)
+- `v02.01.01` - Patch release (bug fixes only)
+
+### File Version Headers
+
+In file headers, use format: `VERSION: 02.00.00` (no 'v' prefix)
+
+```python
+# FILE INFORMATION
+VERSION: 02.00.00
+```
+
+### Changelog
+
+All changes documented in [CHANGELOG.md](./CHANGELOG.md) following [Keep a Changelog](https://keepachangelog.com/) format:
+
+```markdown
+## [02.01.00] - 2026-01-20
+
+### Added
+- New validation script for workflows
+
+### Changed
+- Updated documentation structure
+
+### Fixed
+- Bug in file header validation
+```
+
+## Questions and Support
+
+### Getting Help
+
+**Documentation**:
+- [README.md](./README.md) - Overview and quick start
+- [docs/](./docs/) - Complete documentation
+- [scripts/README.md](./scripts/README.md) - Scripts documentation
+
+**Community**:
+- [GitHub Discussions](https://github.com/mokoconsulting-tech/MokoStandards/discussions) - Q&A and discussions
+- [GitHub Issues](https://github.com/mokoconsulting-tech/MokoStandards/issues) - Bug reports and features
+
+**Contact**:
+- General: hello@mokoconsulting.tech
+- Security: security@mokoconsulting.tech
+
+### Common Questions
+
+**Q: Do I need to update all existing code to v2 standards?**
+A: Only update code you're modifying. Don't refactor just for standards unless explicitly requested.
+
+**Q: What if I can't add type hints to my function?**
+A: Type hints are required. If truly impossible, document why in docstring and request exception from maintainers.
+
+**Q: Can I use Shell/Bash scripts?**
+A: No. All new scripts must be Python. Existing grandfathered scripts can remain but shouldn't be extended.
+
+**Q: How do I run validation locally?**
+A: `python scripts/validate/validate_file_headers.py .`
+
+**Q: How long do PR reviews take?**
+A: Initial review within 2-3 business days. Complex PRs may take longer.
+
+**Q: Can I work on multiple issues in one PR?**
+A: Prefer one issue per PR. Multiple related issues are acceptable if they're tightly coupled.
+
+## License
+
+By contributing to MokoStandards, you agree that your contributions will be licensed under the **GNU General Public License v3.0 or later** (GPL-3.0-or-later).
+
+See [LICENSE](./LICENSE) for full license text.
+
+---
+
+## Metadata
+
+- **Document**: CONTRIBUTING.md
+- **Version**: 02.00.00
+- **Last Updated**: 2026-01-19
+- **Scope**: Contribution guidelines for v2.0
+- **Audience**: Contributors, maintainers, community
+
+## Revision History
+
+| Version | Date | Author | Notes |
+|---------|------|--------|-------|
+| 01.00.00 | 2025-12-17 | Moko Consulting | Initial contribution guidelines |
+| 02.00.00 | 2026-01-19 | GitHub Copilot | Complete v2.0 rebuild with Python/PowerShell standards, type hints, Google docstrings |
+
+---
+
+**Thank you for contributing to MokoStandards v2.0!**
+
+Your contributions help maintain consistent, secure, and maintainable standards across the entire Moko Consulting ecosystem.

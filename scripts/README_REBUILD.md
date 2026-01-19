@@ -143,22 +143,23 @@ All files include:
 
 ## Migration
 
-### Backward Compatibility
-- v1 scripts remain functional
-- No breaking CLI changes
-- Deprecation warnings for old patterns
-- Migration guide provided
+### Breaking Changes
+- v2 is a complete rewrite - not backward compatible
+- Scripts require Python 3.8+
+- New CLI interfaces follow modern standards
+- Configuration format updated to YAML-first
 
 ### For Users
-- Existing workflows continue working
-- New features opt-in via flags
-- Clear upgrade documentation
+- Review migration guide before upgrading
+- Update automation scripts to use new CLI
+- Update configuration files to new format
+- Test thoroughly before production deployment
 
 ### For Contributors
-- Update imports to new modules
-- Follow new standards
-- Add type hints
-- Write tests
+- Follow new coding standards from day 1
+- All new code requires type hints
+- Google-style docstrings mandatory
+- Unit tests required for all new functionality
 
 ## Quality Gates
 

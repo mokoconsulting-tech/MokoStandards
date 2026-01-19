@@ -320,8 +320,8 @@ pip install -r requirements-dev.txt  # Development
 ## Maintenance
 
 ### Version Numbering
-- Major: Breaking changes
-- Minor: New features, backward compatible
+- Major: Breaking changes (expected in v2 rebuild)
+- Minor: New features
 - Patch: Bug fixes
 
 ### Changelog

@@ -278,38 +278,41 @@ Each rebuilt module must meet:
 ## Migration Path
 
 ### For Users
-1. No breaking changes to CLI interfaces
-2. New features opt-in via flags
-3. Deprecation warnings for old patterns
-4. Migration guide in documentation
+1. **Breaking Changes**: v2 is a complete rewrite
+2. **Python 3.8+**: Required minimum version
+3. **New Configuration**: YAML-first configuration format
+4. **CLI Updates**: Modern argument parsing and help
+5. **Migration Guide**: Detailed guide in documentation
 
 ### For Contributors
-1. Update imports to use new modules
-2. Follow new coding standards
-3. Use type hints
-4. Add tests for new code
+1. Update imports to use new v2 modules
+2. Follow new coding standards (100% type hints, Google docstrings)
+3. Add unit tests for all new functionality
+4. Use new error handling patterns
 
 ## Risk Mitigation
 
 ### Risks
-1. **Breaking Changes**: May break existing integrations
+1. **Breaking Changes**: v2 will break existing integrations (expected)
 2. **Time**: Large scope may take longer than estimated
-3. **Testing**: May miss edge cases
-4. **Performance**: New code may have regressions
+3. **Testing**: May miss edge cases in new implementations
+4. **Performance**: Initial implementations may need optimization
 
 ### Mitigations
-1. **Backward Compatibility**: Maintain v1 interfaces where possible
-2. **Incremental**: Deploy in phases, test each phase
-3. **Automated Testing**: Comprehensive test suite
-4. **Performance Testing**: Benchmark before/after
+1. **Clean Break**: v2 is separate, v1 remains in git history
+2. **Incremental**: Deploy in phases, test each phase thoroughly
+3. **Automated Testing**: Comprehensive test suite required
+4. **Performance Testing**: Benchmark all critical operations
+5. **Migration Guide**: Detailed documentation for upgrading
 
 ## Rollback Plan
 
 If critical issues arise:
-1. Keep v1 scripts alongside v2
-2. Use feature flags to switch between versions
-3. Workflow changes deployed to test repos first
-4. Easy rollback via git revert
+1. v1 scripts remain available in git history (tag: v1-final)
+2. Can checkout v1 files individually if needed
+3. v2 changes deployed to test repositories first
+4. Production deployments only after thorough validation
+5. Clear versioning in file headers (v01.x.x vs v02.x.x)
 
 ## Timeline
 

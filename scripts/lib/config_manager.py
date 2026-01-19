@@ -36,7 +36,7 @@ This module provides centralized configuration management with:
 - Schema validation
 - In-memory caching for performance
 - Type-safe configuration access
-- Sensible defaults with backward compatibility
+- Sensible defaults
 
 Example:
     Basic usage:

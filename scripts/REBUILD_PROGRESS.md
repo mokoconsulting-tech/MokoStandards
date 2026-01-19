@@ -160,7 +160,7 @@ Beginning systematic rebuild following dependency order.
 
 - Rebuilding 59 files (~14,000 LOC) is a multi-day effort
 - Following phase-based approach per REBUILD_STRATEGY.md
-- Maintaining backward compatibility where possible
+- v2 is a clean break - not backward compatible
 - Each rebuild includes: type hints, docstrings, error handling, tests
 
 ## Status Legend

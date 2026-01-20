@@ -415,7 +415,18 @@ jobs:
           
           # Download validation script from MokoStandards
           SCRIPT_URL="https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/scripts/validate/validate_codeql_config.py"
+          EXPECTED_SHA256="3c07f9e7ba50a51718dfb548d1105770a369cb0e1ece46d8e1f1765ad7bb09c9"
+          
           curl -sSL "$SCRIPT_URL" -o /tmp/validate_codeql_config.py
+          
+          # Verify SHA-256 hash
+          ACTUAL_SHA256=$(sha256sum /tmp/validate_codeql_config.py | cut -d' ' -f1)
+          if [ "$ACTUAL_SHA256" != "$EXPECTED_SHA256" ]; then
+            echo "❌ SHA-256 verification failed for downloaded script" >> $GITHUB_STEP_SUMMARY
+            echo "Expected: $EXPECTED_SHA256" >> $GITHUB_STEP_SUMMARY
+            echo "Actual: $ACTUAL_SHA256" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
           
           # Run validation
           if python3 /tmp/validate_codeql_config.py > /tmp/codeql_validation.txt 2>&1; then

@@ -111,16 +111,16 @@ jobs:
       
       - name: Install Dependencies
         if: hashFiles('composer.json') != ''
-        run: composer install --prefer-dist --no-progress --no-suggest
+        run: composer install --prefer-dist --no-progress
       
       - name: PHP_CodeSniffer
         run: |
           echo "### PHP_CodeSniffer Results" >> $GITHUB_STEP_SUMMARY
           if [ -f "phpcs.xml" ] || [ -f "phpcs.xml.dist" ]; then
-            phpcs --standard=phpcs.xml --report=summary --report-width=120 || echo "⚠️ PHPCS found issues" >> $GITHUB_STEP_SUMMARY
+            phpcs --standard=phpcs.xml --report=summary --report-width=120 || true
           else
             echo "ℹ️ No phpcs.xml configuration found, using PSR12" >> $GITHUB_STEP_SUMMARY
-            phpcs --standard=PSR12 --report=summary --report-width=120 . || echo "⚠️ PHPCS found issues" >> $GITHUB_STEP_SUMMARY
+            phpcs --standard=PSR12 --report=summary --report-width=120 . || true
           fi
       
       - name: PHPStan
@@ -156,7 +156,12 @@ jobs:
       
       - name: Install Dependencies
         if: hashFiles('package.json') != ''
-        run: npm ci || npm install
+        run: |
+          if [ -f "package-lock.json" ]; then
+            npm ci
+          else
+            npm install
+          fi
       
       - name: ESLint
         run: |
@@ -232,7 +237,12 @@ jobs:
         run: |
           echo "### Pylint Results" >> $GITHUB_STEP_SUMMARY
           if [ -f ".pylintrc" ] || [ -f "pylintrc" ]; then
-            pylint **/*.py || echo "⚠️ Pylint found issues" >> $GITHUB_STEP_SUMMARY
+            PY_FILES=$(find . -type f -name "*.py")
+            if [ -n "$PY_FILES" ]; then
+              pylint $PY_FILES || echo "⚠️ Pylint found issues" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "ℹ️ No Python files found, skipping" >> $GITHUB_STEP_SUMMARY
+            fi
           else
             echo "ℹ️ No pylintrc configuration found, skipping" >> $GITHUB_STEP_SUMMARY
           fi

@@ -53,8 +53,8 @@ good-names=i,j,k,ex,Run,_,id,pk
 variable-rgx=[a-z_][a-z0-9_]{0,30}$
 const-rgx=(([A-Z_][A-Z0-9_]*)|(__.*__))$
 class-rgx=[A-Z_][a-zA-Z0-9]+$
-function-rgx=[a-z_][a-z0-9_]{1,49}$
-method-rgx=[a-z_][a-z0-9_]{1,49}$
+function-rgx=[a-z_][a-z0-9_]{0,49}$
+method-rgx=[a-z_][a-z0-9_]{0,49}$
 
 [FORMAT]
 # Maximum number of characters on a single line

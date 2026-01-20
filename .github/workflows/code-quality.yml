@@ -237,9 +237,10 @@ jobs:
         run: |
           echo "### Pylint Results" >> $GITHUB_STEP_SUMMARY
           if [ -f ".pylintrc" ] || [ -f "pylintrc" ]; then
-            PY_FILES=$(find . -type f -name "*.py")
-            if [ -n "$PY_FILES" ]; then
-              pylint $PY_FILES || echo "⚠️ Pylint found issues" >> $GITHUB_STEP_SUMMARY
+            # Use array to handle files with spaces
+            mapfile -t PY_FILES < <(find . -type f -name "*.py")
+            if [ ${#PY_FILES[@]} -gt 0 ]; then
+              pylint "${PY_FILES[@]}" || echo "⚠️ Pylint found issues" >> $GITHUB_STEP_SUMMARY
             else
               echo "ℹ️ No Python files found, skipping" >> $GITHUB_STEP_SUMMARY
             fi

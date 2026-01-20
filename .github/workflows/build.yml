@@ -60,7 +60,7 @@ jobs:
     
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       
       - name: Detect Project Type
         id: detect
@@ -112,7 +112,7 @@ jobs:
     
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       
       - name: Setup PHP
         uses: shivammathur/setup-php@v2

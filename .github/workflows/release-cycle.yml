@@ -102,7 +102,7 @@ jobs:
     
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: main
@@ -154,7 +154,7 @@ jobs:
           fi
           
           # Commit changes if any
-          if ! git diff --staged --quiet; then
+          if ! git diff-index --quiet HEAD --; then
             git commit -m "chore: bump version to $VERSION"
             git push origin "dev/$VERSION"
             echo "✅ Version files updated and committed" >> $GITHUB_STEP_SUMMARY
@@ -168,7 +168,7 @@ jobs:
     
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: dev/${{ needs.validate-version.outputs.version }}
@@ -218,7 +218,7 @@ jobs:
     
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: rc/${{ needs.validate-version.outputs.version }}
@@ -317,7 +317,7 @@ jobs:
     
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: main

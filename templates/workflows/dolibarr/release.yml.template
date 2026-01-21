@@ -230,10 +230,10 @@ jobs:
               PRERELEASE="false"
             fi
           elif [[ "${{ github.ref }}" == refs/heads/rc/* ]]; then
-            VERSION=$(grep -oP 'VERSION:\s*\K[\d.]+' README.md || echo "0.0.0")
+            VERSION=$(grep -oP 'VERSION:\s*\K[^\s]+' README.md || echo "0.0.0")
             PRERELEASE="true"
           else
-            VERSION=$(grep -oP 'VERSION:\s*\K[\d.]+' README.md || echo "0.0.0")
+            VERSION=$(grep -oP 'VERSION:\s*\K[^\s]+' README.md || echo "0.0.0")
             PRERELEASE="false"
           fi
           echo "version=${VERSION}" >> $GITHUB_OUTPUT

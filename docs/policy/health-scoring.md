@@ -98,7 +98,7 @@ Repositories are categorized into four health levels based on their total score:
 
 **Automated Check**: Workflow file presence and syntax validation
 **Manual Override**: Equivalent workflows may substitute
-**Remediation**: Copy workflows from MokoStandards `templates/workflows/` or `.github/workflow-templates/`
+**Remediation**: Copy workflows from MokoStandards `templates/workflows/`
 
 ### 5. Issue Templates (5 points)
 

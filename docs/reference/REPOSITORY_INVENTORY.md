@@ -98,7 +98,7 @@ Repositories are classified by their relationship to MokoStandards:
 
 ## Workflow Templates
 
-MokoStandards provides reusable GitHub Actions workflow templates in `.github/workflow-templates/` that all organization repositories should adopt. These templates ensure consistent CI/CD, security scanning, and compliance validation across the ecosystem.
+MokoStandards provides reusable GitHub Actions workflow templates in `templates/workflows/` that all organization repositories should adopt. These templates ensure consistent CI/CD, security scanning, and compliance validation across the ecosystem.
 
 ### Available Workflow Templates
 
@@ -124,7 +124,7 @@ MokoStandards provides reusable GitHub Actions workflow templates in `.github/wo
 
 **Usage**:
 ```bash
-cp .github/workflow-templates/build-universal.yml .github/workflows/build.yml
+cp templates/workflows/build-universal.yml.template .github/workflows/build.yml
 ```
 
 **Triggers**: Push to main/dev branches, pull requests, manual dispatch
@@ -140,7 +140,7 @@ cp .github/workflow-templates/build-universal.yml .github/workflows/build.yml
 
 **Usage**:
 ```bash
-cp .github/workflow-templates/codeql-analysis.yml .github/workflows/
+cp templates/workflows/generic/codeql-analysis.yml .github/workflows/
 ```
 
 **Triggers**: Push, pull requests, weekly schedule
@@ -156,7 +156,7 @@ cp .github/workflow-templates/codeql-analysis.yml .github/workflows/
 
 **Usage**:
 ```bash
-cp .github/workflow-templates/dependency-review.yml .github/workflows/
+cp templates/workflows/generic/dependency-review.yml.template .github/workflows/dependency-review.yml
 ```
 
 **Triggers**: Pull requests only
@@ -173,7 +173,7 @@ cp .github/workflow-templates/dependency-review.yml .github/workflows/
 
 **Usage**:
 ```bash
-cp .github/workflow-templates/standards-compliance.yml .github/workflows/
+cp templates/workflows/standards-compliance.yml.template .github/workflows/standards-compliance.yml
 ```
 
 **Triggers**: Pull requests, manual dispatch
@@ -190,7 +190,7 @@ cp .github/workflow-templates/standards-compliance.yml .github/workflows/
 
 **Usage**:
 ```bash
-cp .github/workflow-templates/release-cycle.yml .github/workflows/
+cp templates/workflows/release-cycle-simple.yml.template .github/workflows/release-cycle.yml
 ```
 
 **Triggers**: Manual dispatch with stage selection

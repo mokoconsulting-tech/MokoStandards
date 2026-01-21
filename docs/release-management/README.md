@@ -674,7 +674,7 @@ The `release-cycle.yml` workflow automates:
 - Tag creation
 - Release notes generation
 
-See [Release Cycle Workflow](../../.github/workflow-templates/release-cycle.yml) for details.
+See [Release Cycle Workflow](../../templates/workflows/release-cycle-simple.yml.template) for details.
 
 ### Manual vs Automated
 
@@ -710,7 +710,7 @@ See [Release Cycle Workflow](../../.github/workflow-templates/release-cycle.yml)
 
 ## See Also
 
-- [Release Cycle Workflow](../../.github/workflow-templates/release-cycle.yml)
+- [Release Cycle Workflow](../../templates/workflows/release-cycle-simple.yml.template)
 - [Build System](../build-system/README.md)
 - [Deployment Guidelines](../deployment/README.md)
 - [Project Roadmap](../policy/roadmap.md)

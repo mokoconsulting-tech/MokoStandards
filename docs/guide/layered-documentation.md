@@ -521,9 +521,9 @@ git commit -m "Add generic repository required structure"
 ```bash
 # Add GitHub workflows (high priority suggested)
 mkdir -p .github/workflows
-cp /path/to/MokoStandards/.github/workflow-templates/build-universal.yml .github/workflows/
-cp /path/to/MokoStandards/.github/workflow-templates/codeql-analysis.yml .github/workflows/
-cp /path/to/MokoStandards/.github/workflow-templates/dependency-review.yml .github/workflows/
+cp /path/to/MokoStandards/templates/workflows/build-universal.yml.template .github/workflows/build.yml
+cp /path/to/MokoStandards/templates/workflows/generic/codeql-analysis.yml .github/workflows/
+cp /path/to/MokoStandards/templates/workflows/generic/dependency-review.yml.template .github/workflows/dependency-review.yml
 
 git add .github/
 git commit -m "Add GitHub workflows (Layer 2 suggested)"

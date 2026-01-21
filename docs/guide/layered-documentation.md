@@ -254,20 +254,20 @@ These directories are **REQUIRED** for all repositories regardless of type:
 
 | File/Directory | Purpose | When to Use |
 |----------------|---------|-------------|
-| **scripts/.mokostandards-sync.yml** | Sync override configuration | Custom sync requirements |
+| **MokoStandards.override.xml** | Sync override configuration | Custom sync requirements |
 | **.github/** | GitHub configuration | Using GitHub Actions or templates |
 
 **Dolibarr Repositories (CRM Modules):**
 
 | File/Directory | Purpose | When to Use |
 |----------------|---------|-------------|
-| **scripts/.mokostandards-sync.yml** | Sync override configuration | Custom sync requirements |
+| **MokoStandards.override.xml** | Sync override configuration | Custom sync requirements |
 
 **Generic Repositories:**
 
 | File/Directory | Purpose | When to Use |
 |----------------|---------|-------------|
-| **scripts/.mokostandards-sync.yml** | Sync override configuration | Custom sync requirements |
+| **MokoStandards.override.xml** | Sync override configuration | Custom sync requirements |
 
 ### Layer 4: Policy Documentation (Context-Specific)
 
@@ -717,7 +717,7 @@ To request a documentation requirement waiver:
 | **Critical (Required)** | README, LICENSE, CHANGELOG, CONTRIBUTING, SECURITY, CODE_OF_CONDUCT, .gitignore, .gitattributes, .editorconfig, docs/, scripts/ | + Makefile, site/*, admin/*, language/, tests/unit/ | + Makefile, src/README, src/core/*, src/langs/, tests/unit/ |
 | **High (Suggested)** | .github/workflows/ | site/views/, admin/views/ | src/sql/, src/class/ |
 | **Medium (Suggested)** | GOVERNANCE, SUPPORT | site/controllers/, admin/controllers/, media/ | src/css/, src/js/, templates/ |
-| **Low (Optional)** | Makefile, src/, tests/ | scripts/.mokostandards-sync.yml | scripts/.mokostandards-sync.yml |
+| **Low (Optional)** | Makefile, src/, tests/, MokoStandards.override.xml | MokoStandards.override.xml | MokoStandards.override.xml |
 
 ### Setup Command Quick Reference
 

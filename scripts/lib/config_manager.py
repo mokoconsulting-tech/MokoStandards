@@ -31,7 +31,7 @@
 """Configuration Manager for MokoStandards Scripts.
 
 This module provides centralized configuration management with:
-- YAML-based configuration files (.mokostandards-sync.yml support)
+- XML-based configuration files (MokoStandards.override.xml support)
 - Environment variable overrides (MOKOSTANDARDS_* prefix)
 - Schema validation
 - In-memory caching for performance
@@ -200,7 +200,7 @@ class AuditConfig:
 
 @dataclass
 class SyncConfig:
-    """Sync configuration for .mokostandards-sync.yml files.
+    """Sync configuration for MokoStandards.override.xml files.
     
     Attributes:
         enabled: Whether sync is enabled.
@@ -277,7 +277,7 @@ class ConfigManager:
     """
     
     DEFAULT_CONFIG_PATH = Path.home() / ".mokostandards" / "config.yaml"
-    SYNC_CONFIG_NAME = ".mokostandards-sync.yml"
+    SYNC_CONFIG_NAME = "MokoStandards.override.xml"
     
     _instance: Optional['ConfigManager'] = None
     _config: Optional[Config] = None
@@ -299,8 +299,8 @@ class ConfigManager:
         
         Priority order:
         1. Explicitly provided path
-        2. .mokostandards-sync.yml in current directory
-        3. .mokostandards-sync.yml walking up directory tree
+        2. MokoStandards.override.xml in current directory
+        3. MokoStandards.override.xml walking up directory tree
         4. Default path (~/.mokostandards/config.yaml)
         
         Args:
@@ -312,7 +312,7 @@ class ConfigManager:
         if config_path is not None:
             return config_path
         
-        # Check for .mokostandards-sync.yml in current and parent directories
+        # Check for MokoStandards.override.xml in current and parent directories
         current_dir = Path.cwd()
         for parent in [current_dir] + list(current_dir.parents):
             sync_config = parent / self.SYNC_CONFIG_NAME

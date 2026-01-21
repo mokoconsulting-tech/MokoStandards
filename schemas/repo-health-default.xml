@@ -501,7 +501,7 @@
           </parameter>
         </parameters>
         <required>true</required>
-        <remediation>Copy flush-actions-cache workflow from MokoStandards .github/workflow-templates/</remediation>
+        <remediation>Copy flush-actions-cache workflow from MokoStandards templates/workflows/</remediation>
       </check>
     </check-group>
 

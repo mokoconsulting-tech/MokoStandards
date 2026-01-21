@@ -33,7 +33,7 @@ Configuration Manager for MokoStandards PowerShell Scripts.
 
 .DESCRIPTION
 This module provides centralized configuration management with:
-- YAML-based configuration files (.mokostandards-sync.yml support)
+- XML-based configuration files (MokoStandards.override.xml support)
 - Environment variable overrides (MOKOSTANDARDS_* prefix)
 - Schema validation
 - In-memory caching for performance
@@ -65,7 +65,7 @@ $script:ValueCache = @{}
 # Default configuration paths
 $homeDir = if ($env:USERPROFILE) { $env:USERPROFILE } elseif ($env:HOME) { $env:HOME } else { "~" }
 $script:DefaultConfigPath = Join-Path $homeDir ".mokostandards" "config.yaml"
-$script:SyncConfigName = ".mokostandards-sync.yml"
+$script:SyncConfigName = "MokoStandards.override.xml"
 
 # ============================================================
 # Configuration Classes
@@ -133,7 +133,7 @@ class AuditConfig {
 class SyncConfig {
     <#
     .SYNOPSIS
-    Sync configuration for .mokostandards-sync.yml files.
+    Sync configuration for MokoStandards.override.xml files.
     #>
     [bool]$Enabled = $true
     [string[]]$ExcludeFiles = @()
@@ -185,8 +185,8 @@ function Resolve-ConfigPath {
     .DESCRIPTION
     Priority order:
     1. Explicitly provided path
-    2. .mokostandards-sync.yml in current directory
-    3. .mokostandards-sync.yml walking up directory tree
+    2. MokoStandards.override.xml in current directory
+    3. MokoStandards.override.xml walking up directory tree
     4. Default path (~/.mokostandards/config.yaml)
     
     .PARAMETER ConfigPath
@@ -205,7 +205,7 @@ function Resolve-ConfigPath {
         return $ConfigPath
     }
 
-    # Check for .mokostandards-sync.yml in current and parent directories
+    # Check for MokoStandards.override.xml in current and parent directories
     $currentDir = Get-Location
     $searchDir = $currentDir.Path
 
@@ -580,7 +580,7 @@ function Get-MokoConfig {
     
     .PARAMETER ConfigPath
     Optional path to configuration file. If not provided, searches for
-    .mokostandards-sync.yml or uses default path.
+    MokoStandards.override.xml or uses default path.
     
     .PARAMETER Force
     Force reload configuration, bypassing cache.

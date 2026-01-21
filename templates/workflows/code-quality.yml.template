@@ -21,7 +21,7 @@
 # DEFGROUP: GitHub.WorkflowTemplate
 # INGROUP: MokoStandards.Quality
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
-# PATH: /.github/workflow-templates/code-quality.yml
+# PATH: /templates/workflows/code-quality.yml.template
 # VERSION: 01.00.00
 # BRIEF: Multi-language code quality and linting workflow
 # NOTE: Supports PHP, JavaScript/TypeScript, Python, and HTML5 validation

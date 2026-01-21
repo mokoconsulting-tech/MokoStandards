@@ -33,14 +33,15 @@ import json
 import shutil
 import subprocess
 import sys
+import xml.etree.ElementTree as ET
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional, Tuple, Any, Set
 
 # Default organization
 DEFAULT_ORG = "mokoconsulting-tech"
 
-# Sync override file name (located in scripts/ directory of target repo)
-SYNC_OVERRIDE_FILE = "scripts/.mokostandards-sync.yml"
+# Sync override file name (located in root of target repo)
+SYNC_OVERRIDE_FILE = "MokoStandards.override.xml"
 
 
 class FileSyncConfig:
@@ -132,6 +133,72 @@ DEFAULT_SCRIPTS_TO_SYNC = [
     "scripts/definitions/default-repository.xml",
     "scripts/definitions/waas-component.xml",
 ]
+
+
+def parse_override_file(override_path: str) -> Tuple[Set[str], Set[str]]:
+    """
+    Parse the MokoStandards.override.xml file.
+    
+    Args:
+        override_path: Path to the override XML file
+        
+    Returns:
+        Tuple of (exclude_files, protected_files) as sets of file paths
+    """
+    exclude_files = set()
+    protected_files = set()
+    
+    try:
+        tree = ET.parse(override_path)
+        root = tree.getroot()
+        
+        # Parse exclude-files
+        exclude_section = root.find('.//exclude-files')
+        if exclude_section is not None:
+            for file_elem in exclude_section.findall('file'):
+                path = file_elem.get('path')
+                if path:
+                    exclude_files.add(path)
+        
+        # Parse protected-files
+        protected_section = root.find('.//protected-files')
+        if protected_section is not None:
+            for file_elem in protected_section.findall('file'):
+                path = file_elem.get('path')
+                if path:
+                    protected_files.add(path)
+                    
+    except Exception as e:
+        print(f"Warning: Failed to parse override file {override_path}: {e}")
+        
+    return exclude_files, protected_files
+
+
+def load_override_config(repo_dir: str, source_dir: str) -> Tuple[Set[str], Set[str]]:
+    """
+    Load override configuration from target repo or MokoStandards default.
+    
+    Args:
+        repo_dir: Path to the target repository
+        source_dir: Path to MokoStandards source directory
+        
+    Returns:
+        Tuple of (exclude_files, protected_files) as sets of file paths
+    """
+    # First, check if target repo has an override file
+    repo_override = Path(repo_dir) / SYNC_OVERRIDE_FILE
+    if repo_override.exists():
+        print(f"    Using override configuration from target repository")
+        return parse_override_file(str(repo_override))
+    
+    # Otherwise, check if MokoStandards has a default override file
+    default_override = Path(source_dir) / SYNC_OVERRIDE_FILE
+    if default_override.exists():
+        print(f"    Using default override configuration from MokoStandards")
+        return parse_override_file(str(default_override))
+    
+    print(f"    No override configuration found, using default behavior")
+    return set(), set()
 
 
 def run_command(cmd: List[str], cwd: Optional[str] = None) -> Tuple[bool, str, str]:
@@ -453,8 +520,20 @@ def update_repository(
         platform_type = "generic"
         stats["platform"] = "generic"
     
+    # Load override configuration
+    print(f"  Loading override configuration...")
+    exclude_files, protected_files = load_override_config(str(repo_dir), source_dir)
+    
     # Get files to sync based on platform
     files_to_sync = get_files_to_sync(platform_type)
+    
+    # Filter out excluded files based on override configuration
+    if exclude_files:
+        original_count = len(files_to_sync)
+        files_to_sync = {k: v for k, v in files_to_sync.items() if v not in exclude_files}
+        filtered_count = original_count - len(files_to_sync)
+        if filtered_count > 0:
+            print(f"    Filtered out {filtered_count} excluded files from override config")
     
     # Validate source files exist
     existing, missing = validate_source_files(files_to_sync, source_dir)
@@ -472,8 +551,24 @@ def update_repository(
     if not create_branch(str(repo_dir), branch_name):
         return False, stats
     
+    # Place override file in target repo if it doesn't exist and if one exists in MokoStandards
+    override_source = Path(source_dir) / SYNC_OVERRIDE_FILE
+    override_dest = Path(repo_dir) / SYNC_OVERRIDE_FILE
+    if override_source.exists() and not override_dest.exists():
+        print(f"  Placing override configuration file...")
+        success, action = copy_file(str(override_source), str(repo_dir), SYNC_OVERRIDE_FILE)
+        if success and action == "created":
+            stats["files_created"] += 1
+            stats["files_copied"].append(SYNC_OVERRIDE_FILE)
+            print(f"    ✓ Created: {SYNC_OVERRIDE_FILE}")
+    
     # Copy files and track actions
     for source_rel, dest_rel in files_to_sync.items():
+        # Skip protected files
+        if dest_rel in protected_files:
+            print(f"    ⊗ Skipped (protected): {dest_rel}")
+            continue
+            
         source_file = Path(source_dir) / source_rel
         success, action = copy_file(str(source_file), str(repo_dir), dest_rel)
         if success:
@@ -488,6 +583,11 @@ def update_repository(
     
     # Copy scripts and track actions
     for script in DEFAULT_SCRIPTS_TO_SYNC:
+        # Skip protected files
+        if script in protected_files:
+            print(f"    ⊗ Skipped (protected): {script}")
+            continue
+            
         source_file = Path(source_dir) / script
         success, action = copy_file(str(source_file), str(repo_dir), script)
         if success:

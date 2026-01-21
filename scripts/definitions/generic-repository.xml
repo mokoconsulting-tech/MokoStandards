@@ -135,8 +135,8 @@
             <requirement-status>suggested</requirement-status>
           </file>
 
-          <file extension="yml">
-            <name>.mokostandards-sync.yml</name>
+          <file extension="xml">
+            <name>MokoStandards.override.xml</name>
             <description>MokoStandards sync override configuration - preserved during sync</description>
             <requirement-status>optional</requirement-status>
             <always-overwrite>false</always-overwrite>

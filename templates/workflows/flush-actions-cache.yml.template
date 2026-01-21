@@ -21,7 +21,7 @@
 # DEFGROUP: GitHub.WorkflowTemplate
 # INGROUP: MokoStandards.Templates
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
-# PATH: /.github/workflow-templates/flush-actions-cache.yml
+# PATH: /templates/workflows/flush-actions-cache.yml.template
 # VERSION: 01.00.00
 # BRIEF: Template workflow to flush GitHub Actions caches on demand
 

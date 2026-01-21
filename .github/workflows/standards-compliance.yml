@@ -18,10 +18,10 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
 # FILE INFORMATION
-# DEFGROUP: GitHub.WorkflowTemplate
+# DEFGROUP: GitHub.Workflow
 # INGROUP: MokoStandards.Compliance
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
-# PATH: /.github/workflow-templates/standards-compliance.yml
+# PATH: /.github/workflows/standards-compliance.yml
 # VERSION: 01.00.00
 # BRIEF: MokoStandards compliance validation workflow
 # NOTE: Validates repository structure, documentation, and coding standards

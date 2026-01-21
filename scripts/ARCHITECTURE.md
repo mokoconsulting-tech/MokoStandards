@@ -251,7 +251,7 @@ Format: `[LEVEL] Component: Message (Context)`
 ### Configuration Hierarchy
 1. Command-line arguments (highest priority)
 2. Environment variables
-3. Configuration files (`.mokostandards-sync.yml`)
+3. Configuration files (`MokoStandards.override.xml`)
 4. Default values (lowest priority)
 
 ### Configuration Schema

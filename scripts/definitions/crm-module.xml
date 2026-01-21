@@ -277,8 +277,8 @@ See CHANGELOG.md for version history.
             <template>templates/scripts/validate/dolibarr_module.sh</template>
           </file>
           
-          <file extension="yml">
-            <name>.mokostandards-sync.yml</name>
+          <file extension="xml">
+            <name>MokoStandards.override.xml</name>
             <description>MokoStandards sync override configuration</description>
             <requirement-status>optional</requirement-status>
             <always-overwrite>false</always-overwrite>

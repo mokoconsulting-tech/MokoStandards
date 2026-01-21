@@ -356,4 +356,4 @@ If a violation is discovered:
 - [LICENSE](../LICENSE)
 - [Contributing Guidelines](../CONTRIBUTING.md)
 - [Code Review Guidelines](code-review-guidelines.md)
-- [Dependency Review Workflow](../.github/workflow-templates/dependency-review.yml)
+- [Dependency Review Workflow](../../templates/workflows/generic/dependency-review.yml.template)

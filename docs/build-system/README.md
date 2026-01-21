@@ -314,10 +314,10 @@ The `build-universal.yml` workflow template automatically:
 
 # Or let the universal workflow handle it
 - name: Run Build
-  uses: ./.github/workflow-templates/build-universal.yml
+  uses: ./templates/workflows/build-universal.yml.template
 ```
 
-See [Build Universal Workflow](../../.github/workflow-templates/build-universal.yml) for implementation details.
+See [Build Universal Workflow](../../templates/workflows/build-universal.yml.template) for implementation details.
 
 ## Local vs CI Builds
 
@@ -543,7 +543,7 @@ build:
 - [Makefile Creation Guide](makefile-guide.md)
 - [Project Type Detection](../reference/project-types.md)
 - [Workflow Templates](../workflows/README.md)
-- [Build Universal Workflow](../../.github/workflow-templates/build-universal.yml)
+- [Build Universal Workflow](../../templates/workflows/build-universal.yml.template)
 
 ## Metadata
 

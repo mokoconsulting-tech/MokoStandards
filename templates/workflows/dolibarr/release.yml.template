@@ -73,14 +73,15 @@ jobs:
       - name: Determine version and prerelease status
         id: version
         run: |
-          # Function to check for development version and skip build
+          # Function to check for development version and exit early to skip build
+          # Uses exit 0 (not return) to terminate the entire step and trigger skip_build conditional
           check_development_version() {
             local version="$1"
             local context="$2"
             if [[ "$version" == "development" ]]; then
               echo "::warning::Skipping release build for development version${context:+ $context}. Use workflow_dispatch or push a version tag to create a release."
               echo "skip_build=true" >> $GITHUB_OUTPUT
-              exit 0
+              exit 0  # Exit step entirely to skip subsequent build steps
             fi
           }
 
@@ -107,7 +108,7 @@ jobs:
             PRERELEASE="false"
           fi
           
-          # Only reached if version is not "development"
+          # Lines below only executed if version is not "development" (no early exit)
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "prerelease=${PRERELEASE}" >> $GITHUB_OUTPUT
           echo "skip_build=false" >> $GITHUB_OUTPUT

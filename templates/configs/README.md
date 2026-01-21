@@ -218,7 +218,7 @@ All these tools are integrated into the `code-quality.yml` workflow template. To
 
 1. **Copy the workflow**:
    ```bash
-   cp .github/workflow-templates/code-quality.yml .github/workflows/
+   cp templates/workflows/code-quality.yml.template .github/workflows/code-quality.yml
    ```
 
 2. **Copy relevant config files**:

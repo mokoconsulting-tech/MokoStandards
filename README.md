@@ -148,18 +148,18 @@ mkdir -p .github/workflows
 
 # Copy universal build workflow
 curl -o .github/workflows/build.yml \
-  https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/.github/workflow-templates/build-universal.yml
+  https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/templates/workflows/build-universal.yml.template
 
 # Copy security scanning workflows
 curl -o .github/workflows/codeql-analysis.yml \
-  https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/.github/workflow-templates/codeql-analysis.yml
+  https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/templates/workflows/generic/codeql-analysis.yml
 
 curl -o .github/workflows/dependency-review.yml \
-  https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/.github/workflow-templates/dependency-review.yml
+  https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/templates/workflows/generic/dependency-review.yml.template
 
 # Copy standards compliance workflow
 curl -o .github/workflows/standards-compliance.yml \
-  https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/.github/workflow-templates/standards-compliance.yml
+  https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/templates/workflows/standards-compliance.yml.template
 ```
 
 See [Workflow Templates Documentation](docs/workflows/README.md) for customization options.
@@ -213,7 +213,6 @@ See [Migration from v1](#migration-from-v1) for detailed upgrade guidance.
 ```
 MokoStandards/
 ├── .github/
-│   ├── workflow-templates/     # Public workflow templates
 │   ├── WORKFLOW_ARCHITECTURE.md
 │   └── WORKFLOW_INVENTORY.md
 ├── docs/                       # Authoritative documentation
@@ -467,7 +466,7 @@ rm -rf .github/workflows/*
 
 # Copy new v2 workflows
 curl -o .github/workflows/build.yml \
-  https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/.github/workflow-templates/build-universal.yml
+  https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/templates/workflows/build-universal.yml.template
 
 # Add other workflows as needed (see Quick Start)
 ```

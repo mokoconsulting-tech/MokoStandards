@@ -21,7 +21,7 @@
 # DEFGROUP: GitHub.WorkflowTemplate
 # INGROUP: MokoStandards.Templates
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
-# PATH: /.github/workflow-templates/release-cycle.yml
+# PATH: /templates/workflows/release-cycle-simple.yml.template
 # VERSION: 01.00.00
 # BRIEF: Release management workflow with automated release flow
 # NOTE: Implements main → dev → rc → version → main cycle with semantic versioning

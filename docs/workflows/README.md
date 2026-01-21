@@ -10,13 +10,13 @@ This document provides comprehensive documentation for MokoStandards workflow te
 
 MokoStandards provides workflow templates in two locations:
 
-1. **`.github/workflow-templates/`** - **Public workflow templates** for community adoption
-   - `build-universal.yml` - Universal build workflow with automatic project detection
-   - `release-cycle.yml` - Automated release management workflow
-   - `codeql-analysis.yml` - Security scanning with CodeQL
-   - `dependency-review.yml` - Dependency vulnerability scanning
-   - `standards-compliance.yml` - MokoStandards compliance validation
-   - `flush-actions-cache.yml` - GitHub Actions cache management workflow
+1. **`templates/workflows/`** - **Public workflow templates** for community adoption
+   - `build-universal.yml.template` - Universal build workflow with automatic project detection
+   - `release-cycle-simple.yml.template` - Automated release management workflow
+   - `generic/codeql-analysis.yml` - Security scanning with CodeQL
+   - `generic/dependency-review.yml.template` - Dependency vulnerability scanning
+   - `standards-compliance.yml.template` - MokoStandards compliance validation
+   - `flush-actions-cache.yml.template` - GitHub Actions cache management workflow
 
 2. **`templates/workflows/`** - Platform-specific workflow examples
    - `joomla/` - Joomla extension workflows
@@ -29,29 +29,29 @@ To adopt MokoStandards workflows in your repository:
 
 ```bash
 # Copy universal build workflow
-cp .github/workflow-templates/build-universal.yml .github/workflows/build.yml
+cp templates/workflows/build-universal.yml.template .github/workflows/build.yml
 
 # Copy release management workflow
-cp .github/workflow-templates/release-cycle.yml .github/workflows/release.yml
+cp templates/workflows/release-cycle-simple.yml.template .github/workflows/release.yml
 
 # Copy security scanning workflows
-cp .github/workflow-templates/codeql-analysis.yml .github/workflows/
-cp .github/workflow-templates/dependency-review.yml .github/workflows/
+cp templates/workflows/generic/codeql-analysis.yml .github/workflows/
+cp templates/workflows/generic/dependency-review.yml.template .github/workflows/dependency-review.yml
 
 # Copy standards compliance workflow
-cp .github/workflow-templates/standards-compliance.yml .github/workflows/
+cp templates/workflows/standards-compliance.yml.template .github/workflows/standards-compliance.yml
 
 # Optional: Copy cache management workflow
-cp .github/workflow-templates/flush-actions-cache.yml .github/workflows/
+cp templates/workflows/flush-actions-cache.yml.template .github/workflows/flush-actions-cache.yml
 ```
 
 Then customize the workflows for your project as needed.
 
-## Public Workflow Templates (`.github/workflow-templates/`)
+## Public Workflow Templates (`templates/workflows/`)
 
-### 1. Build Universal (`build-universal.yml`)
+### 1. Build Universal (`build-universal.yml.template`)
 
-**Location**: `.github/workflow-templates/build-universal.yml`
+**Location**: `templates/workflows/build-universal.yml.template`
 
 Universal build workflow with automatic project type detection and Makefile precedence system.
 
@@ -76,9 +76,9 @@ on:
 
 See [Build System Documentation](../build-system/README.md) for details on the Makefile precedence system.
 
-### 2. Release Cycle (`release-cycle.yml`)
+### 2. Release Cycle (`release-cycle-simple.yml.template`)
 
-**Location**: `.github/workflow-templates/release-cycle.yml`
+**Location**: `templates/workflows/release-cycle-simple.yml.template`
 
 Automated release management workflow implementing the MokoStandards release cycle: main → dev → rc → version → main.
 
@@ -112,9 +112,9 @@ on:
 
 See [Release Management Documentation](../release-management/README.md) for complete release procedures.
 
-### 3. Dependency Review (`dependency-review.yml`)
+### 3. Dependency Review (`dependency-review.yml.template`)
 
-**Location**: `.github/workflow-templates/dependency-review.yml`
+**Location**: `templates/workflows/generic/dependency-review.yml.template`
 
 Comprehensive dependency vulnerability scanning for pull requests.
 
@@ -134,9 +134,9 @@ on:
 
 **Usage**: Copy to `.github/workflows/dependency-review.yml` to enable dependency scanning on PRs.
 
-### 4. Standards Compliance (`standards-compliance.yml`)
+### 4. Standards Compliance (`standards-compliance.yml.template`)
 
-**Location**: `.github/workflow-templates/standards-compliance.yml`
+**Location**: `templates/workflows/standards-compliance.yml.template`
 
 MokoStandards compliance validation workflow.
 
@@ -160,9 +160,9 @@ on:
 
 **Usage**: Copy to `.github/workflows/standards-compliance.yml` to enable compliance checks.
 
-### 5. Flush Actions Cache (`flush-actions-cache.yml`)
+### 5. Flush Actions Cache (`flush-actions-cache.yml.template`)
 
-**Location**: `.github/workflow-templates/flush-actions-cache.yml`
+**Location**: `templates/workflows/flush-actions-cache.yml.template`
 
 Cache management workflow for flushing GitHub Actions caches on demand.
 
@@ -200,7 +200,7 @@ See [flush_actions_cache.py documentation](/docs/scripts/maintenance/flush-actio
 
 ### 6. CodeQL Analysis (`codeql-analysis.yml`)
 
-**Location**: `.github/workflow-templates/codeql-analysis.yml`
+**Location**: `templates/workflows/generic/codeql-analysis.yml`
 
 Security scanning with GitHub's CodeQL engine (also available in `.github/workflows/`).
 
@@ -575,4 +575,4 @@ For issues with templates:
 - [Project Type Detection](../reference/project-types.md)
 - [Repository Structure Schema](../guide/repository-structure-schema.md)
 - [Workflow Templates (Technical)](../../templates/workflows/README.md)
-- [Public Workflow Templates](../../.github/workflow-templates/)
+- [Public Workflow Templates](../../templates/workflows/)

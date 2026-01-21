@@ -104,11 +104,11 @@ MokoStandards provides reusable GitHub Actions workflow templates in `.github/wo
 
 | Template | Purpose | Status | Required | Description |
 |----------|---------|--------|----------|-------------|
-| `build-universal.yml` | Universal Build | ✅ Stable | Required | Automatically detects project type (Joomla, Dolibarr, Generic) and executes appropriate build, test, and validation steps using MokoStandards Makefiles |
-| `codeql-analysis.yml` | Security Scanning | ✅ Stable | Required | CodeQL security analysis for Python, JavaScript, and other languages to detect vulnerabilities and security issues |
-| `dependency-review.yml` | Dependency Security | ✅ Stable | Required | Scans pull requests for dependency vulnerabilities and licensing issues before merge |
-| `standards-compliance.yml` | Standards Validation | ✅ Stable | Required | Validates repository compliance with MokoStandards requirements including file headers, required files, and documentation structure |
-| `release-cycle.yml` | Release Automation | ✅ Stable | Optional | Manages the complete release cycle: main → dev → rc → version → main with automated changelog generation and version tagging |
+| `build-universal.yml.template` | Universal Build | ✅ Stable | Required | Automatically detects project type (Joomla, Dolibarr, Generic) and executes appropriate build, test, and validation steps using MokoStandards Makefiles |
+| `generic/codeql-analysis.yml` | Security Scanning | ✅ Stable | Required | CodeQL security analysis for Python, JavaScript, and other languages to detect vulnerabilities and security issues |
+| `generic/dependency-review.yml.template` | Dependency Security | ✅ Stable | Required | Scans pull requests for dependency vulnerabilities and licensing issues before merge |
+| `standards-compliance.yml.template` | Standards Validation | ✅ Stable | Required | Validates repository compliance with MokoStandards requirements including file headers, required files, and documentation structure |
+| `release-cycle-simple.yml.template` | Release Automation | ✅ Stable | Optional | Manages the complete release cycle: main → dev → rc → version → main with automated changelog generation and version tagging |
 
 ### Workflow Template Details
 
@@ -203,13 +203,13 @@ cp .github/workflow-templates/release-cycle.yml .github/workflows/
 mkdir -p .github/workflows
 
 # Copy all required workflows
-cp /path/to/MokoStandards/.github/workflow-templates/build-universal.yml .github/workflows/build.yml
-cp /path/to/MokoStandards/.github/workflow-templates/codeql-analysis.yml .github/workflows/
-cp /path/to/MokoStandards/.github/workflow-templates/dependency-review.yml .github/workflows/
-cp /path/to/MokoStandards/.github/workflow-templates/standards-compliance.yml .github/workflows/
+cp /path/to/MokoStandards/templates/workflows/build-universal.yml.template .github/workflows/build.yml
+cp /path/to/MokoStandards/templates/workflows/generic/codeql-analysis.yml .github/workflows/
+cp /path/to/MokoStandards/templates/workflows/generic/dependency-review.yml.template .github/workflows/dependency-review.yml
+cp /path/to/MokoStandards/templates/workflows/standards-compliance.yml.template .github/workflows/standards-compliance.yml
 
 # Optional: Copy release workflow if needed
-cp /path/to/MokoStandards/.github/workflow-templates/release-cycle.yml .github/workflows/
+cp /path/to/MokoStandards/templates/workflows/release-cycle-simple.yml.template .github/workflows/release-cycle.yml
 ```
 
 **For Existing Repositories**:
@@ -256,16 +256,16 @@ All repositories coupled to MokoStandards MUST meet these requirements:
 
 All active repositories MUST implement these GitHub Actions workflows:
 
-- ✅ `build-universal.yml` - Universal build with automatic project detection
-- ✅ `codeql-analysis.yml` - Security scanning for vulnerabilities
-- ✅ `dependency-review.yml` - Dependency vulnerability scanning
-- ✅ `standards-compliance.yml` - MokoStandards compliance validation
+- ✅ `build-universal.yml.template` - Universal build with automatic project detection
+- ✅ `generic/codeql-analysis.yml` - Security scanning for vulnerabilities
+- ✅ `generic/dependency-review.yml.template` - Dependency vulnerability scanning
+- ✅ `standards-compliance.yml.template` - MokoStandards compliance validation
 
 ### Optional Workflows
 
 Repositories MAY implement these workflows as appropriate:
 
-- `release-cycle.yml` - Automated release management (main → dev → rc → version → main)
+- `release-cycle-simple.yml.template` - Automated release management (main → dev → rc → version → main)
 - `repo_health.yml` - Repository health scoring and monitoring
 - `version_branch.yml` - Version branch automation with automatic PR creation (enforces policy requirement)
 
@@ -299,10 +299,10 @@ Repositories adopt MokoStandards workflow templates from `.github/workflow-templ
 
 ```bash
 # Copy required workflows
-cp /path/to/MokoStandards/.github/workflow-templates/build-universal.yml .github/workflows/
-cp /path/to/MokoStandards/.github/workflow-templates/codeql-analysis.yml .github/workflows/
-cp /path/to/MokoStandards/.github/workflow-templates/dependency-review.yml .github/workflows/
-cp /path/to/MokoStandards/.github/workflow-templates/standards-compliance.yml .github/workflows/
+cp /path/to/MokoStandards/templates/workflows/build-universal.yml.template .github/workflows/build.yml
+cp /path/to/MokoStandards/templates/workflows/generic/codeql-analysis.yml .github/workflows/
+cp /path/to/MokoStandards/templates/workflows/generic/dependency-review.yml.template .github/workflows/dependency-review.yml
+cp /path/to/MokoStandards/templates/workflows/standards-compliance.yml.template .github/workflows/standards-compliance.yml
 ```
 
 ### 2. Dependabot Configuration

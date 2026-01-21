@@ -21,7 +21,7 @@
 # DEFGROUP: GitHub.WorkflowTemplate
 # INGROUP: MokoStandards.Compliance
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
-# PATH: /.github/workflow-templates/standards-compliance.yml
+# PATH: /templates/workflows/standards-compliance.yml.template
 # VERSION: 01.00.00
 # BRIEF: MokoStandards compliance validation workflow
 # NOTE: Validates repository structure, documentation, and coding standards

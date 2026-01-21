@@ -213,12 +213,12 @@ git push origin main
 mkdir -p .github/workflows
 
 # Copy universal build workflow
-cp ~/MokoStandards/.github/workflow-templates/build-universal.yml .github/workflows/build.yml
+cp ~/MokoStandards/templates/workflows/build-universal.yml.template .github/workflows/build.yml
 
 # Copy security workflows
-cp ~/MokoStandards/.github/workflow-templates/codeql-analysis.yml .github/workflows/
-cp ~/MokoStandards/.github/workflow-templates/dependency-review.yml .github/workflows/
-cp ~/MokoStandards/.github/workflow-templates/standards-compliance.yml .github/workflows/
+cp ~/MokoStandards/templates/workflows/generic/codeql-analysis.yml .github/workflows/
+cp ~/MokoStandards/templates/workflows/generic/dependency-review.yml.template .github/workflows/dependency-review.yml
+cp ~/MokoStandards/templates/workflows/standards-compliance.yml.template .github/workflows/standards-compliance.yml
 
 # Commit workflows
 git add .github/

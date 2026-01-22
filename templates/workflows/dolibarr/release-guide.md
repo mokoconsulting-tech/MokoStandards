@@ -209,40 +209,40 @@ The workflow creates a GitHub release with:
 
 ### Overview
 
-RC and stable releases are automatically uploaded to FTP/SFTP servers for distribution. This feature is optional and only activates when FTP credentials are configured.
+RC and stable releases are automatically uploaded to Release System (RS) FTP/SFTP servers for distribution. This feature is optional and only activates when RS_FTP credentials are configured.
 
 ### Configuration
 
-The workflow supports both password and SSH key authentication. Configure the following secrets in your repository or organization settings:
+The workflow supports both password and SSH key authentication. Configure the following secrets and variables in your repository or organization settings:
 
 **Required Secrets:**
-- `FTP_HOST` - SFTP server hostname (e.g., `sftp.example.com`)
-- `FTP_USERNAME` - SFTP username
-- `FTP_PATH` - Base path on server (e.g., `/var/www/releases`)
+- `RS_FTP_HOST` - SFTP server hostname (e.g., `sftp.example.com`)
+- `RS_FTP_USER` - SFTP username
+- `RS_FTP_PATH` - Base path on server (variable, e.g., `/var/www/releases`)
 
 **Authentication (choose one):**
-- `FTP_PASSWORD` - Password authentication (simple)
-- `FTP_KEY` - SSH private key authentication (recommended)
+- `RS_FTP_PASSWORD` - Password authentication (simple)
+- `RS_FTP_KEY` - SSH private key authentication (recommended)
 
 **Optional:**
-- `FTP_PORT` - SFTP port (default: 22)
-- `FTP_PATH_SUFFIX` - Additional path suffix (e.g., `/dolibarr`)
+- `RS_FTP_PORT` - SFTP port (default: 22)
+- `RS_FTP_PATH_SUFFIX` - Additional path suffix (variable, e.g., `/dolibarr`)
 
 ### Upload Behavior
 
 The workflow automatically determines the upload channel:
-- **RC releases** (`prerelease: true`) → uploaded to `{FTP_PATH}/{FTP_PATH_SUFFIX}/rc/`
-- **Stable releases** (`prerelease: false`) → uploaded to `{FTP_PATH}/{FTP_PATH_SUFFIX}/stable/`
+- **RC releases** (`prerelease: true`) → uploaded to `{RS_FTP_PATH}/{RS_FTP_PATH_SUFFIX}/rc/`
+- **Stable releases** (`prerelease: false`) → uploaded to `{RS_FTP_PATH}/{RS_FTP_PATH_SUFFIX}/stable/`
 
 ### Examples
 
 **Password Authentication:**
 ```
-FTP_HOST: sftp.example.com
-FTP_USERNAME: deploy-user
-FTP_PASSWORD: secure-password
-FTP_PATH: /var/www/releases
-FTP_PATH_SUFFIX: /dolibarr
+RS_FTP_HOST: sftp.example.com
+RS_FTP_USER: deploy-user
+RS_FTP_PASSWORD: secure-password
+RS_FTP_PATH: /var/www/releases (variable)
+RS_FTP_PATH_SUFFIX: /dolibarr (variable)
 
 # RC release uploads to: /var/www/releases/dolibarr/rc/
 # Stable release uploads to: /var/www/releases/dolibarr/stable/
@@ -250,10 +250,10 @@ FTP_PATH_SUFFIX: /dolibarr
 
 **SSH Key Authentication:**
 ```
-FTP_HOST: sftp.example.com
-FTP_USERNAME: deploy-user
-FTP_KEY: -----BEGIN OPENSSH PRIVATE KEY-----...
-FTP_PATH: /var/www/releases
+RS_FTP_HOST: sftp.example.com
+RS_FTP_USER: deploy-user
+RS_FTP_KEY: -----BEGIN OPENSSH PRIVATE KEY-----...
+RS_FTP_PATH: /var/www/releases (variable)
 
 # Uploads to: /var/www/releases/rc/ or /var/www/releases/stable/
 ```
@@ -261,8 +261,8 @@ FTP_PATH: /var/www/releases
 ### Skipping FTP Upload
 
 FTP upload is automatically skipped if:
-- FTP credentials are not configured
-- FTP_HOST secret is empty
+- RS_FTP credentials are not configured
+- RS_FTP_HOST secret is empty
 - Required authentication credentials are missing
 
 The workflow will continue and create the GitHub release even if FTP upload fails or is skipped.

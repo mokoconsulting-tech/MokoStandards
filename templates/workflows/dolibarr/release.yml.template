@@ -277,15 +277,15 @@ jobs:
       - name: Upload to FTP/SFTP
         if: |
           (steps.version.outputs.prerelease == 'true' || steps.version.outputs.prerelease == 'false') &&
-          secrets.FTP_HOST != ''
+          secrets.RS_FTP_HOST != ''
         env:
-          FTP_HOST: ${{ secrets.FTP_HOST }}
-          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
-          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-          FTP_KEY: ${{ secrets.FTP_KEY }}
-          FTP_PATH: ${{ secrets.FTP_PATH }}
-          FTP_PORT: ${{ secrets.FTP_PORT }}
-          FTP_PATH_SUFFIX: ${{ vars.FTP_PATH_SUFFIX }}
+          RS_FTP_HOST: ${{ secrets.RS_FTP_HOST }}
+          RS_FTP_USER: ${{ secrets.RS_FTP_USER }}
+          RS_FTP_PASSWORD: ${{ secrets.RS_FTP_PASSWORD }}
+          RS_FTP_KEY: ${{ secrets.RS_FTP_KEY }}
+          RS_FTP_PATH: ${{ vars.RS_FTP_PATH }}
+          RS_FTP_PORT: ${{ secrets.RS_FTP_PORT }}
+          RS_FTP_PATH_SUFFIX: ${{ vars.RS_FTP_PATH_SUFFIX }}
           VERSION: ${{ steps.version.outputs.version }}
           PRERELEASE: ${{ steps.version.outputs.prerelease }}
         run: |
@@ -325,18 +325,18 @@ jobs:
           
           # Determine authentication mode
           AUTH_MODE="password"
-          if [ -n "${FTP_KEY:-}" ]; then
+          if [ -n "${RS_FTP_KEY:-}" ]; then
             AUTH_MODE="key"
           fi
           
           # Validate required credentials
-          if [ -z "${FTP_HOST:-}" ] || [ -z "${FTP_USERNAME:-}" ] || [ -z "${FTP_PATH:-}" ]; then
-            echo "⚠️ FTP credentials incomplete, skipping upload" >> $GITHUB_STEP_SUMMARY
+          if [ -z "${RS_FTP_HOST:-}" ] || [ -z "${RS_FTP_USER:-}" ] || [ -z "${RS_FTP_PATH:-}" ]; then
+            echo "⚠️ RS_FTP credentials incomplete, skipping upload" >> $GITHUB_STEP_SUMMARY
             exit 0
           fi
           
-          if [ "$AUTH_MODE" = "password" ] && [ -z "${FTP_PASSWORD:-}" ]; then
-            echo "⚠️ FTP_PASSWORD required for password authentication, skipping upload" >> $GITHUB_STEP_SUMMARY
+          if [ "$AUTH_MODE" = "password" ] && [ -z "${RS_FTP_PASSWORD:-}" ]; then
+            echo "⚠️ RS_FTP_PASSWORD required for password authentication, skipping upload" >> $GITHUB_STEP_SUMMARY
             exit 0
           fi
           
@@ -344,32 +344,32 @@ jobs:
           if [ "$AUTH_MODE" = "key" ]; then
             mkdir -p ~/.ssh
             chmod 700 ~/.ssh
-            echo "$FTP_KEY" > ~/.ssh/deploy_key
+            echo "$RS_FTP_KEY" > ~/.ssh/deploy_key
             chmod 600 ~/.ssh/deploy_key
             
             # Add host to known_hosts
-            ssh-keyscan -H "$FTP_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
+            ssh-keyscan -H "$RS_FTP_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
           fi
           
           # Construct remote path
-          PORT="${FTP_PORT:-22}"
-          SUFFIX="${FTP_PATH_SUFFIX:-}"
+          PORT="${RS_FTP_PORT:-22}"
+          SUFFIX="${RS_FTP_PATH_SUFFIX:-}"
           if [ -n "$SUFFIX" ]; then
-            REMOTE_PATH="${FTP_PATH%/}/${SUFFIX#/}/${CHANNEL}"
+            REMOTE_PATH="${RS_FTP_PATH%/}/${SUFFIX#/}/${CHANNEL}"
           else
-            REMOTE_PATH="${FTP_PATH%/}/${CHANNEL}"
+            REMOTE_PATH="${RS_FTP_PATH%/}/${CHANNEL}"
           fi
           
           # Prepare host:port
           if [ "$PORT" != "22" ]; then
-            HOSTPORT="${FTP_HOST}:${PORT}"
+            HOSTPORT="${RS_FTP_HOST}:${PORT}"
           else
-            HOSTPORT="$FTP_HOST"
+            HOSTPORT="$RS_FTP_HOST"
           fi
           
           echo "### 📤 FTP Upload" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Host:** $FTP_HOST" >> $GITHUB_STEP_SUMMARY
+          echo "- **Host:** $RS_FTP_HOST" >> $GITHUB_STEP_SUMMARY
           echo "- **Port:** $PORT" >> $GITHUB_STEP_SUMMARY
           echo "- **Path:** $REMOTE_PATH" >> $GITHUB_STEP_SUMMARY
           echo "- **Channel:** $CHANNEL" >> $GITHUB_STEP_SUMMARY
@@ -384,14 +384,14 @@ jobs:
           if [ "$AUTH_MODE" = "key" ]; then
             # SSH key authentication
             CONNECT="set sftp:connect-program 'ssh -a -x -i ~/.ssh/deploy_key -o PubkeyAuthentication=yes -o PasswordAuthentication=no'"
-            OPEN="open -u '${FTP_USERNAME}', sftp://${HOSTPORT}"
+            OPEN="open -u '${RS_FTP_USER}', sftp://${HOSTPORT}"
           else
             # Password authentication using temporary credentials file
             creds_file=$(mktemp)
             chmod 600 "$creds_file"
             cat > "$creds_file" <<EOF
 set sftp:connect-program 'ssh -a -x -o PubkeyAuthentication=no -o PasswordAuthentication=yes'
-open -u '${FTP_USERNAME}','${FTP_PASSWORD}', sftp://${HOSTPORT}
+open -u '${RS_FTP_USER}','${RS_FTP_PASSWORD}', sftp://${HOSTPORT}
 EOF
             CONNECT=""
             OPEN=""
@@ -431,8 +431,8 @@ EOF
           sanitize_log() {
             local temp_log=$(mktemp)
             cat "$1" | \
-              sed "s|${FTP_HOST}|[FTP_HOST]|g" | \
-              sed "s|${FTP_USERNAME}|[FTP_USER]|g" | \
+              sed "s|${RS_FTP_HOST}|[RS_FTP_HOST]|g" | \
+              sed "s|${RS_FTP_USER}|[RS_FTP_USER]|g" | \
               sed "s|${REMOTE_PATH}|[REMOTE_PATH]|g" > "$temp_log"
             cat "$temp_log"
             rm -f "$temp_log"

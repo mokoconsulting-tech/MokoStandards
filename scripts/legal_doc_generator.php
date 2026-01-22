@@ -30,7 +30,7 @@
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: /scripts/legal_doc_generator.php
  * VERSION: 01.00.00
- * BRIEF: Generate Terms of Service and Privacy Policy templates for websites (PHP version)
+ * BRIEF: Generate Terms of Service and Privacy Policy templates for websites
  * USAGE: php legal_doc_generator.php --type <website_type> [options]
  *
  * ARGUMENTS
@@ -367,7 +367,7 @@ If you have any questions about this Privacy Policy, please contact us at:
     {
         // Create directory if it doesn't exist
         if (!is_dir($outputDir)) {
-            if (!mkdir($outputDir, 0755, true) && !is_dir($outputDir)) {
+            if (!mkdir($outputDir, 0750, true) && !is_dir($outputDir)) {
                 throw new RuntimeException("Failed to create directory: $outputDir");
             }
         }
@@ -444,9 +444,13 @@ function parseArguments(array $argv): array
 
         if (strpos($arg, '--') === 0) {
             $key = substr($arg, 2);
+            // Check if there's a next argument and it's not another flag
             if (isset($argv[$i + 1]) && strpos($argv[$i + 1], '--') !== 0) {
                 $options[$key] = $argv[$i + 1];
                 $i++;
+            } elseif (array_key_exists($key, $options)) {
+                // Flag provided without value - leave default
+                continue;
             }
         }
     }

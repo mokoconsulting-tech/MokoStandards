@@ -291,9 +291,15 @@ jobs:
         run: |
           set -euo pipefail
           
+          # Initialize variables early for cleanup trap
+          upload_log=""
+          
           # Setup cleanup trap to remove sensitive files
           cleanup() {
-            rm -f ~/.ssh/deploy_key "$upload_log" 2>/dev/null || true
+            rm -f ~/.ssh/deploy_key 2>/dev/null || true
+            if [ -n "$upload_log" ] && [ -f "$upload_log" ]; then
+              rm -f "$upload_log" 2>/dev/null || true
+            fi
           }
           trap cleanup EXIT
           
@@ -371,42 +377,65 @@ jobs:
           echo "- **Auth:** $AUTH_MODE" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          # Upload via SFTP using lftp with secure credential handling
+          # Create temporary log file
           upload_log=$(mktemp)
           
-          # Create lftp script with credentials from environment
+          # Upload via SFTP using lftp with secure credential handling
           if [ "$AUTH_MODE" = "key" ]; then
+            # SSH key authentication
             CONNECT="set sftp:connect-program 'ssh -a -x -i ~/.ssh/deploy_key -o PubkeyAuthentication=yes -o PasswordAuthentication=no'"
             OPEN="open -u '${FTP_USERNAME}', sftp://${HOSTPORT}"
           else
-            # Use LFTP_PASSWORD environment variable for password (more secure than command line)
-            export LFTP_PASSWORD="$FTP_PASSWORD"
-            CONNECT="set sftp:connect-program 'ssh -a -x -o PubkeyAuthentication=no -o PasswordAuthentication=yes'"
-            OPEN="open -u '${FTP_USERNAME}', sftp://${HOSTPORT}"
+            # Password authentication using temporary credentials file
+            creds_file=$(mktemp)
+            chmod 600 "$creds_file"
+            cat > "$creds_file" <<EOF
+set sftp:connect-program 'ssh -a -x -o PubkeyAuthentication=no -o PasswordAuthentication=yes'
+open -u '${FTP_USERNAME}','${FTP_PASSWORD}', sftp://${HOSTPORT}
+EOF
+            CONNECT=""
+            OPEN=""
           fi
           
           set +e
-          lftp -e "\
-            set sftp:auto-confirm yes; \
-            set net:timeout 30; \
-            set net:max-retries 3; \
-            set net:reconnect-interval-base 5; \
-            ${CONNECT}; \
-            ${OPEN}; \
-            mkdir -p '${REMOTE_PATH}'; \
-            cd '${REMOTE_PATH}'; \
-            put -E '${ZIP_FILE}'; \
-            ls -l; \
-            bye" >"$upload_log" 2>&1
+          if [ "$AUTH_MODE" = "key" ]; then
+            lftp -e "\
+              set sftp:auto-confirm yes; \
+              set net:timeout 30; \
+              set net:max-retries 3; \
+              set net:reconnect-interval-base 5; \
+              ${CONNECT}; \
+              ${OPEN}; \
+              mkdir -p '${REMOTE_PATH}'; \
+              cd '${REMOTE_PATH}'; \
+              put -E '${ZIP_FILE}'; \
+              ls -l; \
+              bye" >"$upload_log" 2>&1
+          else
+            lftp -f "$creds_file" -e "\
+              set sftp:auto-confirm yes; \
+              set net:timeout 30; \
+              set net:max-retries 3; \
+              set net:reconnect-interval-base 5; \
+              mkdir -p '${REMOTE_PATH}'; \
+              cd '${REMOTE_PATH}'; \
+              put -E '${ZIP_FILE}'; \
+              ls -l; \
+              bye" >"$upload_log" 2>&1
+            rm -f "$creds_file"
+          fi
           rc=$?
           set -e
           
-          # Sanitize log to remove potential sensitive information
+          # Sanitize log to remove potential sensitive information using basic string replacement
           sanitize_log() {
-            sed -e "s/${FTP_HOST//./\\.}/[FTP_HOST]/g" \
-                -e "s/${FTP_USERNAME//./\\.}/[FTP_USER]/g" \
-                -e "s/${REMOTE_PATH//\//\\/}/[REMOTE_PATH]/g" \
-                "$1"
+            local temp_log=$(mktemp)
+            cat "$1" | \
+              sed "s|${FTP_HOST}|[FTP_HOST]|g" | \
+              sed "s|${FTP_USERNAME}|[FTP_USER]|g" | \
+              sed "s|${REMOTE_PATH}|[REMOTE_PATH]|g" > "$temp_log"
+            cat "$temp_log"
+            rm -f "$temp_log"
           }
           
           if [ $rc -eq 0 ]; then

@@ -54,6 +54,8 @@ jobs:
   build:
     name: Build Release Package
     runs-on: ubuntu-latest
+    outputs:
+      skip_build: ${{ steps.version.outputs.skip_build }}
     
     steps:
       - name: Checkout repository
@@ -71,6 +73,18 @@ jobs:
       - name: Determine version and prerelease status
         id: version
         run: |
+          # Function to check for development version and exit early to skip build
+          # Uses exit 0 (not return) to terminate the entire step and trigger skip_build conditional
+          check_development_version() {
+            local version="$1"
+            local context="$2"
+            if [[ "$version" == "development" ]]; then
+              echo "::warning::Skipping release build for development version${context:+ $context}. Use workflow_dispatch or push a version tag to create a release."
+              echo "skip_build=true" >> $GITHUB_OUTPUT
+              exit 0  # Exit step entirely to skip subsequent build steps
+            fi
+          }
+
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             VERSION="${{ inputs.version }}"
             PRERELEASE="${{ inputs.prerelease }}"
@@ -84,24 +98,31 @@ jobs:
             fi
           elif [[ "${{ github.ref }}" == refs/heads/rc/* ]]; then
             # RC branch push - mark as prerelease
-            VERSION=$(grep -oP 'VERSION:\s*\K[\d.]+' README.md || echo "0.0.0")
+            VERSION=$(grep -oP 'VERSION:\s*\K[^\s]+' README.md || echo "0.0.0")
+            check_development_version "$VERSION" "on RC branch"
             PRERELEASE="true"
           else
             # Main branch or other
-            VERSION=$(grep -oP 'VERSION:\s*\K[\d.]+' README.md || echo "0.0.0")
+            VERSION=$(grep -oP 'VERSION:\s*\K[^\s]+' README.md || echo "0.0.0")
+            check_development_version "$VERSION"
             PRERELEASE="false"
           fi
+          
+          # Lines below only executed if version is not "development" (no early exit)
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "prerelease=${PRERELEASE}" >> $GITHUB_OUTPUT
+          echo "skip_build=false" >> $GITHUB_OUTPUT
           echo "Building version: ${VERSION} (prerelease: ${PRERELEASE})"
 
       - name: Install dependencies
+        if: steps.version.outputs.skip_build != 'true'
         run: |
           if [ -f "composer.json" ]; then
             composer install --no-dev --optimize-autoloader
           fi
 
       - name: Update version in module descriptor
+        if: steps.version.outputs.skip_build != 'true'
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           # Update version in core/modules/mod*.class.php
@@ -111,6 +132,7 @@ jobs:
           fi
 
       - name: Create package structure
+        if: steps.version.outputs.skip_build != 'true'
         run: |
           mkdir -p build/package
           
@@ -131,6 +153,7 @@ jobs:
                     . build/package/
 
       - name: Determine module name
+        if: steps.version.outputs.skip_build != 'true'
         id: module
         run: |
           # Try to extract module name from module descriptor
@@ -148,6 +171,7 @@ jobs:
           echo "Module name: ${MODULE_NAME}"
 
       - name: Create ZIP package
+        if: steps.version.outputs.skip_build != 'true'
         run: |
           cd build/package
           MODULE_NAME="${{ steps.module.outputs.name }}"
@@ -159,6 +183,7 @@ jobs:
           echo "Created package: ${ZIP_NAME}" >> $GITHUB_STEP_SUMMARY
 
       - name: Generate checksums
+        if: steps.version.outputs.skip_build != 'true'
         run: |
           cd build
           sha256sum "${ZIP_NAME}" > "${ZIP_NAME}.sha256"
@@ -166,6 +191,7 @@ jobs:
           echo "- ✅ Generated checksums" >> $GITHUB_STEP_SUMMARY
 
       - name: Upload build artifacts
+        if: steps.version.outputs.skip_build != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: release-package
@@ -179,6 +205,7 @@ jobs:
     name: Create GitHub Release
     runs-on: ubuntu-latest
     needs: build
+    if: needs.build.outputs.skip_build != 'true'
     
     steps:
       - name: Checkout repository
@@ -204,10 +231,10 @@ jobs:
               PRERELEASE="false"
             fi
           elif [[ "${{ github.ref }}" == refs/heads/rc/* ]]; then
-            VERSION=$(grep -oP 'VERSION:\s*\K[\d.]+' README.md || echo "0.0.0")
+            VERSION=$(grep -oP 'VERSION:\s*\K[^\s]+' README.md || echo "0.0.0")
             PRERELEASE="true"
           else
-            VERSION=$(grep -oP 'VERSION:\s*\K[\d.]+' README.md || echo "0.0.0")
+            VERSION=$(grep -oP 'VERSION:\s*\K[^\s]+' README.md || echo "0.0.0")
             PRERELEASE="false"
           fi
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
@@ -246,6 +273,187 @@ jobs:
           prerelease: ${{ steps.version.outputs.prerelease }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload to FTP/SFTP
+        if: |
+          (steps.version.outputs.prerelease == 'true' || steps.version.outputs.prerelease == 'false') &&
+          secrets.RS_FTP_HOST != ''
+        env:
+          RS_FTP_HOST: ${{ secrets.RS_FTP_HOST }}
+          RS_FTP_USER: ${{ secrets.RS_FTP_USER }}
+          RS_FTP_PASSWORD: ${{ secrets.RS_FTP_PASSWORD }}
+          RS_FTP_KEY: ${{ secrets.RS_FTP_KEY }}
+          RS_FTP_PATH: ${{ vars.RS_FTP_PATH }}
+          RS_FTP_PORT: ${{ secrets.RS_FTP_PORT }}
+          RS_FTP_PATH_SUFFIX: ${{ vars.RS_FTP_PATH_SUFFIX }}
+          VERSION: ${{ steps.version.outputs.version }}
+          PRERELEASE: ${{ steps.version.outputs.prerelease }}
+        run: |
+          set -euo pipefail
+          
+          # Initialize variables early for cleanup trap
+          upload_log=""
+          
+          # Setup cleanup trap to remove sensitive files
+          cleanup() {
+            rm -f ~/.ssh/deploy_key 2>/dev/null || true
+            if [ -n "$upload_log" ] && [ -f "$upload_log" ]; then
+              rm -f "$upload_log" 2>/dev/null || true
+            fi
+          }
+          trap cleanup EXIT
+          
+          # Determine channel based on release type
+          if [ "$PRERELEASE" = "true" ]; then
+            CHANNEL="rc"
+          else
+            CHANNEL="stable"
+          fi
+          
+          # Find the ZIP file in artifacts using more robust approach
+          ZIP_FILE=$(find artifacts -maxdepth 1 -name "*.zip" -type f | head -1)
+          if [ -z "$ZIP_FILE" ] || [ ! -f "$ZIP_FILE" ]; then
+            echo "⚠️ No ZIP file found in artifacts, skipping FTP upload" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+          
+          ZIP_NAME=$(basename "$ZIP_FILE")
+          
+          # Install SFTP client
+          sudo apt-get update -qq
+          sudo apt-get install -y lftp openssh-client
+          
+          # Determine authentication mode
+          AUTH_MODE="password"
+          if [ -n "${RS_FTP_KEY:-}" ]; then
+            AUTH_MODE="key"
+          fi
+          
+          # Validate required credentials
+          if [ -z "${RS_FTP_HOST:-}" ] || [ -z "${RS_FTP_USER:-}" ] || [ -z "${RS_FTP_PATH:-}" ]; then
+            echo "⚠️ RS_FTP credentials incomplete, skipping upload" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+          
+          if [ "$AUTH_MODE" = "password" ] && [ -z "${RS_FTP_PASSWORD:-}" ]; then
+            echo "⚠️ RS_FTP_PASSWORD required for password authentication, skipping upload" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+          
+          # Setup SSH key if using key authentication
+          if [ "$AUTH_MODE" = "key" ]; then
+            mkdir -p ~/.ssh
+            chmod 700 ~/.ssh
+            echo "$RS_FTP_KEY" > ~/.ssh/deploy_key
+            chmod 600 ~/.ssh/deploy_key
+            
+            # Add host to known_hosts
+            ssh-keyscan -H "$RS_FTP_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
+          fi
+          
+          # Construct remote path
+          PORT="${RS_FTP_PORT:-22}"
+          SUFFIX="${RS_FTP_PATH_SUFFIX:-}"
+          if [ -n "$SUFFIX" ]; then
+            REMOTE_PATH="${RS_FTP_PATH%/}/${SUFFIX#/}/${CHANNEL}"
+          else
+            REMOTE_PATH="${RS_FTP_PATH%/}/${CHANNEL}"
+          fi
+          
+          # Prepare host:port
+          if [ "$PORT" != "22" ]; then
+            HOSTPORT="${RS_FTP_HOST}:${PORT}"
+          else
+            HOSTPORT="$RS_FTP_HOST"
+          fi
+          
+          echo "### 📤 FTP Upload" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Host:** $RS_FTP_HOST" >> $GITHUB_STEP_SUMMARY
+          echo "- **Port:** $PORT" >> $GITHUB_STEP_SUMMARY
+          echo "- **Path:** $REMOTE_PATH" >> $GITHUB_STEP_SUMMARY
+          echo "- **Channel:** $CHANNEL" >> $GITHUB_STEP_SUMMARY
+          echo "- **File:** $ZIP_NAME" >> $GITHUB_STEP_SUMMARY
+          echo "- **Auth:** $AUTH_MODE" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Create temporary log file
+          upload_log=$(mktemp)
+          
+          # Upload via SFTP using lftp with secure credential handling
+          if [ "$AUTH_MODE" = "key" ]; then
+            # SSH key authentication
+            CONNECT="set sftp:connect-program 'ssh -a -x -i ~/.ssh/deploy_key -o PubkeyAuthentication=yes -o PasswordAuthentication=no'"
+            OPEN="open -u '${RS_FTP_USER}', sftp://${HOSTPORT}"
+          else
+            # Password authentication using temporary credentials file
+            creds_file=$(mktemp)
+            chmod 600 "$creds_file"
+            cat > "$creds_file" <<EOF
+set sftp:connect-program 'ssh -a -x -o PubkeyAuthentication=no -o PasswordAuthentication=yes'
+open -u '${RS_FTP_USER}','${RS_FTP_PASSWORD}', sftp://${HOSTPORT}
+EOF
+            CONNECT=""
+            OPEN=""
+          fi
+          
+          set +e
+          if [ "$AUTH_MODE" = "key" ]; then
+            lftp -e "\
+              set sftp:auto-confirm yes; \
+              set net:timeout 30; \
+              set net:max-retries 3; \
+              set net:reconnect-interval-base 5; \
+              ${CONNECT}; \
+              ${OPEN}; \
+              mkdir -p '${REMOTE_PATH}'; \
+              cd '${REMOTE_PATH}'; \
+              put -E '${ZIP_FILE}'; \
+              ls -l; \
+              bye" >"$upload_log" 2>&1
+          else
+            lftp -f "$creds_file" -e "\
+              set sftp:auto-confirm yes; \
+              set net:timeout 30; \
+              set net:max-retries 3; \
+              set net:reconnect-interval-base 5; \
+              mkdir -p '${REMOTE_PATH}'; \
+              cd '${REMOTE_PATH}'; \
+              put -E '${ZIP_FILE}'; \
+              ls -l; \
+              bye" >"$upload_log" 2>&1
+            rm -f "$creds_file"
+          fi
+          rc=$?
+          set -e
+          
+          # Sanitize log to remove potential sensitive information using basic string replacement
+          sanitize_log() {
+            local temp_log=$(mktemp)
+            cat "$1" | \
+              sed "s|${RS_FTP_HOST}|[RS_FTP_HOST]|g" | \
+              sed "s|${RS_FTP_USER}|[RS_FTP_USER]|g" | \
+              sed "s|${REMOTE_PATH}|[REMOTE_PATH]|g" > "$temp_log"
+            cat "$temp_log"
+            rm -f "$temp_log"
+          }
+          
+          if [ $rc -eq 0 ]; then
+            echo "✅ Successfully uploaded to SFTP" >> $GITHUB_STEP_SUMMARY
+            # Use portable file size detection
+            ZIP_SIZE=$(wc -c < "$ZIP_FILE" 2>/dev/null || echo "unknown")
+            echo "- **Size:** $ZIP_SIZE bytes" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ FTP upload failed (exit code: $rc)" >> $GITHUB_STEP_SUMMARY
+            echo "<details><summary>Upload log (sanitized)</summary>" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            sanitize_log "$upload_log" | tail -n 100 >> $GITHUB_STEP_SUMMARY || true
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "</details>" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
 
       - name: Release Summary
         run: |

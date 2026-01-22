@@ -4,10 +4,35 @@ Legal Document Generator
 
 Generates Terms of Service and Privacy Policy documents for different types of websites.
 
-Usage:
-    python legal_doc_generator.py --type <website_type> --output-dir <output_dir> [--company-name <name>] [--website-url <url>] [--contact-email <email>]
-    
-Arguments:
+Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+
+This file is part of a Moko Consulting project.
+
+SPDX-License-Identifier: GPL-3.0-or-later
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program (./LICENSE).
+
+FILE INFORMATION
+DEFGROUP: Scripts.Generators
+INGROUP: MokoStandards
+REPO: https://github.com/mokoconsulting-tech/MokoStandards
+PATH: /scripts/legal_doc_generator.py
+VERSION: 01.00.00
+BRIEF: Generate Terms of Service and Privacy Policy templates for websites
+USAGE: python legal_doc_generator.py --type <website_type> [options]
+
+ARGUMENTS
     --type: Type of website (membership, plain, ecommerce)
     --output-dir: Directory to save generated documents (default: current directory)
     --company-name: Company name (default: "Your Company")
@@ -15,9 +40,10 @@ Arguments:
     --contact-email: Contact email (default: "contact@yourcompany.com")
     --docs: Generate only one type of document (tos, privacy, or both if not specified)
 
-Examples:
+EXAMPLES
     # Generate both documents for a membership website
-    python legal_doc_generator.py --type membership --company-name "Acme Inc" --website-url "https://acme.com" --contact-email "legal@acme.com"
+    python legal_doc_generator.py --type membership --company-name "Acme Inc" \\
+        --website-url "https://acme.com" --contact-email "legal@acme.com"
     
     # Generate only Terms of Service for an ecommerce site
     python legal_doc_generator.py --type ecommerce --docs tos --output-dir ./legal
@@ -25,12 +51,6 @@ Examples:
     # Generate Privacy Policy for a plain website
     python legal_doc_generator.py --type plain --docs privacy
 """
-
-# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
-#
-# This file is part of a Moko Consulting project.
-#
-# SPDX-License-Identifier: GPL-3.0-or-later
 
 import argparse
 import sys

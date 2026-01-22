@@ -274,6 +274,140 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Upload to FTP/SFTP
+        if: |
+          (steps.version.outputs.prerelease == 'true' || steps.version.outputs.prerelease == 'false') &&
+          secrets.FTP_HOST != ''
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_KEY: ${{ secrets.FTP_KEY }}
+          FTP_PATH: ${{ secrets.FTP_PATH }}
+          FTP_PORT: ${{ secrets.FTP_PORT }}
+          FTP_PATH_SUFFIX: ${{ vars.FTP_PATH_SUFFIX }}
+          VERSION: ${{ steps.version.outputs.version }}
+          PRERELEASE: ${{ steps.version.outputs.prerelease }}
+        run: |
+          set -euo pipefail
+          
+          # Determine channel based on release type
+          if [ "$PRERELEASE" = "true" ]; then
+            CHANNEL="rc"
+          else
+            CHANNEL="stable"
+          fi
+          
+          # Find the ZIP file in artifacts
+          ZIP_FILE=$(ls artifacts/*.zip | head -1)
+          if [ -z "$ZIP_FILE" ]; then
+            echo "⚠️ No ZIP file found in artifacts, skipping FTP upload" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+          
+          ZIP_NAME=$(basename "$ZIP_FILE")
+          
+          # Install SFTP client
+          sudo apt-get update -qq
+          sudo apt-get install -y lftp openssh-client
+          
+          # Determine authentication mode
+          AUTH_MODE="password"
+          if [ -n "${FTP_KEY:-}" ]; then
+            AUTH_MODE="key"
+          fi
+          
+          # Validate required credentials
+          if [ -z "${FTP_HOST:-}" ] || [ -z "${FTP_USERNAME:-}" ] || [ -z "${FTP_PATH:-}" ]; then
+            echo "⚠️ FTP credentials incomplete, skipping upload" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+          
+          if [ "$AUTH_MODE" = "password" ] && [ -z "${FTP_PASSWORD:-}" ]; then
+            echo "⚠️ FTP_PASSWORD required for password authentication, skipping upload" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+          
+          # Setup SSH key if using key authentication
+          if [ "$AUTH_MODE" = "key" ]; then
+            mkdir -p ~/.ssh
+            chmod 700 ~/.ssh
+            echo "$FTP_KEY" > ~/.ssh/deploy_key
+            chmod 600 ~/.ssh/deploy_key
+            
+            # Add host to known_hosts
+            ssh-keyscan -H "$FTP_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
+          fi
+          
+          # Construct remote path
+          PORT="${FTP_PORT:-22}"
+          SUFFIX="${FTP_PATH_SUFFIX:-}"
+          if [ -n "$SUFFIX" ]; then
+            REMOTE_PATH="${FTP_PATH%/}/${SUFFIX#/}/${CHANNEL}"
+          else
+            REMOTE_PATH="${FTP_PATH%/}/${CHANNEL}"
+          fi
+          
+          # Prepare host:port
+          if [ "$PORT" != "22" ]; then
+            HOSTPORT="${FTP_HOST}:${PORT}"
+          else
+            HOSTPORT="$FTP_HOST"
+          fi
+          
+          echo "### 📤 FTP Upload" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Host:** $FTP_HOST" >> $GITHUB_STEP_SUMMARY
+          echo "- **Port:** $PORT" >> $GITHUB_STEP_SUMMARY
+          echo "- **Path:** $REMOTE_PATH" >> $GITHUB_STEP_SUMMARY
+          echo "- **Channel:** $CHANNEL" >> $GITHUB_STEP_SUMMARY
+          echo "- **File:** $ZIP_NAME" >> $GITHUB_STEP_SUMMARY
+          echo "- **Auth:** $AUTH_MODE" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Upload via SFTP using lftp
+          if [ "$AUTH_MODE" = "key" ]; then
+            CONNECT="set sftp:connect-program 'ssh -a -x -i ~/.ssh/deploy_key -o PubkeyAuthentication=yes -o PasswordAuthentication=no'"
+            OPEN="open -u '${FTP_USERNAME}', sftp://${HOSTPORT}"
+          else
+            CONNECT="set sftp:connect-program 'ssh -a -x -o PubkeyAuthentication=no -o PasswordAuthentication=yes'"
+            OPEN="open -u '${FTP_USERNAME}','${FTP_PASSWORD}', sftp://${HOSTPORT}"
+          fi
+          
+          upload_log=$(mktemp)
+          set +e
+          lftp -e "\
+            set sftp:auto-confirm yes; \
+            set net:timeout 30; \
+            set net:max-retries 3; \
+            set net:reconnect-interval-base 5; \
+            ${CONNECT}; \
+            ${OPEN}; \
+            mkdir -p '${REMOTE_PATH}'; \
+            cd '${REMOTE_PATH}'; \
+            put -E '${ZIP_FILE}'; \
+            ls -l; \
+            bye" >"$upload_log" 2>&1
+          rc=$?
+          set -e
+          
+          if [ $rc -eq 0 ]; then
+            echo "✅ Successfully uploaded to SFTP" >> $GITHUB_STEP_SUMMARY
+            ZIP_SIZE=$(stat -c%s "$ZIP_FILE" 2>/dev/null || stat -f%z "$ZIP_FILE" 2>/dev/null || echo "unknown")
+            echo "- **Size:** $ZIP_SIZE bytes" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ FTP upload failed (exit code: $rc)" >> $GITHUB_STEP_SUMMARY
+            echo "<details><summary>Upload log</summary>" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            tail -n 100 "$upload_log" >> $GITHUB_STEP_SUMMARY || true
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "</details>" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          
+          rm -f "$upload_log"
+
       - name: Release Summary
         run: |
           echo "## 🎉 Release Created" >> $GITHUB_STEP_SUMMARY

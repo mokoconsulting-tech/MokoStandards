@@ -11,6 +11,7 @@ The Dolibarr release workflow (`templates/workflows/dolibarr/release.yml`) autom
 - **Development Version Support**: Automatically skips release builds when VERSION is set to "development" on main branch
 - **Checksum Generation**: Creates SHA256 and MD5 checksums
 - **GitHub Releases**: Automatically creates releases with artifacts
+- **FTP/SFTP Upload**: Uploads RC and stable releases to FTP/SFTP servers (optional)
 - **Pre-release Support**: RC releases are marked as pre-releases
 - **Changelog Integration**: Extracts version-specific changelog entries
 
@@ -203,6 +204,68 @@ The workflow creates a GitHub release with:
 - **Assets**: ZIP package, SHA256, MD5
 - **Pre-release**: Automatically set for RC releases
 - **Draft**: Always false (published immediately)
+
+## FTP/SFTP Upload
+
+### Overview
+
+RC and stable releases are automatically uploaded to FTP/SFTP servers for distribution. This feature is optional and only activates when FTP credentials are configured.
+
+### Configuration
+
+The workflow supports both password and SSH key authentication. Configure the following secrets in your repository or organization settings:
+
+**Required Secrets:**
+- `FTP_HOST` - SFTP server hostname (e.g., `sftp.example.com`)
+- `FTP_USERNAME` - SFTP username
+- `FTP_PATH` - Base path on server (e.g., `/var/www/releases`)
+
+**Authentication (choose one):**
+- `FTP_PASSWORD` - Password authentication (simple)
+- `FTP_KEY` - SSH private key authentication (recommended)
+
+**Optional:**
+- `FTP_PORT` - SFTP port (default: 22)
+- `FTP_PATH_SUFFIX` - Additional path suffix (e.g., `/dolibarr`)
+
+### Upload Behavior
+
+The workflow automatically determines the upload channel:
+- **RC releases** (`prerelease: true`) → uploaded to `{FTP_PATH}/{FTP_PATH_SUFFIX}/rc/`
+- **Stable releases** (`prerelease: false`) → uploaded to `{FTP_PATH}/{FTP_PATH_SUFFIX}/stable/`
+
+### Examples
+
+**Password Authentication:**
+```
+FTP_HOST: sftp.example.com
+FTP_USERNAME: deploy-user
+FTP_PASSWORD: secure-password
+FTP_PATH: /var/www/releases
+FTP_PATH_SUFFIX: /dolibarr
+
+# RC release uploads to: /var/www/releases/dolibarr/rc/
+# Stable release uploads to: /var/www/releases/dolibarr/stable/
+```
+
+**SSH Key Authentication:**
+```
+FTP_HOST: sftp.example.com
+FTP_USERNAME: deploy-user
+FTP_KEY: -----BEGIN OPENSSH PRIVATE KEY-----...
+FTP_PATH: /var/www/releases
+
+# Uploads to: /var/www/releases/rc/ or /var/www/releases/stable/
+```
+
+### Skipping FTP Upload
+
+FTP upload is automatically skipped if:
+- FTP credentials are not configured
+- FTP_HOST secret is empty
+- Required authentication credentials are missing
+
+The workflow will continue and create the GitHub release even if FTP upload fails or is skipped.
 
 ## Command-Line Script
 

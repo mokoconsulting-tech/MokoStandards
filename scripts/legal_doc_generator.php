@@ -181,7 +181,12 @@ class LegalDocGenerator
             }
             // Bold text
             elseif (strpos($line, '**') === 0 && strpos($line, '**', 2) !== false) {
-                $html .= "    <p><strong>" . htmlspecialchars(str_replace('**', '', substr($line, 2))) . "</strong></p>\n";
+                // Extract text between first and last **
+                $text = substr($line, 2);
+                if (substr($text, -2) === '**') {
+                    $text = substr($text, 0, -2);
+                }
+                $html .= "    <p><strong>" . htmlspecialchars($text) . "</strong></p>\n";
             }
             // List item
             elseif (strpos($line, '- ') === 0) {

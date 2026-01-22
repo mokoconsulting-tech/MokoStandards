@@ -93,14 +93,14 @@ class LegalDocGenerator:
         Returns:
             HTML formatted text
         """
-        import re
+        import html
         
-        html = f"""<!DOCTYPE html>
+        html_doc = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{title}</title>
+    <title>{html.escape(title)}</title>
     <style>
         body {{
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -155,53 +155,57 @@ class LegalDocGenerator:
         for line in lines:
             # H1 heading
             if line.startswith('# '):
-                html += f"    <h1>{line[2:]}</h1>\n"
+                html_doc += f"    <h1>{html.escape(line[2:])}</h1>\n"
             # H2 heading
             elif line.startswith('## '):
                 if in_list:
-                    html += "    </ul>\n"
+                    html_doc += "    </ul>\n"
                     in_list = False
-                html += f"    <h2>{line[3:]}</h2>\n"
+                html_doc += f"    <h2>{html.escape(line[3:])}</h2>\n"
             # H3 heading
             elif line.startswith('### '):
                 if in_list:
-                    html += "    </ul>\n"
+                    html_doc += "    </ul>\n"
                     in_list = False
-                html += f"    <h3>{line[4:]}</h3>\n"
+                html_doc += f"    <h3>{html.escape(line[4:])}</h3>\n"
             # Bold text
             elif line.startswith('**') and '**' in line[2:]:
-                html += f"    <p><strong>{line[2:].replace('**', '')}</strong></p>\n"
+                # Extract text between first and last **
+                text = line[2:]
+                if text.endswith('**'):
+                    text = text[:-2]
+                html_doc += f"    <p><strong>{html.escape(text)}</strong></p>\n"
             # List item
             elif line.startswith('- '):
                 if not in_list:
-                    html += "    <ul>\n"
+                    html_doc += "    <ul>\n"
                     in_list = True
-                html += f"        <li>{line[2:]}</li>\n"
+                html_doc += f"        <li>{html.escape(line[2:])}</li>\n"
             # Horizontal rule
             elif line.strip() == '---':
                 if in_list:
-                    html += "    </ul>\n"
+                    html_doc += "    </ul>\n"
                     in_list = False
-                html += "    <hr>\n"
+                html_doc += "    <hr>\n"
             # Paragraph
             elif line.strip():
                 if in_list:
-                    html += "    </ul>\n"
+                    html_doc += "    </ul>\n"
                     in_list = False
-                html += f"    <p>{line}</p>\n"
+                html_doc += f"    <p>{html.escape(line)}</p>\n"
             # Empty line
             else:
                 if in_list:
-                    html += "    </ul>\n"
+                    html_doc += "    </ul>\n"
                     in_list = False
         
         if in_list:
-            html += "    </ul>\n"
+            html_doc += "    </ul>\n"
         
-        html += """</body>
+        html_doc += """</body>
 </html>"""
         
-        return html
+        return html_doc
     
     def generate_terms_of_service(self) -> str:
         """

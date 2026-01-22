@@ -291,6 +291,12 @@ jobs:
         run: |
           set -euo pipefail
           
+          # Setup cleanup trap to remove sensitive files
+          cleanup() {
+            rm -f ~/.ssh/deploy_key "$upload_log" 2>/dev/null || true
+          }
+          trap cleanup EXIT
+          
           # Determine channel based on release type
           if [ "$PRERELEASE" = "true" ]; then
             CHANNEL="rc"
@@ -298,9 +304,9 @@ jobs:
             CHANNEL="stable"
           fi
           
-          # Find the ZIP file in artifacts
-          ZIP_FILE=$(ls artifacts/*.zip | head -1)
-          if [ -z "$ZIP_FILE" ]; then
+          # Find the ZIP file in artifacts using more robust approach
+          ZIP_FILE=$(find artifacts -maxdepth 1 -name "*.zip" -type f | head -1)
+          if [ -z "$ZIP_FILE" ] || [ ! -f "$ZIP_FILE" ]; then
             echo "⚠️ No ZIP file found in artifacts, skipping FTP upload" >> $GITHUB_STEP_SUMMARY
             exit 0
           fi
@@ -365,16 +371,20 @@ jobs:
           echo "- **Auth:** $AUTH_MODE" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          # Upload via SFTP using lftp
+          # Upload via SFTP using lftp with secure credential handling
+          upload_log=$(mktemp)
+          
+          # Create lftp script with credentials from environment
           if [ "$AUTH_MODE" = "key" ]; then
             CONNECT="set sftp:connect-program 'ssh -a -x -i ~/.ssh/deploy_key -o PubkeyAuthentication=yes -o PasswordAuthentication=no'"
             OPEN="open -u '${FTP_USERNAME}', sftp://${HOSTPORT}"
           else
+            # Use LFTP_PASSWORD environment variable for password (more secure than command line)
+            export LFTP_PASSWORD="$FTP_PASSWORD"
             CONNECT="set sftp:connect-program 'ssh -a -x -o PubkeyAuthentication=no -o PasswordAuthentication=yes'"
-            OPEN="open -u '${FTP_USERNAME}','${FTP_PASSWORD}', sftp://${HOSTPORT}"
+            OPEN="open -u '${FTP_USERNAME}', sftp://${HOSTPORT}"
           fi
           
-          upload_log=$(mktemp)
           set +e
           lftp -e "\
             set sftp:auto-confirm yes; \
@@ -391,22 +401,30 @@ jobs:
           rc=$?
           set -e
           
+          # Sanitize log to remove potential sensitive information
+          sanitize_log() {
+            sed -e "s/${FTP_HOST//./\\.}/[FTP_HOST]/g" \
+                -e "s/${FTP_USERNAME//./\\.}/[FTP_USER]/g" \
+                -e "s/${REMOTE_PATH//\//\\/}/[REMOTE_PATH]/g" \
+                "$1"
+          }
+          
           if [ $rc -eq 0 ]; then
             echo "✅ Successfully uploaded to SFTP" >> $GITHUB_STEP_SUMMARY
-            ZIP_SIZE=$(stat -c%s "$ZIP_FILE" 2>/dev/null || stat -f%z "$ZIP_FILE" 2>/dev/null || echo "unknown")
+            # Use portable file size detection
+            ZIP_SIZE=$(wc -c < "$ZIP_FILE" 2>/dev/null || echo "unknown")
             echo "- **Size:** $ZIP_SIZE bytes" >> $GITHUB_STEP_SUMMARY
           else
             echo "❌ FTP upload failed (exit code: $rc)" >> $GITHUB_STEP_SUMMARY
-            echo "<details><summary>Upload log</summary>" >> $GITHUB_STEP_SUMMARY
+            echo "<details><summary>Upload log (sanitized)</summary>" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-            tail -n 100 "$upload_log" >> $GITHUB_STEP_SUMMARY || true
+            sanitize_log "$upload_log" | tail -n 100 >> $GITHUB_STEP_SUMMARY || true
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
             echo "</details>" >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
-          
-          rm -f "$upload_log"
+
 
       - name: Release Summary
         run: |

@@ -65,7 +65,10 @@ class LegalDocGenerator:
     
     def __init__(self, website_type: str, company_name: str, website_url: str, contact_email: str,
                  website_name: str = None, business_contact: str = None, compliance_email: str = None,
-                 physical_address: str = None, country: str = None):
+                 physical_address: str = None, country: str = None, 
+                 industry: str = None, data_protection_officer: str = None,
+                 gdpr_compliant: bool = False, ccpa_compliant: bool = False, 
+                 effective_date: str = None, version: str = "1.0"):
         """Initialize legal document generator with enhanced customization options"""
         self.website_type = website_type.lower()
         self.company_name = company_name
@@ -76,6 +79,12 @@ class LegalDocGenerator:
         self.compliance_email = compliance_email or contact_email
         self.physical_address = physical_address
         self.country = country or "applicable jurisdiction"
+        self.industry = industry
+        self.data_protection_officer = data_protection_officer
+        self.gdpr_compliant = gdpr_compliant
+        self.ccpa_compliant = ccpa_compliant
+        self.effective_date = effective_date or datetime.now().strftime("%B %d, %Y")
+        self.version = version
         self.current_date = datetime.now().strftime("%B %d, %Y")
         
         if self.website_type not in ['membership', 'plain', 'ecommerce']:
@@ -183,7 +192,9 @@ class LegalDocGenerator:
         """Generate Terms of Service document"""
         base_tos = f"""# Terms of Service
 
-**Last Updated:** {self.current_date}
+**Version:** {self.version}  
+**Last Updated:** {self.current_date}  
+**Effective Date:** {self.effective_date}
 
 ## 1. Acceptance of Terms
 
@@ -267,6 +278,47 @@ Returns are accepted within 30 days of purchase. Items must be in original condi
 When you place an order or send us emails, you consent to receiving electronic communications from us.
 """
         
+        # Add enterprise compliance sections if applicable
+        compliance_sections = ""
+        
+        if self.gdpr_compliant or self.ccpa_compliant:
+            compliance_sections += "\n\n## Regulatory Compliance\n\n"
+            
+            if self.gdpr_compliant:
+                compliance_sections += """### GDPR Compliance (European Users)
+
+For users in the European Union, we comply with the General Data Protection Regulation (GDPR). You have the right to:
+- Access your personal data
+- Rectify inaccurate data
+- Request erasure of your data ("right to be forgotten")
+- Restrict processing of your data
+- Data portability
+- Object to automated decision-making
+
+To exercise these rights, please contact our Data Protection Officer at: {dpo_email}
+
+""".format(dpo_email=self.data_protection_officer or self.compliance_email)
+            
+            if self.ccpa_compliant:
+                compliance_sections += """### CCPA Compliance (California Users)
+
+For California residents, we comply with the California Consumer Privacy Act (CCPA). You have the right to:
+- Know what personal information is collected
+- Know whether your personal information is sold or disclosed
+- Say no to the sale of personal information
+- Access your personal information
+- Request deletion of your personal information
+- Not be discriminated against for exercising your CCPA rights
+
+To submit a request, contact us at: {compliance_email}
+
+""".format(compliance_email=self.compliance_email)
+        
+        if self.industry:
+            compliance_sections += f"\n### Industry-Specific Compliance\n\nThis service operates in the {self.industry} industry and complies with applicable industry-specific regulations and standards.\n"
+        
+        base_tos += compliance_sections
+        
         # Build contact information section
         contact_info = f"""
 
@@ -279,12 +331,21 @@ For questions about these Terms of Service, please contact us at:
         if self.compliance_email != self.contact_email:
             contact_info += f"\n- Legal/Compliance: {self.compliance_email}"
         
+        if self.data_protection_officer:
+            contact_info += f"\n- Data Protection Officer: {self.data_protection_officer}"
+        
         contact_info += f"\n- Website: {self.website_url}"
         
         if self.physical_address:
             contact_info += f"\n- Mailing Address: {self.physical_address}"
         
-        contact_info += """
+        contact_info += f"""
+
+## Document Information
+
+- Version: {self.version}
+- Last Updated: {self.current_date}
+- Effective Date: {self.effective_date}
 
 ---
 
@@ -299,7 +360,9 @@ For questions about these Terms of Service, please contact us at:
         """Generate Privacy Policy document"""
         base_privacy = f"""# Privacy Policy
 
-**Last Updated:** {self.current_date}
+**Version:** {self.version}  
+**Last Updated:** {self.current_date}  
+**Effective Date:** {self.effective_date}
 
 ## 1. Introduction
 
@@ -425,6 +488,63 @@ If you subscribe to our newsletter, we collect your email address and name (if p
 Information submitted through contact forms is used solely to respond to your inquiry.
 """
         
+        # Add regulatory compliance sections for Privacy Policy
+        compliance_sections = ""
+        
+        if self.gdpr_compliant or self.ccpa_compliant:
+            compliance_sections += "\n\n## Your Privacy Rights\n\n"
+            
+            if self.gdpr_compliant:
+                compliance_sections += """### GDPR Rights (European Users)
+
+Under the General Data Protection Regulation (GDPR), you have enhanced privacy rights:
+
+**Right to Access:** You can request a copy of your personal data.
+
+**Right to Rectification:** You can request correction of inaccurate data.
+
+**Right to Erasure:** You can request deletion of your personal data ("right to be forgotten").
+
+**Right to Restrict Processing:** You can request limitation of how we process your data.
+
+**Right to Data Portability:** You can receive your data in a structured, machine-readable format.
+
+**Right to Object:** You can object to processing of your personal data.
+
+**Right to Withdraw Consent:** You can withdraw consent for data processing at any time.
+
+**Right to Lodge a Complaint:** You can file a complaint with your local data protection authority.
+
+To exercise your rights, contact our Data Protection Officer at: {dpo_email}
+
+""".format(dpo_email=self.data_protection_officer or self.compliance_email)
+            
+            if self.ccpa_compliant:
+                compliance_sections += """### CCPA Rights (California Residents)
+
+Under the California Consumer Privacy Act (CCPA), you have specific privacy rights:
+
+**Right to Know:** You have the right to know what personal information we collect, use, disclose, and sell.
+
+**Right to Delete:** You have the right to request deletion of your personal information.
+
+**Right to Opt-Out:** You have the right to opt-out of the sale of your personal information.
+
+**Right to Non-Discrimination:** You have the right to not be discriminated against for exercising your CCPA rights.
+
+**Authorized Agent:** You may designate an authorized agent to make requests on your behalf.
+
+To submit a CCPA request, contact us at: {compliance_email}
+
+We will verify your identity before processing your request. We aim to respond within 45 days of receipt.
+
+""".format(compliance_email=self.compliance_email)
+        
+        if self.data_protection_officer:
+            compliance_sections += f"""\n### Data Protection Officer\n\nWe have appointed a Data Protection Officer (DPO) to oversee our data protection strategy and ensure compliance with data protection laws. You can contact our DPO at: {self.data_protection_officer}\n"""
+        
+        base_privacy += compliance_sections
+        
         # Build contact information section
         contact_info = f"""
 
@@ -437,12 +557,21 @@ If you have any questions about this Privacy Policy, please contact us at:
         if self.compliance_email != self.contact_email:
             contact_info += f"\n- Privacy/Compliance: {self.compliance_email}"
         
+        if self.data_protection_officer:
+            contact_info += f"\n- Data Protection Officer: {self.data_protection_officer}"
+        
         contact_info += f"\n- Website: {self.website_url}"
         
         if self.physical_address:
             contact_info += f"\n- Mailing Address: {self.physical_address}"
         
-        contact_info += """
+        contact_info += f"""
+
+## Document Information
+
+- Version: {self.version}
+- Last Updated: {self.current_date}
+- Effective Date: {self.effective_date}
 
 ---
 
@@ -570,6 +699,24 @@ HTML_TEMPLATE = """
         .radio-option label {
             margin: 0;
             cursor: pointer;
+            font-weight: normal;
+        }
+        
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-weight: normal;
+        }
+        
+        .checkbox-label input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .checkbox-label span {
             font-weight: normal;
         }
         
@@ -740,6 +887,53 @@ HTML_TEMPLATE = """
                 </div>
                 
                 <div class="form-group">
+                    <label for="industry">Industry (Optional)</label>
+                    <select id="industry" name="industry">
+                        <option value="">-- Select Industry --</option>
+                        <option value="Technology">Technology</option>
+                        <option value="Healthcare">Healthcare</option>
+                        <option value="Finance">Finance</option>
+                        <option value="E-commerce">E-commerce</option>
+                        <option value="Education">Education</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Real Estate">Real Estate</option>
+                        <option value="Manufacturing">Manufacturing</option>
+                        <option value="Retail">Retail</option>
+                        <option value="Professional Services">Professional Services</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="dpo-email">Data Protection Officer Email (Optional)</label>
+                    <input type="email" id="dpo-email" name="dpo_email" value="" placeholder="dpo@yourcompany.com">
+                </div>
+                
+                <div class="form-group">
+                    <label for="effective-date">Effective Date (Optional)</label>
+                    <input type="date" id="effective-date" name="effective_date" value="">
+                </div>
+                
+                <div class="form-group">
+                    <label for="version">Document Version</label>
+                    <input type="text" id="version" name="version" value="1.0" placeholder="1.0">
+                </div>
+                
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="gdpr" name="gdpr_compliant" value="true">
+                        <span>GDPR Compliant (EU Users)</span>
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="ccpa" name="ccpa_compliant" value="true">
+                        <span>CCPA Compliant (California Users)</span>
+                    </label>
+                </div>
+                
+                <div class="form-group">
                     <label>Document Type *</label>
                     <div class="radio-group">
                         <div class="radio-option">
@@ -871,7 +1065,22 @@ def generate():
         compliance_email = data.get('compliance_email', '') or None
         physical_address = data.get('physical_address', '') or None
         country = data.get('country', '') or None
+        industry = data.get('industry', '') or None
+        dpo_email = data.get('dpo_email', '') or None
+        effective_date = data.get('effective_date', '') or None
+        version = data.get('version', '1.0')
+        gdpr_compliant = data.get('gdpr_compliant') == 'true' or data.get('gdpr_compliant') == True
+        ccpa_compliant = data.get('ccpa_compliant') == 'true' or data.get('ccpa_compliant') == True
         doc_type = data.get('doc_type', 'both')
+        
+        # Format effective date if provided
+        if effective_date:
+            try:
+                from datetime import datetime as dt
+                date_obj = dt.strptime(effective_date, '%Y-%m-%d')
+                effective_date = date_obj.strftime("%B %d, %Y")
+            except:
+                effective_date = None
         
         generator = LegalDocGenerator(
             website_type=website_type,
@@ -882,7 +1091,13 @@ def generate():
             business_contact=business_contact,
             compliance_email=compliance_email,
             physical_address=physical_address,
-            country=country
+            country=country,
+            industry=industry,
+            data_protection_officer=dpo_email,
+            gdpr_compliant=gdpr_compliant,
+            ccpa_compliant=ccpa_compliant,
+            effective_date=effective_date,
+            version=version
         )
         
         if doc_type == 'tos':

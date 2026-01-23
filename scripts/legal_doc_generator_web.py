@@ -1076,10 +1076,9 @@ def generate():
         # Format effective date if provided
         if effective_date:
             try:
-                from datetime import datetime as dt
-                date_obj = dt.strptime(effective_date, '%Y-%m-%d')
+                date_obj = datetime.strptime(effective_date, '%Y-%m-%d')
                 effective_date = date_obj.strftime("%B %d, %Y")
-            except:
+            except (ValueError, TypeError):
                 effective_date = None
         
         generator = LegalDocGenerator(

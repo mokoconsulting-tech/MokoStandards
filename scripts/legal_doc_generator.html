@@ -348,6 +348,11 @@
                 </div>
                 
                 <div class="form-group">
+                    <label for="customJurisdiction">Custom Jurisdiction (Optional)</label>
+                    <input type="text" id="customJurisdiction" placeholder="Leave blank to auto-generate from country/state. Example: 'the State of California' or 'England and Wales'">
+                </div>
+                
+                <div class="form-group">
                     <label for="industry">Industry (Optional)</label>
                     <select id="industry">
                         <option value="">-- Select Industry --</option>
@@ -422,8 +427,11 @@
             </form>
             
             <div class="warning-box">
-                <strong>⚠️ Important:</strong>
-                <p>These generated documents are templates and should be reviewed by a qualified attorney before use. Customize them to fit your specific business needs and comply with applicable laws in your jurisdiction.</p>
+                <strong>⚠️ Important Disclaimer:</strong>
+                <p><strong>NO WARRANTY:</strong> These generated documents are provided "AS IS" without any warranty of any kind, either expressed or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, or non-infringement.</p>
+                <p style="margin-top: 10px;"><strong>NOT LEGAL ADVICE:</strong> These templates do not constitute legal advice. They are general information only and should be reviewed and customized by a qualified attorney before use.</p>
+                <p style="margin-top: 10px;"><strong>YOUR RESPONSIBILITY:</strong> You are solely responsible for ensuring these documents comply with all applicable laws in your jurisdiction and meet your specific business needs.</p>
+                <p style="margin-top: 10px;"><strong>SEEK PROFESSIONAL ADVICE:</strong> Always consult with a licensed attorney in your jurisdiction before using any legal documents.</p>
             </div>
         </div>
         
@@ -456,9 +464,12 @@
         // Generate Terms of Service
         function generateTermsOfService(data) {
             const displayName = data.websiteName || data.companyName;
-            const jurisdiction = data.stateRegion 
-                ? `${data.stateRegion}${data.country ? ', ' + data.country : ''}`
-                : (data.country || 'applicable jurisdiction');
+            
+            // Use custom jurisdiction if provided, otherwise auto-generate from state/country
+            const jurisdiction = data.customJurisdiction || 
+                (data.stateRegion 
+                    ? `${data.stateRegion}${data.country ? ', ' + data.country : ''}`
+                    : (data.country || 'applicable jurisdiction'));
             
             let html = `
                 <h1>Terms of Service</h1>
@@ -778,6 +789,7 @@
                 physicalAddress: document.getElementById('physicalAddress').value,
                 country: document.getElementById('country').value,
                 stateRegion: document.getElementById('stateRegion').value,
+                customJurisdiction: document.getElementById('customJurisdiction').value,
                 industry: document.getElementById('industry').value,
                 dpoEmail: document.getElementById('dpoEmail').value,
                 effectiveDate: document.getElementById('effectiveDate').value,

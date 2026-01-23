@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal Document Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 20px;
+        }
+        
+        .form-panel, .preview-panel {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        
+        .form-panel {
+            max-height: 95vh;
+            overflow-y: auto;
+        }
+        
+        h1 {
+            color: #667eea;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 25px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        input[type="text"],
+        input[type="email"],
+        input[type="url"],
+        input[type="date"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        input::placeholder,
+        textarea::placeholder {
+            color: #999;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .checkbox-group label {
+            margin: 0;
+            font-weight: normal;
+            cursor: pointer;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .radio-option input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .radio-option label {
+            margin: 0;
+            font-weight: normal;
+            cursor: pointer;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(40, 167, 69, 0.4);
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .warning-box strong {
+            color: #856404;
+        }
+        
+        .warning-box p {
+            color: #856404;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-top: 5px;
+        }
+        
+        .preview-panel h2 {
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .preview-content {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .welcome-message {
+            text-align: center;
+            color: #999;
+            padding: 100px 20px;
+        }
+        
+        .welcome-message h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        
+        .document-content {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+        }
+        
+        .document-content h1 {
+            color: #333;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .document-content h2 {
+            color: #444;
+            font-size: 22px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        
+        .document-content h3 {
+            color: #555;
+            font-size: 18px;
+            margin-top: 20px;
+            margin-bottom: 12px;
+        }
+        
+        .document-content p {
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        
+        .document-content ul {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+        
+        .document-content li {
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 8px;
+        }
+        
+        .document-content strong {
+            color: #333;
+        }
+        
+        .document-footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+            font-size: 13px;
+            color: #999;
+            font-style: italic;
+        }
+        
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-panel {
+                max-height: none;
+            }
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-panel">
+            <h1>Legal Document Generator</h1>
+            <p class="subtitle">Create professional Terms of Service and Privacy Policy documents</p>
+            
+            <form id="documentForm">
+                <div class="form-group">
+                    <label for="websiteType">Website Type *</label>
+                    <select id="websiteType" required>
+                        <option value="plain">Plain Website (Informational)</option>
+                        <option value="membership">Membership Website</option>
+                        <option value="ecommerce">E-commerce Website</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="companyName">Company/Business Name *</label>
+                    <input type="text" id="companyName" value="Your Company" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="websiteName">Website Name</label>
+                    <input type="text" id="websiteName" placeholder="Leave blank to use company name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="websiteUrl">Website URL *</label>
+                    <input type="url" id="websiteUrl" value="https://yourwebsite.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="contactEmail">General Contact Email *</label>
+                    <input type="email" id="contactEmail" value="contact@yourcompany.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="businessContact">Business Contact Email</label>
+                    <input type="email" id="businessContact" placeholder="Leave blank to use general contact">
+                </div>
+                
+                <div class="form-group">
+                    <label for="complianceEmail">Compliance/Legal Contact Email</label>
+                    <input type="email" id="complianceEmail" placeholder="Leave blank to use general contact">
+                </div>
+                
+                <div class="form-group">
+                    <label for="physicalAddress">Physical Address (Optional)</label>
+                    <textarea id="physicalAddress" rows="2" placeholder="123 Main St, City, State, ZIP"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="country">Country/Jurisdiction (Optional)</label>
+                    <input type="text" id="country" placeholder="e.g., United States, European Union">
+                </div>
+                
+                <div class="form-group">
+                    <label for="stateRegion">State/Regional Law (Optional)</label>
+                    <input type="text" id="stateRegion" placeholder="e.g., California, New York, Texas">
+                </div>
+                
+                <div class="form-group">
+                    <label for="industry">Industry (Optional)</label>
+                    <select id="industry">
+                        <option value="">-- Select Industry --</option>
+                        <option value="Technology">Technology</option>
+                        <option value="Healthcare">Healthcare</option>
+                        <option value="Finance">Finance</option>
+                        <option value="E-commerce">E-commerce</option>
+                        <option value="Education">Education</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Real Estate">Real Estate</option>
+                        <option value="Manufacturing">Manufacturing</option>
+                        <option value="Retail">Retail</option>
+                        <option value="Professional Services">Professional Services</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="dpoEmail">Data Protection Officer Email (Optional)</label>
+                    <input type="email" id="dpoEmail" placeholder="dpo@yourcompany.com">
+                </div>
+                
+                <div class="form-group">
+                    <label for="effectiveDate">Effective Date (Optional)</label>
+                    <input type="date" id="effectiveDate">
+                </div>
+                
+                <div class="form-group">
+                    <label for="version">Document Version</label>
+                    <input type="text" id="version" value="1.0" placeholder="1.0">
+                </div>
+                
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="gdprCompliant">
+                        <label for="gdprCompliant">GDPR Compliant (EU Users)</label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="ccpaCompliant">
+                        <label for="ccpaCompliant">CCPA Compliant (California Users)</label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Document Type *</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="docTypeTos" name="docType" value="tos">
+                            <label for="docTypeTos">Terms of Service</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="docTypePrivacy" name="docType" value="privacy">
+                            <label for="docTypePrivacy">Privacy Policy</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="docTypeBoth" name="docType" value="both" checked>
+                            <label for="docTypeBoth">Both</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button type="submit" class="btn-primary">Generate Preview</button>
+                </div>
+                
+                <div class="button-group">
+                    <button type="button" id="downloadBtn" class="btn-secondary hidden">Download HTML</button>
+                </div>
+            </form>
+            
+            <div class="warning-box">
+                <strong>⚠️ Important:</strong>
+                <p>These generated documents are templates and should be reviewed by a qualified attorney before use. Customize them to fit your specific business needs and comply with applicable laws in your jurisdiction.</p>
+            </div>
+        </div>
+        
+        <div class="preview-panel">
+            <h2>Document Preview</h2>
+            <div class="preview-content" id="previewContent">
+                <div class="welcome-message">
+                    <h3>Welcome to Legal Document Generator</h3>
+                    <p>Fill in the form on the left and click 'Generate Preview' to see your document here.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Format date
+        function formatDate(dateStr) {
+            if (!dateStr) return new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+        
+        // Generate Terms of Service
+        function generateTermsOfService(data) {
+            const displayName = data.websiteName || data.companyName;
+            const jurisdiction = data.stateRegion 
+                ? `${data.stateRegion}${data.country ? ', ' + data.country : ''}`
+                : (data.country || 'applicable jurisdiction');
+            
+            let html = `
+                <h1>Terms of Service</h1>
+                <p><strong>Version:</strong> ${escapeHtml(data.version)}</p>
+                <p><strong>Last Updated:</strong> ${formatDate()}</p>
+                ${data.effectiveDate ? `<p><strong>Effective Date:</strong> ${formatDate(data.effectiveDate)}</p>` : ''}
+                
+                <h2>1. Acceptance of Terms</h2>
+                <p>By accessing and using ${escapeHtml(data.companyName)}'s website (${escapeHtml(data.websiteUrl)}), you accept and agree to be bound by the terms and provision of this agreement.</p>
+                
+                <h2>2. Use License</h2>
+                <p>Permission is granted to temporarily access the materials on ${escapeHtml(data.companyName)}'s website for personal, non-commercial transitory viewing only.</p>
+            `;
+            
+            // Add website-type specific sections
+            if (data.websiteType === 'membership') {
+                html += `
+                    <h2>3. User Accounts</h2>
+                    <p>When you create an account with us, you must provide accurate and complete information. You are responsible for maintaining the security of your account.</p>
+                    
+                    <h2>4. Membership and Payments</h2>
+                    <p>Membership fees are billed in advance on a recurring basis. You authorize us to charge your payment method for the applicable fees.</p>
+                `;
+            }
+            
+            if (data.websiteType === 'ecommerce') {
+                html += `
+                    <h2>3. Product Orders</h2>
+                    <p>When you place an order through our website, you are offering to purchase a product subject to these terms.</p>
+                    
+                    <h2>4. Pricing and Payment</h2>
+                    <p>All prices are in the currency specified and are subject to change without notice. Payment must be received by us before order acceptance.</p>
+                    
+                    <h2>5. Shipping and Delivery</h2>
+                    <p>We will ship products to the address you provide. Shipping times are estimates and not guaranteed.</p>
+                    
+                    <h2>6. Returns and Refunds</h2>
+                    <p>Please review our Return Policy for information about returns, refunds, and exchanges.</p>
+                `;
+            }
+            
+            html += `
+                <h2>7. Disclaimer</h2>
+                <p>The materials on ${escapeHtml(data.companyName)}'s website are provided on an 'as is' basis. ${escapeHtml(data.companyName)} makes no warranties, expressed or implied.</p>
+                
+                <h2>8. Limitations</h2>
+                <p>In no event shall ${escapeHtml(data.companyName)} or its suppliers be liable for any damages arising out of the use or inability to use the materials on ${escapeHtml(data.companyName)}'s website.</p>
+                
+                <h2>9. Governing Law</h2>
+                <p>These terms and conditions are governed by and construed in accordance with the laws of ${escapeHtml(jurisdiction)} and you irrevocably submit to the exclusive jurisdiction of the courts in that location.</p>
+            `;
+            
+            // Add regulatory compliance sections
+            if (data.gdprCompliant || data.ccpaCompliant || data.industry) {
+                html += `<h2>Regulatory Compliance</h2>`;
+                
+                if (data.gdprCompliant) {
+                    html += `
+                        <h3>GDPR Compliance (European Users)</h3>
+                        <p>For users in the European Union, we comply with the General Data Protection Regulation (GDPR). You have the right to:</p>
+                        <ul>
+                            <li>Access your personal data</li>
+                            <li>Rectify inaccurate data</li>
+                            <li>Request erasure of your data ("right to be forgotten")</li>
+                            <li>Restrict processing of your data</li>
+                            <li>Data portability</li>
+                            <li>Object to automated decision-making</li>
+                        </ul>
+                        ${data.dpoEmail ? `<p>To exercise these rights, please contact our Data Protection Officer at: ${escapeHtml(data.dpoEmail)}</p>` : ''}
+                    `;
+                }
+                
+                if (data.ccpaCompliant) {
+                    html += `
+                        <h3>CCPA Compliance (California Users)</h3>
+                        <p>For California residents, we comply with the California Consumer Privacy Act (CCPA). You have the right to:</p>
+                        <ul>
+                            <li>Know what personal information is collected</li>
+                            <li>Know whether your personal information is sold or disclosed</li>
+                            <li>Say no to the sale of personal information</li>
+                            <li>Access your personal information</li>
+                            <li>Request deletion of your personal information</li>
+                            <li>Not be discriminated against for exercising your CCPA rights</li>
+                        </ul>
+                        <p>To submit a request, contact us at: ${escapeHtml(data.complianceEmail || data.contactEmail)}</p>
+                    `;
+                }
+                
+                if (data.industry) {
+                    html += `
+                        <h3>Industry-Specific Compliance</h3>
+                        <p>This service operates in the ${escapeHtml(data.industry)} industry and complies with applicable industry-specific regulations and standards.</p>
+                    `;
+                }
+            }
+            
+            // Add contact information
+            html += `
+                <h2>Contact Information</h2>
+                <p>For questions about these Terms of Service, please contact us at:</p>
+                <ul>
+                    <li>General Contact: ${escapeHtml(data.contactEmail)}</li>
+                    ${data.businessContact ? `<li>Business Inquiries: ${escapeHtml(data.businessContact)}</li>` : ''}
+                    ${data.complianceEmail ? `<li>Legal/Compliance: ${escapeHtml(data.complianceEmail)}</li>` : ''}
+                    ${data.dpoEmail ? `<li>Data Protection Officer: ${escapeHtml(data.dpoEmail)}</li>` : ''}
+                    <li>Website: ${escapeHtml(data.websiteUrl)}</li>
+                    ${data.physicalAddress ? `<li>Mailing Address: ${escapeHtml(data.physicalAddress)}</li>` : ''}
+                </ul>
+                
+                <h2>Document Information</h2>
+                <ul>
+                    <li>Version: ${escapeHtml(data.version)}</li>
+                    <li>Last Updated: ${formatDate()}</li>
+                    ${data.effectiveDate ? `<li>Effective Date: ${formatDate(data.effectiveDate)}</li>` : ''}
+                </ul>
+            `;
+            
+            return html;
+        }
+        
+        // Generate Privacy Policy
+        function generatePrivacyPolicy(data) {
+            const displayName = data.websiteName || data.companyName;
+            
+            let html = `
+                <h1>Privacy Policy</h1>
+                <p><strong>Version:</strong> ${escapeHtml(data.version)}</p>
+                <p><strong>Last Updated:</strong> ${formatDate()}</p>
+                ${data.effectiveDate ? `<p><strong>Effective Date:</strong> ${formatDate(data.effectiveDate)}</p>` : ''}
+                
+                <h2>1. Introduction</h2>
+                <p>${escapeHtml(data.companyName)} ("we", "our", or "us") respects your privacy and is committed to protecting your personal data. This privacy policy explains how we collect, use, and protect your information when you visit ${escapeHtml(data.websiteUrl)}.</p>
+                
+                <h2>2. Information We Collect</h2>
+                <p>We may collect the following types of information:</p>
+                
+                <h3>2.1 Information You Provide</h3>
+                <ul>
+                    <li>Contact information (name, email address, phone number)</li>
+                    <li>Communication preferences</li>
+                    <li>Any other information you choose to provide</li>
+                </ul>
+                
+                <h3>2.2 Automatically Collected Information</h3>
+                <ul>
+                    <li>IP address</li>
+                    <li>Browser type and version</li>
+                    <li>Operating system</li>
+                    <li>Pages visited and time spent on pages</li>
+                    <li>Referring website addresses</li>
+                    <li>Cookies and similar tracking technologies</li>
+                </ul>
+            `;
+            
+            // Add website-type specific sections
+            if (data.websiteType === 'membership') {
+                html += `
+                    <h2>3. Membership Information</h2>
+                    <p>As a membership website, we collect additional information including:</p>
+                    <ul>
+                        <li>Account credentials</li>
+                        <li>Profile information</li>
+                        <li>Subscription and billing information</li>
+                        <li>Usage data and activity logs</li>
+                    </ul>
+                `;
+            }
+            
+            if (data.websiteType === 'ecommerce') {
+                html += `
+                    <h2>3. E-commerce Information</h2>
+                    <p>For processing orders, we collect:</p>
+                    <ul>
+                        <li>Billing and shipping addresses</li>
+                        <li>Payment information (processed securely by payment providers)</li>
+                        <li>Order history and preferences</li>
+                        <li>Product reviews and ratings</li>
+                    </ul>
+                `;
+            }
+            
+            html += `
+                <h2>4. How We Use Your Information</h2>
+                <p>We use collected information for the following purposes:</p>
+                <ul>
+                    <li>To provide and maintain our services</li>
+                    <li>To notify you about changes to our services</li>
+                    <li>To provide customer support</li>
+                    <li>To gather analysis or valuable information to improve our services</li>
+                    <li>To monitor the usage of our services</li>
+                    <li>To detect, prevent and address technical issues</li>
+                </ul>
+                
+                <h2>5. Data Retention</h2>
+                <p>We will retain your personal data only for as long as necessary for the purposes set out in this privacy policy.</p>
+                
+                <h2>6. Data Security</h2>
+                <p>The security of your data is important to us. We strive to use commercially acceptable means to protect your personal data, but no method of transmission over the Internet or electronic storage is 100% secure.</p>
+                
+                <h2>7. Your Rights</h2>
+                <p>You have the right to:</p>
+                <ul>
+                    <li>Access your personal data</li>
+                    <li>Correct inaccurate data</li>
+                    <li>Request deletion of your data</li>
+                    <li>Object to processing of your data</li>
+                    <li>Request restriction of processing</li>
+                    <li>Data portability</li>
+                    <li>Withdraw consent</li>
+                </ul>
+            `;
+            
+            // Add regulatory compliance sections
+            if (data.gdprCompliant || data.ccpaCompliant) {
+                html += `<h2>Your Privacy Rights</h2>`;
+                
+                if (data.gdprCompliant) {
+                    html += `
+                        <h3>GDPR Rights (European Users)</h3>
+                        <p>Under the General Data Protection Regulation (GDPR), you have enhanced privacy rights:</p>
+                        <p><strong>Right to Access:</strong> You can request a copy of your personal data.</p>
+                        <p><strong>Right to Rectification:</strong> You can request correction of inaccurate data.</p>
+                        <p><strong>Right to Erasure:</strong> You can request deletion of your personal data ("right to be forgotten").</p>
+                        <p><strong>Right to Restrict Processing:</strong> You can request limitation of how we process your data.</p>
+                        <p><strong>Right to Data Portability:</strong> You can receive your data in a structured, machine-readable format.</p>
+                        <p><strong>Right to Object:</strong> You can object to processing of your personal data.</p>
+                        <p><strong>Right to Withdraw Consent:</strong> You can withdraw consent for data processing at any time.</p>
+                        <p><strong>Right to Lodge a Complaint:</strong> You can file a complaint with your local data protection authority.</p>
+                        ${data.dpoEmail ? `<p>To exercise your rights, contact our Data Protection Officer at: ${escapeHtml(data.dpoEmail)}</p>` : ''}
+                    `;
+                }
+                
+                if (data.ccpaCompliant) {
+                    html += `
+                        <h3>CCPA Rights (California Residents)</h3>
+                        <p>Under the California Consumer Privacy Act (CCPA), you have specific privacy rights:</p>
+                        <p><strong>Right to Know:</strong> You have the right to know what personal information we collect, use, disclose, and sell.</p>
+                        <p><strong>Right to Delete:</strong> You have the right to request deletion of your personal information.</p>
+                        <p><strong>Right to Opt-Out:</strong> You have the right to opt-out of the sale of your personal information.</p>
+                        <p><strong>Right to Non-Discrimination:</strong> You have the right to not be discriminated against for exercising your CCPA rights.</p>
+                        <p><strong>Authorized Agent:</strong> You may designate an authorized agent to make requests on your behalf.</p>
+                        <p>To submit a CCPA request, contact us at: ${escapeHtml(data.complianceEmail || data.contactEmail)}</p>
+                        <p>We will verify your identity before processing your request. We aim to respond within 45 days of receipt.</p>
+                    `;
+                }
+                
+                if (data.dpoEmail) {
+                    html += `
+                        <h3>Data Protection Officer</h3>
+                        <p>We have appointed a Data Protection Officer (DPO) to oversee our data protection strategy and ensure compliance with data protection laws. You can contact our DPO at: ${escapeHtml(data.dpoEmail)}</p>
+                    `;
+                }
+            }
+            
+            html += `
+                <h2>8. Cookies</h2>
+                <p>We use cookies and similar tracking technologies to track activity on our website. You can instruct your browser to refuse all cookies or to indicate when a cookie is being sent.</p>
+                
+                <h2>9. Third-Party Services</h2>
+                <p>We may employ third-party companies and individuals to facilitate our service. These third parties have access to your personal data only to perform these tasks on our behalf.</p>
+                
+                <h2>10. Changes to This Privacy Policy</h2>
+                <p>We may update our privacy policy from time to time. We will notify you of any changes by posting the new privacy policy on this page.</p>
+                
+                <h2>Contact Information</h2>
+                <p>If you have any questions about this Privacy Policy, please contact us at:</p>
+                <ul>
+                    <li>General Contact: ${escapeHtml(data.contactEmail)}</li>
+                    ${data.businessContact ? `<li>Business Inquiries: ${escapeHtml(data.businessContact)}</li>` : ''}
+                    ${data.complianceEmail ? `<li>Privacy/Compliance: ${escapeHtml(data.complianceEmail)}</li>` : ''}
+                    ${data.dpoEmail ? `<li>Data Protection Officer: ${escapeHtml(data.dpoEmail)}</li>` : ''}
+                    <li>Website: ${escapeHtml(data.websiteUrl)}</li>
+                    ${data.physicalAddress ? `<li>Mailing Address: ${escapeHtml(data.physicalAddress)}</li>` : ''}
+                </ul>
+                
+                <h2>Document Information</h2>
+                <ul>
+                    <li>Version: ${escapeHtml(data.version)}</li>
+                    <li>Last Updated: ${formatDate()}</li>
+                    ${data.effectiveDate ? `<li>Effective Date: ${formatDate(data.effectiveDate)}</li>` : ''}
+                </ul>
+            `;
+            
+            return html;
+        }
+        
+        // Generate complete document
+        function generateDocument(data) {
+            const docType = document.querySelector('input[name="docType"]:checked').value;
+            let content = '';
+            
+            if (docType === 'tos') {
+                content = generateTermsOfService(data);
+            } else if (docType === 'privacy') {
+                content = generatePrivacyPolicy(data);
+            } else {
+                content = generateTermsOfService(data) + '<hr style="margin: 50px 0; border: none; border-top: 2px solid #e0e0e0;">' + generatePrivacyPolicy(data);
+            }
+            
+            content += `<div class="document-footer">*This document was generated by MokoStandards Legal Document Generator*</div>`;
+            
+            return content;
+        }
+        
+        // Handle form submission
+        document.getElementById('documentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const data = {
+                websiteType: document.getElementById('websiteType').value,
+                companyName: document.getElementById('companyName').value,
+                websiteName: document.getElementById('websiteName').value,
+                websiteUrl: document.getElementById('websiteUrl').value,
+                contactEmail: document.getElementById('contactEmail').value,
+                businessContact: document.getElementById('businessContact').value,
+                complianceEmail: document.getElementById('complianceEmail').value,
+                physicalAddress: document.getElementById('physicalAddress').value,
+                country: document.getElementById('country').value,
+                stateRegion: document.getElementById('stateRegion').value,
+                industry: document.getElementById('industry').value,
+                dpoEmail: document.getElementById('dpoEmail').value,
+                effectiveDate: document.getElementById('effectiveDate').value,
+                version: document.getElementById('version').value,
+                gdprCompliant: document.getElementById('gdprCompliant').checked,
+                ccpaCompliant: document.getElementById('ccpaCompliant').checked
+            };
+            
+            const content = generateDocument(data);
+            const previewContent = document.getElementById('previewContent');
+            previewContent.innerHTML = `<div class="document-content">${content}</div>`;
+            
+            // Show download button
+            document.getElementById('downloadBtn').classList.remove('hidden');
+        });
+        
+        // Handle download
+        document.getElementById('downloadBtn').addEventListener('click', function() {
+            const docType = document.querySelector('input[name="docType"]:checked').value;
+            const content = document.getElementById('previewContent').innerHTML;
+            
+            const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal Documents - ${document.getElementById('companyName').value}</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+        h2 {
+            color: #444;
+            font-size: 22px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        h3 {
+            color: #555;
+            font-size: 18px;
+            margin-top: 20px;
+            margin-bottom: 12px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        hr {
+            margin: 50px 0;
+            border: none;
+            border-top: 2px solid #e0e0e0;
+        }
+        .document-footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+            font-size: 13px;
+            color: #999;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+${content}
+</body>
+</html>`;
+            
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = docType === 'both' ? 'LEGAL_DOCUMENTS.html' : (docType === 'tos' ? 'TERMS_OF_SERVICE.html' : 'PRIVACY_POLICY.html');
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+    </script>
+</body>
+</html>

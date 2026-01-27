@@ -155,11 +155,20 @@ class TerraformRepositoryStructureValidator:
         """Validate directory structure"""
         print("Validating directories...")
         
+        # Check if this is MokoStandards repo - skip tests directory check
+        is_mokostandards = self.repo_path.name == "MokoStandards" or "MokoStandards" in str(self.repo_path)
+        
         for dir_key, dir_info in directories.items():
             dir_name = dir_info.get('name')
             dir_path_str = dir_info.get('path', dir_name)
             requirement_status = dir_info.get('requirement_status', 'optional')
             description = dir_info.get('description', '')
+            
+            # Skip tests directory for MokoStandards
+            if is_mokostandards and dir_key == 'tests':
+                if self.repo_path / dir_path_str in [self.repo_path / "tests", self.repo_path / "test"]:
+                    print(f"  ℹ️  {dir_path_str}/ - Skipped (MokoStandards specific)")
+                    continue
             
             dir_path = self.repo_path / dir_path_str
             

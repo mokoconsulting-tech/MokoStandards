@@ -14,6 +14,8 @@ locals {
   }
 
   scoring = {
+    # TODO: Calculate total_points dynamically from sum of all check points
+    # Currently hardcoded to match original XML schema value
     total_points = 103
   }
 
@@ -324,6 +326,11 @@ locals {
       }
     }
   }
+
+  # Note: Additional check categories (workflows, issue_templates, security, 
+  # repository_settings, deployment_secrets) are defined but checks are not
+  # yet fully implemented. They require GitHub API integration.
+  # TODO: Add remaining health checks for complete 103-point scoring
 }
 
 # Output all configuration for consumption by validation scripts
@@ -338,6 +345,7 @@ output "repo_health_config" {
       local.ci_cd_checks,
       local.documentation_checks,
       local.folder_checks
+      # TODO: Add workflows_checks, issue_template_checks, security_checks, etc.
     )
   }
 }

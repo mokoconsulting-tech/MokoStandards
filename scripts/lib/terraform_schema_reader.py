@@ -37,15 +37,23 @@ class TerraformSchemaReader:
         # Try common locations
         script_path = Path(__file__).resolve()
         
-        # If in scripts/lib, go up to project root
-        if 'scripts' in script_path.parts:
-            root = script_path
-            while root.name != 'MokoStandards' and root.parent != root:
-                root = root.parent
-            return root / 'terraform'
+        # Walk up the directory tree to find .git directory (project root)
+        current = script_path.parent
+        while current != current.parent:
+            if (current / '.git').exists():
+                # Found project root
+                terraform_path = current / 'terraform'
+                if terraform_path.exists():
+                    return terraform_path
+            current = current.parent
         
-        # Default to current directory
-        return Path.cwd() / 'terraform'
+        # Fallback: Check if terraform directory exists relative to current directory
+        cwd_terraform = Path.cwd() / 'terraform'
+        if cwd_terraform.exists():
+            return cwd_terraform
+        
+        # Last resort: return relative path
+        return Path('terraform')
 
     def _run_terraform_output(self, output_name: Optional[str] = None) -> Dict[str, Any]:
         """

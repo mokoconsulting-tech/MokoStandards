@@ -932,6 +932,7 @@ actionlint
 # .tfstate files
 *.tfstate
 *.tfstate.*
+*.tfstate.backup
 
 # Crash log files
 crash.log
@@ -953,3 +954,9 @@ terraform.rc
 
 # Ignore plan files
 *.tfplan
+*.tfplan.*
+
+# Ignore lock file changes for now (uncomment to track lock file)
+# Note: .terraform.lock.hcl should generally be committed for version control
+# but can be ignored if you want flexibility across different platforms
+# !.terraform.lock.hcl

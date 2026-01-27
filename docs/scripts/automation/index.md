@@ -6,6 +6,7 @@ This index provides navigation to documentation within this folder.
 
 ## Documents
 
+- [dev-workstation-provisioner](./dev-workstation-provisioner.md)
 - [guide-file-distributor](./guide-file-distributor.md)
 - [README](./README.md)
 

@@ -24,6 +24,19 @@
 # Changelog
 
 ## [UNRELEASED]
+### Changed - Schema Migration to Terraform
+- **BREAKING CHANGE**: Migrated schema system from XML/JSON to Terraform
+  - Removed `schemas/*.xml`, `schemas/*.xsd`, `schemas/*.json` (legacy schema files)
+  - Added `terraform/` directory with Terraform-based schema definitions
+  - Added `terraform/repository-types/repo-health-defaults.tf` - Health check configuration
+  - Added `terraform/repository-types/default-repository.tf` - Repository structure definitions
+  - Added `scripts/lib/terraform_schema_reader.py` - Python module to read Terraform schemas
+  - Updated `scripts/validate/check_repo_health.py` to use Terraform instead of XML
+  - Added `schemas/README.md` - Migration notice and deprecation documentation
+  - Updated `README.md` to reflect Terraform migration
+  - Updated `docs/reference/schemas.md` with migration information
+  - Schema version upgraded to 2.0 (Terraform-based)
+- **Benefits**: Infrastructure-as-code approach, better version control, type safety, Terraform ecosystem tools
 
 ## [07.00.00] - 2026-01-13
 ### Added - Golden Architecture & Organizational Standards

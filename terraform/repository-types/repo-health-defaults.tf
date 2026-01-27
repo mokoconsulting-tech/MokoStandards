@@ -4,13 +4,13 @@
 
 locals {
   repo_health_metadata = {
-    name            = "MokoStandards Repository Health Default Configuration"
-    description     = "Default repository health scoring and validation configuration for Moko Consulting projects"
-    effective_date  = "2026-01-08T00:00:00Z"
-    maintainer      = "Moko Consulting"
-    repository_url  = "https://github.com/mokoconsulting-tech/MokoStandards"
-    version         = "1.0.0"
-    schema_version  = "1.0"
+    name           = "MokoStandards Repository Health Default Configuration"
+    description    = "Default repository health scoring and validation configuration for Moko Consulting projects"
+    effective_date = "2026-01-08T00:00:00Z"
+    maintainer     = "Moko Consulting"
+    repository_url = "https://github.com/mokoconsulting-tech/MokoStandards"
+    version        = "1.0.0"
+    schema_version = "1.0"
   }
 
   scoring = {
@@ -85,35 +85,35 @@ locals {
 
   thresholds = {
     excellent = {
-      level           = "excellent"
-      min_percentage  = 90
-      max_percentage  = 100
-      indicator       = "✅"
-      description     = "Production-ready, fully compliant"
+      level          = "excellent"
+      min_percentage = 90
+      max_percentage = 100
+      indicator      = "✅"
+      description    = "Production-ready, fully compliant"
     }
 
     good = {
-      level           = "good"
-      min_percentage  = 70
-      max_percentage  = 89
-      indicator       = "⚠️"
-      description     = "Minor improvements needed"
+      level          = "good"
+      min_percentage = 70
+      max_percentage = 89
+      indicator      = "⚠️"
+      description    = "Minor improvements needed"
     }
 
     fair = {
-      level           = "fair"
-      min_percentage  = 50
-      max_percentage  = 69
-      indicator       = "🟡"
-      description     = "Significant improvements required"
+      level          = "fair"
+      min_percentage = 50
+      max_percentage = 69
+      indicator      = "🟡"
+      description    = "Significant improvements required"
     }
 
     poor = {
-      level           = "poor"
-      min_percentage  = 0
-      max_percentage  = 49
-      indicator       = "❌"
-      description     = "Critical issues, requires immediate attention"
+      level          = "poor"
+      min_percentage = 0
+      max_percentage = 49
+      indicator      = "❌"
+      description    = "Critical issues, requires immediate attention"
     }
   }
 
@@ -130,7 +130,7 @@ locals {
       remediation = "Add CI workflow from MokoStandards templates"
       parameters = {
         workflow_path = ".github/workflows/ci.yml"
-        type         = "path"
+        type          = "path"
       }
     }
 

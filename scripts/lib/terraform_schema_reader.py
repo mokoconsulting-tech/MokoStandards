@@ -96,21 +96,22 @@ class TerraformSchemaReader:
             Dictionary containing health scoring configuration, categories, and checks
         """
         try:
-            # Try to get from module output
+            # Get all outputs
             output = self._run_terraform_output()
             
-            # Navigate through the module output structure
-            if 'default_repository' in output:
-                module_output = output['default_repository']['value']
-                if 'repo_health_config' in module_output:
-                    return module_output['repo_health_config']
-            
-            # Fallback: try direct output
-            if 'repo_health_configuration' in output:
-                return output['repo_health_configuration']['value']
-                
-        except Exception:
-            pass
+            # Extract values from Terraform output format
+            # Terraform outputs are wrapped with metadata: {"value": ..., "sensitive": false, "type": ...}
+            if 'repository_schemas' in output:
+                schemas = output['repository_schemas']
+                if 'value' in schemas:
+                    schemas_value = schemas['value']
+                    if 'repo_health_config' in schemas_value:
+                        return schemas_value['repo_health_config']
+                        
+        except Exception as e:
+            # Log error but continue to fallback
+            import sys
+            print(f"Warning: Could not load Terraform configuration: {e}", file=sys.stderr)
         
         # If Terraform is not available, return minimal config
         return self._get_fallback_health_config()
@@ -128,20 +129,18 @@ class TerraformSchemaReader:
         try:
             output = self._run_terraform_output()
             
-            # Navigate through the module output structure
-            if 'default_repository' in output:
-                module_output = output['default_repository']['value']
-                if 'default_repository_structure' in module_output:
-                    return module_output['default_repository_structure']
-            
-            # Fallback: try repository_schemas output
+            # Extract values from Terraform output format
             if 'repository_schemas' in output:
-                schemas = output['repository_schemas']['value']
-                if repo_type in schemas:
-                    return schemas[repo_type]
+                schemas = output['repository_schemas']
+                if 'value' in schemas:
+                    schemas_value = schemas['value']
+                    if 'default_repository_structure' in schemas_value:
+                        return schemas_value['default_repository_structure']
                     
-        except Exception:
-            pass
+        except Exception as e:
+            # Log error but continue to fallback
+            import sys
+            print(f"Warning: Could not load Terraform configuration: {e}", file=sys.stderr)
         
         # If Terraform is not available, return minimal structure
         return self._get_fallback_structure()

@@ -13,5 +13,5 @@ module "default_repository" {
 # Output combined configuration
 output "repository_schemas" {
   description = "All repository structure schemas"
-  value = module.default_repository
+  value       = module.default_repository
 }

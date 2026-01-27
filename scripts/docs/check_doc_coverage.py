@@ -53,8 +53,9 @@ def find_documentation_files(docs_dir: Path) -> Set[str]:
                         for word in words:
                             if word.endswith(".py") or word.endswith(".sh"):
                                 documented.add(word.lower())
-        except Exception:
-            pass
+        except Exception as e:
+            # Ignore unreadable documentation files, but emit a warning for visibility
+            print(f"Warning: failed to process documentation file {md_file}: {e}", file=sys.stderr)
     
     return documented
 

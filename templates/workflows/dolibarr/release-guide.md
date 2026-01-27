@@ -8,16 +8,70 @@ The Dolibarr release workflow (`templates/workflows/dolibarr/release.yml`) autom
 
 - **Automated Build**: Creates ZIP packages with proper module structure
 - **Version Management**: Updates version in module descriptors
+- **Development Version Support**: Automatically skips release builds when VERSION is set to "development" on main branch
 - **Checksum Generation**: Creates SHA256 and MD5 checksums
 - **GitHub Releases**: Automatically creates releases with artifacts
+- **FTP/SFTP Upload**: Uploads RC and stable releases to FTP/SFTP servers (optional)
 - **Pre-release Support**: RC releases are marked as pre-releases
 - **Changelog Integration**: Extracts version-specific changelog entries
+
+## Development Version
+
+### Overview
+
+For Dolibarr modules on the **main** branch, the VERSION field in README.md can be set to `development` instead of a specific version number. This indicates that the code is in active development and should not trigger automatic release builds.
+
+### Benefits
+
+- **Clear Intent**: Developers immediately know the code is in development
+- **No Accidental Releases**: Prevents automatic release creation from main branch pushes
+- **Explicit Releases**: Forces use of workflow_dispatch or version tags for releases
+
+### Usage
+
+1. **Set Development Version** in README.md:
+   ```markdown
+   VERSION: development
+   ```
+
+2. **Push to Main**: The workflow will detect "development" and skip building:
+   ```bash
+   git push origin main
+   # Workflow will show: "Skipping release build for development version"
+   ```
+
+3. **Create Release**: Use one of these methods:
+   - **Workflow Dispatch**: Manually trigger with specific version
+   - **Version Tag**: Push a version tag (e.g., `v1.0.0`)
+
+### Example Workflow
+
+```markdown
+# In README.md during development
+VERSION: development
+
+# When ready to release:
+# 1. Update README.md
+VERSION: 1.0.0
+
+# 2. Commit and tag
+git add README.md
+git commit -m "chore: prepare v1.0.0 release"
+git tag v1.0.0
+git push origin main --tags
+
+# 3. After release, set back to development
+VERSION: development
+git add README.md
+git commit -m "chore: set version back to development"
+git push origin main
+```
 
 ## Release Cycle
 
 The workflow supports the following release cycle:
 
-1. **main**: Stable production releases
+1. **main**: Stable production releases (or development if VERSION: development)
 2. **dev/\***: Development branches (no automatic releases)
 3. **rc/\***: Release candidate branches (marked as pre-releases)
 4. **version/\***: Version branches for maintenance
@@ -37,7 +91,7 @@ The workflow supports the following release cycle:
 on:
   push:
     branches:
-      - 'main'          # Production releases
+      - 'main'          # Production releases (skipped if VERSION: development)
       - 'rc/**'         # Release candidates (pre-release)
     tags:
       - 'v*.*.*'        # Version tags
@@ -150,6 +204,68 @@ The workflow creates a GitHub release with:
 - **Assets**: ZIP package, SHA256, MD5
 - **Pre-release**: Automatically set for RC releases
 - **Draft**: Always false (published immediately)
+
+## FTP/SFTP Upload
+
+### Overview
+
+RC and stable releases are automatically uploaded to Release System (RS) FTP/SFTP servers for distribution. This feature is optional and only activates when RS_FTP credentials are configured.
+
+### Configuration
+
+The workflow supports both password and SSH key authentication. Configure the following secrets and variables in your repository or organization settings:
+
+**Required Secrets:**
+- `RS_FTP_HOST` - SFTP server hostname (e.g., `sftp.example.com`)
+- `RS_FTP_USER` - SFTP username
+- `RS_FTP_PATH` - Base path on server (variable, e.g., `/var/www/releases`)
+
+**Authentication (choose one):**
+- `RS_FTP_PASSWORD` - Password authentication (simple)
+- `RS_FTP_KEY` - SSH private key authentication (recommended)
+
+**Optional:**
+- `RS_FTP_PORT` - SFTP port (default: 22)
+- `RS_FTP_PATH_SUFFIX` - Additional path suffix (variable, e.g., `/dolibarr`)
+
+### Upload Behavior
+
+The workflow automatically determines the upload channel:
+- **RC releases** (`prerelease: true`) → uploaded to `{RS_FTP_PATH}/{RS_FTP_PATH_SUFFIX}/rc/`
+- **Stable releases** (`prerelease: false`) → uploaded to `{RS_FTP_PATH}/{RS_FTP_PATH_SUFFIX}/stable/`
+
+### Examples
+
+**Password Authentication:**
+```
+RS_FTP_HOST: sftp.example.com
+RS_FTP_USER: deploy-user
+RS_FTP_PASSWORD: secure-password
+RS_FTP_PATH: /var/www/releases (variable)
+RS_FTP_PATH_SUFFIX: /dolibarr (variable)
+
+# RC release uploads to: /var/www/releases/dolibarr/rc/
+# Stable release uploads to: /var/www/releases/dolibarr/stable/
+```
+
+**SSH Key Authentication:**
+```
+RS_FTP_HOST: sftp.example.com
+RS_FTP_USER: deploy-user
+RS_FTP_KEY: -----BEGIN OPENSSH PRIVATE KEY-----...
+RS_FTP_PATH: /var/www/releases (variable)
+
+# Uploads to: /var/www/releases/rc/ or /var/www/releases/stable/
+```
+
+### Skipping FTP Upload
+
+FTP upload is automatically skipped if:
+- RS_FTP credentials are not configured
+- RS_FTP_HOST secret is empty
+- Required authentication credentials are missing
+
+The workflow will continue and create the GitHub release even if FTP upload fails or is skipped.
 
 ## Command-Line Script
 

@@ -1,0 +1,534 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.Reusable
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/reusable-ci-validation.yml
+# VERSION: 01.00.00
+# BRIEF: Reusable CI validation workflow for repository standards enforcement
+# NOTE: Supports multiple validation profiles (basic, full, strict) with configurable checks
+
+name: Reusable CI Validation
+
+on:
+  workflow_call:
+    inputs:
+      profile:
+        description: 'Validation profile (basic, full, strict)'
+        required: false
+        type: string
+        default: 'basic'
+      node-version:
+        description: 'Node.js version for frontend validation'
+        required: false
+        type: string
+        default: '20.x'
+      php-version:
+        description: 'PHP version for backend validation'
+        required: false
+        type: string
+        default: '8.1'
+      working-directory:
+        description: 'Working directory for validation'
+        required: false
+        type: string
+        default: '.'
+      validate-manifests:
+        description: 'Validate XML manifests (Joomla/Dolibarr)'
+        required: false
+        type: boolean
+        default: true
+      validate-changelogs:
+        description: 'Validate CHANGELOG.md format and structure'
+        required: false
+        type: boolean
+        default: true
+      validate-licenses:
+        description: 'Validate license headers in source files'
+        required: false
+        type: boolean
+        default: true
+      validate-security:
+        description: 'Check for secrets and security issues'
+        required: false
+        type: boolean
+        default: true
+      fail-on-warnings:
+        description: 'Fail the workflow on validation warnings'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  setup:
+    name: Setup Validation Environment
+    runs-on: ubuntu-latest
+    outputs:
+      has-php: ${{ steps.detect.outputs.has-php }}
+      has-node: ${{ steps.detect.outputs.has-node }}
+      has-scripts: ${{ steps.detect.outputs.has-scripts }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Detect project components
+        id: detect
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          # Detect PHP files
+          if find . -name "*.php" -type f | head -1 | grep -q .; then
+            echo "has-php=true" >> $GITHUB_OUTPUT
+            echo "✅ PHP files detected" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "has-php=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ No PHP files detected" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Detect Node.js project
+          if [ -f "package.json" ]; then
+            echo "has-node=true" >> $GITHUB_OUTPUT
+            echo "✅ Node.js project detected" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "has-node=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ No Node.js project detected" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Detect validation scripts
+          if [ -d "scripts/validate" ] || [ -d ".github/scripts/validate" ]; then
+            echo "has-scripts=true" >> $GITHUB_OUTPUT
+            echo "✅ Validation scripts found" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "has-scripts=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ No validation scripts found" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  required-validations:
+    name: Required Validations
+    runs-on: ubuntu-latest
+    needs: setup
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Normalize line endings
+        run: git config --global core.autocrlf false
+
+      - name: Setup PHP
+        if: needs.setup.outputs.has-php == 'true'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ inputs.php-version }}
+          extensions: mbstring, xml
+          coverage: none
+
+      - name: Setup Node.js
+        if: needs.setup.outputs.has-node == 'true'
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ inputs.node-version }}
+
+      - name: Make scripts executable
+        if: needs.setup.outputs.has-scripts == 'true'
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          if [ -d "scripts" ]; then
+            find scripts -name "*.sh" -type f -exec chmod +x {} \;
+          fi
+          if [ -d ".github/scripts" ]; then
+            find .github/scripts -name "*.sh" -type f -exec chmod +x {} \;
+          fi
+
+      - name: Validate XML manifests
+        if: inputs.validate-manifests
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          echo "### 📋 Manifest Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f "scripts/validate/manifest.sh" ]; then
+            echo "Running manifest validation script..." >> $GITHUB_STEP_SUMMARY
+            if ./scripts/validate/manifest.sh 2>&1 | tee -a $GITHUB_STEP_SUMMARY; then
+              echo "✅ Manifest validation passed" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ Manifest validation script failed" >> $GITHUB_STEP_SUMMARY
+              exit 1
+            fi
+          elif [ -f ".github/scripts/validate/manifest.sh" ]; then
+            echo "Running manifest validation script..." >> $GITHUB_STEP_SUMMARY
+            if ./.github/scripts/validate/manifest.sh 2>&1 | tee -a $GITHUB_STEP_SUMMARY; then
+              echo "✅ Manifest validation passed" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ Manifest validation script failed" >> $GITHUB_STEP_SUMMARY
+              exit 1
+            fi
+          elif command -v xmllint >/dev/null 2>&1; then
+            # Basic XML validation using xmllint
+            echo "Using xmllint for basic XML validation..." >> $GITHUB_STEP_SUMMARY
+            XML_FOUND=false
+            ERROR_FOUND=false
+
+            while IFS= read -r file; do
+              XML_FOUND=true
+              if ! xmllint --noout "$file" 2>&1 | tee -a $GITHUB_STEP_SUMMARY; then
+                echo "❌ Invalid XML: $file" >> $GITHUB_STEP_SUMMARY
+                ERROR_FOUND=true
+              fi
+            done < <(find . -name "*.xml" -type f ! -path "*/node_modules/*" ! -path "*/.git/*")
+
+            if [ "$ERROR_FOUND" = true ]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "❌ XML validation failed" >> $GITHUB_STEP_SUMMARY
+              exit 1
+            elif [ "$XML_FOUND" = true ]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "✅ Basic XML validation passed" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "ℹ️ No XML files found to validate" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "ℹ️ No manifest validation script or xmllint available" >> $GITHUB_STEP_SUMMARY
+            echo "Skipping XML validation" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Validate XML well-formedness
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          if [ -f "scripts/validate/xml_wellformed.sh" ]; then
+            ./scripts/validate/xml_wellformed.sh
+          elif [ -f ".github/scripts/validate/xml_wellformed.sh" ]; then
+            ./.github/scripts/validate/xml_wellformed.sh
+          else
+            echo "ℹ️ No XML well-formedness validation script found, skipping"
+          fi
+
+      - name: Validate PHP syntax
+        if: needs.setup.outputs.has-php == 'true'
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          echo "### 🔍 PHP Syntax Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f "scripts/validate/php_syntax.sh" ]; then
+            echo "Running PHP syntax validation script..." >> $GITHUB_STEP_SUMMARY
+            if ./scripts/validate/php_syntax.sh 2>&1 | tee -a $GITHUB_STEP_SUMMARY; then
+              echo "✅ PHP syntax validation passed" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ PHP syntax validation script failed" >> $GITHUB_STEP_SUMMARY
+              exit 1
+            fi
+          elif [ -f ".github/scripts/validate/php_syntax.sh" ]; then
+            echo "Running PHP syntax validation script..." >> $GITHUB_STEP_SUMMARY
+            if ./.github/scripts/validate/php_syntax.sh 2>&1 | tee -a $GITHUB_STEP_SUMMARY; then
+              echo "✅ PHP syntax validation passed" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ PHP syntax validation script failed" >> $GITHUB_STEP_SUMMARY
+              exit 1
+            fi
+          else
+            # Basic PHP syntax check
+            echo "Running basic PHP syntax check..." >> $GITHUB_STEP_SUMMARY
+            ERROR_FOUND=false
+
+            while IFS= read -r file; do
+              if ! php -l "$file" 2>&1 | tee -a $GITHUB_STEP_SUMMARY; then
+                echo "❌ Syntax error in: $file" >> $GITHUB_STEP_SUMMARY
+                ERROR_FOUND=true
+              fi
+            done < <(find . -name "*.php" -type f ! -path "*/vendor/*" ! -path "*/node_modules/*")
+
+            if [ "$ERROR_FOUND" = true ]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "❌ PHP syntax errors found" >> $GITHUB_STEP_SUMMARY
+              exit 1
+            else
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "✅ PHP syntax validation passed" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+
+  optional-validations:
+    name: Optional Validations (${{ inputs.profile }})
+    runs-on: ubuntu-latest
+    needs: setup
+    if: inputs.profile != 'basic'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        if: needs.setup.outputs.has-php == 'true'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ inputs.php-version }}
+          extensions: mbstring, xml
+          coverage: none
+
+      - name: Make scripts executable
+        if: needs.setup.outputs.has-scripts == 'true'
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          if [ -d "scripts" ]; then
+            find scripts -name "*.sh" -type f -exec chmod +x {} \;
+          fi
+          if [ -d ".github/scripts" ]; then
+            find .github/scripts -name "*.sh" -type f -exec chmod +x {} \;
+          fi
+
+      - name: Validate changelog
+        if: inputs.validate-changelogs
+        continue-on-error: ${{ !inputs.fail-on-warnings }}
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          echo "### 📝 Changelog Validation" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f "scripts/validate/changelog.sh" ]; then
+            ./scripts/validate/changelog.sh
+            echo "✅ Changelog validation passed" >> $GITHUB_STEP_SUMMARY
+          elif [ -f ".github/scripts/validate/changelog.sh" ]; then
+            ./.github/scripts/validate/changelog.sh
+            echo "✅ Changelog validation passed" >> $GITHUB_STEP_SUMMARY
+          elif [ -f "CHANGELOG.md" ]; then
+            # Basic changelog validation
+            if grep -q "## \[" CHANGELOG.md; then
+              echo "✅ Changelog appears well-formed" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "⚠️ Changelog may not follow standard format" >> $GITHUB_STEP_SUMMARY
+              [ "${{ inputs.fail-on-warnings }}" = "true" ] && exit 1
+            fi
+          else
+            echo "⚠️ No CHANGELOG.md found" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Validate license headers
+        if: inputs.validate-licenses
+        continue-on-error: ${{ !inputs.fail-on-warnings }}
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          echo "### ⚖️ License Header Validation" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f "scripts/validate/license_headers.sh" ]; then
+            ./scripts/validate/license_headers.sh
+            echo "✅ License headers validated" >> $GITHUB_STEP_SUMMARY
+          elif [ -f ".github/scripts/validate/license_headers.sh" ]; then
+            ./.github/scripts/validate/license_headers.sh
+            echo "✅ License headers validated" >> $GITHUB_STEP_SUMMARY
+          else
+            # Basic license header check
+            COUNT_FILE=$(mktemp)
+            find . \( -name "*.php" -o -name "*.js" -o -name "*.py" \) -type f -exec sh -c 'if ! head -20 "$1" | grep -qi "license\|copyright\|spdx"; then echo "1"; fi' _ {} \; > "$COUNT_FILE"
+            FILES_WITHOUT_LICENSE=$(wc -l < "$COUNT_FILE")
+            rm -f "$COUNT_FILE"
+            if [ "$FILES_WITHOUT_LICENSE" -eq 0 ]; then
+              echo "✅ License headers appear present" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "⚠️ Some files may be missing license headers" >> $GITHUB_STEP_SUMMARY
+              [ "${{ inputs.fail-on-warnings }}" = "true" ] && exit 1
+            fi
+          fi
+
+      - name: Validate language structure
+        continue-on-error: true
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          if [ -f "scripts/validate/language_structure.sh" ]; then
+            ./scripts/validate/language_structure.sh
+          elif [ -f ".github/scripts/validate/language_structure.sh" ]; then
+            ./.github/scripts/validate/language_structure.sh
+          else
+            echo "ℹ️ No language structure validation script found"
+          fi
+
+      - name: Validate paths
+        continue-on-error: true
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          if [ -f "scripts/validate/paths.sh" ]; then
+            ./scripts/validate/paths.sh
+          elif [ -f ".github/scripts/validate/paths.sh" ]; then
+            ./.github/scripts/validate/paths.sh
+          else
+            echo "ℹ️ No path validation script found"
+          fi
+
+      - name: Validate tabs/whitespace
+        continue-on-error: true
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          if [ -f "scripts/validate/tabs.sh" ]; then
+            ./scripts/validate/tabs.sh
+          elif [ -f ".github/scripts/validate/tabs.sh" ]; then
+            ./.github/scripts/validate/tabs.sh
+          else
+            echo "ℹ️ No tabs validation script found"
+          fi
+
+      - name: Validate version alignment
+        continue-on-error: ${{ !inputs.fail-on-warnings }}
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          if [ -f "scripts/validate/version_alignment.sh" ]; then
+            ./scripts/validate/version_alignment.sh
+          elif [ -f ".github/scripts/validate/version_alignment.sh" ]; then
+            ./.github/scripts/validate/version_alignment.sh
+          else
+            echo "ℹ️ No version alignment validation script found"
+          fi
+
+  security-validations:
+    name: Security Validations
+    runs-on: ubuntu-latest
+    if: inputs.validate-security
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Make scripts executable
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          if [ -d "scripts" ]; then
+            find scripts -name "*.sh" -type f -exec chmod +x {} \;
+          fi
+          if [ -d ".github/scripts" ]; then
+            find .github/scripts -name "*.sh" -type f -exec chmod +x {} \;
+          fi
+
+      - name: Check for secrets
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          echo "### 🔒 Security Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f "scripts/validate/no_secrets.sh" ]; then
+            if ./scripts/validate/no_secrets.sh 2>&1 | tee -a $GITHUB_STEP_SUMMARY; then
+              echo "✅ No secrets found" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ Secret validation script failed" >> $GITHUB_STEP_SUMMARY
+              exit 1
+            fi
+          elif [ -f ".github/scripts/validate/no_secrets.sh" ]; then
+            if ./.github/scripts/validate/no_secrets.sh 2>&1 | tee -a $GITHUB_STEP_SUMMARY; then
+              echo "✅ No secrets found" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ Secret validation script failed" >> $GITHUB_STEP_SUMMARY
+              exit 1
+            fi
+          else
+            # Basic secrets check using find to properly exclude directories
+            PATTERNS=(
+              "password\s*=\s*['\"][^'\"]+['\"]"
+              "api[_-]?key\s*=\s*['\"][^'\"]+['\"]"
+              "secret\s*=\s*['\"][^'\"]+['\"]"
+              "token\s*=\s*['\"][^'\"]+['\"]"
+              "BEGIN RSA PRIVATE KEY"
+              "BEGIN PRIVATE KEY"
+            )
+
+            FOUND=0
+            echo "Scanning for potential secrets..." >> $GITHUB_STEP_SUMMARY
+
+            for pattern in "${PATTERNS[@]}"; do
+              # Use find to exclude directories and files, then grep the results
+              while IFS= read -r file; do
+                if [ -f "$file" ]; then
+                  if grep -HnE "$pattern" "$file" 2>/dev/null; then
+                    FOUND=1
+                    echo "⚠️ Found pattern in: $file" >> $GITHUB_STEP_SUMMARY
+                  fi
+                fi
+              done < <(find . -type f \
+                ! -path "*/.git/*" \
+                ! -path "*/node_modules/*" \
+                ! -path "*/vendor/*" \
+                ! -path "*/.github/*" \
+                ! -path "*/docs/*" \
+                ! -name "*.md" \
+                2>/dev/null)
+            done
+
+            if [ $FOUND -eq 0 ]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "✅ Basic security check passed - no secrets detected" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "❌ Potential secrets or credentials detected" >> $GITHUB_STEP_SUMMARY
+              echo "Please review the findings above and ensure they are test fixtures or documentation examples" >> $GITHUB_STEP_SUMMARY
+              exit 1
+            fi
+          fi
+
+  summary:
+    name: Validation Summary
+    runs-on: ubuntu-latest
+    needs: [required-validations, optional-validations, security-validations]
+    if: always()
+
+    steps:
+      - name: Generate validation summary
+        run: |
+          echo "### 🎯 CI Validation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Profile:** ${{ inputs.profile }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Validation Stage | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Required Validations | ${{ needs.required-validations.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Optional Validations | ${{ needs.optional-validations.result == 'success' && '✅ Passed' || needs.optional-validations.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Security Validations | ${{ needs.security-validations.result == 'success' && '✅ Passed' || needs.security-validations.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Repository:** $GITHUB_REPOSITORY" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** $GITHUB_REF_NAME" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** $GITHUB_SHA" >> $GITHUB_STEP_SUMMARY
+
+      - name: Check validation results
+        run: |
+          if [ "${{ needs.required-validations.result }}" == "failure" ]; then
+            echo "❌ Required validations failed"
+            exit 1
+          fi
+
+          if [ "${{ needs.security-validations.result }}" == "failure" ]; then
+            echo "❌ Security validations failed"
+            exit 1
+          fi
+
+          if [ "${{ inputs.profile }}" == "strict" ] && [ "${{ needs.optional-validations.result }}" == "failure" ]; then
+            echo "❌ Optional validations failed in strict mode"
+            exit 1
+          fi
+
+          echo "✅ CI validation completed successfully"

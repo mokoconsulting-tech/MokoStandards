@@ -1,0 +1,121 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.WorkflowTemplate
+# INGROUP: MokoStandards.Templates
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /templates/workflows/flush-actions-cache.yml.template
+# VERSION: 01.00.00
+# BRIEF: Template workflow to flush GitHub Actions caches on demand
+
+name: Flush Actions Cache
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to filter caches (leave empty for all branches)'
+        required: false
+        type: string
+        default: ''
+      key-pattern:
+        description: 'Key pattern to filter caches (e.g., composer, node)'
+        required: false
+        type: string
+        default: ''
+      dry-run:
+        description: 'Dry run mode (show what would be deleted without deleting)'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  flush-cache:
+    name: Flush GitHub Actions Cache
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Download flush script
+        run: |
+          # Download the flush_actions_cache.py script from MokoStandards
+          curl -fsSL https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/scripts/maintenance/flush_actions_cache.py \
+            -o flush_actions_cache.py
+          chmod +x flush_actions_cache.py
+
+      - name: Flush caches
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "### 🧹 Flushing GitHub Actions Caches" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Repository:** ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+          
+          # Build command with optional filters
+          CMD="python3 flush_actions_cache.py --repo ${{ github.repository }}"
+          
+          if [ -n "${{ inputs.branch }}" ]; then
+            CMD="$CMD --branch ${{ inputs.branch }}"
+            echo "**Branch filter:** ${{ inputs.branch }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Branch filter:** All branches" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ -n "${{ inputs.key-pattern }}" ]; then
+            CMD="$CMD --key ${{ inputs.key-pattern }}"
+            echo "**Key pattern:** ${{ inputs.key-pattern }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Key pattern:** All keys" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ inputs.dry-run }}" = "true" ]; then
+            CMD="$CMD --dry-run"
+            echo "**Mode:** 🔍 Dry run (no caches will be deleted)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Mode:** 🗑️ Delete mode" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Execute the command
+          $CMD
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Cache flush workflow complete!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "ℹ️  **Note:** GitHub Actions automatically evicts caches older than 7 days or when total cache size exceeds 10 GB per repository." >> $GITHUB_STEP_SUMMARY

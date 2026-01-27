@@ -87,6 +87,48 @@ on:
       CODECOV_TOKEN:
         description: 'Codecov token for coverage uploads'
         required: false
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Platform to test (joomla or dolibarr)'
+        required: false
+        type: string
+        default: 'joomla'
+      php-versions:
+        description: 'JSON array of PHP versions to test'
+        required: false
+        type: string
+        default: '["7.4", "8.0", "8.1", "8.2"]'
+      platform-versions:
+        description: 'JSON array of platform versions (Joomla or Dolibarr versions)'
+        required: false
+        type: string
+        default: '["4.4", "5.0", "5.1"]'
+      coverage:
+        description: 'Enable code coverage reporting'
+        required: false
+        type: boolean
+        default: false
+      coverage-php-version:
+        description: 'PHP version to use for coverage reporting'
+        required: false
+        type: string
+        default: '8.1'
+      coverage-platform-version:
+        description: 'Platform version to use for coverage reporting'
+        required: false
+        type: string
+        default: '5.0'
+      working-directory:
+        description: 'Working directory for tests'
+        required: false
+        type: string
+        default: '.'
+      run-integration-tests:
+        description: 'Run integration tests with platform installation'
+        required: false
+        type: boolean
+        default: true
 
 permissions:
   contents: read

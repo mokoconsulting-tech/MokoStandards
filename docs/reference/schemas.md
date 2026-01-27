@@ -67,12 +67,12 @@ The health checker defaults to the remote configuration at:
 
 The repository health system provides automated scoring and validation of repository quality across 8 categories:
 
-### Health Check Categories (100 points total)
+### Health Check Categories (103 points total)
 
 1. **CI/CD Status** (15 points) - Continuous integration and deployment health
-2. **Required Documentation** (15 points) - Core documentation files presence and quality
+2. **Required Documentation** (16 points) - Core documentation files presence and quality
 3. **Required Folders** (10 points) - Standard directory structure compliance
-4. **Workflows** (10 points) - GitHub Actions workflow completeness
+4. **Workflows** (12 points) - GitHub Actions workflow completeness
 5. **Issue Templates** (5 points) - Issue and PR template availability
 6. **Security** (15 points) - Security scanning and vulnerability management
 7. **Repository Settings** (10 points) - GitHub repository configuration compliance

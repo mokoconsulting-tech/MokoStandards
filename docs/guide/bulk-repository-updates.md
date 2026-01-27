@@ -88,12 +88,12 @@ Preview what would be updated without making changes:
 
 - `.github/dependabot.yml` → `.github/dependabot.yml` (monthly schedule with Python, JavaScript, PHP, and GitHub Actions)
 - `.github/copilot.yml` → `.github/copilot.yml` (GitHub Copilot coding agent configuration)
-- `.github/workflow-templates/build-universal.yml` → `.github/workflows/build.yml`
-- `.github/workflow-templates/codeql-analysis.yml` → `.github/workflows/codeql-analysis.yml` (scans Python, JavaScript, and PHP)
-- `.github/workflow-templates/dependency-review.yml` → `.github/workflows/dependency-review.yml`
-- `.github/workflow-templates/standards-compliance.yml` → `.github/workflows/standards-compliance.yml`
-- `.github/workflow-templates/release-cycle.yml` → `.github/workflows/release-cycle.yml`
-- `.github/workflow-templates/deploy-to-dev.yml` → `.github/workflows/deploy-to-dev.yml` (automatic deployment to dev server on PR merge)
+- `templates/workflows/build-universal.yml.template` → `.github/workflows/build.yml`
+- `templates/workflows/generic/codeql-analysis.yml` → `.github/workflows/codeql-analysis.yml` (scans Python, JavaScript, and PHP)
+- `templates/workflows/generic/dependency-review.yml.template` → `.github/workflows/dependency-review.yml`
+- `templates/workflows/standards-compliance.yml.template` → `.github/workflows/standards-compliance.yml`
+- `templates/workflows/release-cycle-simple.yml.template` → `.github/workflows/release-cycle.yml`
+- `templates/workflows/deploy-to-dev.yml` → `.github/workflows/deploy-to-dev.yml` (automatic deployment to dev server on PR merge)
 - `.github/workflows/reusable-build.yml` → `.github/workflows/reusable-build.yml`
 - `.github/workflows/reusable-ci-validation.yml` → `.github/workflows/reusable-ci-validation.yml`
 - `.github/workflows/reusable-release.yml` → `.github/workflows/reusable-release.yml`

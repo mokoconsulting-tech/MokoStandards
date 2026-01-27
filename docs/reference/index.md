@@ -6,10 +6,13 @@ This index provides navigation to documentation within this folder.
 
 ## Documents
 
+- [copilot-prompt-github-private](./copilot-prompt-github-private.md)
 - [EMAIL_DIRECTORY](./EMAIL_DIRECTORY.md)
 - [project-types](./project-types.md)
 - [PROJECT_TYPE_DETECTION](./PROJECT_TYPE_DETECTION.md)
+- [repository-templates](./repository-templates.md)
 - [REPOSITORY_INVENTORY](./REPOSITORY_INVENTORY.md)
+- [schemas](./schemas.md)
 
 ## Metadata
 

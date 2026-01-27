@@ -311,8 +311,8 @@
             <template>templates/scripts/validate/manifest.sh</template>
           </file>
 
-          <file extension="yml">
-            <name>.mokostandards-sync.yml</name>
+          <file extension="xml">
+            <name>MokoStandards.override.xml</name>
             <description>MokoStandards sync override configuration - preserved during sync</description>
             <requirement-status>suggested</requirement-status>
             <always-overwrite>false</always-overwrite>

@@ -1,0 +1,471 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.WorkflowTemplate
+# INGROUP: MokoStandards.Compliance
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /templates/workflows/standards-compliance.yml.template
+# VERSION: 01.00.00
+# BRIEF: MokoStandards compliance validation workflow
+# NOTE: Validates repository structure, documentation, and coding standards
+
+name: Standards Compliance
+
+on:
+  push:
+    branches:
+      - main
+      - dev/**
+      - rc/**
+  pull_request:
+    branches:
+      - main
+      - dev/**
+      - rc/**
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  repository-structure:
+    name: Repository Structure Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Check Required Directories
+        run: |
+          echo "### Required Directories" >> $GITHUB_STEP_SUMMARY
+          
+          MISSING=0
+          
+          # Check required directories
+          for dir in docs tests scripts .github; do
+            if [ -d "$dir" ]; then
+              echo "✅ $dir/" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ $dir/ (missing)" >> $GITHUB_STEP_SUMMARY
+              MISSING=$((MISSING + 1))
+            fi
+          done
+          
+          if [ $MISSING -gt 0 ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ $MISSING required directories are missing" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+      
+      - name: Check Required Files
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Required Files" >> $GITHUB_STEP_SUMMARY
+          
+          MISSING=0
+          
+          # Check required files
+          for file in README.md LICENSE CONTRIBUTING.md SECURITY.md CHANGELOG.md .editorconfig; do
+            if [ -f "$file" ]; then
+              echo "✅ $file" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ $file (missing)" >> $GITHUB_STEP_SUMMARY
+              MISSING=$((MISSING + 1))
+            fi
+          done
+          
+          if [ $MISSING -gt 0 ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ $MISSING required files are missing" >> $GITHUB_STEP_SUMMARY
+            echo "See: https://github.com/mokoconsulting-tech/MokoStandards/tree/main/templates/docs/required" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+  documentation-quality:
+    name: Documentation Quality Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Validate README.md
+        run: |
+          echo "### README.md Validation" >> $GITHUB_STEP_SUMMARY
+          
+          if [ ! -f "README.md" ]; then
+            echo "❌ README.md not found" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          
+          # Check minimum length
+          SIZE=$(wc -c < README.md)
+          if [ $SIZE -lt 500 ]; then
+            echo "⚠️ README.md is too short ($SIZE bytes, minimum 500)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ README.md has adequate content ($SIZE bytes)" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check for key sections
+          MISSING_SECTIONS=""
+          grep -qi "# \|## " README.md || MISSING_SECTIONS="${MISSING_SECTIONS}- No headings found\n"
+          
+          if [ -n "$MISSING_SECTIONS" ]; then
+            echo "⚠️ README.md may be missing important sections" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ README.md appears well-structured" >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: Validate CHANGELOG.md
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### CHANGELOG.md Validation" >> $GITHUB_STEP_SUMMARY
+          
+          if [ ! -f "CHANGELOG.md" ]; then
+            echo "❌ CHANGELOG.md not found" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          
+          # Check for Keep a Changelog format markers
+          if grep -qi "## \[.*\]" CHANGELOG.md; then
+            echo "✅ CHANGELOG.md follows Keep a Changelog format" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ CHANGELOG.md may not follow Keep a Changelog format" >> $GITHUB_STEP_SUMMARY
+            echo "See: https://keepachangelog.com/" >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: Check Documentation Index
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Documentation Index" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -f "docs/index.md" ] || [ -f "docs/README.md" ]; then
+            echo "✅ Documentation index found" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ No documentation index (docs/index.md or docs/README.md)" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  coding-standards:
+    name: Coding Standards Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Check for Tab Characters
+        run: |
+          echo "### Tab Character Detection" >> $GITHUB_STEP_SUMMARY
+          
+          # Find files with tabs (excluding certain file types)
+          TABS_FOUND=$(find . -type f \
+            ! -path "./vendor/*" \
+            ! -path "./node_modules/*" \
+            ! -path "./.git/*" \
+            ! -name "Makefile*" \
+            ! -name "*.tsv" \
+            -exec grep -l $'\t' {} \; 2>/dev/null | head -10)
+          
+          if [ -n "$TABS_FOUND" ]; then
+            echo "⚠️ Tab characters found in files:" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "$TABS_FOUND" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "MokoStandards requires spaces over tabs (except in Makefiles)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ No inappropriate tab characters found" >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: Check File Encoding
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### File Encoding Check" >> $GITHUB_STEP_SUMMARY
+          
+          # Check for UTF-8 encoding
+          NON_UTF8=$(find . -type f \( -name "*.php" -o -name "*.js" -o -name "*.md" \) \
+            ! -path "./vendor/*" \
+            ! -path "./node_modules/*" \
+            ! -path "./.git/*" \
+            -exec file {} \; | grep -v "UTF-8" | head -5)
+          
+          if [ -n "$NON_UTF8" ]; then
+            echo "⚠️ Non-UTF-8 files detected:" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "$NON_UTF8" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ All source files appear to be UTF-8 encoded" >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: Check Line Endings
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Line Ending Check" >> $GITHUB_STEP_SUMMARY
+          
+          # Check for CRLF line endings
+          CRLF_FILES=$(find . -type f \( -name "*.php" -o -name "*.js" -o -name "*.md" \) \
+            ! -path "./vendor/*" \
+            ! -path "./node_modules/*" \
+            ! -path "./.git/*" \
+            -exec file {} \; | grep "CRLF" | head -5)
+          
+          if [ -n "$CRLF_FILES" ]; then
+            echo "⚠️ Files with CRLF line endings found:" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "$CRLF_FILES" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "MokoStandards requires LF line endings" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ Line endings are consistent (LF)" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  license-compliance:
+    name: License Header Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Check SPDX Headers
+        run: |
+          echo "### SPDX License Header Check" >> $GITHUB_STEP_SUMMARY
+          
+          # Count source files with and without SPDX headers
+          TOTAL_PHP=0
+          WITH_SPDX_PHP=0
+          
+          if find . -name "*.php" -type f ! -path "./vendor/*" | head -1 | grep -q .; then
+            TOTAL_PHP=$(find . -name "*.php" -type f ! -path "./vendor/*" | wc -l)
+            WITH_SPDX_PHP=$(find . -name "*.php" -type f ! -path "./vendor/*" -exec grep -l "SPDX-License-Identifier" {} \; | wc -l)
+          fi
+          
+          if [ $TOTAL_PHP -gt 0 ]; then
+            PERCENT=$((WITH_SPDX_PHP * 100 / TOTAL_PHP))
+            echo "- PHP files: $WITH_SPDX_PHP/$TOTAL_PHP ($PERCENT%) with SPDX headers" >> $GITHUB_STEP_SUMMARY
+            
+            if [ $PERCENT -lt 80 ]; then
+              echo "⚠️ Less than 80% of PHP files have SPDX headers" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "✅ Good SPDX header coverage" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+      
+      - name: Validate License File
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### License File Validation" >> $GITHUB_STEP_SUMMARY
+          
+          if [ ! -f "LICENSE" ]; then
+            echo "❌ LICENSE file not found" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          
+          # Check license type
+          if grep -qi "GNU GENERAL PUBLIC LICENSE" LICENSE; then
+            VERSION=$(grep -i "Version 3" LICENSE || echo "")
+            if [ -n "$VERSION" ]; then
+              echo "✅ GPL-3.0-or-later license detected" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "⚠️ GPL license detected but version unclear" >> $GITHUB_STEP_SUMMARY
+            fi
+          elif grep -qi "MIT License" LICENSE; then
+            echo "✅ MIT license detected" >> $GITHUB_STEP_SUMMARY
+          elif grep -qi "Apache License" LICENSE; then
+            echo "✅ Apache license detected" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "ℹ️ License type could not be automatically detected" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  git-hygiene:
+    name: Git Repository Hygiene
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Check .gitignore
+        run: |
+          echo "### .gitignore Validation" >> $GITHUB_STEP_SUMMARY
+          
+          if [ ! -f ".gitignore" ]; then
+            echo "⚠️ .gitignore file not found" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+          
+          # Check for common exclusions
+          MISSING=""
+          grep -q "vendor/" .gitignore || MISSING="${MISSING}vendor/ "
+          grep -q "node_modules/" .gitignore || MISSING="${MISSING}node_modules/ "
+          
+          if [ -n "$MISSING" ]; then
+            echo "⚠️ .gitignore may be missing common exclusions: $MISSING" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ .gitignore appears complete" >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: Check for Large Files
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Large File Detection" >> $GITHUB_STEP_SUMMARY
+          
+          # Find files larger than 1MB
+          LARGE_FILES=$(find . -type f -size +1M ! -path "./.git/*" ! -path "./vendor/*" ! -path "./node_modules/*" | head -5)
+          
+          if [ -n "$LARGE_FILES" ]; then
+            echo "⚠️ Large files detected (>1MB):" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "$LARGE_FILES" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "Consider using Git LFS for large binary files" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ No unusually large files detected" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  workflow-validation:
+    name: Workflow Configuration Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Check Required Workflows
+        run: |
+          echo "### GitHub Actions Workflows" >> $GITHUB_STEP_SUMMARY
+          
+          WORKFLOWS_DIR=".github/workflows"
+          
+          if [ ! -d "$WORKFLOWS_DIR" ]; then
+            echo "❌ No workflows directory found" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          
+          # Check for recommended workflows
+          if [ -f "$WORKFLOWS_DIR/ci.yml" ] || [ -f "$WORKFLOWS_DIR/build.yml" ]; then
+            echo "✅ CI workflow present" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ No CI workflow found (ci.yml or build.yml)" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ -f "$WORKFLOWS_DIR/codeql-analysis.yml" ]; then
+            echo "✅ CodeQL security scanning present" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ CodeQL workflow not found" >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: Validate Workflow Syntax
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Workflow YAML Syntax" >> $GITHUB_STEP_SUMMARY
+          
+          INVALID=0
+          for workflow in .github/workflows/*.yml .github/workflows/*.yaml 2>/dev/null; do
+            if [ -f "$workflow" ]; then
+              if python3 -c "import yaml; yaml.safe_load(open('$workflow'))" 2>/dev/null; then
+                echo "✅ $(basename $workflow)" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "❌ $(basename $workflow) - invalid YAML" >> $GITHUB_STEP_SUMMARY
+                INVALID=$((INVALID + 1))
+              fi
+            fi
+          done
+          
+          if [ $INVALID -gt 0 ]; then
+            exit 1
+          fi
+      
+      - name: Setup Python for CodeQL Validation
+        if: hashFiles('.github/workflows/codeql-analysis.yml') != ''
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      
+      - name: Install PyYAML for CodeQL Validation
+        if: hashFiles('.github/workflows/codeql-analysis.yml') != ''
+        run: pip install pyyaml
+      
+      - name: Validate CodeQL Configuration
+        if: hashFiles('.github/workflows/codeql-analysis.yml') != ''
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### CodeQL Language Configuration" >> $GITHUB_STEP_SUMMARY
+          
+          # Download validation script from MokoStandards
+          SCRIPT_URL="https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/scripts/validate/validate_codeql_config.py"
+          curl -sSL "$SCRIPT_URL" -o /tmp/validate_codeql_config.py
+          
+          # Run validation
+          if python3 /tmp/validate_codeql_config.py > /tmp/codeql_validation.txt 2>&1; then
+            echo "✅ CodeQL language configuration is valid" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            cat /tmp/codeql_validation.txt >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ CodeQL language configuration has issues" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            cat /tmp/codeql_validation.txt >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Action Required:** CodeQL is configured to analyze languages that don't exist in your repository." >> $GITHUB_STEP_SUMMARY
+            echo "This will cause CI failures. Please update .github/workflows/codeql-analysis.yml to only include" >> $GITHUB_STEP_SUMMARY
+            echo "languages that are actually present in your codebase." >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+  summary:
+    name: Compliance Summary
+    runs-on: ubuntu-latest
+    needs: [repository-structure, documentation-quality, coding-standards, license-compliance, git-hygiene, workflow-validation]
+    if: always()
+    
+    steps:
+      - name: Generate Compliance Report
+        run: |
+          echo "# MokoStandards Compliance Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "All compliance checks have been executed." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Validation Areas:" >> $GITHUB_STEP_SUMMARY
+          echo "- Repository Structure" >> $GITHUB_STEP_SUMMARY
+          echo "- Documentation Quality" >> $GITHUB_STEP_SUMMARY
+          echo "- Coding Standards" >> $GITHUB_STEP_SUMMARY
+          echo "- License Compliance" >> $GITHUB_STEP_SUMMARY
+          echo "- Git Repository Hygiene" >> $GITHUB_STEP_SUMMARY
+          echo "- Workflow Configuration" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "For detailed results, review individual job outputs above." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📚 Learn more: https://github.com/mokoconsulting-tech/MokoStandards" >> $GITHUB_STEP_SUMMARY
+
+# CUSTOMIZATION:
+#
+# 1. Adjust severity of checks (convert warnings to errors or vice versa)
+# 2. Add project-specific validation rules
+# 3. Integrate with custom linting tools
+# 4. Add notification steps for compliance failures
+# 5. Customize required files/directories for your project type

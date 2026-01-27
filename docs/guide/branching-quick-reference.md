@@ -207,6 +207,8 @@ git new-hotfix 1.2.1-security
 ## Resources
 
 - [Full Policy](../policy/branching-strategy.md)
+- [Branch Synchronization Guide](./branch-synchronization.md) - For handling "branch behind remote" errors
+- [Conflict Resolution Guide](./conflict-resolution.md) - For handling merge conflicts
 - [Semantic Versioning](https://semver.org/)
 - [Conventional Commits](https://www.conventionalcommits.org/)
 

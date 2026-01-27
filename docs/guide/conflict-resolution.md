@@ -272,3 +272,9 @@ def process_files():
 | Version  | Date       | Author          | Notes                                      |
 | -------- | ---------- | --------------- | ------------------------------------------ |
 | 01.00.00 | 2026-01-04 | Copilot Agent   | Initial conflict resolution guide created |
+
+## See Also
+
+- [Branch Synchronization Guide](./branch-synchronization.md) - For handling "branch behind remote" errors
+- [Branching Quick Reference](./branching-quick-reference.md) - Git branching workflows
+- [Merge Strategy Policy](../policy/merge-strategy.md) - Repository merge policies

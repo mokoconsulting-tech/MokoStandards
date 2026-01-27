@@ -53,6 +53,23 @@ on:
       passed:
         description: 'Whether health check passed threshold'
         value: ${{ jobs.health-check.outputs.passed }}
+  workflow_dispatch:
+    inputs:
+      working-directory:
+        description: 'Working directory for health check'
+        required: false
+        type: string
+        default: '.'
+      create-issue-on-failure:
+        description: 'Create an issue if health score is below threshold'
+        required: false
+        type: boolean
+        default: false
+      health-threshold:
+        description: 'Minimum health score (0-100) to pass'
+        required: false
+        type: number
+        default: 70
 
 permissions:
   contents: read

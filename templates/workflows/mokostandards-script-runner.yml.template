@@ -1,0 +1,101 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.WorkflowTemplates
+# INGROUP: MokoStandards.Automation
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /templates/workflows/mokostandards-script-runner.yml.template
+# VERSION: 01.00.00
+# BRIEF: Template workflow for executing MokoStandards scripts in organization repositories
+# NOTE: Copy to .github/workflows/ and customize for your needs
+
+name: MokoStandards Script Runner
+
+on:
+  # Uncomment to run on schedule
+  # schedule:
+  #   - cron: '0 0 * * 1'  # Weekly on Monday
+  
+  # Allow manual execution
+  workflow_dispatch:
+    inputs:
+      script_name:
+        description: 'Script to execute'
+        required: true
+        type: choice
+        options:
+          - 'validate/no_secrets.py'
+          - 'validate/validate_structure.py'
+          - 'validate/validate_codeql_config.py'
+          - 'validate/check_repo_health.py'
+          - 'validate/php_syntax.py'
+          - 'validate/tabs.py'
+          - 'validate/workflows.py'
+          - 'validate/xml_wellformed.py'
+          - 'maintenance/validate_file_headers.py'
+          - 'maintenance/update_changelog.py'
+        default: 'validate/no_secrets.py'
+      script_args:
+        description: 'Script arguments (optional)'
+        required: false
+        type: string
+        default: ''
+
+jobs:
+  execute-script:
+    name: Execute MokoStandards Script
+    uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-script-executor.yml@main
+    with:
+      script_path: ${{ inputs.script_name || 'validate/no_secrets.py' }}
+      script_args: ${{ inputs.script_args }}
+      python_version: '3.11'
+      install_dependencies: true
+      create_summary: true
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
+  report-results:
+    name: Report Results
+    runs-on: ubuntu-latest
+    needs: execute-script
+    if: always()
+    
+    steps:
+      - name: Report execution
+        run: |
+          echo "## 📊 Script Execution Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Script:** ${{ inputs.script_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Exit Code:** ${{ needs.execute-script.outputs.exit_code }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.execute-script.outputs.exit_code }}" == "0" ]; then
+            echo "### ✅ Execution Successful" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ❌ Execution Failed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Check the workflow logs for details." >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Script Output (Truncated)" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "${{ needs.execute-script.outputs.script_output }}" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY

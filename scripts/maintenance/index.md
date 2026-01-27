@@ -105,6 +105,29 @@ Repository maintenance scripts for version updates, changelog management, header
 - JavaScript: `.js`
 - Shell: `.sh`
 
+### flush_actions_cache.py
+**Purpose:** Flush GitHub Actions caches for a repository  
+**Type:** Python 3.7+  
+**Usage:** `python3 flush_actions_cache.py [options]`  
+**Documentation:** [📖 Guide](/docs/scripts/maintenance/flush-actions-cache-py.md)
+
+**Key Features:**
+- Lists all GitHub Actions caches
+- Filters caches by branch or key pattern
+- Deletes individual or multiple caches
+- Dry-run mode to preview deletions
+- Integration with GitHub Actions workflow
+
+**Filter Options:**
+- `--repo owner/repo` - Specify repository
+- `--branch name` - Filter by branch name
+- `--key pattern` - Filter by key pattern (e.g., composer, node)
+- `--dry-run` - Preview without deleting
+
+**Requirements:**
+- GitHub CLI (`gh`) installed and authenticated
+- Token with `actions:write` permission
+
 ## Quick Reference
 
 | Script | Language | Primary Use Case |
@@ -114,6 +137,7 @@ Repository maintenance scripts for version updates, changelog management, header
 | `update_changelog.py` | Python 3.7+ | CHANGELOG management |
 | `update_gitignore_patterns.sh` | Bash 4.0+ | .gitignore updates |
 | `validate_file_headers.py` | Python 3.7+ | Header validation |
+| `flush_actions_cache.py` | Python 3.7+ | GitHub Actions cache management |
 
 ## Dependencies
 

@@ -11,7 +11,7 @@
   </metadata>
 
   <scoring>
-    <total-points>101</total-points>
+    <total-points>103</total-points>
     
     <categories>
       <category>
@@ -42,7 +42,7 @@
         <id>workflows</id>
         <name>Workflows</name>
         <description>GitHub Actions workflow completeness</description>
-        <max-points>10</max-points>
+        <max-points>12</max-points>
         <enabled>true</enabled>
       </category>
       
@@ -485,6 +485,23 @@
         </parameters>
         <required>false</required>
         <remediation>Add platform-specific workflow if applicable</remediation>
+      </check>
+      
+      <check>
+        <id>flush-actions-cache-workflow</id>
+        <name>Flush Actions Cache workflow present</name>
+        <description>Check if .github/workflows/flush-actions-cache.yml is present for cache management</description>
+        <points>2</points>
+        <check-type>file-exists</check-type>
+        <parameters>
+          <parameter>
+            <key>file-path</key>
+            <value>.github/workflows/flush-actions-cache.yml</value>
+            <type>path</type>
+          </parameter>
+        </parameters>
+        <required>true</required>
+        <remediation>Copy flush-actions-cache workflow from MokoStandards templates/workflows/</remediation>
       </check>
     </check-group>
 

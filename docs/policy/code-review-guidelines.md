@@ -503,5 +503,5 @@ Track these metrics to improve review process:
 
 - [Contributing Guidelines](../CONTRIBUTING.md)
 - [Security Policy](../SECURITY.md)
-- [Standards Compliance Workflow](../.github/workflow-templates/standards-compliance.yml)
+- [Standards Compliance Workflow](../../templates/workflows/standards-compliance.yml.template)
 - [Health Scoring System](health-scoring.md)

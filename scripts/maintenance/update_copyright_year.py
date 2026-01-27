@@ -78,7 +78,6 @@ def update_copyright_in_file(file_path: Path, target_year: int, dry_run: bool = 
         print(f"Warning: Could not read {file_path}: {e}", file=sys.stderr)
         return False
     
-    original_content = content
     modified = False
     
     # Pattern 1: Copyright (C) YYYY

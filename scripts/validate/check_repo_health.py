@@ -24,6 +24,7 @@ Migrated from XML-based schema to Terraform infrastructure-as-code approach.
 
 import argparse
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -288,6 +289,116 @@ class RepoHealthChecker:
         return "unknown"
 
 
+def write_github_summary(results: Dict, repo_path: str):
+    """Write detailed results to GitHub Actions summary."""
+    summary_file = os.environ.get("GITHUB_STEP_SUMMARY")
+    if not summary_file:
+        return
+    
+    try:
+        with open(summary_file, "a") as f:
+            f.write("\n## 🏥 Repository Health Check Results\n\n")
+            
+            # Overall score
+            percentage = results["percentage"]
+            level = results["level"].upper()
+            score = results["score"]
+            max_score = results["max_score"]
+            
+            # Determine emoji based on level
+            if level == "EXCELLENT":
+                emoji = "✅"
+                color = "🟢"
+            elif level == "GOOD":
+                emoji = "⚠️"
+                color = "🟡"
+            elif level == "FAIR":
+                emoji = "🟠"
+                color = "🟠"
+            else:
+                emoji = "❌"
+                color = "🔴"
+            
+            f.write(f"**Repository:** `{repo_path}`\n\n")
+            f.write(f"### {emoji} Overall Health: {level}\n\n")
+            f.write(f"**Score:** {score}/{max_score} ({percentage:.1f}%)\n\n")
+            
+            # Progress bar
+            bar_length = 20
+            filled = int(bar_length * percentage / 100)
+            bar = "█" * filled + "░" * (bar_length - filled)
+            f.write(f"```\n{bar} {percentage:.1f}%\n```\n\n")
+            
+            # Category breakdown
+            f.write("### 📊 Category Breakdown\n\n")
+            f.write("| Category | Points | Passed | Failed | Status |\n")
+            f.write("|----------|--------|--------|--------|--------|\n")
+            
+            for cat_id, cat_info in results["categories"].items():
+                earned = cat_info["earned_points"]
+                max_pts = cat_info["max_points"]
+                passed = cat_info["checks_passed"]
+                failed = cat_info["checks_failed"]
+                pct = (earned / max_pts * 100) if max_pts > 0 else 0
+                
+                if failed == 0:
+                    status = "✅"
+                elif passed == 0:
+                    status = "❌"
+                else:
+                    status = "⚠️"
+                
+                f.write(f"| {cat_info['name']} | {earned}/{max_pts} ({pct:.0f}%) | {passed} | {failed} | {status} |\n")
+            
+            f.write("\n")
+            
+            # Failed checks details
+            failed_checks = [c for c in results["checks"] if not c["passed"]]
+            if failed_checks:
+                f.write("### ❌ Failed Checks\n\n")
+                f.write("<details>\n")
+                f.write("<summary>Click to expand failed checks details</summary>\n\n")
+                
+                for check in failed_checks:
+                    required_badge = "🔴 REQUIRED" if check["required"] else "🟡 OPTIONAL"
+                    f.write(f"#### {required_badge} {check['name']}\n\n")
+                    f.write(f"**Category:** {check['category']}\n\n")
+                    f.write(f"**Points Lost:** {check['points']}\n\n")
+                    f.write(f"**Issue:** {check['message']}\n\n")
+                    
+                    if check["remediation"]:
+                        f.write(f"**Remediation:**\n```\n{check['remediation']}\n```\n\n")
+                    
+                    f.write("---\n\n")
+                
+                f.write("</details>\n\n")
+            
+            # Passed checks summary
+            passed_checks = [c for c in results["checks"] if c["passed"]]
+            if passed_checks:
+                f.write(f"### ✅ Passed Checks ({len(passed_checks)})\n\n")
+                f.write("<details>\n")
+                f.write("<summary>Click to see all passing checks</summary>\n\n")
+                
+                for check in passed_checks:
+                    f.write(f"- ✅ **{check['name']}** ({check['points']} pts): {check['message']}\n")
+                
+                f.write("\n</details>\n\n")
+            
+            # Health thresholds reference
+            f.write("### 📏 Health Level Thresholds\n\n")
+            f.write("| Level | Score Range | Indicator |\n")
+            f.write("|-------|-------------|----------|\n")
+            f.write("| Excellent | 90-100% | ✅ Production-ready |\n")
+            f.write("| Good | 70-89% | ⚠️ Minor improvements needed |\n")
+            f.write("| Fair | 50-69% | 🟡 Significant improvements required |\n")
+            f.write("| Poor | 0-49% | ❌ Critical issues |\n")
+            f.write("\n")
+            
+    except Exception as e:
+        print(f"Warning: Could not write to GitHub summary: {e}", file=sys.stderr)
+
+
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(
@@ -373,6 +484,10 @@ def main():
                 print(f"\n{status} {check['name']} ({check['points']} pts)")
                 print(f"   {check['message']}")
 
+    # Write to GitHub Actions Summary if running in CI
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        write_github_summary(results, args.repo_path)
+    
     # Exit with appropriate code
     sys.exit(0 if results["percentage"] >= DEFAULT_HEALTH_THRESHOLD else 1)
 

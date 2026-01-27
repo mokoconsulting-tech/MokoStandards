@@ -20,6 +20,7 @@ Examples:
 """
 
 import sys
+import os
 import argparse
 from pathlib import Path
 from typing import List, Dict, Tuple
@@ -308,7 +309,84 @@ class TerraformRepositoryStructureValidator:
         else:
             print("⚠️  Repository structure has warnings")
         
+        # Write to GitHub Actions Summary if running in CI
+        if os.environ.get("GITHUB_ACTIONS") == "true":
+            self.write_github_summary()
+        
         return len(errors) == 0
+    
+    def write_github_summary(self):
+        """Write detailed results to GitHub Actions summary."""
+        summary_file = os.environ.get("GITHUB_STEP_SUMMARY")
+        if not summary_file:
+            return
+        
+        errors = [r for r in self.results if r.severity == Severity.ERROR]
+        warnings = [r for r in self.results if r.severity == Severity.WARNING]
+        
+        try:
+            with open(summary_file, "a") as f:
+                f.write("\n## 📁 Repository Structure Validation\n\n")
+                
+                # Overall status
+                if not errors and not warnings:
+                    f.write("### ✅ Structure Valid\n\n")
+                    f.write(f"**Repository:** `{self.repo_path}`\n\n")
+                    f.write(f"**Type:** `{self.repo_type}`\n\n")
+                    f.write("All required and suggested files/directories are present.\n\n")
+                elif errors:
+                    f.write("### ❌ Structure Invalid\n\n")
+                    f.write(f"**Repository:** `{self.repo_path}`\n\n")
+                    f.write(f"**Type:** `{self.repo_type}`\n\n")
+                    f.write(f"**Errors:** {len(errors)} | **Warnings:** {len(warnings)}\n\n")
+                else:
+                    f.write("### ⚠️ Structure Has Warnings\n\n")
+                    f.write(f"**Repository:** `{self.repo_path}`\n\n")
+                    f.write(f"**Type:** `{self.repo_type}`\n\n")
+                    f.write(f"**Warnings:** {len(warnings)}\n\n")
+                
+                # Error details
+                if errors:
+                    f.write("### ❌ Errors (Required Items Missing)\n\n")
+                    f.write("| Path | Issue | Type |\n")
+                    f.write("|------|-------|------|\n")
+                    for result in errors:
+                        req_type = result.requirement_status or "unknown"
+                        f.write(f"| `{result.path}` | {result.message} | {req_type} |\n")
+                    f.write("\n")
+                    
+                    f.write("<details>\n")
+                    f.write("<summary>Remediation Steps</summary>\n\n")
+                    f.write("To fix these errors:\n\n")
+                    for result in errors:
+                        if "file" in result.message.lower():
+                            f.write(f"- Create file: `{result.path}`\n")
+                        elif "directory" in result.message.lower():
+                            f.write(f"- Create directory: `{result.path}/`\n")
+                    f.write("\n</details>\n\n")
+                
+                # Warning details
+                if warnings:
+                    f.write("### ⚠️ Warnings (Suggested Items Missing)\n\n")
+                    f.write("| Path | Issue | Type |\n")
+                    f.write("|------|-------|------|\n")
+                    for result in warnings:
+                        req_type = result.requirement_status or "unknown"
+                        f.write(f"| `{result.path}` | {result.message} | {req_type} |\n")
+                    f.write("\n")
+                    
+                    f.write("<details>\n")
+                    f.write("<summary>Recommended Actions</summary>\n\n")
+                    f.write("While not required, these items are recommended:\n\n")
+                    for result in warnings:
+                        if "file" in result.message.lower():
+                            f.write(f"- Add file: `{result.path}`\n")
+                        elif "directory" in result.message.lower():
+                            f.write(f"- Add directory: `{result.path}/`\n")
+                    f.write("\n</details>\n\n")
+                
+        except Exception as e:
+            print(f"Warning: Could not write to GitHub summary: {e}", file=sys.stderr)
 
 
 def main():

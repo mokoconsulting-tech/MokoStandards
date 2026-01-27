@@ -61,6 +61,9 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      # Excluded files from confidentiality scans
+      # Note: Terraform *.tf files ARE scanned for secrets (as they should be)
+      # Only Terraform state/plan/cache files are excluded (they may contain computed values)
       EXCLUDED_FILES: ':!.github/workflows/confidentiality-scan.yml :!docs/TWO_TIER_ARCHITECTURE.md :!docs/guide/PRIVATE_REPOSITORY_REFERENCE.md :!STANDARDS_COORDINATION.md :!.github/PRIVATE_TEMPLATES.md :!terraform/*.tfplan :!terraform/*.tfstate* :!terraform/.terraform/*'
 
     steps:

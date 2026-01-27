@@ -154,7 +154,7 @@ locals {
       name               = "tests"
       path               = "tests"
       description        = "Test files"
-      requirement_status = "suggested"
+      requirement_status = "optional" # Changed from "suggested" to "optional" for MokoStandards
       purpose            = "Automated testing"
       subdirectories     = {}
     }

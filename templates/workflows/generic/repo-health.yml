@@ -337,7 +337,8 @@ jobs:
                 repo: context.repo.repo,
                 title: issueTitle,
                 body: issueBody,
-                labels: ['repository-health', 'automation']
+                labels: ['repository-health', 'automation'],
+                assignees: ['copilot', 'jmiller-moko']
               });
               console.log(`Created new issue #${issue.data.number}`);
             }

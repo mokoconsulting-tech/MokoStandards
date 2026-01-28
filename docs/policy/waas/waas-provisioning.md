@@ -302,19 +302,23 @@ This policy depends on:
 
 ## Metadata
 
-- **Document Type:** policy
-- **Document Subtype:** waas
-- **Owner Role:** Operations Owner
-- **Approval Required:** Yes
-- **Evidence Required:** Yes
-- **Review Cycle:** Quarterly
-- **Retention:** 7 Years
-- **Compliance Tags:** Governance, Compliance
-- **Status:** Published
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Policy                                       |
+| Domain         | Governance                                         |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/policy/waas/waas-provisioning.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-- Initial policy established
-- Provisioning process and requirements defined
-- Security baseline and validation requirements documented
-- Resource allocation and service tiers specified
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

@@ -333,15 +333,20 @@ A: Create `.github/health-exemptions.yml` and request admin approval.
 
 ## Metadata
 
-| Field | Value |
-|---|---|
-| Document | Repository Health Scoring System |
-| Path | /docs/health-scoring.md |
-| Repository | https://github.com/mokoconsulting-tech/MokoStandards |
-| Owner | Moko Consulting |
-| Status | Active |
-| Version | 01.00.00 |
-| Effective | 2026-01-07 |
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Policy                                       |
+| Domain         | Governance                                         |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/policy/health-scoring.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Version History
 
@@ -355,3 +360,9 @@ A: Create `.github/health-exemptions.yml` and request admin approval.
 - [SFTP Deployment Guide](deployment/sftp.md)
 - [Project Type Detection](../reference/project-types.md)
 - [Repository Structure Standards](guide/repository-structure-schema.md)
+
+## Revision History
+
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

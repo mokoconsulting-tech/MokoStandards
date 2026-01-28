@@ -161,51 +161,23 @@ For contribution rules, see the [Contributing Policy](../CONTRIBUTING.md).
 
 ## Metadata
 
-| Field          | Value                                                |
-| -------------- | ---------------------------------------------------- |
-| Document Type  | Policy                                               |
-| Domain         | Documentation                                        |
-| Applies To     | All Repositories                                     |
-| Jurisdiction   | Tennessee, USA                                       |
-| Owner          | Moko Consulting                                      |
-| Repo           | https://github.com/mokoconsulting-tech/              |
-| Path           | /docs/policy/example-policy.md                       |
-| Version        | 02.00.00                                             |
-| Status         | Active                                               |
-| Last Reviewed  | 2026-01-28                                           |
-| Reviewed By    | Documentation Team                                   |
-
-## Revision History
-
-| Date       | Author          | Change                   | Notes                                    |
-| ---------- | --------------- | ------------------------ | ---------------------------------------- |
-| 2026-01-03 | Moko Consulting | Initial policy creation  | First version following new standards    |
-| 2026-01-28 | Moko Consulting | Updated metadata format  | Added all required metadata fields       |
-```
-
-## Compliance and Enforcement
-
-Documents that do not conform to this policy may be flagged by automated validation, blocked from release pipelines, or returned for remediation. Exceptions require explicit approval and documented justification.
-
-## Metadata
-
 | Field          | Value                                            |
 | -------------- | ------------------------------------------------ |
-| Document Type  | Policy                                           |
-| Domain         | Documentation                                    |
-| Applies To     | All Repositories                                 |
+| Document Type  | Policy                                       |
+| Domain         | Governance                                         |
+| Applies To     | All Repositories                                     |
 | Jurisdiction   | Tennessee, USA                                   |
-| Owner          | Moko Consulting                                  |
-| Repo           | https://github.com/mokoconsulting-tech/          |
-| Path           | /docs/policy/document-formatting.md              |
-| Version        | 02.00.00                                         |
-| Status         | Authoritative                                    |
-| Last Reviewed  | 2026-01-28                                       |
-| Reviewed By    | Documentation Team                               |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/policy/document-formatting.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
 | Date       | Author          | Change                                       | Notes                                              |
 | ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
-| 2026-01-03 | Moko Consulting | Initial policy creation                      | Authority designation for document formatting      |
-| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Added all required fields, updated to version 02.00.00 |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.CRM
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/crm/client-deployment.md
-VERSION: 05.00.00
+VERSION: 02.00.00
 BRIEF: Client deployment policy and procedures for MokoCRM
 -->
 
@@ -472,18 +472,23 @@ Responsible for:
 
 ## Metadata
 
-- **Document Type**: policy
-- **Document Subtype**: operational
-- **Owner Role**: Deployment Manager
-- **Approval Required**: Yes
-- **Evidence Required**: Yes
-- **Review Cycle**: Semi-annual
-- **Retention**: 7 years
-- **Compliance Tags**: Deployment, Operations, CRM
-- **Status**: Published
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Policy                                       |
+| Domain         | Governance                                         |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/policy/crm/client-deployment.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-| Date       | Version  | Author          | Notes                                  |
-| ---------- | -------- | --------------- | -------------------------------------- |
-| 2026-01-07 | 05.00.00 | Moko Consulting | Initial client deployment policy |
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

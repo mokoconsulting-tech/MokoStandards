@@ -551,3 +551,26 @@ This strategy requires approval from:
 **Last Updated:** 2026-01-15  
 **Author:** GitHub Copilot  
 **Status:** Pending Review
+
+## Metadata
+
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Report                                       |
+| Domain         | Operations                                         |
+| Applies To     | Specific Projects                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/reports/ENTERPRISE_READINESS_SCRIPTS.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
+
+## Revision History
+
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

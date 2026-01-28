@@ -5,7 +5,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 # FILE INFORMATION
 PATH: /docs/products/mokowaas/glossary.md
-VERSION: 01.00.00
+VERSION: 02.00.00
 BRIEF: MokoWaaS terminology and definitions glossary
 -->
 
@@ -188,10 +188,23 @@ This glossary defines terminology specific to MokoWaaS, our Joomla-based WordPre
 
 ## Metadata
 
-| Field | Value |
-|-------|-------|
-| Document | MokoWaaS Glossary |
-| Path | /docs/products/mokowaas/glossary.md |
-| Status | Active |
-| Version | 01.00.00 |
-| Date | 2026-01-04 |
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Guide                                       |
+| Domain         | Products                                         |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/products/mokowaas/glossary.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
+
+## Revision History
+
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

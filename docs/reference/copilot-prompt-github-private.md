@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Guide
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: docs/COPILOT_PROMPT_FOR_.GITHUB-PRIVATE.md
-VERSION: 05.00.00
+VERSION: 02.00.00
 BRIEF: Reference documentation for GitHub Copilot prompts stored in private repository
 -->
 
@@ -260,18 +260,23 @@ This separation was implemented as part of the enterprise readiness initiative t
 
 ## Metadata
 
-| Field      | Value                                                                                                        |
-| ---------- | ------------------------------------------------------------------------------------------------------------ |
-| Document   | GitHub Copilot Prompt Reference for .github-private                                                          |
-| Path       | docs/COPILOT_PROMPT_FOR_.GITHUB-PRIVATE.md                                                                   |
-| Repository | [https://github.com/mokoconsulting-tech/MokoStandards](https://github.com/mokoconsulting-tech/MokoStandards) |
-| Owner      | Moko Consulting                                                                                              |
-| Scope      | Reference documentation                                                                                      |
-| Status     | Published                                                                                                    |
-| Effective  | 2026-01-17                                                                                                   |
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Reference                                       |
+| Domain         | Reference                                         |
+| Applies To     | Specific Projects                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/reference/copilot-prompt-github-private.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-| Date       | Change Description                                      | Author          |
-| ---------- | ------------------------------------------------------- | --------------- |
-| 2026-01-17 | Initial creation, documenting Copilot prompt reference  | Moko Consulting |
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

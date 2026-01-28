@@ -269,19 +269,23 @@ This policy depends on:
 
 ## Metadata
 
-- **Document Type:** policy
-- **Document Subtype:** core
-- **Owner Role:** Governance Owner
-- **Approval Required:** Yes
-- **Evidence Required:** Yes
-- **Review Cycle:** Annual
-- **Retention:** 7 Years
-- **Compliance Tags:** Governance, Compliance, Security, Audit
-- **Status:** Published
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Policy                                       |
+| Domain         | Governance                                         |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/policy/vendor-risk.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-- Initial policy established
-- Vendor assessment and classification framework defined
-- Vendor monitoring and review requirements documented
-- Access control and incident response procedures specified
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

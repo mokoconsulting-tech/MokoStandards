@@ -52,15 +52,23 @@ Validated during provisioning and audits.
 
 ## Metadata
 
-* **STANDARD TYPE**: Policy
-* **APPLIES TO**: WaaS monitoring and backup
-* **AUTHORITY**: Moko Consulting
-* **STATUS**: Active
-* **PATH**: /docs/policy/waas/akeeba-and-panopticon.md
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Policy                                       |
+| Domain         | Governance                                         |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/policy/waas/akeeba-and-panopticon.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-| Date       | Change Description                         | Author          |
-| ---------- | ------------------------------------------ | --------------- |
-| 2026-01-07 | Added Akeeba release system role          | Copilot Agent   |
-| 2025-12-23 | Initial policy creation           | Moko Consulting |
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

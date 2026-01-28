@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /SUPPORT.md
-VERSION: 04.01.00
+VERSION: 02.00.00
 BRIEF: Support channels, expectations, and service levels
 -->
 
@@ -243,19 +243,23 @@ This support policy is governed by the MokoStandards framework and may only be m
 
 ## Metadata
 
-| Field        | Value                                                                                                        |
-| ------------ | ------------------------------------------------------------------------------------------------------------ |
-| Document     | Support Policy                                                                                               |
-| Path         | /SUPPORT.md                                                                                                  |
-| Repository   | [https://github.com/mokoconsulting-tech/MokoStandards](https://github.com/mokoconsulting-tech/MokoStandards) |
-| Owner        | Moko Consulting                                                                                              |
-| Scope        | Support channels and expectations                                                                            |
-| Applies To   | All users and contributors                                                                                   |
-| Status       | Active                                                                                                       |
-| Effective    | 2026-01-04                                                                                                   |
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Guide                                       |
+| Domain         | Documentation                                         |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/guide/SUPPORT.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-| Date       | Change Description                                | Author          |
-| ---------- | ------------------------------------------------- | --------------- |
-| 2026-01-04 | Initial creation for enterprise readiness         | Moko Consulting |
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

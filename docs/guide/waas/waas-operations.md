@@ -453,19 +453,23 @@ This guide depends on:
 
 ## Metadata
 
-- **Document Type:** guide
-- **Document Subtype:** waas
-- **Owner Role:** Operations Owner
-- **Approval Required:** No
-- **Evidence Required:** Yes
-- **Review Cycle:** Quarterly
-- **Retention:** 7 Years
-- **Compliance Tags:** Governance
-- **Status:** Published
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Guide                                       |
+| Domain         | Documentation                                         |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/guide/waas/waas-operations.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-- Initial guide established
-- Daily operational procedures defined
-- Maintenance and troubleshooting procedures documented
-- Backup and recovery operations specified
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

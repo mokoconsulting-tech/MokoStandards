@@ -393,13 +393,23 @@ Defines technical terminology related to software development, platforms, infras
 
 ## Metadata
 
-- **Document Type**: glossary
-- **Document Subtype**: technical
-- **Owner Role**: Documentation Owner
-- **Status**: Published
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Glossary                                       |
+| Domain         | Reference                                         |
+| Applies To     | Specific Projects                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/glossary/technical-terms.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-| Date       | Version  | Author          | Notes                             |
-| ---------- | -------- | --------------- | --------------------------------- |
-| 2026-01-04 | 01.00.00 | Moko Consulting | Initial technical terms glossary |
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

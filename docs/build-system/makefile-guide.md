@@ -1377,15 +1377,20 @@ endif
 
 ## Metadata
 
-| Field | Value |
-|---|---|
-| Document | Makefile Creation Guide |
-| Path | /docs/build-system/makefile-guide.md |
-| Repository | https://github.com/mokoconsulting-tech/MokoStandards |
-| Owner | Moko Consulting |
-| Status | Active |
-| Version | 02.00.00 |
-| Effective | 2026-01-13 |
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Guide                                       |
+| Domain         | Development                                         |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/build-system/makefile-guide.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Version History
 
@@ -1393,3 +1398,9 @@ endif
 |---|---|---|
 | 01.00.00 | 2026-01-07 | Initial Makefile creation guide with standards and best practices |
 | 02.00.00 | 2026-01-13 | Added advanced patterns, best practices, CI/CD integration, debugging, and platform-specific sections |
+
+## Revision History
+
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

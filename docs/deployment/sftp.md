@@ -510,15 +510,20 @@ For different deployment scenarios, consider:
 
 ## Metadata
 
-| Field | Value |
-|---|---|
-| Document | SFTP Deployment Guide |
-| Path | /docs/deployment/sftp.md |
-| Repository | https://github.com/mokoconsulting-tech/MokoStandards |
-| Owner | Moko Consulting |
-| Status | Active |
-| Version | 01.00.00 |
-| Effective | 2026-01-07 |
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Guide                                       |
+| Domain         | Operations                                         |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/deployment/sftp.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Version History
 
@@ -532,3 +537,9 @@ For different deployment scenarios, consider:
 - [Repository Health Workflow](../workflows/README.md#4-standards-compliance-template-repo_healthyml)
 - [Health Scoring System](../policy/health-scoring.md)
 - [Akeeba and Panopticon Policy](../policy/waas/akeeba-and-panopticon.md)
+
+## Revision History
+
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Development
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/branching-strategy.md
-VERSION: 05.00.00
+VERSION: 02.00.00
 BRIEF: Git branching strategy and release workflow policy
 -->
 
@@ -639,18 +639,23 @@ jobs:
 
 ## Metadata
 
-- **Document Type**: policy
-- **Document Subtype**: core
-- **Owner Role**: Development Lead
-- **Approval Required**: Yes
-- **Evidence Required**: Yes
-- **Review Cycle**: Semi-annual
-- **Retention**: Indefinite
-- **Compliance Tags**: Development, Standards, Version Control
-- **Status**: Published
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Policy                                       |
+| Domain         | Governance                                         |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/policy/branching-strategy.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-| Date       | Version  | Author          | Notes                                  |
-| ---------- | -------- | --------------- | -------------------------------------- |
-| 2026-01-07 | 05.00.00 | Moko Consulting | Initial branching strategy policy |
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

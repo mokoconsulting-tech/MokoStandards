@@ -204,21 +204,21 @@ Additional information, context, or commentary:
 
 | Field          | Value                                            |
 | -------------- | ------------------------------------------------ |
-| Document Type  | ADR                                              |
-| Domain         | Architecture                                     |
-| Applies To     | [Specify scope]                                  |
+| Document Type  | ADR                                       |
+| Domain         | Architecture                                         |
+| Applies To     | Specific Projects                                     |
 | Jurisdiction   | Tennessee, USA                                   |
-| Owner          | Moko Consulting                                  |
-| Repo           | https://github.com/mokoconsulting-tech/          |
-| Path           | /docs/adr/[adr-number]-[title].md                |
-| Version        | 02.00.00                                         |
-| Status         | [Proposed/Accepted/Deprecated/Superseded]        |
-| Last Reviewed  | YYYY-MM-DD                                       |
-| Reviewed By    | [Reviewer Name/Team]                             |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/adr/template.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-| Date       | Author        | Change                  | Notes                           |
-| ---------- | ------------- | ----------------------- | ------------------------------- |
-| YYYY-MM-DD | [Author Name] | Initial ADR creation    | First draft of decision         |
-| YYYY-MM-DD | [Author Name] | Updates after review    | Incorporated feedback           |
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

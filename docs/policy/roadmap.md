@@ -150,16 +150,23 @@ This roadmap is intentionally conservative and additive. New versions extend pri
 
 ## Metadata
 
-```
-Owner: Documentation Owner
-Reviewers: Governance Owner, Security Owner, Operations Owner
-Status: Active
-Last Updated: 2026-01-04
-```
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Policy                                       |
+| Domain         | Governance                                         |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/policy/roadmap.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-| Date       | Version  | Author                          | Notes                                                                  |
-| ---------- | -------- | ------------------------------- | ---------------------------------------------------------------------- |
-| 2026-01-03 | 04.02.00 | Jonathan Miller (@jmiller-moko) | Initial roadmap baseline and forward plan                              |
-| 2026-01-04 | 05.00.00 | Jonathan Miller (@jmiller-moko) | Updated for enterprise readiness baseline, renumbered versions to 05.x |
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

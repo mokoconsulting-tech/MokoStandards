@@ -10,7 +10,7 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Reference
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/reference/repository-templates.md
-VERSION: 01.00.00
+VERSION: 02.00.00
 BRIEF: Reference documentation for MokoStandards repository templates
 -->
 
@@ -411,18 +411,23 @@ For general questions about templates:
 
 ## Metadata
 
-| Field | Value |
-|-------|-------|
-| Document | Repository Templates Reference |
-| Path | /docs/reference/repository-templates.md |
-| Repository | https://github.com/mokoconsulting-tech/MokoStandards |
-| Owner | Moko Consulting |
-| Scope | Template documentation |
-| Status | Published |
-| Effective | 2026-01-18 |
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Reference                                       |
+| Domain         | Reference                                         |
+| Applies To     | Specific Projects                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/reference/repository-templates.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-| Date | Change Description | Author |
-|------|-------------------|--------|
-| 2026-01-18 | Initial creation of repository templates reference | Moko Consulting |
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

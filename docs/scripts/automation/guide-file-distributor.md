@@ -23,7 +23,7 @@ DEFGROUP: Scripts.Utility
 INGROUP: FileDistribution
 REPO: https://github.com/mokoconsulting-tech/
 FILE: guide-file-distributor.md
-VERSION: 01.00.00
+VERSION: 02.00.00
 BRIEF: Operational guide for distributing a file across folder trees with PowerShell and Python utilities.
 PATH: /docs/scripts/automation/guide-file-distributor.md
 NOTE:
@@ -262,22 +262,23 @@ Store logs in a controlled directory with retention policy alignment, for exampl
 
 ## Metadata
 
-| Field         | Value                                                                              |
-| ------------- | ---------------------------------------------------------------------------------- |
-| Document Type | Guide                                                                              |
-| Domain        | Operations                                                                         |
-| Applies To    | File distribution utilities (PowerShell, Python)                                   |
-| Jurisdiction  | Tennessee, USA                                                                     |
-| Owner         | Moko Consulting                                                                    |
-| Repo          | [https://github.com/mokoconsulting-tech/](https://github.com/mokoconsulting-tech/) |
-| Path          | /docs/scripts/automation/guide-file-distributor.md                                 |
-| Version       | 01.00.00                                                                           |
-| Status        | Draft                                                                              |
-| Last Reviewed | 2026-01-16                                                                         |
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Guide                                       |
+| Domain         | Development                                         |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/scripts/automation/guide-file-distributor.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-| Date       | Author   | Change        | Notes                                                         |
-| ---------- | -------- | ------------- | ------------------------------------------------------------- |
-| 2026-01-15 | Jonathan | Initial draft | Created operational guide with audit and governance controls. |
-| 2026-01-16 | Copilot  | Feature update | Added "Yes to All" confirmation and hidden folder control documentation. |
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

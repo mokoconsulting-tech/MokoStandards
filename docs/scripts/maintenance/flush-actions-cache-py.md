@@ -298,15 +298,23 @@ gh auth status
 
 ## Metadata
 
-- **Document**: flush_actions_cache.py Script Guide
-- **Path**: `/docs/scripts/maintenance/flush-actions-cache-py.md`
-- **Version**: 01.00.00
-- **Type**: Script Documentation
-- **Category**: Maintenance
-- **Last Updated**: 2026-01-18
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Guide                                       |
+| Domain         | Development                                         |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/scripts/maintenance/flush-actions-cache-py.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-| Version  | Date       | Author          | Notes                           |
-| -------- | ---------- | --------------- | ------------------------------- |
-| 01.00.00 | 2026-01-18 | GitHub Copilot  | Initial documentation           |
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

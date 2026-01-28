@@ -33,11 +33,13 @@
   - Suggested elements: Full GPL license text including warranty disclaimer
   - Added guidance on when to use each header type
   - Updated all file type examples (Markdown, Python, PHP, Shell, YAML) to show both minimal and full variants
-  - **Exception**: Warranty disclaimer MUST appear in:
-    - index.php files (for directory protection)
-    - README files (as visible text, not comment)
-    - Dolibarr module descriptor files
-    - Joomla extension XML files
+  - **Exception - REQUIRED warranty disclaimer** for specific file types:
+    - **index.php files** (directory protection) - Must include full GPL header
+    - **README files** (user-facing) - Warranty text as visible content, not comment
+    - **Dolibarr module descriptor files** - Full GPL header required
+    - **Joomla extension XML files** - Warranty text in description section
+  - Updated templates/security/index.php with full warranty disclaimer
+  - Updated templates/docs/required/template-README.md with visible warranty text
 
 ### Changed - Metadata Updates
 - **Documentation Standardization**: Updated metadata sections across 129 documentation files

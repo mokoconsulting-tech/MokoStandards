@@ -26,6 +26,21 @@
 
 set -euo pipefail
 
+DRY_RUN=false
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        *)
+            shift
+            ;;
+    esac
+done
+
 echo "[INFO] Checking for literal tab characters..."
 
 # Find files with tabs (excluding binary files and specific extensions)

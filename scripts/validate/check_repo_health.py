@@ -42,14 +42,16 @@ DEFAULT_HEALTH_THRESHOLD = 70.0
 class RepoHealthChecker:
     """Performs repository health checks based on Terraform configuration."""
 
-    def __init__(self, repo_path: str = "."):
+    def __init__(self, repo_path: str = ".", dry_run: bool = False):
         """
         Initialize health checker.
 
         Args:
             repo_path: Path to repository to check (default: current directory)
+            dry_run: Show what would be checked without executing
         """
         self.repo_path = Path(repo_path).resolve()
+        self.dry_run = dry_run
         self.schema_reader = TerraformSchemaReader()
         self.config = None
         self.results = {
@@ -134,6 +136,20 @@ class RepoHealthChecker:
         # Get parameters
         parameters = check.get("parameters", {})
 
+        if self.dry_run:
+            message = f"[DRY-RUN] Would check: {name}"
+            return {
+                "check_id": check_id,
+                "name": name,
+                "description": description,
+                "passed": True,
+                "message": message,
+                "points": points,
+                "required": required,
+                "remediation": remediation,
+                "category": category_ref,
+            }
+
         # Run check based on type
         passed = False
         message = ""
@@ -211,12 +227,12 @@ class RepoHealthChecker:
     def _check_directory_exists_any(self, params: Dict) -> Tuple[bool, str]:
         """Check if any of the specified directories exist."""
         dir_paths = params.get("directory_paths", [])
-        
+
         for dir_path in dir_paths:
             full_path = self.repo_path / dir_path
             if full_path.exists() and full_path.is_dir():
                 return True, f"Directory found: {dir_path}"
-        
+
         return False, f"None of the directories found: {', '.join(dir_paths)}"
 
     def _check_file_content(self, params: Dict) -> Tuple[bool, str]:
@@ -293,17 +309,17 @@ def write_github_summary(results: Dict, repo_path: str):
     summary_file = os.environ.get("GITHUB_STEP_SUMMARY")
     if not summary_file:
         return
-    
+
     try:
         with open(summary_file, "a") as f:
             f.write("\n## 🏥 Repository Health Check Results\n\n")
-            
+
             # Overall score
             percentage = results["percentage"]
             level = results["level"].upper()
             score = results["score"]
             max_score = results["max_score"]
-            
+
             # Determine emoji based on level
             if level == "EXCELLENT":
                 emoji = "✅"
@@ -313,73 +329,73 @@ def write_github_summary(results: Dict, repo_path: str):
                 emoji = "🟠"
             else:
                 emoji = "❌"
-            
+
             f.write(f"**Repository:** `{repo_path}`\n\n")
             f.write(f"### {emoji} Overall Health: {level}\n\n")
             f.write(f"**Score:** {score}/{max_score} ({percentage:.1f}%)\n\n")
-            
+
             # Progress bar
             bar_length = 20
             filled = int(bar_length * percentage / 100)
             bar = "█" * filled + "░" * (bar_length - filled)
             f.write(f"```\n{bar} {percentage:.1f}%\n```\n\n")
-            
+
             # Category breakdown
             f.write("### 📊 Category Breakdown\n\n")
             f.write("| Category | Points | Passed | Failed | Status |\n")
             f.write("|----------|--------|--------|--------|--------|\n")
-            
+
             for cat_id, cat_info in results["categories"].items():
                 earned = cat_info["earned_points"]
                 max_pts = cat_info["max_points"]
                 passed = cat_info["checks_passed"]
                 failed = cat_info["checks_failed"]
                 pct = (earned / max_pts * 100) if max_pts > 0 else 0
-                
+
                 if failed == 0:
                     status = "✅"
                 elif passed == 0:
                     status = "❌"
                 else:
                     status = "⚠️"
-                
+
                 f.write(f"| {cat_info['name']} | {earned}/{max_pts} ({pct:.0f}%) | {passed} | {failed} | {status} |\n")
-            
+
             f.write("\n")
-            
+
             # Failed checks details
             failed_checks = [c for c in results["checks"] if not c["passed"]]
             if failed_checks:
                 f.write("### ❌ Failed Checks\n\n")
                 f.write("<details>\n")
                 f.write("<summary>Click to expand failed checks details</summary>\n\n")
-                
+
                 for check in failed_checks:
                     required_badge = "🔴 REQUIRED" if check["required"] else "🟡 OPTIONAL"
                     f.write(f"#### {required_badge} {check['name']}\n\n")
                     f.write(f"**Category:** {check['category']}\n\n")
                     f.write(f"**Points Lost:** {check['points']}\n\n")
                     f.write(f"**Issue:** {check['message']}\n\n")
-                    
+
                     if check["remediation"]:
                         f.write(f"**Remediation:**\n```\n{check['remediation']}\n```\n\n")
-                    
+
                     f.write("---\n\n")
-                
+
                 f.write("</details>\n\n")
-            
+
             # Passed checks summary
             passed_checks = [c for c in results["checks"] if c["passed"]]
             if passed_checks:
                 f.write(f"### ✅ Passed Checks ({len(passed_checks)})\n\n")
                 f.write("<details>\n")
                 f.write("<summary>Click to see all passing checks</summary>\n\n")
-                
+
                 for check in passed_checks:
                     f.write(f"- ✅ **{check['name']}** ({check['points']} pts): {check['message']}\n")
-                
+
                 f.write("\n</details>\n\n")
-            
+
             # Health thresholds reference
             f.write("### 📏 Health Level Thresholds\n\n")
             f.write("| Level | Score Range | Indicator |\n")
@@ -389,7 +405,7 @@ def write_github_summary(results: Dict, repo_path: str):
             f.write("| Fair | 50-69% | 🟡 Significant improvements required |\n")
             f.write("| Poor | 0-49% | ❌ Critical issues |\n")
             f.write("\n")
-            
+
     except Exception as e:
         print(f"Warning: Could not write to GitHub summary: {e}", file=sys.stderr)
 
@@ -413,11 +429,16 @@ def main():
     parser.add_argument(
         "--verbose", "-v", action="store_true", help="Verbose output"
     )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be checked without executing"
+    )
 
     args = parser.parse_args()
 
     # Create checker (config argument is ignored now)
-    checker = RepoHealthChecker(None, args.repo_path)
+    checker = RepoHealthChecker(args.repo_path, args.dry_run)
 
     # Load configuration
     if args.verbose:
@@ -478,7 +499,7 @@ def main():
     # Write to GitHub Actions Summary if running in CI
     if os.environ.get("GITHUB_ACTIONS") == "true":
         write_github_summary(results, args.repo_path)
-    
+
     # Exit with appropriate code
     sys.exit(0 if results["percentage"] >= DEFAULT_HEALTH_THRESHOLD else 1)
 

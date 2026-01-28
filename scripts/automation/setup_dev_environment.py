@@ -28,11 +28,11 @@ from typing import List, Optional
 def run_command(cmd: List[str], check: bool = True) -> Optional[subprocess.CompletedProcess]:
     """
     Run a command and return the result.
-    
+
     Args:
         cmd: Command and arguments to run
         check: Whether to raise exception on failure
-        
+
     Returns:
         CompletedProcess object or None on failure
     """
@@ -52,10 +52,10 @@ def run_command(cmd: List[str], check: bool = True) -> Optional[subprocess.Compl
 def check_command_exists(cmd: str) -> bool:
     """
     Check if a command exists in PATH.
-    
+
     Args:
         cmd: Command name to check
-        
+
     Returns:
         True if command exists
     """
@@ -66,18 +66,18 @@ def check_command_exists(cmd: str) -> bool:
 def check_prerequisites() -> bool:
     """
     Check if required tools are installed.
-    
+
     Returns:
         True if all prerequisites are met
     """
     print("🔍 Checking prerequisites...")
     print("-" * 80)
-    
+
     required = {
         "git": "Git version control",
         "python3": "Python 3.8+",
     }
-    
+
     optional = {
         "gh": "GitHub CLI (optional)",
         "node": "Node.js (optional)",
@@ -85,23 +85,23 @@ def check_prerequisites() -> bool:
         "composer": "PHP Composer (optional)",
         "make": "Make build tool (optional)",
     }
-    
+
     all_ok = True
-    
+
     for cmd, desc in required.items():
         if check_command_exists(cmd):
             print(f"✅ {desc}: {cmd} found")
         else:
             print(f"❌ {desc}: {cmd} NOT found (required)")
             all_ok = False
-    
+
     print()
     for cmd, desc in optional.items():
         if check_command_exists(cmd):
             print(f"✅ {desc}: {cmd} found")
         else:
             print(f"⚠️  {desc}: {cmd} NOT found (optional)")
-    
+
     print()
     return all_ok
 
@@ -109,7 +109,7 @@ def check_prerequisites() -> bool:
 def check_python_version() -> bool:
     """
     Check if Python version is 3.8 or higher.
-    
+
     Returns:
         True if version is sufficient
     """
@@ -126,7 +126,7 @@ def setup_git_config() -> None:
     """Set up git configuration with commit message template."""
     print("\n📝 Setting up Git configuration...")
     print("-" * 80)
-    
+
     # Check if .gitmessage exists
     gitmessage = Path(".gitmessage")
     if gitmessage.exists():
@@ -137,16 +137,16 @@ def setup_git_config() -> None:
             print("⚠️  Could not set git commit message template")
     else:
         print("⚠️  .gitmessage not found")
-    
+
     # Check current git user
     name_result = run_command(["git", "config", "user.name"], check=False)
     email_result = run_command(["git", "config", "user.email"], check=False)
-    
+
     if name_result and name_result.returncode == 0 and name_result.stdout.strip():
         print(f"✅ Git user.name: {name_result.stdout.strip()}")
     else:
         print("⚠️  Git user.name not configured (run: git config user.name 'Your Name')")
-    
+
     if email_result and email_result.returncode == 0 and email_result.stdout.strip():
         print(f"✅ Git user.email: {email_result.stdout.strip()}")
     else:
@@ -156,21 +156,21 @@ def setup_git_config() -> None:
 def install_python_dependencies() -> bool:
     """
     Install Python dependencies if requirements.txt exists.
-    
+
     Returns:
         True if successful or no dependencies to install
     """
     print("\n📦 Checking Python dependencies...")
     print("-" * 80)
-    
+
     req_file = Path("requirements.txt")
     if not req_file.exists():
         print("ℹ️  No requirements.txt found, skipping Python dependencies")
         return True
-    
+
     print("Installing Python dependencies...")
     result = run_command(["pip3", "install", "-r", "requirements.txt"], check=False)
-    
+
     if result and result.returncode == 0:
         print("✅ Python dependencies installed successfully")
         return True
@@ -183,13 +183,13 @@ def setup_pre_commit_hooks() -> None:
     """Set up pre-commit hooks if available."""
     print("\n🪝 Setting up pre-commit hooks...")
     print("-" * 80)
-    
+
     # Check if pre-commit is installed
     if not check_command_exists("pre-commit"):
         print("ℹ️  pre-commit not installed (optional)")
         print("   Install with: pip install pre-commit")
         return
-    
+
     # Install pre-commit hooks
     result = run_command(["pre-commit", "install"], check=False)
     if result and result.returncode == 0:
@@ -202,12 +202,12 @@ def check_environment_variables() -> None:
     """Check for recommended environment variables."""
     print("\n🌍 Checking environment variables...")
     print("-" * 80)
-    
+
     recommended = {
         "GH_PAT": "GitHub Personal Access Token (for automation scripts)",
         "GH_TOKEN": "GitHub Token (alternative to GH_PAT)",
     }
-    
+
     found_any = False
     for var, desc in recommended.items():
         if os.environ.get(var):
@@ -215,7 +215,7 @@ def check_environment_variables() -> None:
             found_any = True
         else:
             print(f"ℹ️  {var}: not set ({desc})")
-    
+
     if not found_any:
         print("\n💡 Tip: Some automation scripts require GitHub authentication.")
         print("   Set GH_PAT or GH_TOKEN, or use 'gh auth login'")
@@ -253,7 +253,7 @@ For more information, see:
 def main() -> int:
     """
     Main entry point for development environment setup.
-    
+
     Returns:
         Exit code (0 for success)
     """
@@ -265,45 +265,45 @@ def main() -> int:
         action="store_true",
         help="Skip installing dependencies"
     )
-    
+
     args = parser.parse_args()
-    
+
     print("\n" + "=" * 80)
     print("🚀 MOKOSTANDARDS DEVELOPMENT ENVIRONMENT SETUP")
     print("=" * 80)
-    
+
     # Check prerequisites
     if not check_prerequisites():
         print("\n❌ Missing required prerequisites. Please install them and try again.")
         return 1
-    
+
     # Check Python version
     if not check_python_version():
         print("\n❌ Python version is too old. Please upgrade to Python 3.8+")
         return 1
-    
+
     # Set up Git configuration
     setup_git_config()
-    
+
     # Install dependencies unless skipped
     if not args.skip_install:
         install_python_dependencies()
     else:
         print("\nℹ️  Skipping dependency installation (--skip-install)")
-    
+
     # Set up pre-commit hooks
     setup_pre_commit_hooks()
-    
+
     # Check environment variables
     check_environment_variables()
-    
+
     # Print next steps
     print_next_steps()
-    
+
     print("=" * 80)
     print("✅ Setup complete!")
     print("=" * 80)
-    
+
     return 0
 
 

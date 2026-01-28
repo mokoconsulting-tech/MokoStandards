@@ -32,6 +32,7 @@ NOTE: Checks YAML syntax, structure, and best practices
 """
 
 import sys
+import argparse
 from pathlib import Path
 from typing import List, Tuple
 
@@ -48,10 +49,10 @@ except ImportError:
 def validate_yaml_syntax(filepath: Path) -> bool:
     """
     Validate YAML syntax of a workflow file.
-    
+
     Args:
         filepath: Path to workflow file
-        
+
     Returns:
         True if valid
     """
@@ -60,7 +61,7 @@ def validate_yaml_syntax(filepath: Path) -> bool:
     except ImportError:
         common.log_warning("PyYAML module not installed. Install with: pip3 install pyyaml")
         return True  # Skip validation if yaml not available
-    
+
     try:
         with open(filepath, 'r', encoding='utf-8') as f:
             yaml.safe_load(f)
@@ -77,10 +78,10 @@ def validate_yaml_syntax(filepath: Path) -> bool:
 def check_no_tabs(filepath: Path) -> bool:
     """
     Check that file contains no tab characters.
-    
+
     Args:
         filepath: Path to file
-        
+
     Returns:
         True if no tabs found
     """
@@ -93,71 +94,71 @@ def check_no_tabs(filepath: Path) -> bool:
     except Exception as e:
         common.log_warn(f"Could not read {filepath}: {e}")
         return False
-    
+
     return True
 
 
 def check_workflow_structure(filepath: Path) -> bool:
     """
     Check workflow file structure for required keys.
-    
+
     Args:
         filepath: Path to workflow file
-        
+
     Returns:
         True if structure is valid
     """
     errors = 0
-    
+
     try:
         with open(filepath, 'r', encoding='utf-8') as f:
             content = f.read()
-        
+
         # Check for required top-level keys
         if 'name:' not in content and not content.startswith('name:'):
             common.log_warn(f"Missing 'name:' in {filepath.name}")
-        
+
         if 'on:' not in content and not content.startswith('on:'):
             common.log_error(f"✗ Missing 'on:' trigger in {filepath.name}")
             errors += 1
-        
+
         if 'jobs:' not in content and not content.startswith('jobs:'):
             common.log_error(f"✗ Missing 'jobs:' in {filepath.name}")
             errors += 1
-            
+
     except Exception as e:
         common.log_error(f"Error reading {filepath}: {e}")
         return False
-    
+
     return errors == 0
 
 
 def validate_workflow_file(filepath: Path) -> bool:
     """
     Validate a single workflow file.
-    
+
     Args:
         filepath: Path to workflow file
-        
+
     Returns:
         True if valid
     """
     common.log_info(f"Validating: {filepath.name}")
-    
+
     errors = 0
-    
+
     # Check YAML syntax
     if not validate_yaml_syntax(filepath):
         errors += 1
-    
+
     # Check for tabs
     if not check_no_tabs(filepath):
         errors += 1
-    
+
     # Check structure
     if not check_workflow_structure(filepath):
         errors += 1
-    
+
     if errors == 0:
         common.log_info(f"✓ {filepath.name} passed all checks")
         return True
@@ -168,47 +169,68 @@ def validate_workflow_file(filepath: Path) -> bool:
 
 def main() -> int:
     """Main entry point."""
+    parser = argparse.ArgumentParser(
+        description="Validate GitHub Actions workflow files"
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be checked without executing"
+    )
+
+    args = parser.parse_args()
+
+    if args.dry_run:
+        print("[DRY-RUN] Would validate GitHub Actions workflows")
+        workflows_dir = Path(".github/workflows")
+        if workflows_dir.is_dir():
+            workflow_files = list(workflows_dir.glob("*.yml")) + list(workflows_dir.glob("*.yaml"))
+            print(f"[DRY-RUN] Would validate {len(workflow_files)} workflow file(s)")
+            for wf in workflow_files:
+                print(f"[DRY-RUN]   - {wf.name}")
+        return 0
+
     common.log_info("GitHub Actions Workflow Validation")
     common.log_info("===================================")
     print()
-    
+
     workflows_dir = Path(".github/workflows")
-    
+
     if not workflows_dir.is_dir():
         common.log_error(f"Workflows directory not found: {workflows_dir}")
         return 1
-    
+
     # Find all workflow files
     workflow_files = []
     for pattern in ["*.yml", "*.yaml"]:
         workflow_files.extend(workflows_dir.glob(pattern))
-    
+
     if not workflow_files:
         common.log_warn("No workflow files found")
         return 0
-    
+
     total = len(workflow_files)
     passed = 0
     failed = 0
-    
+
     for workflow in workflow_files:
         if validate_workflow_file(workflow):
             passed += 1
         else:
             failed += 1
         print()
-    
+
     common.log_info("===================================")
     common.log_info("Summary:")
     common.log_info(f"  Total workflows: {total}")
     common.log_info(f"  Passed: {passed}")
     common.log_info(f"  Failed: {failed}")
     common.log_info("===================================")
-    
+
     if failed > 0:
         common.log_error("Workflow validation failed")
         return 1
-    
+
     common.log_info("All workflows validated successfully")
     return 0
 

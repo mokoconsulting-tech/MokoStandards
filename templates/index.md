@@ -148,7 +148,7 @@ Security templates for directory listing prevention and web server protection.
 - `index.html` - Static HTML redirect template (all projects)
 - `index.php` - PHP server-side redirect template (PHP projects)
 
-**Purpose**: 
+**Purpose**:
 - Prevent directory listing exposure on web servers
 - Redirect unauthorized access to repository root
 - Provide dual-layer protection for PHP-based projects

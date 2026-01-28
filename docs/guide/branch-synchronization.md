@@ -272,10 +272,10 @@ Add these to your `~/.gitconfig`:
 [alias]
     # Sync with remote before starting work
     sync = !git fetch origin && git pull --rebase origin $(git branch --show-current)
-    
+
     # Safe push that checks remote first
     pushsafe = !git fetch origin && git push origin $(git branch --show-current)
-    
+
     # View local vs remote commits
     ahead = !git log origin/$(git branch --show-current)..HEAD
     behind = !git log HEAD..origin/$(git branch --show-current)

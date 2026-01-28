@@ -170,7 +170,8 @@ jobs:
 								repo: context.repo.repo,
 								title: `[Terraform Drift] ${env} environment has drifted`,
 								body: body,
-								labels: ['terraform-drift', `environment:${env}`, 'infrastructure']
+								labels: ['terraform-drift', `environment:${env}`, 'infrastructure'],
+								assignees: ['copilot', 'jmiller-moko']
 							});
 						} else {
 							// Update existing issue

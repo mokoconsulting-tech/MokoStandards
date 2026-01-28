@@ -149,6 +149,6 @@ For more information, see:
 
 ---
 
-**Migration Date**: January 2026  
-**Schema Version**: 2.0  
+**Migration Date**: January 2026
+**Schema Version**: 2.0
 **Maintainer**: MokoStandards Team

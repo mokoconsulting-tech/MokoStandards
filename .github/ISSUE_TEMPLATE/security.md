@@ -40,7 +40,7 @@ Use this template only for **low to medium severity** issues that don't pose imm
 ## Affected Versions
 
 **MokoStandards version(s)**:
-- Commit/tag: 
+- Commit/tag:
 
 **Affected platforms**:
 - [ ] All platforms
@@ -69,9 +69,9 @@ Use this template only for **low to medium severity** issues that don't pose imm
 
 **Proof of concept** (without exploit code):
 
-1. 
-2. 
-3. 
+1.
+2.
+3.
 
 ## Potential Fix
 
@@ -84,11 +84,11 @@ Use this template only for **low to medium severity** issues that don't pose imm
 ## References
 
 **Related CVEs, advisories, or security issues**:
-- 
-- 
+-
+-
 
 **Security best practices violated**:
-- 
+-
 
 ## Discovery Context
 

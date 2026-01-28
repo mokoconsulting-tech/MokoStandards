@@ -213,7 +213,7 @@ pip-licenses --summary
   run: |
     # Composer
     composer licenses --no-dev | grep -v "MIT\|BSD\|Apache-2.0\|GPL\|LGPL" && exit 1 || true
-    
+
     # npm
     npx license-checker --production --onlyAllow "MIT;BSD;Apache-2.0;GPL;LGPL;ISC"
 ```
@@ -281,7 +281,7 @@ This product includes software developed by third parties:
 1. Some Library (https://github.com/example/library)
    Copyright (C) 2025 Original Author
    Licensed under MIT License
-   
+
 2. Another Component (https://example.com/component)
    Copyright (C) 2024 Another Author
    Licensed under Apache License 2.0

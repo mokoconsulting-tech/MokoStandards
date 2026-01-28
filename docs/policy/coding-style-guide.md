@@ -274,7 +274,7 @@ function processOrder($order) {
     if (!$order->isValid()) return false;
     if (!$order->hasStock()) return false;
     if (!$order->paymentValid()) return false;
-    
+
     // Process order
     return true;
 }
@@ -410,7 +410,7 @@ function calculateTotal($price, $taxRate, $roundUp = false) {
 ```javascript
 /**
  * Fetch user data from the API
- * 
+ *
  * @param {number} userId - The ID of the user to fetch
  * @param {Object} options - Optional parameters
  * @param {boolean} options.includeProfile - Include profile data
@@ -426,15 +426,15 @@ async function fetchUser(userId, options = {}) {
 ```python
 def calculate_total(price: float, tax_rate: float, round_up: bool = False) -> float:
     """Calculate the total price including tax.
-    
+
     Args:
         price: Base price before tax
         tax_rate: Tax rate as decimal (e.g., 0.20 for 20%)
         round_up: Whether to round up to nearest cent
-    
+
     Returns:
         Total price including tax
-    
+
     Raises:
         ValueError: If price or tax_rate is negative
     """

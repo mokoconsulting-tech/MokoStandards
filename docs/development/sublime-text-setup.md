@@ -81,9 +81,9 @@ sudo apt-get install sublime-text
 
 ---
 
-**Status:** Active  
-**Last Updated:** 2026-01-15  
-**Maintained By:** Moko Consulting Development Team  
+**Status:** Active
+**Last Updated:** 2026-01-15
+**Maintained By:** Moko Consulting Development Team
 **See full documentation at:** /docs/development/sublime-text-setup.md
 
 ## Metadata

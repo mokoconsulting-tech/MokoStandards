@@ -1,0 +1,63 @@
+# Enterprise Issue Management Configuration Template
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Deploy to: .github/issue-management-config.yml
+
+version: "1.0.0"
+
+enterprise:
+  organization:
+    name: "ORGANIZATION_NAME"
+    default_assignees:
+      - "copilot"
+  
+  projects:
+    enabled: true
+    default_project_number: null
+    auto_add_issues: true
+  
+  milestones:
+    enabled: true
+    auto_assign: true
+    create_if_missing: true
+  
+  labels:
+    priority:
+      critical:
+        name: "priority/critical"
+        color: "d73a4a"
+        sla_hours: 4
+      high:
+        name: "priority/high"
+        color: "ff9800"
+        sla_hours: 24
+      medium:
+        name: "priority/medium"
+        color: "fbca04"
+        sla_hours: 72
+
+automation:
+  create_on_branch: true
+  branch_patterns:
+    - "dev/**"
+    - "rc/**"
+  close_on_merge: true
+  close_on_branch_delete: true
+  link_prs_to_issues: true
+  create_sub_tasks_for_prs: true
+
+sla:
+  enabled: true
+  timezone: "UTC"
+
+audit:
+  enabled: true
+  retention_days: 365
+
+metrics:
+  enabled: true
+
+error_handling:
+  retry_on_failure: true
+  max_retries: 3

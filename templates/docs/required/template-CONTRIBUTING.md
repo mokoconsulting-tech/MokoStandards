@@ -12,7 +12,7 @@
  You should have received a copy of the GNU General Public License (./LICENSE).
 
  # FILE INFORMATION
- DEFGROUP: 
+ DEFGROUP:
  INGROUP: Project.Documentation
  REPO:
  VERSION: 00.00.01

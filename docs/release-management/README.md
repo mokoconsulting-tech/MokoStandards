@@ -667,6 +667,8 @@ git push origin dev/1.2.3
 
 ### GitHub Actions Workflows
 
+#### Release Cycle Workflow
+
 The `release-cycle.yml` workflow automates:
 - Development branch creation
 - RC branch creation
@@ -675,6 +677,72 @@ The `release-cycle.yml` workflow automates:
 - Release notes generation
 
 See [Release Cycle Workflow](../../templates/workflows/release-cycle-simple.yml.template) for details.
+
+#### Automatic Release on Version Bump
+
+The `auto-release-on-version-bump.yml` workflow provides automatic release creation when version numbers are updated in the repository. This workflow eliminates the need for manual release creation and requires no build steps.
+
+**Trigger**: Automatic on push to `main` branch
+
+**Monitored Files**:
+- `CITATION.cff` - Version field
+- `pyproject.toml` - Version field in [project] section
+
+**Workflow Steps**:
+1. **Detect Version Changes**: Automatically detects when version numbers change in monitored files
+2. **Extract Version**: Parses the new version number from the modified file
+3. **Create Git Tag**: Creates a git tag `vX.Y.Z` for the new version
+4. **Generate Release Notes**: Extracts changelog from CHANGELOG.md (using format `## [X.Y.Z]`) or creates default release notes
+5. **Create GitHub Release**: Publishes a new GitHub release with the tag and notes
+
+**CHANGELOG.md Format**:
+The workflow extracts release notes from CHANGELOG.md using the [Keep a Changelog](https://keepachangelog.com/) format:
+```markdown
+## [2.1.0] - 2026-01-28
+### Added
+- New feature
+
+## [2.0.0] - 2026-01-15
+### Changed
+- Breaking change
+```
+
+**How to Use**:
+1. Update the version in `CITATION.cff` or `pyproject.toml`
+2. Commit and push changes to the `main` branch
+3. The workflow automatically creates a release with the new version
+4. No build or manual intervention required
+
+**Example**:
+```bash
+# Update version in CITATION.cff
+version: "2.1.0"
+
+# Commit and push to main
+git add CITATION.cff
+git commit -m "chore: bump version to 2.1.0"
+git push origin main
+
+# Automatic release is created with tag v2.1.0
+```
+
+**Benefits**:
+- No build required - releases are created instantly
+- Consistent release creation process
+- Automatic changelog extraction
+- Reduced manual errors
+- Faster release cycles
+
+**Considerations**:
+- If multiple version bumps are pushed quickly, GitHub Actions queues the jobs sequentially
+- Version mismatch warnings are displayed if both CITATION.cff and pyproject.toml change with different versions
+- CITATION.cff takes precedence when both files are modified
+- Skips initial commits automatically to avoid errors
+
+**Compatibility**:
+- Works alongside the existing release-cycle.yml workflow
+- Can be used for quick hotfixes or documentation releases
+- Suitable for repositories that don't require build artifacts
 
 ### Manual vs Automated
 

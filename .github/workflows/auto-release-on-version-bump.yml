@@ -1,0 +1,306 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.Release
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/auto-release-on-version-bump.yml
+# VERSION: 01.00.00
+# BRIEF: Automatically create releases when version is bumped in version files
+# NOTE: Monitors CITATION.cff and pyproject.toml for version changes, no build required
+
+name: Auto Release on Version Bump
+
+env:
+  ACTIONS_STEP_DEBUG: true
+  ACTIONS_RUNNER_DEBUG: true
+
+# MokoStandards Policy Compliance:
+# - File formatting: Enforces organizational coding standards
+# - Reference: docs/policy/file-formatting.md
+
+# ┌─────────────────────────────────────────────────────────────────────────┐
+# │                         WORKFLOW FLOW DIAGRAM                            │
+# └─────────────────────────────────────────────────────────────────────────┘
+#
+#   TRIGGER: Push to Main (CITATION.cff or pyproject.toml changed)
+#        │
+#        ▼
+#   ┌────────────────────┐
+#   │  Detect Version    │
+#   │  Change in Files   │───┐ Compare HEAD vs HEAD~1
+#   └────────────────────┘   │
+#        │                   │
+#        ├───────────────────┤
+#        │                   │
+#        ▼                   ▼
+#   ┌──────────────┐   ┌──────────────┐
+#   │ CITATION.cff │   │pyproject.toml│
+#   │   Changed?   │   │   Changed?   │
+#   └──────────────┘   └──────────────┘
+#        │                   │
+#        └─────────┬─────────┘
+#                  ▼
+#         ┌──────────────────┐
+#         │  Extract New     │
+#         │  Version Number  │
+#         │  (vXX.YY.ZZ)     │
+#         └──────────────────┘
+#                  │
+#                  ▼
+#         ┌──────────────────┐
+#         │  Create Git Tag  │
+#         │    vXX.YY.ZZ     │
+#         └──────────────────┘
+#                  │
+#                  ▼
+#         ┌──────────────────┐
+#         │ Create GitHub    │
+#         │    Release       │───┐ Extract notes from CHANGELOG.md
+#         └──────────────────┘   │
+#                  │              │
+#                  ▼              │
+#         ┌──────────────────┐   │
+#         │    OUTPUTS:      │◀──┘
+#         │ • Git Tag        │
+#         │ • Release Notes  │
+#         │ • Release Assets │
+#         └──────────────────┘
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'CITATION.cff'
+      - 'pyproject.toml'
+
+permissions:
+  contents: write
+
+jobs:
+  detect-version-bump:
+    name: Detect Version Bump
+    runs-on: ubuntu-latest
+    outputs:
+      version-changed: ${{ steps.check.outputs.version-changed }}
+      new-version: ${{ steps.check.outputs.new-version }}
+      version-source: ${{ steps.check.outputs.version-source }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
+
+      - name: Check for Version Changes
+        id: check
+        run: |
+          set -x
+          VERSION_CHANGED="false"
+          NEW_VERSION=""
+          VERSION_SOURCE=""
+          CITATION_VERSION=""
+          PYPROJECT_VERSION=""
+
+          # Check if we have a previous commit (not initial commit)
+          if ! git rev-parse HEAD~1 >/dev/null 2>&1; then
+            echo "⚠️ Initial commit - skipping version check"
+            echo "version-changed=false" >> $GITHUB_OUTPUT
+            echo "new-version=" >> $GITHUB_OUTPUT
+            echo "version-source=" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Check CITATION.cff for version changes
+          if git diff HEAD~1 HEAD --name-only | grep -q "CITATION.cff"; then
+            echo "📋 CITATION.cff was modified"
+
+            # Extract current version from CITATION.cff
+            if [ -f "CITATION.cff" ]; then
+              CURRENT_VERSION=$(grep "^version:" CITATION.cff | head -1 | \
+                sed 's/^version: *"\([^"]*\)".*$/\1/; t; s/^version: *\([^ ]*\).*$/\1/')
+
+              # Get previous version
+              git show HEAD~1:CITATION.cff > /tmp/old_citation.cff 2>/dev/null \
+                || echo "" > /tmp/old_citation.cff
+              PREVIOUS_VERSION=$(grep "^version:" /tmp/old_citation.cff | head -1 | \
+                sed 's/^version: *"\([^"]*\)".*$/\1/; t; s/^version: *\([^ ]*\).*$/\1/' || echo "")
+
+              if [ "$CURRENT_VERSION" != "$PREVIOUS_VERSION" ] && [ -n "$CURRENT_VERSION" ]; then
+                echo "✅ Version changed in CITATION.cff: $PREVIOUS_VERSION → $CURRENT_VERSION"
+                VERSION_CHANGED="true"
+                CITATION_VERSION="$CURRENT_VERSION"
+                NEW_VERSION="$CURRENT_VERSION"
+                VERSION_SOURCE="CITATION.cff"
+              fi
+            fi
+          fi
+
+          # Check pyproject.toml for version changes
+          if git diff HEAD~1 HEAD --name-only | grep -q "pyproject.toml"; then
+            echo "📋 pyproject.toml was modified"
+
+            # Extract current version from pyproject.toml
+            if [ -f "pyproject.toml" ]; then
+              CURRENT_VERSION=$(grep "^version = " pyproject.toml | head -1 | \
+                sed 's/^version = *"\([^"]*\)".*$/\1/')
+
+              # Get previous version
+              git show HEAD~1:pyproject.toml > /tmp/old_pyproject.toml 2>/dev/null \
+                || echo "" > /tmp/old_pyproject.toml
+              PREVIOUS_VERSION=$(grep "^version = " /tmp/old_pyproject.toml | head -1 | \
+                sed 's/^version = *"\([^"]*\)".*$/\1/' || echo "")
+
+              if [ "$CURRENT_VERSION" != "$PREVIOUS_VERSION" ] && [ -n "$CURRENT_VERSION" ]; then
+                echo "✅ Version changed in pyproject.toml: $PREVIOUS_VERSION → $CURRENT_VERSION"
+                PYPROJECT_VERSION="$CURRENT_VERSION"
+
+                # If CITATION.cff version was also set, check for consistency
+                if [ -n "$CITATION_VERSION" ]; then
+                  if [ "$CITATION_VERSION" != "$PYPROJECT_VERSION" ]; then
+                    echo "⚠️ WARNING: Version mismatch!"
+                    echo "  CITATION.cff: $CITATION_VERSION"
+                    echo "  pyproject.toml: $PYPROJECT_VERSION"
+                    echo "Using CITATION.cff version as primary"
+                  fi
+                else
+                  # Only pyproject.toml changed
+                  VERSION_CHANGED="true"
+                  NEW_VERSION="$CURRENT_VERSION"
+                  VERSION_SOURCE="pyproject.toml"
+                fi
+              fi
+            fi
+          fi
+
+          echo "version-changed=$VERSION_CHANGED" >> $GITHUB_OUTPUT
+          echo "new-version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "version-source=$VERSION_SOURCE" >> $GITHUB_OUTPUT
+
+          if [ "$VERSION_CHANGED" = "true" ]; then
+            echo "### ✅ Version Bump Detected" >> $GITHUB_STEP_SUMMARY
+            echo "- **New Version**: $NEW_VERSION" >> $GITHUB_STEP_SUMMARY
+            echo "- **Source**: $VERSION_SOURCE" >> $GITHUB_STEP_SUMMARY
+            if [ -n "$CITATION_VERSION" ] && [ -n "$PYPROJECT_VERSION" ]; then
+              if [ "$CITATION_VERSION" != "$PYPROJECT_VERSION" ]; then
+                MSG="CITATION.cff=$CITATION_VERSION, pyproject.toml=$PYPROJECT_VERSION"
+                echo "- **⚠️ Version Mismatch**: $MSG" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "- **✅ Versions Match**: Both files have version $NEW_VERSION" >> $GITHUB_STEP_SUMMARY
+              fi
+            fi
+          else
+            echo "### ℹ️ No Version Change" >> $GITHUB_STEP_SUMMARY
+            echo "Version files were modified but version number didn't change" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: detect-version-bump
+    if: needs.detect-version-bump.outputs.version-changed == 'true'
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          set -x
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Check if Tag Already Exists
+        id: check-tag
+        run: |
+          set -x
+          VERSION="${{ needs.detect-version-bump.outputs.new-version }}"
+          TAG="v$VERSION"
+
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "⚠️ Tag $TAG already exists, skipping release creation"
+            echo "tag-exists=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "tag-exists=false" >> $GITHUB_OUTPUT
+          echo "✅ Tag $TAG does not exist, proceeding with release"
+
+      - name: Create Git Tag
+        if: steps.check-tag.outputs.tag-exists == 'false'
+        run: |
+          set -x
+          VERSION="${{ needs.detect-version-bump.outputs.new-version }}"
+          TAG="v$VERSION"
+
+          git tag -a "$TAG" -m "Release $VERSION"
+          git push origin "$TAG"
+
+          echo "✅ Created and pushed tag: $TAG" >> $GITHUB_STEP_SUMMARY
+
+      - name: Generate Release Notes
+        if: steps.check-tag.outputs.tag-exists == 'false'
+        id: release-notes
+        run: |
+          set -x
+          VERSION="${{ needs.detect-version-bump.outputs.new-version }}"
+
+          # Try to extract changelog from CHANGELOG.md
+          if [ -f "CHANGELOG.md" ]; then
+            # Extract changelog for this version
+            awk "/## \[${VERSION}\]/,/## \[/{
+              if(/## \[${VERSION}\]/)next;
+              else if(/## \[/)exit;
+              else print
+            }" CHANGELOG.md > release_notes.md
+
+            if [ -s release_notes.md ]; then
+              echo "✅ Extracted changelog from CHANGELOG.md"
+            else
+              # Fallback to basic release notes
+              echo "## Release ${VERSION}" > release_notes.md
+              echo "" >> release_notes.md
+              echo "This release was automatically created from a version bump." >> release_notes.md
+              echo "" >> release_notes.md
+              echo "Please refer to [CHANGELOG.md](CHANGELOG.md) for detailed changes." >> release_notes.md
+            fi
+          else
+            # No changelog file, create basic release notes
+            echo "## Release ${VERSION}" > release_notes.md
+            echo "" >> release_notes.md
+            echo "This release was automatically created from a version bump." >> release_notes.md
+          fi
+
+          echo "### 📝 Release Notes Preview" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          cat release_notes.md >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Create GitHub Release
+        if: steps.check-tag.outputs.tag-exists == 'false'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.detect-version-bump.outputs.new-version }}
+          name: Release ${{ needs.detect-version-bump.outputs.new-version }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Release Summary
+        if: steps.check-tag.outputs.tag-exists == 'false'
+        run: |
+          set -x
+          echo "### 🚀 Release Created Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version**: ${{ needs.detect-version-bump.outputs.new-version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Source**: ${{ needs.detect-version-bump.outputs.version-source }}" >> $GITHUB_STEP_SUMMARY
+          TAG="v${{ needs.detect-version-bump.outputs.new-version }}"
+          echo "**Tag**: $TAG" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          RELEASE_URL="https://github.com/${{ github.repository }}/releases/tag/$TAG"
+          echo "🔗 [View Release]($RELEASE_URL)" >> $GITHUB_STEP_SUMMARY

@@ -613,13 +613,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Validate version bump
         if: github.base_ref == 'main'
         run: |
           # Check version number updated
           # Validate CHANGELOG.md updated
-          
+
       - name: Run tests
         run: make test
 ```

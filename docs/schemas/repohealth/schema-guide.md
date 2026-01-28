@@ -81,21 +81,21 @@ Every file entry can now include explicit source and destination information:
   <name>ci.yml</name>
   <description>Continuous integration workflow</description>
   <requirement-status>suggested</requirement-status>
-  
+
   <!-- SOURCE: Where to get the file -->
   <source>
     <path>templates/workflows/generic</path>
     <filename>ci.yml.template</filename>
     <type>template</type>
   </source>
-  
+
   <!-- DESTINATION: Where to place the file -->
   <destination>
     <path>.github/workflows</path>
     <filename>ci.yml</filename>
     <create-path>true</create-path>
   </destination>
-  
+
   <!-- Legacy template field (maintained for backward compatibility) -->
   <template>templates/workflows/generic/ci.yml.template</template>
 </file>
@@ -170,19 +170,19 @@ Every file entry can now include explicit source and destination information:
   <name>codeql-analysis.yml</name>
   <description>CodeQL security analysis workflow</description>
   <requirement-status>suggested</requirement-status>
-  
+
   <source>
     <path>templates/workflows/generic</path>
     <filename>codeql-analysis.yml.template</filename>
     <type>template</type>
   </source>
-  
+
   <destination>
     <path>.github/workflows</path>
     <filename>codeql-analysis.yml</filename>
     <create-path>true</create-path>
   </destination>
-  
+
   <always-overwrite>false</always-overwrite>
   <audience>developer</audience>
   <template>templates/workflows/generic/codeql-analysis.yml.template</template>
@@ -196,19 +196,19 @@ Every file entry can now include explicit source and destination information:
   <name>README.md</name>
   <description>Project overview and documentation</description>
   <requirement-status>required</requirement-status>
-  
+
   <source>
     <path>templates/docs/required</path>
     <filename>template-README.md</filename>
     <type>template</type>
   </source>
-  
+
   <destination>
     <path>.</path>
     <filename>README.md</filename>
     <create-path>false</create-path>
   </destination>
-  
+
   <audience>general</audience>
   <template>templates/docs/required/template-README.md</template>
 </file>
@@ -239,15 +239,15 @@ A **stub** is a minimal placeholder file automatically generated when:
   <name>ARCHITECTURE.md</name>
   <description>Architecture documentation</description>
   <requirement-status>optional</requirement-status>
-  
+
   <!-- No source defined, will generate stub -->
-  
+
   <destination>
     <path>docs</path>
     <filename>ARCHITECTURE.md</filename>
     <create-path>true</create-path>
   </destination>
-  
+
   <stub-content><![CDATA[
 # Architecture
 
@@ -317,17 +317,17 @@ if __name__ == "__main__":
   <name>config.yml</name>
   <description>Application configuration</description>
   <requirement-status>required</requirement-status>
-  
+
   <source>
     <type>stub</type>
   </source>
-  
+
   <destination>
     <path>config</path>
     <filename>config.yml</filename>
     <create-path>true</create-path>
   </destination>
-  
+
   <stub-content><![CDATA[
 # Application Configuration
 
@@ -340,7 +340,7 @@ database:
   # TODO: Configure database connection
   host: "localhost"
   port: 5432
-  
+
 logging:
   level: "INFO"
 ]]></stub-content>
@@ -359,11 +359,11 @@ logging:
   <description>Source code directory</description>
   <requirement-status>required</requirement-status>
   <purpose>Contains application source code</purpose>
-  
+
   <files>
     <!-- Files in this directory -->
   </files>
-  
+
   <subdirectories>
     <!-- Nested directories -->
   </subdirectories>
@@ -388,19 +388,19 @@ logging:
   <description>GitHub Actions workflows</description>
   <requirement-status>required</requirement-status>
   <purpose>Contains CI/CD workflow definitions</purpose>
-  
+
   <files>
     <file extension="yml">
       <name>ci.yml</name>
       <description>Continuous integration</description>
       <requirement-status>suggested</requirement-status>
-      
+
       <source>
         <path>templates/workflows/generic</path>
         <filename>ci.yml.template</filename>
         <type>template</type>
       </source>
-      
+
       <destination>
         <path>.github/workflows</path>
         <filename>ci.yml</filename>
@@ -464,10 +464,10 @@ logging:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<repository-structure version="1.0" 
+<repository-structure version="1.0"
                        schema-version="1.0"
                        xmlns="http://mokoconsulting.com/schemas/repository-structure">
-  
+
   <!-- Metadata -->
   <metadata>
     <name>Generic Repository</name>
@@ -477,7 +477,7 @@ logging:
     <last-updated>2026-01-16T00:00:00Z</last-updated>
     <maintainer>MokoStandards Team</maintainer>
   </metadata>
-  
+
   <!-- Structure -->
   <structure>
     <!-- Root Files -->
@@ -486,24 +486,24 @@ logging:
         <name>README.md</name>
         <description>Project documentation</description>
         <requirement-status>required</requirement-status>
-        
+
         <source>
           <path>templates/docs/required</path>
           <filename>template-README.md</filename>
           <type>template</type>
         </source>
-        
+
         <destination>
           <path>.</path>
           <filename>README.md</filename>
           <create-path>false</create-path>
         </destination>
-        
+
         <audience>general</audience>
         <always-overwrite>false</always-overwrite>
       </file>
     </root-files>
-    
+
     <!-- Directories -->
     <directories>
       <directory path="src">
@@ -512,7 +512,7 @@ logging:
         <requirement-status>required</requirement-status>
         <purpose>Application source code</purpose>
       </directory>
-      
+
       <directory path="docs">
         <name>docs</name>
         <description>Documentation</description>
@@ -662,13 +662,13 @@ version: {{PROJECT_VERSION}}
   <name>deploy.yml</name>
   <description>Deployment workflow</description>
   <requirement-status>optional</requirement-status>
-  
+
   <source>
     <path>templates/workflows/generic</path>
     <filename>deploy.yml.template</filename>
     <type>template</type>
   </source>
-  
+
   <destination>
     <path>.github/workflows</path>
     <filename>deploy.yml</filename>
@@ -677,7 +677,7 @@ version: {{PROJECT_VERSION}}
 </file>
 ```
 
-**Result**: 
+**Result**:
 - Copies `templates/workflows/generic/deploy.yml.template`
 - Renames to `deploy.yml` (removes `.template`)
 - Places in `.github/workflows/deploy.yml`
@@ -690,15 +690,15 @@ version: {{PROJECT_VERSION}}
   <name>SECURITY.md</name>
   <description>Security policy</description>
   <requirement-status>required</requirement-status>
-  
+
   <!-- No source - will generate stub -->
-  
+
   <destination>
     <path>.</path>
     <filename>SECURITY.md</filename>
     <create-path>false</create-path>
   </destination>
-  
+
   <stub-content><![CDATA[
 # Security Policy
 
@@ -727,13 +727,13 @@ Please report security vulnerabilities to security@example.com
   <name>ci.yml</name>
   <description>Joomla CI workflow</description>
   <requirement-status>required</requirement-status>
-  
+
   <source>
     <path>templates/workflows/joomla</path>
     <filename>ci-joomla.yml.template</filename>
     <type>template</type>
   </source>
-  
+
   <destination>
     <path>.github/workflows</path>
     <filename>ci.yml</filename>
@@ -850,19 +850,19 @@ Source and destination extensions should match intent:
 ```xml
 <file extension="yml">
   <name>ci.yml</name>
-  
+
   <source>
     <path>templates/workflows/generic</path>
     <filename>ci.yml.template</filename>
     <type>template</type>
   </source>
-  
+
   <destination>
     <path>.github/workflows</path>
     <filename>ci.yml</filename>
     <create-path>true</create-path>
   </destination>
-  
+
   <template>templates/workflows/generic/ci.yml.template</template>
 </file>
 ```
@@ -880,8 +880,8 @@ Source and destination extensions should match intent:
 
 ---
 
-**Last Updated**: 2026-01-16  
-**Schema Version**: 2.0  
+**Last Updated**: 2026-01-16
+**Schema Version**: 2.0
 **Maintained By**: MokoStandards Team
 
 ## Metadata

@@ -636,7 +636,7 @@ class modYourModule extends DolibarrModules
         $this->db = $db;
         $this->numero = 500000; // TODO: Get official number
         $this->rights_class = 'yourmodule';
-        
+
         // Module family
         $this->family = "mokoconsulting";
         $this->familyinfo = array(
@@ -645,17 +645,17 @@ class modYourModule extends DolibarrModules
                 'label'    => $langs->trans("Moko Consulting")
             )
         );
-        
+
         $this->module_position = '90';
         $this->name = preg_replace('/^mod/i', '', get_class($this));
         $this->description = "Your module description";
         $this->descriptionlong = "Extended module description";
-        
+
         // Author
         $this->editor_name = 'Moko Consulting';
         $this->editor_url = 'https://www.mokoconsulting.tech';
         $this->editor_squarred_logo = 'logo.png@<module>';
-        
+
         $this->version = '01.00.00';
         $this->const_name = 'MAIN_MODULE_'.strtoupper($this->name);
         $this->picto = 'generic';

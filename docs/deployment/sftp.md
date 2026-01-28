@@ -206,7 +206,7 @@ chmod 755 /var/www/releases
 Name: FTP_HOST
 Value: sftp.example.com
 
-Name: FTP_USERNAME  
+Name: FTP_USERNAME
 Value: deploy-user
 
 Name: FTP_KEY
@@ -248,12 +248,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Build release package
         run: |
           # Your build steps here
           zip -r release.zip dist/
-      
+
       - name: Deploy via SFTP
         env:
           FTP_HOST: ${{ secrets.FTP_HOST }}
@@ -265,13 +265,13 @@ jobs:
           # Install lftp
           sudo apt-get update -qq
           sudo apt-get install -y lftp
-          
+
           # Construct target path
           TARGET_PATH="${FTP_PATH}"
           if [ -n "${FTP_PATH_SUFFIX}" ]; then
             TARGET_PATH="${TARGET_PATH%/}/${FTP_PATH_SUFFIX#/}"
           fi
-          
+
           # Upload release package
           lftp -c "
             set sftp:auto-confirm yes;
@@ -300,12 +300,12 @@ For key-based authentication:
     mkdir -p ~/.ssh
     echo "$FTP_KEY" > ~/.ssh/deploy_key
     chmod 600 ~/.ssh/deploy_key
-    
+
     # Remove passphrase if protected
     if [ -n "$FTP_PASSWORD" ]; then
       ssh-keygen -p -P "$FTP_PASSWORD" -N "" -f ~/.ssh/deploy_key
     fi
-    
+
     # Upload via sftp
     sftp -i ~/.ssh/deploy_key \
          -o StrictHostKeyChecking=no \

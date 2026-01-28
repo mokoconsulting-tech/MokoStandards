@@ -17,7 +17,7 @@ find src -type d -exec cp templates/security/index.html {} \;
 - `src/` directory (if it exists)
 - All subdirectories under `src/`
 
-**Security Rationale**: 
+**Security Rationale**:
 - Prevents web servers from exposing directory contents
 - Redirects users to the repository root
 - Uses `noindex, nofollow` meta tags to prevent search engine indexing
@@ -44,7 +44,7 @@ find src -type d -exec cp templates/security/index.php {} \;
 - `src/` directory (if it exists)
 - All subdirectories under `src/`
 
-**Security Rationale**: 
+**Security Rationale**:
 - Provides server-side redirect before any HTML is rendered
 - Prevents web servers from exposing directory contents
 - Includes HTTP header redirect for immediate response

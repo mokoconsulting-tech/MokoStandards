@@ -23,7 +23,7 @@ Moko Consulting maintains a dual-repository strategy:
   - Public standards, templates, and documentation
   - Community-accessible workflow templates
   - Open-source best practices
-  
+
 - **`.github-private`** - **Private and Secure Centralization**
   - Proprietary workflow implementations
   - Organization-specific CI/CD pipelines
@@ -383,7 +383,7 @@ jobs:
 jobs:
   validate-version:
     runs-on: ubuntu-latest
-  
+
   build:
     needs: validate-version
     strategy:
@@ -393,21 +393,21 @@ jobs:
             artifact: extension
           - platform: dolibarr
             artifact: module
-  
+
   checksums:
     needs: build
-  
+
   test:
     needs: checksums
-  
+
   release:
     needs: test
     if: success()
-  
+
   publish:
     needs: release
     if: inputs.publish-to-marketplace
-  
+
   notify:
     needs: [release, publish]
     if: always()
@@ -524,16 +524,16 @@ on:
   run: |
     # Delete GitHub release if created
     gh release delete ${{ inputs.version }} --yes || true
-    
+
     # Delete Git tag
     git push --delete origin v${{ inputs.version }} || true
-    
+
     # Unpublish from marketplace (if published)
     if [ "${{ inputs.publish-to-marketplace }}" = "true" ]; then
       curl -X DELETE "$JED_API_URL/extensions/$EXTENSION_ID/versions/$VERSION" \
         -H "Authorization: Bearer ${{ secrets.JED_API_KEY }}"
     fi
-    
+
     # Notify team of rollback
     curl -X POST ${{ secrets.SLACK_WEBHOOK }} \
       -d '{"text":"Release ${{ inputs.version }} rolled back due to failure"}'
@@ -669,27 +669,27 @@ jobs:
 jobs:
   pre-deploy-checks:
     runs-on: ubuntu-latest
-  
+
   backup:
     needs: pre-deploy-checks
     runs-on: ubuntu-latest
-  
+
   deploy:
     needs: backup
     runs-on: ubuntu-latest
     environment:
       name: staging
       url: https://staging.example.com
-  
+
   smoke-tests:
     needs: deploy
     runs-on: ubuntu-latest
-  
+
   integration-tests:
     needs: smoke-tests
     if: inputs.skip-tests == false
     runs-on: ubuntu-latest
-  
+
   notify:
     needs: [deploy, smoke-tests, integration-tests]
     if: always()
@@ -793,19 +793,19 @@ on:
   if: failure() && inputs.rollback-on-failure
   run: |
     echo "Deployment failed, rolling back to previous version..."
-    
+
     # Restore files from backup
     ssh $STAGING_USER@$STAGING_HOST "cd $BACKUP_PATH && ./restore.sh $BACKUP_ID"
-    
+
     # Restore database
     ssh $STAGING_USER@$STAGING_HOST "mysql -u$DB_USER -p$DB_PASS $DATABASE_NAME < $BACKUP_PATH/$BACKUP_ID/database.sql"
-    
+
     # Clear caches
     ssh $STAGING_USER@$STAGING_HOST "cd $STAGING_PATH && php artisan cache:clear"
-    
+
     # Verify rollback successful
     curl -f ${{ inputs.health-check-url }} || echo "⚠️ Health check failed after rollback"
-    
+
     # Notify team
     curl -X POST $SLACK_WEBHOOK \
       -d '{"text":"🔴 Staging deployment failed and was rolled back. Backup ID: '"$BACKUP_ID"'"}'
@@ -817,20 +817,20 @@ on:
   run: |
     MAX_RETRIES=10
     RETRY_DELAY=5
-    
+
     for i in $(seq 1 $MAX_RETRIES); do
       echo "Health check attempt $i/$MAX_RETRIES..."
-      
+
       # Check HTTP 200 response
       if curl -f -s -o /dev/null -w "%{http_code}" ${{ inputs.health-check-url }} | grep -q "200"; then
         echo "✅ Health check passed"
         exit 0
       fi
-      
+
       echo "❌ Health check failed, retrying in ${RETRY_DELAY}s..."
       sleep $RETRY_DELAY
     done
-    
+
     echo "❌ Health check failed after $MAX_RETRIES attempts"
     exit 1
 ```
@@ -1069,10 +1069,10 @@ on:
   run: |
     # Download Joomla
     wget https://downloads.joomla.org/cms/joomla${{ matrix.joomla }}/Joomla_${{ matrix.joomla }}.0-Stable-Full_Package.zip
-    
+
     # Extract
     unzip -q Joomla_${{ matrix.joomla }}.0-Stable-Full_Package.zip -d /var/www/html
-    
+
     # Install Joomla via CLI
     php /var/www/html/installation/joomla.php install \
       --site-name="Test Site" \
@@ -1085,7 +1085,7 @@ on:
       --db-pass="$JOOMLA_DB_PASS" \
       --db-name="$JOOMLA_DB_NAME" \
       --db-prefix="jos_"
-    
+
     # Remove installation folder
     rm -rf /var/www/html/installation
 
@@ -1170,7 +1170,7 @@ jobs:
 
 **Decision:** **Keep Local**
 
-**Rationale:** 
+**Rationale:**
 - Repository-specific validation rules
 - No sensitive proprietary logic in this workflow
 - Fast iteration without cross-repo dependencies
@@ -1461,7 +1461,7 @@ jobs:
 
 ### Evaluate Later
 9. **changelog_update.yml** - May integrate with release_pipeline.yml
-10. **version_release.yml** - May integrate with release_pipeline.yml  
+10. **version_release.yml** - May integrate with release_pipeline.yml
 11. **rebuild_docs_indexes.yml** - Repository-specific documentation
 12. **setup_project_v2.yml** - Project automation
 13. **sync_docs_to_project.yml** - Project sync

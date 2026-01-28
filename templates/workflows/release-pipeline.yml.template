@@ -1086,7 +1086,7 @@ jobs:
 #   1. Extracts current version from CHANGELOG.md or VERSION file
 #   2. Increments patch version (e.g., 1.2.3 → 1.2.4)
 #   3. Creates new dev/<next-version> branch from main
-#   4. Posts comment on merged PR and creates tracking issue
+#   4. Posts comment on merged PR and creates tracking issue (assigned to copilot and jmiller-moko)
 #
 #   This ensures continuous development readiness after each release.
 #

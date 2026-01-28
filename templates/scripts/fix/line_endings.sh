@@ -26,15 +26,35 @@
 
 set -euo pipefail
 
+DRY_RUN=false
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        *)
+            shift
+            ;;
+    esac
+done
+
 echo "[INFO] Fixing line endings to LF..."
 
 FIXED_COUNT=0
 
 while IFS= read -r file; do
   if file "$file" | grep -q "CRLF"; then
-    dos2unix "$file" 2>/dev/null || sed -i 's/\r$//' "$file"
-    echo "[FIXED] $file"
-    FIXED_COUNT=$((FIXED_COUNT + 1))
+    if [ "$DRY_RUN" = true ]; then
+      echo "[DRY-RUN] Would fix line endings in: $file"
+      FIXED_COUNT=$((FIXED_COUNT + 1))
+    else
+      dos2unix "$file" 2>/dev/null || sed -i 's/\r$//' "$file"
+      echo "[FIXED] $file"
+      FIXED_COUNT=$((FIXED_COUNT + 1))
+    fi
   fi
 done < <(git ls-files '*.php' '*.js' '*.css' '*.xml' '*.sh' '*.md' 2>/dev/null || true)
 

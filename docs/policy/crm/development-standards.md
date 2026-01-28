@@ -207,13 +207,13 @@ class modMokoModule extends DolibarrModules
     public function __construct($db)
     {
         global $langs, $conf;
-        
+
         $this->db = $db;
-        
+
         // Module identification
         $this->numero = 185051; // Unique ID (Moko Consulting reserved: 185051-185099)
         $this->rights_class = 'mokomodule';
-        
+
         // Module family
         $this->family = "mokoconsulting";
         $this->familyinfo = array(
@@ -222,43 +222,43 @@ class modMokoModule extends DolibarrModules
                 'label'    => $langs->trans("Moko Consulting")
             )
         );
-        
+
         $this->module_position = '90';
         $this->name = preg_replace('/^mod/i', '', get_class($this));
         $this->description = "MokoCRM custom module description";
-        
+
         // Author
         $this->editor_name = 'Moko Consulting';
         $this->editor_url = 'https://www.mokoconsulting.tech';
         $this->editor_squarred_logo = 'logo.png@mokomodule';
-        
+
         // Version
         $this->version = '1.0.0';
         $this->const_name = 'MAIN_MODULE_'.strtoupper($this->name);
-        
+
         // Dependencies
         $this->depends = array('modUser', 'modSociete');
         $this->requiredby = array();
-        
+
         // Config pages
         $this->config_page_url = array('setup.php@mokomodule');
-        
+
         // Constants to add
         $this->const = array();
-        
+
         // Boxes
         $this->boxes = array();
-        
+
         // Permissions
         $this->rights = array();
         $r = 0;
-        
+
         $r++;
         $this->rights[$r][0] = $this->numero + $r;
         $this->rights[$r][1] = 'Read MokoModule objects';
         $this->rights[$r][3] = 0;
         $this->rights[$r][4] = 'read';
-        
+
         // Database tables
         $this->dictionaries = array();
     }
@@ -319,21 +319,21 @@ To reserve a Dolibarr module ID from the Moko Consulting range (185051-185099):
 CREATE TABLE llx_mokocrm_example (
   rowid INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
   entity INT(11) DEFAULT 1 NOT NULL,
-  
+
   -- Audit fields (required)
   datec DATETIME NOT NULL,
   tms TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_user_creat INT(11),
   fk_user_modif INT(11),
-  
+
   -- Custom fields
   ref VARCHAR(30) NOT NULL,
   label VARCHAR(255),
   description TEXT,
-  
+
   -- Status
   status SMALLINT DEFAULT 0 NOT NULL,
-  
+
   -- Soft delete
   import_key VARCHAR(14)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -377,22 +377,22 @@ class MokoObject extends CommonObject
      * @var string ID to identify managed object
      */
     public $element = 'mokoobject';
-    
+
     /**
      * @var string Name of table without prefix
      */
     public $table_element = 'moko_object';
-    
+
     /**
      * @var int Ref field ID
      */
     public $fk_element = 'fk_mokoobject';
-    
+
     /**
      * @var string Module part for upload dir
      */
     public $picto = 'mokomodule@mokomodule';
-    
+
     /**
      * Constructor
      *
@@ -402,7 +402,7 @@ class MokoObject extends CommonObject
     {
         $this->db = $db;
     }
-    
+
     /**
      * Create object in database
      *
@@ -413,14 +413,14 @@ class MokoObject extends CommonObject
     public function create($user, $notrigger = 0)
     {
         global $conf;
-        
+
         $error = 0;
-        
+
         // Clean parameters
         $this->ref = trim($this->ref);
-        
+
         $this->db->begin();
-        
+
         $sql = "INSERT INTO ".MAIN_DB_PREFIX.$this->table_element;
         $sql .= " (entity, ref, label, datec, fk_user_creat)";
         $sql .= " VALUES (";
@@ -430,13 +430,13 @@ class MokoObject extends CommonObject
         $sql .= " '".$this->db->idate(dol_now())."',";
         $sql .= " ".((int) $user->id);
         $sql .= ")";
-        
+
         dol_syslog(__METHOD__, LOG_DEBUG);
         $resql = $this->db->query($sql);
-        
+
         if ($resql) {
             $this->id = $this->db->last_insert_id(MAIN_DB_PREFIX.$this->table_element);
-            
+
             if (!$error && !$notrigger) {
                 // Call trigger
                 $result = $this->call_trigger('MOKOOBJECT_CREATE', $user);
@@ -444,7 +444,7 @@ class MokoObject extends CommonObject
                     $error++;
                 }
             }
-            
+
             if (!$error) {
                 $this->db->commit();
                 return $this->id;
@@ -500,7 +500,7 @@ class MokoModuleApi extends DolibarrApi
      * @var MokoObject $mokoobject {@type MokoObject}
      */
     public $mokoobject;
-    
+
     /**
      * Constructor
      */
@@ -510,7 +510,7 @@ class MokoModuleApi extends DolibarrApi
         $this->db = $db;
         $this->mokoobject = new MokoObject($this->db);
     }
-    
+
     /**
      * Get properties of a MokoObject
      *
@@ -527,19 +527,19 @@ class MokoModuleApi extends DolibarrApi
         if (!DolibarrApiAccess::$user->rights->mokomodule->read) {
             throw new RestException(401);
         }
-        
+
         $result = $this->mokoobject->fetch($id);
         if (!$result) {
             throw new RestException(404, 'MokoObject not found');
         }
-        
+
         if (!DolibarrApi::_checkAccessToResource('mokomodule', $this->mokoobject->id)) {
             throw new RestException(401, 'Access forbidden');
         }
-        
+
         return $this->_cleanObjectDatas($this->mokoobject);
     }
-    
+
     /**
      * Create MokoObject
      *
@@ -553,14 +553,14 @@ class MokoModuleApi extends DolibarrApi
         if (!DolibarrApiAccess::$user->rights->mokomodule->write) {
             throw new RestException(401);
         }
-        
+
         $this->mokoobject->ref = $request_data['ref'];
         $this->mokoobject->label = $request_data['label'];
-        
+
         if ($this->mokoobject->create(DolibarrApiAccess::$user) < 0) {
             throw new RestException(500, 'Error creating object', array_merge(array($this->mokoobject->error), $this->mokoobject->errors));
         }
-        
+
         return $this->mokoobject->id;
     }
 }
@@ -596,11 +596,11 @@ class InterfaceModMokoModuleMokoTriggers extends DolibarrTriggers
     public function __construct($db)
     {
         global $langs, $conf;
-        
+
         $this->db = $db;
-        
+
         $this->name = preg_replace('/^Interface/i', '', get_class($this));
-        
+
         // Module family
         $this->family = "mokoconsulting";
         $this->familyinfo = array(
@@ -609,12 +609,12 @@ class InterfaceModMokoModuleMokoTriggers extends DolibarrTriggers
                 'label'    => $langs->trans("Moko Consulting")
             )
         );
-        
+
         $this->description = "MokoModule triggers";
         $this->version = '1.0.0';
         $this->picto = 'mokomodule@mokomodule';
     }
-    
+
     /**
      * Trigger function
      *
@@ -630,23 +630,23 @@ class InterfaceModMokoModuleMokoTriggers extends DolibarrTriggers
         if (empty($conf->mokomodule->enabled)) {
             return 0;
         }
-        
+
         // Put your code here
         switch ($action) {
             case 'COMPANY_CREATE':
                 dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->id);
                 // Custom logic when company is created
                 break;
-                
+
             case 'MOKOOBJECT_CREATE':
                 dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->id);
                 // Custom logic when MokoObject is created
                 break;
-                
+
             default:
                 dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->id);
         }
-        
+
         return 0;
     }
 }
@@ -680,12 +680,12 @@ $this->module_parts = array(
 function formObjectOptions($parameters, &$object, &$action, $hookmanager)
 {
     global $langs;
-    
+
     if (in_array('thirdpartycard', explode(':', $parameters['context']))) {
         print '<tr><td>'.$langs->trans('MokoCustomField').'</td>';
         print '<td>Custom content here</td></tr>';
     }
-    
+
     return 0;
 }
 ```
@@ -803,23 +803,23 @@ class MokoObjectTest extends TestCase
 {
     private $db;
     private $object;
-    
+
     protected function setUp(): void
     {
         global $db;
         $this->db = $db;
         $this->object = new MokoObject($this->db);
     }
-    
+
     public function testCreate()
     {
         global $user;
-        
+
         $this->object->ref = 'TEST001';
         $this->object->label = 'Test Object';
-        
+
         $result = $this->object->create($user);
-        
+
         $this->assertGreaterThan(0, $result);
         $this->assertGreaterThan(0, $this->object->id);
     }

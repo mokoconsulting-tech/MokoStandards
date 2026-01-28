@@ -46,12 +46,12 @@ def safe_url_fetch(url: str, timeout: int = 10, max_size: int = 5*1024*1024) -> 
     """Safely fetch content from URL with validation."""
     if not is_url_allowed(url):
         raise SecurityError(f"URL not in allowlist: {url}")
-    
+
     with urllib.request.urlopen(url, timeout=timeout) as response:
         content_length = response.headers.get('Content-Length')
         if content_length and int(content_length) > max_size:
             raise SecurityError(f"Content too large: {content_length} bytes")
-        
+
         return response.read(max_size)
 ```
 
@@ -84,15 +84,15 @@ def safe_url_fetch(url: str, timeout: int = 10, max_size: int = 5*1024*1024) -> 
   run: |
     SCRIPT_URL="https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/scripts/validate/check_repo_health.py"
     EXPECTED_SHA256="abc123..." # Update when script changes
-    
+
     curl -sSL "${SCRIPT_URL}" -o check_repo_health.py
-    
+
     ACTUAL_SHA256=$(sha256sum check_repo_health.py | awk '{print $1}')
     if [ "${ACTUAL_SHA256}" != "${EXPECTED_SHA256}" ]; then
       echo "Checksum mismatch! Expected: ${EXPECTED_SHA256}, Got: ${ACTUAL_SHA256}"
       exit 1
     fi
-    
+
     chmod +x check_repo_health.py
 ```
 
@@ -100,7 +100,7 @@ def safe_url_fetch(url: str, timeout: int = 10, max_size: int = 5*1024*1024) -> 
 ```yaml
 env:
   MOKOSTANDARDS_VERSION: "sha-abc123def"  # Pin to specific commit
-  
+
 - name: Download health checker
   run: |
     curl -sSL "https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/${MOKOSTANDARDS_VERSION}/scripts/validate/check_repo_health.py" -o check_repo_health.py
@@ -170,8 +170,8 @@ This document will be updated as security improvements are implemented. Check th
 
 ---
 
-**Last Updated**: 2026-01-08  
-**Review Frequency**: Quarterly  
+**Last Updated**: 2026-01-08
+**Review Frequency**: Quarterly
 **Next Review**: 2026-04-08
 
 ## Metadata

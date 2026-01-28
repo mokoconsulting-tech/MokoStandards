@@ -325,8 +325,8 @@ python3 scripts/maintenance/release_version.py \
 
 ## Metadata
 
-**Document Version**: 05.00.00  
-**Last Updated**: 2026-01-04  
+**Document Version**: 05.00.00
+**Last Updated**: 2026-01-04
 **Status**: Active
 
 ## Revision History

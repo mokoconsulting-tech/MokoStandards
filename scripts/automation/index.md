@@ -7,9 +7,9 @@ Automation scripts for bulk repository operations, GitHub integrations, and orga
 ## Scripts in This Directory
 
 ### auto_create_org_projects.py
-**Purpose:** Automatically create GitHub Projects for all organization repositories  
-**Type:** Python 3.7+  
-**Usage:** `python3 auto_create_org_projects.py --org <org> [options]`  
+**Purpose:** Automatically create GitHub Projects for all organization repositories
+**Type:** Python 3.7+
+**Usage:** `python3 auto_create_org_projects.py --org <org> [options]`
 **Documentation:** [📖 Guide](/docs/scripts/automation/auto-create-org-projects-py.md)
 
 **Key Features:**
@@ -23,9 +23,9 @@ Automation scripts for bulk repository operations, GitHub integrations, and orga
 - Scopes: `read:org`, `repo`, `project`
 
 ### bulk_update_repos.py
-**Purpose:** Bulk update workflows, scripts, and configurations across repositories  
-**Type:** Python 3.7+  
-**Usage:** `python3 bulk_update_repos.py --org <org> [options]`  
+**Purpose:** Bulk update workflows, scripts, and configurations across repositories
+**Type:** Python 3.7+
+**Usage:** `python3 bulk_update_repos.py --org <org> [options]`
 **Documentation:** [📖 Guide](/docs/scripts/automation/bulk-update-repos-py.md)
 
 **Key Features:**
@@ -40,9 +40,9 @@ Automation scripts for bulk repository operations, GitHub integrations, and orga
 - Write access to target repositories
 
 ### create_repo_project.py
-**Purpose:** Create a GitHub Project for a specific repository  
-**Type:** Python 3.7+  
-**Usage:** `python3 create_repo_project.py <repo_name> --type <type> [options]`  
+**Purpose:** Create a GitHub Project for a specific repository
+**Type:** Python 3.7+
+**Usage:** `python3 create_repo_project.py <repo_name> --type <type> [options]`
 **Documentation:** [📖 Guide](/docs/scripts/automation/create-repo-project-py.md)
 
 **Key Features:**
@@ -56,9 +56,9 @@ Automation scripts for bulk repository operations, GitHub integrations, and orga
 - Config files in `templates/projects/`
 
 ### sync_file_to_project.py
-**Purpose:** Sync documentation files to GitHub Project tasks  
-**Type:** Python 3.7+  
-**Usage:** `python3 sync_file_to_project.py <path> [project_number]`  
+**Purpose:** Sync documentation files to GitHub Project tasks
+**Type:** Python 3.7+
+**Usage:** `python3 sync_file_to_project.py <path> [project_number]`
 **Documentation:** [📖 Guide](/docs/scripts/automation/sync-file-to-project-py.md)
 
 **Key Features:**
@@ -72,9 +72,9 @@ Automation scripts for bulk repository operations, GitHub integrations, and orga
 - Valid project number (default: 7)
 
 ### file-distributor.py
-**Purpose:** Enterprise file distributor with GUI for controlled folder-tree distribution  
-**Type:** Python 3.10+  
-**Usage:** `python3 file-distributor.py`  
+**Purpose:** Enterprise file distributor with GUI for controlled folder-tree distribution
+**Type:** Python 3.10+
+**Usage:** `python3 file-distributor.py`
 **Documentation:** [📖 Guide](/docs/scripts/automation/guide-file-distributor.md)
 
 **Key Features:**
@@ -87,9 +87,9 @@ Automation scripts for bulk repository operations, GitHub integrations, and orga
 - CSV and JSON audit logging
 
 ### file-distributor.ps1
-**Purpose:** PowerShell version with WinForms GUI  
-**Type:** PowerShell 5.1+ or PowerShell 7+  
-**Usage:** `pwsh file-distributor.ps1`  
+**Purpose:** PowerShell version with WinForms GUI
+**Type:** PowerShell 5.1+ or PowerShell 7+
+**Usage:** `pwsh file-distributor.ps1`
 **Documentation:** [📖 Guide](/docs/scripts/automation/guide-file-distributor.md)
 
 **Key Features:**

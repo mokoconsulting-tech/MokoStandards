@@ -17,7 +17,7 @@
 
  You should have received a copy of the GNU General Public License
  along with this program (./LICENSE).
- 
+
  # FILE INFORMATION
  DEFGROUP: MokoStandards
  INGROUP: MokoStandards.Documentation
@@ -206,10 +206,10 @@ def process_files(
     """Process multiple files and return count and errors."""
     errors: List[str] = []
     count: int = 0
-    
+
     for path in paths:
         count += 1
-    
+
     return count, errors
 
 # ✅ Correct: Optional return type
@@ -236,30 +236,30 @@ def sync_file_to_project(
 ) -> bool:
     """
     Sync a file or folder to GitHub Project.
-    
+
     This function synchronizes documentation files or folders to a GitHub
     Project board for tracking purposes. It validates the path, checks
     permissions, and updates the project board via GitHub API.
-    
+
     Args:
         file_path: Path to file or folder to sync (relative or absolute)
         project_number: GitHub Project number (default: 7)
         is_folder: Whether path is a folder (default: False)
-    
+
     Returns:
         True if sync successful, False otherwise
-    
+
     Raises:
         ValueError: If file_path is invalid or inaccessible
         RuntimeError: If GitHub API call fails
         PermissionError: If insufficient permissions for file
-    
+
     Examples:
         >>> sync_file_to_project("docs/policy/new.md")
         True
         >>> sync_file_to_project("docs/guide/", is_folder=True)
         True
-    
+
     Note:
         Requires GITHUB_TOKEN environment variable to be set.
     """
@@ -323,24 +323,24 @@ from typing import Optional
 def load_file(path: str) -> Optional[str]:
     """
     Load file contents with comprehensive error handling.
-    
+
     Args:
         path: Path to file
-    
+
     Returns:
         File contents as string, or None on error
-    
+
     Raises:
         FileNotFoundError: If file does not exist
         PermissionError: If insufficient permissions
         UnicodeDecodeError: If file encoding is invalid
     """
     file_path = Path(path)
-    
+
     if not file_path.exists():
         print(f"Error: File not found: {path}", file=sys.stderr)
         raise FileNotFoundError(f"File not found: {path}")
-    
+
     try:
         return file_path.read_text(encoding="utf-8")
     except PermissionError as e:
@@ -373,7 +373,7 @@ from typing import Optional
 def parse_arguments() -> argparse.Namespace:
     """
     Parse command-line arguments.
-    
+
     Returns:
         Parsed arguments namespace
     """
@@ -387,7 +387,7 @@ Examples:
   %(prog)s --project 8 --verbose docs/adr/
         """
     )
-    
+
     parser.add_argument(
         "path",
         help="Path to file or folder to sync"
@@ -413,7 +413,7 @@ Examples:
         action="version",
         version="%(prog)s 2.0.0"
     )
-    
+
     return parser.parse_args()
 ```
 
@@ -440,12 +440,12 @@ Examples:
 
 .EXAMPLE
     .\Update-RepositoryMetadata.ps1 -RepoPath "C:\Projects\MyRepo"
-    
+
     Updates metadata for repository at specified path.
 
 .EXAMPLE
     .\Update-RepositoryMetadata.ps1 -RepoPath "C:\Projects\MyRepo" -Verbose
-    
+
     Updates metadata with verbose output enabled.
 
 .NOTES
@@ -463,7 +463,7 @@ param (
     [Parameter(Mandatory = $true)]
     [ValidateScript({Test-Path $_})]
     [string]$RepoPath,
-    
+
     [Parameter(Mandatory = $false)]
     [switch]$Verbose
 )
@@ -591,22 +591,22 @@ from scripts.automation.my_script import process_file, validate_path
 
 class TestProcessFile(unittest.TestCase):
     """Test process_file function."""
-    
+
     def setUp(self) -> None:
         """Set up test fixtures."""
         self.test_dir = Path("tests/fixtures")
         self.test_file = self.test_dir / "test.txt"
-    
+
     def test_process_valid_file(self) -> None:
         """Test processing valid file."""
         result = process_file(str(self.test_file))
         self.assertTrue(result)
-    
+
     def test_process_invalid_file(self) -> None:
         """Test processing non-existent file."""
         with self.assertRaises(FileNotFoundError):
             process_file("nonexistent.txt")
-    
+
     def test_process_with_invalid_encoding(self) -> None:
         """Test processing file with invalid encoding."""
         invalid_file = self.test_dir / "invalid_encoding.txt"

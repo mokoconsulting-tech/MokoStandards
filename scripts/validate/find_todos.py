@@ -58,10 +58,10 @@ EXCLUDE_DIRS = {
 def should_exclude(path: Path) -> bool:
     """
     Check if a path should be excluded.
-    
+
     Args:
         path: Path to check
-        
+
     Returns:
         True if path should be excluded
     """
@@ -72,16 +72,16 @@ def should_exclude(path: Path) -> bool:
 def find_markers_in_file(file_path: Path, markers: Set[str]) -> List[Dict]:
     """
     Find marker comments in a file.
-    
+
     Args:
         file_path: Path to file to search
         markers: Set of marker strings to search for
-        
+
     Returns:
         List of dictionaries with marker information
     """
     findings = []
-    
+
     try:
         with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
             for line_num, line in enumerate(f, start=1):
@@ -94,7 +94,7 @@ def find_markers_in_file(file_path: Path, markers: Set[str]) -> List[Dict]:
                         rf'/\*\s*{marker}[:\s]+(.*)',    # C-style multi-line
                         rf'<!--\s*{marker}[:\s]+(.*)',   # HTML/XML
                     ]
-                    
+
                     for pattern in patterns:
                         match = re.search(pattern, line, re.IGNORECASE)
                         if match:
@@ -106,21 +106,21 @@ def find_markers_in_file(file_path: Path, markers: Set[str]) -> List[Dict]:
                                 "full_line": line.strip(),
                             })
                             break
-    
+
     except Exception:
         pass
-    
+
     return findings
 
 
 def search_directory(root: Path, markers: Set[str]) -> Dict:
     """
     Search directory for marker comments.
-    
+
     Args:
         root: Root directory to search
         markers: Set of marker strings to search for
-        
+
     Returns:
         Dictionary with search results
     """
@@ -130,19 +130,19 @@ def search_directory(root: Path, markers: Set[str]) -> Dict:
         "by_marker": {marker: [] for marker in markers},
         "by_file": {},
     }
-    
+
     for file_path in root.rglob("*"):
         if file_path.is_file() and not should_exclude(file_path):
             if file_path.suffix.lower() in SEARCHABLE_EXTENSIONS:
                 results["files_searched"] += 1
-                
+
                 findings = find_markers_in_file(file_path, markers)
-                
+
                 if findings:
                     rel_path = str(file_path.relative_to(root))
                     results["by_file"][rel_path] = findings
                     results["total_findings"] += len(findings)
-                    
+
                     for finding in findings:
                         marker = finding["marker"]
                         results["by_marker"][marker].append({
@@ -151,14 +151,14 @@ def search_directory(root: Path, markers: Set[str]) -> Dict:
                             "text": finding["text"],
                             "full_line": finding["full_line"],
                         })
-    
+
     return results
 
 
 def print_report(results: Dict, root: Path, group_by: str) -> None:
     """
     Print search results report.
-    
+
     Args:
         results: Search results
         root: Root directory searched
@@ -168,59 +168,59 @@ def print_report(results: Dict, root: Path, group_by: str) -> None:
     print("CODE MARKER ANALYSIS REPORT")
     print("=" * 80)
     print(f"\nDirectory: {root}")
-    
+
     print(f"\n📊 SUMMARY")
     print("-" * 80)
     print(f"Files searched:   {results['files_searched']:,}")
     print(f"Total findings:   {results['total_findings']:,}")
-    
+
     # Count by marker type
     print(f"\nBy marker type:")
     for marker, findings in sorted(results["by_marker"].items()):
         count = len(findings)
         if count > 0:
             print(f"  {marker:<10} {count:>5}")
-    
+
     if results["total_findings"] == 0:
         print(f"\n✅ No markers found!")
         print("=" * 80)
         return
-    
+
     # Print detailed findings
     if group_by == "marker":
         print(f"\n📝 FINDINGS BY MARKER TYPE")
         print("=" * 80)
-        
+
         for marker, findings in sorted(results["by_marker"].items()):
             if findings:
                 print(f"\n{marker} ({len(findings)} occurrences)")
                 print("-" * 80)
-                
+
                 for finding in findings[:20]:  # Limit to 20 per marker
                     print(f"\n{finding['file']}:{finding['line']}")
                     print(f"  {finding['text']}")
-                
+
                 if len(findings) > 20:
                     print(f"\n  ... and {len(findings) - 20} more")
-    
+
     else:  # group_by == "file"
         print(f"\n📁 FINDINGS BY FILE")
         print("=" * 80)
-        
+
         for file_path, findings in sorted(results["by_file"].items()):
             print(f"\n{file_path} ({len(findings)} markers)")
             print("-" * 80)
-            
+
             for finding in findings:
                 print(f"  Line {finding['line']:>4}: {finding['marker']:<10} {finding['text']}")
-    
+
     print("\n" + "=" * 80)
 
 
 def main() -> int:
     """
     Main entry point for TODO finder.
-    
+
     Returns:
         Exit code (0 for success)
     """
@@ -246,20 +246,20 @@ def main() -> int:
         default="marker",
         help="Group results by marker type or file (default: marker)"
     )
-    
+
     args = parser.parse_args()
     root = Path(args.path).resolve()
-    
+
     if not root.exists():
         print(f"Error: Path does not exist: {root}", file=sys.stderr)
         return 1
-    
+
     print(f"Searching for markers in: {root}")
     print(f"Markers: {', '.join(args.markers)}")
-    
+
     results = search_directory(root, set(args.markers))
     print_report(results, root, args.group_by)
-    
+
     return 0
 
 

@@ -63,7 +63,10 @@ param(
     [switch]$UseCache,
     
     [Parameter()]
-    [switch]$ClearCache
+    [switch]$ClearCache,
+    
+    [Parameter()]
+    [switch]$DryRun
 )
 
 Set-StrictMode -Version Latest
@@ -156,6 +159,11 @@ class DetectionCache {
     }
     
     [void] Set([string]$repoPath, [DetectionResult]$result) {
+        if ($script:DryRun) {
+            Write-Host "[DRY-RUN] Would write detection result to cache" -ForegroundColor Yellow
+            return
+        }
+        
         $cacheKey = $this.GetCacheKey($repoPath)
         $cacheFile = Join-Path $this.CacheDir "$cacheKey.json"
         
@@ -167,6 +175,11 @@ class DetectionCache {
     }
     
     [void] Clear() {
+        if ($script:DryRun) {
+            Write-Host "[DRY-RUN] Would clear detection cache" -ForegroundColor Yellow
+            return
+        }
+        
         if (Test-Path $this.CacheDir) {
             Get-ChildItem -Path $this.CacheDir -Filter "*.json" | Remove-Item -Force -ErrorAction SilentlyContinue
         }
@@ -474,6 +487,10 @@ class PlatformDetector {
 # Main execution
 function Main {
     try {
+        if ($DryRun) {
+            Write-Host "[DRY-RUN] Running in dry-run mode" -ForegroundColor Yellow
+        }
+        
         if ($ClearCache) {
             $cache = [DetectionCache]::new()
             $cache.Clear()

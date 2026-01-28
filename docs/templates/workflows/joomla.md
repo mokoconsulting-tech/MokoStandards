@@ -442,9 +442,9 @@ git push origin v1.0.0
 
 ---
 
-**Last Updated**: 2026-01-16  
-**Category**: Joomla Templates  
-**Joomla Versions**: 3.x, 4.x, 5.x  
+**Last Updated**: 2026-01-16
+**Category**: Joomla Templates
+**Joomla Versions**: 3.x, 4.x, 5.x
 **Maintained By**: MokoStandards Team
 
 ## Metadata

@@ -48,10 +48,10 @@ EXCLUDE_DIRS = {
 def should_exclude(path: Path) -> bool:
     """
     Check if a path should be excluded.
-    
+
     Args:
         path: Path to check
-        
+
     Returns:
         True if path should be excluded
     """
@@ -62,12 +62,12 @@ def should_exclude(path: Path) -> bool:
 def update_copyright_in_file(file_path: Path, target_year: int, dry_run: bool = False) -> bool:
     """
     Update copyright year in a file.
-    
+
     Args:
         file_path: Path to file
         target_year: Year to update to
         dry_run: If True, don't actually modify files
-        
+
     Returns:
         True if file was modified (or would be in dry-run)
     """
@@ -77,13 +77,13 @@ def update_copyright_in_file(file_path: Path, target_year: int, dry_run: bool = 
     except Exception as e:
         print(f"Warning: Could not read {file_path}: {e}", file=sys.stderr)
         return False
-    
+
     modified = False
-    
+
     # Pattern 1: Copyright (C) YYYY
     pattern1 = r'Copyright\s+\(C\)\s+(\d{4})'
     matches = list(re.finditer(pattern1, content, re.IGNORECASE))
-    
+
     for match in matches:
         old_year = int(match.group(1))
         if old_year < target_year:
@@ -91,11 +91,11 @@ def update_copyright_in_file(file_path: Path, target_year: int, dry_run: bool = 
             new_text = f"Copyright (C) {target_year}"
             content = content.replace(old_text, new_text, 1)
             modified = True
-    
+
     # Pattern 2: Copyright YYYY (without (C))
     pattern2 = r'Copyright\s+(\d{4})(?!\d)'
     matches = list(re.finditer(pattern2, content, re.IGNORECASE))
-    
+
     for match in matches:
         old_year = int(match.group(1))
         if old_year < target_year:
@@ -103,11 +103,11 @@ def update_copyright_in_file(file_path: Path, target_year: int, dry_run: bool = 
             new_text = f"Copyright {target_year}"
             content = content.replace(old_text, new_text, 1)
             modified = True
-    
+
     # Pattern 3: @copyright YYYY
     pattern3 = r'@copyright\s+(\d{4})'
     matches = list(re.finditer(pattern3, content, re.IGNORECASE))
-    
+
     for match in matches:
         old_year = int(match.group(1))
         if old_year < target_year:
@@ -115,7 +115,7 @@ def update_copyright_in_file(file_path: Path, target_year: int, dry_run: bool = 
             new_text = f"@copyright {target_year}"
             content = content.replace(old_text, new_text, 1)
             modified = True
-    
+
     if modified and not dry_run:
         try:
             with open(file_path, "w", encoding="utf-8") as f:
@@ -123,19 +123,19 @@ def update_copyright_in_file(file_path: Path, target_year: int, dry_run: bool = 
         except Exception as e:
             print(f"Error: Could not write {file_path}: {e}", file=sys.stderr)
             return False
-    
+
     return modified
 
 
 def process_directory(root: Path, target_year: int, dry_run: bool = False) -> dict:
     """
     Process all files in a directory.
-    
+
     Args:
         root: Root directory to process
         target_year: Year to update to
         dry_run: If True, don't actually modify files
-        
+
     Returns:
         Dictionary with processing results
     """
@@ -144,24 +144,24 @@ def process_directory(root: Path, target_year: int, dry_run: bool = False) -> di
         "files_modified": 0,
         "modified_files": [],
     }
-    
+
     for file_path in root.rglob("*"):
         if file_path.is_file() and not should_exclude(file_path):
             if file_path.suffix.lower() in PROCESSABLE_EXTENSIONS:
                 results["files_scanned"] += 1
-                
+
                 if update_copyright_in_file(file_path, target_year, dry_run):
                     results["files_modified"] += 1
                     rel_path = str(file_path.relative_to(root))
                     results["modified_files"].append(rel_path)
-    
+
     return results
 
 
 def print_report(results: dict, target_year: int, dry_run: bool) -> None:
     """
     Print processing report.
-    
+
     Args:
         results: Processing results
         target_year: Target year
@@ -170,30 +170,30 @@ def print_report(results: dict, target_year: int, dry_run: bool) -> None:
     print("\n" + "=" * 80)
     print("COPYRIGHT YEAR UPDATE REPORT")
     print("=" * 80)
-    
+
     mode = "DRY RUN" if dry_run else "ACTUAL RUN"
     print(f"\nMode: {mode}")
     print(f"Target Year: {target_year}")
-    
+
     print(f"\n📊 SUMMARY")
     print("-" * 80)
     print(f"Files scanned:    {results['files_scanned']:,}")
     print(f"Files modified:   {results['files_modified']:,}")
-    
+
     if results["modified_files"]:
         print(f"\n📝 MODIFIED FILES")
         print("-" * 80)
-        
+
         for file_path in sorted(results["modified_files"])[:50]:
             print(f"  {file_path}")
-        
+
         if len(results["modified_files"]) > 50:
             print(f"  ... and {len(results['modified_files']) - 50} more")
     else:
         print(f"\n✅ No files needed updating")
-    
+
     print("\n" + "=" * 80)
-    
+
     if dry_run and results["files_modified"] > 0:
         print("\n💡 This was a dry run. Use --apply to actually modify files.")
 
@@ -201,7 +201,7 @@ def print_report(results: dict, target_year: int, dry_run: bool) -> None:
 def main() -> int:
     """
     Main entry point for copyright year updater.
-    
+
     Returns:
         Exit code (0 for success)
     """
@@ -225,26 +225,26 @@ def main() -> int:
         action="store_true",
         help="Actually modify files (default is dry-run)"
     )
-    
+
     args = parser.parse_args()
     root = Path(args.path).resolve()
-    
+
     if not root.exists():
         print(f"Error: Path does not exist: {root}", file=sys.stderr)
         return 1
-    
+
     dry_run = not args.apply
-    
+
     print(f"Processing copyright years in: {root}")
     print(f"Target year: {args.year}")
-    
+
     if dry_run:
         print("\n⚠️  DRY RUN MODE - No files will be modified")
         print("Use --apply to actually modify files\n")
-    
+
     results = process_directory(root, args.year, dry_run)
     print_report(results, args.year, dry_run)
-    
+
     return 0
 
 

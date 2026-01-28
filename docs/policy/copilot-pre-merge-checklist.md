@@ -275,19 +275,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Check Version Numbers
         run: |
           # Validate version consistency across files
-          
+
       - name: Validate Changelog
         run: |
           # Ensure CHANGELOG.md updated
-          
+
       - name: Run Security Scans
         run: |
           # Execute security scanning
-          
+
       - name: Quality Checks
         run: |
           # Run linters and tests
@@ -433,6 +433,6 @@ Submit feedback or suggestions for this policy via:
 
 ---
 
-**Policy Owner**: Development Team  
-**Last Updated**: 2026-01-28  
+**Policy Owner**: Development Team
+**Last Updated**: 2026-01-28
 **Next Review**: 2026-04-28

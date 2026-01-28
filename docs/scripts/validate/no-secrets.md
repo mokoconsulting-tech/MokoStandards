@@ -166,9 +166,9 @@ The script automatically excludes common build and dependency directories:
 for file_path in walk_directory(src_dir):
     if is_binary(file_path) or is_excluded(file_path):
         continue
-    
+
     content = read_file(file_path)
-    
+
     for pattern_name, pattern_regex in SECRET_PATTERNS:
         matches = pattern_regex.findall(content)
         if matches:
@@ -208,12 +208,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
-      
+
       - name: Scan for secrets
         run: python3 scripts/validate/no_secrets.py --src-dir .
 ```

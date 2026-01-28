@@ -195,12 +195,12 @@ class modYourModule extends DolibarrModules
     public function __construct($db)
     {
         global $langs, $conf;
-        
+
         parent::__construct($db);
-        
+
         $this->numero = 123456; // Unique module number
         $this->rights_class = 'yourmodule';
-        
+
         // Module family
         $this->family = "mokoconsulting";
         $this->familyinfo = array(
@@ -209,23 +209,23 @@ class modYourModule extends DolibarrModules
                 'label'    => $langs->trans("Moko Consulting")
             )
         );
-        
+
         $this->module_position = '90';
         $this->name = preg_replace('/^mod/i', '', get_class($this));
         $this->description = "Module description";
-        
+
         // Author
         $this->editor_name = 'Moko Consulting';
         $this->editor_url = 'https://www.mokoconsulting.tech';
         $this->editor_squarred_logo = 'logo.png@<module>';
-        
+
         $this->version = '1.0.0';
         $this->const_name = 'MAIN_MODULE_'.strtoupper($this->name);
-        
+
         // Permissions
         $this->rights = array();
         $r = 0;
-        
+
         $this->rights[$r][0] = $this->numero . sprintf("%02d", $r+1);
         $this->rights[$r][1] = 'Read objects';
         $this->rights[$r][3] = 0;
@@ -300,7 +300,7 @@ dolibarr-module/
 Templates enforce Dolibarr coding standards:
 
 1. **File Headers**: GPL license header required
-2. **Naming Conventions**: 
+2. **Naming Conventions**:
    - Classes: PascalCase
    - Functions: camelCase
    - Database tables: llx_ prefix
@@ -461,9 +461,9 @@ git push origin v1.0.0
 
 ---
 
-**Last Updated**: 2026-01-16  
-**Category**: Dolibarr Templates  
-**Dolibarr Versions**: 12.x, 13.x, 14.x, 15.x+  
+**Last Updated**: 2026-01-16
+**Category**: Dolibarr Templates
+**Dolibarr Versions**: 12.x, 13.x, 14.x, 15.x+
 **Maintained By**: MokoStandards Team
 
 ## Metadata

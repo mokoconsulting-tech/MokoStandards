@@ -376,6 +376,9 @@ MokoStandards includes **46 automation scripts** (44 Python, 2 PowerShell):
 #### Maintenance (scripts/maintenance/)
 - `cleanup_branches.py` - Clean up merged branches
 - `update_dependencies.py` - Update dependency versions
+- `security_scan.py` - **Comprehensive security scanning orchestration** ⭐
+- `no_secrets.py` - Secret and credential scanning
+- `validate_codeql_config.py` - CodeQL configuration validation
 - `archive_old_issues.py` - Archive inactive issues
 
 #### Analysis (scripts/analysis/)
@@ -426,6 +429,7 @@ See [Scripts Documentation](scripts/README.md) and [Scripts Architecture](script
 - [Makefile Guide](docs/build-system/makefile-guide.md) - Makefile usage
 - [Release Management](docs/release-management/README.md) - Release cycle
 - [Version Standards](docs/release-management/versioning.md) - Semantic versioning
+- **Automatic Releases**: Version bumps in `CITATION.cff` or `pyproject.toml` on `main` branch automatically create GitHub releases (no build required)
 
 ### Project Management
 - [Repository Inventory](docs/reference/REPOSITORY_INVENTORY.md) - All coupled repositories
@@ -576,7 +580,7 @@ mokostandards:
   templates_path: templates/repo
 ```
 
-### For Internal Projects  
+### For Internal Projects
 
 Organization members can reference the private repository for access control policies and confidential enforcement.
 
@@ -640,9 +644,16 @@ See [SECURITY.md](./SECURITY.md) for:
 ### Security Features
 
 - **Automated Scanning**: CodeQL analysis and Dependabot alerts
+- **Comprehensive Security Scan**: Orchestrated multi-tool scanning via `security_scan.py`
 - **Secret Scanning**: Push protection for sensitive data
 - **Dependency Review**: Automated vulnerability checks
 - **Health Scoring**: Security compliance assessment
+
+**New: Run comprehensive security scan**:
+```bash
+python3 scripts/validate/security_scan.py
+```
+See [Security Scanning Guide](scripts/validate/SECURITY_SCANNING.md) for details.
 
 ### Response SLAs
 

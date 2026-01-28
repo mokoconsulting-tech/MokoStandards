@@ -339,7 +339,7 @@ When creating a new repository in the organization:
    # Clone the repository
    git clone https://github.com/mokoconsulting-tech/NEW_REPO
    cd NEW_REPO
-   
+
    # Add required files
    cp /path/to/MokoStandards/templates/docs/required/* .
    ```
@@ -348,7 +348,7 @@ When creating a new repository in the organization:
    ```bash
    # Create workflows directory
    mkdir -p .github/workflows
-   
+
    # Copy required workflows
    cp /path/to/MokoStandards/.github/workflow-templates/*.yml .github/workflows/
    ```
@@ -357,7 +357,7 @@ When creating a new repository in the organization:
    ```bash
    # Create MokoStandards directory
    mkdir -p MokoStandards
-   
+
    # Copy appropriate Makefile
    cp /path/to/MokoStandards/Makefiles/Makefile.{platform} MokoStandards/
    ```

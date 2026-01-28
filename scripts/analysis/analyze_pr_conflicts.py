@@ -111,7 +111,7 @@ def analyze_pr_conflicts(pr: Dict) -> Dict:
         'merge_state': merge_state,
         'recommendations': []
     }
-    
+
     # Add specific recommendations based on PR characteristics
     if analysis['has_conflicts']:
         conflict_types = classify_pr_conflict_types(pr)
@@ -128,7 +128,7 @@ def analyze_pr_conflicts(pr: Dict) -> Dict:
             analysis['recommendations'].append(
                 "Script conflicts: Test automation after merge, regenerate indexes"
             )
-    
+
     return analysis
 
 def print_analysis(analyses: List[Dict]):
@@ -137,7 +137,7 @@ def print_analysis(analyses: List[Dict]):
     print("PR CONFLICT ANALYSIS")
     print("=" * 80)
     print()
-    
+
     # PRs with conflicts
     conflicted = [a for a in analyses if a['has_conflicts']]
     if conflicted:
@@ -156,7 +156,7 @@ def print_analysis(analyses: List[Dict]):
     else:
         print("No PRs with conflicts found.")
         print()
-    
+
     # PRs without conflicts
     clean = [a for a in analyses if not a['has_conflicts'] and a['base'] == 'main']
     if clean:
@@ -167,7 +167,7 @@ def print_analysis(analyses: List[Dict]):
             print(f"  Branch: {analysis['branch']}")
             print(f"  Merge State: {analysis['merge_state']}")
             print()
-    
+
     # PRs targeting other branches
     indirect = [a for a in analyses if a['base'] != 'main']
     if indirect:
@@ -178,7 +178,7 @@ def print_analysis(analyses: List[Dict]):
             print(f"  Branch: {analysis['branch']} -> {analysis['base']}")
             print(f"  Note: Will inherit conflicts from base branch")
             print()
-    
+
     print("=" * 80)
     print(f"Total PRs analyzed: {len(analyses)}")
     print(f"PRs with conflicts: {len(conflicted)}")

@@ -119,7 +119,7 @@ To create a custom repository structure definition:
     <last-updated>2026-01-16T00:00:00Z</last-updated>
     <maintainer>MokoStandards Team</maintainer>
   </metadata>
-  
+
   <structure>
     <root-files>
       <file extension="md">
@@ -128,7 +128,7 @@ To create a custom repository structure definition:
         <requirement-status>required</requirement-status>
       </file>
     </root-files>
-    
+
     <directories>
       <directory path="src">
         <name>src</name>
@@ -147,13 +147,13 @@ To create a custom repository structure definition:
   <name>ci.yml</name>
   <description>CI workflow</description>
   <requirement-status>suggested</requirement-status>
-  
+
   <source>
     <path>templates/workflows/generic</path>
     <filename>ci.yml.template</filename>
     <type>template</type>
   </source>
-  
+
   <destination>
     <path>.github/workflows</path>
     <filename>ci.yml</filename>
@@ -169,13 +169,13 @@ To create a custom repository structure definition:
   <name>ARCHITECTURE.md</name>
   <description>Architecture documentation</description>
   <requirement-status>optional</requirement-status>
-  
+
   <destination>
     <path>docs</path>
     <filename>ARCHITECTURE.md</filename>
     <create-path>true</create-path>
   </destination>
-  
+
   <stub-content><![CDATA[
 # Architecture
 
@@ -264,6 +264,6 @@ See [Schema Guide](../../docs/schemas/repohealth/schema-guide.md) for complete d
 
 ---
 
-**Location**: `scripts/definitions/`  
-**Last Updated**: 2026-01-16  
+**Location**: `scripts/definitions/`
+**Last Updated**: 2026-01-16
 **Maintained By**: MokoStandards Team

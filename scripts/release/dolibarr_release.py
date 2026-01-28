@@ -77,7 +77,7 @@ class DolibarrReleaser:
     def _detect_module_name(self) -> str:
         """Detect module name from module descriptor."""
         modules_dir = self.module_dir / "core" / "modules"
-        
+
         if modules_dir.exists():
             # Find mod*.class.php file
             for php_file in modules_dir.glob("mod*.class.php"):
@@ -86,7 +86,7 @@ class DolibarrReleaser:
                 name = stem[3:] if stem.startswith("mod") else stem
                 if name:
                     return name
-        
+
         # Fallback to directory name, stripping known prefixes
         return (
             self.module_dir.name
@@ -97,11 +97,11 @@ class DolibarrReleaser:
     def update_version(self) -> bool:
         """Update version in module descriptor."""
         modules_dir = self.module_dir / "core" / "modules"
-        
+
         if not modules_dir.exists():
             print(f"Warning: core/modules directory not found", file=sys.stderr)
             return False
-        
+
         updated = False
         for php_file in modules_dir.glob("mod*.class.php"):
             try:
@@ -112,7 +112,7 @@ class DolibarrReleaser:
                     f"\\1{self.version}\\2",
                     content
                 )
-                
+
                 if new_content != content:
                     php_file.write_text(new_content, encoding='utf-8')
                     print(f"✅ Updated version in {php_file.name}")
@@ -120,7 +120,7 @@ class DolibarrReleaser:
             except Exception as e:
                 print(f"Error updating {php_file}: {e}", file=sys.stderr)
                 return False
-        
+
         return updated
 
     def create_package(self) -> Optional[Path]:
@@ -128,7 +128,7 @@ class DolibarrReleaser:
         # Create build directory
         build_dir = self.output_dir / "build"
         package_dir = build_dir / "package"
-        
+
         if package_dir.exists():
             shutil.rmtree(package_dir)
         package_dir.mkdir(parents=True, exist_ok=True)
@@ -168,13 +168,13 @@ class DolibarrReleaser:
             for item in self.module_dir.iterdir():
                 if item.name in exclude_dirs or item.name in exclude_names:
                     continue
-                
+
                 dest = package_dir / item.name
                 if item.is_dir():
                     shutil.copytree(item, dest, ignore=create_copytree_ignore_filter)
                 else:
                     shutil.copy2(item, dest)
-            
+
             print(f"✅ Copied module files to package directory")
         except Exception as e:
             print(f"Error copying files: {e}", file=sys.stderr)
@@ -189,15 +189,15 @@ class DolibarrReleaser:
                 for root, dirs, files in os.walk(package_dir):
                     # Filter out excluded directories
                     dirs[:] = [d for d in dirs if d not in exclude_dirs]
-                    
+
                     for file in files:
                         file_path = Path(root) / file
                         arcname = file_path.relative_to(package_dir)
                         zipf.write(file_path, arcname)
-            
+
             print(f"✅ Created ZIP package: {zip_name}")
             print(f"   Size: {zip_path.stat().st_size / 1024:.2f} KB")
-            
+
             return zip_path
         except Exception as e:
             print(f"Error creating ZIP: {e}", file=sys.stderr)
@@ -282,7 +282,7 @@ Examples:
   python dolibarr_release.py --version 1.0.0 --output-dir /tmp/releases
         """
     )
-    
+
     parser.add_argument(
         '--module-dir',
         type=Path,

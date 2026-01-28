@@ -540,7 +540,7 @@
  - `/readme.md` - Clarified docs and scaaffolding
  - `./generic-git/docs/roadmap.md`
  - `modulebuilder.txt` to `./dolibar-default/.gitignore`
- 
+
 ## [2.0] - 2025-11-23
 ### Added
  - Documentation Suite in `generic-git`
@@ -550,7 +550,7 @@
  - Created `doc` folder from generic-git
  - `.github` updated
 
- 
+
 ### Deleted
  - Joomla PHP files
  - MokoDoliDiscovery Module ID

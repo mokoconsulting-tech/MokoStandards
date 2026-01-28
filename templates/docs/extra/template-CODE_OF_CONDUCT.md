@@ -11,9 +11,9 @@
 	You should have received a copy of the GNU General Public License (./LICENSE.md).
 
 	# FILE INFORMATION
-	DEFGROUP: 
+	DEFGROUP:
 	INGROUP: Project.Documentation
-	REPO: 
+	REPO:
 	VERSION: 00.00.01
 	PATH: ./CODE_OF_CONDUCT.md
 	BRIEF: Reference + packaging repo for Moko Consulting Developer GPT Other Default

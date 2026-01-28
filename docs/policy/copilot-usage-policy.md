@@ -483,7 +483,7 @@ By using GitHub Copilot, you acknowledge that you have read, understood, and agr
 
 ---
 
-**Policy Owner**: Development Team  
-**Approved By**: Management  
-**Effective Date**: 2026-01-28  
+**Policy Owner**: Development Team
+**Approved By**: Management
+**Effective Date**: 2026-01-28
 **Next Review**: 2027-01-28

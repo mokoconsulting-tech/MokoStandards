@@ -312,12 +312,12 @@ check-migrations: ## Check SQL migration files
 lint: ## Run linters for all languages
 	# PHP
 	@find src -name "*.php" -exec php -l {} \;
-	
+
 	# JavaScript
 	@if [ -f "package.json" ]; then \
 		npm run lint; \
 	fi
-	
+
 	# Python
 	@if [ -f "requirements.txt" ]; then \
 		flake8 src/; \
@@ -969,23 +969,23 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Setup environment
         run: make install-deps
-      
+
       - name: Lint code
         run: make lint
-      
+
       - name: Run tests
         run: make test
-      
+
       - name: Build package
         run: make build
-      
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -1057,7 +1057,7 @@ ifeq ($(CI_ENV),true)
 	COLOR_RESET :=
 	COLOR_GREEN :=
 	COLOR_RED :=
-	
+
 	# Use CI-optimized commands
 	NPM := npm ci
 	COMPOSER := composer install --no-dev

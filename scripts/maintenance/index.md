@@ -7,9 +7,9 @@ Repository maintenance scripts for version updates, changelog management, header
 ## Scripts in This Directory
 
 ### release_version.py
-**Purpose:** Update version numbers across repository files  
-**Type:** Python 3.7+  
-**Usage:** `python3 release_version.py <version> [options]`  
+**Purpose:** Update version numbers across repository files
+**Type:** Python 3.7+
+**Usage:** `python3 release_version.py <version> [options]`
 **Documentation:** [📖 Guide](/docs/scripts/maintenance/release-version-py.md)
 
 **Key Features:**
@@ -27,9 +27,9 @@ Repository maintenance scripts for version updates, changelog management, header
 - Documentation: `CHANGELOG.md`
 
 ### setup-labels.sh
-**Purpose:** Configure GitHub repository labels with standardized set  
-**Type:** Shell script (Bash 4.0+)  
-**Usage:** `./setup-labels.sh [repo]`  
+**Purpose:** Configure GitHub repository labels with standardized set
+**Type:** Shell script (Bash 4.0+)
+**Usage:** `./setup-labels.sh [repo]`
 **Documentation:** [📖 Guide](/docs/scripts/maintenance/setup-labels-sh.md)
 
 **Key Features:**
@@ -45,9 +45,9 @@ Repository maintenance scripts for version updates, changelog management, header
 - Size: `size:xs`, `size:s`, `size:m`, `size:l`, `size:xl`
 
 ### update_changelog.py
-**Purpose:** Update CHANGELOG.md with new entries  
-**Type:** Python 3.7+  
-**Usage:** `python3 update_changelog.py <version> [options]`  
+**Purpose:** Update CHANGELOG.md with new entries
+**Type:** Python 3.7+
+**Usage:** `python3 update_changelog.py <version> [options]`
 **Documentation:** [📖 Guide](/docs/scripts/maintenance/update-changelog-py.md)
 
 **Key Features:**
@@ -63,9 +63,9 @@ Repository maintenance scripts for version updates, changelog management, header
 - Semantic versioning links
 
 ### update_gitignore_patterns.sh
-**Purpose:** Update .gitignore patterns across repositories  
-**Type:** Shell script (Bash 4.0+)  
-**Usage:** `./update_gitignore_patterns.sh [options]`  
+**Purpose:** Update .gitignore patterns across repositories
+**Type:** Shell script (Bash 4.0+)
+**Usage:** `./update_gitignore_patterns.sh [options]`
 **Documentation:** [📖 Guide](/docs/scripts/maintenance/update-gitignore-patterns-sh.md)
 
 **Key Features:**
@@ -82,9 +82,9 @@ Repository maintenance scripts for version updates, changelog management, header
 - OS: `.DS_Store`, `Thumbs.db`
 
 ### validate_file_headers.py
-**Purpose:** Validate copyright headers in source files  
-**Type:** Python 3.7+  
-**Usage:** `python3 validate_file_headers.py [options]`  
+**Purpose:** Validate copyright headers in source files
+**Type:** Python 3.7+
+**Usage:** `python3 validate_file_headers.py [options]`
 **Documentation:** [📖 Guide](/docs/scripts/maintenance/validate-file-headers-py.md)
 
 **Key Features:**
@@ -106,9 +106,9 @@ Repository maintenance scripts for version updates, changelog management, header
 - Shell: `.sh`
 
 ### flush_actions_cache.py
-**Purpose:** Flush GitHub Actions caches for a repository  
-**Type:** Python 3.7+  
-**Usage:** `python3 flush_actions_cache.py [options]`  
+**Purpose:** Flush GitHub Actions caches for a repository
+**Type:** Python 3.7+
+**Usage:** `python3 flush_actions_cache.py [options]`
 **Documentation:** [📖 Guide](/docs/scripts/maintenance/flush-actions-cache-py.md)
 
 **Key Features:**

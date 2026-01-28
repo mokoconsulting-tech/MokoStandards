@@ -13,16 +13,16 @@ assignees: []
 
 **License Type Requested**: Organization Pool
 
-**Personal Purchase**: 
+**Personal Purchase**:
 - [ ] I prefer to purchase my own license ($99 USD - recommended, immediate access)
 - [ ] I prefer an organization license (1-2 business days, organization use only)
 - [ ] I have already purchased my own license (registration only for support)
 
 ### Requestor Information
-**Name**: 
+**Name**:
 **GitHub Username**: @
 **Email**: @mokoconsulting.tech
-**Team/Department**: 
+**Team/Department**:
 **Manager**: @
 
 ### Justification
@@ -50,7 +50,7 @@ assignees: []
 
 ### Platform
 - [ ] Windows
-- [ ] macOS  
+- [ ] macOS
 - [ ] Linux (distribution: ________)
 
 ### Urgency

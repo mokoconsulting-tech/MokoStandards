@@ -79,7 +79,7 @@ If both changed:
    ```bash
    # Option 1: Update root CHANGELOG
    vim CHANGELOG.md
-   
+
    # Option 2: Update src CHANGELOG
    vim src/ChangeLog.md
    ```
@@ -125,7 +125,7 @@ If both CHANGELOG files are modified in the same commit:
    cp CHANGELOG.md src/ChangeLog.md
    # OR
    cp src/ChangeLog.md CHANGELOG.md
-   
+
    # Commit the resolution
    git add CHANGELOG.md src/ChangeLog.md
    git commit -m "docs: resolve CHANGELOG sync conflict"

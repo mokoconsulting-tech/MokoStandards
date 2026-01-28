@@ -301,30 +301,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
-      
+
       - name: Install dependencies
         run: make install-deps
-      
+
       - name: Validate code
         run: make validate
-      
+
       - name: Run tests
         run: make test
-  
+
   build:
     needs: validate
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Build package
         run: make build
-      
+
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:

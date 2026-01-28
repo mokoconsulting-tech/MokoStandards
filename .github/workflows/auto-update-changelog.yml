@@ -68,6 +68,7 @@ jobs:
         id: parse-pr
         env:
           PR_BODY: ${{ github.event.pull_request.body }}
+          PR_TITLE: ${{ steps.pr-info.outputs.pr_title }}
         run: |
           # Extract changelog content from PR description
           # Look for sections like "## Summary", "### Changes", etc.
@@ -86,7 +87,7 @@ jobs:
           
           # If no structured content found, use PR title
           if [ -z "$CHANGELOG_CONTENT" ]; then
-            CHANGELOG_CONTENT="${{ steps.pr-info.outputs.pr_title }}"
+            CHANGELOG_CONTENT="$PR_TITLE"
           fi
           
           # Save to file for multi-line output

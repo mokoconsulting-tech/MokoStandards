@@ -31,12 +31,12 @@
 
 ![Moko Consulting](https://mokoconsulting.tech/images/branding/logo.png)
 
-# MokoStandards v2.0.0
+# MokoStandards v2.1.0
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Python Scripts](https://img.shields.io/badge/Python_Scripts-44-green.svg)](./scripts)
 [![PowerShell Scripts](https://img.shields.io/badge/PowerShell_Scripts-2-blue.svg)](./scripts/powershell)
-[![Version](https://img.shields.io/badge/version-2.0.0-brightgreen.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2.1.0-brightgreen.svg)](./CHANGELOG.md)
 
 **MokoStandards** is the authoritative control plane for coding standards, workflows, and governance policies across the Moko Consulting ecosystem. Version 2.0 represents a complete rebuild with enhanced documentation, comprehensive automation scripts (Python and PowerShell), and a golden architecture framework that all repositories should follow.
 

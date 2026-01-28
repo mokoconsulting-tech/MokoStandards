@@ -15,7 +15,7 @@
  DEFGROUP: MokoStandards
  INGROUP: MokoStandards.Documentation
  REPO: https://github.com/mokoconsulting-tech/MokoStandards/
- VERSION: 03.00.00
+ VERSION: 03.01.00
  PATH: ./CHANGELOG.md
  BRIEF: Version history using Keep a Changelog
  NOTE: Adheres to SemVer when applicable
@@ -24,6 +24,42 @@
 # Changelog
 
 ## [UNRELEASED]
+
+## [03.01.00] - 2026-01-28
+
+### Added
+- **Copilot Standards Sync Guide**: Created comprehensive guide for syncing standards across repositories
+  - Created `docs/guide/copilot-sync-standards.md` (19KB comprehensive guide)
+  - Ready-to-use Copilot prompts for label deployment, Terraform standards, workflows, and scripts
+  - Step-by-step instructions for complete standards synchronization
+  - Verification checklists and troubleshooting section
+  - Advanced usage patterns for custom implementations
+- **Required Label Deployment Template**: Created standardized label deployment script
+  - Created `templates/required/setup-labels.sh` (REQUIRED file for all repos)
+  - 46 standard labels across 8 categories (project types, languages, components, workflow, priority, type, status, size, health)
+  - Dry-run mode for safe testing
+  - Comprehensive help and installation instructions
+  - Integration with GitHub CLI for automated deployment
+- **Infrastructure Enhancements**: Multiple improvements to developer experience
+  - Hierarchical logs/ directory structure (8 categories: automation, validation, maintenance, analysis, build, release, tests, archive)
+  - PowerShell GUI components (GuiUtils.psm1 module with reusable dialogs and forms)
+  - PowerShell GUI scripts (Invoke-RepoHealthCheckGUI.ps1, Invoke-BulkUpdateGUI.ps1)
+  - Script wrappers: 108 wrappers generated (54 bash + 54 PowerShell) for all Python scripts
+  - Auto-generation tool (generate_wrappers.py) for wrapper regeneration
+  - Dry-run analysis tool (add_dry_run_support.py) with pattern documentation
+  - Terraform metadata automation (add_terraform_metadata.py) for bulk updates
+  - Bulk label deployment script (bulk_deploy_labels.sh) with parallel execution
+  - GitHub Actions workflow for automated label deployment (bulk-label-deployment.yml)
+
+### Changed
+- **Terraform Metadata Standards**: Applied unified metadata to all Terraform files
+  - Updated 12 Terraform files with standardized metadata blocks
+  - Metadata includes: name, description, version, maintainer, schema_version, repository_url, format
+  - Consistent with metadata-standards.md policy
+- **Documentation Organization**: Enhanced guide structure
+  - Added label-deployment.md guide with deployment methods and best practices
+  - Created DRY_RUN_PATTERN.md with standard implementation patterns
+  - Improved cross-references between related documentation
 
 ### Security
 - **Code Injection Vulnerability**: Fixed potential code injection in auto-update-changelog workflow

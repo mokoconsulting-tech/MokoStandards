@@ -308,16 +308,12 @@ def write_github_summary(results: Dict, repo_path: str):
             # Determine emoji based on level
             if level == "EXCELLENT":
                 emoji = "✅"
-                color = "🟢"
             elif level == "GOOD":
                 emoji = "⚠️"
-                color = "🟡"
             elif level == "FAIR":
                 emoji = "🟠"
-                color = "🟠"
             else:
                 emoji = "❌"
-                color = "🔴"
             
             f.write(f"**Repository:** `{repo_path}`\n\n")
             f.write(f"### {emoji} Overall Health: {level}\n\n")

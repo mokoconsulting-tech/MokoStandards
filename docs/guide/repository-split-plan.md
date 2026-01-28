@@ -47,7 +47,7 @@ This document defines the recommended split between the public **mokoconsulting-
 
 **Purpose**: Public coding standards, policies, and reference implementations
 
-**Target Audience**: 
+**Target Audience**:
 - External developers adopting MokoStandards
 - Open source community
 - Potential clients evaluating standards
@@ -96,12 +96,12 @@ This document defines the recommended split between the public **mokoconsulting-
    ✅ codeql-analysis.yml - Security scanning
    ✅ rebuild_docs_indexes.yml - Documentation automation
    ✅ repo_health.yml - Repository health checks
-   
+
 ✅ templates/workflows/ - Reusable workflow templates (moved from .github/)
    ✅ joomla/ - Joomla-specific workflows
    ✅ generic/ - Platform-agnostic workflows
    ✅ README.md - Template documentation
-   
+
 ✅ .github/dependabot.yml - Dependency scanning config
 ✅ .github/settings.yml - Repository settings template (anonymized)
 
@@ -122,17 +122,17 @@ This document defines the recommended split between the public **mokoconsulting-
    ✅ dependency-management.md
    ✅ merge-strategy.md
    ✅ documentation-governance.md
-   
+
 ✅ docs/guide/ - All public guides
    ✅ audit-readiness.md
    ✅ conflict-resolution.md
    ✅ project-fields.md
    ✅ project-views.md
    ✅ repository-split-plan.md (this document)
-   
+
 ✅ docs/checklist/ - Public checklists
    ✅ release.md
-   
+
 ✅ docs/ROADMAP.md - Public roadmap
 ✅ docs/index.md - Documentation index
 ✅ docs/README.md - Documentation overview
@@ -147,14 +147,14 @@ This document defines the recommended split between the public **mokoconsulting-
 ✅ templates/docs/ - Public documentation templates
    ✅ required/ - Required document templates
    ✅ extra/ - Optional document templates
-   
+
 ✅ templates/repos/ - Public repository structure templates
    ✅ joomla/ - Joomla extension templates
    ✅ generic/ - Generic project templates
-   
+
 ✅ templates/scripts/ - Public validation scripts
    ✅ validate/ - Various validation scripts
-   
+
 ❌ templates/.github/ - ALREADY REMOVED (consolidated to main .github/)
 ```
 
@@ -218,7 +218,7 @@ mokoconsulting-tech/MokoStandards-github-private/
 ```
 ❌ .github/CODEOWNERS
    Reason: Exposes internal team structure and email addresses
-   
+
 ❌ .github/ISSUE_TEMPLATE/*.md
    Reason: Internal workflow processes, client references, internal tools
    Files:
@@ -233,7 +233,7 @@ mokoconsulting-tech/MokoStandards-github-private/
    - risk_register_entry.md
    - runbook.md
    - security_review.md
-   
+
 ❌ .github/PULL_REQUEST_TEMPLATE.md
    Reason: Internal checklist with references to internal systems
 ```
@@ -242,12 +242,12 @@ mokoconsulting-tech/MokoStandards-github-private/
 ```
 ❌ docs/policy/copilot-prompt-projectv2-joomla-template.md
    Reason: Proprietary AI prompt engineering for internal use
-   
+
 ❌ docs/guide/waas/* (if contains client-specific details)
    Evaluate each file:
    - Keep: Generic architecture patterns
    - Move: Client lists, pricing, SLAs, internal processes
-   
+
 ❌ docs/policy/waas/* (if contains proprietary implementation)
    Evaluate each file:
    - Keep: Security standards that could be public
@@ -258,13 +258,13 @@ mokoconsulting-tech/MokoStandards-github-private/
 ```
 ❌ scripts/setup_project_v2.py
    Reason: Uses internal GitHub PAT, references internal projects
-   
+
 ❌ scripts/populate_project_from_scan.py
    Reason: Specific to internal Project #7 structure
-   
+
 ❌ scripts/ensure_docs_and_project_tasks.py
    Reason: Internal task management automation
-   
+
 ❌ scripts/setup_project_views.py
    Reason: Internal project view configurations
 ```
@@ -274,10 +274,10 @@ mokoconsulting-tech/MokoStandards-github-private/
 ❌ IMPLEMENTATION_SUMMARY.md
    Reason: Documents internal project setup process
    Alternative: Generalize and keep if valuable for public adoption
-   
+
 ❌ MERGE_SUMMARY.md
    Reason: Internal merge process documentation
-   
+
 ❌ CONFLICT_RESOLUTION_GUIDE.md
    Reason: Contains internal team communication details
    Alternative: Generalize to public guide without internal references
@@ -406,8 +406,8 @@ Add section:
 ```markdown
 # MokoStandards GitHub Private
 
-This repository contains internal GitHub configurations and organizational 
-templates for Moko Consulting. It complements the public MokoStandards 
+This repository contains internal GitHub configurations and organizational
+templates for Moko Consulting. It complements the public MokoStandards
 repository which contains our public coding standards.
 
 ## Public Standards
@@ -474,11 +474,11 @@ https://github.com/mokoconsulting-tech/MokoStandards
    - Client onboarding procedures
    - Billing and provisioning details
    - Internal tooling and automation
-   
+
 ❌ waas-client-onboarding.md
    - Specific to Moko Consulting clients
    - Contains proprietary processes
-   
+
 ❌ waas-pricing.md (if exists)
    - Pricing models
    - Service tiers
@@ -490,11 +490,11 @@ https://github.com/mokoconsulting-tech/MokoStandards
 ✅ waas-security.md (if generalized)
    - Security requirements that could benefit industry
    - No proprietary implementation details
-   
+
 ❓ waas-provisioning.md (evaluate)
    - Keep: Generic provisioning standards
    - Move: Proprietary automation and internal tools
-   
+
 ❓ waas-tenant-isolation.md (evaluate)
    - Keep: Security isolation standards
    - Move: Implementation specifics
@@ -517,7 +517,7 @@ https://github.com/mokoconsulting-tech/MokoStandards
 
 ### Public Repository Governance
 
-**Maintainers**: 
+**Maintainers**:
 - Public-facing team members
 - Open to community contributions
 

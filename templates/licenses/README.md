@@ -186,9 +186,9 @@ The repository health workflow automatically verifies:
 
 ## Maintenance
 
-**Owner**: Legal/Compliance Team  
-**Review Cycle**: Annual or when FSF updates licenses  
-**Last Updated**: 2026-01-16  
+**Owner**: Legal/Compliance Team
+**Review Cycle**: Annual or when FSF updates licenses
+**Last Updated**: 2026-01-16
 **Next Review**: 2027-01-16
 
 ## Change History

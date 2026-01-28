@@ -158,7 +158,7 @@ allowed_domains:
   - "opensource.org"
   - "github.com"
   - "docs.github.com"
-  
+
 copilot:
   enabled: true
   include:

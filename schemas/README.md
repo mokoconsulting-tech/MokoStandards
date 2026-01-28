@@ -2,7 +2,7 @@
 
 ## ⚠️ NOTICE: This Directory Has Been Deprecated
 
-**Date**: January 2026  
+**Date**: January 2026
 **Status**: DEPRECATED - Do not use
 
 ## Migration to Terraform
@@ -98,6 +98,6 @@ If you have questions about the migration or need help updating your scripts, pl
 
 ---
 
-**Last Updated**: January 2026  
-**Migration Status**: Complete  
+**Last Updated**: January 2026
+**Migration Status**: Complete
 **Schema Version**: 2.0 (Terraform-based)

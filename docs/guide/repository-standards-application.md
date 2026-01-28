@@ -179,15 +179,15 @@ cat > phpcs.xml << 'EOF'
 <?xml version="1.0"?>
 <ruleset name="Project Coding Standard">
     <description>Project coding standard based on PSR-12</description>
-    
+
     <file>src</file>
     <file>tests</file>
-    
+
     <exclude-pattern>*/vendor/*</exclude-pattern>
     <exclude-pattern>*/node_modules/*</exclude-pattern>
-    
+
     <rule ref="PSR12"/>
-    
+
     <arg name="colors"/>
     <arg value="sp"/>
 </ruleset>
@@ -277,7 +277,7 @@ jobs:
       php-version: '8.1'
       extension-type: component
       extension-name: com_example
-      
+
   code-quality:
     uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-php-quality.yml@main
     with:
@@ -296,12 +296,12 @@ cat > phpcs.xml << 'EOF'
 <?xml version="1.0"?>
 <ruleset name="Joomla Extension Standard">
     <description>Joomla extension coding standard</description>
-    
+
     <file>administrator/components/com_example</file>
     <file>components/com_example</file>
-    
+
     <rule ref="Joomla"/>
-    
+
     <arg name="colors"/>
     <arg value="sp"/>
 </ruleset>
@@ -348,12 +348,12 @@ jobs:
     with:
       php-version: '7.4'
       phpcs-standard: PSR-12
-      
+
   module-structure:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Validate module structure
         run: |
           # Check required files exist
@@ -430,12 +430,12 @@ jobs:
       phpcs-standard: PSR-12
       phpstan-level: 8
       coverage-threshold: 80
-      
+
   security-scan:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Dependency security scan
         run: composer audit
 ```
@@ -509,12 +509,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: File header validation
         run: |
           git clone https://github.com/mokoconsulting-tech/MokoStandards.git
           python3 MokoStandards/scripts/validate_file_headers.py
-          
+
       - name: Documentation check
         run: python3 MokoStandards/scripts/check_documentation.py
 ```
@@ -588,10 +588,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Composer security scan
         run: composer audit
-        
+
       - name: NPM security scan
         if: hashFiles('package-lock.json')
         run: npm audit --production
@@ -642,7 +642,7 @@ jobs:
     uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-ci-validation.yml@main
     with:
       profile: standard
-      
+
   php-quality:
     uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-php-quality.yml@main
     with:
@@ -675,7 +675,7 @@ jobs:
     uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-ci-validation.yml@main
     with:
       profile: full
-      
+
   php-quality:
     uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-php-quality.yml@main
     with:
@@ -683,14 +683,14 @@ jobs:
       phpcs-standard: PSR-12
       phpstan-level: 8
       coverage-threshold: 80
-      
+
   joomla-testing:
     if: contains(github.repository, 'joomla')
     uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-joomla-testing.yml@main
     with:
       joomla-version: '4.4'
       php-version: '8.1'
-      
+
   security-scan:
     runs-on: ubuntu-latest
     steps:
@@ -763,7 +763,7 @@ Ensure workflow failures are actionable:
 steps:
   - name: Run PHPCS
     run: vendor/bin/phpcs --report=full --report=summary
-    
+
   - name: Comment on PR
     if: failure() && github.event_name == 'pull_request'
     uses: actions/github-script@v7
@@ -876,15 +876,15 @@ vendor/bin/phpstan analyse --level=6 --verbose src/
 ```yaml
 steps:
   - uses: actions/checkout@v4
-  
+
   - uses: shivammathur/setup-php@v2
     with:
       php-version: '8.1'
       extensions: mbstring, xml, pdo_mysql
-      
+
   - name: Validate composer.json
     run: composer validate
-    
+
   - name: Install dependencies
     run: composer install --prefer-dist --no-progress
 ```

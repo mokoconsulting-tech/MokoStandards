@@ -7,6 +7,10 @@ env:
   ACTIONS_STEP_DEBUG: true
   ACTIONS_RUNNER_DEBUG: true
 
+# MokoStandards Policy Compliance:
+# - File formatting: Enforces organizational coding standards
+# - Reference: docs/policy/file-formatting.md
+
 # ┌─────────────────────────────────────────────────────────────────────────┐
 # │                         WORKFLOW FLOW DIAGRAM                            │
 # └─────────────────────────────────────────────────────────────────────────┘
@@ -72,11 +76,11 @@ jobs:
     outputs:
       config: ${{ steps.load.outputs.config }}
       is_valid: ${{ steps.validate.outputs.is_valid }}
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
-      
+
       - name: Load configuration
         id: load
         run: |
@@ -92,7 +96,7 @@ jobs:
             echo "::error::Configuration file not found"
             exit 1
           fi
-      
+
       - name: Validate configuration
         id: validate
         run: |
@@ -106,18 +110,18 @@ jobs:
             echo "is_valid=false" >> $GITHUB_OUTPUT
             echo "::warning::Configuration validation failed"
           fi
-  
+
   # Handle PR lifecycle
   pr-lifecycle:
     name: PR Lifecycle Management
     runs-on: ubuntu-latest
     needs: load-config
     if: github.event_name == 'pull_request'
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
-      
+
       - name: Determine PR action
         id: pr_action
         run: |
@@ -128,20 +132,20 @@ jobs:
           BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
           HEAD_BRANCH="${{ github.event.pull_request.head.ref }}"
           IS_MERGED="${{ github.event.pull_request.merged }}"
-          
+
           echo "action=$ACTION" >> $GITHUB_OUTPUT
           echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
           echo "base_branch=$BASE_BRANCH" >> $GITHUB_OUTPUT
           echo "head_branch=$HEAD_BRANCH" >> $GITHUB_OUTPUT
           echo "is_merged=$IS_MERGED" >> $GITHUB_OUTPUT
-          
+
           # Determine if this is a dev/rc branch
           if [[ "$BASE_BRANCH" =~ ^(dev|rc)/ ]]; then
             echo "is_tracked_branch=true" >> $GITHUB_OUTPUT
           else
             echo "is_tracked_branch=false" >> $GITHUB_OUTPUT
           fi
-      
+
       - name: Find parent tracking issue
         id: find_issue
         if: steps.pr_action.outputs.is_tracked_branch == 'true'
@@ -150,13 +154,13 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const baseBranch = '${{ steps.pr_action.outputs.base_branch }}';
-            
+
             try {
               // Search for tracking issue with retry logic
               let attempt = 0;
               const maxRetries = 3;
               let issues = null;
-              
+
               while (attempt < maxRetries) {
                 try {
                   const response = await github.rest.issues.listForRepo({
@@ -174,19 +178,19 @@ jobs:
                   await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
                 }
               }
-              
+
               // Find issue matching the base branch
-              const trackingIssue = issues.find(issue => 
-                issue.title.includes(baseBranch) || 
+              const trackingIssue = issues.find(issue =>
+                issue.title.includes(baseBranch) ||
                 issue.body.includes(`\`${baseBranch}\``)
               );
-              
+
               if (trackingIssue) {
                 core.setOutput('found', 'true');
                 core.setOutput('issue_number', trackingIssue.number);
                 core.setOutput('issue_title', trackingIssue.title);
                 console.log(`✅ Found tracking issue #${trackingIssue.number}`);
-                
+
                 // Log to audit trail
                 core.info(JSON.stringify({
                   timestamp: new Date().toISOString(),
@@ -204,7 +208,7 @@ jobs:
               core.error(`Error finding tracking issue: ${error.message}`);
               // Don't fail the workflow - graceful degradation
             }
-      
+
       - name: Link PR to tracking issue
         if: |
           steps.pr_action.outputs.action == 'opened' &&
@@ -218,7 +222,7 @@ jobs:
             const prNumber = context.payload.pull_request.number;
             const prTitle = context.payload.pull_request.title;
             const prAuthor = context.payload.pull_request.user.login;
-            
+
             try {
               // Get current issue body
               const issue = await github.rest.issues.get({
@@ -226,17 +230,17 @@ jobs:
                 repo: context.repo.repo,
                 issue_number: issueNumber
               });
-              
+
               let body = issue.data.body || '';
-              
+
               // Check if PR tracking section exists
               if (!body.includes('### 📝 Pull Requests')) {
                 body += `\n\n### 📝 Pull Requests\n\nThis section tracks all PRs associated with this branch:\n\n`;
               }
-              
+
               // Add PR as a checklist item
               const prEntry = `- [ ] #${prNumber} - ${prTitle} (@${prAuthor})`;
-              
+
               if (!body.includes(`#${prNumber}`)) {
                 // Insert before the closing separator
                 if (body.includes('---')) {
@@ -244,7 +248,7 @@ jobs:
                 } else {
                   body += `\n${prEntry}`;
                 }
-                
+
                 // Update issue
                 await github.rest.issues.update({
                   owner: context.repo.owner,
@@ -252,9 +256,9 @@ jobs:
                   issue_number: issueNumber,
                   body: body
                 });
-                
+
                 console.log(`✅ Linked PR #${prNumber} to issue #${issueNumber}`);
-                
+
                 // Add comment
                 await github.rest.issues.createComment({
                   owner: context.repo.owner,
@@ -262,7 +266,7 @@ jobs:
                   issue_number: issueNumber,
                   body: `🔗 **PR Opened**: #${prNumber} - ${prTitle}\n\nOpened by @${prAuthor}`
                 });
-                
+
                 // Log to audit trail
                 core.info(JSON.stringify({
                   timestamp: new Date().toISOString(),
@@ -276,7 +280,7 @@ jobs:
               core.error(`Error linking PR to issue: ${error.message}`);
               // Continue workflow - don't fail on this error
             }
-      
+
       - name: Mark PR as completed in tracking issue
         if: |
           steps.pr_action.outputs.action == 'closed' &&
@@ -291,7 +295,7 @@ jobs:
             const prNumber = context.payload.pull_request.number;
             const prTitle = context.payload.pull_request.title;
             const mergedBy = context.payload.pull_request.merged_by.login;
-            
+
             try {
               // Get current issue body
               const issue = await github.rest.issues.get({
@@ -299,13 +303,13 @@ jobs:
                 repo: context.repo.repo,
                 issue_number: issueNumber
               });
-              
+
               let body = issue.data.body || '';
-              
+
               // Update checklist item from [ ] to [x]
               const uncheckedPattern = new RegExp(`- \\[ \\] #${prNumber}`, 'g');
               body = body.replace(uncheckedPattern, `- [x] #${prNumber}`);
-              
+
               // Update issue
               await github.rest.issues.update({
                 owner: context.repo.owner,
@@ -313,9 +317,9 @@ jobs:
                 issue_number: issueNumber,
                 body: body
               });
-              
+
               console.log(`✅ Marked PR #${prNumber} as completed in issue #${issueNumber}`);
-              
+
               // Add comment
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
@@ -323,7 +327,7 @@ jobs:
                 issue_number: issueNumber,
                 body: `✅ **PR Merged**: #${prNumber} - ${prTitle}\n\nMerged by @${mergedBy}`
               });
-              
+
               // Log to audit trail
               core.info(JSON.stringify({
                 timestamp: new Date().toISOString(),
@@ -335,7 +339,7 @@ jobs:
             } catch (error) {
               core.error(`Error updating PR status in issue: ${error.message}`);
             }
-      
+
       - name: Close tracking issue on branch merge
         if: |
           steps.pr_action.outputs.action == 'closed' &&
@@ -352,11 +356,11 @@ jobs:
             const prTitle = context.payload.pull_request.title;
             const mergedBy = context.payload.pull_request.merged_by.login;
             const branchName = '${{ steps.pr_action.outputs.head_branch }}';
-            
+
             try {
               // Create comprehensive closing comment
               const closeComment = `## 🎉 Branch Lifecycle Complete
-              
+
 **Branch**: \`${branchName}\` has been merged to main via PR #${prNumber}.
 
 ### Merge Details
@@ -371,7 +375,7 @@ This branch has completed its development cycle and been integrated into the mai
 ---
 
 *This issue was automatically closed by the Enterprise Issue Manager workflow.*`;
-              
+
               // Add closing comment
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
@@ -379,7 +383,7 @@ This branch has completed its development cycle and been integrated into the mai
                 issue_number: issueNumber,
                 body: closeComment
               });
-              
+
               // Close the issue
               await github.rest.issues.update({
                 owner: context.repo.owner,
@@ -388,9 +392,9 @@ This branch has completed its development cycle and been integrated into the mai
                 state: 'closed',
                 state_reason: 'completed'
               });
-              
+
               console.log(`✅ Closed tracking issue #${issueNumber}`);
-              
+
               // Log to audit trail
               core.info(JSON.stringify({
                 timestamp: new Date().toISOString(),
@@ -403,14 +407,14 @@ This branch has completed its development cycle and been integrated into the mai
             } catch (error) {
               core.error(`Error closing tracking issue: ${error.message}`);
             }
-  
+
   # Handle branch deletion
   branch-deletion:
     name: Handle Branch Deletion
     runs-on: ubuntu-latest
     needs: load-config
     if: github.event_name == 'delete'
-    
+
     steps:
       - name: Find and close tracking issue
         uses: actions/github-script@v7
@@ -419,13 +423,13 @@ This branch has completed its development cycle and been integrated into the mai
           retries: 3
           script: |
             const branchName = context.payload.ref;
-            
+
             // Only process dev/rc branches
             if (!branchName.startsWith('dev/') && !branchName.startsWith('rc/')) {
               console.log(`ℹ️ Branch ${branchName} is not a tracked branch type`);
               return;
             }
-            
+
             try {
               // Find tracking issue
               const issues = await github.rest.issues.listForRepo({
@@ -435,16 +439,16 @@ This branch has completed its development cycle and been integrated into the mai
                 labels: 'dev-branch',
                 per_page: 100
               });
-              
-              const trackingIssue = issues.data.find(issue => 
-                issue.title.includes(branchName) || 
+
+              const trackingIssue = issues.data.find(issue =>
+                issue.title.includes(branchName) ||
                 issue.body.includes(`\`${branchName}\``)
               );
-              
+
               if (trackingIssue) {
                 // Close with deletion message
                 const closeComment = `## 🗑️ Branch Deleted
-                
+
 The branch \`${branchName}\` has been deleted.
 
 ### Deletion Details
@@ -456,14 +460,14 @@ This tracking issue is now closed.
 ---
 
 *This issue was automatically closed by the Enterprise Issue Manager workflow.*`;
-                
+
                 await github.rest.issues.createComment({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   issue_number: trackingIssue.number,
                   body: closeComment
                 });
-                
+
                 await github.rest.issues.update({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
@@ -471,9 +475,9 @@ This tracking issue is now closed.
                   state: 'closed',
                   state_reason: 'not_planned'
                 });
-                
+
                 console.log(`✅ Closed issue #${trackingIssue.number} for deleted branch`);
-                
+
                 // Audit log
                 core.info(JSON.stringify({
                   timestamp: new Date().toISOString(),
@@ -486,14 +490,14 @@ This tracking issue is now closed.
             } catch (error) {
               core.error(`Error handling branch deletion: ${error.message}`);
             }
-  
+
   # Generate summary report
   summary:
     name: Workflow Summary
     runs-on: ubuntu-latest
     needs: [load-config, pr-lifecycle, branch-deletion]
     if: always()
-    
+
     steps:
       - name: Generate summary
         run: |
@@ -507,13 +511,13 @@ This tracking issue is now closed.
           echo "- Configuration loaded: ${{ needs.load-config.outputs.is_valid }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Actions Performed" >> $GITHUB_STEP_SUMMARY
-          
+
           if [ "${{ github.event_name }}" == "pull_request" ]; then
             echo "- PR lifecycle management executed" >> $GITHUB_STEP_SUMMARY
           elif [ "${{ github.event_name }}" == "delete" ]; then
             echo "- Branch deletion handling executed" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "---" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY

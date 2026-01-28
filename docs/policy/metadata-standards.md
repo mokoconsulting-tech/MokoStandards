@@ -184,7 +184,7 @@ locals {
     maintainer     = "MokoStandards Team"
     schema_version = "2.0"
     repository_url = "https://github.com/mokoconsulting-tech/MokoStandards"
-    
+
     # Context-specific fields
     repository_type = "standards"
     format          = "terraform"

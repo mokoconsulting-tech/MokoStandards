@@ -63,9 +63,9 @@ MokoStandards follows semantic versioning (MAJOR.MINOR.PATCH) with a **suggested
 
 ## Current Status
 
-**Current Version**: 03.00.00  
-**Released**: 2026-01-28  
-**Next Minor Release**: 03.01.00 (Target: March 2026)  
+**Current Version**: 03.00.00
+**Released**: 2026-01-28
+**Next Minor Release**: 03.01.00 (Target: March 2026)
 **Next Major Release**: 04.00.00 (Target: January 2027)
 
 ---
@@ -525,7 +525,7 @@ MokoStandards follows semantic versioning (MAJOR.MINOR.PATCH) with a **suggested
 
 ## Known Gaps and Weaknesses
 
-**Last Updated**: 2026-01-28  
+**Last Updated**: 2026-01-28
 **Next Review**: 2026-04-28
 
 This section documents identified gaps, weaknesses, and technical debt to ensure transparent planning and prioritization.

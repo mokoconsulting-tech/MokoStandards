@@ -176,28 +176,28 @@ jobs:
         with:
           script: |
             const body = `## 📋 CHANGELOG Sync Failed
-            
+
             **Event**: ${context.eventName}
             **Workflow Run**: [${context.runId}](${context.payload.repository.html_url}/actions/runs/${context.runId})
             **Triggered by**: @${context.actor}
             **Date**: ${new Date().toISOString()}
-            
+
             ### Sync Configuration
             - **Direction**: ${{ inputs.direction }}
             - **Root CHANGELOG exists**: ${{ steps.check-files.outputs.root_exists }}
             - **src/ChangeLog.md exists**: ${{ steps.check-files.outputs.src_exists }}
             - **Files in sync**: ${{ steps.check-sync.outputs.in_sync }}
-            
+
             ### ❌ Error Details
             The CHANGELOG synchronization process has failed. This affects documentation consistency between root and src directories.
-            
+
             ### 🔍 Common Causes
             - **Protected branch**: Unable to push due to branch protection rules
             - **Concurrent modifications**: Both CHANGELOG files were modified simultaneously
             - **Permission issues**: Insufficient token permissions for push
             - **File conflicts**: Merge conflicts during sync
             - **Missing files**: One or both CHANGELOG files don't exist
-            
+
             ### ✅ Resolution Steps
             1. Review the [workflow run logs](${context.payload.repository.html_url}/actions/runs/${context.runId})
             2. Check if both CHANGELOG files exist
@@ -205,16 +205,16 @@ jobs:
             4. Verify GitHub token has write permissions
             5. Re-run workflow with appropriate sync direction
             6. If conflict exists, manually resolve and sync
-            
+
             ### 📚 Resources
             - [Workflow: sync-changelogs.yml](.github/workflows/sync-changelogs.yml)
             - [CHANGELOG.md](CHANGELOG.md)
             - [src/ChangeLog.md](src/ChangeLog.md)
-            
+
             ---
             *This issue was automatically created by the CHANGELOG Sync workflow.*
             `;
-            
+
             // Check for existing open issue
             const issues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
@@ -223,7 +223,7 @@ jobs:
               labels: 'changelog-sync-failure',
               per_page: 1
             });
-            
+
             if (issues.data.length > 0) {
               // Update existing issue
               await github.rest.issues.createComment({

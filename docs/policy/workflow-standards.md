@@ -216,10 +216,10 @@ name: "Descriptive Workflow Name"
 
 on:
   # Clearly defined triggers
-  
+
 permissions:
   # Minimal required permissions (principle of least privilege)
-  
+
 jobs:
   # Well-named, focused jobs
 ```
@@ -238,13 +238,13 @@ on:
         required: true
         type: string
         default: "sensible-default"
-    
+
     outputs:
       # Outputs that calling workflows can use
       output-name:
         description: "Clear description of what this output provides"
         value: ${{ jobs.job-id.outputs.output-name }}
-    
+
     secrets:
       # Secrets required by this workflow
       SECRET_NAME:
@@ -434,13 +434,13 @@ jobs:
   build:
     name: "Build Application"
     runs-on: ubuntu-latest
-    
+
     steps:
       # Step 1: Checkout code
       # This step retrieves the repository code for building
       - name: Checkout code
         uses: actions/checkout@sha
-      
+
       # Step 2: Setup Python
       # Configure Python environment with specified version
       - name: Setup Python
@@ -619,7 +619,7 @@ jobs:
 jobs:
   detect:
     uses: ./.github/workflows/reusable-project-detector.yml
-  
+
   build:
     needs: detect
     if: needs.detect.outputs.project-type == 'joomla'

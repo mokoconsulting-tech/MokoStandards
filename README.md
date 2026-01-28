@@ -580,7 +580,7 @@ mokostandards:
   templates_path: templates/repo
 ```
 
-### For Internal Projects  
+### For Internal Projects
 
 Organization members can reference the private repository for access control policies and confidential enforcement.
 

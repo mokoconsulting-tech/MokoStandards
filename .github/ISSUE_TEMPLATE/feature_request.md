@@ -39,9 +39,9 @@ assignees: []
 
 **How should it work?**
 
-1. 
-2. 
-3. 
+1.
+2.
+3.
 
 **Example usage** (if applicable):
 
@@ -119,9 +119,9 @@ assignees: []
 
 **How will we know when this feature is complete?**
 
-- [ ] 
-- [ ] 
-- [ ] 
+- [ ]
+- [ ]
+- [ ]
 
 ## Additional Context
 

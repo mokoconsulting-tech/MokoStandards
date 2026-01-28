@@ -32,6 +32,10 @@ env:
   ACTIONS_STEP_DEBUG: true
   ACTIONS_RUNNER_DEBUG: true
 
+# MokoStandards Policy Compliance:
+# - File formatting: Enforces organizational coding standards
+# - Reference: docs/policy/file-formatting.md
+
 # ┌─────────────────────────────────────────────────────────────────────────┐
 # │                         WORKFLOW FLOW DIAGRAM                            │
 # └─────────────────────────────────────────────────────────────────────────┘

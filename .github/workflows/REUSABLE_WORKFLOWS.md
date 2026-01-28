@@ -29,7 +29,7 @@ jobs:
 # Type-aware build and release
   build:
     uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-build.yml@main
-  
+
   release:
     uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-release.yml@main
     with:

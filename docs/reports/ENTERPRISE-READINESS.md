@@ -32,7 +32,7 @@ These are essential for enterprise operations and regulatory compliance.
    - Recovery procedures
    - Testing schedule
    - Communication plan
-   
+
 2. **Backup & Recovery Policy** ⚠️ CRITICAL
    - Backup frequency and retention
    - Backup verification procedures

@@ -31,6 +31,10 @@ env:
   ACTIONS_STEP_DEBUG: true
   ACTIONS_RUNNER_DEBUG: true
 
+# MokoStandards Policy Compliance:
+# - File formatting: Enforces organizational coding standards
+# - Reference: docs/policy/file-formatting.md
+
 # ┌─────────────────────────────────────────────────────────────────────────┐
 # │                         WORKFLOW FLOW DIAGRAM                            │
 # └─────────────────────────────────────────────────────────────────────────┘
@@ -90,20 +94,20 @@ jobs:
     name: Create Development Branch with Version Bump
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged == true
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Configure Git
         run: |
           set -x
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-      
+
       - name: Extract current version
         id: version
         run: |
@@ -113,7 +117,7 @@ jobs:
             # Look for version in format [XX.YY.ZZ] or XX.YY.ZZ
             VERSION=$(grep -oP '\[?\d+\.\d+\.\d+\]?' CHANGELOG.md | head -1 | tr -d '[]')
           fi
-          
+
           # Fallback: Try to find VERSION file or header
           if [ -z "$VERSION" ]; then
             if [ -f "VERSION" ]; then
@@ -123,22 +127,22 @@ jobs:
               VERSION=$(grep -r "^VERSION: " . --include="*.md" | head -1 | grep -oP '\d+\.\d+\.\d+' || echo "03.00.00")
             fi
           fi
-          
+
           echo "Current version: $VERSION"
           echo "current=$VERSION" >> $GITHUB_OUTPUT
-      
+
       - name: Calculate next patch version
         id: next_version
         run: |
           set -x
           CURRENT="${{ steps.version.outputs.current }}"
-          
+
           # Parse version components
           IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
-          
+
           # Increment patch version
           NEXT_PATCH=$((PATCH + 1))
-          
+
           # Format with leading zeros if needed
           if [ ${#MAJOR} -eq 2 ]; then
             # Zero-padded format (XX.YY.ZZ)
@@ -147,16 +151,16 @@ jobs:
             # Standard semver format (X.Y.Z)
             NEXT_VERSION="$MAJOR.$MINOR.$NEXT_PATCH"
           fi
-          
+
           echo "Next version: $NEXT_VERSION"
           echo "version=$NEXT_VERSION" >> $GITHUB_OUTPUT
-      
+
       - name: Check if dev branch already exists
         id: check_branch
         run: |
           set -x
           BRANCH_NAME="dev/${{ steps.next_version.outputs.version }}"
-          
+
           if git ls-remote --heads origin "$BRANCH_NAME" | grep -q "$BRANCH_NAME"; then
             echo "exists=true" >> $GITHUB_OUTPUT
             echo "Branch $BRANCH_NAME already exists"
@@ -164,25 +168,25 @@ jobs:
             echo "exists=false" >> $GITHUB_OUTPUT
             echo "Branch $BRANCH_NAME does not exist"
           fi
-          
+
           echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
-      
+
       - name: Create new dev branch
         if: steps.check_branch.outputs.exists == 'false'
         run: |
           set -x
           BRANCH_NAME="${{ steps.check_branch.outputs.branch_name }}"
-          
+
           # Create branch from main
           git checkout main
           git pull origin main
           git checkout -b "$BRANCH_NAME"
-          
+
           # Push new branch
           git push origin "$BRANCH_NAME"
-          
+
           echo "✅ Created and pushed branch: $BRANCH_NAME"
-      
+
       - name: Create tracking issue
         if: steps.check_branch.outputs.exists == 'false'
         uses: actions/github-script@v7
@@ -192,30 +196,30 @@ jobs:
             const branchName = '${{ steps.check_branch.outputs.branch_name }}';
             const prNumber = context.payload.pull_request.number;
             const prTitle = context.payload.pull_request.title;
-            
+
             const issueBody = `## Development Branch Created
-            
+
             A new development branch has been automatically created following the merge of PR #${prNumber}.
-            
+
             ### Details
             - **Branch**: \`${branchName}\`
             - **Version**: ${nextVersion}
             - **Merged PR**: #${prNumber} - ${prTitle}
             - **Created**: ${new Date().toISOString()}
-            
+
             ### Next Steps
             1. Checkout the new branch: \`git fetch origin && git checkout ${branchName}\`
             2. Begin development for version ${nextVersion}
             3. Create PRs targeting this branch for feature development
             4. When ready, merge this branch to main for release
-            
+
             ### Branch Strategy
             This branch follows the semantic versioning patch increment strategy. It represents the next patch release after the current version.
-            
+
             ---
-            
+
             *This issue was automatically created by the auto-create-dev-branch workflow.*`;
-            
+
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -224,7 +228,7 @@ jobs:
               labels: ['automation', 'version-management', 'dev-branch'],
               assignees: ['copilot', 'jmiller-moko']
             });
-      
+
       - name: Comment on merged PR
         if: steps.check_branch.outputs.exists == 'false'
         uses: actions/github-script@v7
@@ -232,48 +236,48 @@ jobs:
           script: |
             const branchName = '${{ steps.check_branch.outputs.branch_name }}';
             const nextVersion = '${{ steps.next_version.outputs.version }}';
-            
+
             const comment = `## ✅ Development Branch Created
-            
+
             A new development branch has been automatically created:
             - **Branch**: \`${branchName}\`
             - **Version**: ${nextVersion}
-            
+
             You can checkout this branch with:
             \`\`\`bash
             git fetch origin
             git checkout ${branchName}
             \`\`\`
-            
+
             This branch is ready for the next development cycle.`;
-            
+
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.payload.pull_request.number,
               body: comment
             });
-      
+
       - name: Branch already exists notification
         if: steps.check_branch.outputs.exists == 'true'
         uses: actions/github-script@v7
         with:
           script: |
             const branchName = '${{ steps.check_branch.outputs.branch_name }}';
-            
+
             const comment = `## ℹ️ Development Branch Already Exists
-            
+
             The development branch \`${branchName}\` already exists.
-            
+
             No new branch was created. Continue development on the existing branch.`;
-            
+
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.payload.pull_request.number,
               body: comment
             });
-      
+
       - name: Workflow summary
         run: |
           set -x
@@ -282,7 +286,7 @@ jobs:
           echo "- **Current Version**: ${{ steps.version.outputs.current }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Next Version**: ${{ steps.next_version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Branch Name**: \`${{ steps.check_branch.outputs.branch_name }}\`" >> $GITHUB_STEP_SUMMARY
-          
+
           if [ "${{ steps.check_branch.outputs.exists }}" == "false" ]; then
             echo "- **Status**: ✅ Branch created successfully" >> $GITHUB_STEP_SUMMARY
           else

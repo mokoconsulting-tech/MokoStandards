@@ -259,7 +259,7 @@ CREATE TABLE IF NOT EXISTS `#__mokoevents` (
   `description` text,
   `event_date` datetime NOT NULL,
   `location` varchar(255),
-  
+
   -- Publishing fields
   `state` tinyint(4) NOT NULL DEFAULT '0',
   `catid` int(11) NOT NULL DEFAULT '0',
@@ -271,20 +271,20 @@ CREATE TABLE IF NOT EXISTS `#__mokoevents` (
   `publish_down` datetime NOT NULL,
   `checked_out` int(11) NOT NULL DEFAULT '0',
   `checked_out_time` datetime NOT NULL,
-  
+
   -- Metadata
   `metadata` text,
   `metakey` text,
   `metadesc` text,
   `language` char(7) NOT NULL DEFAULT '*',
-  
+
   -- Ordering and access
   `ordering` int(11) NOT NULL DEFAULT '0',
   `access` int(11) NOT NULL DEFAULT '1',
   `params` text,
   `featured` tinyint(4) NOT NULL DEFAULT '0',
   `hits` int(11) NOT NULL DEFAULT '0',
-  
+
   PRIMARY KEY (`id`),
   KEY `idx_access` (`access`),
   KEY `idx_checkout` (`checked_out`),
@@ -689,13 +689,13 @@ use Joomla\CMS\Language\Text;
 
 <div class="mokoevents-event">
     <h1><?php echo $this->escape($this->item->title); ?></h1>
-    
+
     <div class="event-meta">
         <span class="event-date">
             <i class="icon-calendar"></i>
             <?php echo HTMLHelper::_('date', $this->item->event_date, Text::_('DATE_FORMAT_LC3')); ?>
         </span>
-        
+
         <?php if ($this->item->location): ?>
             <span class="event-location">
                 <i class="icon-location"></i>
@@ -703,7 +703,7 @@ use Joomla\CMS\Language\Text;
             </span>
         <?php endif; ?>
     </div>
-    
+
     <?php if ($this->item->description): ?>
         <div class="event-description">
             <?php echo $this->item->description; ?>

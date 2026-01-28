@@ -199,7 +199,7 @@ describe('calculateDiscount', () => {
 	it('should apply 10% discount for orders over $100', () => {
 		expect(calculateDiscount(100)).toBe(90);
 	});
-	
+
 	it('should apply 20% discount for orders over $500', () => {
 		expect(calculateDiscount(500)).toBe(400);
 	});
@@ -431,16 +431,16 @@ Use inline comments to guide specific sections:
 def process_order(order_data):
 	# Validate order data structure
 	# (Copilot generates validation)
-	
+
 	# Calculate total with tax
 	# (Copilot generates calculation)
-	
+
 	# Check inventory availability
 	# (Copilot generates inventory check)
-	
+
 	# Process payment
 	# (Copilot generates payment processing)
-	
+
 	# Send confirmation email
 	# (Copilot generates email logic)
 ```
@@ -453,14 +453,14 @@ def process_order(order_data):
 ```python
 # Always specify type hints for better suggestions
 def calculate_discount(price: float, discount_percent: float) -> float:
-	
+
 # Request specific testing framework
 # Write unit tests using pytest for this function
 
 # Specify docstring style
 def process_data(data: list) -> dict:
 	"""Process data and return summary statistics.
-	
+
 	Google-style docstring with:
 	- Clear description
 	- Args and Returns sections
@@ -700,6 +700,6 @@ For questions or suggestions, reach out to the Development Team.
 
 ---
 
-**Guide Owner**: Development Team  
-**Last Updated**: 2026-01-28  
+**Guide Owner**: Development Team
+**Last Updated**: 2026-01-28
 **Next Review**: 2026-04-28

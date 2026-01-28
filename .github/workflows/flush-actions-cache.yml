@@ -54,7 +54,7 @@ jobs:
   flush-cache:
     name: Flush GitHub Actions Cache
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -71,35 +71,35 @@ jobs:
           echo "### 🧹 Flushing GitHub Actions Caches" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Repository:** ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
-          
+
           # Build command with optional filters
           CMD="python3 scripts/maintenance/flush_actions_cache.py --repo ${{ github.repository }}"
-          
+
           if [ -n "${{ inputs.branch }}" ]; then
             CMD="$CMD --branch ${{ inputs.branch }}"
             echo "**Branch filter:** ${{ inputs.branch }}" >> $GITHUB_STEP_SUMMARY
           else
             echo "**Branch filter:** All branches" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           if [ -n "${{ inputs.key-pattern }}" ]; then
             CMD="$CMD --key ${{ inputs.key-pattern }}"
             echo "**Key pattern:** ${{ inputs.key-pattern }}" >> $GITHUB_STEP_SUMMARY
           else
             echo "**Key pattern:** All keys" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           if [ "${{ inputs.dry-run }}" = "true" ]; then
             CMD="$CMD --dry-run"
             echo "**Mode:** 🔍 Dry run (no caches will be deleted)" >> $GITHUB_STEP_SUMMARY
           else
             echo "**Mode:** 🗑️ Delete mode" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "---" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           # Execute the command
           $CMD
 

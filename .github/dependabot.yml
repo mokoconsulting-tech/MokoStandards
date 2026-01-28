@@ -50,7 +50,7 @@ updates:
       github-actions:
         patterns:
           - "*"
-    
+
   # Monitor Python dependencies for security updates
   - package-ecosystem: "pip"
     directory: "/"
@@ -74,7 +74,7 @@ updates:
       python-dependencies:
         patterns:
           - "*"
-  
+
   # Monitor npm dependencies for security updates
   - package-ecosystem: "npm"
     directory: "/"
@@ -98,7 +98,7 @@ updates:
       npm-dependencies:
         patterns:
           - "*"
-  
+
   # Monitor Composer dependencies for security updates
   - package-ecosystem: "composer"
     directory: "/"

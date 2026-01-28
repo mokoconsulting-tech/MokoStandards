@@ -20,9 +20,9 @@ assignees: []
 
 ## Steps to Reproduce
 
-1. 
-2. 
-3. 
+1.
+2.
+3.
 
 ## Expected Behavior
 
@@ -42,14 +42,14 @@ What actually happened:
 - [ ] Linux (distribution: _______)
 
 **Software Versions**:
-- Python version: 
-- PowerShell version: 
-- Bash version: 
-- Git version: 
+- Python version:
+- PowerShell version:
+- Bash version:
+- Git version:
 
 **Repository Context**:
 - Repository type: [ ] Generic [ ] Joomla/WaaS [ ] Dolibarr/CRM
-- MokoStandards version/commit: 
+- MokoStandards version/commit:
 
 ## Error Messages
 

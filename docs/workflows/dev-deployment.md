@@ -197,7 +197,7 @@ Warning: Local path 'src' does not exist. Skipping deployment.
 SFTP deployment failed: [Errno 111] Connection refused
 ```
 
-**Solution:** 
+**Solution:**
 - Check `DEV_FTP_HOST` is correct
 - Verify `DEV_FTP_PORT` (default 22 for SFTP)
 - Ensure firewall allows connections

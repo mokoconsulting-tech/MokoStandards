@@ -58,21 +58,21 @@ jobs:
     outputs:
       project_type: ${{ steps.detect.outputs.project_type }}
       extension_type: ${{ steps.detect.outputs.extension_type }}
-    
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
-      
+
       - name: Detect Project Type
         id: detect
         run: |
           # Detection priority: Joomla > Dolibarr > Generic
-          
+
           # Check for Joomla indicators
           if [ -f "joomla.xml" ] || \
              find . -maxdepth 2 -name "mod_*.xml" -o -name "plg_*.xml" -o -name "com_*.xml" -o -name "pkg_*.xml" -o -name "tpl_*.xml" 2>/dev/null | grep -q .; then
             echo "project_type=joomla" >> $GITHUB_OUTPUT
-            
+
             # Detect Joomla extension type
             if [ -d "administrator/components" ] || [ -d "components" ]; then
               echo "extension_type=component" >> $GITHUB_OUTPUT
@@ -87,11 +87,11 @@ jobs:
             else
               echo "extension_type=component" >> $GITHUB_OUTPUT
             fi
-            
+
             echo "✅ Detected Joomla project" >> $GITHUB_STEP_SUMMARY
             exit 0
           fi
-          
+
           # Check for Dolibarr indicators
           if [ -d "htdocs" ] || [ -d "core/modules" ] || \
              ([ -f "composer.json" ] && grep -q "dolibarr" composer.json 2>/dev/null); then
@@ -100,7 +100,7 @@ jobs:
             echo "✅ Detected Dolibarr module project" >> $GITHUB_STEP_SUMMARY
             exit 0
           fi
-          
+
           # Default to Generic
           echo "project_type=generic" >> $GITHUB_OUTPUT
           echo "extension_type=application" >> $GITHUB_OUTPUT
@@ -110,25 +110,25 @@ jobs:
     name: Build (${{ needs.detect-project-type.outputs.project_type }})
     runs-on: ubuntu-latest
     needs: detect-project-type
-    
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
-      
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
           extensions: mbstring, xml, zip, json
           tools: composer:v2
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
         if: hashFiles('package.json') != ''
-      
+
       # MAKEFILE PRECEDENCE SYSTEM
       # Priority Order (highest to lowest):
       # 1. Repository root Makefile (./Makefile)
@@ -139,7 +139,7 @@ jobs:
       # - Use custom Makefiles (place in repository root)
       # - Adopt MokoStandards Makefiles (add to MokoStandards/ directory)
       # - Use automatic defaults (no Makefile needed)
-      
+
       - name: Check for Makefile (Precedence Level 1)
         id: check_makefile
         run: |
@@ -150,14 +150,14 @@ jobs:
             echo "has_makefile=false" >> $GITHUB_OUTPUT
             echo "ℹ️ No repository Makefile found" >> $GITHUB_STEP_SUMMARY
           fi
-      
+
       - name: Check for MokoStandards Makefile (Precedence Level 2)
         id: check_standards_makefile
         if: steps.check_makefile.outputs.has_makefile != 'true'
         run: |
           PROJECT_TYPE="${{ needs.detect-project-type.outputs.project_type }}"
           STANDARDS_MAKEFILE="MokoStandards/Makefile.${PROJECT_TYPE}"
-          
+
           if [ -f "$STANDARDS_MAKEFILE" ]; then
             echo "has_standards_makefile=true" >> $GITHUB_OUTPUT
             echo "standards_makefile=$STANDARDS_MAKEFILE" >> $GITHUB_OUTPUT
@@ -166,13 +166,13 @@ jobs:
             echo "has_standards_makefile=false" >> $GITHUB_OUTPUT
             echo "ℹ️ No MokoStandards Makefile found at $STANDARDS_MAKEFILE" >> $GITHUB_STEP_SUMMARY
           fi
-      
+
       # BUILD EXECUTION - Uses highest precedence Makefile or defaults
-      
+
       - name: Install Dependencies
         run: |
           echo "### Installing Dependencies" >> $GITHUB_STEP_SUMMARY
-          
+
           if [ "${{ steps.check_makefile.outputs.has_makefile }}" = "true" ]; then
             echo "Using repository Makefile..." >> $GITHUB_STEP_SUMMARY
             make install-deps || echo "⚠️ No install-deps target or target failed" >> $GITHUB_STEP_SUMMARY
@@ -191,11 +191,11 @@ jobs:
               echo "✅ Installed npm dependencies" >> $GITHUB_STEP_SUMMARY
             fi
           fi
-      
+
       - name: Run Build
         run: |
           echo "### Running Build" >> $GITHUB_STEP_SUMMARY
-          
+
           if [ "${{ steps.check_makefile.outputs.has_makefile }}" = "true" ]; then
             echo "Building with repository Makefile..." >> $GITHUB_STEP_SUMMARY
             make build
@@ -208,7 +208,7 @@ jobs:
             # Default build for detected project type
             PROJECT_TYPE="${{ needs.detect-project-type.outputs.project_type }}"
             echo "Using default build for $PROJECT_TYPE..." >> $GITHUB_STEP_SUMMARY
-            
+
             case "$PROJECT_TYPE" in
               joomla)
                 # Default Joomla build - create package
@@ -229,11 +229,11 @@ jobs:
                 ;;
             esac
           fi
-      
+
       - name: Run Tests
         run: |
           echo "### Running Tests" >> $GITHUB_STEP_SUMMARY
-          
+
           if [ "${{ steps.check_makefile.outputs.has_makefile }}" = "true" ]; then
             make test || echo "⚠️ No test target or tests failed" >> $GITHUB_STEP_SUMMARY
           elif [ "${{ steps.check_standards_makefile.outputs.has_standards_makefile }}" = "true" ]; then
@@ -247,7 +247,7 @@ jobs:
               npm test || echo "⚠️ npm tests failed" >> $GITHUB_STEP_SUMMARY
             fi
           fi
-      
+
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         if: success()
@@ -267,24 +267,24 @@ jobs:
           script: |
             const projectType = '${{ needs.detect-project-type.outputs.project_type }}';
             const extensionType = '${{ needs.detect-project-type.outputs.extension_type }}';
-            
+
             const body = `## 🔨 Build Failed on Protected Branch
-            
+
             **Branch**: \`${context.ref}\`
             **Commit**: ${context.sha.substring(0, 7)}
             **Workflow Run**: [${context.runId}](${context.payload.repository.html_url}/actions/runs/${context.runId})
             **Triggered by**: @${context.actor}
             **Date**: ${new Date().toISOString()}
-            
+
             ### Build Configuration
             - **Project Type**: ${projectType || 'Unknown'}
             - **Extension Type**: ${extensionType || 'N/A'}
             - **Branch**: ${context.ref}
             - **Event**: ${context.eventName}
-            
+
             ### ❌ Build Failure
             The build process has failed on a protected branch. This indicates a critical issue that prevents successful compilation or artifact generation.
-            
+
             ### 🔍 Common Causes
             - **Compilation errors**: Syntax errors or type mismatches
             - **Missing dependencies**: Required packages not installed
@@ -292,7 +292,7 @@ jobs:
             - **Environment problems**: Missing tools or incorrect versions
             - **Resource limitations**: Out of memory or disk space
             - **Test failures**: Unit tests or integration tests failing
-            
+
             ### ✅ Resolution Steps
             1. Review the [workflow run logs](${context.payload.repository.html_url}/actions/runs/${context.runId})
             2. Identify the specific build step that failed
@@ -301,22 +301,22 @@ jobs:
             5. Test build locally: \`make build\` or project-specific build command
             6. Fix the issue and push a new commit
             7. Verify build passes before closing this issue
-            
+
             ### 📊 Impact
             - **Main branch**: Critical - blocks releases and deployments
             - **Dev branch**: High - affects development workflow
             - **RC branch**: High - blocks release candidate promotion
-            
+
             ### 📚 Resources
             - [Build Workflow](.github/workflows/build.yml)
             - [Project Documentation](README.md)
             ${projectType === 'joomla' ? '- [Joomla Extension Development](https://docs.joomla.org/)' : ''}
             ${projectType === 'dolibarr' ? '- [Dolibarr Module Development](https://wiki.dolibarr.org/)' : ''}
-            
+
             ---
             *This issue was automatically created by the Universal Build workflow.*
             `;
-            
+
             // Check for existing open issue
             const issues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
@@ -325,7 +325,7 @@ jobs:
               labels: 'build-failure',
               per_page: 1
             });
-            
+
             if (issues.data.length > 0) {
               // Update existing issue
               await github.rest.issues.createComment({

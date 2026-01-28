@@ -159,12 +159,12 @@ Automatically detect project type and execute appropriate build/test strategy.
 jobs:
   detect:
     uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-project-detector.yml@main
-  
+
   build-joomla:
     needs: detect
     if: needs.detect.outputs.project-type == 'joomla'
     uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-joomla-testing.yml@main
-  
+
   build-generic:
     needs: detect
     if: needs.detect.outputs.project-type == 'generic'
@@ -185,12 +185,12 @@ jobs:
   # Step 1: Validate code
   validate:
     uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-ci-validation.yml@main
-  
+
   # Step 2: Build if validation passes
   build:
     needs: validate
     uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-build.yml@main
-  
+
   # Step 3: Deploy if build passes
   deploy:
     needs: build
@@ -237,7 +237,7 @@ jobs:
     uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-deploy.yml@main
     with:
       environment: staging
-  
+
   deploy-production:
     if: startsWith(github.ref, 'refs/tags/v')
     uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-deploy.yml@main
@@ -487,7 +487,7 @@ jobs:
             echo "::error::PHP syntax errors found"
             exit 1
           fi
-  
+
   test:
     needs: validate  # Only run if validation passes
 ```

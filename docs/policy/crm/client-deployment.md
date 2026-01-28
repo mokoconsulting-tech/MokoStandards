@@ -187,7 +187,7 @@ Responsible for:
    cd /var/www/html
    tar -xzf dolibarr-18.0.0.tgz
    chown -R www-data:www-data dolibarr/
-   
+
    # Set permissions
    find dolibarr/ -type d -exec chmod 755 {} \;
    find dolibarr/ -type f -exec chmod 644 {} \;
@@ -418,13 +418,13 @@ Responsible for:
    ```bash
    # Stop web server
    systemctl stop apache2
-   
+
    # Restore database
    mysql -u root -p mokocrm_client < backup_YYYYMMDD.sql
-   
+
    # Restore files
    rsync -av /backups/dolibarr_YYYYMMDD/ /var/www/html/dolibarr/
-   
+
    # Start web server
    systemctl start apache2
    ```

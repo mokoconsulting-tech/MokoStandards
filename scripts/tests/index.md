@@ -7,9 +7,9 @@ Test scripts for validating script functionality, testing automation workflows, 
 ## Scripts in This Directory
 
 ### test_bulk_update_repos.py
-**Purpose:** Test bulk repository update functionality  
-**Type:** Python 3.7+ (Test Script)  
-**Usage:** `python3 test_bulk_update_repos.py [options]`  
+**Purpose:** Test bulk repository update functionality
+**Type:** Python 3.7+ (Test Script)
+**Usage:** `python3 test_bulk_update_repos.py [options]`
 **Documentation:** [📖 Guide](/docs/scripts/tests/test-bulk-update-repos-py.md)
 
 **Key Features:**
@@ -29,9 +29,9 @@ Test scripts for validating script functionality, testing automation workflows, 
 - Error handling scenarios
 
 ### test_dry_run.py
-**Purpose:** Test dry-run mode across all scripts  
-**Type:** Python 3.7+ (Test Script)  
-**Usage:** `python3 test_dry_run.py [options]`  
+**Purpose:** Test dry-run mode across all scripts
+**Type:** Python 3.7+ (Test Script)
+**Usage:** `python3 test_dry_run.py [options]`
 **Documentation:** [📖 Guide](/docs/scripts/tests/test-dry-run-py.md)
 
 **Key Features:**
@@ -101,14 +101,14 @@ class TestScriptName(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures"""
         pass
-    
+
     def test_feature_name(self):
         """Test specific feature"""
         # Arrange
         # Act
         # Assert
         pass
-    
+
     def tearDown(self):
         """Clean up after tests"""
         pass

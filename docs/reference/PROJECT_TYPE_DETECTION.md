@@ -11,7 +11,7 @@ The MokoStandards CI system automatically detects the type of project being vali
 Project types are detected in the following priority order:
 
 1. **Joomla** - Highest priority
-2. **Dolibarr** - Medium priority  
+2. **Dolibarr** - Medium priority
 3. **Generic** - Fallback for all other projects
 
 ## Joomla Project Detection
@@ -90,7 +90,7 @@ For Dolibarr projects, the module type can be detected:
 - PHP syntax validation
 - Dolibarr coding standards
 - Module structure validation
-- License header validation  
+- License header validation
 - Security scanning
 
 ### Example Dolibarr Project Structure
@@ -300,8 +300,8 @@ If you have a project type that isn't detected correctly, please:
 
 ---
 
-**Version:** 1.0.0  
-**Last Updated:** 2026-01-13  
+**Version:** 1.0.0
+**Last Updated:** 2026-01-13
 **License:** GPL-3.0-or-later
 
 ## Metadata

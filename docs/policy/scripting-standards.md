@@ -246,19 +246,19 @@ def sync_file_to_project(
 ) -> bool:
     """
     Sync a file or folder to GitHub Project.
-    
+
     Args:
         file_path: Path to file or folder to sync
         project_number: GitHub Project number (default: 7)
         is_folder: Whether path is a folder (default: False)
-    
+
     Returns:
         True if sync successful, False otherwise
-    
+
     Raises:
         ValueError: If file_path is invalid
         RuntimeError: If GitHub API fails
-    
+
     Example:
         >>> sync_file_to_project("docs/policy/new.md")
         True
@@ -277,7 +277,7 @@ def sync_file_to_project(
 - Be consistent throughout script
 - **Exception**: YAML configuration files must use spaces (YAML specification requirement)
 
-**Line length**: 
+**Line length**:
 - Maximum 120 characters per line
 - Break long lines at logical points
 
@@ -297,11 +297,11 @@ from pathlib import Path
 def load_file(path: str) -> str:
     """Load file contents with error handling."""
     file_path = Path(path)
-    
+
     if not file_path.exists():
         print(f"Error: File not found: {path}", file=sys.stderr)
         sys.exit(1)
-    
+
     try:
         return file_path.read_text(encoding="utf-8")
     except PermissionError:
@@ -351,9 +351,9 @@ def main():
         action='store_true',
         help='Enable verbose output'
     )
-    
+
     args = parser.parse_args()
-    
+
     # Use args.path, args.project, etc.
 ```
 
@@ -418,20 +418,20 @@ from pathlib import Path
 def validate_file_path(path: str) -> Path:
     """Validate and sanitize file path."""
     file_path = Path(path).resolve()
-    
+
     # Check for path traversal
     if ".." in path:
         raise ValueError("Path traversal not allowed")
-    
+
     # Check file exists
     if not file_path.exists():
         raise ValueError(f"File not found: {path}")
-    
+
     # Check file is within allowed directory
     allowed_dir = Path.cwd()
     if not str(file_path).startswith(str(allowed_dir)):
         raise ValueError("Access outside repository not allowed")
-    
+
     return file_path
 ```
 
@@ -529,7 +529,7 @@ from scripts.my_script import calculate_priority
 class TestPriorityCalculation(unittest.TestCase):
     def test_policy_priority(self):
         self.assertEqual(calculate_priority("policy"), "High")
-    
+
     def test_default_priority(self):
         self.assertEqual(calculate_priority("guide"), "Medium")
 
@@ -713,7 +713,7 @@ BRIEF: Brief description of script purpose
 - name: Validate Python scripts
   run: |
     python -m py_compile scripts/*.py
-    
+
 - name: Check script executability
   run: |
     find scripts -name "*.py" -type f ! -executable -print

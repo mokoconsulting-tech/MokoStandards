@@ -1,8 +1,8 @@
 # Incident Response Runbooks
 
-**Status**: DRAFT  
-**Priority**: CRITICAL (Tier 1)  
-**Owner**: TBD  
+**Status**: DRAFT
+**Priority**: CRITICAL (Tier 1)
+**Owner**: TBD
 **Last Updated**: 2026-01-07
 
 ## Purpose

@@ -1,7 +1,7 @@
 # MokoStandards Scripts Architecture
 
-**Version**: 2.0  
-**Last Updated**: 2026-01-19  
+**Version**: 2.0
+**Last Updated**: 2026-01-19
 **Status**: Comprehensive rebuild in progress
 
 ## Overview
@@ -90,7 +90,7 @@ scripts/
 ## Core Library Modules (`lib/`)
 
 ### common.py
-**Purpose**: Foundation module with core utilities  
+**Purpose**: Foundation module with core utilities
 **Exports**:
 - Constants (VERSION, REPO_URL, EXIT codes)
 - File header generation
@@ -99,7 +99,7 @@ scripts/
 - Path utilities
 
 ### validation_framework.py
-**Purpose**: Base classes and interfaces for validation  
+**Purpose**: Base classes and interfaces for validation
 **Exports**:
 - `Validator` base class
 - `ValidationResult` data class
@@ -107,7 +107,7 @@ scripts/
 - Common validation patterns
 
 ### config_manager.py
-**Purpose**: Centralized configuration management  
+**Purpose**: Centralized configuration management
 **Exports**:
 - `ConfigManager` class
 - Configuration schema validation
@@ -115,7 +115,7 @@ scripts/
 - Default configuration
 
 ### github_client.py
-**Purpose**: GitHub API wrapper with authentication  
+**Purpose**: GitHub API wrapper with authentication
 **Exports**:
 - `GitHubClient` class
 - API request handling with retries
@@ -123,7 +123,7 @@ scripts/
 - Common GitHub operations
 
 ### audit_logger.py
-**Purpose**: Structured logging framework  
+**Purpose**: Structured logging framework
 **Exports**:
 - `AuditLogger` class
 - Log level management
@@ -140,19 +140,19 @@ All validation modules follow the pattern:
 5. Provide CLI interface
 
 ### auto_detect_platform.py
-**Critical Module**: Platform detection for all automation  
-**Dependencies**: `lib/common`, `lib/validation_framework`  
+**Critical Module**: Platform detection for all automation
+**Dependencies**: `lib/common`, `lib/validation_framework`
 **Exports**: `detect_platform()`, `PlatformType` enum
 
 ## Automation Modules (`automation/`)
 
 ### bulk_update_repos.py (v2)
-**Status**: ✅ Rebuilt (2026-01-19)  
-**Purpose**: Schema-driven bulk repository synchronization  
+**Status**: ✅ Rebuilt (2026-01-19)
+**Purpose**: Schema-driven bulk repository synchronization
 **Dependencies**: `lib/`, `validate/auto_detect_platform`
 
 ### auto_create_org_projects.py
-**Purpose**: Automated organization project creation  
+**Purpose**: Automated organization project creation
 **Dependencies**: `lib/github_client`, `lib/config_manager`
 
 ## Workflows (`.github/workflows/`)
@@ -276,7 +276,7 @@ Validated against `schemas/unified-repository-schema.json`
 ### Python Dependencies
 Minimal external dependencies:
 - **Required**: None (stdlib only for core modules)
-- **Optional**: 
+- **Optional**:
   - `requests` for GitHub API (fallback to `subprocess` + `gh` CLI)
   - `PyYAML` for YAML parsing (fallback to `json`)
   - `pytest` for testing (dev only)
@@ -351,6 +351,6 @@ All changes documented in `CHANGELOG.md` following Keep a Changelog format.
 
 ---
 
-**Maintained by**: Moko Consulting  
-**Questions**: hello@mokoconsulting.tech  
+**Maintained by**: Moko Consulting
+**Questions**: hello@mokoconsulting.tech
 **Repository**: https://github.com/mokoconsulting-tech/MokoStandards

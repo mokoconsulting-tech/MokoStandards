@@ -38,33 +38,33 @@ NC='\033[0m' # No Color
 
 # Functions
 log_info() {
-	echo -e "${BLUE}ℹ️  $1${NC}"
+    echo -e "${BLUE}ℹ️  $1${NC}"
 }
 
 log_success() {
-	echo -e "${GREEN}✅ $1${NC}"
+    echo -e "${GREEN}✅ $1${NC}"
 }
 
 log_warning() {
-	echo -e "${YELLOW}⚠️  $1${NC}"
+    echo -e "${YELLOW}⚠️  $1${NC}"
 }
 
 log_error() {
-	echo -e "${RED}❌ $1${NC}"
+    echo -e "${RED}❌ $1${NC}"
 }
 
 # Check if gh CLI is installed
 if ! command -v gh &> /dev/null; then
-	log_error "GitHub CLI (gh) is not installed"
-	echo "Install it from: https://cli.github.com/"
-	exit 1
+    log_error "GitHub CLI (gh) is not installed"
+    echo "Install it from: https://cli.github.com/"
+    exit 1
 fi
 
 # Check if authenticated
 if ! gh auth status &> /dev/null; then
-	log_error "Not authenticated with GitHub CLI"
-	echo "Run: gh auth login"
-	exit 1
+    log_error "Not authenticated with GitHub CLI"
+    echo "Run: gh auth login"
+    exit 1
 fi
 
 # Get repository info
@@ -73,15 +73,15 @@ log_info "Setting up labels for repository: $REPO"
 
 # Function to create or update a label
 create_label() {
-	local name=$1
-	local color=$2
-	local description=$3
-	
-	if gh label create "$name" --color "$color" --description "$description" --force 2>/dev/null; then
-		log_success "Created/updated label: $name"
-	else
-		log_warning "Failed to create label: $name"
-	fi
+    local name=$1
+    local color=$2
+    local description=$3
+    
+    if gh label create "$name" --color "$color" --description "$description" --force 2>/dev/null; then
+        log_success "Created/updated label: $name"
+    else
+        log_warning "Failed to create label: $name"
+    fi
 }
 
 echo ""

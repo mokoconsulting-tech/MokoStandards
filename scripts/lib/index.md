@@ -7,9 +7,9 @@ Shared library scripts providing common utilities, functions, and platform-aware
 ## Library Scripts in This Directory
 
 ### common.py
-**Purpose:** Common Python utilities for MokoStandards scripts  
-**Type:** Python Library (3.7+)  
-**Import:** `from scripts.lib import common`  
+**Purpose:** Common Python utilities for MokoStandards scripts
+**Type:** Python Library (3.7+)
+**Import:** `from scripts.lib import common`
 **Documentation:** [📖 Guide](/docs/scripts/lib/common-py.md)
 
 **Exported Functions:**
@@ -28,9 +28,9 @@ Shared library scripts providing common utilities, functions, and platform-aware
 - `EXIT_PERMISSION = 4`
 
 ### common.sh
-**Purpose:** Common Bash utilities for shell scripts  
-**Type:** Shell Library (Bash 4.0+)  
-**Source:** `source scripts/lib/common.sh`  
+**Purpose:** Common Bash utilities for shell scripts
+**Type:** Shell Library (Bash 4.0+)
+**Source:** `source scripts/lib/common.sh`
 **Documentation:** [📖 Guide](/docs/scripts/lib/common-sh.md)
 
 **Exported Functions:**
@@ -45,9 +45,9 @@ Shared library scripts providing common utilities, functions, and platform-aware
 - **Script Init:** `init_script()`, `print_header()`, `print_footer()`
 
 ### extension_utils.py
-**Purpose:** Platform-aware extension utilities for Joomla and Dolibarr  
-**Type:** Python Library (3.7+)  
-**Import:** `from scripts.lib import extension_utils`  
+**Purpose:** Platform-aware extension utilities for Joomla and Dolibarr
+**Type:** Python Library (3.7+)
+**Import:** `from scripts.lib import extension_utils`
 **Documentation:** [📖 Guide](/docs/scripts/lib/extension-utils-py.md)
 
 **Key Classes:**
@@ -64,9 +64,9 @@ Shared library scripts providing common utilities, functions, and platform-aware
 - `is_dolibarr_extension(src_dir)` - Quick Dolibarr check
 
 ### joomla_manifest.py
-**Purpose:** Joomla manifest parsing and validation utilities  
-**Type:** Python Library (3.7+)  
-**Import:** `from scripts.lib import joomla_manifest`  
+**Purpose:** Joomla manifest parsing and validation utilities
+**Type:** Python Library (3.7+)
+**Import:** `from scripts.lib import joomla_manifest`
 **Documentation:** [📖 Guide](/docs/scripts/lib/joomla-manifest-py.md)
 
 **Key Classes:**

@@ -1,7 +1,7 @@
 # PowerShell Scripts - MokoStandards
 
-**Version**: 1.0  
-**Created**: 2026-01-19  
+**Version**: 1.0
+**Created**: 2026-01-19
 **Status**: Building PowerShell equivalents of all Python scripts
 
 ## Overview
@@ -167,6 +167,6 @@ Invoke-Pester -Path ./scripts/powershell/tests/
 
 ---
 
-**Maintained by**: Moko Consulting  
-**Questions**: hello@mokoconsulting.tech  
+**Maintained by**: Moko Consulting
+**Questions**: hello@mokoconsulting.tech
 **Repository**: https://github.com/mokoconsulting-tech/MokoStandards

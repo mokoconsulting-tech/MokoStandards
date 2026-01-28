@@ -7,9 +7,9 @@ Analysis and reporting scripts for repository metrics, PR conflicts, and configu
 ## Scripts in This Directory
 
 ### analyze_pr_conflicts.py
-**Purpose:** Analyze and report on pull request merge conflicts across repositories  
-**Type:** Python 3.7+  
-**Usage:** `python3 analyze_pr_conflicts.py [options]`  
+**Purpose:** Analyze and report on pull request merge conflicts across repositories
+**Type:** Python 3.7+
+**Usage:** `python3 analyze_pr_conflicts.py [options]`
 **Documentation:** [📖 Guide](/docs/scripts/analysis/analyze-pr-conflicts-py.md)
 
 **Key Features:**
@@ -19,9 +19,9 @@ Analysis and reporting scripts for repository metrics, PR conflicts, and configu
 - Supports multiple repositories
 
 ### generate_canonical_config.py
-**Purpose:** Generate canonical configuration files from templates  
-**Type:** Python 3.7+  
-**Usage:** `python3 generate_canonical_config.py [options]`  
+**Purpose:** Generate canonical configuration files from templates
+**Type:** Python 3.7+
+**Usage:** `python3 generate_canonical_config.py [options]`
 **Documentation:** [📖 Guide](/docs/scripts/analysis/generate-canonical-config-py.md)
 
 **Key Features:**

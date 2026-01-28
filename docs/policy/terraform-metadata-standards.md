@@ -35,7 +35,7 @@ BRIEF: Standardization policy for metadata fields in Terraform configurations
 
 The comprehensive [Metadata Standards Policy](metadata-standards.md) now covers:
 - Markdown document metadata
-- Terraform configuration metadata  
+- Terraform configuration metadata
 - YAML and JSON configuration metadata
 - All other documentation and configuration types
 
@@ -123,7 +123,7 @@ locals {
     maintainer     = "MokoStandards Team"
     schema_version = "2.0"
     repository_url = "https://github.com/mokoconsulting-tech/MokoStandards"
-    
+
     # Optional context-specific fields
     repository_type = "standards"
     platform        = "multi-platform"
@@ -212,7 +212,7 @@ locals {
 - **Allowed values**:
   - "multi-platform" - Works across multiple platforms
   - "linux" - Linux-specific
-  - "windows" - Windows-specific  
+  - "windows" - Windows-specific
   - "darwin" - macOS-specific
   - "web" - Web platform
   - "cloud" - Cloud platform (AWS, Azure, GCP)

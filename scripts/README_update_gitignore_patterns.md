@@ -1,7 +1,7 @@
 # Update .gitignore Patterns Script
 
-**Script**: `update_gitignore_patterns.sh`  
-**Version**: 01.00.00  
+**Script**: `update_gitignore_patterns.sh`
+**Version**: 01.00.00
 **Purpose**: Standardize .gitignore patterns across all repositories
 
 ## Overview

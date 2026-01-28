@@ -33,6 +33,10 @@ env:
   ACTIONS_STEP_DEBUG: true
   ACTIONS_RUNNER_DEBUG: true
 
+# MokoStandards Policy Compliance:
+# - File formatting: Enforces organizational coding standards
+# - Reference: docs/policy/file-formatting.md
+
 # ┌─────────────────────────────────────────────────────────────────────────┐
 # │                         WORKFLOW FLOW DIAGRAM                            │
 # └─────────────────────────────────────────────────────────────────────────┘
@@ -169,25 +173,25 @@ jobs:
         run: |
           set -x
           MISSING_FILES=()
-          
+
           # Check for platform detection script
           if [ ! -f "scripts/validate/auto_detect_platform.py" ]; then
             MISSING_FILES+=("scripts/validate/auto_detect_platform.py")
           fi
-          
+
           # Check for schema definition files required by bulk_update_repos.py
           if [ ! -f "scripts/definitions/crm-module.xml" ]; then
             MISSING_FILES+=("scripts/definitions/crm-module.xml")
           fi
-          
+
           if [ ! -f "scripts/definitions/default-repository.xml" ]; then
             MISSING_FILES+=("scripts/definitions/default-repository.xml")
           fi
-          
+
           if [ ! -f "scripts/definitions/waas-component.xml" ]; then
             MISSING_FILES+=("scripts/definitions/waas-component.xml")
           fi
-          
+
           # Report errors if any files are missing
           if [ ${#MISSING_FILES[@]} -ne 0 ]; then
             echo "## ❌ Error: Required Files Not Found" >> $GITHUB_STEP_SUMMARY
@@ -201,7 +205,7 @@ jobs:
             echo "Please ensure all required files exist in the repository." >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
-          
+
           echo "## ✅ Required Files Available" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "All required files for repository sync validated and ready:" >> $GITHUB_STEP_SUMMARY
@@ -324,38 +328,38 @@ jobs:
             } catch (err) {
               logContent = '_Log file not available_';
             }
-            
+
             const body = `## 🚨 Bulk Repository Sync Failed
-            
+
             **Event**: ${context.eventName}
             **Workflow Run**: [${context.runId}](${context.payload.repository.html_url}/actions/runs/${context.runId})
             **Triggered by**: @${context.actor}
             **Date**: ${new Date().toISOString()}
-            
+
             ### Sync Configuration
             ${context.eventName === 'schedule' ? '- **Mode**: Scheduled monthly sync' : '- **Mode**: Manual workflow dispatch'}
             ${context.eventName === 'workflow_dispatch' ? `- **Repos**: ${{ inputs.repos || 'all' }}
             - **Exclude**: ${{ inputs.exclude || 'default exclusions' }}
             - **Dry run**: ${{ inputs.dry_run }}` : ''}
-            
+
             ### ❌ Error Details
             The bulk repository synchronization process has failed. This affects organization-wide deployment of MokoStandards updates.
-            
+
             <details>
             <summary>📋 View Sync Log (last 50KB)</summary>
-            
+
             \`\`\`
             ${logContent}
             \`\`\`
             </details>
-            
+
             ### 🔍 Common Causes
             - **Token permissions**: ORG_ADMIN_TOKEN may lack required permissions
             - **Repository access**: Unable to access one or more org repositories
             - **API rate limits**: GitHub API rate limit exceeded
             - **Network issues**: Temporary connectivity problems
             - **Script errors**: Python script encountered an unexpected error
-            
+
             ### ✅ Resolution Steps
             1. Review the workflow run logs for detailed error messages
             2. Check ORG_ADMIN_TOKEN permissions (requires: repo, workflow, admin:org read)
@@ -363,16 +367,16 @@ jobs:
             4. Check GitHub API rate limit status
             5. Re-run the workflow manually if it was a transient issue
             6. Update the bulk_update_repos.py script if there's a bug
-            
+
             ### 📚 Resources
             - [Bulk Sync Script](scripts/automation/bulk_update_repos.py)
             - [Workflow Configuration](.github/workflows/bulk-repo-sync.yml)
             - [MokoStandards Documentation](https://github.com/mokoconsulting-tech/MokoStandards)
-            
+
             ---
             *This issue was automatically created by the Bulk Repository Sync workflow.*
             `;
-            
+
             // Check for existing open issue
             const issues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
@@ -381,7 +385,7 @@ jobs:
               labels: 'bulk-sync-failure',
               per_page: 1
             });
-            
+
             if (issues.data.length > 0) {
               // Update existing issue
               await github.rest.issues.createComment({

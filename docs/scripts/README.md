@@ -184,7 +184,7 @@ Many automation scripts require GitHub authentication:
 - **GitHub CLI (`gh`)**: Most scripts use `gh` CLI for authentication
   - Install: `gh auth login`
   - Scopes needed: `repo`, `project`, `read:org`
-  
+
 - **Personal Access Token (PAT)**: Some scripts require `GH_PAT` environment variable
   - Create at: https://github.com/settings/tokens
   - Required scopes: `repo`, `project`, `read:org`

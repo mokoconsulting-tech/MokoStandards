@@ -1,7 +1,7 @@
 # Terraform Schema Definitions
 
-**Version**: 2.0  
-**Status**: Active  
+**Version**: 2.0
+**Status**: Active
 **Last Updated**: 2026-01-27
 
 ## Overview
@@ -240,7 +240,7 @@ wsl = {
   enabled              = true
   default_distro       = "Ubuntu"
   require_confirmation = true
-  
+
   provisioning = {
     auto_install            = false  # User confirmation required
     auto_reset              = false  # User confirmation required
@@ -416,10 +416,10 @@ terraform apply tfplan
    ```bash
    # View what would change
    terraform plan
-   
+
    # Apply changes
    terraform apply
-   
+
    # Test Python integration
    python3 scripts/lib/terraform_schema_reader.py
    ```
@@ -604,8 +604,8 @@ For questions or issues:
 
 ---
 
-**Document Version**: 1.0  
-**Last Updated**: 2026-01-27  
+**Document Version**: 1.0
+**Last Updated**: 2026-01-27
 **Maintainer**: MokoStandards Team
 
 ## Metadata

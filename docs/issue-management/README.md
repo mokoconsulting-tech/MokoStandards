@@ -38,5 +38,5 @@ Dev Branch Created → Issue Created → PR Opened → PR Linked → PR Merged �
 
 ## License
 
-Copyright (C) 2026 Moko Consulting  
+Copyright (C) 2026 Moko Consulting
 SPDX-License-Identifier: GPL-3.0-or-later

@@ -122,23 +122,23 @@ jobs:
     permissions:
       contents: read
       checks: write
-      
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           repository: ${{ inputs.repository }}
-          
+
       - name: Apply mandatory security scanning
         uses: mokoconsulting-tech/.github-private/.github/actions/security-scan@main
         with:
           scan-level: mandatory
-          
+
       - name: Validate branch protection
         run: |
           # Internal script that checks branch protection rules
           python3 .github-private/scripts/validate-branch-protection.py
-          
+
       - name: Notify compliance team
         if: failure()
         uses: mokoconsulting-tech/.github-private/.github/actions/notify-compliance@main
@@ -227,21 +227,21 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Run file header validation
         run: python3 scripts/validate_file_headers.py
-        
+
       - name: Check documentation completeness
         run: python3 scripts/check_documentation.py
-        
+
       - name: Lint workflow files
         if: inputs.profile == 'full'
         run: python3 scripts/lint_workflows.py
-        
+
       - name: Run security baseline scan
         run: |
           # Generic security checks (no secrets)
@@ -287,7 +287,7 @@ jobs:
     uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-ci-validation.yml@main
     with:
       profile: full
-      
+
   # Use private enforcement from .github-private
   security-enforcement:
     needs: quality-check

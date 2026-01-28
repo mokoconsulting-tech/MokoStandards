@@ -395,19 +395,19 @@ python3 scripts/project_manager.py list-templates
 
 # Output:
 # Available Project Templates:
-# 
+#
 # 1. joomla - Joomla Extension Project
 #    Description: Standard project for Joomla extension development
 #    Config: templates/projects/joomla-project-config.json
-# 
+#
 # 2. dolibarr - Dolibarr Module Project
 #    Description: Standard project for Dolibarr module development
 #    Config: templates/projects/dolibarr-project-config.json
-# 
+#
 # 3. generic - Generic Development Project
 #    Description: General-purpose project for any technology stack
 #    Config: templates/projects/generic-project-config.json
-# 
+#
 # 4. documentation - Documentation Governance Project
 #    Description: Control register for documentation artifacts
 #    Config: templates/projects/documentation-project-config.json

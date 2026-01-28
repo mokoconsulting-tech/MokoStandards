@@ -39,7 +39,8 @@ def main():
     print("MokoStandards - Dry Run Test")
     print("="*70)
     
-    repo_path = Path("/home/runner/work/MokoStandards/MokoStandards")
+    # Use relative path from script location to avoid hardcoded paths
+    repo_path = Path(__file__).parent.parent.parent
     
     # Check documents
     print("\n📋 Checking Canonical Documents...")

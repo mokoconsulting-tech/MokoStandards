@@ -58,6 +58,7 @@ jobs:
 
     permissions:
       contents: read
+      issues: write
 
     steps:
       - name: Checkout repository
@@ -249,6 +250,102 @@ jobs:
             echo "- Network or API rate limit issues" >> $GITHUB_STEP_SUMMARY
             exit $EXIT_CODE
           fi
+
+      - name: Create tracking issue on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let logContent = '';
+            try {
+              logContent = fs.readFileSync('/tmp/bulk_update.log', 'utf8');
+              // Limit log size to prevent API issues
+              if (logContent.length > 50000) {
+                logContent = logContent.substring(0, 50000) + '\n\n... (log truncated)';
+              }
+            } catch (err) {
+              logContent = '_Log file not available_';
+            }
+            
+            const body = `## 🚨 Bulk Repository Sync Failed
+            
+            **Event**: ${context.eventName}
+            **Workflow Run**: [${context.runId}](${context.payload.repository.html_url}/actions/runs/${context.runId})
+            **Triggered by**: @${context.actor}
+            **Date**: ${new Date().toISOString()}
+            
+            ### Sync Configuration
+            ${context.eventName === 'schedule' ? '- **Mode**: Scheduled monthly sync' : '- **Mode**: Manual workflow dispatch'}
+            ${context.eventName === 'workflow_dispatch' ? `- **Repos**: ${{ inputs.repos || 'all' }}
+            - **Exclude**: ${{ inputs.exclude || 'default exclusions' }}
+            - **Dry run**: ${{ inputs.dry_run }}` : ''}
+            
+            ### ❌ Error Details
+            The bulk repository synchronization process has failed. This affects organization-wide deployment of MokoStandards updates.
+            
+            <details>
+            <summary>📋 View Sync Log (last 50KB)</summary>
+            
+            \`\`\`
+            ${logContent}
+            \`\`\`
+            </details>
+            
+            ### 🔍 Common Causes
+            - **Token permissions**: ORG_ADMIN_TOKEN may lack required permissions
+            - **Repository access**: Unable to access one or more org repositories
+            - **API rate limits**: GitHub API rate limit exceeded
+            - **Network issues**: Temporary connectivity problems
+            - **Script errors**: Python script encountered an unexpected error
+            
+            ### ✅ Resolution Steps
+            1. Review the workflow run logs for detailed error messages
+            2. Check ORG_ADMIN_TOKEN permissions (requires: repo, workflow, admin:org read)
+            3. Verify repository accessibility
+            4. Check GitHub API rate limit status
+            5. Re-run the workflow manually if it was a transient issue
+            6. Update the bulk_update_repos.py script if there's a bug
+            
+            ### 📚 Resources
+            - [Bulk Sync Script](scripts/automation/bulk_update_repos.py)
+            - [Workflow Configuration](.github/workflows/bulk-repo-sync.yml)
+            - [MokoStandards Documentation](https://github.com/mokoconsulting-tech/MokoStandards)
+            
+            ---
+            *This issue was automatically created by the Bulk Repository Sync workflow.*
+            `;
+            
+            // Check for existing open issue
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'bulk-sync-failure',
+              per_page: 1
+            });
+            
+            if (issues.data.length > 0) {
+              // Update existing issue
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issues.data[0].number,
+                body: `### 🔄 Sync Failed Again\n\n${body}`
+              });
+              console.log(`Updated existing issue #${issues.data[0].number}`);
+            } else {
+              // Create new issue
+              const issue = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `[Infrastructure] Bulk Repository Sync Failed - ${new Date().toISOString().split('T')[0]}`,
+                body: body,
+                labels: ['infrastructure', 'bulk-sync-failure', 'automation'],
+                assignees: ['copilot', 'jmiller-moko']
+              });
+              console.log(`Created new issue #${issue.data.number}`);
+            }
 
       - name: Report results
         if: always()

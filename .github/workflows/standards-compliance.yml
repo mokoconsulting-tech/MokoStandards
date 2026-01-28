@@ -552,7 +552,7 @@ jobs:
           echo "### Workflow YAML Syntax" >> $GITHUB_STEP_SUMMARY
           
           INVALID=0
-          for workflow in .github/workflows/*.yml .github/workflows/*.yaml 2>/dev/null; do
+          for workflow in $(find .github/workflows -maxdepth 1 -type f \( -name "*.yml" -o -name "*.yaml" \) 2>/dev/null); do
             if [ -f "$workflow" ]; then
               if python3 -c "import yaml; yaml.safe_load(open('$workflow'))" 2>/dev/null; then
                 echo "✅ $(basename $workflow)" >> $GITHUB_STEP_SUMMARY

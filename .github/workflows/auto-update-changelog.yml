@@ -199,6 +199,8 @@ jobs:
       
       - name: Commit CHANGELOG update
         id: commit
+        env:
+          PR_TITLE: ${{ steps.pr-info.outputs.pr_title }}
         run: |
           git add CHANGELOG.md
           
@@ -211,7 +213,7 @@ jobs:
           Automated changelog update based on merged PR.
 
           PR: #${{ steps.pr-info.outputs.pr_number }}
-          Title: ${{ steps.pr-info.outputs.pr_title }}
+          Title: $PR_TITLE
           Type: ${{ steps.pr-info.outputs.change_type }}
           Author: @${{ steps.pr-info.outputs.pr_user }}
 

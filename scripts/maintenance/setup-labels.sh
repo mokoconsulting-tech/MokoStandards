@@ -76,7 +76,7 @@ create_label() {
     local name=$1
     local color=$2
     local description=$3
-    
+
     if gh label create "$name" --color "$color" --description "$description" --force 2>/dev/null; then
         log_success "Created/updated label: $name"
     else

@@ -85,32 +85,32 @@ check_git_repo() {
 cmd_status() {
     print_info "Repository Status"
     echo "===================="
-    
+
     # Current branch
     branch=$(git rev-parse --abbrev-ref HEAD)
     print_info "Current branch: $branch"
-    
+
     # Remote tracking
     remote=$(git config branch.$branch.remote 2>/dev/null || echo "none")
     print_info "Remote: $remote"
-    
+
     # Commit status
     echo ""
     print_info "Recent commits:"
     git log --oneline -5
-    
+
     # Status
     echo ""
     print_info "Working tree status:"
     git status --short
-    
+
     # Statistics
     echo ""
     modified=$(git status --short | grep -c "^ M" || echo 0)
     added=$(git status --short | grep -c "^A" || echo 0)
     deleted=$(git status --short | grep -c "^D" || echo 0)
     untracked=$(git status --short | grep -c "^??" || echo 0)
-    
+
     print_info "Summary: $modified modified, $added added, $deleted deleted, $untracked untracked"
 }
 
@@ -118,7 +118,7 @@ cmd_status() {
 cmd_clean() {
     print_warning "This will show what would be removed"
     git clean -nfd
-    
+
     echo ""
     read -p "Do you want to remove these files? (y/N) " -n 1 -r
     echo
@@ -134,10 +134,10 @@ cmd_clean() {
 cmd_sync() {
     print_info "Fetching from remote..."
     git fetch --all --prune
-    
+
     branch=$(git rev-parse --abbrev-ref HEAD)
     print_info "Pulling $branch..."
-    
+
     if git pull --rebase; then
         print_success "Successfully synced with remote"
     else
@@ -150,7 +150,7 @@ cmd_sync() {
 cmd_branch() {
     print_info "Branches (sorted by last commit date)"
     echo "=========================================="
-    
+
     git for-each-ref --sort=-committerdate refs/heads/ \
         --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(color:green)%(committerdate:relative)%(color:reset) - %(contents:subject) - %(authorname)'
 }
@@ -162,7 +162,7 @@ cmd_stash() {
         echo "Usage: $0 stash <description>"
         exit 1
     fi
-    
+
     git stash push -m "$1"
     print_success "Stashed changes: $1"
 }
@@ -171,10 +171,10 @@ cmd_stash() {
 cmd_unstash() {
     print_info "Available stashes:"
     git stash list
-    
+
     echo ""
     read -p "Enter stash number to apply (or press Enter to cancel): " stash_num
-    
+
     if [ -n "$stash_num" ]; then
         git stash apply "stash@{$stash_num}"
         print_success "Applied stash@{$stash_num}"
@@ -188,7 +188,7 @@ cmd_history() {
     count=${1:-10}
     print_info "Last $count commits:"
     echo "===================="
-    
+
     git log --oneline --graph --decorate -$count
 }
 
@@ -199,20 +199,20 @@ cmd_search() {
         echo "Usage: $0 search <term>"
         exit 1
     fi
-    
+
     print_info "Searching for: $1"
     echo "===================="
-    
+
     git log --all --grep="$1" --oneline
 }
 
 # Undo last commit
 cmd_undo_commit() {
     print_warning "This will undo the last commit but keep your changes"
-    
+
     read -p "Continue? (y/N) " -n 1 -r
     echo
-    
+
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         git reset --soft HEAD~1
         print_success "Last commit undone (changes preserved)"
@@ -225,12 +225,12 @@ cmd_undo_commit() {
 cmd_diff_stats() {
     print_info "Diff statistics:"
     echo "===================="
-    
+
     git diff --stat
-    
+
     if [ -z "$(git diff --stat)" ]; then
         print_info "No changes in working directory"
-        
+
         echo ""
         print_info "Staged changes:"
         git diff --cached --stat
@@ -240,13 +240,13 @@ cmd_diff_stats() {
 # Show merge conflicts
 cmd_conflicts() {
     conflicts=$(git diff --name-only --diff-filter=U)
-    
+
     if [ -z "$conflicts" ]; then
         print_success "No merge conflicts"
     else
         print_warning "Files with conflicts:"
         echo "$conflicts"
-        
+
         echo ""
         print_info "To resolve:"
         echo "  1. Edit the conflicted files"

@@ -172,7 +172,7 @@ class SchemaAwareHealthChecker:
             List of health check results
         """
         results = []
-        
+
         if schema_root is None:
             # Fallback to basic required files
             required_files = [
@@ -187,7 +187,7 @@ class SchemaAwareHealthChecker:
 
         for file_name, description in required_files:
             file_path = self.repo_path / file_name
-            
+
             if file_path.exists():
                 results.append(HealthCheckResult(
                     check_id=f"file_{file_name.replace('.', '_').replace('/', '_')}",
@@ -224,7 +224,7 @@ class SchemaAwareHealthChecker:
             List of health check results
         """
         results = []
-        
+
         if schema_root is None:
             # Fallback to basic required directories
             required_dirs = [
@@ -237,7 +237,7 @@ class SchemaAwareHealthChecker:
 
         for dir_name, description in required_dirs:
             dir_path = self.repo_path / dir_name
-            
+
             if dir_path.exists() and dir_path.is_dir():
                 results.append(HealthCheckResult(
                     check_id=f"dir_{dir_name.replace('/', '_')}",
@@ -266,7 +266,7 @@ class SchemaAwareHealthChecker:
     def check_installation_doc(self) -> HealthCheckResult:
         """Check for INSTALLATION.md in docs."""
         install_path = self.repo_path / "docs" / "INSTALLATION.md"
-        
+
         if install_path.exists():
             # Check file size (should be substantial)
             size = install_path.stat().st_size
@@ -307,7 +307,7 @@ class SchemaAwareHealthChecker:
     def check_core_structure_compliance(self) -> List[HealthCheckResult]:
         """Check compliance with CORE_STRUCTURE.md requirements."""
         results = []
-        
+
         # Check docs structure
         docs_dir = self.repo_path / "docs"
         if docs_dir.exists():
@@ -316,7 +316,7 @@ class SchemaAwareHealthChecker:
                 ("INSTALLATION.md", "Installation guide", 15),
                 ("README.md", "Documentation overview", 5),
             ]
-            
+
             for file_name, desc, points in required_docs_files:
                 file_path = docs_dir / file_name
                 if file_path.exists():
@@ -339,7 +339,7 @@ class SchemaAwareHealthChecker:
                         points=0,
                         max_points=points
                     ))
-        
+
         # Check scripts structure (if scripts exist)
         scripts_dir = self.repo_path / "scripts"
         if scripts_dir.exists():
@@ -347,7 +347,7 @@ class SchemaAwareHealthChecker:
                 ("README.md", "Scripts overview", 5),
                 ("index.md", "Scripts catalog", 5),
             ]
-            
+
             for file_name, desc, points in required_scripts_files:
                 file_path = scripts_dir / file_name
                 if file_path.exists():
@@ -377,7 +377,7 @@ class SchemaAwareHealthChecker:
         """Extract required files from XML schema."""
         required_files = []
         ns = {'ns': 'http://mokoconsulting.com/schemas/repository-structure'}
-        
+
         # Extract from root-files
         for file_elem in schema_root.findall('.//ns:root-files/ns:file', ns):
             req_status = file_elem.find('ns:requirement-status', ns)
@@ -388,14 +388,14 @@ class SchemaAwareHealthChecker:
                     name = name_elem.text
                     desc = desc_elem.text if desc_elem is not None else ""
                     required_files.append((name, desc))
-        
+
         return required_files
 
     def _extract_required_directories_from_schema(self, schema_root: ET.Element) -> List[Tuple[str, str]]:
         """Extract required directories from XML schema."""
         required_dirs = []
         ns = {'ns': 'http://mokoconsulting.com/schemas/repository-structure'}
-        
+
         # Extract from directories
         for dir_elem in schema_root.findall('.//ns:directories/ns:directory', ns):
             req_status = dir_elem.find('ns:requirement-status', ns)
@@ -406,7 +406,7 @@ class SchemaAwareHealthChecker:
                     name = name_elem.text
                     desc = desc_elem.text if desc_elem is not None else ""
                     required_dirs.append((name, desc))
-        
+
         return required_dirs
 
     def run_all_checks(self) -> HealthReport:
@@ -417,21 +417,21 @@ class SchemaAwareHealthChecker:
             Complete health report
         """
         self.log("Starting schema-aware health checks...", "INFO")
-        
+
         # Load structure schema
         schema_root = self.load_structure_schema()
-        
+
         # Run checks
         all_results = []
-        
+
         # Schema-based checks
         all_results.extend(self.check_required_files(schema_root))
         all_results.extend(self.check_required_directories(schema_root))
-        
+
         # Core structure checks
         all_results.append(self.check_installation_doc())
         all_results.extend(self.check_core_structure_compliance())
-        
+
         # Calculate scores by category
         categories = {}
         for result in all_results:
@@ -442,17 +442,17 @@ class SchemaAwareHealthChecker:
                     points=0,
                     max_points=0
                 )
-            
+
             cat = categories[result.category]
             cat.points += result.points
             cat.max_points += result.max_points
             cat.checks.append(result)
-        
+
         # Calculate totals
         total_points = sum(cat.points for cat in categories.values())
         max_points = sum(cat.max_points for cat in categories.values())
         percentage = (total_points / max_points * 100) if max_points > 0 else 0
-        
+
         # Determine health level
         if percentage >= 90:
             health_level = "excellent"
@@ -462,7 +462,7 @@ class SchemaAwareHealthChecker:
             health_level = "fair"
         else:
             health_level = "poor"
-        
+
         # Generate summary
         summary = {
             "passed": sum(1 for r in all_results if r.status == "pass"),
@@ -470,7 +470,7 @@ class SchemaAwareHealthChecker:
             "warnings": sum(1 for r in all_results if r.status == "warning"),
             "total_checks": len(all_results),
         }
-        
+
         import datetime
         return HealthReport(
             total_points=total_points,
@@ -523,7 +523,7 @@ class SchemaAwareHealthChecker:
                 ],
                 "timestamp": report.timestamp
             }, indent=2)
-        
+
         # Text format
         lines = []
         lines.append("=" * 70)
@@ -540,19 +540,19 @@ class SchemaAwareHealthChecker:
         lines.append(f"  Total Checks: {report.summary['total_checks']}")
         lines.append("")
         lines.append("-" * 70)
-        
+
         for category in report.categories:
             lines.append(f"\n{category.category_name} ({category.points}/{category.max_points} - {category.percentage:.1f}%)")
             lines.append("-" * 70)
             for check in category.checks:
                 status_icon = {"pass": "✓", "fail": "✗", "warning": "⚠", "info": "ℹ"}.get(check.status, "•")
                 lines.append(f"  {status_icon} {check.message}")
-        
+
         lines.append("")
         lines.append("=" * 70)
         lines.append(f"Timestamp: {report.timestamp}")
         lines.append("=" * 70)
-        
+
         return "\n".join(lines)
 
 
@@ -562,61 +562,61 @@ def main() -> int:
         description="Schema-aware repository health checker",
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    
+
     parser.add_argument(
         "--repo",
         default=".",
         help="Repository path (default: current directory)"
     )
-    
+
     parser.add_argument(
         "--schema",
         help="Path to structure schema XML file"
     )
-    
+
     parser.add_argument(
         "--format",
         choices=["text", "json"],
         default="text",
         help="Output format (default: text)"
     )
-    
+
     parser.add_argument(
         "--output",
         help="Output file (default: stdout)"
     )
-    
+
     parser.add_argument(
         "-v", "--verbose",
         action="store_true",
         help="Enable verbose output"
     )
-    
+
     args = parser.parse_args()
-    
+
     try:
         checker = SchemaAwareHealthChecker(
             repo_path=args.repo,
             schema_path=args.schema,
             verbose=args.verbose
         )
-        
+
         report = checker.run_all_checks()
         output = checker.format_report(report, format=args.format)
-        
+
         if args.output:
             with open(args.output, 'w') as f:
                 f.write(output)
             print(f"✓ Report written to {args.output}")
         else:
             print(output)
-        
+
         # Exit with error if health is poor
         if report.health_level == "poor":
             return 1
-        
+
         return 0
-        
+
     except Exception as e:
         print(f"✗ Error: {e}", file=sys.stderr)
         if args.verbose:

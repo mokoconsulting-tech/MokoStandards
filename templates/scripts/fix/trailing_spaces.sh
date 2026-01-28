@@ -90,7 +90,7 @@ done
 get_files_by_type() {
     local type="$1"
     local patterns=()
-    
+
     case "$type" in
         yaml)
             patterns=("*.yml" "*.yaml")
@@ -112,7 +112,7 @@ get_files_by_type() {
             exit 1
             ;;
     esac
-    
+
     git ls-files "${patterns[@]}" 2>/dev/null || true
 }
 
@@ -128,23 +128,23 @@ get_files_by_extensions() {
 # Function to fix trailing spaces in a file
 fix_trailing_spaces() {
     local file="$1"
-    
+
     if [[ ! -f "$file" ]]; then
         [[ $VERBOSE -eq 1 ]] && echo "File not found: $file"
         return 1
     fi
-    
+
     # Check if file has trailing whitespace
     if ! grep -q '[[:space:]]$' "$file"; then
         [[ $VERBOSE -eq 1 ]] && echo "Already clean: $file"
         return 0
     fi
-    
+
     if [[ $DRY_RUN -eq 1 ]]; then
         [[ $VERBOSE -eq 1 ]] && echo -e "${YELLOW}Would fix: $file${NC}"
         return 0
     fi
-    
+
     # Remove trailing whitespace
     sed -i 's/[[:space:]]*$//' "$file"
     [[ $VERBOSE -eq 1 ]] && echo -e "${GREEN}Fixed: $file${NC}"

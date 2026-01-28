@@ -79,13 +79,13 @@ def get_doc_type_and_domain(file_path: Path, docs_root: Path) -> Tuple[str, str]
     """Determine document type and domain based on file path."""
     rel_path = file_path.relative_to(docs_root)
     parts = rel_path.parts
-    
+
     if len(parts) > 0:
         first_dir = parts[0]
         doc_type = DOCTYPE_MAP.get(first_dir, 'Guide')
         domain = DOMAIN_MAP.get(first_dir, 'Documentation')
         return doc_type, domain
-    
+
     return 'Guide', 'Documentation'
 
 
@@ -103,16 +103,16 @@ def extract_metadata_section(content: str) -> Tuple[Optional[str], Optional[int]
     metadata_match = re.search(r'^## Metadata\s*\n', content, re.MULTILINE)
     if not metadata_match:
         return None, None, None
-    
+
     start_pos = metadata_match.start()
-    
+
     # Find the next ## header or end of file
     next_section = re.search(r'\n## [^#]', content[metadata_match.end():])
     if next_section:
         end_pos = metadata_match.end() + next_section.start()
     else:
         end_pos = len(content)
-    
+
     metadata_content = content[start_pos:end_pos]
     return metadata_content, start_pos, end_pos
 
@@ -123,16 +123,16 @@ def extract_revision_history(content: str) -> Tuple[Optional[str], Optional[int]
     history_match = re.search(r'^## Revision History\s*\n', content, re.MULTILINE)
     if not history_match:
         return None, None, None
-    
+
     start_pos = history_match.start()
-    
+
     # Find the next ## header or end of file
     next_section = re.search(r'\n## [^#]', content[history_match.end():])
     if next_section:
         end_pos = history_match.end() + next_section.start()
     else:
         end_pos = len(content)
-    
+
     history_content = content[start_pos:end_pos]
     return history_content, start_pos, end_pos
 
@@ -141,13 +141,13 @@ def create_metadata_section(file_path: Path, docs_root: Path, status: str = "Act
     """Create a standardized metadata section."""
     doc_type, domain = get_doc_type_and_domain(file_path, docs_root)
     rel_path = file_path.relative_to(docs_root.parent)
-    
+
     # Determine applies_to based on document type
     if doc_type in ['Policy', 'Guide']:
         applies_to = "All Repositories"
     else:
         applies_to = "Specific Projects"
-    
+
     metadata = f"""## Metadata
 
 | Field          | Value                                            |
@@ -186,11 +186,11 @@ def update_document(file_path: Path, docs_root: Path, dry_run: bool = False) -> 
     except Exception as e:
         print(f"ERROR: Failed to read {file_path}: {e}", file=sys.stderr)
         return False
-    
+
     # Skip if file is empty or doesn't have proper markdown structure
     if not content.strip() or '# ' not in content:
         return False
-    
+
     # Update VERSION in file header
     current_version = extract_current_version(content)
     if current_version and current_version != TARGET_VERSION:
@@ -200,7 +200,7 @@ def update_document(file_path: Path, docs_root: Path, dry_run: bool = False) -> 
             content,
             flags=re.MULTILINE
         )
-    
+
     # Extract and determine status
     status = "Active"
     if "Authoritative" in content[:500]:  # Check in first part of file
@@ -209,17 +209,17 @@ def update_document(file_path: Path, docs_root: Path, dry_run: bool = False) -> 
         status = "Draft"
     elif "Deprecated" in content[:500]:
         status = "Deprecated"
-    
+
     # Extract existing metadata
     metadata_section, metadata_start, metadata_end = extract_metadata_section(content)
-    
+
     # Extract existing revision history
     history_section, history_start, history_end = extract_revision_history(content)
-    
+
     # Create new sections
     new_metadata = create_metadata_section(file_path, docs_root, status)
     new_history = create_revision_history()
-    
+
     # Update content
     if metadata_section:
         # Replace existing metadata
@@ -234,7 +234,7 @@ def update_document(file_path: Path, docs_root: Path, dry_run: bool = False) -> 
         if not content.endswith('\n'):
             content += '\n'
         content += '\n' + new_metadata + '\n'
-    
+
     # Re-extract revision history with updated positions
     if history_section:
         _, history_start, history_end = extract_revision_history(content)
@@ -245,7 +245,7 @@ def update_document(file_path: Path, docs_root: Path, dry_run: bool = False) -> 
         if not content.endswith('\n'):
             content += '\n'
         content += '\n' + new_history
-    
+
     # Write updated content
     if dry_run:
         print(f"Would update: {file_path.relative_to(docs_root.parent)}")
@@ -265,22 +265,22 @@ def process_directory(docs_root: Path, dry_run: bool = False) -> Tuple[int, int]
     """Process all markdown files in the documentation directory."""
     updated_count = 0
     skipped_count = 0
-    
+
     for md_file in docs_root.rglob('*.md'):
         # Skip certain files
         if md_file.name in SKIP_FILES:
             skipped_count += 1
             continue
-        
+
         # Skip auto-generated files
         if md_file.name == 'index.md':
             skipped_count += 1
             continue
-        
+
         # Update the file
         if update_document(md_file, docs_root, dry_run):
             updated_count += 1
-    
+
     return updated_count, skipped_count
 
 
@@ -299,31 +299,31 @@ def main():
         default='docs',
         help='Root documentation directory (default: docs)'
     )
-    
+
     args = parser.parse_args()
-    
+
     docs_root = Path(args.docs_root).resolve()
-    
+
     if not docs_root.exists():
         print(f"ERROR: Documentation root not found: {docs_root}", file=sys.stderr)
         sys.exit(1)
-    
+
     print(f"Processing documentation in: {docs_root}")
     if args.dry_run:
         print("DRY RUN MODE - No changes will be made")
     print()
-    
+
     updated_count, skipped_count = process_directory(docs_root, args.dry_run)
-    
+
     print()
     print(f"Summary:")
     print(f"  Updated: {updated_count} files")
     print(f"  Skipped: {skipped_count} files")
-    
+
     if args.dry_run:
         print()
         print("Run without --dry-run to apply changes")
-    
+
     sys.exit(0)
 
 

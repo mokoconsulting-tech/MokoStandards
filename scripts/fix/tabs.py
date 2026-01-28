@@ -81,7 +81,7 @@ FILE_TYPE_RULES = {
 def get_all_extensions() -> Set[str]:
     """
     Get all supported file extensions (excluding makefiles).
-    
+
     Returns:
         Set of all file extensions
     """
@@ -95,16 +95,16 @@ def get_all_extensions() -> Set[str]:
 def get_extensions_for_type(file_type: str) -> List[str]:
     """
     Get file extensions for a given type.
-    
+
     Args:
         file_type: Type of files (yaml, python, shell, all)
-        
+
     Returns:
         List of file extensions
     """
     if file_type == 'all':
         return list(get_all_extensions())
-    
+
     rules = FILE_TYPE_RULES.get(file_type)
     if rules and rules['convert']:
         return rules['extensions']
@@ -114,10 +114,10 @@ def get_extensions_for_type(file_type: str) -> List[str]:
 def is_makefile(filepath: str) -> bool:
     """
     Check if file is a Makefile.
-    
+
     Args:
         filepath: Path to file
-        
+
     Returns:
         True if file is a Makefile
     """
@@ -128,24 +128,24 @@ def is_makefile(filepath: str) -> bool:
 def get_tab_settings(filepath: str) -> tuple:
     """
     Get tab conversion settings for a file.
-    
+
     Args:
         filepath: Path to file
-        
+
     Returns:
         Tuple of (should_convert, num_spaces)
     """
     # Check if it's a Makefile
     if is_makefile(filepath):
         return (False, 0)
-    
+
     # Check by extension
     ext = Path(filepath).suffix.lower()
-    
+
     for file_type, rules in FILE_TYPE_RULES.items():
         if ext in rules['extensions']:
             return (rules['convert'], rules['spaces'])
-    
+
     # Default: convert tabs to 4 spaces
     return (True, 4)
 
@@ -153,17 +153,17 @@ def get_tab_settings(filepath: str) -> tuple:
 def get_files_by_type(file_type: str) -> List[str]:
     """
     Get list of files tracked by git for a given type.
-    
+
     Args:
         file_type: Type of files to get
-        
+
     Returns:
         List of file paths
     """
     extensions = get_extensions_for_type(file_type)
     if not extensions:
         return []
-    
+
     try:
         patterns = [f"*{ext}" for ext in extensions]
         returncode, stdout, stderr = common.run_command(
@@ -180,10 +180,10 @@ def get_files_by_type(file_type: str) -> List[str]:
 def get_files_by_extensions(extensions: List[str]) -> List[str]:
     """
     Get list of files tracked by git for given extensions.
-    
+
     Args:
         extensions: List of file extensions (e.g., ['.yml', '.py'])
-        
+
     Returns:
         List of file paths
     """
@@ -203,37 +203,37 @@ def get_files_by_extensions(extensions: List[str]) -> List[str]:
 def fix_tabs(filepath: str, dry_run: bool = False, verbose: bool = True) -> bool:
     """
     Convert tabs to spaces in a file.
-    
+
     Args:
         filepath: Path to file to fix
         dry_run: If True, only report what would be changed
         verbose: If True, print detailed information
-        
+
     Returns:
         True if file was modified (or would be in dry-run), False otherwise
     """
     # Get conversion settings
     should_convert, num_spaces = get_tab_settings(filepath)
-    
+
     if not should_convert:
         if verbose:
             print(f"Skipped (Makefile): {filepath}")
         return False
-    
+
     try:
         with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
             content = f.read()
-        
+
         # Check if file contains tabs
         if '\t' not in content:
             if verbose:
                 print(f"Already clean: {filepath}")
             return False
-        
+
         # Replace tabs with spaces
         spaces = ' ' * num_spaces
         new_content = content.replace('\t', spaces)
-        
+
         if dry_run:
             if verbose:
                 tab_count = content.count('\t')
@@ -244,9 +244,9 @@ def fix_tabs(filepath: str, dry_run: bool = False, verbose: bool = True) -> bool
             if verbose:
                 tab_count = content.count('\t')
                 print(f"Fixed: {filepath} ({tab_count} tabs → {num_spaces} spaces)")
-        
+
         return True
-            
+
     except Exception as e:
         if verbose:
             common.log_warn(f"Could not process {filepath}: {e}")
@@ -281,7 +281,7 @@ Examples:
 Note: Makefiles are automatically detected and tabs are preserved.
         """
     )
-    
+
     parser.add_argument(
         '--type',
         choices=['yaml', 'python', 'shell', 'all'],
@@ -308,12 +308,12 @@ Note: Makefiles are automatically detected and tabs are preserved.
         nargs='*',
         help='Specific files to fix'
     )
-    
+
     args = parser.parse_args()
-    
+
     # Determine which files to process
     files_to_process = []
-    
+
     if args.files:
         # Direct file arguments
         files_to_process = args.files
@@ -326,36 +326,36 @@ Note: Makefiles are automatically detected and tabs are preserved.
     else:
         # Default: all supported types
         files_to_process = get_files_by_type('all')
-    
+
     if not files_to_process:
         if not args.quiet:
             print("No files to process")
         return 0
-    
+
     verbose = not args.quiet
-    
+
     if verbose:
         if args.dry_run:
             print(f"DRY RUN: Checking {len(files_to_process)} file(s)...")
         else:
             print(f"Fixing {len(files_to_process)} file(s)...")
         print()
-    
+
     # Process files
     modified_count = 0
     for filepath in files_to_process:
         if fix_tabs(filepath, args.dry_run, verbose):
             modified_count += 1
-    
+
     # Summary
     if verbose:
         print()
-    
+
     if args.dry_run:
         print(f"Would modify {modified_count} file(s)")
     else:
         print(f"Modified {modified_count} file(s)")
-    
+
     return 0
 
 

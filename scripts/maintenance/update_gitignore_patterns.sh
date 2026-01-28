@@ -56,11 +56,11 @@ print_error() {
 pattern_exists() {
     local file="$1"
     local pattern="$2"
-    
+
     if [ ! -f "$file" ]; then
         return 1
     fi
-    
+
     # Check if pattern exists as a complete line
     grep -qxF "$pattern" "$file" 2>/dev/null
 }
@@ -69,11 +69,11 @@ pattern_exists() {
 remove_old_patterns() {
     local file="$1"
     local changed=0
-    
+
     if [ ! -f "$file" ]; then
         return 0
     fi
-    
+
     for pattern in "${PATTERNS_TO_REMOVE[@]}"; do
         if pattern_exists "$file" "$pattern"; then
             print_info "Removing old pattern: $pattern"
@@ -82,7 +82,7 @@ remove_old_patterns() {
             changed=1
         fi
     done
-    
+
     return $changed
 }
 
@@ -90,26 +90,26 @@ remove_old_patterns() {
 add_new_patterns() {
     local file="$1"
     local changed=0
-    
+
     # Create .gitignore if it doesn't exist
     if [ ! -f "$file" ]; then
         print_warning ".gitignore not found, creating new file"
         touch "$file"
     fi
-    
+
     # Find the right section to add patterns
     # Look for OS / Editor / IDE section or create it
     local section_marker="# OS / Editor / IDE cruft"
     local has_section=0
-    
+
     if grep -q "$section_marker" "$file" 2>/dev/null; then
         has_section=1
     fi
-    
+
     for pattern in "${PATTERNS_TO_ADD[@]}"; do
         if ! pattern_exists "$file" "$pattern"; then
             print_info "Adding pattern: $pattern"
-            
+
             if [ $has_section -eq 1 ]; then
                 # Add after the section marker
                 sed -i "/^$section_marker/a $pattern" "$file"
@@ -129,7 +129,7 @@ add_new_patterns() {
             print_info "Pattern already exists: $pattern"
         fi
     done
-    
+
     return $changed
 }
 
@@ -137,21 +137,21 @@ add_new_patterns() {
 update_gitignore() {
     local dir="$1"
     local gitignore_file="$dir/.gitignore"
-    
+
     print_info "Processing: $gitignore_file"
-    
+
     local changed=0
-    
+
     # Remove old patterns
     if remove_old_patterns "$gitignore_file"; then
         changed=1
     fi
-    
+
     # Add new patterns
     if add_new_patterns "$gitignore_file"; then
         changed=1
     fi
-    
+
     if [ $changed -eq 1 ]; then
         print_success "Updated: $gitignore_file"
         return 0
@@ -251,21 +251,21 @@ fi
 # Process files
 if [ $RECURSIVE -eq 1 ]; then
     print_info "Searching for .gitignore files recursively..."
-    
+
     # Find all .gitignore files
     GITIGNORE_FILES=$(find "$TARGET_DIR" -name ".gitignore" -type f)
-    
+
     if [ -z "$GITIGNORE_FILES" ]; then
         print_warning "No .gitignore files found"
         exit 0
     fi
-    
+
     FILE_COUNT=$(echo "$GITIGNORE_FILES" | wc -l)
     print_info "Found $FILE_COUNT .gitignore file(s)"
     echo ""
-    
+
     UPDATED_COUNT=0
-    
+
     while IFS= read -r gitignore_file; do
         if [ $DRY_RUN -eq 0 ]; then
             gitignore_dir=$(dirname "$gitignore_file")
@@ -276,7 +276,7 @@ if [ $RECURSIVE -eq 1 ]; then
             print_info "Would process: $gitignore_file"
         fi
     done <<< "$GITIGNORE_FILES"
-    
+
     echo ""
     if [ $DRY_RUN -eq 0 ]; then
         print_success "Updated $UPDATED_COUNT of $FILE_COUNT .gitignore file(s)"

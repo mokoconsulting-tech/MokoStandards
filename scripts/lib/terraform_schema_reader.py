@@ -25,10 +25,10 @@ class TerraformSchemaReader:
         if terraform_dir is None:
             # Auto-detect terraform directory
             terraform_dir = self._find_terraform_dir()
-        
+
         self.terraform_dir = Path(terraform_dir).resolve()
         self._cache = {}
-        
+
         if not self.terraform_dir.exists():
             raise FileNotFoundError(f"Terraform directory not found: {self.terraform_dir}")
 
@@ -36,7 +36,7 @@ class TerraformSchemaReader:
         """Find terraform directory relative to script location."""
         # Try common locations
         script_path = Path(__file__).resolve()
-        
+
         # Walk up the directory tree to find .git directory (project root)
         current = script_path.parent
         while current != current.parent:
@@ -46,12 +46,12 @@ class TerraformSchemaReader:
                 if terraform_path.exists():
                     return terraform_path
             current = current.parent
-        
+
         # Fallback: Check if terraform directory exists relative to current directory
         cwd_terraform = Path.cwd() / 'terraform'
         if cwd_terraform.exists():
             return cwd_terraform
-        
+
         # Last resort: return relative path
         return Path('terraform')
 
@@ -73,7 +73,7 @@ class TerraformSchemaReader:
             cmd = ['terraform', 'output', '-json']
             if output_name:
                 cmd.append(output_name)
-            
+
             result = subprocess.run(
                 cmd,
                 cwd=self.terraform_dir,
@@ -81,16 +81,16 @@ class TerraformSchemaReader:
                 text=True,
                 check=True
             )
-            
+
             output = json.loads(result.stdout)
-            
+
             # Extract value from Terraform output format
             if output_name and isinstance(output, dict) and 'value' in output:
                 output = output['value']
-            
+
             self._cache[cache_key] = output
             return output
-            
+
         except subprocess.CalledProcessError as e:
             raise RuntimeError(f"Terraform output failed: {e.stderr}")
         except json.JSONDecodeError as e:
@@ -106,7 +106,7 @@ class TerraformSchemaReader:
         try:
             # Get all outputs
             output = self._run_terraform_output()
-            
+
             # Extract values from Terraform output format
             # Terraform outputs are wrapped with metadata: {"value": ..., "sensitive": false, "type": ...}
             if 'repository_schemas' in output:
@@ -115,12 +115,12 @@ class TerraformSchemaReader:
                     schemas_value = schemas['value']
                     if 'repo_health_config' in schemas_value:
                         return schemas_value['repo_health_config']
-                        
+
         except Exception as e:
             # Log error but continue to fallback
             import sys
             print(f"Warning: Could not load Terraform configuration: {e}", file=sys.stderr)
-        
+
         # If Terraform is not available, return minimal config
         return self._get_fallback_health_config()
 
@@ -136,7 +136,7 @@ class TerraformSchemaReader:
         """
         try:
             output = self._run_terraform_output()
-            
+
             # Extract values from Terraform output format
             if 'repository_schemas' in output:
                 schemas = output['repository_schemas']
@@ -144,12 +144,12 @@ class TerraformSchemaReader:
                     schemas_value = schemas['value']
                     if 'default_repository_structure' in schemas_value:
                         return schemas_value['default_repository_structure']
-                    
+
         except Exception as e:
             # Log error but continue to fallback
             import sys
             print(f"Warning: Could not load Terraform configuration: {e}", file=sys.stderr)
-        
+
         # If Terraform is not available, return minimal structure
         return self._get_fallback_structure()
 
@@ -165,7 +165,7 @@ class TerraformSchemaReader:
         """
         config = self.get_health_config()
         checks = config.get('checks', {})
-        
+
         return [
             check for check in checks.values()
             if check.get('category') == category
@@ -233,18 +233,18 @@ if __name__ == '__main__':
     # Example usage
     try:
         reader = TerraformSchemaReader()
-        
+
         print("Repository Health Configuration:")
         health_config = reader.get_health_config()
         print(f"  Total points: {health_config['scoring']['total_points']}")
         print(f"  Categories: {len(health_config['categories'])}")
         print(f"  Checks: {len(health_config['checks'])}")
-        
+
         print("\nRepository Structure:")
         structure = reader.get_repository_structure()
         print(f"  Type: {structure['metadata']['repository_type']}")
         print(f"  Root files: {len(structure['root_files'])}")
         print(f"  Directories: {len(structure['directories'])}")
-        
+
     except Exception as e:
         print(f"Error: {e}")

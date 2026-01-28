@@ -363,6 +363,51 @@ def main():
 - Default value handling
 - Standard argument syntax
 
+### Dry-Run Support
+
+**All scripts that modify files or system state MUST support `--dry-run` mode.**
+
+**Requirements:**
+
+```python
+parser.add_argument(
+    '--dry-run',
+    action='store_true',
+    help='Show what would be done without making changes'
+)
+```
+
+**Implementation:**
+
+```python
+def process_files(files: List[Path], dry_run: bool = False):
+    """Process files with optional dry-run mode."""
+    for file in files:
+        if dry_run:
+            logger.info(f"[DRY-RUN] Would process: {file}")
+        else:
+            logger.info(f"Processing: {file}")
+            # actual processing
+```
+
+**Dry-run best practices:**
+- Use `[DRY-RUN]` prefix in all log messages during dry-run
+- Validate all inputs and logic in dry-run mode
+- Exit with same status codes as actual execution would
+- Show what would be done, not just what would be checked
+- Skip any operations that modify state (file writes, API calls, etc.)
+
+**Scripts requiring dry-run:**
+- ✅ File modification scripts (e.g., `file_headers.py`, `tabs.py`)
+- ✅ Validation scripts that could fail builds (e.g., `security_scan.py`)
+- ✅ Deployment or release scripts
+- ✅ Scripts that interact with external systems
+
+**Scripts exempt from dry-run:**
+- ❌ Read-only analysis scripts
+- ❌ Simple query scripts with no side effects
+- ❌ Scripts that only display information
+
 ### Dependencies
 
 **Minimize external dependencies:**

@@ -110,7 +110,7 @@ die() {
 require_command() {
     local cmd="$1"
     local message="${2:-Command required: $cmd}"
-    
+
     if ! command -v "$cmd" &> /dev/null; then
         die "$message" "$EXIT_NOT_FOUND"
     fi
@@ -121,7 +121,7 @@ require_command() {
 require_file() {
     local file_path="$1"
     local description="${2:-File}"
-    
+
     if [[ ! -f "$file_path" ]]; then
         die "$description not found: $file_path" "$EXIT_NOT_FOUND"
     fi
@@ -132,7 +132,7 @@ require_file() {
 require_dir() {
     local dir_path="$1"
     local description="${2:-Directory}"
-    
+
     if [[ ! -d "$dir_path" ]]; then
         die "$description not found: $dir_path" "$EXIT_NOT_FOUND"
     fi
@@ -147,7 +147,7 @@ require_dir() {
 get_repo_root() {
     local current_dir
     current_dir="$(pwd)"
-    
+
     while [[ "$current_dir" != "/" ]]; do
         if [[ -d "$current_dir/.git" ]]; then
             echo "$current_dir"
@@ -155,7 +155,7 @@ get_repo_root() {
         fi
         current_dir="$(dirname "$current_dir")"
     done
-    
+
     die "Not in a git repository" "$EXIT_ERROR"
 }
 
@@ -165,7 +165,7 @@ get_relative_path() {
     local file_path="$1"
     local repo_root
     repo_root="$(get_repo_root)"
-    
+
     # Remove repo root from path to get relative path
     echo "/${file_path#$repo_root/}"
 }
@@ -179,7 +179,7 @@ get_relative_path() {
 ensure_dir() {
     local dir_path="$1"
     local description="${2:-Directory}"
-    
+
     if [[ ! -d "$dir_path" ]]; then
         mkdir -p "$dir_path" || die "Failed to create $description: $dir_path"
         log_info "Created $description: $dir_path"
@@ -194,13 +194,13 @@ is_excluded_path() {
     local exclusions="${2:-node_modules,vendor,dist,build,target,__pycache__}"
     local basename
     basename="$(basename "$path")"
-    
+
     # Exclude hidden files/directories
     [[ "$basename" =~ ^\. ]] && return 0
 
     # Exclude Python egg-info metadata directories/files
     [[ "$basename" == *".egg-info" ]] && return 0
-    
+
     # Check against exclusion list
     IFS=',' read -ra EXCLUDE_ARRAY <<< "$exclusions"
     for exclude_pattern in "${EXCLUDE_ARRAY[@]}"; do
@@ -208,7 +208,7 @@ is_excluded_path() {
             return 0
         fi
     done
-    
+
     return 1
 }
 
@@ -221,15 +221,15 @@ is_excluded_path() {
 safe_copy() {
     local src="$1"
     local dest="$2"
-    
+
     require_file "$src" "Source file"
-    
+
     if [[ -f "$dest" ]]; then
         local backup="${dest}.backup.$(date +%Y%m%d_%H%M%S)"
         cp "$dest" "$backup" || die "Failed to create backup: $backup"
         log_info "Created backup: $backup"
     fi
-    
+
     cp "$src" "$dest" || die "Failed to copy $src to $dest"
     log_success "Copied: $src -> $dest"
 }
@@ -328,10 +328,10 @@ is_git_clean() {
 init_script() {
     # Enable strict mode
     set -euo pipefail
-    
+
     # Set IFS to default (space, tab, newline)
     IFS=$' \t\n'
-    
+
     log_debug "Script initialized with strict mode"
 }
 
@@ -340,7 +340,7 @@ init_script() {
 print_header() {
     local name="$1"
     local description="${2:-}"
-    
+
     echo "========================================================================"
     echo "$name"
     if [[ -n "$description" ]]; then
@@ -368,7 +368,7 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     echo "MokoStandards Common Shell Library v$MOKO_VERSION"
     echo "========================================================================"
     echo
-    
+
     # Test logging functions
     echo "Testing logging functions:"
     log_info "This is an info message"
@@ -376,7 +376,7 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     log_warning "This is a warning message"
     log_error "This is an error message (stderr)"
     echo
-    
+
     # Test repository utilities
     echo "Testing repository utilities:"
     if repo_root=$(get_repo_root 2>/dev/null); then
@@ -388,14 +388,14 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
         echo "Not in a git repository"
     fi
     echo
-    
+
     # Test string utilities
     echo "Testing string utilities:"
     echo "trim '  hello  ' = '$(trim "  hello  ")'"
     echo "to_lower 'HELLO' = '$(to_lower "HELLO")'"
     echo "to_upper 'hello' = '$(to_upper "hello")'"
     echo
-    
+
     # Test git utilities
     if command -v git &> /dev/null; then
         echo "Testing git utilities:"
@@ -408,6 +408,6 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
         fi
         echo
     fi
-    
+
     log_success "Common shell library loaded successfully"
 fi

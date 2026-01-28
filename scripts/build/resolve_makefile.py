@@ -66,12 +66,12 @@ class MakefileResolver:
         """Check if path is a valid MokoStandards repository."""
         if not path.exists():
             return False
-        
+
         indicators = [
             path / 'templates' / 'build',
             path / 'docs' / 'policy',
         ]
-        
+
         return all(p.exists() for p in indicators)
 
     def detect_project_type(self) -> Optional[str]:

@@ -27,15 +27,15 @@ from typing import Dict, List, Set, Tuple
 def extract_markdown_links(file_path: Path) -> List[Tuple[int, str, str]]:
     """
     Extract all links from a markdown file.
-    
+
     Args:
         file_path: Path to markdown file
-        
+
     Returns:
         List of (line_number, link_text, link_url) tuples
     """
     links = []
-    
+
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             for line_num, line in enumerate(f, start=1):
@@ -44,31 +44,31 @@ def extract_markdown_links(file_path: Path) -> List[Tuple[int, str, str]]:
                     text = match.group(1)
                     url = match.group(2)
                     links.append((line_num, text, url))
-                
+
                 # Match reference links: [text][ref]
                 for match in re.finditer(r'\[([^\]]+)\]\[([^\]]+)\]', line):
                     text = match.group(1)
                     ref = match.group(2)
                     links.append((line_num, text, f"[{ref}]"))
-                
+
                 # Match autolinks: <url>
                 for match in re.finditer(r'<(https?://[^>]+)>', line):
                     url = match.group(1)
                     links.append((line_num, url, url))
-    
+
     except Exception as e:
         print(f"Warning: Could not read {file_path}: {e}", file=sys.stderr)
-    
+
     return links
 
 
 def is_external_link(url: str) -> bool:
     """
     Check if a URL is an external link.
-    
+
     Args:
         url: URL to check
-        
+
     Returns:
         True if external link
     """
@@ -78,10 +78,10 @@ def is_external_link(url: str) -> bool:
 def is_anchor_link(url: str) -> bool:
     """
     Check if a URL is an anchor/fragment link.
-    
+
     Args:
         url: URL to check
-        
+
     Returns:
         True if anchor link
     """
@@ -91,25 +91,25 @@ def is_anchor_link(url: str) -> bool:
 def validate_local_file_link(base_path: Path, url: str) -> bool:
     """
     Validate a local file link.
-    
+
     Args:
         base_path: Base path of the markdown file
         url: Relative file path
-        
+
     Returns:
         True if file exists
     """
     # Remove any anchor/fragment
     if "#" in url:
         url = url.split("#")[0]
-    
+
     # Remove any query parameters
     if "?" in url:
         url = url.split("?")[0]
-    
+
     if not url:  # Pure anchor link
         return True
-    
+
     # Resolve the path
     try:
         target_path = (base_path.parent / url).resolve()
@@ -121,11 +121,11 @@ def validate_local_file_link(base_path: Path, url: str) -> bool:
 def analyze_markdown_files(root: Path, skip_external: bool = False) -> Dict:
     """
     Analyze all markdown files for broken links.
-    
+
     Args:
         root: Root directory to search
         skip_external: Whether to skip checking external links
-        
+
     Returns:
         Dictionary with analysis results
     """
@@ -137,22 +137,22 @@ def analyze_markdown_files(root: Path, skip_external: bool = False) -> Dict:
         "anchor_links": 0,
         "broken_links": [],
     }
-    
+
     # Find all markdown files
     md_files = list(root.rglob("*.md"))
     results["total_files"] = len(md_files)
-    
+
     for md_file in md_files:
         links = extract_markdown_links(md_file)
-        
+
         for line_num, text, url in links:
             results["total_links"] += 1
-            
+
             if is_anchor_link(url):
                 results["anchor_links"] += 1
                 # We don't validate anchor links within the same file
                 continue
-            
+
             elif is_external_link(url):
                 results["external_links"] += 1
                 # Skip external link validation if requested
@@ -160,7 +160,7 @@ def analyze_markdown_files(root: Path, skip_external: bool = False) -> Dict:
                     continue
                 # Note: We don't validate external links by default as it requires network access
                 continue
-            
+
             else:
                 results["local_links"] += 1
                 # Validate local file link
@@ -172,14 +172,14 @@ def analyze_markdown_files(root: Path, skip_external: bool = False) -> Dict:
                         "text": text,
                         "url": url,
                     })
-    
+
     return results
 
 
 def print_report(results: Dict, root: Path) -> None:
     """
     Print validation report.
-    
+
     Args:
         results: Analysis results
         root: Root directory analyzed
@@ -188,7 +188,7 @@ def print_report(results: Dict, root: Path) -> None:
     print("MARKDOWN LINK VALIDATION REPORT")
     print("=" * 80)
     print(f"\nDirectory: {root}")
-    
+
     print(f"\n📊 SUMMARY")
     print("-" * 80)
     print(f"Markdown files:   {results['total_files']:,}")
@@ -197,11 +197,11 @@ def print_report(results: Dict, root: Path) -> None:
     print(f"Local links:      {results['local_links']:,}")
     print(f"Anchor links:     {results['anchor_links']:,}")
     print(f"Broken links:     {len(results['broken_links']):,}")
-    
+
     if results["broken_links"]:
         print(f"\n❌ BROKEN LINKS")
         print("-" * 80)
-        
+
         for broken in results["broken_links"]:
             print(f"\nFile: {broken['file']}")
             print(f"Line: {broken['line']}")
@@ -209,14 +209,14 @@ def print_report(results: Dict, root: Path) -> None:
             print(f"URL:  {broken['url']}")
     else:
         print(f"\n✅ No broken links found!")
-    
+
     print("\n" + "=" * 80)
 
 
 def main() -> int:
     """
     Main entry point for link validator.
-    
+
     Returns:
         Exit code (0 for success, 1 if broken links found)
     """
@@ -234,19 +234,19 @@ def main() -> int:
         action="store_true",
         help="Skip external link validation"
     )
-    
+
     args = parser.parse_args()
     root = Path(args.path).resolve()
-    
+
     if not root.exists():
         print(f"Error: Path does not exist: {root}", file=sys.stderr)
         return 1
-    
+
     print(f"Analyzing markdown links in: {root}")
-    
+
     results = analyze_markdown_files(root, args.skip_external)
     print_report(results, root)
-    
+
     # Return non-zero exit code if broken links found
     return 1 if results["broken_links"] else 0
 

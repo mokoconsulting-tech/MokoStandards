@@ -58,7 +58,7 @@ FILE_TYPE_EXTENSIONS = {
 def get_all_extensions() -> Set[str]:
     """
     Get all supported file extensions.
-    
+
     Returns:
         Set of all file extensions
     """
@@ -71,10 +71,10 @@ def get_all_extensions() -> Set[str]:
 def get_extensions_for_type(file_type: str) -> List[str]:
     """
     Get file extensions for a given type.
-    
+
     Args:
         file_type: Type of files (yaml, python, shell, all)
-        
+
     Returns:
         List of file extensions
     """
@@ -86,7 +86,7 @@ def get_extensions_for_type(file_type: str) -> List[str]:
 def get_yaml_files() -> List[str]:
     """
     Get list of YAML files tracked by git.
-    
+
     Returns:
         List of YAML file paths
     """
@@ -105,17 +105,17 @@ def get_yaml_files() -> List[str]:
 def get_files_by_type(file_type: str) -> List[str]:
     """
     Get list of files tracked by git for a given type.
-    
+
     Args:
         file_type: Type of files to get
-        
+
     Returns:
         List of file paths
     """
     extensions = get_extensions_for_type(file_type)
     if not extensions:
         return []
-    
+
     try:
         patterns = [f"*{ext}" for ext in extensions]
         returncode, stdout, stderr = common.run_command(
@@ -132,10 +132,10 @@ def get_files_by_type(file_type: str) -> List[str]:
 def get_files_by_extensions(extensions: List[str]) -> List[str]:
     """
     Get list of files tracked by git for given extensions.
-    
+
     Args:
         extensions: List of file extensions (e.g., ['.yml', '.py'])
-        
+
     Returns:
         List of file paths
     """
@@ -155,15 +155,15 @@ def get_files_by_extensions(extensions: List[str]) -> List[str]:
 def check_tabs_in_file(filepath: str) -> List[Tuple[int, str]]:
     """
     Check for tab characters in a file.
-    
+
     Args:
         filepath: Path to file to check
-        
+
     Returns:
         List of (line_number, line_content) tuples with tabs
     """
     tabs_found = []
-    
+
     try:
         with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
             for line_num, line in enumerate(f, 1):
@@ -171,7 +171,7 @@ def check_tabs_in_file(filepath: str) -> List[Tuple[int, str]]:
                     tabs_found.append((line_num, line.rstrip()))
     except Exception as e:
         common.log_warn(f"Could not read {filepath}: {e}")
-    
+
     return tabs_found
 
 
@@ -195,7 +195,7 @@ Examples:
   python3 scripts/validate/tabs.py --fix
         """
     )
-    
+
     parser.add_argument(
         '--type',
         choices=['yaml', 'python', 'shell', 'all'],
@@ -213,61 +213,61 @@ Examples:
         action='store_true',
         help='Automatically fix tabs by calling scripts/fix/tabs.py'
     )
-    
+
     args = parser.parse_args()
-    
+
     # If --fix is specified, call the fix script and exit
     if args.fix:
         fix_script = Path(__file__).parent.parent / "fix" / "tabs.py"
         cmd = [sys.executable, str(fix_script)]
-        
+
         if args.type and args.type != 'yaml':
             cmd.extend(['--type', args.type])
         elif args.ext:
             for ext in args.ext:
                 cmd.extend(['--ext', ext])
-        
+
         try:
             result = subprocess.run(cmd, check=False)
             return result.returncode
         except Exception as e:
             common.log_error(f"Failed to run fix script: {e}")
             return 1
-    
+
     # Determine which files to check
     files_to_check = []
-    
+
     if args.ext:
         # Specific extensions
         files_to_check = get_files_by_extensions(args.ext)
     else:
         # File type
         files_to_check = get_files_by_type(args.type)
-    
+
     if not files_to_check:
         print("No files to check")
         return 0
-    
+
     bad_files = []
     all_violations = {}
-    
+
     for filepath in files_to_check:
         tabs = check_tabs_in_file(filepath)
         if tabs:
             bad_files.append(filepath)
             all_violations[filepath] = tabs
-            
+
             print(f"TAB found in {filepath}", file=sys.stderr)
             print("  Lines with tabs:", file=sys.stderr)
-            
+
             # Show first 5 lines with tabs
             for line_num, line_content in tabs[:5]:
                 print(f"    {line_num}: {line_content[:80]}", file=sys.stderr)
-            
+
             if len(tabs) > 5:
                 print(f"    ... and {len(tabs) - 5} more", file=sys.stderr)
             print("", file=sys.stderr)
-    
+
     if bad_files:
         print("", file=sys.stderr)
         print("ERROR: Tabs found in repository files", file=sys.stderr)
@@ -284,7 +284,7 @@ Examples:
         print("  3. Or manually replace tabs with spaces in your editor", file=sys.stderr)
         print("", file=sys.stderr)
         return 2
-    
+
     print("tabs: ok")
     return 0
 

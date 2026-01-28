@@ -62,15 +62,15 @@ class ExtensionInfo:
 def detect_joomla_manifest(src_dir: Union[str, Path]) -> Optional[Path]:
     """
     Detect Joomla manifest file.
-    
+
     Args:
         src_dir: Source directory
-        
+
     Returns:
         Path to manifest file or None
     """
     src_path = Path(src_dir)
-    
+
     # Common Joomla manifest locations and patterns
     manifest_patterns = [
         "templateDetails.xml",
@@ -79,23 +79,23 @@ def detect_joomla_manifest(src_dir: Union[str, Path]) -> Optional[Path]:
         "mod_*.xml",
         "plg_*.xml",
     ]
-    
+
     # Search in src_dir and subdirectories (max depth 4)
     for pattern in manifest_patterns:
         # Direct match
         matches = list(src_path.glob(pattern))
         if matches:
             return matches[0]
-        
+
         # Search in subdirectories
         matches = list(src_path.glob(f"*/{pattern}"))
         if matches:
             return matches[0]
-        
+
         matches = list(src_path.glob(f"*/*/{pattern}"))
         if matches:
             return matches[0]
-    
+
     # Fallback: search for any XML with <extension tag
     for xml_file in src_path.rglob("*.xml"):
         if xml_file.name.startswith("."):
@@ -107,29 +107,29 @@ def detect_joomla_manifest(src_dir: Union[str, Path]) -> Optional[Path]:
                 return xml_file
         except Exception:
             continue
-    
+
     return None
 
 
 def detect_dolibarr_manifest(src_dir: Union[str, Path]) -> Optional[Path]:
     """
     Detect Dolibarr module descriptor file.
-    
+
     Args:
         src_dir: Source directory
-        
+
     Returns:
         Path to descriptor file or None
     """
     src_path = Path(src_dir)
-    
+
     # Dolibarr module descriptors follow pattern: core/modules/mod*.class.php
     descriptor_patterns = [
         "core/modules/mod*.class.php",
         "*/modules/mod*.class.php",
         "mod*.class.php",
     ]
-    
+
     for pattern in descriptor_patterns:
         matches = list(src_path.glob(pattern))
         if matches:
@@ -143,54 +143,54 @@ def detect_dolibarr_manifest(src_dir: Union[str, Path]) -> Optional[Path]:
                         return match
                 except Exception:
                     continue
-    
+
     return None
 
 
 def parse_joomla_manifest(manifest_path: Path) -> Optional[ExtensionInfo]:
     """
     Parse Joomla manifest XML.
-    
+
     Args:
         manifest_path: Path to manifest file
-        
+
     Returns:
         ExtensionInfo or None
     """
     try:
         tree = ET.parse(manifest_path)
         root = tree.getroot()
-        
+
         if root.tag != "extension":
             return None
-        
+
         # Get extension type
         ext_type = root.get("type", "unknown")
-        
+
         # Get name
         name_elem = root.find("name")
         name = name_elem.text if name_elem is not None else "unknown"
-        
+
         # Get version
         version_elem = root.find("version")
         version = version_elem.text if version_elem is not None else "0.0.0"
-        
+
         # Get description
         desc_elem = root.find("description")
         description = desc_elem.text if desc_elem is not None else None
-        
+
         # Get author
         author_elem = root.find("author")
         author = author_elem.text if author_elem is not None else None
-        
+
         # Get author email
         author_email_elem = root.find("authorEmail")
         author_email = author_email_elem.text if author_email_elem is not None else None
-        
+
         # Get license
         license_elem = root.find("license")
         license_text = license_elem.text if license_elem is not None else None
-        
+
         return ExtensionInfo(
             platform=Platform.JOOMLA,
             name=name,
@@ -202,7 +202,7 @@ def parse_joomla_manifest(manifest_path: Path) -> Optional[ExtensionInfo]:
             author_email=author_email,
             license=license_text
         )
-        
+
     except Exception:
         return None
 
@@ -210,37 +210,37 @@ def parse_joomla_manifest(manifest_path: Path) -> Optional[ExtensionInfo]:
 def parse_dolibarr_descriptor(descriptor_path: Path) -> Optional[ExtensionInfo]:
     """
     Parse Dolibarr module descriptor PHP file.
-    
+
     Args:
         descriptor_path: Path to descriptor file
-        
+
     Returns:
         ExtensionInfo or None
     """
     try:
         content = descriptor_path.read_text(encoding="utf-8")
-        
+
         # Extract module name from class that extends DolibarrModules
         # Pattern: class ModMyModule extends DolibarrModules
         class_match = re.search(r'class\s+(\w+)\s+extends\s+DolibarrModules', content)
         if not class_match:
             # Fallback: try to find any class definition
             class_match = re.search(r'class\s+(\w+)', content)
-        
+
         name = class_match.group(1) if class_match else "unknown"
-        
+
         # Extract version
         version_match = re.search(r'\$this->version\s*=\s*[\'"]([^\'"]+)[\'"]', content)
         version = version_match.group(1) if version_match else "0.0.0"
-        
+
         # Extract description
         desc_match = re.search(r'\$this->description\s*=\s*[\'"]([^\'"]+)[\'"]', content)
         description = desc_match.group(1) if desc_match else None
-        
+
         # Extract author
         author_match = re.search(r'\$this->editor_name\s*=\s*[\'"]([^\'"]+)[\'"]', content)
         author = author_match.group(1) if author_match else None
-        
+
         return ExtensionInfo(
             platform=Platform.DOLIBARR,
             name=name,
@@ -252,7 +252,7 @@ def parse_dolibarr_descriptor(descriptor_path: Path) -> Optional[ExtensionInfo]:
             author_email=None,
             license=None
         )
-        
+
     except Exception:
         return None
 
@@ -261,42 +261,42 @@ def get_extension_info(src_dir: Union[str, Path]) -> Optional[ExtensionInfo]:
     """
     Detect and parse extension information from source directory.
     Supports both Joomla and Dolibarr platforms.
-    
+
     Args:
         src_dir: Source directory containing extension files
-        
+
     Returns:
         ExtensionInfo or None if not detected
     """
     src_path = Path(src_dir)
-    
+
     if not src_path.is_dir():
         return None
-    
+
     # Try Joomla first
     joomla_manifest = detect_joomla_manifest(src_path)
     if joomla_manifest:
         ext_info = parse_joomla_manifest(joomla_manifest)
         if ext_info:
             return ext_info
-    
+
     # Try Dolibarr
     dolibarr_descriptor = detect_dolibarr_manifest(src_path)
     if dolibarr_descriptor:
         ext_info = parse_dolibarr_descriptor(dolibarr_descriptor)
         if ext_info:
             return ext_info
-    
+
     return None
 
 
 def is_joomla_extension(src_dir: Union[str, Path]) -> bool:
     """
     Check if directory contains a Joomla extension.
-    
+
     Args:
         src_dir: Source directory
-        
+
     Returns:
         True if Joomla extension detected
     """
@@ -307,10 +307,10 @@ def is_joomla_extension(src_dir: Union[str, Path]) -> bool:
 def is_dolibarr_extension(src_dir: Union[str, Path]) -> bool:
     """
     Check if directory contains a Dolibarr module.
-    
+
     Args:
         src_dir: Source directory
-        
+
     Returns:
         True if Dolibarr module detected
     """
@@ -323,19 +323,19 @@ def main() -> None:
     import sys
     sys.path.insert(0, str(Path(__file__).parent))
     import common
-    
+
     common.log_section("Testing Extension Utilities")
-    
+
     # Test with current directory's src
     repo_root = common.repo_root()
     src_dir = repo_root / "src"
-    
+
     if not src_dir.is_dir():
         common.log_warn(f"Source directory not found: {src_dir}")
         return
-    
+
     ext_info = get_extension_info(src_dir)
-    
+
     if ext_info:
         common.log_success("Extension detected!")
         common.log_kv("Platform", ext_info.platform.value.upper())

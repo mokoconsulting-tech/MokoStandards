@@ -98,7 +98,7 @@ is_makefile() {
     local file="$1"
     local basename
     basename=$(basename "$file" | tr '[:upper:]' '[:lower:]')
-    
+
     [[ "$basename" == "makefile" ]] || \
     [[ "$basename" == "gnumakefile" ]] || \
     [[ "$basename" == makefile.* ]]
@@ -108,7 +108,7 @@ is_makefile() {
 get_spaces_for_file() {
     local file="$1"
     local ext="${file##*.}"
-    
+
     case "$ext" in
         yml|yaml)
             echo 2
@@ -126,7 +126,7 @@ get_spaces_for_file() {
 get_files_by_type() {
     local type="$1"
     local patterns=()
-    
+
     case "$type" in
         yaml)
             patterns=("*.yml" "*.yaml")
@@ -145,7 +145,7 @@ get_files_by_type() {
             exit 1
             ;;
     esac
-    
+
     git ls-files "${patterns[@]}" 2>/dev/null || true
 }
 
@@ -161,41 +161,41 @@ get_files_by_extensions() {
 # Function to fix tabs in a file
 fix_tabs() {
     local file="$1"
-    
+
     if [[ ! -f "$file" ]]; then
         [[ $VERBOSE -eq 1 ]] && echo "File not found: $file"
         return 1
     fi
-    
+
     # Skip Makefiles
     if is_makefile "$file"; then
         [[ $VERBOSE -eq 1 ]] && echo "Skipped (Makefile): $file"
         return 0
     fi
-    
+
     # Check if file has tabs
     if ! grep -q $'\t' "$file"; then
         [[ $VERBOSE -eq 1 ]] && echo "Already clean: $file"
         return 0
     fi
-    
+
     local num_spaces
     num_spaces=$(get_spaces_for_file "$file")
     local tab_count
     tab_count=$(grep -o $'\t' "$file" | wc -l)
-    
+
     if [[ $DRY_RUN -eq 1 ]]; then
         [[ $VERBOSE -eq 1 ]] && echo -e "${YELLOW}Would fix: $file ($tab_count tabs → $num_spaces spaces)${NC}"
         return 0
     fi
-    
+
     # Replace tabs with spaces
     if [[ "$num_spaces" -eq 2 ]]; then
         sed -i 's/\t/  /g' "$file"
     else
         sed -i 's/\t/    /g' "$file"
     fi
-    
+
     [[ $VERBOSE -eq 1 ]] && echo -e "${GREEN}Fixed: $file ($tab_count tabs → $num_spaces spaces)${NC}"
 }
 

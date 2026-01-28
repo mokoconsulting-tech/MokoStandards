@@ -471,6 +471,53 @@ All workflows must be tested before merging:
 - [ ] Workflow produces expected outputs
 - [ ] Documentation is complete and accurate
 
+### Dry-Run Best Practices
+
+**Workflows that call validation or fix scripts should support dry-run mode for testing.**
+
+**Example workflow with dry-run support:**
+
+```yaml
+name: Repository Health Check
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Run in dry-run mode'
+        required: false
+        type: boolean
+        default: false
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run health check
+        run: |
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            python3 scripts/validate/check_repo_health.py --dry-run
+          else
+            python3 scripts/validate/check_repo_health.py
+          fi
+```
+
+**Benefits of dry-run in workflows:**
+- Test validation logic without blocking builds
+- Preview changes before applying them
+- Faster feedback during development
+- Safer experimentation with workflow changes
+
+**When to use dry-run:**
+- ✅ Testing new validation rules
+- ✅ Previewing file modifications
+- ✅ Debugging workflow issues
+- ✅ Training and documentation
+
 ## Workflow Maintenance
 
 ### Version Management

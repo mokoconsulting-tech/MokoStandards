@@ -21,8 +21,8 @@
 
 # File Headers Policy
 
-**Version:** 1.0.0  
-**Status:** Active  
+**Version:** 1.0.0
+**Status:** Active
 **Last Updated:** 2025-01-28
 
 ## Overview

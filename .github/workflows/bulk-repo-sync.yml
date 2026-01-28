@@ -29,6 +29,52 @@
 
 name: Bulk Repository Sync
 
+# ┌─────────────────────────────────────────────────────────────────────────┐
+# │                         WORKFLOW FLOW DIAGRAM                            │
+# └─────────────────────────────────────────────────────────────────────────┘
+#
+#   TRIGGER: Monthly Schedule (1st @ 00:00 UTC) or Manual Dispatch
+#        │
+#        ▼
+#   ┌──────────────────┐
+#   │  Parse Terraform │
+#   │  Override Config │───┐ Read MokoStandards.override.tf
+#   └──────────────────┘   │ Extract exclusions & configs
+#        │                 │
+#        ▼                 │
+#   ┌──────────────────┐   │
+#   │  List All Org    │◀──┘
+#   │  Repositories    │
+#   └──────────────────┘
+#        │
+#        ▼
+#   ┌──────────────────┐
+#   │   Filter Repos   │───┐ Apply exclusions
+#   │ Apply Exclusions │   │ Skip archived/disabled
+#   └──────────────────┘   │
+#        │                 │
+#        ▼                 │
+#   ╔══════════════════╗   │
+#   ║  FOR EACH REPO:  ║◀──┘
+#   ╚══════════════════╝
+#        │
+#        ├────────────────┬────────────────┬────────────────┐
+#        ▼                ▼                ▼                ▼
+#   ┌─────────┐    ┌──────────┐    ┌─────────┐    ┌──────────┐
+#   │  Sync   │    │   Sync   │    │  Sync   │    │  Create  │
+#   │Workflows│    │ Scripts  │    │ Configs │    │   PR     │
+#   └─────────┘    └──────────┘    └─────────┘    └──────────┘
+#        │                │                │                │
+#        └────────────────┴────────────────┴────────────────┘
+#                         │
+#                         ▼
+#                ┌─────────────────┐
+#                │   OUTPUTS:      │
+#                │ • Sync Report   │
+#                │ • PR Links      │
+#                │ • Error Summary │
+#                └─────────────────┘
+
 on:
   # Run monthly on the 1st at 00:00 UTC
   schedule:

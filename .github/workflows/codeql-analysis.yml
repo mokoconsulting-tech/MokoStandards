@@ -28,6 +28,50 @@
 
 name: "CodeQL Security Scanning"
 
+# ┌─────────────────────────────────────────────────────────────────────────┐
+# │                         WORKFLOW FLOW DIAGRAM                            │
+# └─────────────────────────────────────────────────────────────────────────┘
+#
+#   TRIGGER: Push/PR/Schedule (Weekly Mon 6am UTC)
+#        │
+#        ▼
+#   ┌──────────────────┐
+#   │ Checkout Code    │
+#   │  (Full Depth)    │
+#   └──────────────────┘
+#        │
+#        ▼
+#   ┌──────────────────┐
+#   │ Initialize       │───┐ Language: Python
+#   │ CodeQL Database  │   │ Query Suite: security-extended,
+#   └──────────────────┘   │             security-and-quality
+#        │                 │
+#        ▼                 │
+#   ┌──────────────────┐   │
+#   │  Auto-Build      │◀──┘
+#   │  Source Code     │
+#   └──────────────────┘
+#        │
+#        ▼
+#   ┌──────────────────┐
+#   │ Run CodeQL       │───┐ SAST Analysis
+#   │   Analysis       │   │ Security Patterns
+#   └──────────────────┘   │ Vulnerability Detection
+#        │                 │
+#        ▼                 │
+#   ┌──────────────────┐   │
+#   │ Upload Results   │◀──┘
+#   │ to GitHub SARIF  │
+#   └──────────────────┘
+#        │
+#        ▼
+#   ┌──────────────────┐
+#   │    OUTPUTS:      │
+#   │ • SARIF Report   │
+#   │ • Security Tab   │
+#   │ • Alert Summary  │
+#   └──────────────────┘
+
 on:
   push:
     branches:

@@ -28,6 +28,54 @@
 
 name: Auto Release on Version Bump
 
+# ┌─────────────────────────────────────────────────────────────────────────┐
+# │                         WORKFLOW FLOW DIAGRAM                            │
+# └─────────────────────────────────────────────────────────────────────────┘
+#
+#   TRIGGER: Push to Main (CITATION.cff or pyproject.toml changed)
+#        │
+#        ▼
+#   ┌────────────────────┐
+#   │  Detect Version    │
+#   │  Change in Files   │───┐ Compare HEAD vs HEAD~1
+#   └────────────────────┘   │
+#        │                   │
+#        ├───────────────────┤
+#        │                   │
+#        ▼                   ▼
+#   ┌──────────────┐   ┌──────────────┐
+#   │ CITATION.cff │   │pyproject.toml│
+#   │   Changed?   │   │   Changed?   │
+#   └──────────────┘   └──────────────┘
+#        │                   │
+#        └─────────┬─────────┘
+#                  ▼
+#         ┌──────────────────┐
+#         │  Extract New     │
+#         │  Version Number  │
+#         │  (vXX.YY.ZZ)     │
+#         └──────────────────┘
+#                  │
+#                  ▼
+#         ┌──────────────────┐
+#         │  Create Git Tag  │
+#         │    vXX.YY.ZZ     │
+#         └──────────────────┘
+#                  │
+#                  ▼
+#         ┌──────────────────┐
+#         │ Create GitHub    │
+#         │    Release       │───┐ Extract notes from CHANGELOG.md
+#         └──────────────────┘   │
+#                  │              │
+#                  ▼              │
+#         ┌──────────────────┐   │
+#         │    OUTPUTS:      │◀──┘
+#         │ • Git Tag        │
+#         │ • Release Notes  │
+#         │ • Release Assets │
+#         └──────────────────┘
+
 on:
   push:
     branches:

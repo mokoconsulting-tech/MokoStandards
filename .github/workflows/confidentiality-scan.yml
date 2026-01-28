@@ -28,6 +28,53 @@
 
 name: Confidentiality Scan
 
+# ┌─────────────────────────────────────────────────────────────────────────┐
+# │                         WORKFLOW FLOW DIAGRAM                            │
+# └─────────────────────────────────────────────────────────────────────────┘
+#
+#   TRIGGER: Push/PR to main/dev/rc/version branches
+#        │
+#        ▼
+#   ┌──────────────────┐
+#   │ Checkout Code    │
+#   │ (Full History)   │
+#   └──────────────────┘
+#        │
+#        ├──────────────────────────────────────────────┐
+#        │                                              │
+#        ▼                                              ▼
+#   ┌────────────────────┐                    ┌────────────────────┐
+#   │ Scan Organization  │                    │  Scan Sensitive    │
+#   │    References      │───┐                │     Patterns       │
+#   │ (private repos,    │   │                │ (API keys, tokens, │
+#   │  internal URLs)    │   │                │  credentials)      │
+#   └────────────────────┘   │                └────────────────────┘
+#        │                   │                         │
+#        ▼                   │                         ▼
+#   ┌────────────────────┐   │                ┌────────────────────┐
+#   │ Detect Violations  │◀──┘                │ Detect Secrets     │
+#   │   in Files         │                    │   & Leaks          │
+#   └────────────────────┘                    └────────────────────┘
+#        │                                              │
+#        └──────────────────┬───────────────────────────┘
+#                           │
+#                           ▼
+#                  ┌─────────────────┐
+#                  │ Violations      │
+#                  │   Found?        │
+#                  └─────────────────┘
+#                      │          │
+#                  YES │          │ NO
+#                      ▼          ▼
+#            ┌─────────────┐  ┌─────────┐
+#            │CREATE ISSUE │  │ SUCCESS │
+#            │with Details:│  │  Report │
+#            │• File Paths │  └─────────┘
+#            │• Violation  │
+#            │  Types      │
+#            │• Remediation│
+#            └─────────────┘
+
 on:
   pull_request:
     branches:

@@ -46,12 +46,6 @@ on:
         required: false
         type: string
         default: '["4.4", "5.0", "5.1"]'
-      # Legacy input names for backward compatibility
-      joomla-versions:
-        description: '[DEPRECATED] Use platform-versions instead'
-        required: false
-        type: string
-        default: ''
       coverage:
         description: 'Enable code coverage reporting'
         required: false
@@ -67,12 +61,6 @@ on:
         required: false
         type: string
         default: '5.0'
-      # Legacy input name for backward compatibility
-      coverage-joomla-version:
-        description: '[DEPRECATED] Use coverage-platform-version instead'
-        required: false
-        type: string
-        default: ''
       working-directory:
         description: 'Working directory for tests'
         required: false
@@ -166,12 +154,9 @@ jobs:
           echo "platform=$PLATFORM" >> $GITHUB_OUTPUT
           echo "Detected platform: $PLATFORM"
 
-          # Resolve platform versions (handle legacy input names)
+          # Resolve platform versions
           if [ -n "${{ inputs.platform-versions }}" ]; then
             VERSIONS="${{ inputs.platform-versions }}"
-          elif [ -n "${{ inputs.joomla-versions }}" ]; then
-            VERSIONS="${{ inputs.joomla-versions }}"
-            echo "⚠️ Warning: joomla-versions is deprecated, use platform-versions"
           else
             # Set default versions based on platform
             if [ "$PLATFORM" == "dolibarr" ]; then
@@ -187,9 +172,6 @@ jobs:
           # Resolve coverage platform version
           if [ -n "${{ inputs.coverage-platform-version }}" ]; then
             COV_VERSION="${{ inputs.coverage-platform-version }}"
-          elif [ -n "${{ inputs.coverage-joomla-version }}" ]; then
-            COV_VERSION="${{ inputs.coverage-joomla-version }}"
-            echo "⚠️ Warning: coverage-joomla-version is deprecated, use coverage-platform-version"
           else
             if [ "$PLATFORM" == "dolibarr" ]; then
               COV_VERSION="19.0"

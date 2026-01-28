@@ -115,8 +115,8 @@ class RepositoryStructureValidator:
             except Exception:
                 pass
             
-            # Default to XML for backward compatibility
-            return "xml"
+            # Unable to detect format
+            raise ValueError(f"Unable to detect schema format for {self.schema_path}")
     
     def _load_xml_schema(self):
         """Load XML schema"""

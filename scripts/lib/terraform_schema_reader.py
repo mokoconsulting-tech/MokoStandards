@@ -229,42 +229,6 @@ class TerraformSchemaReader:
         }
 
 
-# Backward compatibility: maintain similar interface to old XML parser
-class LegacySchemaAdapter:
-    """
-    Adapter to maintain backward compatibility with old XML-based schema readers.
-    
-    This allows existing scripts to work with minimal changes while using
-    Terraform-based configuration under the hood.
-    """
-    
-    def __init__(self, config_source: str, repo_path: str = "."):
-        """
-        Initialize adapter.
-        
-        Args:
-            config_source: Ignored (for compatibility)
-            repo_path: Repository path
-        """
-        self.repo_path = repo_path
-        self.reader = TerraformSchemaReader()
-        self.config = None
-        
-    def load_config(self) -> bool:
-        """Load configuration (compatibility method)."""
-        try:
-            self.config = self.reader.get_health_config()
-            return True
-        except Exception:
-            return False
-    
-    def get_health_config(self) -> Dict[str, Any]:
-        """Get health configuration."""
-        if self.config is None:
-            self.load_config()
-        return self.config
-
-
 if __name__ == '__main__':
     # Example usage
     try:

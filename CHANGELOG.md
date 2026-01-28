@@ -25,6 +25,19 @@
 
 ## [UNRELEASED]
 
+### Removed - Backward Compatibility
+- **Backward Compatibility Code Removed**: Cleaned up legacy support code
+  - Removed `LegacySchemaAdapter` class from `terraform_schema_reader.py`
+  - Removed deprecated `config_source` parameter from `check_repo_health.py`
+  - Removed `--config` CLI argument from repo health checker
+  - Removed deprecated workflow inputs: `joomla-versions`, `coverage-joomla-version`
+  - Removed legacy input handling code from `reusable-platform-testing.yml` and template
+  - Removed documentation for legacy `<template>` field in schema guide
+  - Removed XML format fallback in `validate_structure_v2.py`
+  - Rationale: v03.00.00 uses Terraform-based configuration exclusively
+  - Breaking Change: Scripts using old XML config format will no longer work
+  - Migration: Use Terraform .tf configuration files and new workflow input names
+
 ### Fixed - Shell Script Syntax Errors
 - **Workflow Bug Fix**: Fixed shell script syntax errors in standards-compliance.yml
   - Fixed 22 instances of unquoted variables in conditional tests

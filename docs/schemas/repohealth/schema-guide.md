@@ -787,16 +787,7 @@ Set `<create-path>` explicitly:
 </destination>
 ```
 
-### 4. Template Legacy Field
-
-Maintain legacy `<template>` field for backward compatibility:
-```xml
-<source>...</source>
-<destination>...</destination>
-<template>templates/workflows/generic/ci.yml.template</template>
-```
-
-### 5. Stub Content for Complex Files
+### 4. Stub Content for Complex Files
 
 Provide comprehensive stub content for files requiring structure:
 ```xml

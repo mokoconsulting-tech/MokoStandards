@@ -115,13 +115,13 @@ $(git status --porcelain | awk '
     {
         x = substr($0, 1, 1);
         y = substr($0, 2, 1);
+        # Count each file only once based on most significant status
+        # Priority: Added > Deleted > Modified/Renamed/Copied
         if (x == "A" || y == "A") {
             added++;
-        }
-        if (x == "D" || y == "D") {
+        } else if (x == "D" || y == "D") {
             deleted++;
-        }
-        if (x == "M" || y == "M" || x == "R" || y == "R" || x == "C" || y == "C") {
+        } else if (x == "M" || y == "M" || x == "R" || y == "R" || x == "C" || y == "C") {
             modified++;
         }
     }
@@ -136,7 +136,7 @@ $(git status --porcelain | awk '
 ')
 EOF
     
-    print_info "Summary: $modified modified, $added added, $deleted deleted, $untracked untracked"
+    print_info "Summary: $modified changed, $added added, $deleted deleted, $untracked untracked"
 }
 
 # Clean untracked files

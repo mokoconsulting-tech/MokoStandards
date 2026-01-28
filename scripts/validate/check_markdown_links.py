@@ -51,6 +51,10 @@ def extract_markdown_links(file_path: Path) -> List[Tuple[int, str, str]]:
 
         # Second pass: extract links
         for line_num, line in enumerate(lines, start=1):
+            # Skip reference definition lines
+            if re.match(r'^\s*\[([^\]]+)\]:\s*\S+', line):
+                continue
+
             # Match markdown links: [text](url)
             for match in re.finditer(r'\[([^\]]+)\]\(([^)]+)\)', line):
                 text = match.group(1)
@@ -64,6 +68,16 @@ def extract_markdown_links(file_path: Path) -> List[Tuple[int, str, str]]:
                 # Only include reference links that have a defined target
                 if ref in ref_definitions:
                     resolved_url = ref_definitions[ref]
+                    links.append((line_num, text, resolved_url))
+
+            # Match shortcut reference links: [text] (where text is also the ref)
+            # Exclude inline links [text](url) and explicit reference links [text][ref]
+            # Also exclude the second bracket in [text1][text2]
+            for match in re.finditer(r'(?<!\])\[([^\]]+)\](?!\(|\[)', line):
+                text = match.group(1)
+                # Check if this text has a reference definition
+                if text in ref_definitions:
+                    resolved_url = ref_definitions[text]
                     links.append((line_num, text, resolved_url))
 
             # Match autolinks: <url>

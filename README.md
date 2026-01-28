@@ -255,12 +255,60 @@ Full documentation: [docs/index.md](docs/index.md)
 
 ## Two-Tier Architecture
 
-MokoStandards implements a [two-tier architecture](docs/policy/two-tier-architecture.md):
+MokoStandards implements a [two-tier architecture](docs/policy/two-tier-architecture.md) for standards management:
 
-- **Tier 2 (This Repository - Public)**: Public coding standards, templates, and community guidelines
-- **Tier 1 (.github-private - Private)**: Internal enforcement, access control, proprietary automation
+### Architecture Overview
 
-Public projects reference this repository. Organization members can also access `.github-private` for internal policies.
+```
+┌─────────────────────────────────────────────────────────────┐
+│                 TWO-TIER ARCHITECTURE                       │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  Tier 1: .github-private (PRIVATE)                         │
+│  ├─ Organization-internal policies & procedures            │
+│  ├─ Proprietary workflows with secrets                     │
+│  ├─ Sensitive deployment scripts                           │
+│  └─ Calls reusable workflows from MokoStandards (Tier 2) → │
+│                                                             │
+│  Tier 2: MokoStandards (PUBLIC - THIS REPOSITORY)          │
+│  ├─ SOURCE OF TRUTH for schemas & configurations           │
+│  ├─ Public coding standards & best practices               │
+│  ├─ Generic reusable workflows (CI/CD, security)           │
+│  ├─ Platform-specific standards (Joomla, Dolibarr)         │
+│  └─ Community-shareable templates                          │
+│                                                             │
+│  Organization Repositories                                 │
+│  └─ Inherit from appropriate tier based on visibility      │
+│     ├─ Public repos → Use Tier 2 (MokoStandards)          │
+│     └─ Private repos → Use Tier 1 (.github-private)       │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Tier Definitions
+
+**Tier 1: `.github-private` (Private Enforcement Layer)**
+- **Authority**: Highest for internal/private projects
+- **Visibility**: Organization members only
+- **Purpose**: Private and secure centralization for internal standards
+- **Content**: Proprietary workflows, access control, deployment automation, enterprise compliance
+- **Relationship**: Calls and references standards from Tier 2 (MokoStandards)
+
+**Tier 2: `MokoStandards` (Public Standards Layer - THIS REPOSITORY)**
+- **Authority**: Highest for public/open-source projects
+- **Visibility**: Public to open-source community
+- **Purpose**: Public central for community standards and source of truth
+- **Content**: Open-source standards, generic CI/CD patterns, public templates, reusable workflows
+- **Role**: Source of truth for all schema definitions, Terraform configurations, and validation logic
+
+### How Repositories Use This Architecture
+
+- **Public Projects**: Reference MokoStandards (Tier 2) directly for standards and workflows
+- **Internal Projects**: Use `.github-private` (Tier 1) which extends and calls workflows from MokoStandards
+- **Schema & Configuration**: ALL schema definitions maintained here (MokoStandards) - other repositories are consumers
+
+⚠️ **Important**: `.github-private` is a CONSUMER of upstream standards from MokoStandards, not a source of truth. It extends (not duplicates) these definitions with organization-specific customizations only.
+
+See [Two-Tier Architecture Policy](docs/policy/two-tier-architecture.md) for complete details.
 
 ## Contributing to Standards
 

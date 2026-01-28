@@ -13,7 +13,7 @@
 set -euo pipefail
 
 # Default values
-DRY_RUN=0
+DRY_RUN=false
 VERBOSE=1
 FILE_TYPE=""
 EXTENSIONS=()
@@ -72,7 +72,7 @@ while [[ $# -gt 0 ]]; do
             shift 2
             ;;
         --dry-run)
-            DRY_RUN=1
+            DRY_RUN=true
             shift
             ;;
         --quiet)
@@ -184,7 +184,7 @@ fix_tabs() {
     local tab_count
     tab_count=$(grep -o $'\t' "$file" | wc -l)
 
-    if [[ $DRY_RUN -eq 1 ]]; then
+    if [ "$DRY_RUN" = true ]; then
         [[ $VERBOSE -eq 1 ]] && echo -e "${YELLOW}Would fix: $file ($tab_count tabs → $num_spaces spaces)${NC}"
         return 0
     fi
@@ -222,7 +222,7 @@ if [[ ${#TARGETS[@]} -eq 0 ]]; then
 fi
 
 if [[ $VERBOSE -eq 1 ]]; then
-    if [[ $DRY_RUN -eq 1 ]]; then
+    if [ "$DRY_RUN" = true ]; then
         echo "DRY RUN: Checking ${#TARGETS[@]} file(s)..."
     else
         echo "Fixing ${#TARGETS[@]} file(s)..."
@@ -248,7 +248,7 @@ done
 # Summary
 [[ $VERBOSE -eq 1 ]] && echo
 
-if [[ $DRY_RUN -eq 1 ]]; then
+if [ "$DRY_RUN" = true ]; then
     echo "Would modify $MODIFIED file(s)"
 else
     echo "Modified $MODIFIED file(s)"

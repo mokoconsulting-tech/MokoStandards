@@ -26,16 +26,38 @@
 
 set -euo pipefail
 
+DRY_RUN=false
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        *)
+            shift
+            ;;
+    esac
+done
+
 echo "[INFO] Fixing file permissions..."
 
-# Fix directory permissions
-find . -type d -not -path './.git/*' -exec chmod 755 {} \; 2>/dev/null || true
+if [ "$DRY_RUN" = true ]; then
+  echo "[DRY-RUN] Would execute: find . -type d -not -path './.git/*' -exec chmod 755 {} \;"
+  echo "[DRY-RUN] Would execute: find . -type f -not -path './.git/*' -exec chmod 644 {} \;"
+  echo "[DRY-RUN] Would execute: find . -type f -name '*.sh' -not -path './.git/*' -exec chmod 755 {} \;"
+  echo "[OK] Permissions would be fixed (dry-run)"
+else
+  # Fix directory permissions
+  find . -type d -not -path './.git/*' -exec chmod 755 {} \; 2>/dev/null || true
 
-# Fix file permissions
-find . -type f -not -path './.git/*' -exec chmod 644 {} \; 2>/dev/null || true
+  # Fix file permissions
+  find . -type f -not -path './.git/*' -exec chmod 644 {} \; 2>/dev/null || true
 
-# Make scripts executable
-find . -type f -name '*.sh' -not -path './.git/*' -exec chmod 755 {} \; 2>/dev/null || true
+  # Make scripts executable
+  find . -type f -name '*.sh' -not -path './.git/*' -exec chmod 755 {} \; 2>/dev/null || true
 
-echo "[OK] Permissions fixed"
+  echo "[OK] Permissions fixed"
+fi
 exit 0

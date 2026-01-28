@@ -128,7 +128,7 @@ All documents must include a Revision History section using the following standa
 | Change  | Brief description of what changed                    | Short summary        |
 | Notes   | Additional context, rationale, or reference details  | Extended explanation |
 
-The table must include headers and use the pipe-delimited markdown format. Entries must be listed in chronological order from oldest to newest.
+The table must include headers and use the pipe-delimited markdown format. Entries must be listed in **descending chronological order** (newest first, oldest last).
 
 ## Combined Markdown Sample
 

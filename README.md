@@ -803,8 +803,8 @@ See [CITATION.cff](./CITATION.cff) for machine-readable citation information.
 
 | Version | Date | Author | Notes |
 |---------|------|--------|-------|
-| 01.00.00 | 2025-12-17 | Jonathan Miller (@jmiller-moko) | Initial standards baseline |
 | 02.00.00 | 2026-01-19 | GitHub Copilot | Complete v2.0 rebuild with enhanced structure, automation scripts, comprehensive documentation |
+| 01.00.00 | 2025-12-17 | Jonathan Miller (@jmiller-moko) | Initial standards baseline |
 
 ---
 

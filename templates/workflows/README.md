@@ -581,14 +581,14 @@ Use of these templates helps ensure:
 
 | Version  | Date       | Changes                                          |
 | -------- | ---------- | ------------------------------------------------ |
-| 01.00.00 | 2026-01-04 | Initial workflow templates for MokoStandards     |
-| 01.00.01 | 2026-01-04 | Consolidated templates to /templates/workflows/  |
 | 01.01.00 | 2026-01-04 | Added comprehensive development workflow templates |
+| 01.00.01 | 2026-01-04 | Consolidated templates to /templates/workflows/  |
+| 01.00.00 | 2026-01-04 | Initial workflow templates for MokoStandards     |
 
 ## Revision History
 
 | Date       | Change Description                                  | Author          |
 | ---------- | --------------------------------------------------- | --------------- |
-| 2026-01-04 | Initial creation with consolidated workflow templates | Moko Consulting |
-| 2026-01-04 | Moved to /templates/workflows/ directory            | Moko Consulting |
 | 2026-01-04 | Added Joomla test.yml, release.yml; Dolibarr ci.yml, test.yml; Generic ci.yml, test.yml, deploy.yml, code-quality.yml | Moko Consulting |
+| 2026-01-04 | Moved to /templates/workflows/ directory            | Moko Consulting |
+| 2026-01-04 | Initial creation with consolidated workflow templates | Moko Consulting |

@@ -999,8 +999,8 @@ See [LICENSE](./LICENSE) for full license text.
 
 | Version | Date | Author | Notes |
 |---------|------|--------|-------|
-| 01.00.00 | 2025-12-17 | Moko Consulting | Initial contribution guidelines |
 | 02.00.00 | 2026-01-19 | GitHub Copilot | Complete v2.0 rebuild with Python/PowerShell standards, type hints, Google docstrings |
+| 01.00.00 | 2025-12-17 | Moko Consulting | Initial contribution guidelines |
 
 ---
 

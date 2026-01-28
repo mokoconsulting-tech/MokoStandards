@@ -1,0 +1,20 @@
+<!--
+Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+
+This file is part of a Moko Consulting project.
+
+SPDX-License-Identifier: GPL-3.0-or-later
+
+FILE INFORMATION
+DEFGROUP: MokoStandards.Templates.Assets
+INGROUP: MokoStandards.Templates
+REPO: https://github.com/mokoconsulting-tech/MokoStandards
+FILE: templates/assets/favicon.svg
+VERSION: 01.00.00
+BRIEF: Moko Consulting favicon in SVG format
+PATH: /templates/assets/favicon.svg
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="6" fill="#667eea"/>
+  <text x="16" y="22" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="bold" fill="white">MC</text>
+</svg>

@@ -243,6 +243,9 @@ When customizing templates:
 ```
 templates/
 ├── index.md              # This file - catalog of all templates
+├── assets/               # Static assets (favicon, etc.)
+│   ├── favicon.svg      # Moko Consulting favicon
+│   └── README.md
 ├── workflows/            # GitHub Actions workflow templates
 │   ├── joomla/          # Joomla-specific workflows
 │   ├── dolibarr/        # Dolibarr-specific workflows

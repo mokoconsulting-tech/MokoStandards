@@ -539,3 +539,26 @@ Improvements to this architecture are welcome! Please:
 **Version:** 1.0.0  
 **Last Updated:** 2026-01-13  
 **License:** GPL-3.0-or-later
+
+## Metadata
+
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Guide                                       |
+| Domain         | Documentation                                         |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/guide/PUBLIC_ARCHITECTURE.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
+
+## Revision History
+
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

@@ -1,67 +1,70 @@
 # MokoStandards Schemas
 
-This directory contains XML schemas and configurations for standardizing repository layouts and health checks across Moko Consulting projects.
+## ⚠️ MIGRATION NOTICE
 
-## Contents
+**The schema system has been migrated from XML/JSON to Terraform.**
 
-### Repository Structure Schemas
-- **repository-structure.xsd** - XML Schema Definition (XSD) that defines the structure format
-- **structures/** - Directory containing specific structure definitions for different project types
+- **Old location**: `schemas/` directory (XML/XSD/JSON files) - **REMOVED**
+- **New location**: `terraform/` directory (Terraform configuration)
+- **Migration date**: January 2026
+- **Schema version**: 2.0
 
-### Repository Health Schemas
-- **repo-health.xsd** - XML Schema Definition (XSD) for repository health configuration
-- **repo-health-default.xml** - Default health check configuration for all Moko Consulting repositories
+For new projects, use the Terraform-based configuration. See [Terraform Schema Documentation](../../terraform/README.md).
+
+## Overview
+
+This document provides reference for the legacy XML-based schemas (now deprecated) and the new Terraform-based schema system.
+
+### Terraform-Based Schemas (Current - v2.0)
+
+The repository structure and health check configurations are now defined in Terraform:
+
+- **Location**: `terraform/repository-types/`
+- **Health Defaults**: `terraform/repository-types/repo-health-defaults.tf`
+- **Repository Structure**: `terraform/repository-types/default-repository.tf`
+
+See the [Terraform README](../../terraform/README.md) for complete documentation.
 
 ## Quick Start
 
-### Repository Structure
-
-#### Validate a Repository Structure
+### Repository Health Checks (Terraform-based)
 
 ```bash
-python scripts/validate/validate_structure.py schemas/structures/crm-module.xml .
-```
+# Check repository health using Terraform configuration
+python scripts/validate/check_repo_health.py --repo-path .
 
-#### Generate Stubs for a New Project
+# Verbose output
+python scripts/validate/check_repo_health.py --repo-path . --verbose
 
-```bash
-python scripts/validate/generate_stubs.py schemas/structures/crm-module.xml /path/to/new/project --dry-run
-```
-
-### Repository Health
-
-#### Validate Health Configuration
-
-```bash
-python scripts/validate/validate_repo_health.py schemas/repo-health-default.xml --verbose
-```
-
-#### Check Repository Health
-
-```bash
-# Using local configuration
-python scripts/validate/check_repo_health.py --config schemas/repo-health-default.xml --repo-path .
-
-# Using remote configuration (default)
+# JSON output
 python scripts/validate/check_repo_health.py --repo-path . --output json
 ```
 
-The health checker defaults to the remote configuration at:
-`https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/schemas/repo-health-default.xml`
+The health checker now reads configuration from Terraform instead of XML.
 
-## Available Structures
+### Repository Structure Validation (Legacy XML)
 
-### MokoCRM (Dolibarr) Modules
-- **File**: `structures/crm-module.xml`
-- **Purpose**: Standard structure for Dolibarr modules
-- **Key Feature**: Dual README structure
-  - Root `README.md`: Developer audience
-  - `src/README.md`: End-user audience
+Structure definitions in `scripts/definitions/` still use XML format:
 
-### MokoWaaS (Joomla) Extensions
-- **Component**: `structures/waas-component.xml` (to be added)
-- **Module**: `structures/waas-module.xml` (to be added)
-- **Plugin**: `structures/waas-plugin.xml` (to be added)
+```bash
+# Validate repository structure
+python scripts/validate/validate_structure.py scripts/definitions/crm-module.xml .
+
+# Generate stubs for new project
+python scripts/validate/generate_stubs.py scripts/definitions/crm-module.xml /path/to/new/project --dry-run
+```
+
+**Note**: These XML definitions will be migrated to Terraform in a future release.
+
+## Available Repository Types (Terraform)
+
+The Terraform configuration defines the following repository types:
+
+1. **Default Repository** - Standard structure for generic repositories
+2. **Library** - Structure for reusable libraries
+3. **Application** - Structure for standalone applications
+
+See `terraform/repository-types/` for complete definitions.
 
 ## Repository Health Configuration
 
@@ -87,24 +90,70 @@ The repository health system provides automated scoring and validation of reposi
 | **Fair** | 50-69% | 🟡 | Significant improvements required |
 | **Poor** | 0-49% | ❌ | Critical issues, requires immediate attention |
 
-### Remote Configuration
+### Configuration Source
 
-The default health configuration is available remotely at:
+Health check configuration is now stored in Terraform:
+
 ```
-https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/schemas/repo-health-default.xml
+terraform/repository-types/repo-health-defaults.tf
 ```
 
-This allows repositories to reference the configuration without vendoring it locally, ensuring all repositories use the latest standards.
+The configuration is loaded automatically by validation scripts using the `TerraformSchemaReader` module.
 
 ### Customizing Health Checks
 
-Organizations can create custom health configurations by:
-1. Copying `repo-health-default.xml` as a template
-2. Modifying categories, checks, and scoring as needed
-3. Validating against `repo-health.xsd` schema
-4. Hosting in a private repository or using locally
+Organizations can customize health configurations by:
+1. Modifying `terraform/repository-types/repo-health-defaults.tf`
+2. Creating custom repository type definitions
+3. Using Terraform variables to override defaults
+4. Running `terraform fmt` and `terraform validate` to verify changes
 
-See the [coordinating prompt](.copilot-prompts/github-private-integration-repo-health.md) for organization-specific implementation guidance.
+See the [Terraform README](../../terraform/README.md) for detailed customization guidance.
+
+## Python API
+
+### Using TerraformSchemaReader
+
+The new Terraform-based schemas can be accessed from Python:
+
+```python
+from terraform_schema_reader import TerraformSchemaReader
+
+# Initialize reader
+reader = TerraformSchemaReader()
+
+# Get health configuration
+health_config = reader.get_health_config()
+print(f"Total points: {health_config['scoring']['total_points']}")
+
+# Get repository structure
+structure = reader.get_repository_structure('default')
+print(f"Root files: {len(structure['root_files'])}")
+
+# Get checks by category
+ci_checks = reader.get_checks_by_category('ci-cd-status')
+for check in ci_checks:
+    print(f"- {check['name']} ({check['points']} pts)")
+
+# Get all categories
+categories = reader.get_all_categories()
+
+# Get thresholds
+thresholds = reader.get_thresholds()
+```
+
+### Backward Compatibility
+
+For scripts that used the old XML-based API, a compatibility adapter is provided:
+
+```python
+from terraform_schema_reader import LegacySchemaAdapter
+
+# Old code still works (config_source is ignored)
+adapter = LegacySchemaAdapter('ignored.xml', repo_path='.')
+adapter.load_config()
+config = adapter.get_health_config()
+```
 
 ## Documentation
 
@@ -342,3 +391,26 @@ jobs:
 
 **Version**: 1.1.0  
 **Last Updated**: 2026-01-08
+
+## Metadata
+
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Reference                                       |
+| Domain         | Reference                                         |
+| Applies To     | Specific Projects                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/reference/schemas.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
+
+## Revision History
+
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

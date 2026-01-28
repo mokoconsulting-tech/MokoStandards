@@ -357,19 +357,23 @@ This policy depends on:
 
 ## Metadata
 
-- **Document Type:** policy
-- **Document Subtype:** core
-- **Owner Role:** Governance Owner
-- **Approval Required:** Yes
-- **Evidence Required:** Yes
-- **Review Cycle:** Annual
-- **Retention:** Indefinite
-- **Compliance Tags:** Governance, Compliance, Security, Audit
-- **Status:** Published
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Policy                                       |
+| Domain         | Governance                                         |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/policy/data-classification.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-- Initial policy established
-- Classification levels and criteria defined
-- Access control and handling requirements documented
-- Storage, transmission, and retention requirements specified
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

@@ -491,13 +491,6 @@ except Exception as e:
 
 ## Revision History
 
-| Date | Change | Author |
-|------|--------|--------|
-| 2026-01-15 | Initial comprehensive library guide | GitHub Copilot |
-| 2026-01-15 | Added PowerShell version requirement note | GitHub Copilot |
-
-## See Also
-
-- [Scripts Documentation](../README.md)
-- [Python Style Guide](/docs/policy/python-standards.md)
-- [Contributing Guide](/CONTRIBUTING.md)
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

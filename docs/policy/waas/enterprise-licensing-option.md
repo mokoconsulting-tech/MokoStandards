@@ -123,16 +123,23 @@ Compliance with this option is mandatory where contracted.
 
 ## Metadata
 
-* **STANDARD TYPE**: Policy Addendum
-* **SERVICE LEVEL**: Enterprise Option
-* **APPLIES TO**: Contracted enterprise WaaS clients
-* **AUTHORITY**: Moko Consulting
-* **REPOSITORY CLASS**: Governance
-* **STATUS**: Active
-* **PATH**: /docs/policy/waas/enterprise-licensing-option.md
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Policy                                       |
+| Domain         | Governance                                         |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/policy/waas/enterprise-licensing-option.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-| Date       | Change Description      | Author          |
-| ---------- | ----------------------- | --------------- |
-| 2025-12-23 | Initial policy creation | Moko Consulting |
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

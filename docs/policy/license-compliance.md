@@ -335,15 +335,20 @@ If a violation is discovered:
 
 ## Metadata
 
-| Field | Value |
-|---|---|
-| Document | License Compliance |
-| Path | /docs/license-compliance.md |
-| Repository | https://github.com/mokoconsulting-tech/MokoStandards |
-| Owner | Moko Consulting |
-| Status | Active |
-| Version | 01.00.00 |
-| Effective | 2026-01-07 |
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Policy                                       |
+| Domain         | Governance                                         |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/policy/license-compliance.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Version History
 
@@ -357,3 +362,9 @@ If a violation is discovered:
 - [Contributing Guidelines](../CONTRIBUTING.md)
 - [Code Review Guidelines](code-review-guidelines.md)
 - [Dependency Review Workflow](../../templates/workflows/generic/dependency-review.yml.template)
+
+## Revision History
+
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

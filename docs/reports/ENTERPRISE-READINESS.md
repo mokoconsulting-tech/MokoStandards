@@ -560,3 +560,26 @@ Recommended for mature organizations.
 - Existing WAAS-specific policies can inform general policies
 - Consider external compliance consultants for specific frameworks (SOC 2, ISO 27001)
 - Regular review required as regulatory requirements evolve
+
+## Metadata
+
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Report                                       |
+| Domain         | Operations                                         |
+| Applies To     | Specific Projects                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/reports/ENTERPRISE-READINESS.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
+
+## Revision History
+
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

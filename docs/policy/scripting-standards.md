@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Development
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/scripting-standards.md
-VERSION: 05.00.00
+VERSION: 02.00.00
 BRIEF: Standards and requirements for automation scripts and tooling
 -->
 
@@ -622,7 +622,7 @@ DEFGROUP: MokoStandards.Scripts
 INGROUP: MokoStandards.Automation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /scripts/my_script.py
-VERSION: 05.00.00
+VERSION: 02.00.00
 BRIEF: Brief description of script purpose
 """
 ```
@@ -758,18 +758,23 @@ This policy depends on:
 
 ## Metadata
 
-- **Document Type**: policy
-- **Document Subtype**: core
-- **Owner Role**: Documentation Owner
-- **Approval Required**: Yes
-- **Evidence Required**: Yes
-- **Review Cycle**: Annual
-- **Retention**: Indefinite
-- **Compliance Tags**: Development, Standards, Security
-- **Status**: Published
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Policy                                       |
+| Domain         | Governance                                         |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/policy/scripting-standards.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-| Date       | Version  | Author          | Notes                                  |
-| ---------- | -------- | --------------- | -------------------------------------- |
-| 2026-01-04 | 05.00.00 | Moko Consulting | Initial scripting standards policy |
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

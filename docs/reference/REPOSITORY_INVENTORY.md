@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/REPOSITORY_INVENTORY.md
-VERSION: 06.01.00
+VERSION: 02.00.00
 BRIEF: Complete inventory of all Moko Consulting organization repositories coupled to MokoStandards
 -->
 
@@ -409,18 +409,23 @@ This inventory is maintained by:
 
 ## Metadata
 
-| Field      | Value                                                                                                        |
-|------------|--------------------------------------------------------------------------------------------------------------|
-| Document   | Repository Inventory                                                                                         |
-| Path       | /docs/REPOSITORY_INVENTORY.md                                                                               |
-| Repository | [https://github.com/mokoconsulting-tech/MokoStandards](https://github.com/mokoconsulting-tech/MokoStandards) |
-| Owner      | Moko Consulting                                                                                              |
-| Scope      | Organization-wide repository governance                                                                       |
-| Status     | Published                                                                                                    |
-| Effective  | 2026-01-09                                                                                                   |
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Reference                                       |
+| Domain         | Reference                                         |
+| Applies To     | Specific Projects                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/reference/REPOSITORY_INVENTORY.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-| Version  | Date       | Author                          | Notes                                                            |
-|----------|------------|---------------------------------|------------------------------------------------------------------|
-| 06.01.00 | 2026-01-09 | GitHub Copilot                  | Initial creation: Complete inventory of organization repositories coupled to MokoStandards |
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

@@ -344,8 +344,6 @@ This document provides a comprehensive directory of all email addresses referenc
 
 ## Revision History
 
-| Date | Change | Author |
-|------|--------|--------|
-| 2026-01-16 | Initial email directory created | GitHub Copilot |
-| 2026-01-16 | Added all email references from documentation | GitHub Copilot |
-| 2026-01-16 | Added SLA and usage guidelines | GitHub Copilot |
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

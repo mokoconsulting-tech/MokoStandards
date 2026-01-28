@@ -270,22 +270,23 @@ Request exceptions via GitHub issue with `security-exception` label.
 
 ## Metadata
 
-| Field | Value |
-|-------|-------|
-| Document Type | Policy |
-| Policy ID | SEC-DIR-001 |
-| Owner | Security Team |
-| Approval Required | Yes |
-| Evidence Required | Yes |
-| Review Cycle | Annual |
-| Compliance Tags | Security, Web Security, PHP Security |
-| Status | Active |
-| Effective Date | 2026-01-16 |
-| Last Updated | 2026-01-16 |
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Policy                                       |
+| Domain         | Governance                                         |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/policy/security/directory-listing-prevention.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-| Date | Version | Change Description | Author |
-|------|---------|-------------------|--------|
-| 2026-01-16 | 01.01.00 | Added index.php requirement for PHP projects | GitHub Copilot |
-| 2026-01-16 | 01.00.00 | Initial policy creation | GitHub Copilot |
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

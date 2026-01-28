@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Guide
 INGROUP: MokoStandards.WaaS
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/guide/waas/joomla-development-guide.md
-VERSION: 05.00.00
+VERSION: 02.00.00
 BRIEF: Practical guide for developing custom extensions for Joomla/MokoWaaS
 -->
 
@@ -765,18 +765,23 @@ use Joomla\CMS\Language\Text;
 
 ## Metadata
 
-- **Document Type**: guide
-- **Document Subtype**: technical
-- **Owner Role**: WaaS Development Lead
-- **Approval Required**: No
-- **Evidence Required**: No
-- **Review Cycle**: Quarterly
-- **Retention**: Indefinite
-- **Compliance Tags**: Development, Guide, WaaS, Joomla
-- **Status**: Published
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Guide                                       |
+| Domain         | Documentation                                         |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/guide/waas/joomla-development-guide.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-| Date       | Version  | Author          | Notes                                  |
-| ---------- | -------- | --------------- | -------------------------------------- |
-| 2026-01-07 | 05.00.00 | Moko Consulting | Initial Joomla development guide |
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

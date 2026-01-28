@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Policy.Governance
 INGROUP: MokoStandards.Policy
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/governance/release-management.md
-VERSION: 01.00.00
+VERSION: 02.00.00
 BRIEF: Release management policy for production deployments
 -->
 
@@ -302,17 +302,23 @@ Using Akeeba system capabilities:
 
 ## Metadata
 
-- **Document Type**: Policy
-- **Category**: Governance
-- **Priority**: Tier 3 - Standard
-- **Implementation Phase**: Phase 4 (Months 7-8)
-- **Owner**: [To be assigned]
-- **Review Frequency**: Quarterly
-- **Last Updated**: 2026-01-07
-- **Status**: DRAFT (Stub Created)
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Policy                                       |
+| Domain         | Governance                                         |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/policy/governance/release-management.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-| Date | Version | Author | Changes |
-|------|---------|--------|---------|
-| 2026-01-07 | 01.00.00 | Copilot Agent | Initial stub creation with Akeeba release system integration |
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

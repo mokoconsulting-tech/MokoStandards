@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Workflows
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/workflow-standards.md
-VERSION: 01.00.00
+VERSION: 02.00.00
 BRIEF: Workflow governance and standards for GitHub Actions
 -->
 
@@ -708,15 +708,23 @@ jobs:
 
 ## Metadata
 
-* **Document**: docs/policy/workflow-standards.md
-* **Repository**: [MokoStandards](https://github.com/mokoconsulting-tech/MokoStandards)
-* **Owner**: Moko Consulting Engineering Team
-* **Scope**: GitHub Actions workflow standards and governance
-* **Lifecycle**: Active
-* **Audience**: All engineers and workflow authors
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Policy                                       |
+| Domain         | Governance                                         |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/policy/workflow-standards.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-| Version  | Date       | Author                          | Notes                                           |
-| -------- | ---------- | ------------------------------- | ----------------------------------------------- |
-| 01.00.00 | 2026-01-13 | GitHub Copilot                  | Initial workflow standards policy creation      |
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

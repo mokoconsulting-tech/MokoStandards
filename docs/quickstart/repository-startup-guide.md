@@ -945,18 +945,23 @@ git clone https://github.com/mokoconsulting-tech/YOUR-REPO.git && \
 
 ## Metadata
 
-- **Document Type:** guide
-- **Document Subtype:** quickstart
-- **Owner Role:** Documentation Owner
-- **Approval Required:** No
-- **Evidence Required:** No
-- **Review Cycle:** Quarterly
-- **Retention:** Indefinite
-- **Compliance Tags:** Onboarding, Setup, Standards
-- **Status:** Published
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Guide                                       |
+| Domain         | Documentation                                         |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/quickstart/repository-startup-guide.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-| Version | Date | Author | Notes |
-|---------|------|--------|-------|
-| 01.00.00 | 2026-01-16 | GitHub Copilot | Initial repository startup guide created. Provides step-by-step setup instructions for Generic, Joomla, and Dolibarr repositories in mokoconsulting-tech organization. Includes structure creation, file templates, GitHub configuration, and troubleshooting guidance. |
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

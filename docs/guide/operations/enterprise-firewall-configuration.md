@@ -429,18 +429,23 @@ curl -k https://www.gnu.org
 
 ## Metadata
 
-- **Document Type:** guide
-- **Document Subtype:** operations
-- **Owner Role:** Security Owner, Operations Owner
-- **Approval Required:** Yes
-- **Evidence Required:** Yes
-- **Review Cycle:** Quarterly
-- **Retention:** 7 Years
-- **Compliance Tags:** Security, Network, Enterprise, Firewall
-- **Status:** Published
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Guide                                       |
+| Domain         | Documentation                                         |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/guide/operations/enterprise-firewall-configuration.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-| Version | Date | Author | Notes |
-|---------|------|--------|-------|
-| 01.00.00 | 2026-01-16 | GitHub Copilot | Initial enterprise firewall configuration guide. Includes trusted domain list from copilot.yml, implementation examples for multiple firewall types, security considerations, and testing procedures. |
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

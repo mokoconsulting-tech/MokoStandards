@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Standards
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/guide/repository-standards-application.md
-VERSION: 01.00.00
+VERSION: 02.00.00
 BRIEF: Guidance on applying MokoStandards to repositories
 -->
 
@@ -914,18 +914,23 @@ steps:
 
 ## Metadata
 
-| Field      | Value                                                                                                        |
-| ---------- | ------------------------------------------------------------------------------------------------------------ |
-| Document   | Repository Standards Application                                                                             |
-| Path       | /docs/guide/repository-standards-application.md                                                              |
-| Repository | [https://github.com/mokoconsulting-tech/MokoStandards](https://github.com/mokoconsulting-tech/MokoStandards) |
-| Owner      | Moko Consulting                                                                                              |
-| Scope      | Standards application guide                                                                                  |
-| Status     | Published                                                                                                    |
-| Effective  | 2026-01-17                                                                                                   |
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Guide                                       |
+| Domain         | Documentation                                         |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/guide/repository-standards-application.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-| Date       | Change Description                                      | Author          |
-| ---------- | ------------------------------------------------------- | --------------- |
-| 2026-01-17 | Initial creation, standards application documentation   | Moko Consulting |
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

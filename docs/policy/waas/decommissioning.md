@@ -37,14 +37,23 @@ Mandatory for all WaaS exits.
 
 ## Metadata
 
-* **STANDARD TYPE**: Policy
-* **APPLIES TO**: WaaS decommissioning and client exit
-* **AUTHORITY**: Moko Consulting
-* **STATUS**: Active
-* **PATH**: /docs/policy/waas/decommissioning.md
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Policy                                       |
+| Domain         | Governance                                         |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/policy/waas/decommissioning.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-| Date       | Change Description                         | Author          |
-| ---------- | ------------------------------------------ | --------------- |
-| 2025-12-23 | Regenerated with FILE INFORMATION and PATH | Moko Consulting |
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

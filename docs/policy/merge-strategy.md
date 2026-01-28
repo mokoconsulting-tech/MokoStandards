@@ -190,15 +190,6 @@ Attempts to merge without squash will be blocked by repository settings. If a vi
 
 ## Revision History
 
-| Version  | Date       | Author                          | Notes                                    |
-| -------- | ---------- | ------------------------------- | ---------------------------------------- |
-| 01.00.00 | 2026-01-04 | GitHub Copilot                  | Initial merge strategy policy document.  |
-
-## Metadata
-
-* Document: merge-strategy.md
-* Repository: [https://github.com/mokoconsulting-tech/MokoStandards](https://github.com/mokoconsulting-tech/MokoStandards)
-* Owner: Moko Consulting
-* Scope: Merge strategy and git history management
-* Lifecycle: Active
-* Audience: Contributors, maintainers, reviewers
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

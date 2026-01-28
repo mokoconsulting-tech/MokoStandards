@@ -88,7 +88,7 @@ Version 2.0 introduces significant enhancements:
 ### Improved Structure
 - **Workflow Templates**: Ready-to-use GitHub Actions workflows
 - **Platform-Specific Makefiles**: Build configurations for Joomla, Dolibarr, and generic projects
-- **Schema Definitions**: XML schemas for repository structure and health scoring
+- **Terraform Schema Definitions**: Infrastructure-as-code schema definitions for repository structure and health scoring
 - **Template Catalog**: Comprehensive templates for all common needs
 
 ### Security & Compliance
@@ -230,9 +230,12 @@ MokoStandards/
 │   ├── Makefile.joomla
 │   ├── Makefile.dolibarr
 │   └── Makefile.generic
-├── schemas/                   # XML schemas and definitions
-│   ├── repo-health.xsd
-│   └── repo-health-default.xml
+├── schemas/                   # DEPRECATED (migrated to Terraform)
+│   └── README.md             # Migration notice
+├── terraform/                 # Terraform schema definitions
+│   ├── repository-types/     # Repository type definitions
+│   ├── main.tf               # Main configuration
+│   └── README.md             # Terraform documentation
 ├── scripts/                   # Automation scripts (Python & PowerShell)
 │   ├── automation/           # Bulk operations and CI tasks
 │   ├── validate/             # Validation and compliance
@@ -261,7 +264,7 @@ MokoStandards/
 - **`scripts/`**: 44 Python scripts + 2 PowerShell scripts for automation
 - **`templates/`**: Non-authoritative reference material and examples
 - **`Makefiles/`**: Platform-specific build configurations
-- **`schemas/`**: XML schemas for repository structure and health scoring
+- **`terraform/`**: Terraform-based schema definitions (replaces legacy XML schemas)
 
 ## Installation
 
@@ -444,7 +447,7 @@ Version 2.0 introduces breaking changes. Follow this guide to migrate:
 4. **Workflow Templates**: All workflows updated with new naming conventions
 5. **Documentation Structure**: Reorganized into `docs/` hierarchy
 6. **Makefile Locations**: Moved to `Makefiles/` directory
-7. **Schema Format**: Repository health schema now XML-based
+7. **Schema Format**: Repository health schema now Terraform-based (migrated from XML)
 
 ### Migration Steps
 

@@ -2,6 +2,10 @@
 """
 Repository Structure Validator
 
+⚠️ DEPRECATION NOTICE:
+This script uses XML-based structure definitions which have been deprecated.
+Please migrate to Terraform-based definitions. See terraform/README.md
+
 Validates a repository against an XML structure definition.
 Checks for required files, directories, and validates naming conventions.
 
@@ -14,6 +18,9 @@ Examples:
     
     # Validate specific directory
     python validate_structure.py scripts/definitions/crm-module.xml /path/to/repo
+
+Note: This script will continue to work with XML definitions in scripts/definitions/
+but the schemas/ directory has been removed in favor of Terraform configuration.
 """
 
 import sys

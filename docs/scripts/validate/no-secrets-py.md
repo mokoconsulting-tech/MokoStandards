@@ -384,13 +384,6 @@ Detailed Results (showing first 10):
 
 ## Revision History
 
-| Date | Change | Author |
-|------|--------|--------|
-| 2026-01-15 | Initial comprehensive guide creation | GitHub Copilot |
-| 2026-01-15 | Added PowerShell version requirement note | GitHub Copilot |
-
-## See Also
-
-- [Security Policy](../../SECURITY.md)
-- [Contributing Guide](../../CONTRIBUTING.md)
-- [Scripts Documentation](../README.md)
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

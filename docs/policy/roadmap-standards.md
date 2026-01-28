@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: docs/policy/roadmap-standards.md
-VERSION: 01.00.00
+VERSION: 02.00.00
 BRIEF: Standards and requirements for ROADMAP.md files across organization repositories
 -->
 
@@ -318,18 +318,23 @@ cp templates/docs/extra/template-ROADMAP.md ./ROADMAP.md
 
 ## Metadata
 
-| Field      | Value                                                                                                        |
-| ---------- | ------------------------------------------------------------------------------------------------------------ |
-| Document   | ROADMAP.md Standards                                                                                         |
-| Path       | docs/policy/roadmap-standards.md                                                                             |
-| Repository | [https://github.com/mokoconsulting-tech/MokoStandards](https://github.com/mokoconsulting-tech/MokoStandards) |
-| Owner      | Documentation Owner                                                                                          |
-| Reviewers  | Governance Owner, Product Owner                                                                              |
-| Status     | Published                                                                                                    |
-| Effective  | 2026-01-17                                                                                                   |
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Policy                                       |
+| Domain         | Governance                                         |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/policy/roadmap-standards.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-| Date       | Change Description                    | Author          |
-| ---------- | ------------------------------------- | --------------- |
-| 2026-01-17 | Initial ROADMAP.md standards created  | Moko Consulting |
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

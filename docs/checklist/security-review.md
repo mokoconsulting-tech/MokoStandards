@@ -177,13 +177,23 @@ See [ENTERPRISE-READINESS.md](../../ENTERPRISE-READINESS.md) for the complete ro
 
 ## Metadata
 
-- **Document Type**: checklist
-- **Category**: security
-- **Implementation Phase**: Phase 2 (Months 3-4)
-- **Related Documents**: Security Scanning, Vulnerability Management
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Checklist                                       |
+| Domain         | Operations                                         |
+| Applies To     | Specific Projects                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/checklist/security-review.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-| Date | Version | Author | Changes |
-|------|---------|--------|---------|
-| 2026-01-07 | 0.1 | System | Initial stub created |
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

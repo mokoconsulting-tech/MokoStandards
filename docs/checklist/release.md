@@ -286,19 +286,23 @@ This checklist depends on:
 
 ## Metadata
 
-- **Document Type:** checklist
-- **Document Subtype:** core
-- **Owner Role:** Release Owner
-- **Approval Required:** Yes
-- **Evidence Required:** Yes
-- **Review Cycle:** Quarterly
-- **Retention:** 7 Years
-- **Compliance Tags:** Governance, Compliance, Audit
-- **Status:** Published
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Checklist                                       |
+| Domain         | Operations                                         |
+| Applies To     | Specific Projects                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/checklist/release.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-- Initial checklist established
-- Pre-release planning items defined
-- Release execution and post-release items documented
-- Rollback procedures specified
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

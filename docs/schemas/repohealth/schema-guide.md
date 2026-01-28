@@ -892,3 +892,26 @@ Source and destination extensions should match intent:
 **Last Updated**: 2026-01-16  
 **Schema Version**: 2.0  
 **Maintained By**: MokoStandards Team
+
+## Metadata
+
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Reference                                       |
+| Domain         | Documentation                                         |
+| Applies To     | Specific Projects                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/schemas/repohealth/schema-guide.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
+
+## Revision History
+
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

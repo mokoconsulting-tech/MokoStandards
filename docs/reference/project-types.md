@@ -478,15 +478,20 @@ Makefile templates vary by project type:
 
 ## Metadata
 
-| Field | Value |
-|---|---|
-| Document | Project Type Detection |
-| Path | /docs/project-types.md |
-| Repository | https://github.com/mokoconsulting-tech/MokoStandards |
-| Owner | Moko Consulting |
-| Status | Active |
-| Version | 01.00.00 |
-| Effective | 2026-01-07 |
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Reference                                       |
+| Domain         | Reference                                         |
+| Applies To     | Specific Projects                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/reference/project-types.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Version History
 
@@ -503,3 +508,9 @@ Makefile templates vary by project type:
 - [MokoCRM Development Standards](policy/crm/development-standards.md)
 - [Dolibarr Development Guide](guide/crm/dolibarr-development-guide.md)
 - [Joomla Development Guide](guide/waas/joomla-development-guide.md)
+
+## Revision History
+
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

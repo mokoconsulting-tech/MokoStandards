@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Architecture
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/guide/repository-split-plan.md
-VERSION: 05.00.00
+VERSION: 02.00.00
 BRIEF: Architecture plan for splitting public and private repository content
 -->
 
@@ -641,18 +641,23 @@ https://github.com/mokoconsulting-tech/MokoStandards
 
 ## Metadata
 
-| Field      | Value                                                                                                        |
-| ---------- | ------------------------------------------------------------------------------------------------------------ |
-| Document   | Repository Split Plan                                                                                        |
-| Path       | /docs/guide/repository-split-plan.md                                                                         |
-| Repository | [https://github.com/mokoconsulting-tech/MokoStandards](https://github.com/mokoconsulting-tech/MokoStandards) |
-| Owner      | Moko Consulting                                                                                              |
-| Scope      | Architecture and repository organization                                                                     |
-| Status     | Proposed                                                                                                     |
-| Effective  | 2026-01-04                                                                                                   |
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Guide                                       |
+| Domain         | Documentation                                         |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/guide/repository-split-plan.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-| Date       | Change Description                            | Author          |
-| ---------- | --------------------------------------------- | --------------- |
-| 2026-01-04 | Initial repository split plan and recommendations | Moko Consulting |
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

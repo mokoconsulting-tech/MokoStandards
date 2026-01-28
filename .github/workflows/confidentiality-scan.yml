@@ -61,7 +61,10 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      EXCLUDED_FILES: ':!.github/workflows/confidentiality-scan.yml :!docs/TWO_TIER_ARCHITECTURE.md :!docs/guide/PRIVATE_REPOSITORY_REFERENCE.md :!STANDARDS_COORDINATION.md :!.github/PRIVATE_TEMPLATES.md'
+      # Excluded files from confidentiality scans
+      # Note: Terraform *.tf files ARE scanned for secrets (as they should be)
+      # Only Terraform state/plan/cache files are excluded (they may contain computed values)
+      EXCLUDED_FILES: ':!.github/workflows/confidentiality-scan.yml :!docs/TWO_TIER_ARCHITECTURE.md :!docs/guide/PRIVATE_REPOSITORY_REFERENCE.md :!STANDARDS_COORDINATION.md :!.github/PRIVATE_TEMPLATES.md :!terraform/*.tfplan :!terraform/*.tfstate* :!terraform/.terraform/*'
 
     steps:
       - name: Checkout code
@@ -100,7 +103,8 @@ jobs:
             echo "Checking pattern: $pattern"
 
             # Search for pattern (case insensitive)
-            matches=$(git grep -i -n -I -E "$pattern" -- $EXCLUDED_FILES || true)
+            # Use -- to separate options from pattern (prevents patterns starting with - from being interpreted as options)
+            matches=$(git grep -i -n -I -E -- "$pattern" $EXCLUDED_FILES || true)
 
             if [ -n "$matches" ]; then
               VIOLATIONS_FOUND=$((VIOLATIONS_FOUND + 1))
@@ -155,7 +159,8 @@ jobs:
             echo "Checking secret pattern: $pattern"
 
             # Search for pattern (case insensitive, exclude example files)
-            matches=$(git grep -i -n -I -E "$pattern" -- ':!*.md' ':!*.example' ':!*.sample' ':!docs/*' $EXCLUDED_FILES || true)
+            # Use -- to separate options from pattern (prevents patterns starting with - from being interpreted as options)
+            matches=$(git grep -i -n -I -E -- "$pattern" ':!*.md' ':!*.example' ':!*.sample' ':!docs/*' $EXCLUDED_FILES || true)
 
             if [ -n "$matches" ]; then
               SECRETS_FOUND=$((SECRETS_FOUND + 1))
@@ -208,7 +213,8 @@ jobs:
           for pattern in "${INTERNAL_DOC_PATTERNS[@]}"; do
             echo "Checking internal doc pattern: $pattern"
 
-            matches=$(git grep -i -n -I "$pattern" -- '*.md' $EXCLUDED_FILES || true)
+            # Use -- to separate options from pattern (prevents patterns starting with - from being interpreted as options)
+            matches=$(git grep -i -n -I -- "$pattern" '*.md' $EXCLUDED_FILES || true)
 
             if [ -n "$matches" ]; then
               # This is a warning, not a hard failure
@@ -256,24 +262,51 @@ jobs:
               if (orgViolations) {
                 text += '### ❌ Organization-Specific References Found\n\n';
                 text += 'The scan detected organization-specific references that should not be in the public repository.\n\n';
+                
+                // Read violation details from file
+                try {
+                  const violationDetails = fs.readFileSync('/tmp/violation_details.txt', 'utf8');
+                  text += violationDetails + '\n\n';
+                } catch (err) {
+                  text += '_Details could not be loaded._\n\n';
+                }
+                
                 text += '**Action Required**: Remove or generalize these references before merging.\n\n';
               }
 
               if (secretsFound) {
                 text += '### ❌ Potential Secrets Detected\n\n';
                 text += 'The scan detected patterns that may indicate secrets or credentials.\n\n';
+                
+                // Read secret details from file
+                try {
+                  const secretDetails = fs.readFileSync('/tmp/secret_details.txt', 'utf8');
+                  text += secretDetails + '\n\n';
+                } catch (err) {
+                  text += '_Details could not be loaded._\n\n';
+                }
+                
                 text += '**Action Required**: Remove secrets and use environment variables or GitHub Secrets instead.\n\n';
               }
 
               if (internalDocsFound) {
                 text += '### ⚠️ Internal Documentation References Found\n\n';
                 text += 'The scan detected potential references to internal documentation.\n\n';
+                
+                // Read internal doc details from file
+                try {
+                  const internalDocDetails = fs.readFileSync('/tmp/internal_doc_details.txt', 'utf8');
+                  text += internalDocDetails + '\n\n';
+                } catch (err) {
+                  text += '_Details could not be loaded._\n\n';
+                }
+                
                 text += '**Action Recommended**: Review these references and ensure they are appropriate for public documentation.\n\n';
               }
 
               text += '\n---\n\n';
               text += '## Remediation Steps\n\n';
-              text += '1. Review the violations listed above\n';
+              text += '1. Review the violations listed above with file names and line numbers\n';
               text += '2. Remove or generalize organization-specific references\n';
               text += '3. Replace hardcoded secrets with GitHub Secrets\n';
               text += '4. Update internal references to public equivalents\n';
@@ -287,6 +320,14 @@ jobs:
               text = '## Confidentiality Scan Results\n\n';
               text += '### ⚠️ Internal Documentation References Found\n\n';
               text += 'The scan detected potential references to internal documentation. Review these to ensure they are appropriate for public documentation.\n\n';
+              
+              // Read internal doc details
+              try {
+                const internalDocDetails = fs.readFileSync('/tmp/internal_doc_details.txt', 'utf8');
+                text += internalDocDetails + '\n\n';
+              } catch (err) {
+                text += '_Details could not be loaded._\n\n';
+              }
             }
 
             await github.rest.checks.create({
@@ -307,7 +348,9 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const body = `## ❌ Confidentiality Scan Failed
+            const fs = require('fs');
+            
+            let body = `## ❌ Confidentiality Scan Failed
 
             This PR contains content that should not be in the public repository.
 
@@ -315,9 +358,41 @@ jobs:
             - ${{ steps.org_scan.outcome == 'failure' && '❌ Organization-specific references found' || '✅ No organization references' }}
             - ${{ steps.secret_scan.outcome == 'failure' && '❌ Potential secrets detected' || '✅ No secrets detected' }}
             - ${{ steps.doc_scan.outputs.internal_docs_found > 0 && '⚠️ Internal documentation references found' || '✅ No internal doc references' }}
+            `;
 
+            // Add violation details if organization scan failed
+            if ('${{ steps.org_scan.outcome }}' === 'failure') {
+              try {
+                const violationDetails = fs.readFileSync('/tmp/violation_details.txt', 'utf8');
+                body += '\n### 📍 Organization-Specific References (with file:line)\n\n' + violationDetails + '\n';
+              } catch (err) {
+                body += '\n_Violation details could not be loaded._\n';
+              }
+            }
+
+            // Add secret details if secret scan failed
+            if ('${{ steps.secret_scan.outcome }}' === 'failure') {
+              try {
+                const secretDetails = fs.readFileSync('/tmp/secret_details.txt', 'utf8');
+                body += '\n### 📍 Potential Secrets (with file:line)\n\n' + secretDetails + '\n';
+              } catch (err) {
+                body += '\n_Secret details could not be loaded._\n';
+              }
+            }
+
+            // Add internal doc details if found
+            if ('${{ steps.doc_scan.outputs.internal_docs_found }}' > 0) {
+              try {
+                const internalDocDetails = fs.readFileSync('/tmp/internal_doc_details.txt', 'utf8');
+                body += '\n### 📍 Internal Documentation References (with file:line)\n\n' + internalDocDetails + '\n';
+              } catch (err) {
+                body += '\n_Internal doc details could not be loaded._\n';
+              }
+            }
+
+            body += `
             ### Action Required:
-            1. Review the check run details for specific violations
+            1. Review the violations listed above with file names and line numbers
             2. Remove or generalize organization-specific content
             3. Replace any hardcoded secrets with GitHub Secrets
             4. Update internal references to public equivalents

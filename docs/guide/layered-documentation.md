@@ -786,19 +786,23 @@ cp template-CODE_OF_CONDUCT.md CODE_OF_CONDUCT.md
 
 ## Metadata
 
-- **Document Type:** guide
-- **Document Subtype:** implementation
-- **Owner Role:** Documentation Owner
-- **Approval Required:** No
-- **Evidence Required:** No
-- **Review Cycle:** Annual
-- **Retention:** Indefinite
-- **Compliance Tags:** Documentation, Governance
-- **Status:** Published
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Guide                                       |
+| Domain         | Documentation                                         |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/guide/layered-documentation.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-| Version | Date | Author | Notes |
-|---------|------|--------|-------|
-| 01.00.00 | 2026-01-16 | GitHub Copilot | Initial layered documentation guide created. Defines five-layer documentation hierarchy: required, suggested, optional, policy, and specialized documentation. |
-| 01.01.00 | 2026-01-16 | GitHub Copilot | Enhanced with repository-type-specific requirements. Added comprehensive tables for Generic, Joomla (WaaS), and Dolibarr (CRM) repositories. Includes required, suggested, and optional file lists for each repository type. Added quick reference section and expanded implementation guide with type-specific examples. |
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

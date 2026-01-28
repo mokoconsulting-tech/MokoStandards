@@ -10,7 +10,7 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Status
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/reports/ENTERPRISE_READINESS_STATUS.md
-VERSION: 01.00.00
+VERSION: 02.00.00
 BRIEF: Current status of enterprise readiness implementation
 -->
 
@@ -220,18 +220,23 @@ For questions about enterprise readiness:
 
 ## Metadata
 
-| Field | Value |
-|-------|-------|
-| Document | Enterprise Readiness Status |
-| Path | /docs/reports/ENTERPRISE_READINESS_STATUS.md |
-| Repository | https://github.com/mokoconsulting-tech/MokoStandards |
-| Owner | Moko Consulting |
-| Scope | Enterprise readiness verification |
-| Status | Published |
-| Effective | 2026-01-18 |
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Report                                       |
+| Domain         | Operations                                         |
+| Applies To     | Specific Projects                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/reports/ENTERPRISE_READINESS_STATUS.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-| Date | Change Description | Author |
-|------|-------------------|--------|
-| 2026-01-18 | Initial enterprise readiness status document | Moko Consulting |
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

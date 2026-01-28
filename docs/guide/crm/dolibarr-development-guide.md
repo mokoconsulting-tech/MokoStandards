@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Guide
 INGROUP: MokoStandards.CRM
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/guide/crm/dolibarr-development-guide.md
-VERSION: 05.00.00
+VERSION: 02.00.00
 BRIEF: Practical guide for developing custom modules for Dolibarr/MokoCRM
 -->
 
@@ -772,18 +772,23 @@ dol_syslog("My debug message: ".print_r($variable, true), LOG_DEBUG);
 
 ## Metadata
 
-- **Document Type**: guide
-- **Document Subtype**: technical
-- **Owner Role**: CRM Development Lead
-- **Approval Required**: No
-- **Evidence Required**: No
-- **Review Cycle**: Quarterly
-- **Retention**: Indefinite
-- **Compliance Tags**: Development, Guide, CRM, Dolibarr
-- **Status**: Published
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Guide                                       |
+| Domain         | Documentation                                         |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/guide/crm/dolibarr-development-guide.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-| Date       | Version  | Author          | Notes                                  |
-| ---------- | -------- | --------------- | -------------------------------------- |
-| 2026-01-07 | 05.00.00 | Moko Consulting | Initial Dolibarr development guide |
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

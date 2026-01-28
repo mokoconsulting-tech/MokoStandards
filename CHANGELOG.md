@@ -15,13 +15,86 @@
  DEFGROUP: MokoStandards
  INGROUP: MokoStandards.Documentation
  REPO: https://github.com/mokoconsulting-tech/MokoStandards/
- VERSION: 07.00.00
+ VERSION: 02.00.00
  PATH: ./CHANGELOG.md
  BRIEF: Version history using Keep a Changelog
  NOTE: Adheres to SemVer when applicable
  -->
 
 # Changelog
+
+## [02.00.00] - 2026-01-28
+### Changed - Major Version: Standardized Metadata and Terraform Migration
+- **BREAKING CHANGE**: Standardized metadata across all documentation
+  - **All documents updated to version 02.00.00**
+  - Added 11 required metadata fields (was 6):
+    - Document Type (Policy, Guide, Checklist, Reference, Report, ADR, etc.)
+    - Domain (Governance, Documentation, Operations, Security, etc.)
+    - Applies To (All Repositories, Specific Projects)
+    - Jurisdiction: Tennessee, USA (new standardized field)
+    - Owner: Moko Consulting (standardized)
+    - Repo: https://github.com/mokoconsulting-tech/ (standardized)
+    - Path (repository-relative path)
+    - Version (02.00.00 semantic versioning)
+    - Status (Draft, Active, Authoritative, Deprecated)
+    - Last Reviewed (YYYY-MM-DD)
+    - Reviewed By (new required field)
+  - Updated revision history format to 4-column table:
+    - Old format: Date | Description | Author
+    - New format: Date | Author | Change | Notes
+  - Created `scripts/docs/update_metadata.py` - Automation tool for metadata updates
+  - Updated 127 documentation files with standardized metadata
+  - Regenerated all index files with new format
+
+### Changed - Schema Migration to Terraform
+- **BREAKING CHANGE**: Migrated schema system from XML/JSON to Terraform
+  - Removed `schemas/*.xml`, `schemas/*.xsd`, `schemas/*.json` (legacy schema files)
+  - Added `terraform/` directory with Terraform-based schema definitions
+  - Added `terraform/repository-types/repo-health-defaults.tf` - Health check configuration
+  - Added `terraform/repository-types/default-repository.tf` - Repository structure definitions
+  - Added `terraform/workstation/` - Windows and Ubuntu dev workstation definitions
+  - Added `terraform/webserver/` - Dev and production web server definitions (4 configurations)
+  - Added `scripts/lib/terraform_schema_reader.py` - Python module to read Terraform schemas
+  - Updated `scripts/validate/check_repo_health.py` to use Terraform instead of XML
+  - Created `scripts/validate/validate_structure_terraform.py` - New Terraform-based validator
+  - Added `schemas/README.md` - Migration notice and deprecation documentation
+  - Updated `README.md` to reflect Terraform migration
+  - Updated `docs/reference/schemas.md` with migration information
+  - Created `docs/reference/terraform-schemas.md` - Comprehensive Terraform schema docs
+  - Schema version upgraded to 2.0 (Terraform-based)
+- **Benefits**: Infrastructure-as-code approach, better version control, type safety, Terraform ecosystem tools
+
+### Added - Workstation and Web Server Infrastructure
+- **Workstation Provisioning**
+  - `terraform/workstation/windows-dev-workstation.tf` - Windows development workstation
+  - `terraform/workstation/ubuntu-dev-workstation.tf` - Ubuntu development workstation
+  - `scripts/automation/ubuntu-dev-workstation-provisioner.sh` - Ubuntu provisioner script
+  - Comprehensive workstation documentation
+- **Web Server Infrastructure** (4 configurations)
+  - `terraform/webserver/windows-dev-webserver.tf` - Windows development web server (IIS, PHP 8.3)
+  - `terraform/webserver/windows-prod-webserver.tf` - Windows production web server (IIS, ARR, SSL)
+  - `terraform/webserver/ubuntu-dev-webserver.tf` - Ubuntu development web server (Apache, PHP 8.3)
+  - `terraform/webserver/ubuntu-prod-webserver.tf` - Ubuntu production web server (Nginx, WAF, monitoring)
+  - Production-ready configurations with security hardening, monitoring, and backups
+
+### Added - Enhanced GitHub Actions Integration
+- Updated confidentiality scan workflow with detailed file:line output
+- Added verbose GitHub Actions summary for validation checks
+- Health checker and structure validator now write detailed results to GITHUB_STEP_SUMMARY
+- Enhanced error reporting with actionable remediation steps
+
+### Security
+- Terraform definition files (*.tf) are scanned for secrets
+- State/plan/cache files excluded from scans (binary/computed values)
+- Confidentiality scan shows exact file names and line numbers for violations
+- Enhanced security scanning exclusions properly documented
+
+### Documentation
+- Updated `docs/policy/document-formatting.md` - Authoritative metadata standards
+- Updated `docs/adr/template.md` - ADR template with new metadata format
+- Updated `scripts/docs/rebuild_indexes.py` - Auto-index tool with new revision history
+- All 127 documentation files updated with standardized metadata
+- Comprehensive Terraform schema documentation added
 
 ## [UNRELEASED]
 

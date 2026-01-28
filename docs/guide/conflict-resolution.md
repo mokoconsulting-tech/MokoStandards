@@ -260,21 +260,23 @@ def process_files():
 
 ## Metadata
 
-* Document: docs/guide/conflict-resolution.md
-* Repository: [https://github.com/mokoconsulting-tech/MokoStandards](https://github.com/mokoconsulting-tech/MokoStandards)
-* Owner: Moko Consulting
-* Scope: Conflict resolution guidance
-* Lifecycle: Active
-* Audience: Contributors, maintainers
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Guide                                       |
+| Domain         | Documentation                                         |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/guide/conflict-resolution.md                                      |
+| Version        | 02.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-| Version  | Date       | Author          | Notes                                      |
-| -------- | ---------- | --------------- | ------------------------------------------ |
-| 01.00.00 | 2026-01-04 | Copilot Agent   | Initial conflict resolution guide created |
-
-## See Also
-
-- [Branch Synchronization Guide](./branch-synchronization.md) - For handling "branch behind remote" errors
-- [Branching Quick Reference](./branching-quick-reference.md) - Git branching workflows
-- [Merge Strategy Policy](../policy/merge-strategy.md) - Repository merge policies
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |

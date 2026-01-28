@@ -22,7 +22,7 @@
 # INGROUP: MokoStandards.Compliance
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/standards-compliance.yml
-# VERSION: 01.00.00
+# VERSION: 02.00.00
 # BRIEF: MokoStandards compliance validation workflow
 # NOTE: Validates repository structure, documentation, and coding standards
 
@@ -56,23 +56,46 @@ jobs:
       
       - name: Check Required Directories
         run: |
-          echo "### Required Directories" >> $GITHUB_STEP_SUMMARY
+          echo "## 📁 Repository Structure Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
           
           MISSING=0
+          PRESENT=0
+          TOTAL=4
+          
+          echo "### Required Directories" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Directory | Status | Files | Size | Notes |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|--------|-------|------|-------|" >> $GITHUB_STEP_SUMMARY
           
           # Check required directories
           for dir in docs tests scripts .github; do
             if [ -d "$dir" ]; then
-              echo "✅ $dir/" >> $GITHUB_STEP_SUMMARY
+              FILE_COUNT=$(find "$dir" -type f 2>/dev/null | wc -l)
+              DIR_SIZE=$(du -sh "$dir" 2>/dev/null | cut -f1)
+              echo "| $dir/ | ✅ Pass | $FILE_COUNT files | $DIR_SIZE | Complete |" >> $GITHUB_STEP_SUMMARY
+              PRESENT=$((PRESENT + 1))
             else
-              echo "❌ $dir/ (missing)" >> $GITHUB_STEP_SUMMARY
+              echo "| $dir/ | ❌ **Missing** | - | - | **Action Required** |" >> $GITHUB_STEP_SUMMARY
               MISSING=$((MISSING + 1))
             fi
           done
           
+          echo "" >> $GITHUB_STEP_SUMMARY
+          PERCENT=$((PRESENT * 100 / TOTAL))
+          echo "**Compliance Score:** $PERCENT% ($PRESENT/$TOTAL directories present)" >> $GITHUB_STEP_SUMMARY
+          
           if [ $MISSING -gt 0 ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "⚠️ $MISSING required directories are missing" >> $GITHUB_STEP_SUMMARY
+            echo "### 🔴 Critical Issues: $MISSING" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Remediation Steps:**" >> $GITHUB_STEP_SUMMARY
+            [ ! -d "docs" ] && echo "- Create docs directory: \`mkdir docs && echo '# Documentation' > docs/README.md\`" >> $GITHUB_STEP_SUMMARY
+            [ ! -d "tests" ] && echo "- Create tests directory: \`mkdir tests && touch tests/.gitkeep\`" >> $GITHUB_STEP_SUMMARY
+            [ ! -d "scripts" ] && echo "- Create scripts directory: \`mkdir scripts && touch scripts/.gitkeep\`" >> $GITHUB_STEP_SUMMARY
+            [ ! -d ".github" ] && echo "- Create .github directory: \`mkdir -p .github/workflows\`" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "📚 Reference: [MokoStandards Repository Structure](https://github.com/mokoconsulting-tech/MokoStandards/tree/main/docs/policy/core-structure.md)" >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
       
@@ -80,23 +103,58 @@ jobs:
         run: |
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Required Files" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
           
           MISSING=0
+          PRESENT=0
+          TOTAL=6
+          
+          echo "| File | Status | Size | Last Modified | Notes |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|--------|------|---------------|-------|" >> $GITHUB_STEP_SUMMARY
           
           # Check required files
           for file in README.md LICENSE CONTRIBUTING.md SECURITY.md CHANGELOG.md .editorconfig; do
             if [ -f "$file" ]; then
-              echo "✅ $file" >> $GITHUB_STEP_SUMMARY
+              FILE_SIZE=$(wc -c < "$file" 2>/dev/null | awk '{printf "%.1f KB", $1/1024}')
+              LAST_MOD=$(stat -c %y "$file" 2>/dev/null | cut -d' ' -f1 || echo "Unknown")
+              CONTENT_CHECK=""
+              
+              # Basic content validation
+              case "$file" in
+                "README.md")
+                  LINES=$(wc -l < "$file")
+                  [ $LINES -lt 10 ] && CONTENT_CHECK="⚠️ Too short"
+                  ;;
+                "LICENSE")
+                  [ $(wc -c < "$file") -lt 100 ] && CONTENT_CHECK="⚠️ Incomplete?"
+                  ;;
+              esac
+              
+              echo "| $file | ✅ Pass | $FILE_SIZE | $LAST_MOD | Complete $CONTENT_CHECK |" >> $GITHUB_STEP_SUMMARY
+              PRESENT=$((PRESENT + 1))
             else
-              echo "❌ $file (missing)" >> $GITHUB_STEP_SUMMARY
+              echo "| $file | ❌ **Missing** | - | - | **Required** |" >> $GITHUB_STEP_SUMMARY
               MISSING=$((MISSING + 1))
             fi
           done
           
+          echo "" >> $GITHUB_STEP_SUMMARY
+          PERCENT=$((PRESENT * 100 / TOTAL))
+          echo "**Compliance Score:** $PERCENT% ($PRESENT/$TOTAL files present)" >> $GITHUB_STEP_SUMMARY
+          
           if [ $MISSING -gt 0 ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "⚠️ $MISSING required files are missing" >> $GITHUB_STEP_SUMMARY
-            echo "See: https://github.com/mokoconsulting-tech/MokoStandards/tree/main/templates/docs/required" >> $GITHUB_STEP_SUMMARY
+            echo "### 🔴 Critical Issues: $MISSING" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Remediation Steps:**" >> $GITHUB_STEP_SUMMARY
+            [ ! -f "README.md" ] && echo "- Create README.md: Use [template](https://github.com/mokoconsulting-tech/MokoStandards/tree/main/templates/docs/required/README.md)" >> $GITHUB_STEP_SUMMARY
+            [ ! -f "LICENSE" ] && echo "- Add LICENSE file: Choose from [OSI-approved licenses](https://opensource.org/licenses)" >> $GITHUB_STEP_SUMMARY
+            [ ! -f "CONTRIBUTING.md" ] && echo "- Create CONTRIBUTING.md: Use [template](https://github.com/mokoconsulting-tech/MokoStandards/tree/main/templates/docs/required/CONTRIBUTING.md)" >> $GITHUB_STEP_SUMMARY
+            [ ! -f "SECURITY.md" ] && echo "- Create SECURITY.md: Use [template](https://github.com/mokoconsulting-tech/MokoStandards/tree/main/templates/docs/required/SECURITY.md)" >> $GITHUB_STEP_SUMMARY
+            [ ! -f "CHANGELOG.md" ] && echo "- Create CHANGELOG.md: Follow [Keep a Changelog](https://keepachangelog.com/)" >> $GITHUB_STEP_SUMMARY
+            [ ! -f ".editorconfig" ] && echo "- Add .editorconfig: Use [template](https://github.com/mokoconsulting-tech/MokoStandards/tree/main/templates/.editorconfig)" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "📚 Reference: [MokoStandards File Requirements](https://github.com/mokoconsulting-tech/MokoStandards/tree/main/docs/policy/file-header-standards.md)" >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
 
@@ -110,48 +168,161 @@ jobs:
       
       - name: Validate README.md
         run: |
-          echo "### README.md Validation" >> $GITHUB_STEP_SUMMARY
+          echo "## 📚 Documentation Quality Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### README.md Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
           
           if [ ! -f "README.md" ]; then
-            echo "❌ README.md not found" >> $GITHUB_STEP_SUMMARY
+            echo "❌ **Critical:** README.md not found" >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
           
-          # Check minimum length
+          # Detailed content analysis
           SIZE=$(wc -c < README.md)
+          LINES=$(wc -l < README.md)
+          WORDS=$(wc -w < README.md)
+          HEADINGS=$(grep -c "^#" README.md || echo 0)
+          LINKS=$(grep -c "\[.*\](.*)" README.md || echo 0)
+          CODE_BLOCKS=$(grep -c '```' README.md || echo 0)
+          
+          echo "| Metric | Value | Status | Recommendation |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|--------|----------------|" >> $GITHUB_STEP_SUMMARY
+          
+          # Size check
+          SIZE_STATUS="✅ Good"
+          SIZE_REC="Adequate length"
           if [ $SIZE -lt 500 ]; then
-            echo "⚠️ README.md is too short ($SIZE bytes, minimum 500)" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "✅ README.md has adequate content ($SIZE bytes)" >> $GITHUB_STEP_SUMMARY
+            SIZE_STATUS="⚠️ Warning"
+            SIZE_REC="Add more content (min 500 bytes)"
+          elif [ $SIZE -gt 50000 ]; then
+            SIZE_STATUS="⚠️ Warning"
+            SIZE_REC="Consider splitting into multiple docs"
           fi
+          echo "| Size | $SIZE bytes | $SIZE_STATUS | $SIZE_REC |" >> $GITHUB_STEP_SUMMARY
+          
+          # Line count
+          LINES_STATUS="✅ Good"
+          LINES_REC="Good size"
+          if [ $LINES -lt 20 ]; then
+            LINES_STATUS="⚠️ Warning"
+            LINES_REC="Add more sections (min 20 lines)"
+          fi
+          echo "| Lines | $LINES | $LINES_STATUS | $LINES_REC |" >> $GITHUB_STEP_SUMMARY
+          
+          # Word count
+          WORDS_STATUS="✅ Good"
+          WORDS_REC="Good detail"
+          if [ $WORDS -lt 100 ]; then
+            WORDS_STATUS="⚠️ Warning"
+            WORDS_REC="Add more description (min 100 words)"
+          fi
+          echo "| Words | $WORDS | $WORDS_STATUS | $WORDS_REC |" >> $GITHUB_STEP_SUMMARY
+          
+          # Headings
+          HEADINGS_STATUS="✅ Good"
+          HEADINGS_REC="Well structured"
+          if [ $HEADINGS -lt 3 ]; then
+            HEADINGS_STATUS="⚠️ Warning"
+            HEADINGS_REC="Add more sections (min 3 headings)"
+          fi
+          echo "| Headings | $HEADINGS | $HEADINGS_STATUS | $HEADINGS_REC |" >> $GITHUB_STEP_SUMMARY
+          
+          # Links
+          LINKS_STATUS="✅ Good"
+          LINKS_REC="Includes references"
+          if [ $LINKS -lt 1 ]; then
+            LINKS_STATUS="ℹ️ Info"
+            LINKS_REC="Consider adding useful links"
+          fi
+          echo "| Links | $LINKS | $LINKS_STATUS | $LINKS_REC |" >> $GITHUB_STEP_SUMMARY
+          
+          # Code blocks
+          CODE_STATUS="✅ Good"
+          CODE_REC="Includes examples"
+          if [ $CODE_BLOCKS -eq 0 ]; then
+            CODE_STATUS="ℹ️ Info"
+            CODE_REC="Consider adding code examples"
+          fi
+          echo "| Code blocks | $CODE_BLOCKS | $CODE_STATUS | $CODE_REC |" >> $GITHUB_STEP_SUMMARY
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
           
           # Check for key sections
-          MISSING_SECTIONS=""
-          grep -qi "# \|## " README.md || MISSING_SECTIONS="${MISSING_SECTIONS}- No headings found\n"
+          echo "**Section Coverage:**" >> $GITHUB_STEP_SUMMARY
+          MISSING_COUNT=0
+          grep -qi "install\|setup\|getting started" README.md && echo "- ✅ Installation/Setup instructions" >> $GITHUB_STEP_SUMMARY || { echo "- ⚠️ Missing: Installation/Setup" >> $GITHUB_STEP_SUMMARY; MISSING_COUNT=$((MISSING_COUNT + 1)); }
+          grep -qi "usage\|example\|how to" README.md && echo "- ✅ Usage examples" >> $GITHUB_STEP_SUMMARY || { echo "- ⚠️ Missing: Usage examples" >> $GITHUB_STEP_SUMMARY; MISSING_COUNT=$((MISSING_COUNT + 1)); }
+          grep -qi "license" README.md && echo "- ✅ License information" >> $GITHUB_STEP_SUMMARY || { echo "- ⚠️ Missing: License information" >> $GITHUB_STEP_SUMMARY; MISSING_COUNT=$((MISSING_COUNT + 1)); }
+          grep -qi "contribut" README.md && echo "- ✅ Contributing guidelines" >> $GITHUB_STEP_SUMMARY || echo "- ℹ️ Optional: Contributing section" >> $GITHUB_STEP_SUMMARY
           
-          if [ -n "$MISSING_SECTIONS" ]; then
-            echo "⚠️ README.md may be missing important sections" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "✅ README.md appears well-structured" >> $GITHUB_STEP_SUMMARY
+          if [ $MISSING_COUNT -gt 0 ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**⚠️ $MISSING_COUNT important sections missing**" >> $GITHUB_STEP_SUMMARY
           fi
       
       - name: Validate CHANGELOG.md
         run: |
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### CHANGELOG.md Validation" >> $GITHUB_STEP_SUMMARY
+          echo "### CHANGELOG.md Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
           
           if [ ! -f "CHANGELOG.md" ]; then
-            echo "❌ CHANGELOG.md not found" >> $GITHUB_STEP_SUMMARY
+            echo "❌ **Critical:** CHANGELOG.md not found" >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
           
-          # Check for Keep a Changelog format markers
+          # Analyze changelog structure
+          VERSIONS=$(grep -c "## \[" CHANGELOG.md || echo 0)
+          UNRELEASED=$(grep -c "## \[Unreleased\]" CHANGELOG.md || echo 0)
+          DATES=$(grep -c "[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}" CHANGELOG.md || echo 0)
+          SIZE=$(wc -c < CHANGELOG.md)
+          
+          echo "| Metric | Value | Status | Notes |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          
+          # Check format
           if grep -qi "## \[.*\]" CHANGELOG.md; then
-            echo "✅ CHANGELOG.md follows Keep a Changelog format" >> $GITHUB_STEP_SUMMARY
+            echo "| Format | Keep a Changelog | ✅ Pass | Standard format |" >> $GITHUB_STEP_SUMMARY
           else
-            echo "⚠️ CHANGELOG.md may not follow Keep a Changelog format" >> $GITHUB_STEP_SUMMARY
-            echo "See: https://keepachangelog.com/" >> $GITHUB_STEP_SUMMARY
+            echo "| Format | Custom | ⚠️ Warning | Consider [Keep a Changelog](https://keepachangelog.com/) |" >> $GITHUB_STEP_SUMMARY
           fi
+          
+          # Version count
+          VERSIONS_STATUS="✅ Good"
+          VERSIONS_NOTE="Well maintained"
+          if [ $VERSIONS -lt 1 ]; then
+            VERSIONS_STATUS="⚠️ Warning"
+            VERSIONS_NOTE="Add version entries"
+          fi
+          echo "| Versions | $VERSIONS | $VERSIONS_STATUS | $VERSIONS_NOTE |" >> $GITHUB_STEP_SUMMARY
+          
+          # Unreleased section
+          if [ $UNRELEASED -gt 0 ]; then
+            echo "| Unreleased | Yes | ✅ Good | Active development tracked |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Unreleased | No | ℹ️ Info | Consider adding [Unreleased] section |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Dates
+          DATES_STATUS="✅ Good"
+          if [ $DATES -lt 1 ]; then
+            DATES_STATUS="⚠️ Warning"
+            DATES_NOTE="Add release dates"
+          else
+            DATES_NOTE="Dates present"
+          fi
+          echo "| Release dates | $DATES | $DATES_STATUS | $DATES_NOTE |" >> $GITHUB_STEP_SUMMARY
+          
+          # Check for standard sections
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Changelog Sections:**" >> $GITHUB_STEP_SUMMARY
+          grep -qi "### Added" CHANGELOG.md && echo "- ✅ Added section" >> $GITHUB_STEP_SUMMARY || echo "- ℹ️ Added section (optional)" >> $GITHUB_STEP_SUMMARY
+          grep -qi "### Changed" CHANGELOG.md && echo "- ✅ Changed section" >> $GITHUB_STEP_SUMMARY || echo "- ℹ️ Changed section (optional)" >> $GITHUB_STEP_SUMMARY
+          grep -qi "### Fixed" CHANGELOG.md && echo "- ✅ Fixed section" >> $GITHUB_STEP_SUMMARY || echo "- ℹ️ Fixed section (optional)" >> $GITHUB_STEP_SUMMARY
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📚 Reference: [Keep a Changelog](https://keepachangelog.com/)" >> $GITHUB_STEP_SUMMARY
       
       - name: Check Documentation Index
         run: |
@@ -457,21 +628,155 @@ jobs:
     steps:
       - name: Generate Compliance Report
         run: |
-          echo "# MokoStandards Compliance Report" >> $GITHUB_STEP_SUMMARY
+          echo "# 📊 MokoStandards Compliance Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "All compliance checks have been executed." >> $GITHUB_STEP_SUMMARY
+          
+          # Calculate overall status
+          REPO_STATUS="${{ needs.repository-structure.result }}"
+          DOCS_STATUS="${{ needs.documentation-quality.result }}"
+          CODE_STATUS="${{ needs.coding-standards.result }}"
+          LICENSE_STATUS="${{ needs.license-compliance.result }}"
+          GIT_STATUS="${{ needs.git-hygiene.result }}"
+          WORKFLOW_STATUS="${{ needs.workflow-validation.result }}"
+          
+          PASSED=0
+          FAILED=0
+          TOTAL=6
+          
+          [ "$REPO_STATUS" = "success" ] && PASSED=$((PASSED + 1)) || FAILED=$((FAILED + 1))
+          [ "$DOCS_STATUS" = "success" ] && PASSED=$((PASSED + 1)) || FAILED=$((FAILED + 1))
+          [ "$CODE_STATUS" = "success" ] && PASSED=$((PASSED + 1)) || FAILED=$((FAILED + 1))
+          [ "$LICENSE_STATUS" = "success" ] && PASSED=$((PASSED + 1)) || FAILED=$((FAILED + 1))
+          [ "$GIT_STATUS" = "success" ] && PASSED=$((PASSED + 1)) || FAILED=$((FAILED + 1))
+          [ "$WORKFLOW_STATUS" = "success" ] && PASSED=$((PASSED + 1)) || FAILED=$((FAILED + 1))
+          
+          COMPLIANCE_PERCENT=$((PASSED * 100 / TOTAL))
+          
+          # Overall status badge
+          if [ $COMPLIANCE_PERCENT -eq 100 ]; then
+            echo "## ✅ Overall Status: **COMPLIANT** ($COMPLIANCE_PERCENT%)" >> $GITHUB_STEP_SUMMARY
+          elif [ $COMPLIANCE_PERCENT -ge 80 ]; then
+            echo "## ⚠️ Overall Status: **MOSTLY COMPLIANT** ($COMPLIANCE_PERCENT%)" >> $GITHUB_STEP_SUMMARY
+          elif [ $COMPLIANCE_PERCENT -ge 50 ]; then
+            echo "## ⚠️ Overall Status: **PARTIALLY COMPLIANT** ($COMPLIANCE_PERCENT%)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## ❌ Overall Status: **NON-COMPLIANT** ($COMPLIANCE_PERCENT%)" >> $GITHUB_STEP_SUMMARY
+          fi
+          
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "## Validation Areas:" >> $GITHUB_STEP_SUMMARY
-          echo "- Repository Structure" >> $GITHUB_STEP_SUMMARY
-          echo "- Documentation Quality" >> $GITHUB_STEP_SUMMARY
-          echo "- Coding Standards" >> $GITHUB_STEP_SUMMARY
-          echo "- License Compliance" >> $GITHUB_STEP_SUMMARY
-          echo "- Git Repository Hygiene" >> $GITHUB_STEP_SUMMARY
-          echo "- Workflow Configuration" >> $GITHUB_STEP_SUMMARY
+          echo "**Score:** $PASSED/$TOTAL validation areas passed" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "For detailed results, review individual job outputs above." >> $GITHUB_STEP_SUMMARY
+          
+          # Progress bar
+          FILLED=$((COMPLIANCE_PERCENT / 5))
+          EMPTY=$((20 - FILLED))
+          BAR=""
+          for i in $(seq 1 $FILLED); do BAR="${BAR}█"; done
+          for i in $(seq 1 $EMPTY); do BAR="${BAR}░"; done
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "$BAR $COMPLIANCE_PERCENT%" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "📚 Learn more: https://github.com/mokoconsulting-tech/MokoStandards" >> $GITHUB_STEP_SUMMARY
+          
+          # Detailed breakdown
+          echo "## Validation Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Area | Status | Result | Priority |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|--------|--------|----------|" >> $GITHUB_STEP_SUMMARY
+          
+          # Repository Structure
+          if [ "$REPO_STATUS" = "success" ]; then
+            echo "| 📁 Repository Structure | ✅ Pass | Compliant | - |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| 📁 Repository Structure | ❌ Fail | **Action Required** | 🔴 Critical |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Documentation Quality
+          if [ "$DOCS_STATUS" = "success" ]; then
+            echo "| 📚 Documentation Quality | ✅ Pass | Compliant | - |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| 📚 Documentation Quality | ❌ Fail | **Action Required** | 🔴 Critical |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Coding Standards
+          if [ "$CODE_STATUS" = "success" ]; then
+            echo "| 💻 Coding Standards | ✅ Pass | Compliant | - |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| 💻 Coding Standards | ⚠️ Warning | Review Recommended | 🟡 Medium |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # License Compliance
+          if [ "$LICENSE_STATUS" = "success" ]; then
+            echo "| ⚖️ License Compliance | ✅ Pass | Compliant | - |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| ⚖️ License Compliance | ❌ Fail | **Action Required** | 🔴 Critical |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Git Hygiene
+          if [ "$GIT_STATUS" = "success" ]; then
+            echo "| 🧹 Git Repository Hygiene | ✅ Pass | Compliant | - |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| 🧹 Git Repository Hygiene | ⚠️ Warning | Review Recommended | 🟡 Medium |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Workflow Configuration
+          if [ "$WORKFLOW_STATUS" = "success" ]; then
+            echo "| ⚙️ Workflow Configuration | ✅ Pass | Compliant | - |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| ⚙️ Workflow Configuration | ⚠️ Warning | Review Recommended | 🟡 Medium |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Action items summary
+          if [ $FAILED -gt 0 ]; then
+            echo "## ⚡ Action Items" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**$FAILED validation area(s) require attention:**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            
+            [ "$REPO_STATUS" != "success" ] && echo "- 🔴 **Critical:** Fix repository structure issues" >> $GITHUB_STEP_SUMMARY
+            [ "$DOCS_STATUS" != "success" ] && echo "- 🔴 **Critical:** Improve documentation quality" >> $GITHUB_STEP_SUMMARY
+            [ "$LICENSE_STATUS" != "success" ] && echo "- 🔴 **Critical:** Resolve license compliance issues" >> $GITHUB_STEP_SUMMARY
+            [ "$CODE_STATUS" != "success" ] && echo "- 🟡 **Medium:** Review coding standards violations" >> $GITHUB_STEP_SUMMARY
+            [ "$GIT_STATUS" != "success" ] && echo "- 🟡 **Medium:** Address git repository hygiene items" >> $GITHUB_STEP_SUMMARY
+            [ "$WORKFLOW_STATUS" != "success" ] && echo "- 🟡 **Medium:** Review workflow configuration" >> $GITHUB_STEP_SUMMARY
+            
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Next Steps:**" >> $GITHUB_STEP_SUMMARY
+            echo "1. Review detailed results in individual job outputs above" >> $GITHUB_STEP_SUMMARY
+            echo "2. Follow remediation steps provided for each failure" >> $GITHUB_STEP_SUMMARY
+            echo "3. Re-run this workflow after making corrections" >> $GITHUB_STEP_SUMMARY
+            echo "4. Reach 100% compliance before merging" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## 🎉 Excellent!" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Your repository is **fully compliant** with MokoStandards!" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Achievements:**" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ All required directories and files present" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Documentation meets quality standards" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Coding standards followed" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ License compliance verified" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Git repository well-maintained" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Workflows properly configured" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📚 **Resources:**" >> $GITHUB_STEP_SUMMARY
+          echo "- [MokoStandards Documentation](https://github.com/mokoconsulting-tech/MokoStandards)" >> $GITHUB_STEP_SUMMARY
+          echo "- [Repository Structure Guide](https://github.com/mokoconsulting-tech/MokoStandards/tree/main/docs/policy/core-structure.md)" >> $GITHUB_STEP_SUMMARY
+          echo "- [Documentation Standards](https://github.com/mokoconsulting-tech/MokoStandards/tree/main/docs/policy/document-formatting.md)" >> $GITHUB_STEP_SUMMARY
+          echo "- [Coding Standards](https://github.com/mokoconsulting-tech/MokoStandards/tree/main/docs/policy/coding-style-guide.md)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "_Generated by MokoStandards Compliance Workflow v02.00.00_" >> $GITHUB_STEP_SUMMARY
+          
+          # Exit with error if not fully compliant
+          if [ $COMPLIANCE_PERCENT -lt 100 ]; then
+            exit 1
+          fi
 
 # CUSTOMIZATION:
 #

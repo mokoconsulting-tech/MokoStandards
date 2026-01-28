@@ -49,6 +49,7 @@ concurrency:
 
 permissions:
   contents: read
+  issues: write
 
 jobs:
   detect-project-type:
@@ -258,6 +259,94 @@ jobs:
             *.zip
           retention-days: 7
           if-no-files-found: ignore
+
+      - name: Create tracking issue on build failure
+        if: failure() && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/dev/') || startsWith(github.ref, 'refs/heads/rc/'))
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const projectType = '${{ needs.detect-project-type.outputs.project_type }}';
+            const extensionType = '${{ needs.detect-project-type.outputs.extension_type }}';
+            
+            const body = `## 🔨 Build Failed on Protected Branch
+            
+            **Branch**: \`${context.ref}\`
+            **Commit**: ${context.sha.substring(0, 7)}
+            **Workflow Run**: [${context.runId}](${context.payload.repository.html_url}/actions/runs/${context.runId})
+            **Triggered by**: @${context.actor}
+            **Date**: ${new Date().toISOString()}
+            
+            ### Build Configuration
+            - **Project Type**: ${projectType || 'Unknown'}
+            - **Extension Type**: ${extensionType || 'N/A'}
+            - **Branch**: ${context.ref}
+            - **Event**: ${context.eventName}
+            
+            ### ❌ Build Failure
+            The build process has failed on a protected branch. This indicates a critical issue that prevents successful compilation or artifact generation.
+            
+            ### 🔍 Common Causes
+            - **Compilation errors**: Syntax errors or type mismatches
+            - **Missing dependencies**: Required packages not installed
+            - **Configuration issues**: Invalid build settings or manifests
+            - **Environment problems**: Missing tools or incorrect versions
+            - **Resource limitations**: Out of memory or disk space
+            - **Test failures**: Unit tests or integration tests failing
+            
+            ### ✅ Resolution Steps
+            1. Review the [workflow run logs](${context.payload.repository.html_url}/actions/runs/${context.runId})
+            2. Identify the specific build step that failed
+            3. Check for recent changes that may have introduced the issue
+            4. Verify all dependencies are correctly specified
+            5. Test build locally: \`make build\` or project-specific build command
+            6. Fix the issue and push a new commit
+            7. Verify build passes before closing this issue
+            
+            ### 📊 Impact
+            - **Main branch**: Critical - blocks releases and deployments
+            - **Dev branch**: High - affects development workflow
+            - **RC branch**: High - blocks release candidate promotion
+            
+            ### 📚 Resources
+            - [Build Workflow](.github/workflows/build.yml)
+            - [Project Documentation](README.md)
+            ${projectType === 'joomla' ? '- [Joomla Extension Development](https://docs.joomla.org/)' : ''}
+            ${projectType === 'dolibarr' ? '- [Dolibarr Module Development](https://wiki.dolibarr.org/)' : ''}
+            
+            ---
+            *This issue was automatically created by the Universal Build workflow.*
+            `;
+            
+            // Check for existing open issue
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'build-failure',
+              per_page: 1
+            });
+            
+            if (issues.data.length > 0) {
+              // Update existing issue
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issues.data[0].number,
+                body: `### 🔄 Build Failed Again\n\n${body}`
+              });
+              console.log(`Updated existing issue #${issues.data[0].number}`);
+            } else {
+              // Create new issue
+              const issue = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `[Build] Build Failed on ${context.ref.replace('refs/heads/', '')} - ${new Date().toISOString().split('T')[0]}`,
+                body: body,
+                labels: ['build-failure', 'ci/cd', 'automation'],
+                assignees: ['copilot', 'jmiller-moko']
+              });
+              console.log(`Created new issue #${issue.data.number}`);
+            }
 
 # CUSTOMIZATION EXAMPLES:
 #

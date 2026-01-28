@@ -22,9 +22,10 @@
 # INGROUP: MokoStandards.Automation
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/bulk-repo-sync.yml
-# VERSION: 01.00.00
+# VERSION: 02.00.00
 # BRIEF: Monthly automation to sync workflows, scripts, and configurations to organization repositories
 # NOTE: Runs bulk_update_repos.py (v2) script to deploy MokoStandards to all org repos
+# NOTE: Now uses Terraform format (MokoStandards.override.tf) for override configuration
 
 name: Bulk Repository Sync
 
@@ -70,9 +71,8 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pyyaml
           echo "## 📦 Python Dependencies Installed" >> $GITHUB_STEP_SUMMARY
-          echo "- PyYAML (for .mokostandards-sync.yml override files)" >> $GITHUB_STEP_SUMMARY
+          echo "- No additional dependencies required (Terraform override parsing uses built-in regex)" >> $GITHUB_STEP_SUMMARY
 
       - name: Setup GitHub CLI
         run: |

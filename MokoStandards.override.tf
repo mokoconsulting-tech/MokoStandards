@@ -35,12 +35,20 @@
 
 locals {
   # Metadata about this override configuration
+  # Standard metadata fields for all terraform configurations
   override_metadata = {
-    name              = "MokoStandards Repository Override"
-    repository_type   = "standards"
-    compliance_level  = "strict"
-    config_version    = "2.0"
-    format            = "terraform"
+    name           = "MokoStandards Repository Override"
+    description    = "Override configuration preventing sync of template files in the standards repository"
+    version        = "2.0.0"
+    last_updated   = "2026-01-28T05:40:00Z"
+    maintainer     = "MokoStandards Team"
+    schema_version = "2.0"
+    repository_url = "https://github.com/mokoconsulting-tech/MokoStandards"
+    
+    # Context-specific fields
+    repository_type  = "standards"
+    compliance_level = "strict"
+    format           = "terraform"
   }
 
   # Sync configuration

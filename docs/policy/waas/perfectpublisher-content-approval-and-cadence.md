@@ -10,7 +10,7 @@
  INGROUP: Policy.PublishingAndDistribution
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  PATH: /docs/policy/waas/perfectpublisher-content-approval-and-cadence.md
- VERSION: 01.00.00
+ VERSION: 03.00.00
  BRIEF: Enterprise governance policy defining content approval, publishing cadence, and authority controls for PerfectPublisher.
 -->
 

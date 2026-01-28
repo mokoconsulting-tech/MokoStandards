@@ -565,6 +565,50 @@ test('works', () => {});
 - Test edge cases
 - Test error conditions
 
+## Date and Time Standards
+
+### Timestamp Requirements
+
+**All timestamps MUST use UTC timezone.**
+
+- **Required format**: ISO 8601 with UTC indicator
+- **Examples**:
+  - `2026-01-28T14:30:00Z` (with time)
+  - `2026-01-28` (date only, when time not needed)
+- **Never use**: Local timezones, ambiguous formats, or timestamps without timezone
+
+### Code Implementation
+
+```python
+# ✅ Good: UTC timestamp
+from datetime import datetime, timezone
+
+timestamp = datetime.now(timezone.utc).isoformat()
+# Result: "2026-01-28T14:30:00+00:00" or "2026-01-28T14:30:00Z"
+
+# ✅ Also acceptable
+timestamp = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+```
+
+```javascript
+// ✅ Good: UTC timestamp
+const timestamp = new Date().toISOString();
+// Result: "2026-01-28T14:30:00.000Z"
+```
+
+```php
+// ✅ Good: UTC timestamp
+$timestamp = gmdate('Y-m-d\TH:i:s\Z');
+// Result: "2026-01-28T14:30:00Z"
+```
+
+### Rationale
+
+- **Consistency**: All systems use same time reference
+- **No ambiguity**: Clear what time is meant regardless of location
+- **Compliance**: Required by metadata standards policy
+- **Interoperability**: UTC is universal standard for distributed systems
+
 ## Language-Specific Guides
 
 For detailed language-specific standards, see:

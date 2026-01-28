@@ -23,7 +23,7 @@
  INGROUP: MokoStandards
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  FILE: docs/guide/branch-synchronization.md
- VERSION: 01.00.00
+ VERSION: 03.00.00
  BRIEF: Guide for synchronizing local branches with remote counterparts
  PATH: /docs/guide/branch-synchronization.md
 -->

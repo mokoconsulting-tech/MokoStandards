@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Development
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/terraform-metadata-standards.md
-VERSION: 01.00.00
+VERSION: 03.00.00
 BRIEF: Standardization policy for metadata fields in Terraform configurations
 -->
 

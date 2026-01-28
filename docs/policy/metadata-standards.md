@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/metadata-standards.md
-VERSION: 01.00.00
+VERSION: 03.00.00
 BRIEF: Authoritative metadata standards for all documentation and configuration types
 -->
 
@@ -402,11 +402,16 @@ All versions MUST follow semantic versioning principles:
 
 ### Date Formats
 
+**IMPORTANT: All timestamps MUST use UTC timezone.**
+
 All dates MUST use ISO 8601 standard:
 
 - **Date only**: `YYYY-MM-DD` (e.g., 2026-01-28)
 - **Date and time**: `YYYY-MM-DDTHH:MM:SSZ` (e.g., 2026-01-28T05:40:00Z)
-- Always use UTC timezone (Z suffix) for timestamps
+- **Always use UTC timezone** (Z suffix) for timestamps
+- **Never use** local timezones or ambiguous time formats
+
+**Rationale**: UTC ensures consistency across distributed systems, eliminates timezone ambiguity, and provides a universal time reference for all stakeholders regardless of location.
 
 ## Revision History
 

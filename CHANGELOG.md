@@ -25,6 +25,91 @@
 
 ## [UNRELEASED]
 
+### Added - Terraform Workflow Templates and Infrastructure Management
+- **Terraform Support**: Added comprehensive Terraform workflow templates
+  - Created `templates/workflows/terraform/ci.yml` - Terraform validation, formatting, planning, and security scanning
+  - Created `templates/workflows/terraform/deploy.yml.template` - Multi-cloud deployment workflows (AWS/Azure/GCP)
+  - Created `templates/workflows/terraform/drift-detection.yml.template` - Scheduled infrastructure drift monitoring
+  - Created `templates/workflows/terraform/manage-repo-templates.yml.template` - Use Terraform to manage repository templates
+  - Created `templates/workflows/terraform/index.md` - Complete documentation for Terraform workflows
+  - All workflows support OIDC authentication, security scanning (tfsec/Checkov), and automated issue creation
+- **Terraform Infrastructure Configuration**: Created repository management via Terraform
+  - Created `terraform/repository-management/main.tf` - Declarative repository file management
+  - Created `terraform/repository-management/terraform.tfvars.example` - Configuration examples
+  - Enables bulk repository updates using infrastructure-as-code principles
+- **Script Enhancement**: Updated `scripts/automation/bulk_update_repos.py` to recognize Terraform repositories
+  - Added Terraform platform detection (checks for terraform/ directory and .tf files)
+  - Added Terraform workflow template mappings (ci, deploy, drift-detection)
+  - Platform detection now prioritizes Terraform before falling back to auto-detection
+
+### Added - Terraform Override Configuration
+- **Configuration Management**: Converted override file from XML to Terraform format
+  - Created `MokoStandards.override.tf` replacing `MokoStandards.override.xml`
+  - Uses HCL locals blocks for metadata and configuration
+  - Lists exclude_files and protected_files in type-safe format
+  - Updated `scripts/automation/bulk_update_repos.py` to parse Terraform format using regex
+  - Updated `.github/workflows/bulk-repo-sync.yml` to reflect new format
+
+### Added - Comprehensive Roadmap and Planning Standards
+- **Strategic Planning**: Created 5-year version-specific roadmap
+  - Created `docs/ROADMAP.md` with detailed quarterly planning through 2030
+  - Restructured from quarter-based to version-based planning
+  - Version 03.x.x (2026): 6 minor releases planned with specific features
+  - Version 04.x.x (2027): AI Integration & Scale focus
+  - Version 05.x.x (2028): Open Source & Global Adoption
+  - Version 06.x.x (2029): Enterprise & Scale features
+  - Version 07.x.x (2030): Future Vision & AI-First
+  - Annual major versions suggested (not required), allowing flexibility based on needs
+- **Roadmap Policy**: Created comprehensive roadmap standards
+  - Created `docs/policy/roadmap-standards.md` defining roadmap planning requirements
+  - Specified version-centric planning over 5-year horizon
+  - One major version per year suggested (6-18 months acceptable)
+  - Quarterly minor releases recommended (1-6 months acceptable)
+  - Includes flexibility guidance, success metrics, and stakeholder communication standards
+
+### Added - Unified Metadata Standards Policy
+- **Comprehensive Standards**: Created unified metadata policy covering all documentation types
+  - Created `docs/policy/metadata-standards.md` as authoritative source for all metadata
+  - Covers markdown documents, Terraform configurations, YAML, JSON, and code files
+  - Defines 5 core required fields applicable to all formats
+  - **Document Type Values**: 10 defined values with detailed definitions (Policy, Guide, Checklist, Reference, Report, ADR, Template, Glossary, Index, Runbook)
+  - **Domain Values**: 10 defined values with scope descriptions (Documentation, Development, Operations, Security, Governance, Quality, Legal, Architecture, Infrastructure, Product)
+  - **Applies To Values**: 6 defined scopes (All Repositories, Organization-wide, Specific Projects, Platform-Specific, Role-Specific, Environment-Specific)
+  - **Status Values**: 7 lifecycle states (Draft, Active, Authoritative, Deprecated, Superseded, Under Review, Archived)
+  - Supersedes previous terraform-metadata-standards.md (now deprecated)
+- **Revision History Enhancement**: Added timestamp support for revision histories
+  - Three date format options: YYYY-MM-DD, YYYY-MM-DD HH:MM:SS UTC, YYYY-MM-DDTHH:MM:SSZ
+  - Guidance on when to include timestamps (required for CI/CD, recommended for frequent updates)
+  - **UTC requirement**: All timestamps MUST use UTC timezone
+  - Four complete examples showing different use cases
+- **Updated Policies**: Enhanced document-formatting.md with metadata standards
+  - Expanded allowed values for Document Type (10 values) and Domain (10 values)
+  - Cross-references unified metadata-standards.md for detailed guidance
+  - Maintains backward compatibility with existing documents
+
+### Added - UTC Timestamp Standards
+- **Timestamp Requirements**: Strengthened UTC timezone requirements across all policies
+  - **coding-style-guide.md**: Added comprehensive "Date and Time Standards" section
+    - Clear requirement: "All timestamps MUST use UTC timezone"
+    - Code examples for Python (datetime.now(timezone.utc)), JavaScript (toISOString()), and PHP (gmdate)
+    - Rationale documented: consistency, no ambiguity, compliance, interoperability
+  - **metadata-standards.md**: Enhanced UTC emphasis with IMPORTANT callout
+    - Added "Never use local timezones or ambiguous time formats" guidance
+    - Included comprehensive rationale for UTC requirement
+  - Verified all existing timestamps already comply (use "Z" suffix for UTC)
+
+### Fixed - Documentation Version Drift
+- **Version Consistency**: Fixed 7 documentation files with outdated VERSION fields
+  - Updated VERSION from 01.00.00 to 03.00.00 in file headers:
+    - docs/policy/metadata-standards.md
+    - docs/policy/terraform-metadata-standards.md
+    - docs/policy/merge-strategy.md
+    - docs/policy/waas/perfectpublisher-content-approval-and-cadence.md
+    - docs/guide/conflict-resolution.md
+    - docs/guide/branch-synchronization.md
+    - docs/ROADMAP.md
+  - Ensures version consistency across entire repository
+
 ### Changed - File Header Standards Update
 - **Documentation Standards**: Updated file-header-standards.md to clarify warranty disclaimer requirements
   - Warranty disclaimer is now **suggested** rather than required in file headers

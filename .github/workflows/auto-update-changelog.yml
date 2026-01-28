@@ -124,12 +124,18 @@ jobs:
           git add CHANGELOG.md
       
       - name: Update CHANGELOG.md with PR content
+        env:
+          CHANGE_TYPE: ${{ steps.pr-info.outputs.change_type }}
+          PR_NUMBER: ${{ steps.pr-info.outputs.pr_number }}
+          PR_TITLE: ${{ steps.pr-info.outputs.pr_title }}
+          PR_USER: ${{ steps.pr-info.outputs.pr_user }}
+          DATE: ${{ steps.pr-info.outputs.date }}
         run: |
-          CHANGE_TYPE="${{ steps.pr-info.outputs.change_type }}"
-          PR_NUMBER="${{ steps.pr-info.outputs.pr_number }}"
-          PR_TITLE="${{ steps.pr-info.outputs.pr_title }}"
-          PR_USER="${{ steps.pr-info.outputs.pr_user }}"
-          DATE="${{ steps.pr-info.outputs.date }}"
+          CHANGE_TYPE="$CHANGE_TYPE"
+          PR_NUMBER="$PR_NUMBER"
+          PR_TITLE="$PR_TITLE"
+          PR_USER="$PR_USER"
+          DATE="$DATE"
           
           # Read changelog entry content
           CHANGELOG_CONTENT=$(cat /tmp/changelog_entry.txt)

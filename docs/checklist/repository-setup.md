@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Checklist
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/checklist/repository-setup.md
-VERSION: 02.00.00
+VERSION: 03.00.00
 BRIEF: Comprehensive checklist for setting up MokoStandards-compliant repositories
 -->
 
@@ -544,7 +544,7 @@ Use this checklist for manual validation, or use the automated tools for faster 
 | Owner          | Moko Consulting                                          |
 | Repo           | https://github.com/mokoconsulting-tech/                                      |
 | Path           | /docs/checklist/repository-setup.md                                      |
-| Version        | 02.00.00                                 |
+| Version        | 03.00.00                                 |
 | Status         | Active                                         |
 | Last Reviewed  | 2026-01-28                                  |
 | Reviewed By    | Documentation Team                                    |
@@ -554,4 +554,4 @@ Use this checklist for manual validation, or use the automated tools for faster 
 
 | Date       | Author          | Change                                       | Notes                                              |
 | ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
-| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 03.00.00 with all required fields |

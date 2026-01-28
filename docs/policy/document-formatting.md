@@ -23,7 +23,7 @@ DEFGROUP: Documentation.Policy
 INGROUP: MokoStandards
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/document-formatting.md
-VERSION: 02.00.00
+VERSION: 03.00.00
 BRIEF: Authoritative document formatting policy for markdown policy documents.
 NOTE:
 -->
@@ -112,7 +112,7 @@ This section defines each required Metadata field, its purpose, and permitted va
 | Owner          | Accountable owner or governing entity.                         | Moko Consulting (fixed value)             | Yes |
 | Repo           | Canonical source repository for the document.                  | https://github.com/mokoconsulting-tech/   | Yes |
 | Path           | Repository relative file path where the document resides.      | Absolute repo path starting with `/docs/` | Yes |
-| Version        | Document version in semantic format.                           | XX.XX.XX (e.g., 02.00.00)                 | Yes |
+| Version        | Document version in semantic format.                           | XX.XX.XX (e.g., 03.00.00)                 | Yes |
 | Status         | Governance state of the document.                              | Draft, Active, Authoritative, Deprecated  | Yes |
 | Last Reviewed  | Date the document was last formally reviewed.                  | YYYY-MM-DD                                | Yes |
 | Reviewed By    | Person or team who performed the last review.                  | Name or team designation                  | Yes |
@@ -170,7 +170,7 @@ For contribution rules, see the [Contributing Policy](../CONTRIBUTING.md).
 | Owner          | Moko Consulting                                          |
 | Repo           | https://github.com/mokoconsulting-tech/                                      |
 | Path           | /docs/policy/document-formatting.md                                      |
-| Version        | 02.00.00                                 |
+| Version        | 03.00.00                                 |
 | Status         | Active                                         |
 | Last Reviewed  | 2026-01-28                                  |
 | Reviewed By    | Documentation Team                                    |
@@ -180,4 +180,4 @@ For contribution rules, see the [Contributing Policy](../CONTRIBUTING.md).
 
 | Date       | Author          | Change                                       | Notes                                              |
 | ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
-| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 03.00.00 with all required fields |

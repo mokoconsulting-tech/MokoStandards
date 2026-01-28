@@ -23,7 +23,7 @@
  INGROUP: MokoStandards
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  FILE: README.md
- VERSION: 02.00.00
+ VERSION: 03.00.00
  BRIEF: Authoritative coding standards, golden architecture, workflows, templates, and governance policies for v2.
  PATH: /README.md
  NOTE: Version 2.0 release - no backward compatibility with v1. Complete documentation rebuild with enhanced structure.
@@ -793,7 +793,7 @@ See [CITATION.cff](./CITATION.cff) for machine-readable citation information.
 
 - **Document**: README.md
 - **Repository**: https://github.com/mokoconsulting-tech/MokoStandards
-- **Version**: 02.00.00 (v2.0.0)
+- **Version**: 03.00.00 (v2.0.0)
 - **Owner**: Moko Consulting
 - **Scope**: Coding standards and governance
 - **Lifecycle**: Active
@@ -803,7 +803,7 @@ See [CITATION.cff](./CITATION.cff) for machine-readable citation information.
 
 | Version | Date | Author | Notes |
 |---------|------|--------|-------|
-| 02.00.00 | 2026-01-19 | GitHub Copilot | Complete v2.0 rebuild with enhanced structure, automation scripts, comprehensive documentation |
+| 03.00.00 | 2026-01-19 | GitHub Copilot | Complete v2.0 rebuild with enhanced structure, automation scripts, comprehensive documentation |
 | 01.00.00 | 2025-12-17 | Jonathan Miller (@jmiller-moko) | Initial standards baseline |
 
 ---

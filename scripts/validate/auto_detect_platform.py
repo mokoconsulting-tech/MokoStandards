@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Auto-Detect Repository Platform v02.00.00 - Critical Validator Infrastructure.
+"""Auto-Detect Repository Platform v03.00.00 - Critical Validator Infrastructure.
 
 This script automatically detects repository platform types with confidence scoring
 and provides JSON/CLI output for automation workflows.
@@ -42,7 +42,7 @@ from typing import Dict, List, Optional, Tuple
 
 
 # Version
-__version__ = "02.00.00"
+__version__ = "03.00.00"
 
 
 class PlatformType(Enum):

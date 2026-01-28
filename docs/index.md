@@ -67,6 +67,7 @@ Standards, requirements, and compliance documentation.
 - [access-control-identity-management](./policy/security/access-control-identity-management.md)
 - [audit-logging-monitoring](./policy/security/audit-logging-monitoring.md)
 - [backup-recovery](./policy/security/backup-recovery.md)
+- [confidentiality-scan](./policy/security/confidentiality-scan.md)
 - [data-privacy-gdpr-compliance](./policy/security/data-privacy-gdpr-compliance.md)
 - [directory-listing-prevention](./policy/security/directory-listing-prevention.md)
 - [disaster-recovery-business-continuity](./policy/security/disaster-recovery-business-continuity.md)

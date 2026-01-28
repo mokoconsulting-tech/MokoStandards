@@ -15,7 +15,7 @@
  DEFGROUP: MokoStandards
  INGROUP: MokoStandards.Documentation
  REPO: https://github.com/mokoconsulting-tech/MokoStandards/
- VERSION: 02.00.00
+ VERSION: 03.00.00
  PATH: ./CHANGELOG.md
  BRIEF: Version history using Keep a Changelog
  NOTE: Adheres to SemVer when applicable
@@ -23,7 +23,12 @@
 
 # Changelog
 
-## [UNRELEASED]
+## [03.00.00] - 2026-01-28
+
+### Changed - Major Version: Repository Standards and Documentation Improvements
+- **BREAKING CHANGE**: Version bumped from 02.00.00 to 03.00.00 across entire repository
+  - Updated 156 files with 344 version number replacements
+  - All documentation, scripts, and configuration files now use version 03.00.00
 
 ### Changed - Revision History Order
 - **Documentation Standards**: Updated revision history and changelog ordering
@@ -61,7 +66,7 @@
 ## [02.00.00] - 2026-01-28
 ### Changed - Major Version: Standardized Metadata and Terraform Migration
 - **BREAKING CHANGE**: Standardized metadata across all documentation
-  - **All documents updated to version 02.00.00**
+  - **All documents updated to version 03.00.00**
   - Added 11 required metadata fields (was 6):
     - Document Type (Policy, Guide, Checklist, Reference, Report, ADR, etc.)
     - Domain (Governance, Documentation, Operations, Security, etc.)
@@ -70,7 +75,7 @@
     - Owner: Moko Consulting (standardized)
     - Repo: https://github.com/mokoconsulting-tech/ (standardized)
     - Path (repository-relative path)
-    - Version (02.00.00 semantic versioning)
+    - Version (03.00.00 semantic versioning)
     - Status (Draft, Active, Authoritative, Deprecated)
     - Last Reviewed (YYYY-MM-DD)
     - Reviewed By (new required field)

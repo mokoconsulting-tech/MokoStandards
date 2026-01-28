@@ -11,34 +11,34 @@ Creating PowerShell (.ps1) equivalents of all 44 Python scripts for Windows-nati
 
 ### Core Modules (2/8 - 25%)
 
-1. ✅ **Common.psm1** v02.00.00
+1. ✅ **Common.psm1** v03.00.00
    - Clone of: common.py v05.00.00
    - Functions: Get-RepositoryRoot, Invoke-Command, New-Directory, Set-FileAtomic
    - Formatters: Format-ByteSize, Format-TimeSpan
    - Logging: Write-InfoLog, Write-SuccessLog, Write-WarningLog, Write-ErrorLog
    - Features: Pipeline support, comment-based help, parameter validation
 
-2. ✅ **ConfigManager.psm1** v02.00.00
-   - Clone of: config_manager.py v02.00.00
+2. ✅ **ConfigManager.psm1** v03.00.00
+   - Clone of: config_manager.py v03.00.00
    - Functions: Get-MokoConfig, Set-MokoConfig, Test-MokoConfig, Reset-MokoConfig
    - Features: YAML loading, env overrides, in-memory caching, validation
 
 ### Validation Scripts (1/13 - 8%)
 
-1. ✅ **Invoke-PlatformDetection.ps1** v02.00.00
-   - Clone of: auto_detect_platform.py v02.00.00
+1. ✅ **Invoke-PlatformDetection.ps1** v03.00.00
+   - Clone of: auto_detect_platform.py v03.00.00
    - Detection: Joomla, Dolibarr, Generic
    - Features: Confidence scoring, file caching, JSON output
 
 ### Automation Scripts (2/8 - 25%)
 
-1. ✅ **file-distributor.ps1** v02.00.00
+1. ✅ **file-distributor.ps1** v03.00.00
    - Clone of: file-distributor.py
    - Features: GUI, depth control, dry run, CSV/JSON audit
    - Size: 1,195 lines
 
-2. ✅ **Update-BulkRepositories.ps1** v02.00.00
-   - Clone of: bulk_update_repos.py v02.00.00
+2. ✅ **Update-BulkRepositories.ps1** v03.00.00
+   - Clone of: bulk_update_repos.py v03.00.00
    - Features: Platform detection, GitHub CLI, progress reporting, -WhatIf support
 
 ## Remaining 📋 (39/44 - 89%)
@@ -139,7 +139,7 @@ All PowerShell scripts must meet:
 - Cross-platform support via PowerShell 7+
 - Maintains parity with Python scripts
 - No backward compatibility with v1
-- All scripts versioned as v02.00.00 to match Python v2
+- All scripts versioned as v03.00.00 to match Python v2
 
 ---
 

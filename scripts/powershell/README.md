@@ -155,7 +155,7 @@ Invoke-Pester -Path ./scripts/powershell/tests/
 ## Status
 
 **Current**: Building PowerShell equivalents
-- [x] file-distributor.ps1 v02.00.00 (rebuilt)
+- [x] file-distributor.ps1 v03.00.00 (rebuilt)
 - [ ] Common.psm1 (in progress)
 - [ ] 42 more scripts to create
 

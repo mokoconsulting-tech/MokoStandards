@@ -1,6 +1,6 @@
 # GitHub Workflow Templates Documentation
 
-**Status**: Active | **Version**: 02.00.00 | **Effective**: 2026-01-07
+**Status**: Active | **Version**: 03.00.00 | **Effective**: 2026-01-07
 
 ## Overview
 
@@ -556,7 +556,7 @@ For issues with templates:
 | Repository | https://github.com/mokoconsulting-tech/MokoStandards |
 | Owner | Moko Consulting |
 | Status | Active |
-| Version | 02.00.00 |
+| Version | 03.00.00 |
 | Effective | 2026-01-07 |
 
 ## Version History
@@ -564,7 +564,7 @@ For issues with templates:
 | Version | Date | Changes |
 |---|---|---|
 | 01.00.00 | 2026-01-07 | Initial comprehensive workflow documentation |
-| 02.00.00 | 2026-01-07 | Added public workflow templates documentation (build-universal, release-cycle, dependency-review, standards-compliance) |
+| 03.00.00 | 2026-01-07 | Added public workflow templates documentation (build-universal, release-cycle, dependency-review, standards-compliance) |
 
 ## See Also
 

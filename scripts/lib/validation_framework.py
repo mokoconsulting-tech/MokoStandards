@@ -23,7 +23,7 @@
 # INGROUP: MokoStandards.Library
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # FILE: scripts/lib/validation_framework.py
-# VERSION: 02.00.00
+# VERSION: 03.00.00
 # BRIEF: Unified validation framework for MokoStandards validators
 # PATH: /scripts/lib/validation_framework.py
 # NOTE: v2 - Full type hints, enhanced results, batch validation

@@ -103,7 +103,8 @@ jobs:
             echo "Checking pattern: $pattern"
 
             # Search for pattern (case insensitive)
-            matches=$(git grep -i -n -I -E "$pattern" -- $EXCLUDED_FILES || true)
+            # Use -- to separate options from pattern (prevents patterns starting with - from being interpreted as options)
+            matches=$(git grep -i -n -I -E -- "$pattern" $EXCLUDED_FILES || true)
 
             if [ -n "$matches" ]; then
               VIOLATIONS_FOUND=$((VIOLATIONS_FOUND + 1))
@@ -158,7 +159,8 @@ jobs:
             echo "Checking secret pattern: $pattern"
 
             # Search for pattern (case insensitive, exclude example files)
-            matches=$(git grep -i -n -I -E "$pattern" -- ':!*.md' ':!*.example' ':!*.sample' ':!docs/*' $EXCLUDED_FILES || true)
+            # Use -- to separate options from pattern (prevents patterns starting with - from being interpreted as options)
+            matches=$(git grep -i -n -I -E -- "$pattern" ':!*.md' ':!*.example' ':!*.sample' ':!docs/*' $EXCLUDED_FILES || true)
 
             if [ -n "$matches" ]; then
               SECRETS_FOUND=$((SECRETS_FOUND + 1))
@@ -211,7 +213,8 @@ jobs:
           for pattern in "${INTERNAL_DOC_PATTERNS[@]}"; do
             echo "Checking internal doc pattern: $pattern"
 
-            matches=$(git grep -i -n -I "$pattern" -- '*.md' $EXCLUDED_FILES || true)
+            # Use -- to separate options from pattern (prevents patterns starting with - from being interpreted as options)
+            matches=$(git grep -i -n -I -- "$pattern" '*.md' $EXCLUDED_FILES || true)
 
             if [ -n "$matches" ]; then
               # This is a warning, not a hard failure

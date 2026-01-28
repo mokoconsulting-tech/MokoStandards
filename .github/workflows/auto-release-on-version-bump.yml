@@ -60,6 +60,17 @@ jobs:
           VERSION_CHANGED="false"
           NEW_VERSION=""
           VERSION_SOURCE=""
+          CITATION_VERSION=""
+          PYPROJECT_VERSION=""
+
+          # Check if we have a previous commit (not initial commit)
+          if ! git rev-parse HEAD~1 >/dev/null 2>&1; then
+            echo "⚠️ Initial commit - skipping version check"
+            echo "version-changed=false" >> $GITHUB_OUTPUT
+            echo "new-version=" >> $GITHUB_OUTPUT
+            echo "version-source=" >> $GITHUB_OUTPUT
+            exit 0
+          fi
 
           # Check CITATION.cff for version changes
           if git diff HEAD~1 HEAD --name-only | grep -q "CITATION.cff"; then
@@ -67,42 +78,58 @@ jobs:
 
             # Extract current version from CITATION.cff
             if [ -f "CITATION.cff" ]; then
-              CURRENT_VERSION=$(grep "^version:" CITATION.cff | head -1 | sed 's/version: *"\?\([^"]*\)"\?/\1/')
+              CURRENT_VERSION=$(grep "^version:" CITATION.cff | head -1 | \
+                sed 's/^version: *"\([^"]*\)".*$/\1/; t; s/^version: *\([^ ]*\).*$/\1/')
 
               # Get previous version
               git show HEAD~1:CITATION.cff > /tmp/old_citation.cff 2>/dev/null \
                 || echo "" > /tmp/old_citation.cff
-              PREVIOUS_VERSION=$(grep "^version:" /tmp/old_citation.cff | head -1 \
-                | sed 's/version: *"\?\([^"]*\)"\?/\1/' || echo "")
+              PREVIOUS_VERSION=$(grep "^version:" /tmp/old_citation.cff | head -1 | \
+                sed 's/^version: *"\([^"]*\)".*$/\1/; t; s/^version: *\([^ ]*\).*$/\1/' || echo "")
 
               if [ "$CURRENT_VERSION" != "$PREVIOUS_VERSION" ] && [ -n "$CURRENT_VERSION" ]; then
                 echo "✅ Version changed in CITATION.cff: $PREVIOUS_VERSION → $CURRENT_VERSION"
                 VERSION_CHANGED="true"
+                CITATION_VERSION="$CURRENT_VERSION"
                 NEW_VERSION="$CURRENT_VERSION"
                 VERSION_SOURCE="CITATION.cff"
               fi
             fi
           fi
 
-          # Check pyproject.toml for version changes (if CITATION.cff didn't change)
-          if [ "$VERSION_CHANGED" = "false" ] && git diff HEAD~1 HEAD --name-only | grep -q "pyproject.toml"; then
+          # Check pyproject.toml for version changes
+          if git diff HEAD~1 HEAD --name-only | grep -q "pyproject.toml"; then
             echo "📋 pyproject.toml was modified"
 
             # Extract current version from pyproject.toml
             if [ -f "pyproject.toml" ]; then
-              CURRENT_VERSION=$(grep "^version = " pyproject.toml | head -1 | sed 's/version = *"\([^"]*\)"/\1/')
+              CURRENT_VERSION=$(grep "^version = " pyproject.toml | head -1 | \
+                sed 's/^version = *"\([^"]*\)".*$/\1/')
 
               # Get previous version
               git show HEAD~1:pyproject.toml > /tmp/old_pyproject.toml 2>/dev/null \
                 || echo "" > /tmp/old_pyproject.toml
-              PREVIOUS_VERSION=$(grep "^version = " /tmp/old_pyproject.toml | head -1 \
-                | sed 's/version = *"\([^"]*\)"/\1/' || echo "")
+              PREVIOUS_VERSION=$(grep "^version = " /tmp/old_pyproject.toml | head -1 | \
+                sed 's/^version = *"\([^"]*\)".*$/\1/' || echo "")
 
               if [ "$CURRENT_VERSION" != "$PREVIOUS_VERSION" ] && [ -n "$CURRENT_VERSION" ]; then
                 echo "✅ Version changed in pyproject.toml: $PREVIOUS_VERSION → $CURRENT_VERSION"
-                VERSION_CHANGED="true"
-                NEW_VERSION="$CURRENT_VERSION"
-                VERSION_SOURCE="pyproject.toml"
+                PYPROJECT_VERSION="$CURRENT_VERSION"
+
+                # If CITATION.cff version was also set, check for consistency
+                if [ -n "$CITATION_VERSION" ]; then
+                  if [ "$CITATION_VERSION" != "$PYPROJECT_VERSION" ]; then
+                    echo "⚠️ WARNING: Version mismatch!"
+                    echo "  CITATION.cff: $CITATION_VERSION"
+                    echo "  pyproject.toml: $PYPROJECT_VERSION"
+                    echo "Using CITATION.cff version as primary"
+                  fi
+                else
+                  # Only pyproject.toml changed
+                  VERSION_CHANGED="true"
+                  NEW_VERSION="$CURRENT_VERSION"
+                  VERSION_SOURCE="pyproject.toml"
+                fi
               fi
             fi
           fi
@@ -115,6 +142,14 @@ jobs:
             echo "### ✅ Version Bump Detected" >> $GITHUB_STEP_SUMMARY
             echo "- **New Version**: $NEW_VERSION" >> $GITHUB_STEP_SUMMARY
             echo "- **Source**: $VERSION_SOURCE" >> $GITHUB_STEP_SUMMARY
+            if [ -n "$CITATION_VERSION" ] && [ -n "$PYPROJECT_VERSION" ]; then
+              if [ "$CITATION_VERSION" != "$PYPROJECT_VERSION" ]; then
+                MSG="CITATION.cff=$CITATION_VERSION, pyproject.toml=$PYPROJECT_VERSION"
+                echo "- **⚠️ Version Mismatch**: $MSG" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "- **✅ Versions Match**: Both files have version $NEW_VERSION" >> $GITHUB_STEP_SUMMARY
+              fi
+            fi
           else
             echo "### ℹ️ No Version Change" >> $GITHUB_STEP_SUMMARY
             echo "Version files were modified but version number didn't change" >> $GITHUB_STEP_SUMMARY
@@ -182,23 +217,17 @@ jobs:
               echo "✅ Extracted changelog from CHANGELOG.md"
             else
               # Fallback to basic release notes
-              cat > release_notes.md <<EOF
-          ## Release ${VERSION}
-
-          This release was automatically created from a version bump in
-          ${{ needs.detect-version-bump.outputs.version-source }}.
-
-          Please refer to [CHANGELOG.md](CHANGELOG.md) for detailed changes.
-          EOF
+              echo "## Release ${VERSION}" > release_notes.md
+              echo "" >> release_notes.md
+              echo "This release was automatically created from a version bump." >> release_notes.md
+              echo "" >> release_notes.md
+              echo "Please refer to [CHANGELOG.md](CHANGELOG.md) for detailed changes." >> release_notes.md
             fi
           else
             # No changelog file, create basic release notes
-            cat > release_notes.md <<EOF
-          ## Release ${VERSION}
-
-          This release was automatically created from a version bump in
-          ${{ needs.detect-version-bump.outputs.version-source }}.
-          EOF
+            echo "## Release ${VERSION}" > release_notes.md
+            echo "" >> release_notes.md
+            echo "This release was automatically created from a version bump." >> release_notes.md
           fi
 
           echo "### 📝 Release Notes Preview" >> $GITHUB_STEP_SUMMARY

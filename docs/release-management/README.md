@@ -692,8 +692,20 @@ The `auto-release-on-version-bump.yml` workflow provides automatic release creat
 1. **Detect Version Changes**: Automatically detects when version numbers change in monitored files
 2. **Extract Version**: Parses the new version number from the modified file
 3. **Create Git Tag**: Creates a git tag `vX.Y.Z` for the new version
-4. **Generate Release Notes**: Extracts changelog from CHANGELOG.md or creates default release notes
+4. **Generate Release Notes**: Extracts changelog from CHANGELOG.md (using format `## [X.Y.Z]`) or creates default release notes
 5. **Create GitHub Release**: Publishes a new GitHub release with the tag and notes
+
+**CHANGELOG.md Format**:
+The workflow extracts release notes from CHANGELOG.md using the [Keep a Changelog](https://keepachangelog.com/) format:
+```markdown
+## [2.1.0] - 2026-01-28
+### Added
+- New feature
+
+## [2.0.0] - 2026-01-15
+### Changed
+- Breaking change
+```
 
 **How to Use**:
 1. Update the version in `CITATION.cff` or `pyproject.toml`
@@ -704,14 +716,14 @@ The `auto-release-on-version-bump.yml` workflow provides automatic release creat
 **Example**:
 ```bash
 # Update version in CITATION.cff
-version: "02.01.00"
+version: "2.1.0"
 
 # Commit and push to main
 git add CITATION.cff
-git commit -m "chore: bump version to 02.01.00"
+git commit -m "chore: bump version to 2.1.0"
 git push origin main
 
-# Automatic release is created with tag v02.01.00
+# Automatic release is created with tag v2.1.0
 ```
 
 **Benefits**:
@@ -720,6 +732,12 @@ git push origin main
 - Automatic changelog extraction
 - Reduced manual errors
 - Faster release cycles
+
+**Considerations**:
+- If multiple version bumps are pushed quickly, GitHub Actions queues the jobs sequentially
+- Version mismatch warnings are displayed if both CITATION.cff and pyproject.toml change with different versions
+- CITATION.cff takes precedence when both files are modified
+- Skips initial commits automatically to avoid errors
 
 **Compatibility**:
 - Works alongside the existing release-cycle.yml workflow

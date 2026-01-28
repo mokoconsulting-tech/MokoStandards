@@ -132,7 +132,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "All CodeQL security scans have completed." >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Scanned Languages**: Python" >> $GITHUB_STEP_SUMMARY
+          echo "**Scanned Languages**: See matrix configuration" >> $GITHUB_STEP_SUMMARY
           echo "**Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
           echo "**Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY

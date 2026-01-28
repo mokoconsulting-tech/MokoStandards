@@ -181,17 +181,24 @@ class SecurityScanner:
         # Check if pip-audit is available for Python dependencies
         if 'requirements.txt' in found_deps or (self.repo_path / 'pyproject.toml').exists():
             try:
+                # Check if pip-audit exists
+                check_cmd = subprocess.run(
+                    ['which', 'pip-audit'],
+                    capture_output=True,
+                    text=True
+                )
+                
+                if check_cmd.returncode != 0:
+                    self.findings['dependencies']['status'] = 'skipped'
+                    self.log("pip-audit not installed, skipping dependency check", 'WARN')
+                    return True
+                
                 returncode, stdout, stderr = self.run_command([
                     'pip-audit', '--desc', '--format', 'json'
                 ], check=False)
-                
                 if returncode == 0:
                     self.findings['dependencies']['status'] = 'passed'
                     self.log("No vulnerable dependencies found", 'INFO')
-                    return True
-                elif 'not found' in stderr or 'command not found' in stderr:
-                    self.findings['dependencies']['status'] = 'skipped'
-                    self.log("pip-audit not installed, skipping dependency check", 'WARN')
                     return True
                 else:
                     self.findings['dependencies']['status'] = 'failed'
@@ -203,7 +210,7 @@ class SecurityScanner:
                                 'message': f"Vulnerable dependency: {vuln.get('name')}",
                                 'details': vuln
                             })
-                    except:
+                    except json.JSONDecodeError:
                         self.findings['dependencies']['issues'].append({
                             'severity': 'high',
                             'message': 'Vulnerable dependencies detected',
@@ -400,10 +407,10 @@ Examples:
     )
     
     parser.add_argument(
-        '--fail-on-findings',
-        action='store_true',
-        default=True,
-        help='Exit with non-zero status if security issues found (default: True)'
+        '--no-fail-on-findings',
+        dest='fail_on_findings',
+        action='store_false',
+        help='Do not exit with non-zero status if security issues found'
     )
     
     args = parser.parse_args()

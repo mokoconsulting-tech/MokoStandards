@@ -1,0 +1,346 @@
+# Enterprise Issue Management Configuration
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+version: "1.0.0"
+
+# Enterprise Configuration
+enterprise:
+  # Organization settings
+  organization:
+    name: "mokoconsulting-tech"
+    default_assignees:
+      - "copilot"
+      - "jmiller-moko"
+  
+  # GitHub Projects integration
+  projects:
+    enabled: true
+    # Project board configuration (can be org-level or repo-level)
+    default_project_number: null  # Set to project number when available
+    auto_add_issues: true
+    
+    # Column mapping for issue lifecycle
+    columns:
+      backlog: "📋 Backlog"
+      in_progress: "🚧 In Progress"
+      review: "👀 Review"
+      done: "✅ Done"
+      closed: "🔒 Closed"
+  
+  # Milestone management
+  milestones:
+    enabled: true
+    auto_assign: true
+    pattern: "^(dev|rc|version)/(.+)$"  # Extract version from branch name
+    create_if_missing: true
+  
+  # Label taxonomy - Enterprise standardized labels
+  labels:
+    # Required labels for governance
+    required:
+      - category: "priority"
+        required_on:
+          - "dev-branch"
+          - "bug"
+          - "feature"
+      - category: "type"
+        required_on:
+          - "dev-branch"
+    
+    # Priority levels with SLA
+    priority:
+      critical:
+        name: "priority/critical"
+        color: "d73a4a"
+        description: "Critical priority - immediate attention required"
+        sla_hours: 4
+        escalation_hours: 2
+      high:
+        name: "priority/high"
+        color: "ff9800"
+        description: "High priority - address within 24 hours"
+        sla_hours: 24
+        escalation_hours: 12
+      medium:
+        name: "priority/medium"
+        color: "fbca04"
+        description: "Medium priority - address within 3 days"
+        sla_hours: 72
+        escalation_hours: 48
+      low:
+        name: "priority/low"
+        color: "0e8a16"
+        description: "Low priority - address within 1 week"
+        sla_hours: 168
+        escalation_hours: 120
+    
+    # Issue types
+    types:
+      - name: "type/enhancement"
+        color: "a2eeef"
+      - name: "type/bug"
+        color: "d73a4a"
+      - name: "type/documentation"
+        color: "0075ca"
+      - name: "type/infrastructure"
+        color: "fef2c0"
+    
+    # Lifecycle labels
+    lifecycle:
+      - name: "dev-branch"
+        color: "1d76db"
+        description: "Development branch tracking issue"
+      - name: "version-management"
+        color: "5319e7"
+      - name: "automation"
+        color: "d4c5f9"
+      - name: "release"
+        color: "00ff00"
+    
+    # Status labels
+    status:
+      - name: "status/blocked"
+        color: "b60205"
+      - name: "status/in-review"
+        color: "fbca04"
+      - name: "status/needs-info"
+        color: "d876e3"
+
+# Issue Lifecycle Automation
+automation:
+  # Automatic issue creation
+  create_on_branch: true
+  branch_patterns:
+    - "dev/**"
+    - "rc/**"
+    - "version/**"
+  
+  # Automatic issue closure
+  close_on_merge: true
+  close_on_branch_delete: true
+  
+  # PR linking
+  link_prs_to_issues: true
+  create_sub_tasks_for_prs: true
+  update_parent_on_pr_merge: true
+  
+  # Project board automation
+  auto_move_to_in_progress: true  # When PR is opened
+  auto_move_to_review: true       # When PR is ready for review
+  auto_move_to_done: true         # When PR is merged
+  
+  # Notifications
+  notifications:
+    enabled: true
+    channels:
+      slack: false  # Set webhook URL to enable
+      teams: false  # Set webhook URL to enable
+      email: false  # Configure email settings
+    
+    events:
+      - issue_created
+      - issue_closed
+      - sla_warning
+      - sla_breach
+      - priority_escalation
+
+# SLA Management
+sla:
+  enabled: true
+  timezone: "UTC"
+  business_hours_only: false
+  
+  # Working hours (if business_hours_only is true)
+  working_hours:
+    start: "09:00"
+    end: "17:00"
+    days: ["monday", "tuesday", "wednesday", "thursday", "friday"]
+  
+  # Escalation policies
+  escalation:
+    enabled: true
+    notify_on_breach: true
+    auto_escalate_priority: false  # Increase priority on breach
+  
+  # Monitoring
+  monitoring:
+    check_interval_minutes: 60
+    generate_reports: true
+    report_schedule: "daily"
+
+# Audit and Compliance
+audit:
+  enabled: true
+  log_all_actions: true
+  retention_days: 365
+  export_format: "json"
+  
+  # Events to audit
+  tracked_events:
+    - issue_created
+    - issue_updated
+    - issue_closed
+    - issue_reopened
+    - label_added
+    - label_removed
+    - assignee_added
+    - assignee_removed
+    - milestone_set
+    - project_added
+  
+  # Compliance
+  compliance:
+    require_audit_trail: true
+    enforce_templates: true
+    require_metadata: true
+
+# Metrics and Reporting
+metrics:
+  enabled: true
+  collection_interval: "daily"
+  
+  # KPIs to track
+  kpis:
+    - name: "issue_cycle_time"
+      description: "Time from issue creation to closure"
+      unit: "hours"
+    - name: "issue_lead_time"
+      description: "Time from branch creation to merge"
+      unit: "hours"
+    - name: "sla_compliance_rate"
+      description: "Percentage of issues meeting SLA"
+      unit: "percentage"
+    - name: "issue_velocity"
+      description: "Issues closed per week"
+      unit: "count"
+    - name: "pr_link_coverage"
+      description: "Percentage of PRs linked to issues"
+      unit: "percentage"
+  
+  # Report generation
+  reports:
+    daily_summary: true
+    weekly_summary: true
+    monthly_summary: true
+    export_to_csv: true
+
+# Sub-Issue Management
+sub_issues:
+  enabled: true
+  
+  # Automatically create sub-issues for
+  auto_create_for:
+    - prs: true
+    - tasks: false
+  
+  # Sub-issue naming
+  naming:
+    pr_prefix: "[PR]"
+    task_prefix: "[Task]"
+  
+  # Progress tracking
+  progress:
+    update_parent: true
+    show_percentage: true
+    show_checklist: true
+
+# Integration Settings
+integrations:
+  # GitHub Actions
+  actions:
+    max_retries: 3
+    retry_delay_seconds: 5
+    timeout_minutes: 10
+  
+  # API rate limiting
+  api:
+    respect_rate_limits: true
+    concurrent_requests: 5
+    cache_duration_minutes: 5
+  
+  # External systems
+  external:
+    webhooks: []  # Add webhook URLs here
+    custom_scripts: []  # Add custom script paths
+
+# Error Handling
+error_handling:
+  retry_on_failure: true
+  max_retries: 3
+  exponential_backoff: true
+  
+  # Graceful degradation
+  graceful_degradation:
+    enabled: true
+    fallback_to_basic: true
+  
+  # Logging
+  logging:
+    level: "info"  # debug, info, warn, error
+    include_timestamps: true
+    include_context: true
+
+# Performance Optimization
+performance:
+  # Caching
+  cache:
+    enabled: true
+    ttl_minutes: 5
+  
+  # Batch operations
+  batch:
+    enabled: true
+    batch_size: 50
+  
+  # Pagination
+  pagination:
+    page_size: 100
+    max_pages: 10
+
+# Feature Flags
+features:
+  experimental:
+    ai_priority_suggestion: false
+    auto_label_from_content: false
+    smart_assignee_routing: false
+  
+  beta:
+    advanced_metrics: true
+    custom_dashboards: false
+
+# Templates
+templates:
+  enforce: true
+  
+  issue_templates:
+    dev_branch: ".github/ISSUE_TEMPLATE/dev-branch.yml"
+    sub_task: ".github/ISSUE_TEMPLATE/sub-task.yml"
+  
+  pr_templates:
+    default: ".github/PULL_REQUEST_TEMPLATE.md"
+
+# Security
+security:
+  validate_permissions: true
+  require_signed_commits: false
+  audit_access: true
+  
+  # Access control
+  access:
+    require_team_membership: false
+    allowed_teams: []
+
+# Backup and Recovery
+backup:
+  enabled: false
+  schedule: "daily"
+  retention_days: 90
+  export_format: "json"
+  storage_location: null  # Configure external storage
+
+# Documentation
+documentation:
+  auto_generate: true
+  include_examples: true
+  update_on_change: true

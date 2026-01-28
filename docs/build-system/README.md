@@ -54,10 +54,10 @@ Priority 3: Default Build Commands
 ```makefile
 # ./Makefile
 build:
-	composer install --no-dev
-	npm run build
-	php scripts/generate-assets.php
-	make package
+  composer install --no-dev
+  npm run build
+  php scripts/generate-assets.php
+  make package
 ```
 
 #### Precedence Level 2: MokoStandards Platform Makefile
@@ -450,8 +450,8 @@ Add custom targets to your repository Makefile:
 ```makefile
 .PHONY: deploy-staging
 deploy-staging: build test ## Deploy to staging environment
-	rsync -avz dist/ user@staging.example.com:/var/www/
-	ssh user@staging.example.com 'cd /var/www && make reload'
+  rsync -avz dist/ user@staging.example.com:/var/www/
+  ssh user@staging.example.com 'cd /var/www && make reload'
 ```
 
 ### Multi-Platform Builds
@@ -461,9 +461,9 @@ Build for multiple platforms in one command:
 ```makefile
 .PHONY: build-all
 build-all: ## Build for all platforms
-	make build PLATFORM=linux
-	make build PLATFORM=macos
-	make build PLATFORM=windows
+  make build PLATFORM=linux
+  make build PLATFORM=macos
+  make build PLATFORM=windows
 ```
 
 ### Conditional Builds
@@ -473,11 +473,11 @@ Execute different build steps based on conditions:
 ```makefile
 build: clean
 ifeq ($(BUILD_TYPE),production)
-	composer install --no-dev --optimize-autoloader
+  composer install --no-dev --optimize-autoloader
 else
-	composer install
+  composer install
 endif
-	npm run build:$(BUILD_TYPE)
+  npm run build:$(BUILD_TYPE)
 ```
 
 ## Best Practices
@@ -491,9 +491,9 @@ PHP_FILES := $(shell find src -name "*.php")
 
 .PHONY: lint-php
 lint-php:
-	@for file in $(PHP_FILES); do \
-		php -l $$file; \
-	done
+  @for file in $(PHP_FILES); do \
+    php -l $$file; \
+  done
 ```
 
 ### 2. Provide Clear Help Text
@@ -503,7 +503,7 @@ Always include help target with descriptions:
 ```makefile
 .PHONY: my-target
 my-target: ## Description shown in help
-	@echo "Executing my target"
+  @echo "Executing my target"
 ```
 
 ### 3. Use Color Output
@@ -515,7 +515,7 @@ COLOR_GREEN := \033[32m
 COLOR_RESET := \033[0m
 
 success:
-	@echo "$(COLOR_GREEN)✓ Build successful$(COLOR_RESET)"
+  @echo "$(COLOR_GREEN)✓ Build successful$(COLOR_RESET)"
 ```
 
 ### 4. Validate Before Building
@@ -524,7 +524,7 @@ Run validation checks before expensive operations:
 
 ```makefile
 build: validate
-	# Build commands here
+  # Build commands here
 ```
 
 ### 5. Generate Build Summaries
@@ -533,9 +533,9 @@ Provide clear success/failure messages:
 
 ```makefile
 build:
-	# Build steps...
-	@echo "✓ Package: dist/myproject-1.0.0.zip"
-	@echo "✓ Size: $(shell du -h dist/myproject-1.0.0.zip)"
+  # Build steps...
+  @echo "✓ Package: dist/myproject-1.0.0.zip"
+  @echo "✓ Size: $(shell du -h dist/myproject-1.0.0.zip)"
 ```
 
 ## See Also

@@ -632,18 +632,18 @@ STRUCTURE_TYPE ?= crm-module
 
 .PHONY: validate-structure
 validate-structure:
-	python $(MOKOSTANDARDS_ROOT)/scripts/validate/validate_structure.py \
-		$(MOKOSTANDARDS_ROOT)/scripts/definitions/$(STRUCTURE_TYPE).xml .
+  python $(MOKOSTANDARDS_ROOT)/scripts/validate/validate_structure.py \
+    $(MOKOSTANDARDS_ROOT)/scripts/definitions/$(STRUCTURE_TYPE).xml .
 
 .PHONY: generate-stubs
 generate-stubs:
-	python $(MOKOSTANDARDS_ROOT)/scripts/validate/generate_stubs.py \
-		$(MOKOSTANDARDS_ROOT)/scripts/definitions/$(STRUCTURE_TYPE).xml .
+  python $(MOKOSTANDARDS_ROOT)/scripts/validate/generate_stubs.py \
+    $(MOKOSTANDARDS_ROOT)/scripts/definitions/$(STRUCTURE_TYPE).xml .
 
 .PHONY: validate-structure-dry
 validate-structure-dry:
-	python $(MOKOSTANDARDS_ROOT)/scripts/validate/generate_stubs.py \
-		$(MOKOSTANDARDS_ROOT)/scripts/definitions/$(STRUCTURE_TYPE).xml . --dry-run
+  python $(MOKOSTANDARDS_ROOT)/scripts/validate/generate_stubs.py \
+    $(MOKOSTANDARDS_ROOT)/scripts/definitions/$(STRUCTURE_TYPE).xml . --dry-run
 ```
 
 ### GitHub Actions Workflow

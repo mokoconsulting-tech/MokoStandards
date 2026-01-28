@@ -214,9 +214,9 @@ Add your own targets following this pattern:
 ```makefile
 .PHONY: my-custom-task
 my-custom-task: ## Description of my task
-	@echo "$(COLOR_BLUE)Running my task...$(COLOR_RESET)"
-	# Your commands here
-	@echo "$(COLOR_GREEN)Done!$(COLOR_RESET)"
+  @echo "$(COLOR_BLUE)Running my task...$(COLOR_RESET)"
+  # Your commands here
+  @echo "$(COLOR_GREEN)Done!$(COLOR_RESET)"
 ```
 
 ### Changing Coding Standards

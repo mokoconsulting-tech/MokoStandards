@@ -135,12 +135,12 @@ pwsh -File .\file-distributor.ps1
 2. Select the root folder.
 3. Configure options:
 
-	* Dry run
-	* Overwrite
-	* Confirm each folder
-	* Include hidden folders
-	* Depth
-	* Audit log folder
+  * Dry run
+  * Overwrite
+  * Confirm each folder
+  * Include hidden folders
+  * Depth
+  * Audit log folder
 4. Execute and review the completion summary.
 
 ### Output artifacts
@@ -170,12 +170,12 @@ python3 ./file_distributor.py
 2. Select the root folder.
 3. Configure options:
 
-	* Dry run
-	* Overwrite
-	* Confirm each folder
-	* Include hidden folders
-	* Depth
-	* Audit log folder
+  * Dry run
+  * Overwrite
+  * Confirm each folder
+  * Include hidden folders
+  * Depth
+  * Audit log folder
 4. Execute and review the completion summary.
 
 ### Output artifacts

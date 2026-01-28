@@ -386,6 +386,111 @@ BRIEF: Brief description of file purpose
 
 **When in doubt:** The minimal header is sufficient for most internal files. The warranty disclaimer adds legal clarity but is not required for GPL-3.0-or-later licensed code (it's implied by the license).
 
+### Required Warranty Disclaimer Files
+
+**The following files MUST include the full warranty disclaimer:**
+
+#### 1. index.php Files (Directory Protection)
+
+All `index.php` files used for directory protection MUST include the warranty disclaimer in a comment header:
+
+```php
+<?php
+/* Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+ *
+ * This file is part of a Moko Consulting project.
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
+// Prevent directory listing
+header("Location: ../");
+exit;
+```
+
+#### 2. README Files (Visible Text)
+
+README files MUST include the warranty disclaimer as **visible text** (not in comments):
+
+```markdown
+# Project Name
+
+## License
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
+```
+
+#### 3. Dolibarr Module Descriptor Files
+
+Module descriptor files (`core/modules/mod*.class.php`) MUST include the warranty disclaimer:
+
+```php
+<?php
+/* Copyright (C) 2026 Your Name <email@example.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+```
+
+#### 4. Joomla Extension XML Files
+
+Joomla manifest XML files MUST include the warranty disclaimer in the `<copyright>` or description section:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="component" version="4.0" method="upgrade">
+    <name>COM_EXAMPLE</name>
+    <copyright>Copyright (C) 2026 Your Name. All rights reserved.</copyright>
+    <license>GNU General Public License version 3 or later</license>
+    <description>
+        <![CDATA[
+        <p>Component description here.</p>
+        <p><strong>License:</strong> This program is free software: you can redistribute it and/or modify
+        it under the terms of the GNU General Public License as published by the Free Software Foundation,
+        either version 3 of the License, or (at your option) any later version.</p>
+        <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+        without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+        See the GNU General Public License for more details.</p>
+        ]]>
+    </description>
+</extension>
+```
+
+**Rationale:** These files are:
+- User-facing (README)
+- Installation/distribution files (Dolibarr descriptors, Joomla XML)
+- Security-critical (index.php directory protection)
+
+Users and administrators directly interact with these files, making explicit warranty disclaimers important for legal clarity.
+
 ### File Information Block Fields
 
 **Required Fields:**

@@ -23,7 +23,7 @@ DEFGROUP: Scripts.Utility
 INGROUP: WorkstationProvisioning
 REPO: https://github.com/mokoconsulting-tech/
 FILE: dev-workstation-provisioner.md
-VERSION: 01.00.00
+VERSION: 03.00.00
 BRIEF: Operational guide for provisioning a Windows development workstation with Winget and optional WSL Ubuntu integration.
 PATH: /docs/scripts/automation/dev-workstation-provisioner.md
 NOTE:
@@ -191,21 +191,23 @@ Recommended operational sequence:
 
 ## Metadata
 
-| Field         | Value                                                                              |
-| ------------- | ---------------------------------------------------------------------------------- |
-| Document Type | Operational Guide                                                                  |
-| Domain        | Workstation Provisioning                                                           |
-| Applies To    | Windows development workstations                                                   |
-| Jurisdiction  | Tennessee, USA                                                                     |
-| Owner         | Moko Consulting                                                                    |
-| Repo          | [https://github.com/mokoconsulting-tech/](https://github.com/mokoconsulting-tech/) |
-| Path          | /docs/scripts/automation/dev-workstation-provisioner.md                            |
-| Version       | 01.00.00                                                                           |
-| Status        | Draft                                                                              |
-| Last Reviewed | 2026-01-27                                                                         |
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Guide                                       |
+| Domain         | Development                                         |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/scripts/automation/dev-workstation-provisioner.md                                      |
+| Version        | 03.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
-| Date       | Author   | Change        | Notes                                                   |
-| ---------- | -------- | ------------- | ------------------------------------------------------- |
-| 2026-01-27 | @jmiller-moko | Initial  | Created coordinating guide for workstation provisioner. |
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 03.00.00 with all required fields |

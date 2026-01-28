@@ -208,22 +208,23 @@ To customize the confidentiality scan for your organization:
 
 ## Metadata
 
-| Field          | Value                                                                 |
-| -------------- | --------------------------------------------------------------------- |
-| Document Type  | Policy                                                                |
-| Domain         | Security                                                              |
-| Applies To     | All Repositories                                                      |
-| Jurisdiction   | Tennessee, USA                                                        |
-| Owner          | Moko Consulting                                                       |
-| Repo           | https://github.com/mokoconsulting-tech/MokoStandards                  |
-| Path           | /docs/policy/security/confidentiality-scan.md                         |
-| Version        | 03.00.00                                                              |
-| Status         | Active                                                                |
-| Last Reviewed  | 2026-01-28                                                            |
-| Reviewed By    | Security Team                                                         |
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Policy                                       |
+| Domain         | Governance                                         |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                          |
+| Repo           | https://github.com/mokoconsulting-tech/                                      |
+| Path           | /docs/policy/security/confidentiality-scan.md                                      |
+| Version        | 03.00.00                                 |
+| Status         | Active                                         |
+| Last Reviewed  | 2026-01-28                                  |
+| Reviewed By    | Documentation Team                                    |
+
 
 ## Revision History
 
 | Date       | Author          | Change                                       | Notes                                              |
 | ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
-| 2026-01-28 | Moko Consulting | Initial confidentiality scan documentation   | Created comprehensive workflow documentation       |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 03.00.00 with all required fields |

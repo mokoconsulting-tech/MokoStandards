@@ -18,11 +18,10 @@ PATH: /scripts/analysis/analyze_dependencies.py
 
 import argparse
 import json
-import os
 import subprocess
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional
 
 
 def find_files(root: Path, patterns: List[str]) -> List[Path]:

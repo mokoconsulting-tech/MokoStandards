@@ -17,11 +17,10 @@ PATH: /scripts/analysis/code_metrics.py
 """
 
 import argparse
-import os
 import sys
 from collections import defaultdict
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, Tuple
 
 
 # Language extensions mapping

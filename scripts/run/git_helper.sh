@@ -106,10 +106,35 @@ cmd_status() {
     
     # Statistics
     echo ""
-    modified=$(git status --short | grep -c "^ M" || echo 0)
-    added=$(git status --short | grep -c "^A" || echo 0)
-    deleted=$(git status --short | grep -c "^D" || echo 0)
-    untracked=$(git status --short | grep -c "^??" || echo 0)
+    read modified added deleted untracked <<EOF
+$(git status --porcelain | awk '
+    $1 == "??" {
+        untracked++;
+        next;
+    }
+    {
+        x = substr($0, 1, 1);
+        y = substr($0, 2, 1);
+        if (x == "A" || y == "A") {
+            added++;
+        }
+        if (x == "D" || y == "D") {
+            deleted++;
+        }
+        if (x == "M" || y == "M" || x == "R" || y == "R" || x == "C" || y == "C") {
+            modified++;
+        }
+    }
+    END {
+        # Default to zero if no matches were seen
+        if (modified == "") modified = 0;
+        if (added == "") added = 0;
+        if (deleted == "") deleted = 0;
+        if (untracked == "") untracked = 0;
+        printf "%d %d %d %d\n", modified, added, deleted, untracked;
+    }
+')
+EOF
     
     print_info "Summary: $modified modified, $added added, $deleted deleted, $untracked untracked"
 }

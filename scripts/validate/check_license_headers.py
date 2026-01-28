@@ -21,7 +21,7 @@ import re
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Set
+from typing import Dict, Optional
 
 
 # Standard license header template (GPL-3.0-or-later)
@@ -36,7 +36,11 @@ FILE_CONFIGS = {
     ".py": {
         "comment_start": "#",
         "comment_end": "",
-        "header_pattern": r'#\s*Copyright.*?GPL-3\.0-or-later',
+        "header_pattern": (
+            r'(?:#\s*Copyright.*?GPL-3\.0-or-later'
+            r'|"""[\s\S]*?Copyright.*?GPL-3\.0-or-later[\s\S]*?"""'
+            r"|'''[\s\S]*?Copyright.*?GPL-3\.0-or-later[\s\S]*?''')"
+        ),
     },
     ".js": {
         "comment_start": "//",

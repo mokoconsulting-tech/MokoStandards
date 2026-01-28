@@ -21,7 +21,7 @@ import subprocess
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 
 def run_git_command(args: List[str]) -> Optional[str]:
@@ -284,8 +284,9 @@ def main() -> int:
     
     args = parser.parse_args()
     
-    # Verify we're in a git repository
-    if not Path(".git").exists():
+    # Verify we're in a git repository using git itself (handles worktrees, submodules, subdirectories)
+    is_inside_work_tree = run_git_command(["rev-parse", "--is-inside-work-tree"])
+    if is_inside_work_tree is None or is_inside_work_tree.lower() != "true":
         print("Error: Not in a git repository", file=sys.stderr)
         return 1
     

@@ -107,8 +107,9 @@ def find_markers_in_file(file_path: Path, markers: Set[str]) -> List[Dict]:
                             })
                             break
     
-    except Exception:
-        pass
+    except Exception as exc:
+        # Log file read failures to stderr but continue processing
+        print(f"Warning: failed to scan {file_path}: {exc}", file=sys.stderr)
     
     return findings
 

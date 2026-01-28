@@ -1,4 +1,4 @@
-# New Automation Scripts - v2.0.1
+# New Automation Scripts - v02.00.00
 
 This document describes the new automation scripts added to MokoStandards.
 
@@ -344,7 +344,7 @@ bash scripts/run/git_helper.sh conflicts
 
 ## Script Statistics
 
-**New Scripts Added:** 11
+**New Scripts Added:** 12
 - Analysis: 2
 - Automation: 2
 - Validation: 3

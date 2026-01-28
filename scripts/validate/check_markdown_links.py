@@ -19,9 +19,8 @@ PATH: /scripts/validate/check_markdown_links.py
 import argparse
 import re
 import sys
-import urllib.parse
 from pathlib import Path
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Tuple
 
 
 def extract_markdown_links(file_path: Path) -> List[Tuple[int, str, str]]:
@@ -38,23 +37,39 @@ def extract_markdown_links(file_path: Path) -> List[Tuple[int, str, str]]:
     
     try:
         with open(file_path, "r", encoding="utf-8") as f:
-            for line_num, line in enumerate(f, start=1):
-                # Match markdown links: [text](url)
-                for match in re.finditer(r'\[([^\]]+)\]\(([^)]+)\)', line):
-                    text = match.group(1)
-                    url = match.group(2)
-                    links.append((line_num, text, url))
-                
-                # Match reference links: [text][ref]
-                for match in re.finditer(r'\[([^\]]+)\]\[([^\]]+)\]', line):
-                    text = match.group(1)
-                    ref = match.group(2)
-                    links.append((line_num, text, f"[{ref}]"))
-                
-                # Match autolinks: <url>
-                for match in re.finditer(r'<(https?://[^>]+)>', line):
-                    url = match.group(1)
-                    links.append((line_num, url, url))
+            lines = list(f)
+
+        # First pass: collect reference definitions of the form:
+        # [ref]: url
+        ref_definitions: Dict[str, str] = {}
+        for line in lines:
+            ref_def_match = re.match(r'^\s*\[([^\]]+)\]:\s*(\S+)', line)
+            if ref_def_match:
+                ref_label = ref_def_match.group(1)
+                ref_url = ref_def_match.group(2)
+                ref_definitions[ref_label] = ref_url
+
+        # Second pass: extract links
+        for line_num, line in enumerate(lines, start=1):
+            # Match markdown links: [text](url)
+            for match in re.finditer(r'\[([^\]]+)\]\(([^)]+)\)', line):
+                text = match.group(1)
+                url = match.group(2)
+                links.append((line_num, text, url))
+
+            # Match reference links: [text][ref]
+            for match in re.finditer(r'\[([^\]]+)\]\[([^\]]+)\]', line):
+                text = match.group(1)
+                ref = match.group(2)
+                # Only include reference links that have a defined target
+                if ref in ref_definitions:
+                    resolved_url = ref_definitions[ref]
+                    links.append((line_num, text, resolved_url))
+
+            # Match autolinks: <url>
+            for match in re.finditer(r'<(https?://[^>]+)>', line):
+                url = match.group(1)
+                links.append((line_num, url, url))
     
     except Exception as e:
         print(f"Warning: Could not read {file_path}: {e}", file=sys.stderr)

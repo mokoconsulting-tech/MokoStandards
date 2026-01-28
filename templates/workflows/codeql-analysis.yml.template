@@ -74,9 +74,9 @@ jobs:
           output: sarif-results
           wait-for-processing: true
 
-      - name: Upload SARIF results
+      - name: Upload SARIF results (optional)
         if: always()
-        uses: github/upload-artifact@v4
+        uses: actions/upload-artifact@v4
         with:
           name: codeql-results-${{ matrix.language }}
           path: sarif-results

@@ -87,18 +87,8 @@ jobs:
         with:
           category: "/language:${{ matrix.language }}"
           upload: true
-          # Generate SARIF for artifact upload
-          output: sarif-results
           # Wait for processing to complete
           wait-for-processing: true
-
-      - name: Upload SARIF results
-        if: always()
-        uses: github/upload-artifact@v4
-        with:
-          name: codeql-results-${{ matrix.language }}
-          path: sarif-results
-          retention-days: 30
 
       - name: Check for Critical/High Findings
         if: always()

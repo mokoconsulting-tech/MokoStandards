@@ -92,7 +92,7 @@ Scans for references to internal documentation that should be clarified:
 The following files are excluded from confidentiality scans:
 
 - `.github/workflows/confidentiality-scan.yml` - The workflow file itself
-- `docs/TWO_TIER_ARCHITECTURE.md` - Architecture documentation about public/private split
+- `docs/TWO_TIER_ARCHITECTURE.md` - Architecture documentation about public/private split (Note: This references a file path used in the workflow configuration. The actual file may be at `docs/policy/two-tier-architecture.md`)
 - `docs/guide/PRIVATE_REPOSITORY_REFERENCE.md` - Documentation about private repository
 - `STANDARDS_COORDINATION.md` - Standards coordination documentation
 - `.github/PRIVATE_TEMPLATES.md` - Private templates reference

@@ -1,9 +1,6 @@
 {
   "default": true,
-  "MD010": {
-    "code_blocks": true,
-    "spaces_per_tab": 2
-  },
+  "MD010": true,
   "MD013": false,
   "MD024": {
     "siblings_only": true

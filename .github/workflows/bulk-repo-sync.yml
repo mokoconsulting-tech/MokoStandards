@@ -29,6 +29,10 @@
 
 name: Bulk Repository Sync
 
+env:
+  ACTIONS_STEP_DEBUG: true
+  ACTIONS_RUNNER_DEBUG: true
+
 # ┌─────────────────────────────────────────────────────────────────────────┐
 # │                         WORKFLOW FLOW DIAGRAM                            │
 # └─────────────────────────────────────────────────────────────────────────┘
@@ -117,12 +121,14 @@ jobs:
 
       - name: Install Python dependencies
         run: |
+          set -x
           python -m pip install --upgrade pip
           echo "## 📦 Python Dependencies Installed" >> $GITHUB_STEP_SUMMARY
           echo "- No additional dependencies required (Terraform override parsing uses built-in regex)" >> $GITHUB_STEP_SUMMARY
 
       - name: Setup GitHub CLI
         run: |
+          set -x
           # GitHub CLI should be pre-installed on ubuntu-latest
           gh --version
 
@@ -130,6 +136,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
         run: |
+          set -x
           # Verify token is available before attempting authentication
           if [ -z "$GH_TOKEN" ]; then
             echo "## ❌ Error: ORG_ADMIN_TOKEN Not Set" >> $GITHUB_STEP_SUMMARY
@@ -154,11 +161,13 @@ jobs:
 
       - name: Configure Git
         run: |
+          set -x
           git config --global user.email "automation@mokoconsulting.tech"
           git config --global user.name "Moko Standards Bot"
 
       - name: Validate required files availability
         run: |
+          set -x
           MISSING_FILES=()
           
           # Check for platform detection script
@@ -204,6 +213,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
         run: |
+          set -x
           set -e
 
           ARGS="--dry-run"
@@ -239,6 +249,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
         run: |
+          set -x
           set -e
 
           ARGS="--yes"
@@ -396,6 +407,7 @@ jobs:
       - name: Report results
         if: always()
         run: |
+          set -x
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "---" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY

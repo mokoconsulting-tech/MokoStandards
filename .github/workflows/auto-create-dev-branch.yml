@@ -27,6 +27,10 @@
 
 name: Auto-Create Dev Branch
 
+env:
+  ACTIONS_STEP_DEBUG: true
+  ACTIONS_RUNNER_DEBUG: true
+
 # ┌─────────────────────────────────────────────────────────────────────────┐
 # │                         WORKFLOW FLOW DIAGRAM                            │
 # └─────────────────────────────────────────────────────────────────────────┘
@@ -96,12 +100,14 @@ jobs:
       
       - name: Configure Git
         run: |
+          set -x
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
       
       - name: Extract current version
         id: version
         run: |
+          set -x
           # Try to extract version from CHANGELOG.md first
           if [ -f "CHANGELOG.md" ]; then
             # Look for version in format [XX.YY.ZZ] or XX.YY.ZZ
@@ -124,6 +130,7 @@ jobs:
       - name: Calculate next patch version
         id: next_version
         run: |
+          set -x
           CURRENT="${{ steps.version.outputs.current }}"
           
           # Parse version components
@@ -147,6 +154,7 @@ jobs:
       - name: Check if dev branch already exists
         id: check_branch
         run: |
+          set -x
           BRANCH_NAME="dev/${{ steps.next_version.outputs.version }}"
           
           if git ls-remote --heads origin "$BRANCH_NAME" | grep -q "$BRANCH_NAME"; then
@@ -162,6 +170,7 @@ jobs:
       - name: Create new dev branch
         if: steps.check_branch.outputs.exists == 'false'
         run: |
+          set -x
           BRANCH_NAME="${{ steps.check_branch.outputs.branch_name }}"
           
           # Create branch from main
@@ -267,6 +276,7 @@ jobs:
       
       - name: Workflow summary
         run: |
+          set -x
           echo "## Workflow Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **Current Version**: ${{ steps.version.outputs.current }}" >> $GITHUB_STEP_SUMMARY

@@ -28,6 +28,10 @@
 
 name: Release Management
 
+env:
+  ACTIONS_STEP_DEBUG: true
+  ACTIONS_RUNNER_DEBUG: true
+
 # ┌─────────────────────────────────────────────────────────────────────────┐
 # │                         WORKFLOW FLOW DIAGRAM                            │
 # └─────────────────────────────────────────────────────────────────────────┘
@@ -108,6 +112,7 @@ jobs:
       - name: Validate Semantic Version
         id: validate
         run: |
+          set -x
           VERSION="${{ inputs.version }}"
           
           # Remove 'v' prefix if present
@@ -155,6 +160,7 @@ jobs:
       
       - name: Create Development Branch
         run: |
+          set -x
           VERSION="${{ needs.validate-version.outputs.version }}"
           DEV_BRANCH="dev/$VERSION"
           
@@ -175,6 +181,7 @@ jobs:
       
       - name: Update Version Files
         run: |
+          set -x
           VERSION="${{ needs.validate-version.outputs.version }}"
           
           # Update version in common files (customize for your project)
@@ -216,11 +223,13 @@ jobs:
       
       - name: Configure Git
         run: |
+          set -x
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
       
       - name: Create Release Candidate Branch
         run: |
+          set -x
           VERSION="${{ needs.validate-version.outputs.version }}"
           RC_BRANCH="rc/$VERSION"
           DEV_BRANCH="dev/$VERSION"
@@ -243,6 +252,7 @@ jobs:
       
       - name: Create Pre-release Tag
         run: |
+          set -x
           VERSION="${{ needs.validate-version.outputs.version }}"
           TAG="v${VERSION}-rc"
           
@@ -266,11 +276,13 @@ jobs:
       
       - name: Configure Git
         run: |
+          set -x
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
       
       - name: Create Version Branch
         run: |
+          set -x
           VERSION="${{ needs.validate-version.outputs.version }}"
           VERSION_BRANCH="version/$VERSION"
           
@@ -282,6 +294,7 @@ jobs:
       
       - name: Merge to Main
         run: |
+          set -x
           VERSION="${{ needs.validate-version.outputs.version }}"
           
           # Merge to main
@@ -294,6 +307,7 @@ jobs:
       
       - name: Create Release Tag
         run: |
+          set -x
           VERSION="${{ needs.validate-version.outputs.version }}"
           TAG="v$VERSION"
           
@@ -305,6 +319,7 @@ jobs:
       - name: Generate Release Notes
         id: release_notes
         run: |
+          set -x
           VERSION="${{ needs.validate-version.outputs.version }}"
           
           # Generate changelog from commits
@@ -338,6 +353,7 @@ jobs:
       
       - name: Cleanup Development Branches
         run: |
+          set -x
           VERSION="${{ needs.validate-version.outputs.version }}"
           
           # Optionally delete dev and rc branches after release
@@ -365,11 +381,13 @@ jobs:
       
       - name: Configure Git
         run: |
+          set -x
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
       
       - name: Create Hotfix Branch
         run: |
+          set -x
           VERSION="${{ needs.validate-version.outputs.version }}"
           HOTFIX_BRANCH="hotfix/$VERSION"
           
@@ -393,6 +411,7 @@ jobs:
     steps:
       - name: Generate Summary
         run: |
+          set -x
           echo "# Release Management Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Action**: ${{ inputs.action }}" >> $GITHUB_STEP_SUMMARY

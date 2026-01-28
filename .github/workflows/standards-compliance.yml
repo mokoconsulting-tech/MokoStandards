@@ -28,6 +28,10 @@
 
 name: Standards Compliance
 
+env:
+  ACTIONS_STEP_DEBUG: true
+  ACTIONS_RUNNER_DEBUG: true
+
 # ┌─────────────────────────────────────────────────────────────────────────┐
 # │                         WORKFLOW FLOW DIAGRAM                            │
 # └─────────────────────────────────────────────────────────────────────────┘
@@ -97,6 +101,7 @@ jobs:
       
       - name: Check Required Directories
         run: |
+          set -x
           echo "## 📁 Repository Structure Validation" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
@@ -141,6 +146,7 @@ jobs:
       
       - name: Check Required Files
         run: |
+          set -x
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Required Files" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -208,6 +214,7 @@ jobs:
       
       - name: Validate README.md
         run: |
+          set -x
           echo "## 📚 Documentation Quality Check" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### README.md Analysis" >> $GITHUB_STEP_SUMMARY
@@ -303,6 +310,7 @@ jobs:
       
       - name: Validate CHANGELOG.md
         run: |
+          set -x
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### CHANGELOG.md Analysis" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -366,6 +374,7 @@ jobs:
       
       - name: Check Documentation Index
         run: |
+          set -x
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Documentation Index" >> $GITHUB_STEP_SUMMARY
           
@@ -385,6 +394,7 @@ jobs:
       
       - name: Check for Tab Characters
         run: |
+          set -x
           echo "### Tab Character Detection" >> $GITHUB_STEP_SUMMARY
           
           # Find files with tabs (excluding certain file types)
@@ -408,6 +418,7 @@ jobs:
       
       - name: Check File Encoding
         run: |
+          set -x
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### File Encoding Check" >> $GITHUB_STEP_SUMMARY
           
@@ -429,6 +440,7 @@ jobs:
       
       - name: Check Line Endings
         run: |
+          set -x
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Line Ending Check" >> $GITHUB_STEP_SUMMARY
           
@@ -459,6 +471,7 @@ jobs:
       
       - name: Check SPDX Headers
         run: |
+          set -x
           echo "### SPDX License Header Check" >> $GITHUB_STEP_SUMMARY
           
           # Count source files with and without SPDX headers
@@ -483,6 +496,7 @@ jobs:
       
       - name: Validate License File
         run: |
+          set -x
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### License File Validation" >> $GITHUB_STEP_SUMMARY
           
@@ -519,6 +533,7 @@ jobs:
       
       - name: Check .gitignore
         run: |
+          set -x
           echo "### .gitignore Validation" >> $GITHUB_STEP_SUMMARY
           
           if [ ! -f ".gitignore" ]; then
@@ -539,6 +554,7 @@ jobs:
       
       - name: Check for Large Files
         run: |
+          set -x
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Large File Detection" >> $GITHUB_STEP_SUMMARY
           
@@ -565,6 +581,7 @@ jobs:
       
       - name: Check Required Workflows
         run: |
+          set -x
           echo "### GitHub Actions Workflows" >> $GITHUB_STEP_SUMMARY
           
           WORKFLOWS_DIR=".github/workflows"
@@ -589,6 +606,7 @@ jobs:
       
       - name: Validate Workflow Syntax
         run: |
+          set -x
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Workflow YAML Syntax" >> $GITHUB_STEP_SUMMARY
           
@@ -621,6 +639,7 @@ jobs:
       - name: Validate CodeQL Configuration
         if: hashFiles('.github/workflows/codeql-analysis.yml') != ''
         run: |
+          set -x
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### CodeQL Language Configuration" >> $GITHUB_STEP_SUMMARY
           
@@ -668,6 +687,7 @@ jobs:
     steps:
       - name: Generate Compliance Report
         run: |
+          set -x
           echo "# 📊 MokoStandards Compliance Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           

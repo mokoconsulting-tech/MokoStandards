@@ -28,6 +28,10 @@
 
 name: Auto Release on Version Bump
 
+env:
+  ACTIONS_STEP_DEBUG: true
+  ACTIONS_RUNNER_DEBUG: true
+
 # ┌─────────────────────────────────────────────────────────────────────────┐
 # │                         WORKFLOW FLOW DIAGRAM                            │
 # └─────────────────────────────────────────────────────────────────────────┘
@@ -105,6 +109,7 @@ jobs:
       - name: Check for Version Changes
         id: check
         run: |
+          set -x
           VERSION_CHANGED="false"
           NEW_VERSION=""
           VERSION_SOURCE=""
@@ -217,12 +222,14 @@ jobs:
 
       - name: Configure Git
         run: |
+          set -x
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Check if Tag Already Exists
         id: check-tag
         run: |
+          set -x
           VERSION="${{ needs.detect-version-bump.outputs.new-version }}"
           TAG="v$VERSION"
 
@@ -238,6 +245,7 @@ jobs:
       - name: Create Git Tag
         if: steps.check-tag.outputs.tag-exists == 'false'
         run: |
+          set -x
           VERSION="${{ needs.detect-version-bump.outputs.new-version }}"
           TAG="v$VERSION"
 
@@ -250,6 +258,7 @@ jobs:
         if: steps.check-tag.outputs.tag-exists == 'false'
         id: release-notes
         run: |
+          set -x
           VERSION="${{ needs.detect-version-bump.outputs.new-version }}"
 
           # Try to extract changelog from CHANGELOG.md
@@ -298,6 +307,7 @@ jobs:
       - name: Release Summary
         if: steps.check-tag.outputs.tag-exists == 'false'
         run: |
+          set -x
           echo "### 🚀 Release Created Successfully" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Version**: ${{ needs.detect-version-bump.outputs.new-version }}" >> $GITHUB_STEP_SUMMARY

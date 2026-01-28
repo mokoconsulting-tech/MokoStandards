@@ -28,6 +28,10 @@
 
 name: "CodeQL Security Scanning"
 
+env:
+  ACTIONS_STEP_DEBUG: true
+  ACTIONS_RUNNER_DEBUG: true
+
 # ┌─────────────────────────────────────────────────────────────────────────┐
 # │                         WORKFLOW FLOW DIAGRAM                            │
 # └─────────────────────────────────────────────────────────────────────────┘
@@ -137,6 +141,7 @@ jobs:
       - name: Check for Critical/High Findings
         if: always()
         run: |
+          set -x
           echo "### 🔍 CodeQL Security Analysis Complete" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Language**: ${{ matrix.language }}" >> $GITHUB_STEP_SUMMARY
@@ -162,6 +167,7 @@ jobs:
     steps:
       - name: Generate Summary
         run: |
+          set -x
           echo "### 🛡️ Security Scanning Complete" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "All CodeQL security scans have completed." >> $GITHUB_STEP_SUMMARY

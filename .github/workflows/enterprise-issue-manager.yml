@@ -3,6 +3,10 @@
 
 name: Enterprise Issue Manager
 
+env:
+  ACTIONS_STEP_DEBUG: true
+  ACTIONS_RUNNER_DEBUG: true
+
 # ┌─────────────────────────────────────────────────────────────────────────┐
 # │                         WORKFLOW FLOW DIAGRAM                            │
 # └─────────────────────────────────────────────────────────────────────────┘
@@ -76,6 +80,7 @@ jobs:
       - name: Load configuration
         id: load
         run: |
+          set -x
           if [ -f ".github/issue-management-config.yml" ]; then
             echo "Configuration file found"
             CONFIG=$(cat .github/issue-management-config.yml)
@@ -91,6 +96,7 @@ jobs:
       - name: Validate configuration
         id: validate
         run: |
+          set -x
           # Basic validation - check for required fields
           if grep -q "version:" .github/issue-management-config.yml && \
              grep -q "enterprise:" .github/issue-management-config.yml; then
@@ -115,6 +121,7 @@ jobs:
       - name: Determine PR action
         id: pr_action
         run: |
+          set -x
           ACTION="${{ github.event.action }}"
           PR_NUMBER="${{ github.event.pull_request.number }}"
           PR_TITLE="${{ github.event.pull_request.title }}"
@@ -490,6 +497,7 @@ This tracking issue is now closed.
     steps:
       - name: Generate summary
         run: |
+          set -x
           echo "## 📊 Enterprise Issue Manager Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Event**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY

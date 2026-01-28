@@ -28,6 +28,10 @@
 
 name: Confidentiality Scan
 
+env:
+  ACTIONS_STEP_DEBUG: true
+  ACTIONS_RUNNER_DEBUG: true
+
 # ┌─────────────────────────────────────────────────────────────────────────┐
 # │                         WORKFLOW FLOW DIAGRAM                            │
 # └─────────────────────────────────────────────────────────────────────────┘
@@ -127,6 +131,7 @@ jobs:
       - name: Scan for organization-specific references
         id: org_scan
         run: |
+          set -x
           echo "Scanning for organization-specific references..."
 
           # Define forbidden patterns
@@ -184,6 +189,7 @@ jobs:
         id: secret_scan
         if: success() || failure()
         run: |
+          set -x
           echo "Scanning for potential secrets..."
 
           # Define secret patterns
@@ -241,6 +247,7 @@ jobs:
         id: doc_scan
         if: success() || failure()
         run: |
+          set -x
           echo "Scanning for internal documentation references..."
 
           # Patterns that suggest internal documentation
@@ -565,6 +572,7 @@ jobs:
       - name: Fail if violations found
         if: steps.org_scan.outcome == 'failure' || steps.secret_scan.outcome == 'failure'
         run: |
+          set -x
           echo "❌ Confidentiality scan failed due to violations"
           echo "Review the check run and PR comment for details"
           exit 1

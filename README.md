@@ -35,8 +35,9 @@
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Policy Documents](https://img.shields.io/badge/Policy_Documents-77-orange.svg)](./docs/policy)
-[![Python Scripts](https://img.shields.io/badge/Python_Scripts-44-green.svg)](./scripts)
-[![PowerShell Scripts](https://img.shields.io/badge/PowerShell_Scripts-2-blue.svg)](./scripts/powershell)
+[![Python Scripts](https://img.shields.io/badge/Python_Scripts-64-green.svg)](./scripts)
+[![PowerShell Scripts](https://img.shields.io/badge/PowerShell_Scripts-10-blue.svg)](./scripts/powershell)
+[![Script Wrappers](https://img.shields.io/badge/Script_Wrappers-106-yellow.svg)](./scripts/wrappers)
 [![Version](https://img.shields.io/badge/version-2.1.0-brightgreen.svg)](./CHANGELOG.md)
 
 > **⚠️ Important**: This repository defines organizational policies and standards. **Do not clone or duplicate this repository to create new projects**. Use our [repository templates](#repository-templates) to create compliant projects.
@@ -72,16 +73,18 @@ Repository organization and quality standards:
 
 ### 🛠️ Automation Tools
 
-**46 Scripts** for compliance and automation:
+**180 Scripts** for compliance and automation:
 
-- **44 Python Scripts**: Validation, automation, maintenance, analysis
-- **2 PowerShell Scripts**: Windows-specific automation
+- **64 Python Scripts**: Validation, automation, maintenance, analysis
+- **10 PowerShell Scripts**: Windows-specific automation with GUI support
+- **106 Script Wrappers**: 53 Bash + 53 PowerShell wrappers for seamless cross-platform usage
 
 Script categories:
 - `validate/` - Repository health, manifest validation, secret scanning
-- `automation/` - Bulk operations, label deployment
+- `automation/` - Bulk operations, label deployment, workflow generation
 - `maintenance/` - Changelog, versioning, cleanup
 - `analysis/` - PR conflicts, dependency analysis
+- `wrappers/` - Cross-platform execution wrappers for all Python scripts
 
 See [Scripts Documentation](scripts/README.md).
 
@@ -169,8 +172,8 @@ jobs:
 
 ```
 MokoStandards/
-├── docs/                       # 📚 Authoritative documentation
-│   ├── policy/                # Binding policies (MUST follow)
+├── docs/                       # 📚 Authoritative documentation (188 files)
+│   ├── policy/                # Binding policies (MUST follow) - 77 documents
 │   │   ├── coding-style-guide.md
 │   │   ├── file-header-standards.md
 │   │   ├── workflow-standards.md
@@ -183,15 +186,19 @@ MokoStandards/
 │   ├── adr/                   # Architecture Decision Records
 │   └── index.md              # Documentation catalog
 │
-├── scripts/                    # 🛠️ Automation tools (46 scripts)
-│   ├── validate/              # Validation and compliance
-│   ├── automation/            # Bulk operations
-│   ├── maintenance/           # Repository maintenance
-│   ├── analysis/              # Analysis and reporting
+├── scripts/                    # 🛠️ Automation tools (180 scripts)
+│   ├── validate/              # Validation and compliance (16 scripts)
+│   ├── automation/            # Bulk operations (12 scripts)
+│   ├── maintenance/           # Repository maintenance (15 scripts)
+│   ├── analysis/              # Analysis and reporting (8 scripts)
+│   ├── wrappers/              # Cross-platform wrappers (106 wrappers)
+│   │   ├── bash/              # 53 Bash wrappers
+│   │   └── powershell/        # 53 PowerShell wrappers
+│   ├── powershell/            # PowerShell-specific scripts (10 scripts)
 │   └── lib/                   # Shared libraries
 │
-├── templates/                  # 📋 Reference templates
-│   ├── workflows/             # GitHub Actions templates
+├── templates/                  # 📋 Reference templates (137 files)
+│   ├── workflows/             # GitHub Actions templates (11 workflows)
 │   ├── makefiles/             # Build configurations
 │   ├── docs/                  # Documentation templates
 │   ├── github/                # Issue/PR templates

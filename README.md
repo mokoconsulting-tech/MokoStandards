@@ -34,6 +34,7 @@
 # MokoStandards v2.1.0
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Policy Documents](https://img.shields.io/badge/Policy_Documents-77-orange.svg)](./docs/policy)
 [![Python Scripts](https://img.shields.io/badge/Python_Scripts-44-green.svg)](./scripts)
 [![PowerShell Scripts](https://img.shields.io/badge/PowerShell_Scripts-2-blue.svg)](./scripts/powershell)
 [![Version](https://img.shields.io/badge/version-2.1.0-brightgreen.svg)](./CHANGELOG.md)

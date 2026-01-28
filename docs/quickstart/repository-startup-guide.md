@@ -97,7 +97,9 @@ mkdir -p docs
 mkdir -p scripts
 mkdir -p src
 mkdir -p .github/workflows
-mkdir -p tests/unit
+
+# Optional: Create tests directory if your project needs testing infrastructure
+# mkdir -p tests/unit
 
 # Create index files
 cat > docs/index.md << 'EOF'
@@ -184,7 +186,7 @@ git commit -m "Initial repository setup with MokoStandards compliance
 
 - Add required documentation (CHANGELOG, CONTRIBUTING, SECURITY, CODE_OF_CONDUCT)
 - Add configuration files (.editorconfig, .gitattributes)
-- Create required directory structure (docs/, scripts/, tests/)
+- Create required directory structure (docs/, scripts/)
 - Add documentation index files"
 
 # Push to GitHub
@@ -233,7 +235,10 @@ git push origin main
 ls -la README.md LICENSE CHANGELOG.md CONTRIBUTING.md SECURITY.md CODE_OF_CONDUCT.md .editorconfig .gitattributes .gitignore
 
 # Check required directories
-ls -d docs scripts tests
+ls -d docs scripts
+
+# Optional: Check tests directory if you created it
+# ls -d tests
 
 # Verify GitHub workflows (if added)
 ls -la .github/workflows/

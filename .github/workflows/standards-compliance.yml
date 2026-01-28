@@ -61,7 +61,7 @@ jobs:
           
           MISSING=0
           PRESENT=0
-          TOTAL=4
+          TOTAL=3
           
           echo "### Required Directories" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -69,7 +69,7 @@ jobs:
           echo "|-----------|--------|-------|------|-------|" >> $GITHUB_STEP_SUMMARY
           
           # Check required directories
-          for dir in docs tests scripts .github; do
+          for dir in docs scripts .github; do
             if [ -d "$dir" ]; then
               FILE_COUNT=$(find "$dir" -type f 2>/dev/null | wc -l)
               DIR_SIZE=$(du -sh "$dir" 2>/dev/null | cut -f1)
@@ -91,7 +91,6 @@ jobs:
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**Remediation Steps:**" >> $GITHUB_STEP_SUMMARY
             [ ! -d "docs" ] && echo "- Create docs directory: \`mkdir docs && echo '# Documentation' > docs/README.md\`" >> $GITHUB_STEP_SUMMARY
-            [ ! -d "tests" ] && echo "- Create tests directory: \`mkdir tests && touch tests/.gitkeep\`" >> $GITHUB_STEP_SUMMARY
             [ ! -d "scripts" ] && echo "- Create scripts directory: \`mkdir scripts && touch scripts/.gitkeep\`" >> $GITHUB_STEP_SUMMARY
             [ ! -d ".github" ] && echo "- Create .github directory: \`mkdir -p .github/workflows\`" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY

@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Guide
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/guide/copilot-sync-standards.md
-VERSION: 03.00.00
+VERSION: 03.01.00
 BRIEF: Comprehensive guide for using GitHub Copilot to sync standards across repositories
 -->
 
@@ -40,7 +40,7 @@ BRIEF: Comprehensive guide for using GitHub Copilot to sync standards across rep
 | **Owner** | MokoStandards Team |
 | **Repo** | https://github.com/mokoconsulting-tech/MokoStandards |
 | **Path** | /docs/guide/copilot-sync-standards.md |
-| **VERSION** | 03.00.00 |
+| **VERSION** | 03.01.00 |
 | **Status** | Active |
 | **Last Reviewed** | 2026-01-28 |
 | **Reviewed By** | MokoStandards Team |
@@ -162,7 +162,7 @@ After running the Copilot-generated solution:
 
 ### Expected Outcome
 
-- ✅ 27+ labels created across 8 categories
+- ✅ 46+ labels created across 8 categories
 - ✅ Consistent colors and descriptions
 - ✅ Ready for use in issues and PRs
 - ✅ Auto-labeling configured via .github/labeler.yml

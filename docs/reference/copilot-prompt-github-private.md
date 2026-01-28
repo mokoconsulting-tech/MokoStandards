@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Guide
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: docs/COPILOT_PROMPT_FOR_.GITHUB-PRIVATE.md
-VERSION: 02.00.00
+VERSION: 03.00.00
 BRIEF: Reference documentation for GitHub Copilot prompts stored in private repository
 -->
 
@@ -269,7 +269,7 @@ This separation was implemented as part of the enterprise readiness initiative t
 | Owner          | Moko Consulting                                          |
 | Repo           | https://github.com/mokoconsulting-tech/                                      |
 | Path           | /docs/reference/copilot-prompt-github-private.md                                      |
-| Version        | 02.00.00                                 |
+| Version        | 03.00.00                                 |
 | Status         | Active                                         |
 | Last Reviewed  | 2026-01-28                                  |
 | Reviewed By    | Documentation Team                                    |
@@ -279,4 +279,4 @@ This separation was implemented as part of the enterprise readiness initiative t
 
 | Date       | Author          | Change                                       | Notes                                              |
 | ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
-| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 03.00.00 with all required fields |

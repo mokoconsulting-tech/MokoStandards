@@ -787,16 +787,7 @@ Set `<create-path>` explicitly:
 </destination>
 ```
 
-### 4. Template Legacy Field
-
-Maintain legacy `<template>` field for backward compatibility:
-```xml
-<source>...</source>
-<destination>...</destination>
-<template>templates/workflows/generic/ci.yml.template</template>
-```
-
-### 5. Stub Content for Complex Files
+### 4. Stub Content for Complex Files
 
 Provide comprehensive stub content for files requiring structure:
 ```xml
@@ -904,7 +895,7 @@ Source and destination extensions should match intent:
 | Owner          | Moko Consulting                                          |
 | Repo           | https://github.com/mokoconsulting-tech/                                      |
 | Path           | /docs/schemas/repohealth/schema-guide.md                                      |
-| Version        | 02.00.00                                 |
+| Version        | 03.00.00                                 |
 | Status         | Active                                         |
 | Last Reviewed  | 2026-01-28                                  |
 | Reviewed By    | Documentation Team                                    |
@@ -914,4 +905,4 @@ Source and destination extensions should match intent:
 
 | Date       | Author          | Change                                       | Notes                                              |
 | ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
-| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 03.00.00 with all required fields |

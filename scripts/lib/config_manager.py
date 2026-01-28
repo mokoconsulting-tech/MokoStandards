@@ -23,7 +23,7 @@
 # INGROUP: MokoStandards.Library
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # FILE: scripts/lib/config_manager.py
-# VERSION: 02.00.00
+# VERSION: 03.00.00
 # BRIEF: Centralized configuration management for MokoStandards scripts
 # PATH: /scripts/lib/config_manager.py
 # NOTE: Provides YAML-based configuration with environment overrides

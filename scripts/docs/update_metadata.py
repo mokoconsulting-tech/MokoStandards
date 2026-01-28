@@ -25,7 +25,7 @@ from datetime import datetime
 JURISDICTION = "Tennessee, USA"
 OWNER = "Moko Consulting"
 REPO_BASE = "https://github.com/mokoconsulting-tech/"
-TARGET_VERSION = "02.00.00"
+TARGET_VERSION = "03.00.00"
 REVIEWED_DATE = "2026-01-28"
 REVIEWED_BY = "Documentation Team"
 

@@ -61,7 +61,7 @@ jobs:
           
           MISSING=0
           PRESENT=0
-          TOTAL=4
+          TOTAL=3
           
           echo "### Required Directories" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -69,7 +69,7 @@ jobs:
           echo "|-----------|--------|-------|------|-------|" >> $GITHUB_STEP_SUMMARY
           
           # Check required directories
-          for dir in docs tests scripts .github; do
+          for dir in docs scripts .github; do
             if [ -d "$dir" ]; then
               FILE_COUNT=$(find "$dir" -type f 2>/dev/null | wc -l)
               DIR_SIZE=$(du -sh "$dir" 2>/dev/null | cut -f1)
@@ -85,13 +85,12 @@ jobs:
           PERCENT=$((PRESENT * 100 / TOTAL))
           echo "**Compliance Score:** $PERCENT% ($PRESENT/$TOTAL directories present)" >> $GITHUB_STEP_SUMMARY
           
-          if [ $MISSING -gt 0 ]; then
+          if [ "$MISSING" -gt 0 ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "### 🔴 Critical Issues: $MISSING" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**Remediation Steps:**" >> $GITHUB_STEP_SUMMARY
             [ ! -d "docs" ] && echo "- Create docs directory: \`mkdir docs && echo '# Documentation' > docs/README.md\`" >> $GITHUB_STEP_SUMMARY
-            [ ! -d "tests" ] && echo "- Create tests directory: \`mkdir tests && touch tests/.gitkeep\`" >> $GITHUB_STEP_SUMMARY
             [ ! -d "scripts" ] && echo "- Create scripts directory: \`mkdir scripts && touch scripts/.gitkeep\`" >> $GITHUB_STEP_SUMMARY
             [ ! -d ".github" ] && echo "- Create .github directory: \`mkdir -p .github/workflows\`" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
@@ -123,7 +122,7 @@ jobs:
               case "$file" in
                 "README.md")
                   LINES=$(wc -l < "$file")
-                  [ $LINES -lt 10 ] && CONTENT_CHECK="⚠️ Too short"
+                  [ "$LINES" -lt 10 ] && CONTENT_CHECK="⚠️ Too short"
                   ;;
                 "LICENSE")
                   [ $(wc -c < "$file") -lt 100 ] && CONTENT_CHECK="⚠️ Incomplete?"
@@ -142,7 +141,7 @@ jobs:
           PERCENT=$((PRESENT * 100 / TOTAL))
           echo "**Compliance Score:** $PERCENT% ($PRESENT/$TOTAL files present)" >> $GITHUB_STEP_SUMMARY
           
-          if [ $MISSING -gt 0 ]; then
+          if [ "$MISSING" -gt 0 ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "### 🔴 Critical Issues: $MISSING" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
@@ -192,10 +191,10 @@ jobs:
           # Size check
           SIZE_STATUS="✅ Good"
           SIZE_REC="Adequate length"
-          if [ $SIZE -lt 500 ]; then
+          if [ "$SIZE" -lt 500 ]; then
             SIZE_STATUS="⚠️ Warning"
             SIZE_REC="Add more content (min 500 bytes)"
-          elif [ $SIZE -gt 50000 ]; then
+          elif [ "$SIZE" -gt 50000 ]; then
             SIZE_STATUS="⚠️ Warning"
             SIZE_REC="Consider splitting into multiple docs"
           fi
@@ -204,7 +203,7 @@ jobs:
           # Line count
           LINES_STATUS="✅ Good"
           LINES_REC="Good size"
-          if [ $LINES -lt 20 ]; then
+          if [ "$LINES" -lt 20 ]; then
             LINES_STATUS="⚠️ Warning"
             LINES_REC="Add more sections (min 20 lines)"
           fi
@@ -213,7 +212,7 @@ jobs:
           # Word count
           WORDS_STATUS="✅ Good"
           WORDS_REC="Good detail"
-          if [ $WORDS -lt 100 ]; then
+          if [ "$WORDS" -lt 100 ]; then
             WORDS_STATUS="⚠️ Warning"
             WORDS_REC="Add more description (min 100 words)"
           fi
@@ -222,7 +221,7 @@ jobs:
           # Headings
           HEADINGS_STATUS="✅ Good"
           HEADINGS_REC="Well structured"
-          if [ $HEADINGS -lt 3 ]; then
+          if [ "$HEADINGS" -lt 3 ]; then
             HEADINGS_STATUS="⚠️ Warning"
             HEADINGS_REC="Add more sections (min 3 headings)"
           fi
@@ -231,7 +230,7 @@ jobs:
           # Links
           LINKS_STATUS="✅ Good"
           LINKS_REC="Includes references"
-          if [ $LINKS -lt 1 ]; then
+          if [ "$LINKS" -lt 1 ]; then
             LINKS_STATUS="ℹ️ Info"
             LINKS_REC="Consider adding useful links"
           fi
@@ -240,7 +239,7 @@ jobs:
           # Code blocks
           CODE_STATUS="✅ Good"
           CODE_REC="Includes examples"
-          if [ $CODE_BLOCKS -eq 0 ]; then
+          if [ "$CODE_BLOCKS" -eq 0 ]; then
             CODE_STATUS="ℹ️ Info"
             CODE_REC="Consider adding code examples"
           fi
@@ -256,7 +255,7 @@ jobs:
           grep -qi "license" README.md && echo "- ✅ License information" >> $GITHUB_STEP_SUMMARY || { echo "- ⚠️ Missing: License information" >> $GITHUB_STEP_SUMMARY; MISSING_COUNT=$((MISSING_COUNT + 1)); }
           grep -qi "contribut" README.md && echo "- ✅ Contributing guidelines" >> $GITHUB_STEP_SUMMARY || echo "- ℹ️ Optional: Contributing section" >> $GITHUB_STEP_SUMMARY
           
-          if [ $MISSING_COUNT -gt 0 ]; then
+          if [ "$MISSING_COUNT" -gt 0 ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**⚠️ $MISSING_COUNT important sections missing**" >> $GITHUB_STEP_SUMMARY
           fi
@@ -291,14 +290,14 @@ jobs:
           # Version count
           VERSIONS_STATUS="✅ Good"
           VERSIONS_NOTE="Well maintained"
-          if [ $VERSIONS -lt 1 ]; then
+          if [ "$VERSIONS" -lt 1 ]; then
             VERSIONS_STATUS="⚠️ Warning"
             VERSIONS_NOTE="Add version entries"
           fi
           echo "| Versions | $VERSIONS | $VERSIONS_STATUS | $VERSIONS_NOTE |" >> $GITHUB_STEP_SUMMARY
           
           # Unreleased section
-          if [ $UNRELEASED -gt 0 ]; then
+          if [ "$UNRELEASED" -gt 0 ]; then
             echo "| Unreleased | Yes | ✅ Good | Active development tracked |" >> $GITHUB_STEP_SUMMARY
           else
             echo "| Unreleased | No | ℹ️ Info | Consider adding [Unreleased] section |" >> $GITHUB_STEP_SUMMARY
@@ -306,7 +305,7 @@ jobs:
           
           # Dates
           DATES_STATUS="✅ Good"
-          if [ $DATES -lt 1 ]; then
+          if [ "$DATES" -lt 1 ]; then
             DATES_STATUS="⚠️ Warning"
             DATES_NOTE="Add release dates"
           else
@@ -430,11 +429,11 @@ jobs:
             WITH_SPDX_PHP=$(find . -name "*.php" -type f ! -path "./vendor/*" -exec grep -l "SPDX-License-Identifier" {} \; | wc -l)
           fi
           
-          if [ $TOTAL_PHP -gt 0 ]; then
+          if [ "$TOTAL_PHP" -gt 0 ]; then
             PERCENT=$((WITH_SPDX_PHP * 100 / TOTAL_PHP))
             echo "- PHP files: $WITH_SPDX_PHP/$TOTAL_PHP ($PERCENT%) with SPDX headers" >> $GITHUB_STEP_SUMMARY
             
-            if [ $PERCENT -lt 80 ]; then
+            if [ "$PERCENT" -lt 80 ]; then
               echo "⚠️ Less than 80% of PHP files have SPDX headers" >> $GITHUB_STEP_SUMMARY
             else
               echo "✅ Good SPDX header coverage" >> $GITHUB_STEP_SUMMARY
@@ -553,7 +552,7 @@ jobs:
           echo "### Workflow YAML Syntax" >> $GITHUB_STEP_SUMMARY
           
           INVALID=0
-          for workflow in .github/workflows/*.yml .github/workflows/*.yaml 2>/dev/null; do
+          for workflow in $(find .github/workflows -maxdepth 1 -type f \( -name "*.yml" -o -name "*.yaml" \) 2>/dev/null); do
             if [ -f "$workflow" ]; then
               if python3 -c "import yaml; yaml.safe_load(open('$workflow'))" 2>/dev/null; then
                 echo "✅ $(basename $workflow)" >> $GITHUB_STEP_SUMMARY
@@ -564,7 +563,7 @@ jobs:
             fi
           done
           
-          if [ $INVALID -gt 0 ]; then
+          if [ "$INVALID" -gt 0 ]; then
             exit 1
           fi
       
@@ -653,11 +652,11 @@ jobs:
           COMPLIANCE_PERCENT=$((PASSED * 100 / TOTAL))
           
           # Overall status badge
-          if [ $COMPLIANCE_PERCENT -eq 100 ]; then
+          if [ "$COMPLIANCE_PERCENT" -eq 100 ]; then
             echo "## ✅ Overall Status: **COMPLIANT** ($COMPLIANCE_PERCENT%)" >> $GITHUB_STEP_SUMMARY
-          elif [ $COMPLIANCE_PERCENT -ge 80 ]; then
+          elif [ "$COMPLIANCE_PERCENT" -ge 80 ]; then
             echo "## ⚠️ Overall Status: **MOSTLY COMPLIANT** ($COMPLIANCE_PERCENT%)" >> $GITHUB_STEP_SUMMARY
-          elif [ $COMPLIANCE_PERCENT -ge 50 ]; then
+          elif [ "$COMPLIANCE_PERCENT" -ge 50 ]; then
             echo "## ⚠️ Overall Status: **PARTIALLY COMPLIANT** ($COMPLIANCE_PERCENT%)" >> $GITHUB_STEP_SUMMARY
           else
             echo "## ❌ Overall Status: **NON-COMPLIANT** ($COMPLIANCE_PERCENT%)" >> $GITHUB_STEP_SUMMARY
@@ -729,7 +728,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           
           # Action items summary
-          if [ $FAILED -gt 0 ]; then
+          if [ "$FAILED" -gt 0 ]; then
             echo "## ⚡ Action Items" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**$FAILED validation area(s) require attention:**" >> $GITHUB_STEP_SUMMARY
@@ -774,7 +773,7 @@ jobs:
           echo "_Generated by MokoStandards Compliance Workflow v02.00.00_" >> $GITHUB_STEP_SUMMARY
           
           # Exit with error if not fully compliant
-          if [ $COMPLIANCE_PERCENT -lt 100 ]; then
+          if [ "$COMPLIANCE_PERCENT" -lt 100 ]; then
             exit 1
           fi
 

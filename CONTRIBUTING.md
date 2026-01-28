@@ -22,7 +22,7 @@
  DEFGROUP: MokoStandards
  INGROUP: MokoStandards.Documentation
  REPO: https://github.com/mokoconsulting-tech/MokoStandards/
- VERSION: 02.00.00
+ VERSION: 03.00.00
  PATH: ./CONTRIBUTING.md
  BRIEF: v2.0 contribution guidelines with Python/PowerShell standards, Google docstrings, 100% type hints
  NOTE: Breaking changes from v1 - no backward compatibility
@@ -526,7 +526,7 @@ DEFGROUP: MokoStandards.Scripts
 INGROUP: MokoStandards.Automation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /scripts/category/script_name.py
-VERSION: 02.00.00
+VERSION: 03.00.00
 BRIEF: Brief description of purpose
 """
 ```
@@ -548,7 +548,7 @@ BRIEF: Brief description of purpose
  INGROUP: MokoStandards
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  PATH: /path/to/file.md
- VERSION: 02.00.00
+ VERSION: 03.00.00
  BRIEF: Brief description
 -->
 
@@ -903,7 +903,7 @@ MokoStandards v2 uses **semantic versioning** with format: `vXX.YY.ZZ`
 ### Version Format
 
 ```
-v02.03.04
+v03.05.12
   │  │  │
   │  │  └─ Patch (bug fixes, typos)
   │  └──── Minor (new features, non-breaking)
@@ -912,17 +912,17 @@ v02.03.04
 
 ### Examples
 
-- `v02.00.00` - Major v2 release (breaking changes from v1)
+- `v03.00.00` - Major v2 release (breaking changes from v1)
 - `v02.01.00` - Minor update (new features, backward compatible)
 - `v02.01.01` - Patch release (bug fixes only)
 
 ### File Version Headers
 
-In file headers, use format: `VERSION: 02.00.00` (no 'v' prefix)
+In file headers, use format: `VERSION: 03.00.00` (no 'v' prefix)
 
 ```python
 # FILE INFORMATION
-VERSION: 02.00.00
+VERSION: 03.00.00
 ```
 
 ### Changelog
@@ -930,7 +930,7 @@ VERSION: 02.00.00
 All changes documented in [CHANGELOG.md](./CHANGELOG.md) following [Keep a Changelog](https://keepachangelog.com/) format:
 
 ```markdown
-## [02.01.00] - 2026-01-20
+## [03.01.00] - 2026-01-20
 
 ### Added
 - New validation script for workflows
@@ -990,7 +990,7 @@ See [LICENSE](./LICENSE) for full license text.
 ## Metadata
 
 - **Document**: CONTRIBUTING.md
-- **Version**: 02.00.00
+- **Version**: 03.00.00
 - **Last Updated**: 2026-01-19
 - **Scope**: Contribution guidelines for v2.0
 - **Audience**: Contributors, maintainers, community
@@ -999,8 +999,8 @@ See [LICENSE](./LICENSE) for full license text.
 
 | Version | Date | Author | Notes |
 |---------|------|--------|-------|
+| 03.00.00 | 2026-01-19 | GitHub Copilot | Complete v2.0 rebuild with Python/PowerShell standards, type hints, Google docstrings |
 | 01.00.00 | 2025-12-17 | Moko Consulting | Initial contribution guidelines |
-| 02.00.00 | 2026-01-19 | GitHub Copilot | Complete v2.0 rebuild with Python/PowerShell standards, type hints, Google docstrings |
 
 ---
 

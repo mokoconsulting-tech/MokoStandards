@@ -70,6 +70,43 @@ on:
       quality-score:
         description: 'Overall quality score percentage'
         value: ${{ jobs.aggregate.outputs.score }}
+  workflow_dispatch:
+    inputs:
+      php-versions:
+        description: 'JSON array of PHP versions to test'
+        required: false
+        type: string
+        default: '["7.4", "8.0", "8.1", "8.2"]'
+      tools:
+        description: 'JSON array of quality tools to run (phpcs, phpstan, psalm)'
+        required: false
+        type: string
+        default: '["phpcs", "phpstan", "psalm"]'
+      working-directory:
+        description: 'Working directory for the quality checks'
+        required: false
+        type: string
+        default: '.'
+      phpcs-standard:
+        description: 'PHPCS coding standard to use'
+        required: false
+        type: string
+        default: 'PSR12'
+      phpstan-level:
+        description: 'PHPStan analysis level (0-9)'
+        required: false
+        type: string
+        default: '5'
+      psalm-level:
+        description: 'Psalm error level (1-8)'
+        required: false
+        type: string
+        default: '4'
+      fail-on-error:
+        description: 'Fail the workflow if quality checks find issues'
+        required: false
+        type: boolean
+        default: true
 
 permissions:
   contents: read

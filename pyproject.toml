@@ -6,6 +6,31 @@
 
 # Python project configuration for MokoStandards projects
 
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mokostandards"
+version = "03.00.00"
+description = "MokoStandards repository - standards and templates"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "GPL-3.0-or-later"}
+authors = [
+    {name = "Moko Consulting", email = "hello@mokoconsulting.tech"}
+]
+
+[tool.setuptools]
+# This is a standards/templates repository, not a Python package
+# Exclude directories that are not Python packages
+py-modules = []
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = []
+exclude = ["schemas*", "terraform*", "templates*", "scripts*", "docs*", ".github*"]
+
 [tool.black]
 line-length = 100
 target-version = ['py38', 'py39', 'py310', 'py311']

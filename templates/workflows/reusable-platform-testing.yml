@@ -46,12 +46,6 @@ on:
         required: false
         type: string
         default: '["4.4", "5.0", "5.1"]'
-      # Legacy input names for backward compatibility
-      joomla-versions:
-        description: '[DEPRECATED] Use platform-versions instead'
-        required: false
-        type: string
-        default: ''
       coverage:
         description: 'Enable code coverage reporting'
         required: false
@@ -67,12 +61,6 @@ on:
         required: false
         type: string
         default: '5.0'
-      # Legacy input name for backward compatibility
-      coverage-joomla-version:
-        description: '[DEPRECATED] Use coverage-platform-version instead'
-        required: false
-        type: string
-        default: ''
       working-directory:
         description: 'Working directory for tests'
         required: false
@@ -87,6 +75,48 @@ on:
       CODECOV_TOKEN:
         description: 'Codecov token for coverage uploads'
         required: false
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Platform to test (joomla or dolibarr)'
+        required: false
+        type: string
+        default: 'joomla'
+      php-versions:
+        description: 'JSON array of PHP versions to test'
+        required: false
+        type: string
+        default: '["7.4", "8.0", "8.1", "8.2"]'
+      platform-versions:
+        description: 'JSON array of platform versions (Joomla or Dolibarr versions)'
+        required: false
+        type: string
+        default: '["4.4", "5.0", "5.1"]'
+      coverage:
+        description: 'Enable code coverage reporting'
+        required: false
+        type: boolean
+        default: false
+      coverage-php-version:
+        description: 'PHP version to use for coverage reporting'
+        required: false
+        type: string
+        default: '8.1'
+      coverage-platform-version:
+        description: 'Platform version to use for coverage reporting'
+        required: false
+        type: string
+        default: '5.0'
+      working-directory:
+        description: 'Working directory for tests'
+        required: false
+        type: string
+        default: '.'
+      run-integration-tests:
+        description: 'Run integration tests with platform installation'
+        required: false
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -101,17 +131,17 @@ jobs:
       platform: ${{ steps.detect.outputs.platform }}
       platform-versions: ${{ steps.detect.outputs.platform-versions }}
       coverage-platform-version: ${{ steps.detect.outputs.coverage-platform-version }}
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
-      
+
       - name: Detect platform and resolve versions
         id: detect
         run: |
           # Determine platform
           PLATFORM="${{ inputs.platform }}"
-          
+
           # Auto-detect if not specified
           if [ "$PLATFORM" == "joomla" ] || [ -z "$PLATFORM" ]; then
             if [ -f "dolibarr.xml" ] || [ -f "src/dolibarr.xml" ]; then
@@ -120,16 +150,13 @@ jobs:
               PLATFORM="joomla"
             fi
           fi
-          
+
           echo "platform=$PLATFORM" >> $GITHUB_OUTPUT
           echo "Detected platform: $PLATFORM"
-          
-          # Resolve platform versions (handle legacy input names)
+
+          # Resolve platform versions
           if [ -n "${{ inputs.platform-versions }}" ]; then
             VERSIONS="${{ inputs.platform-versions }}"
-          elif [ -n "${{ inputs.joomla-versions }}" ]; then
-            VERSIONS="${{ inputs.joomla-versions }}"
-            echo "⚠️ Warning: joomla-versions is deprecated, use platform-versions"
           else
             # Set default versions based on platform
             if [ "$PLATFORM" == "dolibarr" ]; then
@@ -138,16 +165,13 @@ jobs:
               VERSIONS='["4.4", "5.0", "5.1"]'
             fi
           fi
-          
+
           echo "platform-versions=$VERSIONS" >> $GITHUB_OUTPUT
           echo "Platform versions: $VERSIONS"
-          
+
           # Resolve coverage platform version
           if [ -n "${{ inputs.coverage-platform-version }}" ]; then
             COV_VERSION="${{ inputs.coverage-platform-version }}"
-          elif [ -n "${{ inputs.coverage-joomla-version }}" ]; then
-            COV_VERSION="${{ inputs.coverage-joomla-version }}"
-            echo "⚠️ Warning: coverage-joomla-version is deprecated, use coverage-platform-version"
           else
             if [ "$PLATFORM" == "dolibarr" ]; then
               COV_VERSION="19.0"
@@ -155,7 +179,7 @@ jobs:
               COV_VERSION="5.0"
             fi
           fi
-          
+
           echo "coverage-platform-version=$COV_VERSION" >> $GITHUB_OUTPUT
           echo "Coverage platform version: $COV_VERSION"
 
@@ -229,9 +253,9 @@ jobs:
         run: |
           PLATFORM="${{ needs.detect-platform.outputs.platform }}"
           VERSION="${{ matrix.platform-version }}"
-          
+
           echo "Setting up $PLATFORM $VERSION test environment"
-          
+
           # Add platform-specific environment variables
           if [ "$PLATFORM" == "joomla" ]; then
             echo "JOOMLA_VERSION=$VERSION" >> $GITHUB_ENV
@@ -245,7 +269,7 @@ jobs:
         working-directory: ${{ inputs.working-directory }}
         run: |
           SHOULD_COVERAGE="${{ inputs.coverage && matrix.php-version == inputs.coverage-php-version && matrix.platform-version == needs.detect-platform.outputs.coverage-platform-version }}"
-          
+
           if [ -f "vendor/bin/phpunit" ]; then
             if [ "$SHOULD_COVERAGE" == "true" ]; then
               vendor/bin/phpunit --coverage-text --coverage-clover=coverage.xml
@@ -333,12 +357,12 @@ jobs:
         run: |
           PLATFORM="${{ needs.detect-platform.outputs.platform }}"
           VERSION="${{ matrix.platform-version }}"
-          
+
           echo "📦 Setting up $PLATFORM $VERSION for integration testing"
-          
+
           mkdir -p /tmp/platform
           cd /tmp/platform
-          
+
           if [ "$PLATFORM" == "joomla" ]; then
             # Download Joomla
             if [[ "$VERSION" == "4.4" ]]; then
@@ -350,12 +374,12 @@ jobs:
             else
               DOWNLOAD_VERSION="${VERSION}-Stable"
             fi
-            
+
             echo "Downloading Joomla ${DOWNLOAD_VERSION}..."
             curl -L -o platform.zip "https://downloads.joomla.org/cms/joomla${VERSION%%.*}/${DOWNLOAD_VERSION}" || \
             curl -L -o platform.zip "https://github.com/joomla/joomla-cms/releases/download/${VERSION}.0/Joomla_${VERSION}.0-Stable-Full_Package.zip" || \
             echo "⚠️ Could not download Joomla"
-            
+
           elif [ "$PLATFORM" == "dolibarr" ]; then
             # Download Dolibarr
             echo "Downloading Dolibarr ${VERSION}..."
@@ -363,7 +387,7 @@ jobs:
             curl -L -o platform.zip "https://sourceforge.net/projects/dolibarr/files/Dolibarr%20ERP-CRM/${VERSION}.0/dolibarr-${VERSION}.0.zip/download" || \
             echo "⚠️ Could not download Dolibarr"
           fi
-          
+
           if [ -f platform.zip ]; then
             unzip -q platform.zip
             echo "✅ Platform extracted successfully"
@@ -372,11 +396,11 @@ jobs:
       - name: Configure platform
         run: |
           PLATFORM="${{ needs.detect-platform.outputs.platform }}"
-          
+
           echo "⚙️ Configuring $PLATFORM for testing"
-          
+
           cd /tmp/platform
-          
+
           if [ "$PLATFORM" == "joomla" ] && [ -d "." ]; then
             # Create Joomla configuration
             cat > configuration.php << 'EOF'
@@ -394,7 +418,7 @@ jobs:
           }
           EOF
             echo "✅ Joomla configuration created"
-            
+
           elif [ "$PLATFORM" == "dolibarr" ]; then
             # Create Dolibarr configuration
             mkdir -p htdocs/conf
@@ -417,9 +441,9 @@ jobs:
         working-directory: ${{ inputs.working-directory }}
         run: |
           PLATFORM="${{ needs.detect-platform.outputs.platform }}"
-          
+
           echo "📦 Installing extension into $PLATFORM"
-          
+
           if [ -d "/tmp/platform" ]; then
             echo "Extension installation logic for $PLATFORM would go here"
             echo "Platform-specific installation steps based on extension type"
@@ -456,7 +480,7 @@ jobs:
         run: |
           PLATFORM="${{ needs.detect-platform.outputs.platform }}"
           PLATFORM_UPPER=$(echo "$PLATFORM" | tr '[:lower:]' '[:upper:]')
-          
+
           echo "### 🧪 $PLATFORM_UPPER Testing Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Platform:** $PLATFORM" >> $GITHUB_STEP_SUMMARY

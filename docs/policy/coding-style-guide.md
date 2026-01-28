@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Development
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/coding-style-guide.md
-VERSION: 02.00.00
+VERSION: 03.00.00
 BRIEF: Universal coding style standards across all programming languages
 -->
 
@@ -284,10 +284,12 @@ function processOrder($order) {
 
 ### Indentation
 
-- **Use spaces, not tabs** (unless language convention dictates otherwise)
-- **4 spaces** for PHP, Python
-- **2 spaces** for JavaScript/TypeScript, JSON, YAML
-- Configure editor to insert spaces
+- **Use tabs, not spaces** (MokoStandards default)
+- **Tab width**: 2 spaces for display/visual width
+- **Exceptions where language specification requires spaces:**
+  - **YAML files**: Must use spaces (YAML specification requirement)
+  - **Makefiles**: Must use tabs (Make specification requirement)
+- Configure editor to use tabs (see .editorconfig)
 - Be consistent within each file
 
 ### Line Length
@@ -563,6 +565,50 @@ test('works', () => {});
 - Test edge cases
 - Test error conditions
 
+## Date and Time Standards
+
+### Timestamp Requirements
+
+**All timestamps MUST use UTC timezone.**
+
+- **Required format**: ISO 8601 with UTC indicator
+- **Examples**:
+  - `2026-01-28T14:30:00Z` (with time)
+  - `2026-01-28` (date only, when time not needed)
+- **Never use**: Local timezones, ambiguous formats, or timestamps without timezone
+
+### Code Implementation
+
+```python
+# ✅ Good: UTC timestamp
+from datetime import datetime, timezone
+
+timestamp = datetime.now(timezone.utc).isoformat()
+# Result: "2026-01-28T14:30:00+00:00" or "2026-01-28T14:30:00Z"
+
+# ✅ Also acceptable
+timestamp = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+```
+
+```javascript
+// ✅ Good: UTC timestamp
+const timestamp = new Date().toISOString();
+// Result: "2026-01-28T14:30:00.000Z"
+```
+
+```php
+// ✅ Good: UTC timestamp
+$timestamp = gmdate('Y-m-d\TH:i:s\Z');
+// Result: "2026-01-28T14:30:00Z"
+```
+
+### Rationale
+
+- **Consistency**: All systems use same time reference
+- **No ambiguity**: Clear what time is meant regardless of location
+- **Compliance**: Required by metadata standards policy
+- **Interoperability**: UTC is universal standard for distributed systems
+
 ## Language-Specific Guides
 
 For detailed language-specific standards, see:
@@ -593,19 +639,24 @@ For detailed language-specific standards, see:
 ```ini
 root = true
 
+# Default settings — Tabs preferred, width = 2 spaces
 [*]
 charset = utf-8
 end_of_line = lf
 insert_final_newline = true
 trim_trailing_whitespace = true
+indent_style = tab
+tab_width = 2
 
-[*.{php,py}]
-indent_style = space
-indent_size = 4
-
-[*.{js,ts,json,yml,yaml}]
+# YAML files — spaces only (YAML spec requires spaces)
+[*.{yml,yaml}]
 indent_style = space
 indent_size = 2
+
+# Makefiles — always tabs (Make spec requires tabs)
+[Makefile]
+indent_style = tab
+tab_width = 2
 ```
 
 ## Compliance and Enforcement
@@ -639,7 +690,7 @@ indent_size = 2
 | Owner          | Moko Consulting                                          |
 | Repo           | https://github.com/mokoconsulting-tech/                                      |
 | Path           | /docs/policy/coding-style-guide.md                                      |
-| Version        | 02.00.00                                 |
+| Version        | 03.00.00                                 |
 | Status         | Active                                         |
 | Last Reviewed  | 2026-01-28                                  |
 | Reviewed By    | Documentation Team                                    |
@@ -649,4 +700,4 @@ indent_size = 2
 
 | Date       | Author          | Change                                       | Notes                                              |
 | ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
-| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 03.00.00 with all required fields |

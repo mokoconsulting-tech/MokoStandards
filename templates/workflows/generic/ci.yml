@@ -22,7 +22,7 @@
 # INGROUP: MokoStandards.CI
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/ci.yml
-# VERSION: 02.00.00
+# VERSION: 03.00.00
 # BRIEF: Continuous integration workflow using local reusable workflow
 # NOTE: Delegates CI execution to local reusable-ci-validation.yml for repository validation
 

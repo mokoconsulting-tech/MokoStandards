@@ -97,7 +97,9 @@ mkdir -p docs
 mkdir -p scripts
 mkdir -p src
 mkdir -p .github/workflows
-mkdir -p tests/unit
+
+# Optional: Create tests directory if your project needs testing infrastructure
+# mkdir -p tests/unit
 
 # Create index files
 cat > docs/index.md << 'EOF'
@@ -184,7 +186,7 @@ git commit -m "Initial repository setup with MokoStandards compliance
 
 - Add required documentation (CHANGELOG, CONTRIBUTING, SECURITY, CODE_OF_CONDUCT)
 - Add configuration files (.editorconfig, .gitattributes)
-- Create required directory structure (docs/, scripts/, tests/)
+- Create required directory structure (docs/, scripts/)
 - Add documentation index files"
 
 # Push to GitHub
@@ -233,7 +235,10 @@ git push origin main
 ls -la README.md LICENSE CHANGELOG.md CONTRIBUTING.md SECURITY.md CODE_OF_CONDUCT.md .editorconfig .gitattributes .gitignore
 
 # Check required directories
-ls -d docs scripts tests
+ls -d docs scripts
+
+# Optional: Check tests directory if you created it
+# ls -d tests
 
 # Verify GitHub workflows (if added)
 ls -la .github/workflows/
@@ -954,7 +959,7 @@ git clone https://github.com/mokoconsulting-tech/YOUR-REPO.git && \
 | Owner          | Moko Consulting                                          |
 | Repo           | https://github.com/mokoconsulting-tech/                                      |
 | Path           | /docs/quickstart/repository-startup-guide.md                                      |
-| Version        | 02.00.00                                 |
+| Version        | 03.00.00                                 |
 | Status         | Active                                         |
 | Last Reviewed  | 2026-01-28                                  |
 | Reviewed By    | Documentation Team                                    |
@@ -964,4 +969,4 @@ git clone https://github.com/mokoconsulting-tech/YOUR-REPO.git && \
 
 | Date       | Author          | Change                                       | Notes                                              |
 | ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
-| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 03.00.00 with all required fields |

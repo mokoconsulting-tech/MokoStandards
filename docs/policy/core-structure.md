@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Structure
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/core-structure.md
-VERSION: 02.00.00
+VERSION: 03.00.00
 BRIEF: Core organization structure for docs and scripts folders across all organization repositories
 -->
 
@@ -528,7 +528,7 @@ For questions about core structure:
 | Owner          | Moko Consulting                                          |
 | Repo           | https://github.com/mokoconsulting-tech/                                      |
 | Path           | /docs/policy/core-structure.md                                      |
-| Version        | 02.00.00                                 |
+| Version        | 03.00.00                                 |
 | Status         | Active                                         |
 | Last Reviewed  | 2026-01-28                                  |
 | Reviewed By    | Documentation Team                                    |
@@ -538,4 +538,4 @@ For questions about core structure:
 
 | Date       | Author          | Change                                       | Notes                                              |
 | ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
-| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 03.00.00 with all required fields |

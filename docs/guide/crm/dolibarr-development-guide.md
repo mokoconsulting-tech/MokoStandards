@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Guide
 INGROUP: MokoStandards.CRM
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/guide/crm/dolibarr-development-guide.md
-VERSION: 02.00.00
+VERSION: 03.00.00
 BRIEF: Practical guide for developing custom modules for Dolibarr/MokoCRM
 -->
 
@@ -781,7 +781,7 @@ dol_syslog("My debug message: ".print_r($variable, true), LOG_DEBUG);
 | Owner          | Moko Consulting                                          |
 | Repo           | https://github.com/mokoconsulting-tech/                                      |
 | Path           | /docs/guide/crm/dolibarr-development-guide.md                                      |
-| Version        | 02.00.00                                 |
+| Version        | 03.00.00                                 |
 | Status         | Active                                         |
 | Last Reviewed  | 2026-01-28                                  |
 | Reviewed By    | Documentation Team                                    |
@@ -791,4 +791,4 @@ dol_syslog("My debug message: ".print_r($variable, true), LOG_DEBUG);
 
 | Date       | Author          | Change                                       | Notes                                              |
 | ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
-| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 03.00.00 with all required fields |

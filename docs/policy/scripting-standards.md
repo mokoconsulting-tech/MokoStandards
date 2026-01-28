@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Development
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/scripting-standards.md
-VERSION: 02.00.00
+VERSION: 03.00.00
 BRIEF: Standards and requirements for automation scripts and tooling
 -->
 
@@ -267,6 +267,24 @@ def sync_file_to_project(
 ```
 
 **Docstring Format**: Use Google style docstrings
+
+### Code Formatting
+
+**Indentation**: Use tabs, not spaces (MokoStandards standard)
+
+- Configure editor to use tabs with 2-space visual width
+- Follow .editorconfig settings in repository root
+- Be consistent throughout script
+- **Exception**: YAML configuration files must use spaces (YAML specification requirement)
+
+**Line length**: 
+- Maximum 120 characters per line
+- Break long lines at logical points
+
+**Formatting tools**:
+- Use `black` for Python formatting (configure for tabs if possible, or follow project .editorconfig)
+- Use `pylint` for style checking
+- Use `mypy` for type checking
 
 ### Error Handling
 
@@ -622,7 +640,7 @@ DEFGROUP: MokoStandards.Scripts
 INGROUP: MokoStandards.Automation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /scripts/my_script.py
-VERSION: 02.00.00
+VERSION: 03.00.00
 BRIEF: Brief description of script purpose
 """
 ```
@@ -767,7 +785,7 @@ This policy depends on:
 | Owner          | Moko Consulting                                          |
 | Repo           | https://github.com/mokoconsulting-tech/                                      |
 | Path           | /docs/policy/scripting-standards.md                                      |
-| Version        | 02.00.00                                 |
+| Version        | 03.00.00                                 |
 | Status         | Active                                         |
 | Last Reviewed  | 2026-01-28                                  |
 | Reviewed By    | Documentation Team                                    |
@@ -777,4 +795,4 @@ This policy depends on:
 
 | Date       | Author          | Change                                       | Notes                                              |
 | ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
-| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 02.00.00 with all required fields |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 03.00.00 with all required fields |

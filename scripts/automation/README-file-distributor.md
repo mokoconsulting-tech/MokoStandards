@@ -1,4 +1,4 @@
-# File Distributor v02.00.00
+# File Distributor v03.00.00
 
 Enterprise file distribution utility with GUI, depth control, and comprehensive audit logging.
 
@@ -180,7 +180,7 @@ The script is modularized into testable functions:
 
 ## Version History
 
-### v02.00.00 (Current)
+### v03.00.00 (Current)
 - Complete rebuild with modern PowerShell standards
 - Comprehensive comment-based help
 - Parameter validation attributes

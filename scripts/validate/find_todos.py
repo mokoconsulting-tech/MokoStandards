@@ -11,7 +11,7 @@ DEFGROUP: MokoStandards.Scripts.Validate
 INGROUP: MokoStandards.Scripts
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 FILE: scripts/validate/find_todos.py
-VERSION: 02.00.00
+VERSION: 03.00.00
 BRIEF: Finds and reports TODO, FIXME, and other code comments across the codebase
 PATH: /scripts/validate/find_todos.py
 """

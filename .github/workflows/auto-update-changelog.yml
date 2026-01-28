@@ -1,0 +1,266 @@
+name: Auto-Update Changelog on Merge
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+      - master
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  update-changelog:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Configure Git
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+      
+      - name: Extract PR Information
+        id: pr-info
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
+          PR_USER: ${{ github.event.pull_request.user.login }}
+        run: |
+          echo "pr_title=$PR_TITLE" >> $GITHUB_OUTPUT
+          echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+          echo "pr_user=$PR_USER" >> $GITHUB_OUTPUT
+          
+          # Extract labels
+          echo "$PR_LABELS" | jq -r '.[]' > /tmp/labels.txt
+          
+          # Determine change type from labels or PR title
+          if grep -qi "breaking" /tmp/labels.txt || echo "$PR_TITLE" | grep -qi "breaking"; then
+            echo "change_type=Breaking Changes" >> $GITHUB_OUTPUT
+          elif grep -qi "security" /tmp/labels.txt || echo "$PR_TITLE" | grep -qi "security"; then
+            echo "change_type=Security" >> $GITHUB_OUTPUT
+          elif grep -qi "deprecated" /tmp/labels.txt || echo "$PR_TITLE" | grep -qi "deprecat"; then
+            echo "change_type=Deprecated" >> $GITHUB_OUTPUT
+          elif grep -qi "bug\|fix" /tmp/labels.txt || echo "$PR_TITLE" | grep -qi "fix\|bug"; then
+            echo "change_type=Fixed" >> $GITHUB_OUTPUT
+          elif grep -qi "removed\|delete" /tmp/labels.txt || echo "$PR_TITLE" | grep -qi "remov\|delet"; then
+            echo "change_type=Removed" >> $GITHUB_OUTPUT
+          elif grep -qi "changed\|update" /tmp/labels.txt || echo "$PR_TITLE" | grep -qi "chang\|updat"; then
+            echo "change_type=Changed" >> $GITHUB_OUTPUT
+          else
+            echo "change_type=Added" >> $GITHUB_OUTPUT
+          fi
+          
+          # Get current date in ISO format
+          echo "date=$(date -u +%Y-%m-%d)" >> $GITHUB_OUTPUT
+      
+      - name: Parse PR Description for Changelog Content
+        id: parse-pr
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_TITLE: ${{ steps.pr-info.outputs.pr_title }}
+        run: |
+          # Extract changelog content from PR description
+          # Look for sections like "## Summary", "### Changes", etc.
+          
+          CHANGELOG_CONTENT=""
+          
+          # Try to extract from PR body
+          if [ -n "$PR_BODY" ]; then
+            # Look for changelog-ready content
+            echo "$PR_BODY" | grep -A 100 "^## Summary\|^### Summary\|^## Changes" | head -20 > /tmp/pr_content.txt || true
+            
+            if [ -s /tmp/pr_content.txt ]; then
+              CHANGELOG_CONTENT=$(cat /tmp/pr_content.txt | sed 's/^## /### /' | sed 's/^### Summary//' | sed '/^$/d' | head -10)
+            fi
+          fi
+          
+          # If no structured content found, use PR title
+          if [ -z "$CHANGELOG_CONTENT" ]; then
+            CHANGELOG_CONTENT="$PR_TITLE"
+          fi
+          
+          # Save to file for multi-line output
+          echo "$CHANGELOG_CONTENT" > /tmp/changelog_entry.txt
+          echo "has_content=true" >> $GITHUB_OUTPUT
+      
+      - name: Check if CHANGELOG.md exists
+        id: check-changelog
+        run: |
+          if [ -f CHANGELOG.md ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Create CHANGELOG.md if missing
+        if: steps.check-changelog.outputs.exists == 'false'
+        run: |
+          cat > CHANGELOG.md << 'EOF'
+          # Changelog
+
+          All notable changes to this project will be documented in this file.
+
+          The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+          and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+          ## [UNRELEASED]
+
+          ### Added
+          - Initial changelog setup
+
+          EOF
+          
+          git add CHANGELOG.md
+      
+      - name: Update CHANGELOG.md with PR content
+        env:
+          CHANGE_TYPE: ${{ steps.pr-info.outputs.change_type }}
+          PR_NUMBER: ${{ steps.pr-info.outputs.pr_number }}
+          PR_TITLE: ${{ steps.pr-info.outputs.pr_title }}
+          PR_USER: ${{ steps.pr-info.outputs.pr_user }}
+          DATE: ${{ steps.pr-info.outputs.date }}
+        run: |
+          CHANGE_TYPE="$CHANGE_TYPE"
+          PR_NUMBER="$PR_NUMBER"
+          PR_TITLE="$PR_TITLE"
+          PR_USER="$PR_USER"
+          DATE="$DATE"
+          
+          # Read changelog entry content
+          CHANGELOG_CONTENT=$(cat /tmp/changelog_entry.txt)
+          
+          # Create temporary file for new changelog
+          cp CHANGELOG.md /tmp/changelog_old.md
+          
+          # Find the UNRELEASED section
+          if grep -q "## \[UNRELEASED\]" CHANGELOG.md; then
+            # UNRELEASED section exists
+            
+            # Check if the change type section exists under UNRELEASED
+            if grep -A 50 "## \[UNRELEASED\]" CHANGELOG.md | grep -q "### $CHANGE_TYPE"; then
+              # Section exists, add to it
+              awk -v type="### $CHANGE_TYPE" -v entry="- **PR #$PR_NUMBER**: $PR_TITLE (by @$PR_USER)\n  $CHANGELOG_CONTENT" '
+                /^### / {
+                  if ($0 ~ type && !added) {
+                    print $0
+                    print entry
+                    added = 1
+                    next
+                  }
+                }
+                { print }
+              ' CHANGELOG.md > /tmp/changelog_new.md
+            else
+              # Section doesn't exist, create it after UNRELEASED
+              awk -v type="$CHANGE_TYPE" -v entry="- **PR #$PR_NUMBER**: $PR_TITLE (by @$PR_USER)\n  $CHANGELOG_CONTENT" '
+                /^## \[UNRELEASED\]/ {
+                  print $0
+                  print ""
+                  print "### " type
+                  print entry
+                  next
+                }
+                { print }
+              ' CHANGELOG.md > /tmp/changelog_new.md
+            fi
+          else
+            # No UNRELEASED section, create it
+            cat > /tmp/changelog_new.md << EOF
+          # Changelog
+
+          ## [UNRELEASED]
+
+          ### $CHANGE_TYPE
+          - **PR #$PR_NUMBER**: $PR_TITLE (by @$PR_USER)
+            $CHANGELOG_CONTENT
+
+          EOF
+            tail -n +2 CHANGELOG.md >> /tmp/changelog_new.md
+          fi
+          
+          # Replace original with new
+          mv /tmp/changelog_new.md CHANGELOG.md
+          
+          # Format and clean up
+          # Remove excessive blank lines
+          awk 'NF || prev_nf { print; prev_nf = NF }' CHANGELOG.md > /tmp/changelog_clean.md
+          mv /tmp/changelog_clean.md CHANGELOG.md
+      
+      - name: Commit CHANGELOG update
+        id: commit
+        env:
+          PR_NUMBER: ${{ steps.pr-info.outputs.pr_number }}
+          PR_TITLE: ${{ steps.pr-info.outputs.pr_title }}
+          CHANGE_TYPE: ${{ steps.pr-info.outputs.change_type }}
+          PR_USER: ${{ steps.pr-info.outputs.pr_user }}
+        run: |
+          git add CHANGELOG.md
+          
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            echo "committed=false" >> $GITHUB_OUTPUT
+          else
+            git commit -m "docs: Update CHANGELOG.md for PR #$PR_NUMBER
+
+          Automated changelog update based on merged PR.
+
+          PR: #$PR_NUMBER
+          Title: $PR_TITLE
+          Type: $CHANGE_TYPE
+          Author: @$PR_USER
+
+          [skip ci]"
+            
+            git push origin main
+            echo "committed=true" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Post Comment on PR
+        if: steps.commit.outputs.committed == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = ${{ steps.pr-info.outputs.pr_number }};
+            const changeType = '${{ steps.pr-info.outputs.change_type }}';
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: `✅ **CHANGELOG.md automatically updated**
+
+              📝 Added entry under: **${changeType}**
+              🔗 [View CHANGELOG.md](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/CHANGELOG.md)
+
+              This PR's changes have been documented in the changelog.`
+            });
+      
+      - name: Summary
+        if: steps.commit.outputs.committed == 'true'
+        env:
+          PR_NUMBER: ${{ steps.pr-info.outputs.pr_number }}
+          PR_TITLE: ${{ steps.pr-info.outputs.pr_title }}
+          CHANGE_TYPE: ${{ steps.pr-info.outputs.change_type }}
+          PR_DATE: ${{ steps.pr-info.outputs.date }}
+          PR_USER: ${{ steps.pr-info.outputs.pr_user }}
+        run: |
+          echo "## ✅ Changelog Updated Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **PR**: #$PR_NUMBER" >> $GITHUB_STEP_SUMMARY
+          echo "- **Title**: $PR_TITLE" >> $GITHUB_STEP_SUMMARY
+          echo "- **Type**: $CHANGE_TYPE" >> $GITHUB_STEP_SUMMARY
+          echo "- **Date**: $PR_DATE" >> $GITHUB_STEP_SUMMARY
+          echo "- **Author**: @$PR_USER" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "CHANGELOG.md has been updated with the PR information." >> $GITHUB_STEP_SUMMARY

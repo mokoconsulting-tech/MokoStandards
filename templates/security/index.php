@@ -1,61 +1,25 @@
 <?php
-/**
- * Security Redirect
- * 
- * This file prevents directory listing by redirecting to the repository root.
- * 
- * @package    MokoStandards
- * @subpackage Security
- * @license    GPL-3.0-or-later
+/* Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+ *
+ * This file is part of a Moko Consulting project.
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-// Prevent direct access
-if (!defined('REDIRECT_ALLOWED')) {
-    // Redirect to repository root
-    header('Location: /');
-    exit;
-}
-
-// If execution continues, provide fallback HTML
+// Prevent directory listing - redirect to repository root
+header('Location: /');
+exit;
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0;url=/">
-    <meta name="robots" content="noindex, nofollow">
-    <title>Redirecting...</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f5f5f5;
-        }
-        .message {
-            text-align: center;
-            padding: 2rem;
-        }
-        a {
-            color: #0366d6;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-    </style>
-</head>
-<body>
-    <div class="message">
-        <h1>Redirecting...</h1>
-        <p>If you are not redirected automatically, <a href="/">click here</a>.</p>
-    </div>
-    <script>
-        // JavaScript fallback redirect
-        window.location.href = '/';
-    </script>
-</body>
-</html>

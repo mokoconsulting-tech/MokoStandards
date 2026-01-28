@@ -176,7 +176,7 @@ cmd_unstash() {
     read -p "Enter stash number to apply (or press Enter to cancel): " stash_num
     
     if [ -n "$stash_num" ]; then
-        git stash apply stash@{$stash_num}
+        git stash apply "stash@{$stash_num}"
         print_success "Applied stash@{$stash_num}"
     else
         print_info "Cancelled"

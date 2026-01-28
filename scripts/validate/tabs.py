@@ -54,12 +54,12 @@ def get_yaml_files() -> List[str]:
         List of YAML file paths
     """
     try:
-        result = common.run_command(
+        returncode, stdout, stderr = common.run_command(
             ["git", "ls-files", "*.yml", "*.yaml"],
             capture_output=True,
             check=True
         )
-        files = [f.strip() for f in result.stdout.split('\n') if f.strip()]
+        files = [f.strip() for f in stdout.split('\n') if f.strip()]
         return files
     except subprocess.CalledProcessError:
         return []

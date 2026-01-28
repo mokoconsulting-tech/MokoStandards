@@ -11,7 +11,7 @@
 # INGROUP: MokoStandards
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /scripts/validate/check_repo_health.py
-# VERSION: 02.00.00
+# VERSION: 03.00.00
 # BRIEF: Performs repository health checks based on Terraform configuration
 # ============================================================================
 
@@ -42,12 +42,11 @@ DEFAULT_HEALTH_THRESHOLD = 70.0
 class RepoHealthChecker:
     """Performs repository health checks based on Terraform configuration."""
 
-    def __init__(self, config_source: str = None, repo_path: str = "."):
+    def __init__(self, repo_path: str = "."):
         """
         Initialize health checker.
 
         Args:
-            config_source: Ignored (for backward compatibility, uses Terraform now)
             repo_path: Path to repository to check (default: current directory)
         """
         self.repo_path = Path(repo_path).resolve()
@@ -399,10 +398,6 @@ def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(
         description="Check repository health based on Terraform configuration"
-    )
-    parser.add_argument(
-        "--config",
-        help="Ignored (for backward compatibility). Configuration loaded from Terraform.",
     )
     parser.add_argument(
         "--repo-path",

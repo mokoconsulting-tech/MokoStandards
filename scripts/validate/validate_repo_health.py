@@ -103,10 +103,10 @@ class RepoHealthValidator:
             with urllib.request.urlopen(url, timeout=30) as response:
                 # Read response with size limit to prevent excessive memory use
                 return response.read(10 * 1024 * 1024)  # 10MB max
-        except urllib.error.URLError as e:
-            raise Exception(f"Failed to load XML from URL {url}: {e}")
         except urllib.error.HTTPError as e:
             raise Exception(f"HTTP error loading XML from URL {url}: {e.code} {e.reason}")
+        except urllib.error.URLError as e:
+            raise Exception(f"Failed to load XML from URL {url}: {e}")
         except Exception as e:
             raise Exception(f"Unexpected error loading XML from URL {url}: {e}")
 

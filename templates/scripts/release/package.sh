@@ -44,7 +44,7 @@ echo "[INFO] Copying files..."
 cp -r src/* "${PACKAGE_DIR}/" 2>/dev/null || true
 cp -r admin "${PACKAGE_DIR}/" 2>/dev/null || true
 cp -r site "${PACKAGE_DIR}/" 2>/dev/null || true
-cp *.xml "${PACKAGE_DIR}/" 2>/dev/null || true
+cp ./*.xml "${PACKAGE_DIR}/" 2>/dev/null || true
 cp LICENSE* "${PACKAGE_DIR}/" 2>/dev/null || true
 cp CHANGELOG.md "${PACKAGE_DIR}/" 2>/dev/null || true
 

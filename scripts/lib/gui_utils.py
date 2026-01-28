@@ -41,6 +41,7 @@ Provides cross-platform GUI capabilities with:
 """
 
 import sys
+import os
 from pathlib import Path
 from typing import Optional, List, Dict, Any, Callable
 from dataclasses import dataclass
@@ -70,7 +71,7 @@ def is_gui_available() -> bool:
     
     # Check if display is available (Linux/Mac)
     if sys.platform != 'win32':
-        display = sys.platform.startswith('darwin') or 'DISPLAY' in sys.environ
+        display = sys.platform.startswith('darwin') or 'DISPLAY' in os.environ
         if not display:
             return False
     
@@ -466,6 +467,15 @@ class ProgressWindow:
             self.root.destroy()
         else:
             print()  # New line after progress bar
+    
+    def __enter__(self):
+        """Enter context manager"""
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Exit context manager"""
+        self.close()
+        return False  # Don't suppress exceptions
 
 
 # ============================================================

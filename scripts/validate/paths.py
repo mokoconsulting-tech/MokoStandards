@@ -55,12 +55,12 @@ def get_tracked_files() -> List[str]:
         List of file paths
     """
     try:
-        result = common.run_command(
+        returncode, stdout, stderr = common.run_command(
             ["git", "ls-files", "-z"],
             capture_output=True,
             check=True
         )
-        files = [f for f in result.stdout.split('\0') if f.strip()]
+        files = [f for f in stdout.split('\0') if f.strip()]
         return files
     except subprocess.CalledProcessError:
         return []

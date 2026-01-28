@@ -19,7 +19,7 @@ PATH: /scripts/docs/generate_script_catalog.py
 import argparse
 import re
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -132,7 +132,7 @@ def generate_markdown_catalog(categories: Dict[str, List[Dict]], output_path: Op
     lines.append("")
     lines.append("This document provides a comprehensive catalog of all automation scripts in the repository.")
     lines.append("")
-    lines.append(f"**Generated:** {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}")
+    lines.append(f"**Generated:** {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}")
     lines.append("")
     
     # Table of contents

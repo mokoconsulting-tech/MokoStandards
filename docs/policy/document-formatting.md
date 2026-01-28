@@ -23,7 +23,7 @@ DEFGROUP: Documentation.Policy
 INGROUP: MokoStandards
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/document-formatting.md
-VERSION: 01.00.00
+VERSION: 02.00.00
 BRIEF: Authoritative document formatting policy for markdown policy documents.
 NOTE:
 -->
@@ -103,14 +103,32 @@ Unless otherwise specified by a document type specific policy, documents must fo
 
 This section defines each required Metadata field, its purpose, and permitted values. These definitions are authoritative for all markdown policy documents.
 
-| Field         | Description                                                    | Allowed Values / Format                   |
-| ------------- | -------------------------------------------------------------- | ----------------------------------------- |
-| Document Name | Human readable title of the document. Must match the H1 title. | Free text                                 |
-| Path          | Repository relative file path where the document resides.      | Absolute repo path starting with `/docs/` |
-| Repo          | Canonical source repository for the document.                  | HTTPS Git repository URL                  |
-| Owner         | Accountable owner or governing entity.                         | Team name or organization                 |
-| Status        | Governance state of the document.                              | Draft, Active, Authoritative, Deprecated  |
-| Last Reviewed | Date the document was last formally reviewed.                  | YYYY-MM-DD                                |
+| Field          | Description                                                    | Allowed Values / Format                   | Required |
+| -------------- | -------------------------------------------------------------- | ----------------------------------------- | -------- |
+| Document Type  | The category or type of document.                              | Policy, Guide, Checklist, Reference, Report, ADR, Template | Yes |
+| Domain         | The primary domain or area this document covers.               | Documentation, Development, Operations, Security, Governance, Legal, Quality | Yes |
+| Applies To     | Scope of application for this document.                        | All Repositories, Specific Projects, Organization-wide | Yes |
+| Jurisdiction   | Legal jurisdiction governing this document.                    | Tennessee, USA (fixed value)              | Yes |
+| Owner          | Accountable owner or governing entity.                         | Moko Consulting (fixed value)             | Yes |
+| Repo           | Canonical source repository for the document.                  | https://github.com/mokoconsulting-tech/   | Yes |
+| Path           | Repository relative file path where the document resides.      | Absolute repo path starting with `/docs/` | Yes |
+| Version        | Document version in semantic format.                           | XX.XX.XX (e.g., 02.00.00)                 | Yes |
+| Status         | Governance state of the document.                              | Draft, Active, Authoritative, Deprecated  | Yes |
+| Last Reviewed  | Date the document was last formally reviewed.                  | YYYY-MM-DD                                | Yes |
+| Reviewed By    | Person or team who performed the last review.                  | Name or team designation                  | Yes |
+
+## Revision History Format
+
+All documents must include a Revision History section using the following standardized table format:
+
+| Column  | Description                                          | Format               |
+| ------- | ---------------------------------------------------- | -------------------- |
+| Date    | Date of the change                                   | YYYY-MM-DD           |
+| Author  | Person or entity who made the change                 | Name or team         |
+| Change  | Brief description of what changed                    | Short summary        |
+| Notes   | Additional context, rationale, or reference details  | Extended explanation |
+
+The table must include headers and use the pipe-delimited markdown format. Entries must be listed in chronological order from oldest to newest.
 
 ## Combined Markdown Sample
 
@@ -143,20 +161,26 @@ For contribution rules, see the [Contributing Policy](../CONTRIBUTING.md).
 
 ## Metadata
 
-| Field | Value |
-|------|------|
-| Document Name | Example Policy |
-| Path | /docs/policy/example-policy.md |
-| Repo | https://github.com/mokoconsulting-tech/MokoStandards |
-| Owner | Moko Consulting |
-| Status | Active |
-| Last Reviewed | 2026-01-03 |
+| Field          | Value                                                |
+| -------------- | ---------------------------------------------------- |
+| Document Type  | Policy                                               |
+| Domain         | Documentation                                        |
+| Applies To     | All Repositories                                     |
+| Jurisdiction   | Tennessee, USA                                       |
+| Owner          | Moko Consulting                                      |
+| Repo           | https://github.com/mokoconsulting-tech/              |
+| Path           | /docs/policy/example-policy.md                       |
+| Version        | 02.00.00                                             |
+| Status         | Active                                               |
+| Last Reviewed  | 2026-01-28                                           |
+| Reviewed By    | Documentation Team                                   |
 
 ## Revision History
 
-| Date | Description | Author |
-|------|-------------|--------|
-| 2026-01-03 | Initial policy creation | Moko Consulting |
+| Date       | Author          | Change                   | Notes                                    |
+| ---------- | --------------- | ------------------------ | ---------------------------------------- |
+| 2026-01-03 | Moko Consulting | Initial policy creation  | First version following new standards    |
+| 2026-01-28 | Moko Consulting | Updated metadata format  | Added all required metadata fields       |
 ```
 
 ## Compliance and Enforcement
@@ -165,17 +189,23 @@ Documents that do not conform to this policy may be flagged by automated validat
 
 ## Metadata
 
-| Field         | Value                                                                                                        |
-| ------------- | ------------------------------------------------------------------------------------------------------------ |
-| Document Name | Document Formatting Policy                                                                                   |
-| Path          | /docs/policy/document-formatting-policy.md                                                                   |
-| Repo          | [https://github.com/mokoconsulting-tech/MokoStandards](https://github.com/mokoconsulting-tech/MokoStandards) |
-| Owner         | Moko Consulting                                                                                              |
-| Status        | Authoritative                                                                                                |
-| Last Reviewed | 2026-01-03                                                                                                   |
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Policy                                           |
+| Domain         | Documentation                                    |
+| Applies To     | All Repositories                                 |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                  |
+| Repo           | https://github.com/mokoconsulting-tech/          |
+| Path           | /docs/policy/document-formatting.md              |
+| Version        | 02.00.00                                         |
+| Status         | Authoritative                                    |
+| Last Reviewed  | 2026-01-28                                       |
+| Reviewed By    | Documentation Team                               |
 
 ## Revision History
 
-| Date       | Description                                       | Author          |
-| ---------- | ------------------------------------------------- | --------------- |
-| 2026-01-03 | Initial policy creation and authority designation | Moko Consulting |
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-03 | Moko Consulting | Initial policy creation                      | Authority designation for document formatting      |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Added all required fields, updated to version 02.00.00 |

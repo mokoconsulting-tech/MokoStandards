@@ -169,7 +169,8 @@ jobs:
               repo: context.repo.repo,
               title: `Development Branch: ${branchName}`,
               body: issueBody,
-              labels: ['automation', 'version-management', 'dev-branch']
+              labels: ['automation', 'version-management', 'dev-branch'],
+              assignees: ['copilot', 'jmiller-moko']
             });
       
       - name: Comment on merged PR

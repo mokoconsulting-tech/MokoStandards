@@ -39,8 +39,9 @@ def main():
     print("MokoStandards - Dry Run Test")
     print("="*70)
     
-    # Use relative path from script location to avoid hardcoded paths
-    repo_path = Path(__file__).parent.parent.parent
+    # Get repository root (script is located at scripts/tests/test_dry_run.py)
+    # Go up 3 levels: test_dry_run.py -> tests/ -> scripts/ -> repo_root/
+    repo_path = Path(__file__).parent.parent.parent.resolve()
     
     # Check documents
     print("\n📋 Checking Canonical Documents...")

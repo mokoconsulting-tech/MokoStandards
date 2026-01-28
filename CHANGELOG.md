@@ -81,7 +81,7 @@
 ## [02.00.00] - 2026-01-28
 ### Changed - Major Version: Standardized Metadata and Terraform Migration
 - **BREAKING CHANGE**: Standardized metadata across all documentation
-  - **All documents updated to version 03.00.00**
+  - **All documents updated to version 02.00.00**
   - Added 11 required metadata fields (was 6):
     - Document Type (Policy, Guide, Checklist, Reference, Report, ADR, etc.)
     - Domain (Governance, Documentation, Operations, Security, etc.)
@@ -90,7 +90,7 @@
     - Owner: Moko Consulting (standardized)
     - Repo: https://github.com/mokoconsulting-tech/ (standardized)
     - Path (repository-relative path)
-    - Version (03.00.00 semantic versioning)
+    - Version (02.00.00 semantic versioning)
     - Status (Draft, Active, Authoritative, Deprecated)
     - Last Reviewed (YYYY-MM-DD)
     - Reviewed By (new required field)

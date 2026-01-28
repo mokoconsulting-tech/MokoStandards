@@ -106,7 +106,7 @@ npx eslint . --fix
 
 **Features**:
 - ES2021 support
-- 2-space indentation
+- Tab indentation (2-space visual width)
 - Unix line endings
 - Single quotes for strings
 - Semicolon enforcement
@@ -133,7 +133,7 @@ npx prettier --write .
 - 100 character line width
 - Single quotes
 - Trailing commas (ES5)
-- 2-space tabs
+- Tab indentation (2-space visual width)
 
 ### Python Tools
 

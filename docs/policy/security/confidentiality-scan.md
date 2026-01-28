@@ -1,3 +1,32 @@
+<!--
+Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+
+This file is part of a Moko Consulting project.
+
+SPDX-License-Identifier: GPL-3.0-or-later
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+# FILE INFORMATION
+DEFGROUP: MokoStandards.Policy
+INGROUP: MokoStandards.Security
+REPO: https://github.com/mokoconsulting-tech/MokoStandards
+PATH: /docs/policy/security/confidentiality-scan.md
+VERSION: 03.00.00
+BRIEF: Confidentiality scan workflow documentation and usage guide
+-->
+
 # Confidentiality Scan
 
 ## Overview
@@ -179,8 +208,22 @@ To customize the confidentiality scan for your organization:
 
 ## Metadata
 
-- **File:** `docs/policy/security/confidentiality-scan.md`
-- **Workflow:** `.github/workflows/confidentiality-scan.yml`
-- **Version:** 1.0.0
-- **Last Updated:** 2026-01-28
-- **Maintained by:** Security Team
+| Field          | Value                                                                 |
+| -------------- | --------------------------------------------------------------------- |
+| Document Type  | Policy                                                                |
+| Domain         | Security                                                              |
+| Applies To     | All Repositories                                                      |
+| Jurisdiction   | Tennessee, USA                                                        |
+| Owner          | Moko Consulting                                                       |
+| Repo           | https://github.com/mokoconsulting-tech/MokoStandards                  |
+| Path           | /docs/policy/security/confidentiality-scan.md                         |
+| Version        | 03.00.00                                                              |
+| Status         | Active                                                                |
+| Last Reviewed  | 2026-01-28                                                            |
+| Reviewed By    | Security Team                                                         |
+
+## Revision History
+
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Initial confidentiality scan documentation   | Created comprehensive workflow documentation       |

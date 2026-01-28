@@ -480,7 +480,7 @@ except Exception as e:
 | 04.01.00 | 2026-01-15 | Current version with full feature set |
 | 04.00.00 | 2025-12-01 | Added header generation functions |
 | 03.00.00 | 2025-11-01 | Added path utilities |
-| 03.00.00 | 2025-10-01 | Added repository utilities |
+| 02.00.00 | 2025-10-01 | Added repository utilities |
 | 01.00.00 | 2025-09-01 | Initial release with logging and error handling |
 
 ## Related Libraries

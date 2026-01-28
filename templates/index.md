@@ -396,7 +396,8 @@ To contribute new templates or improvements:
 
 | Version  | Date       | Author                          | Notes                                           |
 | -------- | ---------- | ------------------------------- | ----------------------------------------------- |
+| 03.00.00 | 2026-01-28 | GitHub Copilot                  | Version bump to 03.00.00 across repository      |
 | 02.02.00 | 2026-01-16 | GitHub Copilot                  | Removed repos/ - moved to individual scaffold repositories |
 | 02.01.00 | 2026-01-16 | GitHub Copilot                  | Added security templates section and reorganized for usability |
-| 03.00.00 | 2026-01-13 | GitHub Copilot                  | Comprehensive templates catalog creation        |
+| 02.00.00 | 2026-01-13 | GitHub Copilot                  | Comprehensive templates catalog creation        |
 | 01.00.00 | 2025-01-XX | rebuild_indexes.py              | Auto-generated initial index                    |

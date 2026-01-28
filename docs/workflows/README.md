@@ -563,8 +563,8 @@ For issues with templates:
 
 | Version | Date | Changes |
 |---|---|---|
-| 01.00.00 | 2026-01-07 | Initial comprehensive workflow documentation |
 | 03.00.00 | 2026-01-07 | Added public workflow templates documentation (build-universal, release-cycle, dependency-review, standards-compliance) |
+| 01.00.00 | 2026-01-07 | Initial comprehensive workflow documentation |
 
 ## See Also
 

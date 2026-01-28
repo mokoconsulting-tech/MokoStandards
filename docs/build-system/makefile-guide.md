@@ -1396,8 +1396,8 @@ endif
 
 | Version | Date | Changes |
 |---|---|---|
-| 01.00.00 | 2026-01-07 | Initial Makefile creation guide with standards and best practices |
 | 03.00.00 | 2026-01-13 | Added advanced patterns, best practices, CI/CD integration, debugging, and platform-specific sections |
+| 01.00.00 | 2026-01-07 | Initial Makefile creation guide with standards and best practices |
 
 ## Revision History
 

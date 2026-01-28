@@ -284,10 +284,12 @@ function processOrder($order) {
 
 ### Indentation
 
-- **Use spaces, not tabs** (unless language convention dictates otherwise)
-- **4 spaces** for PHP, Python
-- **2 spaces** for JavaScript/TypeScript, JSON, YAML
-- Configure editor to insert spaces
+- **Use tabs, not spaces** (MokoStandards default)
+- **Tab width**: 2 spaces for display/visual width
+- **Exceptions where language specification requires spaces:**
+  - **YAML files**: Must use spaces (YAML specification requirement)
+  - **Makefiles**: Must use tabs (Make specification requirement)
+- Configure editor to use tabs (see .editorconfig)
 - Be consistent within each file
 
 ### Line Length
@@ -593,19 +595,24 @@ For detailed language-specific standards, see:
 ```ini
 root = true
 
+# Default settings — Tabs preferred, width = 2 spaces
 [*]
 charset = utf-8
 end_of_line = lf
 insert_final_newline = true
 trim_trailing_whitespace = true
+indent_style = tab
+tab_width = 2
 
-[*.{php,py}]
-indent_style = space
-indent_size = 4
-
-[*.{js,ts,json,yml,yaml}]
+# YAML files — spaces only (YAML spec requires spaces)
+[*.{yml,yaml}]
 indent_style = space
 indent_size = 2
+
+# Makefiles — always tabs (Make spec requires tabs)
+[Makefile]
+indent_style = tab
+tab_width = 2
 ```
 
 ## Compliance and Enforcement

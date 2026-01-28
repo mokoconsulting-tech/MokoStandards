@@ -23,6 +23,21 @@
 
 # Changelog
 
+## [UNRELEASED]
+
+### Changed - Indentation Policy Clarification
+- **Documentation Standards**: Updated coding and scripting standards to clarify tabs-over-spaces policy
+  - Updated `docs/policy/coding-style-guide.md` to specify tabs as MokoStandards default
+    - Changed "Use spaces, not tabs" to "Use tabs, not spaces"
+    - Added explicit exceptions for YAML (spec requires spaces) and Makefiles (spec requires tabs)
+    - Updated .editorconfig example to show tabs as default with proper exceptions
+  - Updated `docs/policy/scripting-standards.md` to add Code Formatting section
+    - Explicitly states: "Use tabs, not spaces (MokoStandards standard)"
+    - Clarifies tab width of 2 spaces for visual display
+    - Documents YAML exception (must use spaces per specification)
+  - Aligns policy documentation with existing `.editorconfig` which already specified tabs
+  - Resolves previous contradiction where `.editorconfig` used tabs but policy docs said spaces
+
 ## [03.00.00] - 2026-01-28
 
 ### Changed - Major Version: Repository Standards and Documentation Improvements

@@ -268,6 +268,24 @@ def sync_file_to_project(
 
 **Docstring Format**: Use Google style docstrings
 
+### Code Formatting
+
+**Indentation**: Use tabs, not spaces (MokoStandards standard)
+
+- Configure editor to use tabs with 2-space visual width
+- Follow .editorconfig settings in repository root
+- Be consistent throughout script
+- **Exception**: YAML configuration files must use spaces (YAML specification requirement)
+
+**Line length**: 
+- Maximum 120 characters per line
+- Break long lines at logical points
+
+**Formatting tools**:
+- Use `black` for Python formatting (configure for tabs if possible, or follow project .editorconfig)
+- Use `pylint` for style checking
+- Use `mypy` for type checking
+
 ### Error Handling
 
 **Proper error handling is REQUIRED:**

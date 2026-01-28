@@ -426,6 +426,7 @@ See [Scripts Documentation](scripts/README.md) and [Scripts Architecture](script
 - [Makefile Guide](docs/build-system/makefile-guide.md) - Makefile usage
 - [Release Management](docs/release-management/README.md) - Release cycle
 - [Version Standards](docs/release-management/versioning.md) - Semantic versioning
+- **Automatic Releases**: Version bumps in `CITATION.cff` or `pyproject.toml` on `main` branch automatically create GitHub releases (no build required)
 
 ### Project Management
 - [Repository Inventory](docs/reference/REPOSITORY_INVENTORY.md) - All coupled repositories

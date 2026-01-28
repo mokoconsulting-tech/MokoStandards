@@ -39,21 +39,27 @@ MokoStandards aims to be the comprehensive, authoritative source for repository 
 
 ## Versioning Strategy
 
-MokoStandards follows semantic versioning (MAJOR.MINOR.PATCH) with a **one major version per year** release cadence:
+MokoStandards follows semantic versioning (MAJOR.MINOR.PATCH) with a **suggested one major version per year** release cadence:
 
-- **Major Version**: Released annually, contains breaking changes and significant new features
+- **Major Version**: Suggested annually, contains breaking changes and significant new features (cadence may vary based on development needs)
 - **Minor Version**: Released quarterly or as features complete, backward-compatible enhancements
 - **Patch Version**: Released as needed for bug fixes and documentation updates
 
+**Note**: The annual major version cadence is a planning guideline, not a strict requirement. Actual releases depend on feature readiness, stability, and organizational needs.
+
 ### Version Schedule (2026-2030)
 
-| Year | Major Version | Release Date | Status |
-|------|---------------|--------------|--------|
+**Planning Guideline**: The table below represents the suggested planning timeline. Actual major version releases may be adjusted based on feature readiness, breaking change accumulation, and organizational priorities.
+
+| Year | Suggested Major Version | Target Release | Status |
+|------|------------------------|----------------|--------|
 | 2026 | v03.x.x | January 2026 | ✅ Active (current) |
-| 2027 | v04.x.x | January 2027 | 📋 Planned |
-| 2028 | v05.x.x | January 2028 | 📋 Planned |
-| 2029 | v06.x.x | January 2029 | 📋 Planned |
-| 2030 | v07.x.x | January 2030 | 📋 Planned |
+| 2027 | v04.x.x | January 2027 | 📋 Planned (suggested) |
+| 2028 | v05.x.x | January 2028 | 📋 Planned (suggested) |
+| 2029 | v06.x.x | January 2029 | 📋 Planned (suggested) |
+| 2030 | v07.x.x | January 2030 | 📋 Planned (suggested) |
+
+**Flexibility Note**: If breaking changes accumulate faster or slower than expected, major versions may be released more frequently or extended. The goal is meaningful major versions, not calendar compliance.
 
 ## Current Status
 

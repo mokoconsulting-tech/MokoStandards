@@ -1073,3 +1073,37 @@ jobs:
             git log -1 --pretty=fuller || true
             echo "\`\`\`"
           } >> "${GITHUB_STEP_SUMMARY}"
+
+
+# RELEASE PIPELINE NOTES:
+#
+# This workflow handles the release pipeline from development branches through to production.
+# It supports both release candidate (rc) and stable release flows.
+#
+# AUTOMATIC BRANCH CREATION:
+#   After successful merge to main, a separate workflow (auto-create-dev-branch.yml)
+#   automatically creates the next development branch:
+#   1. Extracts current version from CHANGELOG.md or VERSION file
+#   2. Increments patch version (e.g., 1.2.3 → 1.2.4)
+#   3. Creates new dev/<next-version> branch from main
+#   4. Posts comment on merged PR and creates tracking issue
+#
+#   This ensures continuous development readiness after each release.
+#
+# BRANCH NAMING CONVENTIONS:
+#   - dev/<version>    → Development branch for specific version
+#   - rc/<version>     → Release candidate branch
+#   - version/<version> → Tagged release branch
+#   - main             → Production-ready code
+#
+# SEMANTIC VERSIONING:
+#   - MAJOR.MINOR.PATCH format (e.g., 1.2.3)
+#   - MAJOR: Breaking changes
+#   - MINOR: New features (backward compatible)
+#   - PATCH: Bug fixes (backward compatible)
+#
+# CUSTOMIZATION:
+#   - Modify guard rails for your authorization requirements
+#   - Add custom build/test steps in respective jobs
+#   - Configure notifications (Slack, Teams, etc.)
+#   - Adjust auto-branch creation in .github/workflows/auto-create-dev-branch.yml

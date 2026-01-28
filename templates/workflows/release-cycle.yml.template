@@ -753,9 +753,21 @@ jobs:
 #
 # Normal Release:
 #   main → dev/X.Y.Z → rc/X.Y.Z → version/X.Y.Z → main (tagged vX.Y.Z)
+#   └─ Auto-creates dev/X.Y.(Z+1) after merge to main
 #
 # Hotfix:
 #   main → hotfix/X.Y.Z → main (tagged vX.Y.Z)
+#   └─ Auto-creates dev/X.Y.(Z+1) after merge to main
+#
+# AUTOMATIC BRANCH CREATION:
+#   After any PR merge to main, the auto-create-dev-branch.yml workflow:
+#   1. Extracts current version from CHANGELOG.md
+#   2. Increments patch version (e.g., 1.2.3 → 1.2.4)
+#   3. Creates new dev/<next-version> branch from main
+#   4. Posts comment on merged PR with branch details
+#   5. Creates tracking issue for the new dev branch
+#
+#   This ensures there's always a ready dev branch for the next patch release.
 #
 # SEMANTIC VERSIONING:
 #   - MAJOR version: incompatible API changes
@@ -767,3 +779,5 @@ jobs:
 #   - Add build/test steps before creating releases
 #   - Customize release notes generation
 #   - Add notification steps (Slack, email, etc.)
+#   - Auto-branch creation is handled by separate workflow
+#   - See .github/workflows/auto-create-dev-branch.yml for configuration

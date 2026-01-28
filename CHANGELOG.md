@@ -25,6 +25,19 @@
 
 ## [UNRELEASED]
 
+### Added - Automatic Development Branch Creation
+- **Workflow Automation**: Created workflow to automatically create dev branches after PR merge
+  - Created `.github/workflows/auto-create-dev-branch.yml`
+  - Triggers on PR merge to main branch
+  - Automatically extracts current version from CHANGELOG.md or VERSION file
+  - Calculates next patch version (e.g., 03.00.00 -> 03.00.01)
+  - Creates new branch `dev/<next-version>` from main
+  - Creates tracking issue documenting the new branch
+  - Comments on merged PR with branch information
+  - Prevents duplicate branches (checks if branch already exists)
+  - Supports both zero-padded (XX.YY.ZZ) and standard semver (X.Y.Z) formats
+  - Provides workflow summary with version details
+
 ### Added - Terraform Workflow Templates and Infrastructure Management
 - **Terraform Support**: Added comprehensive Terraform workflow templates
   - Created `templates/workflows/terraform/ci.yml` - Terraform validation, formatting, planning, and security scanning

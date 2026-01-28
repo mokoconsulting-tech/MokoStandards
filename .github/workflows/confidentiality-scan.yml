@@ -411,6 +411,110 @@ jobs:
               body: body
             });
 
+      - name: Create tracking issue for violations
+        if: |
+          (steps.org_scan.outcome == 'failure' || steps.secret_scan.outcome == 'failure' || 
+           steps.doc_scan.outcome == 'failure') && github.event_name == 'push'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const orgViolations = '${{ steps.org_scan.outputs.violations_found }}' || '0';
+            const secretViolations = '${{ steps.secret_scan.outputs.secrets_found }}' || '0';
+            const docViolations = '${{ steps.doc_scan.outputs.internal_docs_found }}' || '0';
+            
+            let body = `## 🔒 Confidentiality Scan Violations Detected
+            
+            **Branch**: \`${context.ref}\`
+            **Commit**: ${context.sha.substring(0, 7)}
+            **Triggered by**: @${context.actor}
+            **Date**: ${new Date().toISOString()}
+            
+            ### Summary
+            - Organization-specific patterns: ${orgViolations}
+            - Potential secrets: ${secretViolations}
+            - Internal documentation references: ${docViolations}
+            
+            `;
+            
+            // Add violation details
+            if (orgViolations > 0) {
+              try {
+                const violationDetails = fs.readFileSync('/tmp/violation_details.txt', 'utf8');
+                body += '\n### 🚨 Organization-Specific References\n\n' + violationDetails + '\n';
+              } catch (err) {
+                body += '\n_Violation details could not be loaded._\n';
+              }
+            }
+            
+            if (secretViolations > 0) {
+              try {
+                const secretDetails = fs.readFileSync('/tmp/secret_details.txt', 'utf8');
+                body += '\n### 🔑 Potential Secrets Detected\n\n' + secretDetails + '\n';
+              } catch (err) {
+                body += '\n_Secret details could not be loaded._\n';
+              }
+            }
+            
+            if (docViolations > 0) {
+              try {
+                const docDetails = fs.readFileSync('/tmp/internal_doc_details.txt', 'utf8');
+                body += '\n### 📍 Internal Documentation References\n\n' + docDetails + '\n';
+              } catch (err) {
+                body += '\n_Internal doc details could not be loaded._\n';
+              }
+            }
+            
+            body += `
+            ### ⚠️ Action Required
+            1. Review the violations listed above with file names and line numbers
+            2. Remove or generalize organization-specific content
+            3. Replace any hardcoded secrets with GitHub Secrets
+            4. Update internal references to public equivalents
+            
+            ### 📚 Resources
+            - [Two-Tier Architecture](docs/TWO_TIER_ARCHITECTURE.md)
+            - [Standards Coordination](STANDARDS_COORDINATION.md)
+            - [Private Repository Reference](docs/guide/PRIVATE_REPOSITORY_REFERENCE.md)
+            
+            ### ✅ Resolution
+            Once violations are addressed, this issue will be automatically closed on the next successful scan.
+            
+            ---
+            *This issue was automatically created by the Confidentiality Scan workflow.*
+            `;
+            
+            // Check for existing open issue
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'confidentiality-violation',
+              per_page: 1
+            });
+            
+            if (issues.data.length > 0) {
+              // Update existing issue
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issues.data[0].number,
+                body: `### 🔄 New Violations Detected\n\n${body}`
+              });
+              console.log(`Updated existing issue #${issues.data[0].number}`);
+            } else {
+              // Create new issue
+              const issue = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `[Security] Confidentiality Scan Violations - ${new Date().toISOString().split('T')[0]}`,
+                body: body,
+                labels: ['security', 'confidentiality-violation', 'automation'],
+                assignees: ['copilot', 'jmiller-moko']
+              });
+              console.log(`Created new issue #${issue.data.number}`);
+            }
+
       - name: Fail if violations found
         if: steps.org_scan.outcome == 'failure' || steps.secret_scan.outcome == 'failure'
         run: |

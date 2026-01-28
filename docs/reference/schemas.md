@@ -287,10 +287,10 @@ python scripts/validate/check_repo_health.py --output json > health-report.json
 
 ```makefile
 validate-structure:
-  python scripts/validate/validate_structure.py schemas/structures/crm-module.xml .
+	python scripts/validate/validate_structure.py schemas/structures/crm-module.xml .
 
 generate-stubs:
-  python scripts/validate/generate_stubs.py schemas/structures/crm-module.xml .
+	python scripts/validate/generate_stubs.py schemas/structures/crm-module.xml .
 ```
 
 #### GitHub Actions
@@ -307,10 +307,10 @@ generate-stubs:
 
 ```makefile
 check-health:
-  python scripts/validate/check_repo_health.py --repo-path .
+	python scripts/validate/check_repo_health.py --repo-path .
 
 validate-health-config:
-  python scripts/validate/validate_repo_health.py schemas/repo-health-default.xml
+	python scripts/validate/validate_repo_health.py schemas/repo-health-default.xml
 ```
 
 #### GitHub Actions

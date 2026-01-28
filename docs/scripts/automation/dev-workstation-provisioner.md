@@ -100,8 +100,8 @@ The provisioner generates a monthly maintenance script with the following charac
 * Runs `winget upgrade --all` unattended.
 * Explicitly excludes:
 
-  * `Python.Python.3.10`
-  * `PHP.PHP`
+	* `Python.Python.3.10`
+	* `PHP.PHP`
 * Writes execution logs to `C:\Logs\Winget`.
 * Generates date-stamped log files for audit review.
 

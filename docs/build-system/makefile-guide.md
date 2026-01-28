@@ -99,13 +99,13 @@ COLOR_GREEN := \033[32m
 
 .PHONY: help
 help: ## Show help
-  @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-    awk 'BEGIN {FS = ":.*?## "}; {printf "  %-20s %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
+		awk 'BEGIN {FS = ":.*?## "}; {printf "  %-20s %s\n", $$1, $$2}'
 
 .PHONY: build
 build: ## Build project
-  @echo "Building $(PROJECT_NAME) v$(VERSION)..."
-  # Build commands here
+	@echo "Building $(PROJECT_NAME) v$(VERSION)..."
+	# Build commands here
 
 # ==============================================================================
 # DEFAULT TARGET
@@ -128,9 +128,9 @@ All MokoStandards Makefiles MUST implement these core targets:
 ```makefile
 .PHONY: help
 help: ## Show this help message
-  @echo "Available targets:"
-  @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-    awk 'BEGIN {FS = ":.*?## "}; {printf "  %-20s %s\n", $$1, $$2}'
+	@echo "Available targets:"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
+		awk 'BEGIN {FS = ":.*?## "}; {printf "  %-20s %s\n", $$1, $$2}'
 ```
 
 **Best practices**:
@@ -147,12 +147,12 @@ help: ## Show this help message
 ```makefile
 .PHONY: install-deps
 install-deps: ## Install all dependencies
-  @if [ -f "composer.json" ]; then \
-    $(COMPOSER) install; \
-  fi
-  @if [ -f "package.json" ]; then \
-    $(NPM) install; \
-  fi
+	@if [ -f "composer.json" ]; then \
+		$(COMPOSER) install; \
+	fi
+	@if [ -f "package.json" ]; then \
+		$(NPM) install; \
+	fi
 ```
 
 **Best practices**:
@@ -168,10 +168,10 @@ install-deps: ## Install all dependencies
 ```makefile
 .PHONY: build
 build: clean validate ## Build project
-  @echo "Building $(PROJECT_NAME)..."
-  @mkdir -p $(BUILD_DIR) $(DIST_DIR)
-  # Build steps here
-  @echo "✓ Build complete"
+	@echo "Building $(PROJECT_NAME)..."
+	@mkdir -p $(BUILD_DIR) $(DIST_DIR)
+	# Build steps here
+	@echo "✓ Build complete"
 ```
 
 **Best practices**:
@@ -188,10 +188,10 @@ build: clean validate ## Build project
 ```makefile
 .PHONY: clean
 clean: ## Clean build artifacts
-  @echo "Cleaning..."
-  @rm -rf $(BUILD_DIR) $(DIST_DIR)
-  @find . -name "*.log" -delete
-  @echo "✓ Cleaned"
+	@echo "Cleaning..."
+	@rm -rf $(BUILD_DIR) $(DIST_DIR)
+	@find . -name "*.log" -delete
+	@echo "✓ Cleaned"
 ```
 
 **Best practices**:
@@ -207,12 +207,12 @@ clean: ## Clean build artifacts
 ```makefile
 .PHONY: test
 test: ## Run tests
-  @if [ -f "$(PHPUNIT)" ]; then \
-    $(PHPUNIT); \
-  fi
-  @if [ -f "package.json" ] && grep -q "test" package.json; then \
-    $(NPM) test; \
-  fi
+	@if [ -f "$(PHPUNIT)" ]; then \
+		$(PHPUNIT); \
+	fi
+	@if [ -f "package.json" ] && grep -q "test" package.json; then \
+		$(NPM) test; \
+	fi
 ```
 
 **Best practices**:
@@ -228,8 +228,8 @@ test: ## Run tests
 ```makefile
 .PHONY: package
 package: build ## Create distribution package
-  @cd $(BUILD_DIR) && zip -r ../$(DIST_DIR)/$(PROJECT_NAME)-$(VERSION).zip .
-  @echo "✓ Package: $(DIST_DIR)/$(PROJECT_NAME)-$(VERSION).zip"
+	@cd $(BUILD_DIR) && zip -r ../$(DIST_DIR)/$(PROJECT_NAME)-$(VERSION).zip .
+	@echo "✓ Package: $(DIST_DIR)/$(PROJECT_NAME)-$(VERSION).zip"
 ```
 
 **Best practices**:
@@ -249,11 +249,11 @@ package: build ## Create distribution package
 EXTENSION_TYPE := module  # module, plugin, component, package, template
 
 ifeq ($(EXTENSION_TYPE),module)
-  PACKAGE_PREFIX := mod_$(EXTENSION_NAME)
+	PACKAGE_PREFIX := mod_$(EXTENSION_NAME)
 else ifeq ($(EXTENSION_TYPE),plugin)
-  PACKAGE_PREFIX := plg_$(PLUGIN_GROUP)_$(EXTENSION_NAME)
+	PACKAGE_PREFIX := plg_$(PLUGIN_GROUP)_$(EXTENSION_NAME)
 else ifeq ($(EXTENSION_TYPE),component)
-  PACKAGE_PREFIX := com_$(EXTENSION_NAME)
+	PACKAGE_PREFIX := com_$(EXTENSION_NAME)
 endif
 ```
 
@@ -262,9 +262,9 @@ endif
 ```makefile
 .PHONY: dev-install
 dev-install: ## Create development symlink
-  @rm -rf $(JOOMLA_MODULES)
-  @ln -s $(PWD) $(JOOMLA_MODULES)
-  @echo "✓ Development symlink created"
+	@rm -rf $(JOOMLA_MODULES)
+	@ln -s $(PWD) $(JOOMLA_MODULES)
+	@echo "✓ Development symlink created"
 ```
 
 ### Dolibarr-Specific Targets
@@ -274,11 +274,11 @@ dev-install: ## Create development symlink
 ```makefile
 .PHONY: validate-structure
 validate-structure: ## Validate Dolibarr module structure
-  @if [ ! -d "core/modules" ]; then \
-    echo "✗ Missing core/modules/ directory"; \
-    exit 1; \
-  fi
-  @echo "✓ Module structure valid"
+	@if [ ! -d "core/modules" ]; then \
+		echo "✗ Missing core/modules/ directory"; \
+		exit 1; \
+	fi
+	@echo "✓ Module structure valid"
 ```
 
 #### Translation Compilation
@@ -286,11 +286,11 @@ validate-structure: ## Validate Dolibarr module structure
 ```makefile
 .PHONY: compile-translations
 compile-translations: ## Compile .po to .mo files
-  @for po in langs/*/*.po; do \
-    mo=$${po%.po}.mo; \
-    msgfmt -o "$$mo" "$$po"; \
-  done
-  @echo "✓ Translations compiled"
+	@for po in langs/*/*.po; do \
+		mo=$${po%.po}.mo; \
+		msgfmt -o "$$mo" "$$po"; \
+	done
+	@echo "✓ Translations compiled"
 ```
 
 #### Database Migration Checks
@@ -298,9 +298,9 @@ compile-translations: ## Compile .po to .mo files
 ```makefile
 .PHONY: check-migrations
 check-migrations: ## Check SQL migration files
-  @if [ -d "sql" ]; then \
-    find sql -name "*.sql" -exec echo "  {}" \;; \
-  fi
+	@if [ -d "sql" ]; then \
+		find sql -name "*.sql" -exec echo "  {}" \;; \
+	fi
 ```
 
 ### Generic Project Targets
@@ -310,18 +310,18 @@ check-migrations: ## Check SQL migration files
 ```makefile
 .PHONY: lint
 lint: ## Run linters for all languages
-  # PHP
-  @find src -name "*.php" -exec php -l {} \;
-  
-  # JavaScript
-  @if [ -f "package.json" ]; then \
-    npm run lint; \
-  fi
-  
-  # Python
-  @if [ -f "requirements.txt" ]; then \
-    flake8 src/; \
-  fi
+	# PHP
+	@find src -name "*.php" -exec php -l {} \;
+	
+	# JavaScript
+	@if [ -f "package.json" ]; then \
+		npm run lint; \
+	fi
+	
+	# Python
+	@if [ -f "requirements.txt" ]; then \
+		flake8 src/; \
+	fi
 ```
 
 ## Integration with GitHub Actions
@@ -333,7 +333,7 @@ Make targets should work seamlessly in CI/CD:
 ```makefile
 .PHONY: ci
 ci: install-deps validate test build ## Run CI pipeline
-  @echo "✓ CI pipeline complete"
+	@echo "✓ CI pipeline complete"
 ```
 
 **Best practices**:
@@ -369,11 +369,11 @@ ci: install-deps validate test build ## Run CI pipeline
 ```makefile
 .PHONY: composer-install
 composer-install: ## Install Composer dependencies
-  @if [ "$(BUILD_TYPE)" = "production" ]; then \
-    $(COMPOSER) install --no-dev --optimize-autoloader --no-interaction; \
-  else \
-    $(COMPOSER) install --no-interaction; \
-  fi
+	@if [ "$(BUILD_TYPE)" = "production" ]; then \
+		$(COMPOSER) install --no-dev --optimize-autoloader --no-interaction; \
+	else \
+		$(COMPOSER) install --no-interaction; \
+	fi
 ```
 
 ### npm (Node.js)
@@ -381,11 +381,11 @@ composer-install: ## Install Composer dependencies
 ```makefile
 .PHONY: npm-install
 npm-install: ## Install npm dependencies
-  @if [ "$(BUILD_TYPE)" = "production" ]; then \
-    $(NPM) ci --production; \
-  else \
-    $(NPM) ci; \
-  fi
+	@if [ "$(BUILD_TYPE)" = "production" ]; then \
+		$(NPM) ci --production; \
+	else \
+		$(NPM) ci; \
+	fi
 ```
 
 ### Conditional Dependencies
@@ -393,16 +393,16 @@ npm-install: ## Install npm dependencies
 ```makefile
 .PHONY: install-deps
 install-deps: ## Install dependencies based on available configs
-  @echo "Installing dependencies..."
-  @if [ -f "composer.json" ]; then \
-    make composer-install; \
-  fi
-  @if [ -f "package.json" ]; then \
-    make npm-install; \
-  fi
-  @if [ -f "requirements.txt" ]; then \
-    pip install -r requirements.txt; \
-  fi
+	@echo "Installing dependencies..."
+	@if [ -f "composer.json" ]; then \
+		make composer-install; \
+	fi
+	@if [ -f "package.json" ]; then \
+		make npm-install; \
+	fi
+	@if [ -f "requirements.txt" ]; then \
+		pip install -r requirements.txt; \
+	fi
 ```
 
 ## Advanced Makefile Techniques
@@ -424,15 +424,15 @@ ARCHIVE := $(DIST_DIR)/$(PACKAGE_NAME).tar.gz
 ```makefile
 # Define a function to check if command exists
 define check_command
-  @command -v $(1) >/dev/null 2>&1 || { \
-    echo "Error: $(1) not installed"; \
-    exit 1; \
-  }
+	@command -v $(1) >/dev/null 2>&1 || { \
+		echo "Error: $(1) not installed"; \
+		exit 1; \
+	}
 endef
 
 install-deps:
-  $(call check_command,composer)
-  $(call check_command,npm)
+	$(call check_command,composer)
+	$(call check_command,npm)
 ```
 
 ### Conditional Execution
@@ -440,15 +440,15 @@ install-deps:
 ```makefile
 # Execute different commands based on OS
 ifeq ($(shell uname),Darwin)
-  OPEN := open
+	OPEN := open
 else
-  OPEN := xdg-open
+	OPEN := xdg-open
 endif
 
 .PHONY: docs
 docs:
-  @phpdoc -d src -t docs
-  @$(OPEN) docs/index.html
+	@phpdoc -d src -t docs
+	@$(OPEN) docs/index.html
 ```
 
 ### Pattern Rules
@@ -456,7 +456,7 @@ docs:
 ```makefile
 # Compile all .scss files to .css
 %.css: %.scss
-  sass $< $@
+	sass $< $@
 
 # Process all SCSS files
 CSS_FILES := $(patsubst %.scss,%.css,$(wildcard styles/*.scss))
@@ -471,21 +471,21 @@ compile-styles: $(CSS_FILES)
 # Use @ to suppress command echo
 .PHONY: quiet
 quiet:
-  @echo "This message appears"
-  @command_that_is_hidden
+	@echo "This message appears"
+	@command_that_is_hidden
 
 # Verbose mode
 V ?= 0
 ifeq ($(V),1)
-  Q :=
+	Q :=
 else
-  Q := @
+	Q := @
 endif
 
 .PHONY: build
 build:
-  $(Q)echo "Building..."
-  $(Q)compiler --verbose
+	$(Q)echo "Building..."
+	$(Q)compiler --verbose
 ```
 
 ## Error Handling
@@ -495,11 +495,11 @@ build:
 ```makefile
 .PHONY: validate
 validate:
-  @if [ ! -f "composer.json" ]; then \
-    echo "Error: composer.json not found"; \
-    exit 1; \
-  fi
-  @echo "✓ Validation passed"
+	@if [ ! -f "composer.json" ]; then \
+		echo "Error: composer.json not found"; \
+		exit 1; \
+	fi
+	@echo "✓ Validation passed"
 ```
 
 ### Graceful Degradation
@@ -507,10 +507,10 @@ validate:
 ```makefile
 .PHONY: optional-target
 optional-target:
-  @command_that_might_fail || { \
-    echo "Warning: Optional step failed"; \
-    true; \
-  }
+	@command_that_might_fail || { \
+		echo "Warning: Optional step failed"; \
+		true; \
+	}
 ```
 
 ### Error Messages
@@ -521,11 +521,11 @@ COLOR_RESET := \033[0m
 
 .PHONY: strict-target
 strict-target:
-  @if ! some_check; then \
-    echo "$(COLOR_RED)✗ Check failed$(COLOR_RESET)"; \
-    echo "Suggestion: Run 'make fix' to resolve"; \
-    exit 1; \
-  fi
+	@if ! some_check; then \
+		echo "$(COLOR_RED)✗ Check failed$(COLOR_RESET)"; \
+		echo "Suggestion: Run 'make fix' to resolve"; \
+		exit 1; \
+	fi
 ```
 
 ## Testing Your Makefile
@@ -588,7 +588,7 @@ build:
 **Correct**:
 ```makefile
 build:
-  echo "Building"  # Tab used for indentation
+	echo "Building"  # Tab used for indentation
 ```
 
 ### 2. Not Declaring Phony Targets
@@ -596,14 +596,14 @@ build:
 **Wrong**:
 ```makefile
 clean:
-  rm -rf build
+	rm -rf build
 ```
 
 **Correct**:
 ```makefile
 .PHONY: clean
 clean:
-  rm -rf build
+	rm -rf build
 ```
 
 ### 3. Hardcoded Paths
@@ -611,7 +611,7 @@ clean:
 **Wrong**:
 ```makefile
 build:
-  cp /home/user/src/* build/
+	cp /home/user/src/* build/
 ```
 
 **Correct**:
@@ -620,7 +620,7 @@ SRC_DIR := src
 BUILD_DIR := build
 
 build:
-  cp $(SRC_DIR)/* $(BUILD_DIR)/
+	cp $(SRC_DIR)/* $(BUILD_DIR)/
 ```
 
 ### 4. Missing Error Handling
@@ -628,19 +628,19 @@ build:
 **Wrong**:
 ```makefile
 install:
-  composer install
-  npm install
+	composer install
+	npm install
 ```
 
 **Correct**:
 ```makefile
 install:
-  @if [ -f "composer.json" ]; then \
-    composer install || exit 1; \
-  fi
-  @if [ -f "package.json" ]; then \
-    npm install || exit 1; \
-  fi
+	@if [ -f "composer.json" ]; then \
+		composer install || exit 1; \
+	fi
+	@if [ -f "package.json" ]; then \
+		npm install || exit 1; \
+	fi
 ```
 
 ## Example Makefiles
@@ -654,23 +654,23 @@ VERSION := 1.0.0
 
 .PHONY: help
 help: ## Show help
-  @echo "$(PROJECT) v$(VERSION)"
-  @echo "Targets: help, build, clean, test"
+	@echo "$(PROJECT) v$(VERSION)"
+	@echo "Targets: help, build, clean, test"
 
 .PHONY: build
 build: ## Build project
-  @echo "Building..."
-  @mkdir -p dist
-  @zip -r dist/$(PROJECT)-$(VERSION).zip src/
+	@echo "Building..."
+	@mkdir -p dist
+	@zip -r dist/$(PROJECT)-$(VERSION).zip src/
 
 .PHONY: clean
 clean: ## Clean artifacts
-  @rm -rf dist
+	@rm -rf dist
 
 .PHONY: test
 test: ## Run tests
-  @echo "Running tests..."
-  @phpunit
+	@echo "Running tests..."
+	@phpunit
 
 .DEFAULT_GOAL := help
 ```
@@ -695,7 +695,7 @@ MAKEFLAGS += -j$(shell nproc)
 # Or allow users to control parallelism
 .PHONY: build-parallel
 build-parallel:
-  @$(MAKE) -j4 compile-css compile-js compile-assets
+	@$(MAKE) -j4 compile-css compile-js compile-assets
 
 # Ensure certain targets run sequentially
 .NOTPARALLEL: clean install-deps
@@ -714,23 +714,23 @@ Pattern rules allow you to define recipes that apply to multiple files:
 ```makefile
 # Compile all TypeScript files to JavaScript
 %.js: %.ts
-  @echo "Compiling $<..."
-  @tsc $< --outFile $@
+	@echo "Compiling $<..."
+	@tsc $< --outFile $@
 
 # Minify all JavaScript files
 %.min.js: %.js
-  @echo "Minifying $<..."
-  @uglifyjs $< -o $@
+	@echo "Minifying $<..."
+	@uglifyjs $< -o $@
 
 # Compile SCSS to CSS
 %.css: %.scss
-  @echo "Compiling $<..."
-  @sass $< $@
+	@echo "Compiling $<..."
+	@sass $< $@
 
 # Optimize all images
 dist/%.png: src/%.png
-  @mkdir -p $(dir $@)
-  @optipng -o7 $< -out $@
+	@mkdir -p $(dir $@)
+	@optipng -o7 $< -out $@
 ```
 
 **Pattern rule variables**:
@@ -747,24 +747,24 @@ Automatic variables reduce repetition and make rules more maintainable:
 ```makefile
 # Standard automatic variables
 build: $(SOURCES)
-  @echo "Target: $@"           # Current target name
-  @echo "First prerequisite: $<"   # First dependency
-  @echo "All prerequisites: $^"    # All dependencies
-  @echo "Newer prerequisites: $?"  # Dependencies newer than target
-  @echo "Target directory: $(@D)"  # Directory part of target
-  @echo "Target file: $(@F)"       # File part of target
+	@echo "Target: $@"           # Current target name
+	@echo "First prerequisite: $<"   # First dependency
+	@echo "All prerequisites: $^"    # All dependencies
+	@echo "Newer prerequisites: $?"  # Dependencies newer than target
+	@echo "Target directory: $(@D)"  # Directory part of target
+	@echo "Target file: $(@F)"       # File part of target
 
 # Practical example: compile all sources
 SOURCES := $(wildcard src/*.c)
 OBJECTS := $(patsubst src/%.c,build/%.o,$(SOURCES))
 
 build/%.o: src/%.c
-  @mkdir -p $(@D)
-  @$(CC) $(CFLAGS) -c $< -o $@
+	@mkdir -p $(@D)
+	@$(CC) $(CFLAGS) -c $< -o $@
 
 # Link all objects
 $(PROJECT): $(OBJECTS)
-  @$(CC) $(LDFLAGS) $^ -o $@
+	@$(CC) $(LDFLAGS) $^ -o $@
 ```
 
 ### Static Pattern Rules
@@ -777,8 +777,8 @@ MODULE_TESTS := $(addsuffix .test,$(MODULES))
 
 # Test all modules using a static pattern
 $(MODULE_TESTS): %.test: tests/%.php
-  @echo "Testing $*..."
-  @phpunit $<
+	@echo "Testing $*..."
+	@phpunit $<
 
 .PHONY: test-modules
 test-modules: $(MODULE_TESTS)
@@ -795,8 +795,8 @@ SUBDIRS := lib src tools
 all: $(SUBDIRS)
 
 $(SUBDIRS):
-  @echo "Building $@..."
-  @$(MAKE) -C $@
+	@echo "Building $@..."
+	@$(MAKE) -C $@
 
 # Prevent parallel execution of subdirectories if they have dependencies
 src: lib
@@ -820,7 +820,7 @@ Always declare phony targets to prevent conflicts with files:
 # Or declare them inline
 .PHONY: help
 help:
-  @echo "Available targets..."
+	@echo "Available targets..."
 ```
 
 **Why PHONY matters**:
@@ -836,26 +836,26 @@ Handle special characters and spaces correctly:
 # Escape dollar signs in shell commands
 .PHONY: show-env
 show-env:
-  @echo "PATH is: $$PATH"
-  @echo "USER is: $$USER"
+	@echo "PATH is: $$PATH"
+	@echo "USER is: $$USER"
 
 # Handle spaces in paths
 INSTALL_DIR := /path/with spaces/install
 install:
-  @mkdir -p "$(INSTALL_DIR)"
-  @cp build/* "$(INSTALL_DIR)/"
+	@mkdir -p "$(INSTALL_DIR)"
+	@cp build/* "$(INSTALL_DIR)/"
 
 # Escape quotes
 .PHONY: message
 message:
-  @echo "He said \"Hello\""
+	@echo "He said \"Hello\""
 
 # Multi-line commands
 .PHONY: complex
 complex:
-  @echo "Line 1"; \
-  echo "Line 2"; \
-  echo "Line 3"
+	@echo "Line 1"; \
+	echo "Line 2"; \
+	echo "Line 3"
 ```
 
 ### Error Handling
@@ -866,31 +866,31 @@ Implement robust error handling:
 # Exit on first error
 .PHONY: strict-build
 strict-build:
-  set -e; \
-  command1; \
-  command2; \
-  command3
+	set -e; \
+	command1; \
+	command2; \
+	command3
 
 # Continue on error but report failures
 .PHONY: best-effort
 best-effort:
-  -command_that_might_fail
-  @echo "Continuing despite errors..."
+	-command_that_might_fail
+	@echo "Continuing despite errors..."
 
 # Check exit codes explicitly
 .PHONY: conditional
 conditional:
-  @if ! command_to_check; then \
-    echo "Command failed, trying alternative..."; \
-    alternative_command || exit 1; \
-  fi
+	@if ! command_to_check; then \
+		echo "Command failed, trying alternative..."; \
+		alternative_command || exit 1; \
+	fi
 
 # Cleanup on error
 .PHONY: build-with-cleanup
 build-with-cleanup:
-  @trap 'rm -f temp.file' EXIT; \
-  touch temp.file; \
-  long_running_command
+	@trap 'rm -f temp.file' EXIT; \
+	touch temp.file; \
+	long_running_command
 ```
 
 ### Variable Best Practices
@@ -924,13 +924,13 @@ SHELL := $(or $(SHELL),/bin/bash)
 # Self-documenting Makefile
 .PHONY: help
 help: ## Show this help message
-  @echo "$(PROJECT_NAME) v$(VERSION)"
-  @echo ""
-  @echo "Usage: make [target]"
-  @echo ""
-  @echo "Targets:"
-  @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-    awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+	@echo "$(PROJECT_NAME) v$(VERSION)"
+	@echo ""
+	@echo "Usage: make [target]"
+	@echo ""
+	@echo "Targets:"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
+		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 # Group targets with comments
 # ==============================================================================
@@ -939,11 +939,11 @@ help: ## Show this help message
 
 .PHONY: build
 build: ## Build the project
-  @echo "Building..."
+	@echo "Building..."
 
 .PHONY: clean
 clean: ## Clean build artifacts
-  @echo "Cleaning..."
+	@echo "Cleaning..."
 
 # ==============================================================================
 # DEVELOPMENT TARGETS
@@ -951,7 +951,7 @@ clean: ## Clean build artifacts
 
 .PHONY: dev-server
 dev-server: ## Start development server
-  @echo "Starting server..."
+	@echo "Starting server..."
 ```
 
 ## CI/CD Integration
@@ -1000,38 +1000,38 @@ Create targets optimized for CI environments:
 ```makefile
 .PHONY: ci
 ci: ci-validate ci-test ci-build ## Run complete CI pipeline
-  @echo "✓ CI pipeline complete"
+	@echo "✓ CI pipeline complete"
 
 .PHONY: ci-validate
 ci-validate: ## Run validation checks for CI
-  @echo "Running CI validation..."
-  @make lint
-  @make validate-structure
-  @make check-licenses
+	@echo "Running CI validation..."
+	@make lint
+	@make validate-structure
+	@make check-licenses
 
 .PHONY: ci-test
 ci-test: ## Run tests with CI-specific settings
-  @echo "Running CI tests..."
-  @$(PHPUNIT) --coverage-clover=coverage.xml --log-junit=junit.xml
+	@echo "Running CI tests..."
+	@$(PHPUNIT) --coverage-clover=coverage.xml --log-junit=junit.xml
 
 .PHONY: ci-build
 ci-build: ## Build for CI with optimizations
-  @echo "Building for CI..."
-  @BUILD_TYPE=production make build
+	@echo "Building for CI..."
+	@BUILD_TYPE=production make build
 
 # Non-interactive mode for CI
 CI ?= false
 ifeq ($(CI),true)
-  COMPOSER_FLAGS := --no-interaction --no-progress
-  NPM_FLAGS := --no-progress
+	COMPOSER_FLAGS := --no-interaction --no-progress
+	NPM_FLAGS := --no-progress
 else
-  COMPOSER_FLAGS :=
-  NPM_FLAGS :=
+	COMPOSER_FLAGS :=
+	NPM_FLAGS :=
 endif
 
 .PHONY: install-deps
 install-deps:
-  @$(COMPOSER) install $(COMPOSER_FLAGS)
+	@$(COMPOSER) install $(COMPOSER_FLAGS)
 ```
 
 ### Environment Detection
@@ -1042,29 +1042,29 @@ Adapt behavior based on environment:
 # Detect CI environment
 CI_ENV := false
 ifdef CI
-  CI_ENV := true
+	CI_ENV := true
 endif
 ifdef GITHUB_ACTIONS
-  CI_ENV := true
+	CI_ENV := true
 endif
 ifdef GITLAB_CI
-  CI_ENV := true
+	CI_ENV := true
 endif
 
 # Adjust settings for CI
 ifeq ($(CI_ENV),true)
-  # Disable color output in CI
-  COLOR_RESET :=
-  COLOR_GREEN :=
-  COLOR_RED :=
-  
-  # Use CI-optimized commands
-  NPM := npm ci
-  COMPOSER := composer install --no-dev
+	# Disable color output in CI
+	COLOR_RESET :=
+	COLOR_GREEN :=
+	COLOR_RED :=
+	
+	# Use CI-optimized commands
+	NPM := npm ci
+	COMPOSER := composer install --no-dev
 else
-  # Local development settings
-  NPM := npm install
-  COMPOSER := composer install
+	# Local development settings
+	NPM := npm install
+	COMPOSER := composer install
 endif
 ```
 
@@ -1079,21 +1079,21 @@ DEP_CACHE := $(CACHE_DIR)/deps.stamp
 BUILD_CACHE := $(CACHE_DIR)/build.stamp
 
 $(CACHE_DIR):
-  @mkdir -p $(CACHE_DIR)
+	@mkdir -p $(CACHE_DIR)
 
 # Cache dependency installation
 $(DEP_CACHE): composer.json package.json | $(CACHE_DIR)
-  @$(COMPOSER) install
-  @$(NPM) install
-  @touch $(DEP_CACHE)
+	@$(COMPOSER) install
+	@$(NPM) install
+	@touch $(DEP_CACHE)
 
 .PHONY: install-deps
 install-deps: $(DEP_CACHE)
 
 # Cache build
 $(BUILD_CACHE): $(SOURCES) $(DEP_CACHE) | $(CACHE_DIR)
-  @make build-internal
-  @touch $(BUILD_CACHE)
+	@make build-internal
+	@touch $(BUILD_CACHE)
 
 .PHONY: build
 build: $(BUILD_CACHE)
@@ -1137,17 +1137,17 @@ Add targets to inspect variables:
 ```makefile
 .PHONY: debug-vars
 debug-vars: ## Show all variable values
-  @echo "PROJECT_NAME: $(PROJECT_NAME)"
-  @echo "VERSION: $(VERSION)"
-  @echo "SRC_DIR: $(SRC_DIR)"
-  @echo "BUILD_DIR: $(BUILD_DIR)"
-  @echo "SOURCES: $(SOURCES)"
-  @echo "OBJECTS: $(OBJECTS)"
+	@echo "PROJECT_NAME: $(PROJECT_NAME)"
+	@echo "VERSION: $(VERSION)"
+	@echo "SRC_DIR: $(SRC_DIR)"
+	@echo "BUILD_DIR: $(BUILD_DIR)"
+	@echo "SOURCES: $(SOURCES)"
+	@echo "OBJECTS: $(OBJECTS)"
 
 # Print a specific variable from command line
 .PHONY: print-%
 print-%:
-  @echo $* = $($*)
+	@echo $* = $($*)
 
 # Usage: make print-SOURCES
 ```
@@ -1158,15 +1158,15 @@ print-%:
 # Enable tracing for specific targets
 .PHONY: trace-build
 trace-build:
-  @set -x; \
-  command1; \
-  command2; \
-  set +x
+	@set -x; \
+	command1; \
+	command2; \
+	set +x
 
 # Conditional tracing
 DEBUG ?= false
 ifeq ($(DEBUG),true)
-  SHELL := /bin/bash -x
+	SHELL := /bin/bash -x
 endif
 ```
 
@@ -1181,7 +1181,7 @@ endif
 # Ensure target is PHONY if it doesn't create a file
 .PHONY: problematic-target
 problematic-target:
-  @echo "Now it runs"
+	@echo "Now it runs"
 ```
 
 #### Issue: Variables Not Expanding
@@ -1197,7 +1197,7 @@ VAR := $(shell echo "value")
 $(info VAR at parse time: $(VAR))
 
 target:
-  @echo "VAR at run time: $(VAR)"
+	@echo "VAR at run time: $(VAR)"
 ```
 
 #### Issue: Whitespace Errors
@@ -1208,8 +1208,8 @@ target:
 ```makefile
 # Ensure recipe lines use TABS not spaces
 target:
-  @echo "This line starts with a TAB"
-  @echo "Not spaces"
+	@echo "This line starts with a TAB"
+	@echo "Not spaces"
 
 # Show whitespace in your editor
 # Most editors have a "show whitespace" option
@@ -1227,7 +1227,7 @@ SHELL := /bin/bash
 # Use shell-specific features explicitly
 .PHONY: bash-features
 bash-features:
-  @bash -c 'array=(a b c); echo "$${array[@]}"'
+	@bash -c 'array=(a b c); echo "$${array[@]}"'
 ```
 
 ## Platform-Specific Considerations
@@ -1249,7 +1249,7 @@ debug: CFLAGS += -g
 
 # Multiple targets from pattern
 %.o %.d: %.c
-  $(CC) -MD -c $< -o $@
+	$(CC) -MD -c $< -o $@
 ```
 
 **Portable Alternatives**:
@@ -1262,7 +1262,7 @@ VAR = $(if $(VAR),$(VAR),default)
 
 # Check for GNU Make
 ifeq ($(MAKE_VERSION),)
-  $(error GNU Make required)
+	$(error GNU Make required)
 endif
 ```
 
@@ -1273,29 +1273,29 @@ endif
 UNAME := $(shell uname -s)
 
 ifeq ($(UNAME),Darwin)
-  # macOS
-  PLATFORM := macos
-  OPEN := open
-  SED := sed -i ''
+	# macOS
+	PLATFORM := macos
+	OPEN := open
+	SED := sed -i ''
 else ifeq ($(UNAME),Linux)
-  # Linux
-  PLATFORM := linux
-  OPEN := xdg-open
-  SED := sed -i
+	# Linux
+	PLATFORM := linux
+	OPEN := xdg-open
+	SED := sed -i
 else ifneq (,$(findstring MINGW,$(UNAME)))
-  # Windows (MinGW)
-  PLATFORM := windows
-  OPEN := start
-  SED := sed -i
+	# Windows (MinGW)
+	PLATFORM := windows
+	OPEN := start
+	SED := sed -i
 endif
 
 # Path separators
 ifeq ($(PLATFORM),windows)
-  PATH_SEP := \\
-  NULL_DEVICE := NUL
+	PATH_SEP := \\
+	NULL_DEVICE := NUL
 else
-  PATH_SEP := /
-  NULL_DEVICE := /dev/null
+	PATH_SEP := /
+	NULL_DEVICE := /dev/null
 endif
 ```
 
@@ -1306,9 +1306,9 @@ endif
 .PHONY: fix-line-endings
 fix-line-endings:
 ifeq ($(PLATFORM),windows)
-  @unix2dos src/*.php
+	@unix2dos src/*.php
 else
-  @dos2unix src/*.php
+	@dos2unix src/*.php
 endif
 ```
 
@@ -1320,10 +1320,10 @@ endif
 
 # Be explicit about case
 ifeq ($(shell uname -s),Darwin)
-  # macOS filesystem usually case-insensitive
-  CASE_SENSITIVE := false
+	# macOS filesystem usually case-insensitive
+	CASE_SENSITIVE := false
 else
-  CASE_SENSITIVE := true
+	CASE_SENSITIVE := true
 endif
 ```
 
@@ -1338,13 +1338,13 @@ HAS_YUM := $(shell command -v yum 2>$(NULL_DEVICE))
 .PHONY: install-system-deps
 install-system-deps:
 ifdef HAS_BREW
-  @brew install php composer node
+	@brew install php composer node
 else ifdef HAS_APT
-  @sudo apt-get install -y php composer nodejs npm
+	@sudo apt-get install -y php composer nodejs npm
 else ifdef HAS_YUM
-  @sudo yum install -y php composer nodejs npm
+	@sudo yum install -y php composer nodejs npm
 else
-  @echo "Unknown package manager. Install dependencies manually."
+	@echo "Unknown package manager. Install dependencies manually."
 endif
 ```
 
@@ -1360,11 +1360,11 @@ MAKEFLAGS += -j$(NPROCS)
 
 # Platform-specific optimizations
 ifeq ($(PLATFORM),macos)
-  # macOS-specific optimizations
-  CFLAGS += -fast
+	# macOS-specific optimizations
+	CFLAGS += -fast
 else ifeq ($(PLATFORM),linux)
-  # Linux-specific optimizations
-  CFLAGS += -O3 -march=native
+	# Linux-specific optimizations
+	CFLAGS += -O3 -march=native
 endif
 ```
 

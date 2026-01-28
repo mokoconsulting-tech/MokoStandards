@@ -25,6 +25,24 @@
 
 ## [UNRELEASED]
 
+### Fixed - Critical Build and CI Issues
+- **Setuptools Package Discovery**: Fixed "multiple top-level packages" error
+  - Added proper [build-system] configuration to `pyproject.toml`
+  - Added [project] metadata section with package information
+  - Added [tool.setuptools] configuration to exclude non-package directories
+  - Explicitly excluded: schemas, terraform, templates, scripts, docs, .github
+  - These directories contain templates/configs/documentation, not Python packages
+  - Prevents setuptools from incorrectly treating them as packages
+  - Allows pip install and build operations to succeed
+- **Workflow Shell Syntax Error**: Fixed shell script syntax in workflow validation
+  - Fixed line 555 in `.github/workflows/standards-compliance.yml`
+  - Fixed line 385 in `templates/workflows/standards-compliance.yml.template`
+  - Changed from: `for workflow in .github/workflows/*.yml .github/workflows/*.yaml 2>/dev/null; do`
+  - Changed to: `for workflow in $(find .github/workflows -maxdepth 1 -type f \( -name "*.yml" -o -name "*.yaml" \) 2>/dev/null); do`
+  - Resolves "syntax error near unexpected token `2'" error
+  - Proper error suppression with find command
+  - Consistent between active workflow and template
+
 ### Added - Documentation Gap Analysis and Roadmap Update
 - **Comprehensive Documentation Gap Analysis**: Performed complete repository audit
   - Analyzed all 47 Python scripts and 5 shell scripts

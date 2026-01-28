@@ -69,6 +69,13 @@ class FileSyncConfig:
             "templates/workflows/generic/repo-health.yml": ".github/workflows/repo-health.yml",
         },
         
+        # Terraform infrastructure workflows
+        "terraform": {
+            "templates/workflows/terraform/ci.yml": ".github/workflows/terraform-ci.yml",
+            "templates/workflows/terraform/deploy.yml.template": ".github/workflows/terraform-deploy.yml",
+            "templates/workflows/terraform/drift-detection.yml.template": ".github/workflows/terraform-drift.yml",
+        },
+        
         # Dolibarr-specific workflows
         "dolibarr": {
             "templates/workflows/dolibarr/release.yml.template": ".github/workflows/release.yml",
@@ -261,14 +268,24 @@ def get_org_repositories(org: str, exclude_archived: bool = True, include_templa
 def detect_platform(repo_dir: str, source_dir: str) -> Optional[str]:
     """
     Detect the platform type of a repository using auto_detect_platform.py
+    and additional terraform detection logic.
     
     Args:
         repo_dir: Path to the cloned repository
         source_dir: Path to MokoStandards source directory
         
     Returns:
-        Platform type string (joomla, dolibarr, generic) or None if detection fails
+        Platform type string (terraform, joomla, dolibarr, generic) or None if detection fails
     """
+    # First check for terraform repository
+    terraform_dir = Path(repo_dir) / "terraform"
+    if terraform_dir.exists() and terraform_dir.is_dir():
+        # Check for terraform files
+        tf_files = list(Path(repo_dir).rglob("*.tf"))
+        if tf_files:
+            print(f"    Detected Terraform repository (found {len(tf_files)} .tf files)")
+            return "terraform"
+    
     script_path = Path(source_dir) / "scripts" / "validate" / "auto_detect_platform.py"
     
     if not script_path.exists():
@@ -300,7 +317,7 @@ def get_files_to_sync(platform: str = "generic") -> Dict[str, str]:
     Get the list of files to sync based on platform type.
     
     Args:
-        platform: Platform type (generic, dolibarr, joomla)
+        platform: Platform type (terraform, generic, dolibarr, joomla)
         
     Returns:
         Dictionary mapping source files to destination paths
@@ -693,7 +710,7 @@ def main():
                 '- Dependabot configuration\n'
                 '- Maintenance scripts\n'
                 '- Platform-specific configurations\n\n'
-                'Files are synced based on detected platform type (generic/dolibarr/joomla).\n\n'
+                'Files are synced based on detected platform type (terraform/generic/dolibarr/joomla).\n\n'
                 'Please review and merge if appropriate for this repository.',
         help='Pull request body'
     )

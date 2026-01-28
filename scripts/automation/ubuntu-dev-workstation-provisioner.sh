@@ -24,6 +24,7 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 TERRAFORM_DIR="$REPO_ROOT/terraform/workstation"
 LOG_FILE="/tmp/ubuntu-dev-provisioner-$(date +%Y%m%d-%H%M%S).log"
 VERBOSE=false
+DRY_RUN=false
 
 # Functions
 log() {
@@ -163,8 +164,12 @@ prompt_optional_components() {
 
 update_system() {
     log INFO "Updating package lists..."
-    sudo apt update | tee -a "$LOG_FILE"
-    log SUCCESS "Package lists updated"
+    if [ "$DRY_RUN" = true ]; then
+        log INFO "[DRY-RUN] Would execute: sudo apt update"
+    else
+        sudo apt update | tee -a "$LOG_FILE"
+        log SUCCESS "Package lists updated"
+    fi
 }
 
 install_essential_packages() {
@@ -189,8 +194,12 @@ install_essential_packages() {
         software-properties-common
     )
 
-    sudo apt install -y "${packages[@]}" | tee -a "$LOG_FILE"
-    log SUCCESS "Essential packages installed"
+    if [ "$DRY_RUN" = true ]; then
+        log INFO "[DRY-RUN] Would install: ${packages[*]}"
+    else
+        sudo apt install -y "${packages[@]}" | tee -a "$LOG_FILE"
+        log SUCCESS "Essential packages installed"
+    fi
 }
 
 install_php() {
@@ -368,15 +377,25 @@ install_database_clients() {
 configure_git() {
     log INFO "Configuring Git..."
 
-    git config --global user.name "$GIT_USER_NAME"
-    git config --global user.email "$GIT_USER_EMAIL"
-    git config --global init.defaultBranch main
-    git config --global pull.rebase false
-    git config --global core.editor vim
-    git config --global core.autocrlf input
+    if [ "$DRY_RUN" = true ]; then
+        log INFO "[DRY-RUN] Would configure git with:"
+        log INFO "[DRY-RUN]   user.name: $GIT_USER_NAME"
+        log INFO "[DRY-RUN]   user.email: $GIT_USER_EMAIL"
+        log INFO "[DRY-RUN]   init.defaultBranch: main"
+        log INFO "[DRY-RUN]   pull.rebase: false"
+        log INFO "[DRY-RUN]   core.editor: vim"
+        log INFO "[DRY-RUN]   core.autocrlf: input"
+    else
+        git config --global user.name "$GIT_USER_NAME"
+        git config --global user.email "$GIT_USER_EMAIL"
+        git config --global init.defaultBranch main
+        git config --global pull.rebase false
+        git config --global core.editor vim
+        git config --global core.autocrlf input
 
-    log SUCCESS "Git configured"
-    git config --global --list | grep -E "^(user|init|pull|core)" | tee -a "$LOG_FILE"
+        log SUCCESS "Git configured"
+        git config --global --list | grep -E "^(user|init|pull|core)" | tee -a "$LOG_FILE"
+    fi
 }
 
 generate_ssh_key() {
@@ -402,10 +421,17 @@ generate_ssh_key() {
 create_workspace() {
     log INFO "Creating workspace directory..."
 
-    mkdir -p "$WORKSPACE_DIR"/{scripts,logs,projects,tools}
+    if [ "$DRY_RUN" = true ]; then
+        log INFO "[DRY-RUN] Would create: $WORKSPACE_DIR/scripts"
+        log INFO "[DRY-RUN] Would create: $WORKSPACE_DIR/logs"
+        log INFO "[DRY-RUN] Would create: $WORKSPACE_DIR/projects"
+        log INFO "[DRY-RUN] Would create: $WORKSPACE_DIR/tools"
+    else
+        mkdir -p "$WORKSPACE_DIR"/{scripts,logs,projects,tools}
 
-    log SUCCESS "Workspace created at $WORKSPACE_DIR"
-    tree -L 2 "$WORKSPACE_DIR" | tee -a "$LOG_FILE" || ls -la "$WORKSPACE_DIR"
+        log SUCCESS "Workspace created at $WORKSPACE_DIR"
+        tree -L 2 "$WORKSPACE_DIR" | tee -a "$LOG_FILE" || ls -la "$WORKSPACE_DIR"
+    fi
 }
 
 configure_ufw() {
@@ -514,10 +540,37 @@ print_summary() {
 
 # Main execution
 main() {
+    # Parse command-line arguments
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --dry-run)
+                DRY_RUN=true
+                shift
+                ;;
+            -h|--help)
+                echo "Usage: $0 [--dry-run] [--help]"
+                echo ""
+                echo "Options:"
+                echo "  --dry-run    Show what would be done without actually doing it"
+                echo "  --help       Show this help message"
+                exit 0
+                ;;
+            *)
+                echo "Unknown option: $1"
+                echo "Use --help for usage information"
+                exit 1
+                ;;
+        esac
+    done
+
     echo "========================================"
     echo "Ubuntu Dev Workstation Provisioner"
     echo "========================================"
     echo
+
+    if [ "$DRY_RUN" = true ]; then
+        log INFO "Running in DRY-RUN mode - no changes will be made"
+    fi
 
     check_root
     check_ubuntu
@@ -529,14 +582,17 @@ main() {
     prompt_optional_components
 
     echo
-    read -p "Ready to provision? [Y/n] " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]?$ ]]; then
-        log INFO "Provisioning cancelled"
-        exit 0
+    if [ "$DRY_RUN" = true ]; then
+        log INFO "Starting dry-run..."
+    else
+        read -p "Ready to provision? [Y/n] " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]?$ ]]; then
+            log INFO "Provisioning cancelled"
+            exit 0
+        fi
+        log INFO "Starting provisioning..."
     fi
-
-    log INFO "Starting provisioning..."
 
     update_system
     install_essential_packages

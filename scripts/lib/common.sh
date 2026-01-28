@@ -262,6 +262,37 @@ to_upper() {
 }
 
 # ============================================================
+# Dry-Run Utilities
+# ============================================================
+
+# Global dry-run flag (default: false)
+DRY_RUN=${DRY_RUN:-false}
+
+# Execute command or print dry-run message
+# Usage: run_cmd "command" "arg1" "arg2"
+run_cmd() {
+    if [ "$DRY_RUN" = true ]; then
+        echo "[DRY-RUN] Would execute: $*"
+    else
+        "$@"
+    fi
+}
+
+# Execute command with message or print dry-run message
+# Usage: run_with_msg "Creating file" "touch" "file.txt"
+run_with_msg() {
+    local message="$1"
+    shift
+    if [ "$DRY_RUN" = true ]; then
+        log_info "[DRY-RUN] $message"
+        echo "[DRY-RUN] Would execute: $*"
+    else
+        log_info "$message"
+        "$@"
+    fi
+}
+
+# ============================================================
 # Validation Utilities
 # ============================================================
 

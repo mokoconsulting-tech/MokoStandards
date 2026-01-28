@@ -29,6 +29,9 @@
 
 set -euo pipefail
 
+# Dry-run flag (default: false)
+DRY_RUN=false
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -52,6 +55,33 @@ log_warning() {
 log_error() {
     echo -e "${RED}❌ $1${NC}"
 }
+
+# Parse command-line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        -h|--help)
+            echo "Usage: $0 [--dry-run] [--help]"
+            echo ""
+            echo "Options:"
+            echo "  --dry-run    Show what would be created without actually creating labels"
+            echo "  --help       Show this help message"
+            exit 0
+            ;;
+        *)
+            log_error "Unknown option: $1"
+            echo "Use --help for usage information"
+            exit 1
+            ;;
+    esac
+done
+
+if [ "$DRY_RUN" = true ]; then
+    log_info "Running in DRY-RUN mode - no labels will be created"
+fi
 
 # Check if gh CLI is installed
 if ! command -v gh &> /dev/null; then
@@ -77,10 +107,14 @@ create_label() {
     local color=$2
     local description=$3
 
-    if gh label create "$name" --color "$color" --description "$description" --force 2>/dev/null; then
-        log_success "Created/updated label: $name"
+    if [ "$DRY_RUN" = true ]; then
+        echo "[DRY-RUN] Would create label: $name (color: #$color, description: $description)"
     else
-        log_warning "Failed to create label: $name"
+        if gh label create "$name" --color "$color" --description "$description" --force 2>/dev/null; then
+            log_success "Created/updated label: $name"
+        else
+            log_warning "Failed to create label: $name"
+        fi
     fi
 }
 

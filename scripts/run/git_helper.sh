@@ -16,6 +16,9 @@
 
 set -e
 
+# Dry-run flag (default: false)
+DRY_RUN=false
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -61,11 +64,12 @@ Commands:
   conflicts       Show files with merge conflicts
 
 Options:
+  --dry-run       Show what would be done without executing
   -h, --help      Show this help message
 
 Examples:
   $0 status
-  $0 clean
+  $0 clean --dry-run
   $0 branch
   $0 search "fix bug"
   $0 history
@@ -119,6 +123,11 @@ cmd_clean() {
     print_warning "This will show what would be removed"
     git clean -nfd
 
+    if [ "$DRY_RUN" = true ]; then
+        print_info "[DRY-RUN] Would remove the files shown above"
+        return
+    fi
+
     echo ""
     read -p "Do you want to remove these files? (y/N) " -n 1 -r
     echo
@@ -132,6 +141,15 @@ cmd_clean() {
 
 # Sync with remote
 cmd_sync() {
+    if [ "$DRY_RUN" = true ]; then
+        print_info "[DRY-RUN] Would fetch from remote"
+        print_info "[DRY-RUN] Would execute: git fetch --all --prune"
+        branch=$(git rev-parse --abbrev-ref HEAD)
+        print_info "[DRY-RUN] Would pull $branch with rebase"
+        print_info "[DRY-RUN] Would execute: git pull --rebase"
+        return
+    fi
+
     print_info "Fetching from remote..."
     git fetch --all --prune
 
@@ -210,6 +228,12 @@ cmd_search() {
 cmd_undo_commit() {
     print_warning "This will undo the last commit but keep your changes"
 
+    if [ "$DRY_RUN" = true ]; then
+        print_info "[DRY-RUN] Would undo last commit"
+        print_info "[DRY-RUN] Would execute: git reset --soft HEAD~1"
+        return
+    fi
+
     read -p "Continue? (y/N) " -n 1 -r
     echo
 
@@ -255,6 +279,27 @@ cmd_conflicts() {
     fi
 }
 
+# Parse global flags
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        -h|--help|help)
+            show_help
+            exit 0
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
+if [ "$DRY_RUN" = true ]; then
+    print_info "Running in DRY-RUN mode"
+fi
+
 # Main script
 check_git_repo
 
@@ -291,9 +336,6 @@ case "${1:-}" in
         ;;
     conflicts)
         cmd_conflicts
-        ;;
-    -h|--help|help)
-        show_help
         ;;
     "")
         print_error "No command specified"

@@ -3,7 +3,8 @@
 # =========================================================
 
 param(
-	[switch]$VerboseMode
+	[switch]$VerboseMode,
+	[switch]$DryRun
 )
 
 Add-Type -AssemblyName System.Windows.Forms
@@ -70,6 +71,11 @@ function Create-MonthlyTask {
 		[string]$Time
 	)
 
+	if ($DryRun) {
+		Write-Host "[DRY-RUN] Would create scheduled task: $TaskName" -ForegroundColor Yellow
+		return
+	}
+
 	schtasks /Delete /TN $TaskName /F *> $null 2>&1 | Out-Null
 	schtasks /Create /F `
 		/TN $TaskName `
@@ -99,17 +105,32 @@ function Get-WSLState {
 }
 
 function Enable-WSLFeatures {
+	if ($DryRun) {
+		Write-Host "[DRY-RUN] Would enable WSL features" -ForegroundColor Yellow
+		return
+	}
+
 	Log "Enabling WSL features"
 	dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart | Out-Null
 	dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart | Out-Null
 }
 
 function Install-Ubuntu {
+	if ($DryRun) {
+		Write-Host "[DRY-RUN] Would install Ubuntu WSL distro" -ForegroundColor Yellow
+		return
+	}
+
 	Log "Installing Ubuntu WSL distro"
 	wsl --install -d Ubuntu | Out-Null
 }
 
 function Reset-WSL {
+	if ($DryRun) {
+		Write-Host "[DRY-RUN] Would reset WSL (shutdown, unregister Ubuntu, reinstall)" -ForegroundColor Yellow
+		return
+	}
+
 	Log "Resetting WSL"
 	wsl --shutdown
 	wsl --unregister Ubuntu
@@ -117,6 +138,11 @@ function Reset-WSL {
 }
 
 function Provision-UbuntuPHP {
+	if ($DryRun) {
+		Write-Host "[DRY-RUN] Would provision PHP inside Ubuntu" -ForegroundColor Yellow
+		return
+	}
+
 	Log "Provisioning PHP inside Ubuntu"
 	$bash = @'
 set -euo pipefail
@@ -141,6 +167,11 @@ php -m | sort
 # Execution
 # ------------------------
 Require-Admin
+
+if ($DryRun) {
+	Write-Host "[DRY-RUN] Running in dry-run mode - no changes will be made" -ForegroundColor Yellow
+}
+
 Log "Bootstrap started"
 
 # Workspace prompt

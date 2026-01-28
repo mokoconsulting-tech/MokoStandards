@@ -166,11 +166,7 @@ def main() -> int:
     if args.dry_run:
         print("[DRY-RUN] Would scan directory:", args.src_dir)
         print("[DRY-RUN] Would check for secret patterns")
-        result = {
-            "status": "pass",
-            "message": "dry-run mode"
-        }
-        common.json_output(result)
+        print(json.dumps({"status": "pass", "message": "dry-run mode"}))
         return 0
 
     # Check if source directory exists

@@ -25,6 +25,15 @@
 
 ## [UNRELEASED]
 
+### Fixed - Shell Script Syntax Errors
+- **Workflow Bug Fix**: Fixed shell script syntax errors in standards-compliance.yml
+  - Fixed 22 instances of unquoted variables in conditional tests
+  - All variables in `[ ]` conditionals now properly quoted (e.g., `[ "$INVALID" -gt 0 ]`)
+  - Prevents "syntax error near unexpected token" errors when variables are empty or unset
+  - Resolves CI/CD failure caused by unquoted `$INVALID` variable at line 566
+  - Improved script robustness and error handling
+  - All changes comply with shell scripting best practices
+
 ### Added - Automatic Development Branch Creation
 - **Workflow Automation**: Created workflow to automatically create dev branches after PR merge
   - Created `.github/workflows/auto-create-dev-branch.yml`

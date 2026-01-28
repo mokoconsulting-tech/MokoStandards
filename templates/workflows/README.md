@@ -68,6 +68,11 @@ The workflows are organized by platform and purpose:
 - `repo-health.yml` - Repository health checks
 - `test.yml.template` - Generic testing workflow
 
+**terraform/** - Terraform infrastructure-as-code workflows
+- `ci.yml` - Terraform validation, formatting, and planning
+- `deploy.yml.template` - Infrastructure deployment workflow
+- `drift-detection.yml.template` - Automated drift detection
+
 **joomla/** - Joomla extension workflows
 - `ci-joomla.yml.template` - Joomla-specific CI
 - `test.yml.template` - Joomla extension testing

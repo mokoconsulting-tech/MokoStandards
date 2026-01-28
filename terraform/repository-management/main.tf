@@ -1,0 +1,195 @@
+# Terraform Configuration for Repository Template Management
+# This directory contains Terraform configurations for managing repository templates
+# using the GitHub provider to update multiple repositories declaratively.
+
+terraform {
+	required_version = ">= 1.7.0"
+	
+	required_providers {
+		github = {
+			source  = "integrations/github"
+			version = "~> 6.0"
+		}
+	}
+	
+	# Configure backend for state storage
+	# For production, use remote backend (S3, Azure Storage, GCS, Terraform Cloud)
+	backend "s3" {
+		# bucket         = "mokostandards-terraform-state"
+		# key            = "repository-templates/terraform.tfstate"
+		# region         = "us-east-1"
+		# dynamodb_table = "mokostandards-terraform-locks"
+		# encrypt        = true
+	}
+}
+
+# GitHub Provider Configuration
+provider "github" {
+	token = var.github_token
+	owner = var.github_org
+}
+
+# Variables
+variable "github_token" {
+	description = "GitHub personal access token with repo and admin:org permissions"
+	type        = string
+	sensitive   = true
+}
+
+variable "github_org" {
+	description = "GitHub organization name"
+	type        = string
+	default     = "mokoconsulting-tech"
+}
+
+variable "target_repositories" {
+	description = "Map of repositories to manage with their types"
+	type = map(object({
+		repository_type = string  # generic, terraform, joomla, dolibarr
+		enabled         = bool
+		custom_files    = map(string)  # Additional custom file mappings
+	}))
+	default = {}
+}
+
+# Data source to fetch repository information
+data "github_repositories" "org_repos" {
+	query = "org:${var.github_org}"
+}
+
+data "github_repository" "repos" {
+	for_each  = var.target_repositories
+	full_name = "${var.github_org}/${each.key}"
+}
+
+# Local values for template mappings
+locals {
+	# Base template mappings by file and repository type
+	base_templates = {
+		".github/workflows/ci.yml" = {
+			generic   = "../../templates/workflows/generic/ci.yml"
+			terraform = "../../templates/workflows/terraform/ci.yml"
+			joomla    = "../../templates/workflows/joomla/ci-joomla.yml.template"
+			dolibarr  = "../../templates/workflows/dolibarr/ci-dolibarr.yml.template"
+		}
+		".github/workflows/terraform-deploy.yml" = {
+			terraform = "../../templates/workflows/terraform/deploy.yml.template"
+		}
+		".github/workflows/terraform-drift.yml" = {
+			terraform = "../../templates/workflows/terraform/drift-detection.yml.template"
+		}
+		".github/workflows/code-quality.yml" = {
+			generic   = "../../templates/workflows/generic/code-quality.yml"
+			terraform = "../../templates/workflows/generic/code-quality.yml"
+		}
+		".editorconfig" = {
+			all = "../../templates/configs/.editorconfig"
+		}
+		"README.md" = {
+			all = "../../templates/docs/required/template-README.md"
+		}
+	}
+	
+	# Generate file mappings for each enabled repository
+	repository_files = flatten([
+		for repo_name, repo_config in var.target_repositories : [
+			for file_path, type_templates in local.base_templates : {
+				key           = "${repo_name}/${file_path}"
+				repo          = repo_name
+				file_path     = file_path
+				template_path = try(
+					type_templates[repo_config.repository_type],
+					type_templates["all"],
+					null
+				)
+			}
+			if repo_config.enabled && try(
+				type_templates[repo_config.repository_type],
+				type_templates["all"],
+				null
+			) != null
+		]
+	])
+	
+	# Convert to map for resource creation
+	repository_file_map = {
+		for item in local.repository_files :
+		item.key => item
+	}
+}
+
+# Manage repository files from templates
+resource "github_repository_file" "template_files" {
+	for_each = local.repository_file_map
+	
+	repository          = each.value.repo
+	branch              = "main"
+	file                = each.value.file_path
+	content             = file("${path.module}/${each.value.template_path}")
+	commit_message      = "chore: Update ${each.value.file_path} from MokoStandards template [skip ci]"
+	commit_author       = "MokoStandards Automation"
+	commit_email        = "automation@mokoconsulting.tech"
+	overwrite_on_create = true
+}
+
+# Manage repository topics for categorization
+resource "github_repository" "managed_repos" {
+	for_each = {
+		for name, config in var.target_repositories :
+		name => config if config.enabled
+	}
+	
+	name        = each.key
+	description = data.github_repository.repos[each.key].description
+	
+	# Ensure standard topics are present
+	topics = distinct(concat(
+		data.github_repository.repos[each.key].topics,
+		["mokostandards-managed", each.value.repository_type]
+	))
+	
+	# Preserve existing settings
+	visibility             = data.github_repository.repos[each.key].visibility
+	has_issues             = data.github_repository.repos[each.key].has_issues
+	has_projects           = data.github_repository.repos[each.key].has_projects
+	has_wiki               = data.github_repository.repos[each.key].has_wiki
+	allow_merge_commit     = true
+	allow_squash_merge     = true
+	allow_rebase_merge     = true
+	delete_branch_on_merge = true
+	
+	# Security settings
+	vulnerability_alerts = true
+}
+
+# Outputs
+output "managed_repositories" {
+	description = "List of repositories managed by this configuration"
+	value = {
+		for name, config in var.target_repositories :
+		name => {
+			type    = config.repository_type
+			enabled = config.enabled
+		}
+	}
+}
+
+output "updated_files" {
+	description = "Files updated in each repository"
+	value = {
+		for k, v in github_repository_file.template_files :
+		k => {
+			repository = v.repository
+			file       = v.file
+			commit_sha = v.commit_sha
+		}
+	}
+}
+
+output "repository_topics" {
+	description = "Topics configured for each repository"
+	value = {
+		for name, repo in github_repository.managed_repos :
+		name => repo.topics
+	}
+}

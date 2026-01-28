@@ -1,0 +1,46 @@
+# example terraform.tfvars for repository template management
+# Copy this file and customize for your organization
+
+github_org = "mokoconsulting-tech"
+
+# Define repositories to manage with Terraform
+target_repositories = {
+	# Example generic repository
+	"example-app" = {
+		repository_type = "generic"
+		enabled         = true
+		custom_files    = {}
+	}
+	
+	# Example Terraform infrastructure repository
+	"infrastructure-aws" = {
+		repository_type = "terraform"
+		enabled         = true
+		custom_files    = {}
+	}
+	
+	# Example Joomla extension repository
+	"joomla-extension-example" = {
+		repository_type = "joomla"
+		enabled         = true
+		custom_files    = {}
+	}
+	
+	# Example Dolibarr module repository
+	"dolibarr-module-example" = {
+		repository_type = "dolibarr"
+		enabled         = true
+		custom_files    = {}
+	}
+	
+	# Disabled repository (will not be managed)
+	"legacy-project" = {
+		repository_type = "generic"
+		enabled         = false
+		custom_files    = {}
+	}
+}
+
+# GitHub token should be provided via environment variable:
+# export TF_VAR_github_token="your_github_token_here"
+# or via GitHub Actions secret

@@ -1,0 +1,366 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.Terraform
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /templates/workflows/terraform/manage-repo-templates.yml.template
+# VERSION: 01.00.00
+# BRIEF: Terraform workflow to manage and update repository templates using GitHub provider
+# NOTE: Uses Terraform to declaratively manage organization repositories and templates
+
+name: Terraform Manage Repository Templates
+
+on:
+	workflow_dispatch:
+		inputs:
+			action:
+				description: 'Action to perform'
+				required: true
+				type: choice
+				options:
+					- plan
+					- apply
+					- update-templates
+			target_repos:
+				description: 'Target repositories (comma-separated, or "all")'
+				required: false
+				default: 'all'
+			dry_run:
+				description: 'Dry run mode (plan only)'
+				required: false
+				type: boolean
+				default: true
+
+	schedule:
+		# Run weekly on Sundays at 3 AM UTC
+		- cron: '0 3 * * 0'
+
+permissions:
+	contents: read
+	issues: write
+	id-token: write
+
+env:
+	TF_VERSION: '1.7.0'
+	TF_WORKING_DIR: './terraform/repository-management'
+
+jobs:
+	terraform-repo-management:
+		name: Terraform Repository Management
+		runs-on: ubuntu-latest
+		
+		steps:
+			- name: Checkout repository
+				uses: actions/checkout@v4
+
+			- name: Setup Terraform
+				uses: hashicorp/setup-terraform@v3
+				with:
+					terraform_version: ${{ env.TF_VERSION }}
+					terraform_wrapper: false
+
+			- name: Configure GitHub Token
+				run: |
+					echo "GITHUB_TOKEN=${{ secrets.ORG_ADMIN_TOKEN || secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
+
+			- name: Create Terraform Configuration
+				run: |
+					mkdir -p ${{ env.TF_WORKING_DIR }}
+					
+					cat > ${{ env.TF_WORKING_DIR }}/main.tf << 'EOF'
+					terraform {
+						required_version = ">= 1.7.0"
+						
+						required_providers {
+							github = {
+								source  = "integrations/github"
+								version = "~> 6.0"
+							}
+						}
+						
+						backend "local" {
+							path = "terraform.tfstate"
+						}
+					}
+					
+					provider "github" {
+						token = var.github_token
+						owner = var.github_org
+					}
+					
+					variable "github_token" {
+						description = "GitHub personal access token"
+						type        = string
+						sensitive   = true
+					}
+					
+					variable "github_org" {
+						description = "GitHub organization name"
+						type        = string
+						default     = "mokoconsulting-tech"
+					}
+					
+					variable "target_repos" {
+						description = "List of repositories to update"
+						type        = list(string)
+						default     = []
+					}
+					EOF
+
+			- name: Generate Repository Configurations
+				run: |
+					cat > ${{ env.TF_WORKING_DIR }}/repositories.tf << 'EOF'
+					# Data source to get repository information
+					data "github_repository" "repos" {
+						for_each = toset(var.target_repos)
+						full_name = "${var.github_org}/${each.value}"
+					}
+					
+					# Manage repository files from templates
+					resource "github_repository_file" "template_files" {
+						for_each = local.template_file_mappings
+						
+						repository          = each.value.repo
+						branch              = each.value.branch
+						file                = each.value.file_path
+						content             = file("${path.module}/../../${each.value.template_path}")
+						commit_message      = "chore: Update ${each.value.file_path} from MokoStandards template"
+						commit_author       = "MokoStandards Bot"
+						commit_email        = "automation@mokoconsulting.tech"
+						overwrite_on_create = true
+					}
+					
+					# Local values for template mappings
+					locals {
+						# Define which templates go to which files
+						template_mappings = {
+							".github/workflows/ci.yml" = {
+								generic    = "templates/workflows/generic/ci.yml"
+								terraform  = "templates/workflows/terraform/ci.yml"
+								joomla     = "templates/workflows/joomla/ci-joomla.yml.template"
+								dolibarr   = "templates/workflows/dolibarr/ci-dolibarr.yml.template"
+							}
+							".editorconfig" = {
+								all = "templates/configs/.editorconfig"
+							}
+							".gitignore" = {
+								generic = "templates/configs/.gitignore"
+							}
+						}
+						
+						# Flatten template mappings for all target repos
+						template_file_mappings = merge([
+							for repo in var.target_repos : {
+								for file, templates in local.template_mappings : 
+								"${repo}/${file}" => {
+									repo          = repo
+									branch        = "main"
+									file_path     = file
+									template_path = try(templates[data.github_repository.repos[repo].topics[0]], templates["generic"], templates["all"], "")
+								}
+								if try(templates[data.github_repository.repos[repo].topics[0]], templates["generic"], templates["all"], "") != ""
+							}
+						]...)
+					}
+					
+					# Output summary
+					output "updated_files" {
+						description = "Files updated in repositories"
+						value = {
+							for k, v in github_repository_file.template_files :
+							k => "${v.repository}/${v.file}"
+						}
+					}
+					
+					output "repository_info" {
+						description = "Information about target repositories"
+						value = {
+							for k, v in data.github_repository.repos :
+							k => {
+								full_name = v.full_name
+								topics    = v.topics
+								default_branch = v.default_branch
+							}
+						}
+					}
+					EOF
+
+			- name: Get Target Repositories
+				id: get_repos
+				run: |
+					if [ "${{ inputs.target_repos }}" = "all" ]; then
+						# Get all org repositories
+						gh api --paginate "/orgs/${{ github.repository_owner }}/repos" \
+							--jq '.[].name' > repos.txt
+					else
+						# Use specified repositories
+						echo "${{ inputs.target_repos }}" | tr ',' '\n' > repos.txt
+					fi
+					
+					# Convert to JSON array for Terraform
+					REPOS_JSON=$(cat repos.txt | jq -R -s -c 'split("\n") | map(select(length > 0))')
+					echo "repos_json=${REPOS_JSON}" >> $GITHUB_OUTPUT
+				env:
+					GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN || secrets.GITHUB_TOKEN }}
+
+			- name: Create Terraform Variables
+				run: |
+					cat > ${{ env.TF_WORKING_DIR }}/terraform.tfvars << EOF
+					github_org    = "${{ github.repository_owner }}"
+					target_repos  = ${{ steps.get_repos.outputs.repos_json }}
+					EOF
+
+			- name: Terraform Init
+				run: terraform init
+				working-directory: ${{ env.TF_WORKING_DIR }}
+
+			- name: Terraform Validate
+				run: terraform validate
+				working-directory: ${{ env.TF_WORKING_DIR }}
+
+			- name: Terraform Plan
+				id: plan
+				run: |
+					terraform plan \
+						-var="github_token=${{ env.GITHUB_TOKEN }}" \
+						-out=tfplan \
+						-no-color
+				working-directory: ${{ env.TF_WORKING_DIR }}
+				env:
+					TF_LOG: INFO
+
+			- name: Upload Plan
+				uses: actions/upload-artifact@v4
+				with:
+					name: tfplan-repo-templates-${{ github.run_number }}
+					path: ${{ env.TF_WORKING_DIR }}/tfplan
+					retention-days: 30
+
+			- name: Comment Plan Results
+				if: github.event_name == 'workflow_dispatch'
+				uses: actions/github-script@v7
+				with:
+					script: |
+						const fs = require('fs');
+						
+						const output = `### Terraform Repository Template Management Plan
+						
+						**Action:** \`${{ inputs.action }}\`
+						**Target Repositories:** \`${{ inputs.target_repos }}\`
+						**Dry Run:** \`${{ inputs.dry_run }}\`
+						
+						#### Plan Summary
+						
+						The plan has been generated and uploaded as an artifact.
+						Review the changes before applying.
+						
+						<details><summary>Repository Count</summary>
+						
+						Targeting **${{ steps.get_repos.outputs.repos_json }}** repositories
+						
+						</details>
+						
+						*Triggered by: @${{ github.actor }}*
+						`;
+						
+						// Create an issue for tracking
+						await github.rest.issues.create({
+							owner: context.repo.owner,
+							repo: context.repo.repo,
+							title: 'Terraform Repository Template Update Plan',
+							body: output,
+							labels: ['terraform', 'repository-management', 'automation']
+						});
+
+			- name: Terraform Apply
+				if: |
+					(inputs.action == 'apply' || inputs.action == 'update-templates') && 
+					(inputs.dry_run == false || github.event_name == 'schedule')
+				id: apply
+				run: |
+					terraform apply \
+						-var="github_token=${{ env.GITHUB_TOKEN }}" \
+						-auto-approve
+				working-directory: ${{ env.TF_WORKING_DIR }}
+
+			- name: Get Terraform Outputs
+				if: steps.apply.outcome == 'success'
+				id: outputs
+				run: |
+					echo "updated_files=$(terraform output -json updated_files)" >> $GITHUB_OUTPUT
+					echo "repo_info=$(terraform output -json repository_info)" >> $GITHUB_OUTPUT
+				working-directory: ${{ env.TF_WORKING_DIR }}
+
+			- name: Create Summary Report
+				if: steps.apply.outcome == 'success'
+				uses: actions/github-script@v7
+				with:
+					script: |
+						const updatedFiles = JSON.parse('${{ steps.outputs.outputs.updated_files }}');
+						const repoInfo = JSON.parse('${{ steps.outputs.outputs.repo_info }}');
+						
+						let body = '## 🚀 Repository Templates Updated\n\n';
+						body += `**Date:** ${new Date().toISOString()}\n`;
+						body += `**Repositories Updated:** ${Object.keys(repoInfo).length}\n\n`;
+						
+						body += '### Updated Files\n\n';
+						body += '| Repository | File |\n';
+						body += '|------------|------|\n';
+						
+						for (const [key, value] of Object.entries(updatedFiles)) {
+							body += `| ${value.split('/')[0]} | \`${value.split('/').slice(1).join('/')}\` |\n`;
+						}
+						
+						body += '\n### Repository Information\n\n';
+						for (const [repo, info] of Object.entries(repoInfo)) {
+							body += `- **${repo}**: Topics: ${info.topics.join(', ')}, Branch: ${info.default_branch}\n`;
+						}
+						
+						// Create issue with summary
+						await github.rest.issues.create({
+							owner: context.repo.owner,
+							repo: context.repo.repo,
+							title: `Repository Templates Updated - ${new Date().toISOString().split('T')[0]}`,
+							body: body,
+							labels: ['terraform', 'repository-management', 'completed']
+						});
+
+			- name: Summary
+				if: always()
+				run: |
+					echo "### Terraform Repository Template Management" >> $GITHUB_STEP_SUMMARY
+					echo "" >> $GITHUB_STEP_SUMMARY
+					echo "- **Action:** ${{ inputs.action || 'scheduled' }}" >> $GITHUB_STEP_SUMMARY
+					echo "- **Status:** ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+					echo "- **Repositories:** ${{ inputs.target_repos || 'all' }}" >> $GITHUB_STEP_SUMMARY
+					echo "- **Run Number:** ${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+
+	cleanup:
+		name: Cleanup Terraform State
+		runs-on: ubuntu-latest
+		needs: terraform-repo-management
+		if: always()
+		
+		steps:
+			- name: Cleanup temporary files
+				run: |
+					echo "Terraform state is stored locally and will be cleaned up automatically"
+					echo "For production use, configure remote state backend (S3, Azure Storage, etc.)"

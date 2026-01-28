@@ -23,6 +23,41 @@
 
 # Changelog
 
+## [UNRELEASED]
+
+### Changed - Revision History Order
+- **Documentation Standards**: Updated revision history and changelog ordering
+  - Updated `docs/policy/document-formatting.md` to specify **descending chronological order** (newest first, oldest last)
+  - Fixed revision history tables in multiple files to follow descending order:
+    - `templates/index.md` - Reversed 4 revision entries
+    - `templates/workflows/README.md` - Reversed 3 revision history entries and 3 version history entries
+    - `CONTRIBUTING.md` - Reversed 2 revision entries
+    - `README.md` - Reversed 2 revision entries
+  - Aligns with industry standard changelog practices (Keep a Changelog format)
+  - Makes most recent changes immediately visible to readers
+
+### Fixed - Standards Compliance
+- Removed `tests/` directory from required directories check
+  - Updated `.github/workflows/standards-compliance.yml` to check only `docs`, `scripts`, and `.github` directories
+  - Updated `docs/quickstart/repository-startup-guide.md` to make tests/ optional
+  - MokoStandards itself doesn't require a tests/ directory
+
+### Changed - Tab/Space Configuration
+- **Indentation Standards**: Clarified tab usage across file types
+  - Updated `.editorconfig`: Tabs for all files except YAML (which requires spaces per spec)
+  - Updated `.markdownlint.json`: Disabled MD010 to allow tabs in markdown files
+  - Restored tab characters in 12 markdown files that were incorrectly converted to spaces
+
+### Added - Security Documentation
+- Created comprehensive confidentiality scan documentation
+  - Added `docs/policy/security/confidentiality-scan.md` with detailed workflow documentation
+  - Updated `docs/policy/security/index.md` to include new documentation
+  - Documents scan types, patterns, exclusions, and remediation procedures
+
+### Added - Markdown Linting
+- Created `.markdownlint.json` configuration for markdown standards
+- Updated `.editorconfig` with explicit markdown file configuration
+
 ## [02.00.00] - 2026-01-28
 ### Changed - Major Version: Standardized Metadata and Terraform Migration
 - **BREAKING CHANGE**: Standardized metadata across all documentation
@@ -95,8 +130,6 @@
 - Updated `scripts/docs/rebuild_indexes.py` - Auto-index tool with new revision history
 - All 127 documentation files updated with standardized metadata
 - Comprehensive Terraform schema documentation added
-
-## [UNRELEASED]
 
 ## [07.00.00] - 2026-01-13
 ### Added - Golden Architecture & Organizational Standards

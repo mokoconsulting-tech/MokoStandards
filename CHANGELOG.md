@@ -25,6 +25,51 @@
 
 ## [UNRELEASED]
 
+### Added - GitHub Copilot Documentation and Policies
+- **Copilot Pre-Merge Policy**: Created comprehensive pre-merge checklist policy
+  - Created `docs/policy/copilot-pre-merge-checklist.md` (13KB comprehensive policy)
+  - Defines 8 required pre-merge tasks with verification checklists
+  - Sample Copilot prompts for version updates, changelog generation, code review response
+  - Requirements for security scanning, code quality, documentation updates, drift detection
+  - Comprehensive pre-merge prompt template for complete validation
+  - Examples for feature branches, hotfixes, and documentation updates
+  - Automation integration guidance for CI/CD workflows
+- **Pull Request Template**: Created GitHub PR template with integrated checklist
+  - Created `.github/pull_request_template.md` (5.6KB template)
+  - Includes complete pre-merge Copilot checklist with checkboxes
+  - Sections for test results, breaking changes, deployment notes, screenshots
+  - Reviewer verification checklist
+  - Links to comprehensive policy documentation
+  - Enforces consistent PR process across organization
+- **Copilot Usage Policy**: Created comprehensive Copilot usage policy
+  - Created `docs/policy/copilot-usage-policy.md` (12.8KB policy document)
+  - Defines acceptable and prohibited uses of GitHub Copilot
+  - Security requirements and data protection guidelines
+  - Quality standards and code review requirements
+  - Governance framework with roles and responsibilities
+  - Training requirements and monitoring procedures
+  - Incident response and policy violation handling
+  - Best practices for prompt engineering and iterative refinement
+- **Copilot Usage Guide**: Created practical hands-on usage guide
+  - Created `docs/guide/copilot-usage-guide.md` (16.4KB comprehensive guide)
+  - Getting started instructions and initial setup
+  - Core features: inline completion, Copilot Chat, Copilot for CLI
+  - Effective prompt engineering principles and techniques
+  - Common use cases: boilerplate, tests, documentation, refactoring, learning
+  - Advanced techniques: multi-step prompts, context building, pattern replication
+  - Language-specific tips for Python, JavaScript/TypeScript, Go, Shell
+  - Troubleshooting guide and integration with development workflow
+  - Productivity tips, keyboard shortcuts, and quality checklists
+
+### Fixed - Documentation Drift
+- **Script Documentation**: Fixed script documentation filenames to match actual scripts
+  - Renamed `docs/scripts/lib/common-py.md` → `common.md` (matches common.py)
+  - Renamed `docs/scripts/validate/no-secrets-py.md` → `no-secrets.md` (matches no_secrets.py)
+  - Renamed `docs/scripts/maintenance/flush-actions-cache-py.md` → `flush-actions-cache.md`
+  - Renamed `docs/scripts/automation/dev-workstation-provisioner.md` → `setup-dev-environment.md`
+  - Renamed `docs/scripts/automation/guide-file-distributor.md` → `file-distributor.md`
+  - Resolves "documented but missing scripts" validation errors
+
 ### Removed - Backward Compatibility
 - **Backward Compatibility Code Removed**: Cleaned up legacy support code
   - Removed `LegacySchemaAdapter` class from `terraform_schema_reader.py`

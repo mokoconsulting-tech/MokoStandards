@@ -29,6 +29,26 @@ BRIEF: Standardization policy for metadata fields in Terraform configurations
 
 # Terraform Metadata Standards Policy
 
+## Status: Superseded
+
+**This policy has been superseded by [Metadata Standards Policy](metadata-standards.md) as of 2026-01-28.**
+
+The comprehensive [Metadata Standards Policy](metadata-standards.md) now covers:
+- Markdown document metadata
+- Terraform configuration metadata  
+- YAML and JSON configuration metadata
+- All other documentation and configuration types
+
+**For current terraform metadata standards, refer to the "Terraform Configurations" section in [Metadata Standards Policy](metadata-standards.md).**
+
+---
+
+## Historical Content (For Reference Only)
+
+The content below is preserved for historical reference but is no longer authoritative.
+
+---
+
 ## Purpose
 
 This policy establishes mandatory standards for metadata fields in all Terraform configuration files across MokoStandards. It ensures consistency, traceability, and maintainability of infrastructure-as-code definitions.
@@ -337,7 +357,7 @@ For configurations migrating from XML format:
 | Repo           | https://github.com/mokoconsulting-tech/MokoStandards                  |
 | Path           | /docs/policy/terraform-metadata-standards.md                          |
 | Version        | 01.00.00                                                              |
-| Status         | Active                                                                |
+| Status         | Deprecated                                                            |
 | Last Reviewed  | 2026-01-28                                                            |
 | Reviewed By    | MokoStandards Team                                                    |
 
@@ -345,4 +365,5 @@ For configurations migrating from XML format:
 
 | Date       | Author              | Change                                    | Notes                                      |
 | ---------- | ------------------- | ----------------------------------------- | ------------------------------------------ |
+| 2026-01-28 | MokoStandards Team  | Deprecated - superseded by metadata-standards.md | Consolidated into unified metadata policy |
 | 2026-01-28 | MokoStandards Team  | Initial policy creation                   | Establishes terraform metadata standards   |

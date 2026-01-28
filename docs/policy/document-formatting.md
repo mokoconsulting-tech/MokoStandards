@@ -101,21 +101,25 @@ Unless otherwise specified by a document type specific policy, documents must fo
 
 ## Metadata Field Definitions
 
-This section defines each required Metadata field, its purpose, and permitted values. These definitions are authoritative for all markdown policy documents.
+**Note**: For the authoritative and comprehensive metadata standards covering all documentation types (markdown, terraform, YAML, JSON, etc.), refer to the [Metadata Standards Policy](metadata-standards.md).
+
+This section defines metadata fields specifically for markdown policy documents. These align with the broader [Metadata Standards Policy](metadata-standards.md).
 
 | Field          | Description                                                    | Allowed Values / Format                   | Required |
 | -------------- | -------------------------------------------------------------- | ----------------------------------------- | -------- |
-| Document Type  | The category or type of document.                              | Policy, Guide, Checklist, Reference, Report, ADR, Template | Yes |
-| Domain         | The primary domain or area this document covers.               | Documentation, Development, Operations, Security, Governance, Legal, Quality | Yes |
-| Applies To     | Scope of application for this document.                        | All Repositories, Specific Projects, Organization-wide | Yes |
+| Document Type  | The category or type of document.                              | Policy, Guide, Checklist, Reference, Report, ADR, Template, Glossary, Index, Runbook | Yes |
+| Domain         | The primary domain or area this document covers.               | Documentation, Development, Operations, Security, Governance, Quality, Legal, Architecture, Infrastructure, Product | Yes |
+| Applies To     | Scope of application for this document.                        | All Repositories, Organization-wide, Specific Projects, Platform-Specific, Role-Specific, Environment-Specific | Yes |
 | Jurisdiction   | Legal jurisdiction governing this document.                    | Tennessee, USA (fixed value)              | Yes |
 | Owner          | Accountable owner or governing entity.                         | Moko Consulting (fixed value)             | Yes |
 | Repo           | Canonical source repository for the document.                  | https://github.com/mokoconsulting-tech/   | Yes |
 | Path           | Repository relative file path where the document resides.      | Absolute repo path starting with `/docs/` | Yes |
 | Version        | Document version in semantic format.                           | XX.XX.XX (e.g., 03.00.00)                 | Yes |
-| Status         | Governance state of the document.                              | Draft, Active, Authoritative, Deprecated  | Yes |
+| Status         | Governance state of the document.                              | Draft, Active, Authoritative, Deprecated, Superseded, Under Review, Archived | Yes |
 | Last Reviewed  | Date the document was last formally reviewed.                  | YYYY-MM-DD                                | Yes |
 | Reviewed By    | Person or team who performed the last review.                  | Name or team designation                  | Yes |
+
+For detailed definitions, allowed values, and selection guidance for each field, see the [Metadata Standards Policy](metadata-standards.md).
 
 ## Revision History Format
 

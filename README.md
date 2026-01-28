@@ -169,19 +169,19 @@ See [Workflow Templates Documentation](docs/workflows/README.md) for customizati
 Choose platform-specific Makefile:
 
 ```bash
-# Create MokoStandards directory
-mkdir -p MokoStandards
+# Create standards directory
+mkdir -p standards
 
 # For Joomla projects:
-curl -o MokoStandards/Makefile.joomla \
+curl -o standards/Makefile.joomla \
   https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/Makefiles/Makefile.joomla
 
 # For Dolibarr projects:
-curl -o MokoStandards/Makefile.dolibarr \
+curl -o standards/Makefile.dolibarr \
   https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/Makefiles/Makefile.dolibarr
 
 # For generic projects:
-curl -o MokoStandards/Makefile.generic \
+curl -o standards/Makefile.generic \
   https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/Makefiles/Makefile.generic
 ```
 
@@ -338,13 +338,13 @@ python scripts/automation/bulk_update_repos.py --repos repo1,repo2,repo3
 
 ```bash
 # Joomla project
-make -f MokoStandards/Makefile.joomla build
+make -f standards/Makefile.joomla build
 
 # Dolibarr project
-make -f MokoStandards/Makefile.dolibarr package
+make -f standards/Makefile.dolibarr package
 
 # Generic project
-make -f MokoStandards/Makefile.generic test
+make -f standards/Makefile.generic test
 ```
 
 ### Windows-Specific Tasks (PowerShell)
@@ -481,11 +481,11 @@ curl -o .github/workflows/build.yml \
 #### Step 3: Update Build Configuration
 
 ```bash
-# Create new Makefiles directory
-mkdir -p MokoStandards
+# Create new standards directory
+mkdir -p standards
 
 # Copy appropriate Makefile
-curl -o MokoStandards/Makefile.joomla \
+curl -o standards/Makefile.joomla \
   https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/Makefiles/Makefile.joomla
 ```
 
@@ -516,7 +516,7 @@ python scripts/analysis/repository_health.py .
 python scripts/validate/validate_file_headers.py .
 
 # Test build
-make -f MokoStandards/Makefile.joomla test
+make -f standards/Makefile.joomla test
 ```
 
 #### Step 7: Update CI Configuration

@@ -1,0 +1,130 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# GitHub Actions workflow to deploy standard labels to all organization repositories
+
+name: Bulk Label Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      organization:
+        description: 'GitHub organization name'
+        required: true
+        default: 'mokoconsulting-tech'
+        type: string
+      
+      filter:
+        description: 'Repository name filter (optional, e.g., "moko*")'
+        required: false
+        type: string
+      
+      dry_run:
+        description: 'Dry run - preview changes without applying'
+        required: true
+        default: true
+        type: boolean
+      
+      parallel:
+        description: 'Deploy in parallel for faster execution'
+        required: true
+        default: false
+        type: boolean
+
+jobs:
+  deploy-labels:
+    name: Deploy Labels
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup GitHub CLI
+        run: |
+          # GitHub CLI is pre-installed on GitHub Actions runners
+          gh --version
+      
+      - name: Authenticate GitHub CLI
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "$GH_TOKEN" | gh auth login --with-token
+          gh auth status
+      
+      - name: Make scripts executable
+        run: |
+          chmod +x scripts/automation/bulk_deploy_labels.sh
+          chmod +x scripts/maintenance/setup-labels.sh
+      
+      - name: Deploy labels (dry run)
+        if: ${{ inputs.dry_run }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ARGS="--org ${{ inputs.organization }} --dry-run"
+          
+          if [ -n "${{ inputs.filter }}" ]; then
+            ARGS="$ARGS --filter ${{ inputs.filter }}"
+          fi
+          
+          if [ "${{ inputs.parallel }}" = "true" ]; then
+            ARGS="$ARGS --parallel"
+          fi
+          
+          ./scripts/automation/bulk_deploy_labels.sh $ARGS
+      
+      - name: Deploy labels (live)
+        if: ${{ !inputs.dry_run }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ARGS="--org ${{ inputs.organization }}"
+          
+          if [ -n "${{ inputs.filter }}" ]; then
+            ARGS="$ARGS --filter ${{ inputs.filter }}"
+          fi
+          
+          if [ "${{ inputs.parallel }}" = "true" ]; then
+            ARGS="$ARGS --parallel"
+          fi
+          
+          ./scripts/automation/bulk_deploy_labels.sh $ARGS
+      
+      - name: Upload deployment logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: label-deployment-logs
+          path: /tmp/label-deploy-*.log
+          retention-days: 7
+          if-no-files-found: ignore
+      
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Label Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Organization**: ${{ inputs.organization }}" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -n "${{ inputs.filter }}" ]; then
+            echo "- **Filter**: ${{ inputs.filter }}" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "- **Dry Run**: ${{ inputs.dry_run }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Parallel**: ${{ inputs.parallel }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            echo "✅ Dry run completed - no changes were made" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "To apply changes, run this workflow again with 'Dry run' set to false." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ Labels deployed successfully" >> $GITHUB_STEP_SUMMARY
+          fi

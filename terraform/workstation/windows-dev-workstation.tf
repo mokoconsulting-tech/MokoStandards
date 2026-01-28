@@ -10,6 +10,22 @@
 # VERSION: 01.00.00
 # BRIEF: Terraform definition for Windows development workstation provisioning configuration
 
+
+locals {
+  # Metadata for this configuration
+  config_metadata = {
+    name            = "Workstation Windows Dev Workstation"
+    description     = "Development Windows workstation configuration"
+    version         = "2.0.0"
+    last_updated    = "2026-01-28"
+    maintainer      = "MokoStandards Team"
+    schema_version  = "2.0"
+    repository_url  = "https://github.com/mokoconsulting-tech/MokoStandards"
+    repository_type = "standards"
+    format          = "terraform"
+  }
+}
+
 locals {
   dev_workstation_config = {
     metadata = {

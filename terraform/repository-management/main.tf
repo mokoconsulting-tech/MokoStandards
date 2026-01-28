@@ -2,6 +2,22 @@
 # This directory contains Terraform configurations for managing repository templates
 # using the GitHub provider to update multiple repositories declaratively.
 
+
+locals {
+  # Metadata for this configuration
+  config_metadata = {
+    name            = "Repository Management Main"
+    description     = "Repository template management and bulk operations configuration"
+    version         = "2.0.0"
+    last_updated    = "2026-01-28"
+    maintainer      = "MokoStandards Team"
+    schema_version  = "2.0"
+    repository_url  = "https://github.com/mokoconsulting-tech/MokoStandards"
+    repository_type = "standards"
+    format          = "terraform"
+  }
+}
+
 terraform {
 	required_version = ">= 1.7.0"
 	

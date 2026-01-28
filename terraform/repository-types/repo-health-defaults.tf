@@ -2,6 +2,22 @@
 # Converted from schemas/repo-health-default.xml
 # This defines the default repository health scoring and validation configuration
 
+
+locals {
+  # Metadata for this configuration
+  config_metadata = {
+    name            = "Repository Type Repo Health Defaults"
+    description     = "Default repository structure and configuration schema definitions"
+    version         = "2.0.0"
+    last_updated    = "2026-01-28"
+    maintainer      = "MokoStandards Team"
+    schema_version  = "2.0"
+    repository_url  = "https://github.com/mokoconsulting-tech/MokoStandards"
+    repository_type = "standards"
+    format          = "terraform"
+  }
+}
+
 locals {
   repo_health_metadata = {
     name           = "MokoStandards Repository Health Default Configuration"

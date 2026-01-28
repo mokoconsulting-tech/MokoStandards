@@ -23,7 +23,7 @@
  INGROUP: MokoStandards
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  FILE: README.md
- VERSION: 03.00.00
+ VERSION: 03.01.00
  BRIEF: Authoritative coding standards, golden architecture, workflows, templates, and governance policies for v2.
  PATH: /README.md
  NOTE: Version 2.0 release - no backward compatibility with v1. Complete documentation rebuild with enhanced structure.

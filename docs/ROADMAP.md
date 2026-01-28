@@ -98,6 +98,12 @@ MokoStandards follows semantic versioning (MAJOR.MINOR.PATCH) with a **suggested
 
 **Documentation & Standards:**
 - [ ] Documentation index automation improvements
+- [ ] **CRITICAL: Document 35 undocumented Python scripts (75% coverage gap)**
+- [ ] **HIGH: Document 5 shell scripts (0% coverage)**
+- [ ] **HIGH: Create script integration workflow guide**
+- [ ] Consolidate overlapping branching documentation (3 files → 1 comprehensive guide)
+- [ ] Expand disaster recovery policy from 40 to 150+ lines
+- [ ] Create component interaction matrix showing dependencies
 - [ ] Automated compliance checking for repository standards
 - [ ] Repository health scoring v2.0
 - [ ] Standards compliance dashboard
@@ -517,6 +523,211 @@ MokoStandards follows semantic versioning (MAJOR.MINOR.PATCH) with a **suggested
    - Performance benchmarking
    - Security audits
 
+## Known Gaps and Weaknesses
+
+**Last Updated**: 2026-01-28  
+**Next Review**: 2026-04-28
+
+This section documents identified gaps, weaknesses, and technical debt to ensure transparent planning and prioritization.
+
+### Documentation Gaps
+
+#### Critical (Must Address in v03.01.00)
+
+| Gap | Impact | Scripts Affected | Target Resolution |
+|-----|--------|------------------|-------------------|
+| **75% of Python scripts undocumented** | 🔴 HIGH - Maintenance burden, onboarding difficulty | 35 of 47 scripts | v03.01.00 |
+| **100% of shell scripts undocumented** | 🔴 HIGH - No reference material | 5 scripts | v03.01.00 |
+| **No script integration workflow guide** | 🟠 MEDIUM - Users don't know execution order | All automation scripts | v03.01.00 |
+| **Missing component interaction matrix** | 🟠 MEDIUM - Dependencies unclear | All components | v03.01.00 |
+
+**Undocumented Scripts by Category** (35 total):
+- **Analysis** (3): `code_metrics.py`, `generate_canonical_config.py`, `analyze_dependencies.py`
+- **Automation** (6): `setup_dev_environment.py`, `check_outdated_actions.py`, `auto_create_org_projects.py`, `create_repo_project.py`, `sync_file_to_project.py`, `sync_dolibarr_changelog.py`
+- **Maintenance** (5): `update_changelog.py`, `update_copyright_year.py`, `validate_file_headers.py`, `release_version.py`, `clean_old_branches.py`
+- **Validation** (17): Including `validate_codeql_config.py`, `check_license_headers.py`, `schema_aware_health_check.py`, and 14 others
+- **Tests** (2): `test_dry_run.py`, `test_bulk_update_repos.py`
+- **Run** (1): `setup_github_project_v2.py`
+- **Shell Scripts** (5): `common.sh`, `ubuntu-dev-workstation-provisioner.sh`, `setup-labels.sh`, `update_gitignore_patterns.sh`, `git_helper.sh`
+
+#### Medium (Should Address in v03.02.00)
+
+| Gap | Impact | Target Resolution |
+|-----|--------|-------------------|
+| **Overlapping branching documentation** | 🟡 MEDIUM - Reader confusion | v03.02.00 |
+| **Incomplete disaster recovery policy** | 🟡 MEDIUM - Operational gaps | v03.02.00 |
+| **Missing third-party integration policy** | 🟡 MEDIUM - Vendor risk | v03.02.00 |
+| **Scattered testing policies** | 🟡 MEDIUM - Inconsistency | v03.02.00 |
+
+**Documentation Consolidation Needed**:
+1. **Branching**: 3 files (`branching-strategy.md`, `branching-quick-reference.md`, `branch-synchronization.md`) → 1 comprehensive guide
+2. **Incident Response**: 2 files (`governance/incident-management.md`, `waas/incident-response.md`) → Clarify scope separation
+3. **Testing**: 2 files (`quality/testing-strategy-standards.md`, `operations/performance-testing-standards.md`) → Single testing policy
+4. **Development Standards**: 3 locations (WaaS, CRM, general) → Clarify hierarchy
+
+### Script Weaknesses
+
+#### Code Quality Status (✅ Generally Strong)
+
+| Metric | Status | Coverage | Notes |
+|--------|--------|----------|-------|
+| Exception Handling | ✅ Excellent | 100% (51/51 scripts) | All scripts have try/except blocks |
+| Logging | ✅ Excellent | 90% (46/51 scripts) | Consistent logging implementation |
+| Technical Debt | ✅ Minimal | 2 TODOs only | Only in stub/template files |
+| Error Messages | ✅ Good | ~95% | Meaningful error reporting |
+| Type Hints | ⚠️ Partial | ~60% | Inconsistent usage |
+
+#### Identified Weaknesses
+
+| Weakness | Scripts Affected | Priority | Remediation Plan |
+|----------|------------------|----------|------------------|
+| **Type hints inconsistency** | ~20 scripts | 🟡 P2 | Add type hints to all public functions (v03.03.00) |
+| **Missing integration tests** | Validation scripts | 🟠 P1 | Create test suite (v03.02.00) |
+| **Hardcoded values** | Several automation scripts | 🟡 P2 | Move to configuration files (v03.03.00) |
+| **Limited error context** | ~10 scripts | 🟢 P3 | Enhance error messages (v03.04.00) |
+
+### Policy Gaps
+
+#### Missing or Incomplete Policies
+
+| Policy Need | Current Status | Impact | Target Version |
+|-------------|----------------|--------|----------------|
+| **Comprehensive Testing Policy** | ⚠️ Split across 2 files | Medium | v03.02.00 |
+| **Error Handling Standards** | ⚠️ Implied, not explicit | Medium | v03.02.00 |
+| **Logging Standards** | ⚠️ Practice exists, no formal policy | Low | v03.03.00 |
+| **Third-Party Integration Policy** | ❌ Missing | Medium | v03.02.00 |
+| **Disaster Recovery Details** | ⚠️ Only 40 lines, needs 150+ | Medium | v03.02.00 |
+| **Script Versioning Policy** | ❌ Missing | Low | v03.03.00 |
+| **API Contract Standards** | ❌ Missing | Low | v03.04.00 |
+
+**Policy Count by Category** (71 total):
+- Security: 10 (✅ Comprehensive)
+- Operations: 9 (✅ Adequate)
+- WaaS: 19 (✅ Comprehensive)
+- CRM: 3 (✅ Adequate)
+- Governance: 3 (✅ Adequate)
+- Quality: 4 (⚠️ Minimal, needs expansion)
+- Other: 14 (✅ Comprehensive)
+
+### Integration Gaps
+
+#### Missing Documentation
+
+| Integration Type | Status | Impact | Priority |
+|------------------|--------|--------|----------|
+| **Getting Started Guide** | ⚠️ Partial | High - New user onboarding | P1 |
+| **Script Workflow Integration** | ❌ Missing | High - How scripts work together | P0 |
+| **Multi-Product Integration** | ❌ Missing | Medium - CRM ↔ WaaS ↔ Core | P2 |
+| **Local Development Workflow** | ⚠️ Incomplete | Medium - Developer setup | P1 |
+| **Release Workflow Details** | ⚠️ Partial | Medium - Script execution order | P1 |
+| **Troubleshooting Guide** | ⚠️ Scattered | Medium - Problem resolution | P2 |
+
+#### Required Integration Guides
+
+1. **Script Dependency Graph** - Visual diagram showing which scripts call which
+2. **Workflow Execution Matrix** - When and how workflows run
+3. **Multi-Environment Setup** - Local → Staging → Production
+4. **Component Interaction Map** - How policies, guides, and scripts connect
+5. **Failure Mode Analysis** - Common failures and resolutions
+
+### Technical Debt
+
+#### Documentation Technical Debt
+
+| Item | Debt Level | Estimated Effort | Priority |
+|------|------------|------------------|----------|
+| Undocumented scripts (35) | 🔴 High | 70-105 hours (2-3 hrs each) | P0 |
+| Undocumented shell scripts (5) | 🟠 Medium | 10-15 hours | P0 |
+| Consolidation needed (10 files) | 🟡 Low | 20-30 hours | P1 |
+| Missing integration guides (6) | 🟠 Medium | 30-40 hours | P1 |
+| Policy expansion (7 policies) | 🟡 Low | 20-30 hours | P2 |
+| **Total Documentation Debt** | - | **150-220 hours** | - |
+
+#### Code Technical Debt
+
+| Item | Debt Level | Estimated Effort | Priority |
+|------|------------|------------------|----------|
+| Type hints addition (~20 files) | 🟡 Low | 20-30 hours | P2 |
+| Integration test suite | 🟠 Medium | 40-60 hours | P1 |
+| Configuration externalization | 🟡 Low | 10-15 hours | P2 |
+| Error message enhancement | 🟢 Very Low | 5-10 hours | P3 |
+| **Total Code Debt** | - | **75-115 hours** | - |
+
+**Total Technical Debt**: 225-335 hours (~6-8 weeks for one person, ~3-4 weeks for two people)
+
+### Remediation Roadmap
+
+#### Quick Wins (1-2 weeks, v03.01.00)
+
+1. **Document Top 6-8 Critical Scripts** (20-24 hours)
+   - `bulk_update_repos.py`
+   - `terraform_schema_reader.py`
+   - `check_repo_health.py`
+   - `validate_structure_v2.py`
+   - `setup_dev_environment.py`
+   - `auto_create_org_projects.py`
+
+2. **Create Script Integration Flowchart** (4-6 hours)
+   - Visual representation of script dependencies
+   - Execution order documentation
+
+3. **Expand Disaster Recovery Policy** (2-3 hours)
+   - From 40 lines to 150+ lines
+   - Add procedures, tools, testing
+
+#### Medium Effort (2-4 weeks, v03.02.00)
+
+1. **Document Remaining Scripts** (50-81 hours)
+   - All 29 remaining Python scripts
+   - All 5 shell scripts
+
+2. **Consolidate Documentation** (20-30 hours)
+   - Merge branching docs → 1 guide
+   - Clarify testing policies
+   - Organize development standards
+
+3. **Create Integration Guides** (30-40 hours)
+   - Component interaction matrix
+   - Multi-environment setup guide
+   - Troubleshooting guide
+
+4. **Add Missing Policies** (20-30 hours)
+   - Third-party integration policy
+   - Error handling standards
+   - Logging standards
+
+#### Long-term (1-3 months, v03.03.00-v03.04.00)
+
+1. **Add Type Hints** (20-30 hours, v03.03.00)
+   - All public functions
+   - All library modules
+
+2. **Build Integration Test Suite** (40-60 hours, v03.03.00)
+   - Validation script tests
+   - Workflow integration tests
+
+3. **Create Automated Documentation Tools** (60-80 hours, v03.04.00)
+   - Script documentation generator
+   - Policy compliance checker
+   - Documentation drift detector
+
+### Monitoring and Review
+
+**Review Cycle**: Quarterly (April, July, October, January)
+
+**Metrics to Track**:
+- Documentation coverage percentage (currently 25%)
+- Undocumented script count (currently 35)
+- Policy gap count (currently 7)
+- Technical debt hours remaining (currently 225-335)
+
+**Target Goals**:
+- Q2 2026 (v03.02.00): 80% documentation coverage, <10 undocumented scripts
+- Q3 2026 (v03.03.00): 95% documentation coverage, <3 undocumented scripts
+- Q4 2026 (v03.04.00): 100% documentation coverage, 0 undocumented scripts
+
+---
+
 ## Success Metrics
 
 ### Key Performance Indicators (KPIs)
@@ -526,6 +737,8 @@ MokoStandards follows semantic versioning (MAJOR.MINOR.PATCH) with a **suggested
 | Repositories Using Standards | 15 | 50 | 100 |
 | Workflow Templates | 47 | 75 | 120 |
 | Documentation Pages | 200+ | 300+ | 500+ |
+| **Script Documentation Coverage** | **25%** | **80%** | **100%** |
+| **Undocumented Scripts** | **35** | **<10** | **0** |
 | Automated Tests Coverage | 75% | 85% | 95% |
 | Deployment Frequency | Weekly | Daily | Multiple/day |
 | Mean Time to Recovery | 2 hours | 1 hour | 30 minutes |

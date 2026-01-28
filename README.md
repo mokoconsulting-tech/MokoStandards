@@ -80,11 +80,17 @@ Repository organization and quality standards:
 - **106 Script Wrappers**: 53 Bash + 53 PowerShell wrappers for seamless cross-platform usage
 
 Script categories:
-- `validate/` - Repository health, manifest validation, secret scanning
-- `automation/` - Bulk operations, label deployment, workflow generation
-- `maintenance/` - Changelog, versioning, cleanup
-- `analysis/` - PR conflicts, dependency analysis
-- `wrappers/` - Cross-platform execution wrappers for all Python scripts
+- `validate/` - Repository health, manifest validation, secret scanning (20 scripts)
+- `automation/` - Bulk operations, label deployment, workflow generation (9 scripts)
+- `maintenance/` - Changelog, versioning, cleanup (8 scripts)
+- `analysis/` - PR conflicts, dependency analysis (4 scripts)
+- `release/` - Version management, packaging (4 scripts)
+- `docs/` - Documentation generation and maintenance (4 scripts)
+- `build/` - Build automation (1 script)
+- `run/` - Operational setup (1 script)
+- `tests/` - Test automation (2 scripts)
+- `wrappers/` - Cross-platform execution wrappers for all Python scripts (106 wrappers)
+- `powershell/` - PowerShell-specific automation with GUI support (7 scripts + 3 modules)
 
 See [Scripts Documentation](scripts/README.md).
 
@@ -187,14 +193,19 @@ MokoStandards/
 │   └── index.md              # Documentation catalog
 │
 ├── scripts/                    # 🛠️ Automation tools (180 scripts)
-│   ├── validate/              # Validation and compliance (16 scripts)
-│   ├── automation/            # Bulk operations (12 scripts)
-│   ├── maintenance/           # Repository maintenance (15 scripts)
-│   ├── analysis/              # Analysis and reporting (8 scripts)
+│   ├── validate/              # Validation and compliance (20 scripts)
+│   ├── automation/            # Bulk operations (9 scripts)
+│   ├── maintenance/           # Repository maintenance (8 scripts)
+│   ├── analysis/              # Analysis and reporting (4 scripts)
+│   ├── build/                 # Build automation (1 script)
+│   ├── release/               # Release management (4 scripts)
+│   ├── docs/                  # Documentation generation (4 scripts)
+│   ├── run/                   # Operational scripts (1 script)
+│   ├── tests/                 # Test scripts (2 scripts)
 │   ├── wrappers/              # Cross-platform wrappers (106 wrappers)
 │   │   ├── bash/              # 53 Bash wrappers
 │   │   └── powershell/        # 53 PowerShell wrappers
-│   ├── powershell/            # PowerShell-specific scripts (10 scripts)
+│   ├── powershell/            # PowerShell-specific scripts (7 scripts + 3 modules)
 │   └── lib/                   # Shared libraries
 │
 ├── templates/                  # 📋 Reference templates (137 files)

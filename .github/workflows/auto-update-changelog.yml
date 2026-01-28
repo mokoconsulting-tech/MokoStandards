@@ -200,7 +200,10 @@ jobs:
       - name: Commit CHANGELOG update
         id: commit
         env:
+          PR_NUMBER: ${{ steps.pr-info.outputs.pr_number }}
           PR_TITLE: ${{ steps.pr-info.outputs.pr_title }}
+          CHANGE_TYPE: ${{ steps.pr-info.outputs.change_type }}
+          PR_USER: ${{ steps.pr-info.outputs.pr_user }}
         run: |
           git add CHANGELOG.md
           
@@ -208,14 +211,14 @@ jobs:
             echo "No changes to commit"
             echo "committed=false" >> $GITHUB_OUTPUT
           else
-            git commit -m "docs: Update CHANGELOG.md for PR #${{ steps.pr-info.outputs.pr_number }}
+            git commit -m "docs: Update CHANGELOG.md for PR #$PR_NUMBER
 
           Automated changelog update based on merged PR.
 
-          PR: #${{ steps.pr-info.outputs.pr_number }}
+          PR: #$PR_NUMBER
           Title: $PR_TITLE
-          Type: ${{ steps.pr-info.outputs.change_type }}
-          Author: @${{ steps.pr-info.outputs.pr_user }}
+          Type: $CHANGE_TYPE
+          Author: @$PR_USER
 
           [skip ci]"
             
@@ -245,13 +248,19 @@ jobs:
       
       - name: Summary
         if: steps.commit.outputs.committed == 'true'
+        env:
+          PR_NUMBER: ${{ steps.pr-info.outputs.pr_number }}
+          PR_TITLE: ${{ steps.pr-info.outputs.pr_title }}
+          CHANGE_TYPE: ${{ steps.pr-info.outputs.change_type }}
+          PR_DATE: ${{ steps.pr-info.outputs.date }}
+          PR_USER: ${{ steps.pr-info.outputs.pr_user }}
         run: |
           echo "## ✅ Changelog Updated Successfully" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **PR**: #${{ steps.pr-info.outputs.pr_number }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Title**: ${{ steps.pr-info.outputs.pr_title }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Type**: ${{ steps.pr-info.outputs.change_type }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Date**: ${{ steps.pr-info.outputs.date }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Author**: @${{ steps.pr-info.outputs.pr_user }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **PR**: #$PR_NUMBER" >> $GITHUB_STEP_SUMMARY
+          echo "- **Title**: $PR_TITLE" >> $GITHUB_STEP_SUMMARY
+          echo "- **Type**: $CHANGE_TYPE" >> $GITHUB_STEP_SUMMARY
+          echo "- **Date**: $PR_DATE" >> $GITHUB_STEP_SUMMARY
+          echo "- **Author**: @$PR_USER" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "CHANGELOG.md has been updated with the PR information." >> $GITHUB_STEP_SUMMARY

@@ -86,7 +86,45 @@ Accountable for:
 
 ### Standard Copyright Header
 
-**All files MUST include this copyright header as the first content:**
+**All files MUST include a copyright header as the first content.**
+
+**Required Elements:**
+- Copyright notice with year and owner
+- Project membership statement
+- SPDX license identifier
+- Basic license terms (GPL-3.0-or-later)
+
+**Suggested Elements:**
+- Full GPL license text including warranty disclaimer
+- Additional license details and references
+
+### Minimal Header (Required Elements Only)
+
+For simple files where brevity is preferred, use this minimal header:
+
+#### For Markdown Files
+
+```markdown
+<!--
+Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+
+This file is part of a Moko Consulting project.
+
+SPDX-License-Identifier: GPL-3.0-or-later
+
+# FILE INFORMATION
+DEFGROUP: [Group.Subgroup]
+INGROUP: [Parent.Group]
+REPO: https://github.com/mokoconsulting-tech/MokoStandards
+PATH: /path/to/file.md
+VERSION: XX.YY.ZZ
+BRIEF: Brief description of file purpose
+-->
+```
+
+### Full Header (With Suggested Elements)
+
+For comprehensive documentation and policies, use this full header with warranty disclaimer:
 
 #### For Markdown Files
 
@@ -121,7 +159,28 @@ BRIEF: Brief description of file purpose
 -->
 ```
 
-#### For Python Files
+#### For Python Files (Minimal)
+
+```python
+#!/usr/bin/env python3
+"""
+Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+
+This file is part of a Moko Consulting project.
+
+SPDX-License-Identifier: GPL-3.0-or-later
+
+FILE INFORMATION
+DEFGROUP: [Group.Subgroup]
+INGROUP: [Parent.Group]
+REPO: https://github.com/mokoconsulting-tech/MokoStandards
+PATH: /path/to/file.py
+VERSION: XX.YY.ZZ
+BRIEF: Brief description of file purpose
+"""
+```
+
+#### For Python Files (Full)
 
 ```python
 #!/usr/bin/env python3
@@ -155,7 +214,27 @@ BRIEF: Brief description of file purpose
 """
 ```
 
-#### For PHP Files
+#### For PHP Files (Minimal)
+
+```php
+<?php
+/* Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+ *
+ * This file is part of a Moko Consulting project.
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ *
+ * FILE INFORMATION
+ * DEFGROUP: [Group.Subgroup]
+ * INGROUP: [Parent.Group]
+ * REPO: https://github.com/mokoconsulting-tech/MokoStandards
+ * PATH: /path/to/file.php
+ * VERSION: XX.YY.ZZ
+ * BRIEF: Brief description of file purpose
+ */
+```
+
+#### For PHP Files (Full)
 
 ```php
 <?php
@@ -188,7 +267,25 @@ BRIEF: Brief description of file purpose
  */
 ```
 
-#### For YAML Files
+#### For YAML Files (Minimal)
+
+```yaml
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# FILE INFORMATION
+# DEFGROUP: [Group.Subgroup]
+# INGROUP: [Parent.Group]
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /path/to/file.yml
+# VERSION: XX.YY.ZZ
+# BRIEF: Brief description of file purpose
+```
+
+#### For YAML Files (Full)
 
 ```yaml
 # Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
@@ -219,7 +316,7 @@ BRIEF: Brief description of file purpose
 # BRIEF: Brief description of file purpose
 ```
 
-#### For Shell Scripts
+#### For Shell Scripts (Minimal)
 
 ```bash
 #!/bin/bash
@@ -229,7 +326,37 @@ BRIEF: Brief description of file purpose
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
-# [Full license header...]
+# FILE INFORMATION
+# DEFGROUP: [Group.Subgroup]
+# INGROUP: [Parent.Group]
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /path/to/script.sh
+# VERSION: XX.YY.ZZ
+# BRIEF: Brief description of file purpose
+```
+
+#### For Shell Scripts (Full)
+
+```bash
+#!/bin/bash
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
 # FILE INFORMATION
 # DEFGROUP: [Group.Subgroup]
@@ -239,6 +366,25 @@ BRIEF: Brief description of file purpose
 # VERSION: XX.YY.ZZ
 # BRIEF: Brief description of file purpose
 ```
+
+### Guidance on Header Selection
+
+**Use Minimal Header (without warranty disclaimer) for:**
+- Simple configuration files
+- Short utility scripts
+- Template files
+- Example code
+- Files under 100 lines
+
+**Use Full Header (with warranty disclaimer) for:**
+- Complex application code
+- Public-facing APIs
+- Distributed libraries
+- Security-sensitive code
+- Policy documents
+- Comprehensive documentation
+
+**When in doubt:** The minimal header is sufficient for most internal files. The warranty disclaimer adds legal clarity but is not required for GPL-3.0-or-later licensed code (it's implied by the license).
 
 ### File Information Block Fields
 

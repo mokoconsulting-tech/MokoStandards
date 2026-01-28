@@ -25,6 +25,27 @@
 
 ## [UNRELEASED]
 
+### Changed - File Header Standards Update
+- **Documentation Standards**: Updated file-header-standards.md to clarify warranty disclaimer requirements
+  - Warranty disclaimer is now **suggested** rather than required in file headers
+  - Added distinction between "Minimal Header" (required elements only) and "Full Header" (with suggested warranty disclaimer)
+  - Required elements: Copyright, project membership, SPDX identifier, basic GPL license terms
+  - Suggested elements: Full GPL license text including warranty disclaimer
+  - Added guidance on when to use each header type
+  - Updated all file type examples (Markdown, Python, PHP, Shell, YAML) to show both minimal and full variants
+  - **Exception**: Warranty disclaimer MUST appear in:
+    - index.php files (for directory protection)
+    - README files (as visible text, not comment)
+    - Dolibarr module descriptor files
+    - Joomla extension XML files
+
+### Changed - Metadata Updates
+- **Documentation Standardization**: Updated metadata sections across 129 documentation files
+  - Applied standardized 11-field metadata tables
+  - Updated all revision history sections to proper format
+  - Set consistent version (03.00.00) and review dates (2026-01-28)
+  - Assigned appropriate document types and domains based on file paths
+
 ### Changed - Indentation Policy Clarification
 - **Documentation Standards**: Updated coding and scripting standards to clarify tabs-over-spaces policy
   - Updated `docs/policy/coding-style-guide.md` to specify tabs as MokoStandards default

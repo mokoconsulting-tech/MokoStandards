@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Detect TAB characters in YAML files where they are not allowed.
+Detect TAB characters in files where spaces are required by language specification.
 
 Copyright (C) 2025 Moko Consulting <hello@mokoconsulting.tech>
 
@@ -24,11 +24,11 @@ along with this program (./LICENSE.md).
 FILE INFORMATION
 DEFGROUP: Script.Validate
 INGROUP: Code.Quality
-REPO: https://github.com/mokoconsulting-tech/moko-cassiopeia
+REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /scripts/validate/tabs.py
-VERSION: 01.00.00
-BRIEF: Detect TAB characters in YAML files where they are not allowed
-NOTE: YAML specification forbids tab characters
+VERSION: 01.01.00
+BRIEF: Detect TAB characters in files where spaces are required
+NOTE: Enforces MokoStandards indentation policy - tabs by default, spaces for specific languages
 """
 
 import argparse
@@ -47,11 +47,28 @@ except ImportError:
     sys.exit(1)
 
 
-# File type mappings
+# File type mappings - languages that REQUIRE spaces (tabs will break them)
 FILE_TYPE_EXTENSIONS = {
     'yaml': ['.yml', '.yaml'],
     'python': ['.py'],
-    'shell': ['.sh', '.bash'],
+    'haskell': ['.hs', '.lhs'],
+    'fsharp': ['.fs', '.fsx', '.fsi'],
+    'coffeescript': ['.coffee', '.litcoffee'],
+    'nim': ['.nim', '.nims', '.nimble'],
+    'json': ['.json'],
+    'rst': ['.rst'],
+}
+
+# Language-specific reasons for requiring spaces
+LANGUAGE_REASONS = {
+    'yaml': 'YAML specification forbids tab characters',
+    'python': 'PEP 8 standard requires spaces; tabs can cause IndentationError',
+    'haskell': 'Haskell layout rules require spaces',
+    'fsharp': 'F# indentation-sensitive syntax requires spaces',
+    'coffeescript': 'CoffeeScript is whitespace-significant and requires spaces',
+    'nim': 'Nim style guide requires spaces',
+    'json': 'JSON spec and many parsers reject tabs',
+    'rst': 'reStructuredText indentation rules require spaces',
 }
 
 
@@ -178,15 +195,32 @@ def check_tabs_in_file(filepath: str) -> List[Tuple[int, str]]:
 def main() -> int:
     """Main entry point."""
     parser = argparse.ArgumentParser(
-        description='Detect TAB characters in files',
+        description='Detect TAB characters in files where spaces are required',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
+MokoStandards Indentation Policy:
+  - Default: Use tabs for most languages
+  - Exception: Spaces required for languages where tabs break functionality
+  
+Languages requiring spaces (tabs forbidden):
+  - YAML (.yml, .yaml) - Spec forbids tabs
+  - Python (.py) - PEP 8 standard; tabs can cause IndentationError
+  - Haskell (.hs, .lhs) - Layout rules require spaces
+  - F# (.fs, .fsx, .fsi) - Indentation-sensitive syntax
+  - CoffeeScript (.coffee) - Whitespace-significant language
+  - Nim (.nim) - Style guide requirement
+  - JSON (.json) - Parser compatibility
+  - reStructuredText (.rst) - Indentation requirement
+
 Examples:
   # Check all YAML files (default)
   python3 scripts/validate/tabs.py
 
-  # Check specific file type
+  # Check Python files
   python3 scripts/validate/tabs.py --type python
+
+  # Check all languages requiring spaces
+  python3 scripts/validate/tabs.py --type all
 
   # Check specific extensions
   python3 scripts/validate/tabs.py --ext .yml --ext .py
@@ -198,7 +232,7 @@ Examples:
 
     parser.add_argument(
         '--type',
-        choices=['yaml', 'python', 'shell', 'all'],
+        choices=['yaml', 'python', 'haskell', 'fsharp', 'coffeescript', 'nim', 'json', 'rst', 'all'],
         default='yaml',
         help='Type of files to check (default: yaml)'
     )
@@ -270,10 +304,18 @@ Examples:
 
     if bad_files:
         print("", file=sys.stderr)
-        print("ERROR: Tabs found in repository files", file=sys.stderr)
+        print("ERROR: Tabs found in files that require spaces", file=sys.stderr)
         print("", file=sys.stderr)
-        if args.type == 'yaml':
-            print("YAML specification forbids tab characters.", file=sys.stderr)
+        
+        # Show language-specific reason if checking single type
+        if args.type and args.type != 'all' and args.type in LANGUAGE_REASONS:
+            print(f"Reason: {LANGUAGE_REASONS[args.type]}", file=sys.stderr)
+            print("", file=sys.stderr)
+        else:
+            print("MokoStandards Policy: Tabs by default, spaces for specific languages", file=sys.stderr)
+            print("Languages requiring spaces: YAML, Python, Haskell, F#, CoffeeScript, Nim, JSON, RST", file=sys.stderr)
+            print("", file=sys.stderr)
+        
         print(f"Found tabs in {len(bad_files)} file(s):", file=sys.stderr)
         for f in bad_files:
             print(f"  - {f}", file=sys.stderr)

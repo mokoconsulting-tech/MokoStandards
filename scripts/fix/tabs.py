@@ -26,14 +26,14 @@ DEFGROUP: Script.Fix
 INGROUP: Code.Quality
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /scripts/fix/tabs.py
-VERSION: 01.00.00
-BRIEF: Convert tabs to spaces in files
-NOTE: MokoStandards Policy - File formatting: Enforces organizational coding standards
+VERSION: 01.01.00
+BRIEF: Convert tabs to spaces in files where spaces are required
+NOTE: MokoStandards Policy - Enforces indentation standards for specific languages
 
 MokoStandards Policy Compliance:
 - File formatting: Enforces organizational coding standards
-- Reference: docs/policy/file-formatting.md
-- YAML/Python/Shell: tabs → spaces (4 spaces default, 2 for YAML)
+- Reference: docs/policy/coding-style-guide.md
+- Languages requiring spaces: YAML, Python, Haskell, F#, CoffeeScript, Nim, JSON, RST
 - Makefiles: tabs preserved (required by Make syntax)
 """
 
@@ -65,9 +65,34 @@ FILE_TYPE_RULES = {
         'spaces': 4,
         'convert': True
     },
-    'shell': {
-        'extensions': ['.sh', '.bash'],
+    'haskell': {
+        'extensions': ['.hs', '.lhs'],
+        'spaces': 2,
+        'convert': True
+    },
+    'fsharp': {
+        'extensions': ['.fs', '.fsx', '.fsi'],
         'spaces': 4,
+        'convert': True
+    },
+    'coffeescript': {
+        'extensions': ['.coffee', '.litcoffee'],
+        'spaces': 2,
+        'convert': True
+    },
+    'nim': {
+        'extensions': ['.nim', '.nims', '.nimble'],
+        'spaces': 2,
+        'convert': True
+    },
+    'json': {
+        'extensions': ['.json'],
+        'spaces': 2,
+        'convert': True
+    },
+    'rst': {
+        'extensions': ['.rst'],
+        'spaces': 3,
         'convert': True
     },
     'makefile': {
@@ -284,7 +309,7 @@ Note: Makefiles are automatically detected and tabs are preserved.
 
     parser.add_argument(
         '--type',
-        choices=['yaml', 'python', 'shell', 'all'],
+        choices=['yaml', 'python', 'haskell', 'fsharp', 'coffeescript', 'nim', 'json', 'rst', 'all'],
         help='Type of files to fix'
     )
     parser.add_argument(

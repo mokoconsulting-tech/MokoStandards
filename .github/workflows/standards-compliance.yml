@@ -384,23 +384,32 @@ jobs:
           set -x
           echo "### Tab Character Detection" >> $GITHUB_STEP_SUMMARY
 
-          # Find files with tabs (excluding certain file types)
-          TABS_FOUND=$(find . -type f \
+          # Policy: Tabs are DEFAULT. Only check for tabs in files that REQUIRE spaces.
+          # Languages requiring spaces: YAML, Python, Haskell, F#, CoffeeScript, Nim, JSON, RST
+          TABS_IN_SPACES_FILES=$(find . -type f \
+            \( -name "*.yml" -o -name "*.yaml" \
+            -o -name "*.py" \
+            -o -name "*.hs" -o -name "*.lhs" \
+            -o -name "*.fs" -o -name "*.fsx" -o -name "*.fsi" \
+            -o -name "*.coffee" -o -name "*.litcoffee" \
+            -o -name "*.nim" -o -name "*.nims" -o -name "*.nimble" \
+            -o -name "*.json" \
+            -o -name "*.rst" \) \
             ! -path "./vendor/*" \
             ! -path "./node_modules/*" \
             ! -path "./.git/*" \
-            ! -name "Makefile*" \
-            ! -name "*.tsv" \
             -exec grep -l $'\t' {} \; 2>/dev/null | head -10)
 
-          if [ -n "$TABS_FOUND" ]; then
-            echo "⚠️ Tab characters found in files:" >> $GITHUB_STEP_SUMMARY
+          if [ -n "$TABS_IN_SPACES_FILES" ]; then
+            echo "⚠️ Tab characters found in files that require spaces:" >> $GITHUB_STEP_SUMMARY
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-            echo "$TABS_FOUND" >> $GITHUB_STEP_SUMMARY
+            echo "$TABS_IN_SPACES_FILES" >> $GITHUB_STEP_SUMMARY
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-            echo "MokoStandards uses tabs by default (spaces only for languages where tabs break: YAML, Python, Haskell, F#, CoffeeScript, Nim, JSON, RST)" >> $GITHUB_STEP_SUMMARY
+            echo "These languages require spaces (tabs will break): YAML, Python, Haskell, F#, CoffeeScript, Nim, JSON, RST" >> $GITHUB_STEP_SUMMARY
+            echo "All other files (including .md, .ps1, LICENSE, etc.) may use tabs per MokoStandards policy" >> $GITHUB_STEP_SUMMARY
           else
-            echo "✅ No inappropriate tab characters found" >> $GITHUB_STEP_SUMMARY
+            echo "✅ No tabs found in files requiring spaces" >> $GITHUB_STEP_SUMMARY
+            echo "Note: Tabs are allowed in most files (policy default). Only checked files requiring spaces." >> $GITHUB_STEP_SUMMARY
           fi
 
       - name: Check File Encoding

@@ -25,6 +25,44 @@
 
 ## [UNRELEASED]
 
+### Changed
+- **Scripts Organization**: Reorganized scripts directory by function rather than language
+  - Python, Shell, and PowerShell scripts now live side-by-side in functional directories
+  - Eliminated `scripts/powershell/` language segregation
+  - Moved PowerShell scripts to their functional directories (automation/, validate/, lib/)
+  - Better discoverability: all tools for a function in one place
+- **Documentation Structure**: Improved scripts documentation organization
+  - Moved 11 documentation files to `scripts/docs/` subdirectory
+  - Created comprehensive README.md for every scripts folder (7 new READMEs)
+  - Regenerated all index.md files (19 total) for better navigation
+  - Cleaner scripts/ root directory (reduced from 13 files to 2)
+- **README Accuracy**: Updated repository statistics to reflect actual content
+  - Python scripts: 44 → 64
+  - PowerShell scripts: 2 → 10
+  - Added script wrappers badge: 106 wrappers
+  - Updated repository structure with accurate file counts
+  - Refined script category breakdowns for all directories
+
+### Fixed
+- **Tabs Policy Enforcement**: Corrected tab checking logic to match documented policy
+  - Tab checking now only flags files requiring spaces (YAML, Python, Haskell, F#, CoffeeScript, Nim, JSON, RST)
+  - Removed false positives for files allowed to have tabs (Markdown, PowerShell, LICENSE, etc.)
+  - Updated workflows, policy docs, and validation scripts with comprehensive language list
+  - Updated `.editorconfig` template with all 8 languages requiring spaces
+  - Fixed JSON indentation rule (was incorrectly set to tabs)
+- **File Encoding Check**: Accept ASCII files as valid UTF-8 subset in standards compliance
+- **Version Consistency**: Updated README.md version from 03.00.00 to 03.01.00
+- **Two-Tier Architecture Documentation**: Enhanced clarity of MokoStandards as source of truth
+  - Added comprehensive architecture diagram
+  - Clarified that MokoStandards (Tier 2) is the SOURCE OF TRUTH for schemas and configurations
+  - Updated both README and policy documentation
+
+### Removed
+- **Database Files from .gitignore**: Removed restrictions to allow flexible version control
+  - Removed `*.sql` and `*.sql.gz` (SQL scripts should be tracked)
+  - Removed `*.db`, `*.db-journal`, `*.sqlite`, `*.sqlite3` (may be needed for tests/fixtures)
+  - Projects can still ignore these files individually if needed
+
 ## [03.01.00] - 2026-01-28
 
 ### Added

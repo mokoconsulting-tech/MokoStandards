@@ -103,6 +103,44 @@ Core shell utility functions for bash scripts.
 - File system utilities
 - Logging functions
 
+## PowerShell Modules
+
+### GuiUtils.psm1
+PowerShell GUI utilities module for Windows Forms interfaces.
+
+**Features:**
+- File and folder selection dialogs
+- Progress bars and status indicators
+- Message boxes and confirmations
+- Multi-selection controls
+- Form creation utilities
+
+**Usage:**
+```powershell
+Import-Module .\scripts\lib\GuiUtils.psm1
+$file = Show-OpenFileDialog -Title "Select File"
+```
+
+### Common.psm1
+Core PowerShell utility functions and common operations.
+
+**Features:**
+- File system operations
+- Git commands
+- Logging utilities
+- Error handling
+- Configuration management
+
+### ConfigManager.psm1
+PowerShell configuration management module.
+
+**Features:**
+- Load and save configuration files
+- YAML/JSON/XML support
+- Environment variable handling
+- Default value management
+- Configuration validation
+
 ## Template Files
 
 ### wrapper-template.ps1

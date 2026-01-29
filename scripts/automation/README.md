@@ -63,6 +63,21 @@ Automatically create GitHub Projects for organization repositories.
 ### create_repo_project.py
 Create a GitHub Project for a specific repository.
 
+### Invoke-BulkUpdateGUI.ps1
+PowerShell GUI for bulk repository updates. Provides a Windows Forms interface for:
+- Selecting repositories to update
+- Choosing update options (workflows, scripts, standards)
+- Dry-run preview
+- Real-time progress feedback
+
+**Usage:**
+```powershell
+.\scripts\automation\Invoke-BulkUpdateGUI.ps1
+```
+
+### Update-BulkRepositories.ps1
+PowerShell command-line version for bulk repository updates.
+
 ### file-distributor.ps1 and file-distributor.py
 Enterprise-grade utility that distributes a selected source file across a controlled folder scope under a root directory using depth-limited traversal, optional per-folder confirmation, overwrite governance, dry-run preflight, and CSV/JSON audit logging.
 - Available in PowerShell and Python

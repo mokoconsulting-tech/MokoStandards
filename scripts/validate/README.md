@@ -28,6 +28,21 @@ Enhanced validation with schema-aware checks and detailed reporting.
 ### schema_aware_health_check.py
 Repository validation using schema definitions for structure and content verification.
 
+### Invoke-RepoHealthCheckGUI.ps1
+PowerShell GUI for repository health checks. Provides a Windows Forms interface for:
+- Interactive repository selection
+- Visual health check results
+- Detailed issue reporting
+- Export capabilities
+
+**Usage:**
+```powershell
+.\scripts\validate\Invoke-RepoHealthCheckGUI.ps1
+```
+
+### Invoke-PlatformDetection.ps1
+PowerShell utility for platform detection and validation on Windows systems.
+
 ## Structure and Standards
 
 ### validate_structure.py

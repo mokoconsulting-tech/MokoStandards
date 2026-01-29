@@ -398,7 +398,7 @@ jobs:
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
             echo "$TABS_FOUND" >> $GITHUB_STEP_SUMMARY
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-            echo "MokoStandards uses tabs by default (spaces only for languages where tabs break, like YAML)" >> $GITHUB_STEP_SUMMARY
+            echo "MokoStandards uses tabs by default (spaces only for languages where tabs break: YAML, Python, Haskell, F#, CoffeeScript, Nim, JSON, RST)" >> $GITHUB_STEP_SUMMARY
           else
             echo "✅ No inappropriate tab characters found" >> $GITHUB_STEP_SUMMARY
           fi

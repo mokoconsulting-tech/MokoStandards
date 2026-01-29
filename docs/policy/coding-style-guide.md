@@ -287,8 +287,15 @@ function processOrder($order) {
 - **Use tabs, not spaces** (MokoStandards default)
 - **Tab width**: 2 spaces for display/visual width
 - **Exceptions where language specification requires spaces:**
-  - **YAML files**: Must use spaces (YAML specification requirement)
-  - **Makefiles**: Must use tabs (Make specification requirement)
+  - **YAML files**: Must use spaces (YAML specification forbids tabs)
+  - **Python files**: Must use spaces (PEP 8 standard, tabs can cause IndentationError)
+  - **Haskell files**: Must use spaces (layout rules require spaces)
+  - **F# files**: Must use spaces (indentation-sensitive syntax requirement)
+  - **CoffeeScript files**: Must use spaces (whitespace-significant language)
+  - **Nim files**: Must use spaces (style guide requirement)
+  - **JSON files**: Must use spaces (some parsers reject tabs)
+  - **reStructuredText (RST) files**: Must use spaces (indentation requirement)
+- **Makefiles**: Must use tabs (Make specification requirement)
 - Configure editor to use tabs (see .editorconfig)
 - Be consistent within each file
 
@@ -652,6 +659,41 @@ tab_width = 2
 [*.{yml,yaml}]
 indent_style = space
 indent_size = 2
+
+# Python files — spaces only (PEP 8 standard)
+[*.py]
+indent_style = space
+indent_size = 4
+
+# Haskell files — spaces only (layout rules)
+[*.hs]
+indent_style = space
+indent_size = 2
+
+# F# files — spaces only (indentation-sensitive syntax)
+[*.{fs,fsx}]
+indent_style = space
+indent_size = 4
+
+# CoffeeScript files — spaces only (whitespace-significant)
+[*.coffee]
+indent_style = space
+indent_size = 2
+
+# Nim files — spaces only (style guide)
+[*.nim]
+indent_style = space
+indent_size = 2
+
+# JSON files — spaces only (parser compatibility)
+[*.json]
+indent_style = space
+indent_size = 2
+
+# reStructuredText files — spaces only (indentation requirement)
+[*.rst]
+indent_style = space
+indent_size = 3
 
 # Makefiles — always tabs (Make spec requires tabs)
 [Makefile]

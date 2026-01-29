@@ -23,8 +23,23 @@ The scripts are organized into functional categories:
 - **[`tests/`](tests/)** - Test scripts
   - `test_bulk_update_repos.py` - Test bulk update automation
   - `test_dry_run.py` - Test dry-run functionality
-- **[`docs/`](docs/)** - Documentation generation and maintenance
+- **[`docs/`](docs/)** - Documentation generation and maintenance scripts
   - `rebuild_indexes.py` - Generate documentation indexes
+  - `check_doc_coverage.py` - Check documentation coverage
+  - `generate_script_catalog.py` - Generate script catalog
+  - `update_metadata.py` - Update script metadata
+  - **Documentation Files:**
+    - `ARCHITECTURE.md` - Scripts architecture documentation
+    - `AUTO_CREATE_ORG_PROJECTS.md` - Auto-create projects guide
+    - `DRY_RUN_PATTERN.md` - Dry-run implementation pattern
+    - `NEW_SCRIPTS.md` - New scripts development guide
+    - `QUICKSTART_ORG_PROJECTS.md` - Quick start guide
+    - `REBUILD_STRATEGY.md` - Documentation rebuild strategy
+    - `REBUILD_PROGRESS.md` - Documentation rebuild progress
+    - `README_REBUILD.md` - README rebuild documentation
+    - `README_update_gitignore_patterns.md` - Gitignore update guide
+    - `LEGAL_DOC_GENERATOR_WEB_README.md` - Legal doc generator guide
+    - `legal_doc_generator.html` - Legal doc generator web interface
 - **[`run/`](run/)** - Operational setup scripts
   - `setup_github_project_v2.py` - Setup GitHub Projects
 - **[`lib/`](lib/)** - Shared library code

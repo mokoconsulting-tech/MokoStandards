@@ -1,12 +1,8 @@
-# Docs Index: /scripts/analysis
+# Docs Index: /scripts/wrappers/bash
 
 ## Purpose
 
 This index provides navigation to documentation within this folder.
-
-## Documents
-
-- [README](./README.md)
 
 ## Metadata
 

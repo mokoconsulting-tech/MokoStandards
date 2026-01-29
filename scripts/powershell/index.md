@@ -1,11 +1,18 @@
-# Docs Index: /scripts/analysis
+# Docs Index: /scripts/powershell
 
 ## Purpose
 
 This index provides navigation to documentation within this folder.
 
+## Subfolders
+
+- [automation/](./automation/index.md)
+- [lib/](./lib/index.md)
+- [validate/](./validate/index.md)
+
 ## Documents
 
+- [PROGRESS](./PROGRESS.md)
 - [README](./README.md)
 
 ## Metadata

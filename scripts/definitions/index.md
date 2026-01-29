@@ -1,4 +1,4 @@
-# Docs Index: /scripts/analysis
+# Docs Index: /scripts/definitions
 
 ## Purpose
 

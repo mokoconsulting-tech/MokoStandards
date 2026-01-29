@@ -39,7 +39,7 @@ class ChangelogUpdater:
     """Updates CHANGELOG.md following Keep a Changelog format."""
 
     VALID_CATEGORIES = ["Added", "Changed", "Deprecated", "Removed", "Fixed", "Security"]
-    UNRELEASED_PATTERN = r"## \[UNRELEASED\]"
+    UNRELEASED_PATTERN = r"## \[Unreleased\]"  # Standard Keep a Changelog format
 
     def __init__(self, changelog_path: Path):
         """

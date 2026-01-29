@@ -23,8 +23,6 @@ secrets/
 *.log
 *.pid
 *.seed
-*.sql
-*.sql.gz
 *.sqlite
 *.sqlite3
 

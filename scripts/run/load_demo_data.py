@@ -9,6 +9,7 @@ Usage:
     python3 load_demo_data.py --sql demo_data.sql
     python3 load_demo_data.py --sql demo_data.sql --config /path/to/joomla/configuration.php
     python3 load_demo_data.py --sql demo_data.sql --host localhost --user root --database mydb
+    python3 load_demo_data.py --help-doc  # Show full documentation
 
 METADATA:
     AUTHOR: Moko Consulting LLC
@@ -27,6 +28,14 @@ import socket
 import sys
 from pathlib import Path
 from typing import Optional, Tuple
+
+# Add scripts/lib to path for doc_helper
+sys.path.insert(0, str(Path(__file__).parent.parent / 'lib'))
+try:
+    from doc_helper import add_help_argument, handle_help_flags
+    DOC_HELPER_AVAILABLE = True
+except ImportError:
+    DOC_HELPER_AVAILABLE = False
 
 try:
     import pymysql
@@ -202,7 +211,8 @@ def load_sql_file(connection, sql_file: str, db_prefix: str = ''):
 def main():
     parser = argparse.ArgumentParser(
         description='Load SQL demo data into MySQL/MariaDB database',
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog='For complete documentation, use: --help-doc'
     )
     
     parser.add_argument('--sql', required=True, help='Path to SQL file to load')
@@ -218,7 +228,15 @@ def main():
     parser.add_argument('--no-ip-check', action='store_true',
                        help='Skip IP whitelist check')
     
+    # Add documentation help flags
+    if DOC_HELPER_AVAILABLE:
+        add_help_argument(parser, __file__, 'demo/demo-data-loader.md')
+    
     args = parser.parse_args()
+    
+    # Handle help flags
+    if DOC_HELPER_AVAILABLE and handle_help_flags(args, __file__, 'demo/demo-data-loader.md'):
+        return 0
     
     if not PYMYSQL_AVAILABLE:
         print("ERROR: pymysql module is required. Install with: pip install pymysql")

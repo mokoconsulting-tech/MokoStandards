@@ -1,0 +1,197 @@
+---
+name: Auto Release on Merge to Main
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      version_bump:
+        description: 'Version bump type'
+        required: false
+        default: 'auto'
+        type: choice
+        options:
+          - auto
+          - major
+          - minor
+          - patch
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[skip release]')"
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      
+      - name: Determine version bump
+        id: version_bump
+        run: |
+          BUMP_TYPE="${{ github.event.inputs.version_bump || 'auto' }}"
+          
+          if [ "$BUMP_TYPE" = "auto" ]; then
+            # Auto-detect from commit messages since last tag
+            LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+            
+            if [ -z "$LAST_TAG" ]; then
+              echo "bump_type=minor" >> $GITHUB_OUTPUT
+            else
+              COMMITS=$(git log ${LAST_TAG}..HEAD --oneline)
+              
+              # Check for breaking changes
+              if echo "$COMMITS" | grep -iE "BREAKING CHANGE|^feat!:|^fix!:"; then
+                echo "bump_type=major" >> $GITHUB_OUTPUT
+              # Check for features
+              elif echo "$COMMITS" | grep -iE "^feat:|^feature:"; then
+                echo "bump_type=minor" >> $GITHUB_OUTPUT
+              # Default to patch
+              else
+                echo "bump_type=patch" >> $GITHUB_OUTPUT
+              fi
+            fi
+          else
+            echo "bump_type=$BUMP_TYPE" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Get current version
+        id: current_version
+        run: |
+          # Read version from CHANGELOG.md
+          VERSION=$(grep -oP '# CHANGELOG - MokoStandards \(VERSION: \K[0-9]+\.[0-9]+\.[0-9]+' CHANGELOG.md | head -1)
+          
+          if [ -z "$VERSION" ]; then
+            # Fallback to looking for latest version tag
+            VERSION=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo "03.01.00")
+          fi
+          
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $VERSION"
+      
+      - name: Calculate new version
+        id: new_version
+        run: |
+          CURRENT="${{ steps.current_version.outputs.version }}"
+          BUMP="${{ steps.version_bump.outputs.bump_type }}"
+          
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+          
+          case $BUMP in
+            major)
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+              ;;
+            minor)
+              MINOR=$((MINOR + 1))
+              PATCH=0
+              ;;
+            patch)
+              PATCH=$((PATCH + 1))
+              ;;
+          esac
+          
+          NEW_VERSION=$(printf "%02d.%02d.%02d" $MAJOR $MINOR $PATCH)
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "New version: $NEW_VERSION (bump: $BUMP)"
+      
+      - name: Check if version already exists
+        id: check_tag
+        run: |
+          if git rev-parse "v${{ steps.new_version.outputs.version }}" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Version v${{ steps.new_version.outputs.version }} already exists"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Update version in files
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          NEW_VERSION="${{ steps.new_version.outputs.version }}"
+          
+          # Run release_version.py script
+          python3 scripts/maintenance/release_version.py --version "$NEW_VERSION"
+      
+      - name: Commit version changes
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          NEW_VERSION="${{ steps.new_version.outputs.version }}"
+          
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add .
+          git commit -m "chore: Release version $NEW_VERSION [skip ci]" || echo "No changes to commit"
+          git push origin main
+      
+      - name: Extract release notes
+        if: steps.check_tag.outputs.exists == 'false'
+        id: release_notes
+        run: |
+          NEW_VERSION="${{ steps.new_version.outputs.version }}"
+          
+          # Extract content between [Unreleased] and previous version from CHANGELOG
+          NOTES=$(awk "/## \[$NEW_VERSION\]/,/## \[/{if (/## \[/ && !seen) {seen=1; next} if (/## \[/) exit; print}" CHANGELOG.md)
+          
+          if [ -z "$NOTES" ]; then
+            NOTES="Release $NEW_VERSION"
+          fi
+          
+          # Save to file
+          echo "$NOTES" > release_notes.md
+          
+          echo "Release notes saved"
+      
+      - name: Create Git tag
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          NEW_VERSION="${{ steps.new_version.outputs.version }}"
+          git tag -a "v$NEW_VERSION" -m "Release version $NEW_VERSION"
+          git push origin "v$NEW_VERSION"
+      
+      - name: Create GitHub Release
+        if: steps.check_tag.outputs.exists == 'false'
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.new_version.outputs.version }}
+          release_name: Release v${{ steps.new_version.outputs.version }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: false
+      
+      - name: Update [Unreleased] section
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          # Run update_changelog.py to add new [Unreleased] section
+          python3 scripts/maintenance/update_changelog.py \
+            --message "Preparing next release" \
+            --category "Changed"
+          
+          git add CHANGELOG.md
+          git commit -m "docs: Update CHANGELOG with new [Unreleased] section [skip ci]" || echo "No changes"
+          git push origin main || echo "No changes to push"
+      
+      - name: Summary
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          echo "✅ Release v${{ steps.new_version.outputs.version }} created successfully!"
+          echo "📦 Version bump: ${{ steps.version_bump.outputs.bump_type }}"
+          echo "🔗 https://github.com/${{ github.repository }}/releases/tag/v${{ steps.new_version.outputs.version }}"

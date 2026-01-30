@@ -101,7 +101,7 @@ _SCRIPT_PATTERN = re.compile(r'\bscript(s)?\b', re.IGNORECASE)
 
 def classify_pr_conflict_types(pr: Dict) -> Dict[str, bool]:
     """Classify likely conflict types for a PR based on its title."""
-    title = str(pr.get('title', '')).lower()
+    title = str(pr.get('title', ''))
 
     # Use basic word-boundary-aware patterns to reduce accidental matches.
     return {

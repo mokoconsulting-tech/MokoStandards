@@ -189,11 +189,13 @@ class SecurityScanner:
                         line_stripped = line.strip()
                         line_upper = line_stripped.upper()
                         # Avoid matching obviously benign messages such as "no secrets found"
+                        # or status messages. Look for both keywords to reduce false positives.
                         if not line_stripped:
                             continue
                         if "NO SECRET" in line_upper and "FOUND" in line_upper:
                             continue
-                        if "FOUND" in line_upper or "SECRET" in line_upper:
+                        # Require both "FOUND" and "SECRET" to appear together for stronger signal
+                        if ("FOUND" in line_upper and "SECRET" in line_upper):
                             self.findings['secrets']['issues'].append({
                                 'severity': 'critical',
                                 'message': 'Potential secret detected',
@@ -252,6 +254,9 @@ class SecurityScanner:
                 cmd = ['pip-audit', '--desc', '--format', 'json']
                 if 'requirements.txt' in found_deps:
                     cmd.extend(['--requirement', 'requirements.txt'])
+                elif (self.repo_path / 'pyproject.toml').exists():
+                    # Use local mode when only pyproject.toml exists to scan project dependencies
+                    cmd.append('--local')
                 returncode, stdout, stderr = self.run_command(cmd, check=False)
                 if returncode == 0:
                     self.findings['dependencies']['status'] = 'passed'

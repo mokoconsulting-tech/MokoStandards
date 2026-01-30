@@ -176,7 +176,7 @@ For repositories with deployment workflows (web applications, extensions):
 
 **Automated Check**: Secret accessibility check (via workflow), connectivity test
 **Manual Override**: N/A
-**Remediation**: 
+**Remediation**:
 - Organization secrets: Contact organization administrators (no repository action needed)
 - Repository secrets: Configure in repository settings → Secrets and variables → Actions
 - Run repo health workflow to verify configuration

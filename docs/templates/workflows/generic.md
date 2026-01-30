@@ -344,8 +344,8 @@ cp templates/workflows/generic/ci.yml.template .github/workflows/ci.yml
 
 ---
 
-**Last Updated**: 2026-01-16  
-**Category**: Generic Templates  
+**Last Updated**: 2026-01-16
+**Category**: Generic Templates
 **Maintained By**: MokoStandards Team
 
 ## Metadata

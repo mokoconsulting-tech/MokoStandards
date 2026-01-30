@@ -51,7 +51,7 @@ def main() -> int:
         description="Detect extension platform and type",
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    
+
     parser.add_argument(
         "src_dir",
         nargs="?",
@@ -64,16 +64,16 @@ def main() -> int:
         default="pipe",
         help="Output format (default: pipe)"
     )
-    
+
     args = parser.parse_args()
-    
+
     try:
         ext_info = extension_utils.get_extension_info(args.src_dir)
-        
+
         if not ext_info:
             print(f"ERROR: No extension detected in {args.src_dir}", file=sys.stderr)
             return 1
-        
+
         if args.format == "pipe":
             # Format: platform|ext_type
             print(f"{ext_info.platform.value}|{ext_info.extension_type}")
@@ -86,9 +86,9 @@ def main() -> int:
                 "version": ext_info.version
             }
             print(json.dumps(data))
-        
+
         return 0
-        
+
     except Exception as e:
         print(f"ERROR: {e}", file=sys.stderr)
         return 1

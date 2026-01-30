@@ -1,22 +1,5 @@
 # Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
-#
-# This file is part of a Moko Consulting project.
-#
 # SPDX-License-Identifier: GPL-3.0-or-later
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
 # FILE INFORMATION
 # DEFGROUP: GitHub.Workflow
 # INGROUP: MokoStandards.Compliance
@@ -27,6 +10,55 @@
 # NOTE: Validates repository structure, documentation, and coding standards
 
 name: Standards Compliance
+
+env:
+  ACTIONS_STEP_DEBUG: true
+  ACTIONS_RUNNER_DEBUG: true
+
+# MokoStandards Policy Compliance:
+# - File formatting: Enforces organizational coding standards
+# - Reference: docs/policy/file-formatting.md
+
+# ┌─────────────────────────────────────────────────────────────────────────┐
+# │                         WORKFLOW FLOW DIAGRAM                            │
+# └─────────────────────────────────────────────────────────────────────────┘
+#
+#   TRIGGER: Push/PR to main/dev/rc branches
+#        │
+#        ▼
+#   ┌──────────────────────────────────────────────────────────────┐
+#   │              PARALLEL VALIDATION CHECKS                      │
+#   └──────────────────────────────────────────────────────────────┘
+#        │
+#        ├─────────────┬──────────────┬──────────────┬────────────┐
+#        ▼             ▼              ▼              ▼            ▼
+#   ┌─────────┐  ┌──────────┐  ┌──────────┐  ┌─────────┐  ┌──────────┐
+#   │Repository  │File Header  │Code Style│  │  Docs   │  │ License  │
+#   │Structure│  │ Validation│  │  Check   │  │  Check  │  │  Check   │
+#   └─────────┘  └──────────┘  └──────────┘  └─────────┘  └──────────┘
+#        │             │              │              │            │
+#        ▼             ▼              ▼              ▼            ▼
+#   ┌─────────┐  ┌──────────┐  ┌──────────┐  ┌─────────┐  ┌──────────┐
+#   │  Check  │  │  Verify  │  │   Run    │  │  Check  │  │  Verify  │
+#   │Required │  │Copyright │  │ Linters  │  │README   │  │SPDX-ID   │
+#   │  Dirs   │  │  Header  │  │(Python,  │  │  Exists │  │ Present  │
+#   │         │  │  Format  │  │PHP,YAML) │  │         │  │          │
+#   └─────────┘  └──────────┘  └──────────┘  └─────────┘  └──────────┘
+#        │             │              │              │            │
+#        └─────────────┴──────────────┴──────────────┴────────────┘
+#                                     │
+#                                     ▼
+#                           ┌──────────────────┐
+#                           │  All Checks Pass?│
+#                           └──────────────────┘
+#                              │            │
+#                          YES │            │ NO
+#                              ▼            ▼
+#                       ┌──────────┐  ┌──────────────┐
+#                       │  SUCCESS │  │ CREATE ISSUE │
+#                       │  Summary │  │ with Failure │
+#                       └──────────┘  │   Details    │
+#                                     └──────────────┘
 
 on:
   push:
@@ -49,25 +81,26 @@ jobs:
   repository-structure:
     name: Repository Structure Validation
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-      
+
       - name: Check Required Directories
         run: |
+          set -x
           echo "## 📁 Repository Structure Validation" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           MISSING=0
           PRESENT=0
           TOTAL=3
-          
+
           echo "### Required Directories" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Directory | Status | Files | Size | Notes |" >> $GITHUB_STEP_SUMMARY
           echo "|-----------|--------|-------|------|-------|" >> $GITHUB_STEP_SUMMARY
-          
+
           # Check required directories
           for dir in docs scripts .github; do
             if [ -d "$dir" ]; then
@@ -80,11 +113,11 @@ jobs:
               MISSING=$((MISSING + 1))
             fi
           done
-          
+
           echo "" >> $GITHUB_STEP_SUMMARY
           PERCENT=$((PRESENT * 100 / TOTAL))
           echo "**Compliance Score:** $PERCENT% ($PRESENT/$TOTAL directories present)" >> $GITHUB_STEP_SUMMARY
-          
+
           if [ "$MISSING" -gt 0 ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "### 🔴 Critical Issues: $MISSING" >> $GITHUB_STEP_SUMMARY
@@ -97,27 +130,28 @@ jobs:
             echo "📚 Reference: [MokoStandards Repository Structure](https://github.com/mokoconsulting-tech/MokoStandards/tree/main/docs/policy/core-structure.md)" >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
-      
+
       - name: Check Required Files
         run: |
+          set -x
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Required Files" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           MISSING=0
           PRESENT=0
           TOTAL=6
-          
+
           echo "| File | Status | Size | Last Modified | Notes |" >> $GITHUB_STEP_SUMMARY
           echo "|------|--------|------|---------------|-------|" >> $GITHUB_STEP_SUMMARY
-          
+
           # Check required files
           for file in README.md LICENSE CONTRIBUTING.md SECURITY.md CHANGELOG.md .editorconfig; do
             if [ -f "$file" ]; then
               FILE_SIZE=$(wc -c < "$file" 2>/dev/null | awk '{printf "%.1f KB", $1/1024}')
               LAST_MOD=$(stat -c %y "$file" 2>/dev/null | cut -d' ' -f1 || echo "Unknown")
               CONTENT_CHECK=""
-              
+
               # Basic content validation
               case "$file" in
                 "README.md")
@@ -128,7 +162,7 @@ jobs:
                   [ $(wc -c < "$file") -lt 100 ] && CONTENT_CHECK="⚠️ Incomplete?"
                   ;;
               esac
-              
+
               echo "| $file | ✅ Pass | $FILE_SIZE | $LAST_MOD | Complete $CONTENT_CHECK |" >> $GITHUB_STEP_SUMMARY
               PRESENT=$((PRESENT + 1))
             else
@@ -136,11 +170,11 @@ jobs:
               MISSING=$((MISSING + 1))
             fi
           done
-          
+
           echo "" >> $GITHUB_STEP_SUMMARY
           PERCENT=$((PRESENT * 100 / TOTAL))
           echo "**Compliance Score:** $PERCENT% ($PRESENT/$TOTAL files present)" >> $GITHUB_STEP_SUMMARY
-          
+
           if [ "$MISSING" -gt 0 ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "### 🔴 Critical Issues: $MISSING" >> $GITHUB_STEP_SUMMARY
@@ -160,23 +194,24 @@ jobs:
   documentation-quality:
     name: Documentation Quality Check
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-      
+
       - name: Validate README.md
         run: |
+          set -x
           echo "## 📚 Documentation Quality Check" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### README.md Analysis" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           if [ ! -f "README.md" ]; then
             echo "❌ **Critical:** README.md not found" >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
-          
+
           # Detailed content analysis
           SIZE=$(wc -c < README.md)
           LINES=$(wc -l < README.md)
@@ -184,10 +219,10 @@ jobs:
           HEADINGS=$(grep -c "^#" README.md || echo 0)
           LINKS=$(grep -c "\[.*\](.*)" README.md || echo 0)
           CODE_BLOCKS=$(grep -c '```' README.md || echo 0)
-          
+
           echo "| Metric | Value | Status | Recommendation |" >> $GITHUB_STEP_SUMMARY
           echo "|--------|-------|--------|----------------|" >> $GITHUB_STEP_SUMMARY
-          
+
           # Size check
           SIZE_STATUS="✅ Good"
           SIZE_REC="Adequate length"
@@ -199,7 +234,7 @@ jobs:
             SIZE_REC="Consider splitting into multiple docs"
           fi
           echo "| Size | $SIZE bytes | $SIZE_STATUS | $SIZE_REC |" >> $GITHUB_STEP_SUMMARY
-          
+
           # Line count
           LINES_STATUS="✅ Good"
           LINES_REC="Good size"
@@ -208,7 +243,7 @@ jobs:
             LINES_REC="Add more sections (min 20 lines)"
           fi
           echo "| Lines | $LINES | $LINES_STATUS | $LINES_REC |" >> $GITHUB_STEP_SUMMARY
-          
+
           # Word count
           WORDS_STATUS="✅ Good"
           WORDS_REC="Good detail"
@@ -217,7 +252,7 @@ jobs:
             WORDS_REC="Add more description (min 100 words)"
           fi
           echo "| Words | $WORDS | $WORDS_STATUS | $WORDS_REC |" >> $GITHUB_STEP_SUMMARY
-          
+
           # Headings
           HEADINGS_STATUS="✅ Good"
           HEADINGS_REC="Well structured"
@@ -226,7 +261,7 @@ jobs:
             HEADINGS_REC="Add more sections (min 3 headings)"
           fi
           echo "| Headings | $HEADINGS | $HEADINGS_STATUS | $HEADINGS_REC |" >> $GITHUB_STEP_SUMMARY
-          
+
           # Links
           LINKS_STATUS="✅ Good"
           LINKS_REC="Includes references"
@@ -235,7 +270,7 @@ jobs:
             LINKS_REC="Consider adding useful links"
           fi
           echo "| Links | $LINKS | $LINKS_STATUS | $LINKS_REC |" >> $GITHUB_STEP_SUMMARY
-          
+
           # Code blocks
           CODE_STATUS="✅ Good"
           CODE_REC="Includes examples"
@@ -244,9 +279,9 @@ jobs:
             CODE_REC="Consider adding code examples"
           fi
           echo "| Code blocks | $CODE_BLOCKS | $CODE_STATUS | $CODE_REC |" >> $GITHUB_STEP_SUMMARY
-          
+
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           # Check for key sections
           echo "**Section Coverage:**" >> $GITHUB_STEP_SUMMARY
           MISSING_COUNT=0
@@ -254,39 +289,40 @@ jobs:
           grep -qi "usage\|example\|how to" README.md && echo "- ✅ Usage examples" >> $GITHUB_STEP_SUMMARY || { echo "- ⚠️ Missing: Usage examples" >> $GITHUB_STEP_SUMMARY; MISSING_COUNT=$((MISSING_COUNT + 1)); }
           grep -qi "license" README.md && echo "- ✅ License information" >> $GITHUB_STEP_SUMMARY || { echo "- ⚠️ Missing: License information" >> $GITHUB_STEP_SUMMARY; MISSING_COUNT=$((MISSING_COUNT + 1)); }
           grep -qi "contribut" README.md && echo "- ✅ Contributing guidelines" >> $GITHUB_STEP_SUMMARY || echo "- ℹ️ Optional: Contributing section" >> $GITHUB_STEP_SUMMARY
-          
+
           if [ "$MISSING_COUNT" -gt 0 ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**⚠️ $MISSING_COUNT important sections missing**" >> $GITHUB_STEP_SUMMARY
           fi
-      
+
       - name: Validate CHANGELOG.md
         run: |
+          set -x
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### CHANGELOG.md Analysis" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           if [ ! -f "CHANGELOG.md" ]; then
             echo "❌ **Critical:** CHANGELOG.md not found" >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
-          
+
           # Analyze changelog structure
           VERSIONS=$(grep -c "## \[" CHANGELOG.md || echo 0)
           UNRELEASED=$(grep -c "## \[Unreleased\]" CHANGELOG.md || echo 0)
           DATES=$(grep -c "[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}" CHANGELOG.md || echo 0)
           SIZE=$(wc -c < CHANGELOG.md)
-          
+
           echo "| Metric | Value | Status | Notes |" >> $GITHUB_STEP_SUMMARY
           echo "|--------|-------|--------|-------|" >> $GITHUB_STEP_SUMMARY
-          
+
           # Check format
           if grep -qi "## \[.*\]" CHANGELOG.md; then
             echo "| Format | Keep a Changelog | ✅ Pass | Standard format |" >> $GITHUB_STEP_SUMMARY
           else
             echo "| Format | Custom | ⚠️ Warning | Consider [Keep a Changelog](https://keepachangelog.com/) |" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           # Version count
           VERSIONS_STATUS="✅ Good"
           VERSIONS_NOTE="Well maintained"
@@ -295,14 +331,14 @@ jobs:
             VERSIONS_NOTE="Add version entries"
           fi
           echo "| Versions | $VERSIONS | $VERSIONS_STATUS | $VERSIONS_NOTE |" >> $GITHUB_STEP_SUMMARY
-          
+
           # Unreleased section
           if [ "$UNRELEASED" -gt 0 ]; then
             echo "| Unreleased | Yes | ✅ Good | Active development tracked |" >> $GITHUB_STEP_SUMMARY
           else
             echo "| Unreleased | No | ℹ️ Info | Consider adding [Unreleased] section |" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           # Dates
           DATES_STATUS="✅ Good"
           if [ "$DATES" -lt 1 ]; then
@@ -312,22 +348,23 @@ jobs:
             DATES_NOTE="Dates present"
           fi
           echo "| Release dates | $DATES | $DATES_STATUS | $DATES_NOTE |" >> $GITHUB_STEP_SUMMARY
-          
+
           # Check for standard sections
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Changelog Sections:**" >> $GITHUB_STEP_SUMMARY
           grep -qi "### Added" CHANGELOG.md && echo "- ✅ Added section" >> $GITHUB_STEP_SUMMARY || echo "- ℹ️ Added section (optional)" >> $GITHUB_STEP_SUMMARY
           grep -qi "### Changed" CHANGELOG.md && echo "- ✅ Changed section" >> $GITHUB_STEP_SUMMARY || echo "- ℹ️ Changed section (optional)" >> $GITHUB_STEP_SUMMARY
           grep -qi "### Fixed" CHANGELOG.md && echo "- ✅ Fixed section" >> $GITHUB_STEP_SUMMARY || echo "- ℹ️ Fixed section (optional)" >> $GITHUB_STEP_SUMMARY
-          
+
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "📚 Reference: [Keep a Changelog](https://keepachangelog.com/)" >> $GITHUB_STEP_SUMMARY
-      
+
       - name: Check Documentation Index
         run: |
+          set -x
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Documentation Index" >> $GITHUB_STEP_SUMMARY
-          
+
           if [ -f "docs/index.md" ] || [ -f "docs/README.md" ]; then
             echo "✅ Documentation index found" >> $GITHUB_STEP_SUMMARY
           else
@@ -337,46 +374,57 @@ jobs:
   coding-standards:
     name: Coding Standards Check
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-      
+
       - name: Check for Tab Characters
         run: |
+          set -x
           echo "### Tab Character Detection" >> $GITHUB_STEP_SUMMARY
-          
-          # Find files with tabs (excluding certain file types)
-          TABS_FOUND=$(find . -type f \
+
+          # Policy: Tabs are DEFAULT. Only check for tabs in files that REQUIRE spaces.
+          # Languages requiring spaces: YAML, Python, Haskell, F#, CoffeeScript, Nim, JSON, RST
+          TABS_IN_SPACES_FILES=$(find . -type f \
+            \( -name "*.yml" -o -name "*.yaml" \
+            -o -name "*.py" \
+            -o -name "*.hs" -o -name "*.lhs" \
+            -o -name "*.fs" -o -name "*.fsx" -o -name "*.fsi" \
+            -o -name "*.coffee" -o -name "*.litcoffee" \
+            -o -name "*.nim" -o -name "*.nims" -o -name "*.nimble" \
+            -o -name "*.json" \
+            -o -name "*.rst" \) \
             ! -path "./vendor/*" \
             ! -path "./node_modules/*" \
             ! -path "./.git/*" \
-            ! -name "Makefile*" \
-            ! -name "*.tsv" \
             -exec grep -l $'\t' {} \; 2>/dev/null | head -10)
-          
-          if [ -n "$TABS_FOUND" ]; then
-            echo "⚠️ Tab characters found in files:" >> $GITHUB_STEP_SUMMARY
+
+          if [ -n "$TABS_IN_SPACES_FILES" ]; then
+            echo "⚠️ Tab characters found in files that require spaces:" >> $GITHUB_STEP_SUMMARY
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-            echo "$TABS_FOUND" >> $GITHUB_STEP_SUMMARY
+            echo "$TABS_IN_SPACES_FILES" >> $GITHUB_STEP_SUMMARY
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-            echo "MokoStandards requires spaces over tabs (except in Makefiles)" >> $GITHUB_STEP_SUMMARY
+            echo "These languages require spaces (tabs will break): YAML, Python, Haskell, F#, CoffeeScript, Nim, JSON, RST" >> $GITHUB_STEP_SUMMARY
+            echo "All other files (including .md, .ps1, LICENSE, etc.) may use tabs per MokoStandards policy" >> $GITHUB_STEP_SUMMARY
           else
-            echo "✅ No inappropriate tab characters found" >> $GITHUB_STEP_SUMMARY
+            echo "✅ No tabs found in files requiring spaces" >> $GITHUB_STEP_SUMMARY
+            echo "Note: Tabs are allowed in most files (policy default). Only checked files requiring spaces." >> $GITHUB_STEP_SUMMARY
           fi
-      
+
       - name: Check File Encoding
         run: |
+          set -x
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### File Encoding Check" >> $GITHUB_STEP_SUMMARY
-          
-          # Check for UTF-8 encoding
+
+          # Check for UTF-8 encoding (ASCII is a subset of UTF-8 and is acceptable)
           NON_UTF8=$(find . -type f \( -name "*.php" -o -name "*.js" -o -name "*.md" \) \
             ! -path "./vendor/*" \
             ! -path "./node_modules/*" \
             ! -path "./.git/*" \
-            -exec file {} \; | grep -v "UTF-8" | head -5)
-          
+            -exec file {} \; | grep -v "UTF-8" | grep -v "ASCII" | head -5)
+
           if [ -n "$NON_UTF8" ]; then
             echo "⚠️ Non-UTF-8 files detected:" >> $GITHUB_STEP_SUMMARY
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
@@ -385,19 +433,20 @@ jobs:
           else
             echo "✅ All source files appear to be UTF-8 encoded" >> $GITHUB_STEP_SUMMARY
           fi
-      
+
       - name: Check Line Endings
         run: |
+          set -x
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Line Ending Check" >> $GITHUB_STEP_SUMMARY
-          
+
           # Check for CRLF line endings
           CRLF_FILES=$(find . -type f \( -name "*.php" -o -name "*.js" -o -name "*.md" \) \
             ! -path "./vendor/*" \
             ! -path "./node_modules/*" \
             ! -path "./.git/*" \
             -exec file {} \; | grep "CRLF" | head -5)
-          
+
           if [ -n "$CRLF_FILES" ]; then
             echo "⚠️ Files with CRLF line endings found:" >> $GITHUB_STEP_SUMMARY
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
@@ -411,45 +460,47 @@ jobs:
   license-compliance:
     name: License Header Validation
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-      
+
       - name: Check SPDX Headers
         run: |
+          set -x
           echo "### SPDX License Header Check" >> $GITHUB_STEP_SUMMARY
-          
+
           # Count source files with and without SPDX headers
           TOTAL_PHP=0
           WITH_SPDX_PHP=0
-          
+
           if find . -name "*.php" -type f ! -path "./vendor/*" | head -1 | grep -q .; then
             TOTAL_PHP=$(find . -name "*.php" -type f ! -path "./vendor/*" | wc -l)
             WITH_SPDX_PHP=$(find . -name "*.php" -type f ! -path "./vendor/*" -exec grep -l "SPDX-License-Identifier" {} \; | wc -l)
           fi
-          
+
           if [ "$TOTAL_PHP" -gt 0 ]; then
             PERCENT=$((WITH_SPDX_PHP * 100 / TOTAL_PHP))
             echo "- PHP files: $WITH_SPDX_PHP/$TOTAL_PHP ($PERCENT%) with SPDX headers" >> $GITHUB_STEP_SUMMARY
-            
+
             if [ "$PERCENT" -lt 80 ]; then
               echo "⚠️ Less than 80% of PHP files have SPDX headers" >> $GITHUB_STEP_SUMMARY
             else
               echo "✅ Good SPDX header coverage" >> $GITHUB_STEP_SUMMARY
             fi
           fi
-      
+
       - name: Validate License File
         run: |
+          set -x
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### License File Validation" >> $GITHUB_STEP_SUMMARY
-          
+
           if [ ! -f "LICENSE" ]; then
             echo "❌ LICENSE file not found" >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
-          
+
           # Check license type
           if grep -qi "GNU GENERAL PUBLIC LICENSE" LICENSE; then
             VERSION=$(grep -i "Version 3" LICENSE || echo "")
@@ -469,41 +520,43 @@ jobs:
   git-hygiene:
     name: Git Repository Hygiene
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
+
       - name: Check .gitignore
         run: |
+          set -x
           echo "### .gitignore Validation" >> $GITHUB_STEP_SUMMARY
-          
+
           if [ ! -f ".gitignore" ]; then
             echo "⚠️ .gitignore file not found" >> $GITHUB_STEP_SUMMARY
             exit 0
           fi
-          
+
           # Check for common exclusions
           MISSING=""
           grep -q "vendor/" .gitignore || MISSING="${MISSING}vendor/ "
           grep -q "node_modules/" .gitignore || MISSING="${MISSING}node_modules/ "
-          
+
           if [ -n "$MISSING" ]; then
             echo "⚠️ .gitignore may be missing common exclusions: $MISSING" >> $GITHUB_STEP_SUMMARY
           else
             echo "✅ .gitignore appears complete" >> $GITHUB_STEP_SUMMARY
           fi
-      
+
       - name: Check for Large Files
         run: |
+          set -x
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Large File Detection" >> $GITHUB_STEP_SUMMARY
-          
+
           # Find files larger than 1MB
           LARGE_FILES=$(find . -type f -size +1M ! -path "./.git/*" ! -path "./vendor/*" ! -path "./node_modules/*" | head -5)
-          
+
           if [ -n "$LARGE_FILES" ]; then
             echo "⚠️ Large files detected (>1MB):" >> $GITHUB_STEP_SUMMARY
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
@@ -517,40 +570,42 @@ jobs:
   workflow-validation:
     name: Workflow Configuration Check
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-      
+
       - name: Check Required Workflows
         run: |
+          set -x
           echo "### GitHub Actions Workflows" >> $GITHUB_STEP_SUMMARY
-          
+
           WORKFLOWS_DIR=".github/workflows"
-          
+
           if [ ! -d "$WORKFLOWS_DIR" ]; then
             echo "❌ No workflows directory found" >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
-          
+
           # Check for recommended workflows
           if [ -f "$WORKFLOWS_DIR/ci.yml" ] || [ -f "$WORKFLOWS_DIR/build.yml" ]; then
             echo "✅ CI workflow present" >> $GITHUB_STEP_SUMMARY
           else
             echo "⚠️ No CI workflow found (ci.yml or build.yml)" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           if [ -f "$WORKFLOWS_DIR/codeql-analysis.yml" ]; then
             echo "✅ CodeQL security scanning present" >> $GITHUB_STEP_SUMMARY
           else
             echo "⚠️ CodeQL workflow not found" >> $GITHUB_STEP_SUMMARY
           fi
-      
+
       - name: Validate Workflow Syntax
         run: |
+          set -x
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Workflow YAML Syntax" >> $GITHUB_STEP_SUMMARY
-          
+
           INVALID=0
           for workflow in $(find .github/workflows -maxdepth 1 -type f \( -name "*.yml" -o -name "*.yaml" \) 2>/dev/null); do
             if [ -f "$workflow" ]; then
@@ -562,33 +617,34 @@ jobs:
               fi
             fi
           done
-          
+
           if [ "$INVALID" -gt 0 ]; then
             exit 1
           fi
-      
+
       - name: Setup Python for CodeQL Validation
         if: hashFiles('.github/workflows/codeql-analysis.yml') != ''
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
-      
+
       - name: Install PyYAML for CodeQL Validation
         if: hashFiles('.github/workflows/codeql-analysis.yml') != ''
         run: pip install pyyaml
-      
+
       - name: Validate CodeQL Configuration
         if: hashFiles('.github/workflows/codeql-analysis.yml') != ''
         run: |
+          set -x
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### CodeQL Language Configuration" >> $GITHUB_STEP_SUMMARY
-          
+
           # Download validation script from MokoStandards
           SCRIPT_URL="https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/scripts/validate/validate_codeql_config.py"
           EXPECTED_SHA256="3c07f9e7ba50a51718dfb548d1105770a369cb0e1ece46d8e1f1765ad7bb09c9"
-          
+
           curl -sSL "$SCRIPT_URL" -o /tmp/validate_codeql_config.py
-          
+
           # Verify SHA-256 hash
           ACTUAL_SHA256=$(sha256sum /tmp/validate_codeql_config.py | cut -d' ' -f1)
           if [ "$ACTUAL_SHA256" != "$EXPECTED_SHA256" ]; then
@@ -597,7 +653,7 @@ jobs:
             echo "Actual: $ACTUAL_SHA256" >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
-          
+
           # Run validation
           if python3 /tmp/validate_codeql_config.py > /tmp/codeql_validation.txt 2>&1; then
             echo "✅ CodeQL language configuration is valid" >> $GITHUB_STEP_SUMMARY
@@ -623,13 +679,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: [repository-structure, documentation-quality, coding-standards, license-compliance, git-hygiene, workflow-validation]
     if: always()
-    
+
     steps:
       - name: Generate Compliance Report
         run: |
+          set -x
           echo "# 📊 MokoStandards Compliance Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           # Calculate overall status
           REPO_STATUS="${{ needs.repository-structure.result }}"
           DOCS_STATUS="${{ needs.documentation-quality.result }}"
@@ -637,20 +694,20 @@ jobs:
           LICENSE_STATUS="${{ needs.license-compliance.result }}"
           GIT_STATUS="${{ needs.git-hygiene.result }}"
           WORKFLOW_STATUS="${{ needs.workflow-validation.result }}"
-          
+
           PASSED=0
           FAILED=0
           TOTAL=6
-          
+
           [ "$REPO_STATUS" = "success" ] && PASSED=$((PASSED + 1)) || FAILED=$((FAILED + 1))
           [ "$DOCS_STATUS" = "success" ] && PASSED=$((PASSED + 1)) || FAILED=$((FAILED + 1))
           [ "$CODE_STATUS" = "success" ] && PASSED=$((PASSED + 1)) || FAILED=$((FAILED + 1))
           [ "$LICENSE_STATUS" = "success" ] && PASSED=$((PASSED + 1)) || FAILED=$((FAILED + 1))
           [ "$GIT_STATUS" = "success" ] && PASSED=$((PASSED + 1)) || FAILED=$((FAILED + 1))
           [ "$WORKFLOW_STATUS" = "success" ] && PASSED=$((PASSED + 1)) || FAILED=$((FAILED + 1))
-          
+
           COMPLIANCE_PERCENT=$((PASSED * 100 / TOTAL))
-          
+
           # Overall status badge
           if [ "$COMPLIANCE_PERCENT" -eq 100 ]; then
             echo "## ✅ Overall Status: **COMPLIANT** ($COMPLIANCE_PERCENT%)" >> $GITHUB_STEP_SUMMARY
@@ -661,11 +718,11 @@ jobs:
           else
             echo "## ❌ Overall Status: **NON-COMPLIANT** ($COMPLIANCE_PERCENT%)" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Score:** $PASSED/$TOTAL validation areas passed" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           # Progress bar
           FILLED=$((COMPLIANCE_PERCENT / 5))
           EMPTY=$((20 - FILLED))
@@ -676,71 +733,71 @@ jobs:
           echo "$BAR $COMPLIANCE_PERCENT%" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           # Detailed breakdown
           echo "## Validation Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Area | Status | Result | Priority |" >> $GITHUB_STEP_SUMMARY
           echo "|------|--------|--------|----------|" >> $GITHUB_STEP_SUMMARY
-          
+
           # Repository Structure
           if [ "$REPO_STATUS" = "success" ]; then
             echo "| 📁 Repository Structure | ✅ Pass | Compliant | - |" >> $GITHUB_STEP_SUMMARY
           else
             echo "| 📁 Repository Structure | ❌ Fail | **Action Required** | 🔴 Critical |" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           # Documentation Quality
           if [ "$DOCS_STATUS" = "success" ]; then
             echo "| 📚 Documentation Quality | ✅ Pass | Compliant | - |" >> $GITHUB_STEP_SUMMARY
           else
             echo "| 📚 Documentation Quality | ❌ Fail | **Action Required** | 🔴 Critical |" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           # Coding Standards
           if [ "$CODE_STATUS" = "success" ]; then
             echo "| 💻 Coding Standards | ✅ Pass | Compliant | - |" >> $GITHUB_STEP_SUMMARY
           else
             echo "| 💻 Coding Standards | ⚠️ Warning | Review Recommended | 🟡 Medium |" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           # License Compliance
           if [ "$LICENSE_STATUS" = "success" ]; then
             echo "| ⚖️ License Compliance | ✅ Pass | Compliant | - |" >> $GITHUB_STEP_SUMMARY
           else
             echo "| ⚖️ License Compliance | ❌ Fail | **Action Required** | 🔴 Critical |" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           # Git Hygiene
           if [ "$GIT_STATUS" = "success" ]; then
             echo "| 🧹 Git Repository Hygiene | ✅ Pass | Compliant | - |" >> $GITHUB_STEP_SUMMARY
           else
             echo "| 🧹 Git Repository Hygiene | ⚠️ Warning | Review Recommended | 🟡 Medium |" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           # Workflow Configuration
           if [ "$WORKFLOW_STATUS" = "success" ]; then
             echo "| ⚙️ Workflow Configuration | ✅ Pass | Compliant | - |" >> $GITHUB_STEP_SUMMARY
           else
             echo "| ⚙️ Workflow Configuration | ⚠️ Warning | Review Recommended | 🟡 Medium |" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           # Action items summary
           if [ "$FAILED" -gt 0 ]; then
             echo "## ⚡ Action Items" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**$FAILED validation area(s) require attention:**" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            
+
             [ "$REPO_STATUS" != "success" ] && echo "- 🔴 **Critical:** Fix repository structure issues" >> $GITHUB_STEP_SUMMARY
             [ "$DOCS_STATUS" != "success" ] && echo "- 🔴 **Critical:** Improve documentation quality" >> $GITHUB_STEP_SUMMARY
             [ "$LICENSE_STATUS" != "success" ] && echo "- 🔴 **Critical:** Resolve license compliance issues" >> $GITHUB_STEP_SUMMARY
             [ "$CODE_STATUS" != "success" ] && echo "- 🟡 **Medium:** Review coding standards violations" >> $GITHUB_STEP_SUMMARY
             [ "$GIT_STATUS" != "success" ] && echo "- 🟡 **Medium:** Address git repository hygiene items" >> $GITHUB_STEP_SUMMARY
             [ "$WORKFLOW_STATUS" != "success" ] && echo "- 🟡 **Medium:** Review workflow configuration" >> $GITHUB_STEP_SUMMARY
-            
+
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**Next Steps:**" >> $GITHUB_STEP_SUMMARY
             echo "1. Review detailed results in individual job outputs above" >> $GITHUB_STEP_SUMMARY
@@ -760,7 +817,7 @@ jobs:
             echo "- ✅ Git repository well-maintained" >> $GITHUB_STEP_SUMMARY
             echo "- ✅ Workflows properly configured" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "---" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -771,11 +828,105 @@ jobs:
           echo "- [Coding Standards](https://github.com/mokoconsulting-tech/MokoStandards/tree/main/docs/policy/coding-style-guide.md)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "_Generated by MokoStandards Compliance Workflow v02.00.00_" >> $GITHUB_STEP_SUMMARY
-          
+
+          # Create tracking issue for non-compliance if on push
+          if [ "$COMPLIANCE_PERCENT" -lt 100 ] && [ "${{ github.event_name }}" = "push" ]; then
+            echo "Creating tracking issue for standards violations..."
+          fi
+
           # Exit with error if not fully compliant
           if [ "$COMPLIANCE_PERCENT" -lt 100 ]; then
             exit 1
           fi
+
+      - name: Create tracking issue for standards violations
+        if: failure() && github.event_name == 'push'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const compliancePercent = '${{ needs.compliance-check.outputs.compliance_percentage }}' || '0';
+            const failedChecks = [];
+
+            // Collect failed checks from job outputs
+            const jobs = [
+              { name: 'File Headers', failed: '${{ needs.compliance-check.outputs.headers_ok }}' !== 'true' },
+              { name: 'Required Files', failed: '${{ needs.compliance-check.outputs.required_files_ok }}' !== 'true' },
+              { name: 'Documentation', failed: '${{ needs.compliance-check.outputs.documentation_ok }}' !== 'true' },
+              { name: 'Code Quality', failed: '${{ needs.compliance-check.outputs.code_quality_ok }}' !== 'true' }
+            ];
+
+            jobs.forEach(job => {
+              if (job.failed) failedChecks.push(job.name);
+            });
+
+            const body = `## 📋 Standards Compliance Violations Detected
+
+            **Branch**: \`${context.ref}\`
+            **Commit**: ${context.sha.substring(0, 7)}
+            **Triggered by**: @${context.actor}
+            **Date**: ${new Date().toISOString()}
+
+            ### Compliance Score: ${compliancePercent}%
+
+            ### ❌ Failed Checks
+            ${failedChecks.length > 0 ? failedChecks.map(check => `- ${check}`).join('\n') : '_Details available in workflow run_'}
+
+            ### 📊 What This Means
+            Your repository does not meet the required MokoStandards compliance threshold. This can affect:
+            - Code quality and maintainability
+            - Team collaboration efficiency
+            - Automated tooling integration
+            - Repository discoverability
+
+            ### ✅ Required Actions
+            1. Review the [workflow run](${context.payload.repository.html_url}/actions/runs/${context.runId}) for detailed findings
+            2. Address each failed check according to MokoStandards documentation
+            3. Push changes to trigger a new compliance scan
+            4. Ensure compliance reaches 100% before merging
+
+            ### 📚 Resources
+            - [MokoStandards Documentation](https://github.com/mokoconsulting-tech/MokoStandards)
+            - [Repository Structure Guide](https://github.com/mokoconsulting-tech/MokoStandards/tree/main/docs/policy/core-structure.md)
+            - [Documentation Standards](https://github.com/mokoconsulting-tech/MokoStandards/tree/main/docs/policy/document-formatting.md)
+            - [Coding Standards](https://github.com/mokoconsulting-tech/MokoStandards/tree/main/docs/policy/coding-style-guide.md)
+
+            ### 🔄 Resolution
+            This issue will be automatically closed when compliance reaches 100%.
+
+            ---
+            *This issue was automatically created by the Standards Compliance workflow.*
+            `;
+
+            // Check for existing open issue
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'standards-violation',
+              per_page: 1
+            });
+
+            if (issues.data.length > 0) {
+              // Update existing issue
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issues.data[0].number,
+                body: `### 🔄 Updated Scan Results\n\n${body}`
+              });
+              console.log(`Updated existing issue #${issues.data[0].number}`);
+            } else {
+              // Create new issue
+              const issue = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `[Standards] Compliance Violations - ${new Date().toISOString().split('T')[0]}`,
+                body: body,
+                labels: ['standards-violation', 'compliance', 'automation'],
+                assignees: ['copilot', 'jmiller-moko']
+              });
+              console.log(`Created new issue #${issue.data.number}`);
+            }
 
 # CUSTOMIZATION:
 #

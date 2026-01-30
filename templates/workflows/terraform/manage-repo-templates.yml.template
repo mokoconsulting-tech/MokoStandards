@@ -287,7 +287,8 @@ jobs:
 							repo: context.repo.repo,
 							title: 'Terraform Repository Template Update Plan',
 							body: output,
-							labels: ['terraform', 'repository-management', 'automation']
+							labels: ['terraform', 'repository-management', 'automation'],
+							assignees: ['copilot', 'jmiller-moko']
 						});
 
 			- name: Terraform Apply
@@ -340,7 +341,8 @@ jobs:
 							repo: context.repo.repo,
 							title: `Repository Templates Updated - ${new Date().toISOString().split('T')[0]}`,
 							body: body,
-							labels: ['terraform', 'repository-management', 'completed']
+							labels: ['terraform', 'repository-management', 'completed'],
+							assignees: ['copilot', 'jmiller-moko']
 						});
 
 			- name: Summary

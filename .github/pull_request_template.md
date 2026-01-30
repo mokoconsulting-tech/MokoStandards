@@ -185,7 +185,7 @@ Prepare this PR for merge by completing all pre-merge requirements:
 
 **Policy Reference**: [Copilot Pre-Merge Checklist Policy](../docs/policy/copilot-pre-merge-checklist.md)
 
-<!-- 
+<!--
 For detailed guidance on each checklist item and sample Copilot prompts,
 see docs/policy/copilot-pre-merge-checklist.md
 -->

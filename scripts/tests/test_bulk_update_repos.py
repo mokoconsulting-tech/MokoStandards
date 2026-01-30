@@ -40,51 +40,51 @@ bulk_update_repos.run_command = mock_run_command
 def test_get_org_repositories_filters_moko_prefix():
     """Test that get_org_repositories only returns repos beginning with Moko."""
     repos = bulk_update_repos.get_org_repositories("mokoconsulting-tech", exclude_archived=True)
-    
+
     print("Testing get_org_repositories with Moko prefix filtering...")
     print(f"Returned repositories: {repos}")
-    
+
     # All returned repos should start with "Moko"
     for repo in repos:
         assert repo.startswith("Moko"), f"Repository '{repo}' does not start with 'Moko'"
-    
+
     # Should include Moko repos
     assert "MokoStandards" in repos, "MokoStandards should be included"
     assert "MokoCRM" in repos, "MokoCRM should be included"
     assert "MokoDoliTools" in repos, "MokoDoliTools should be included"
     assert "MokoWaaS" in repos, "MokoWaaS should be included"
     assert "MokoStandards-Docs" in repos, "MokoStandards-Docs should be included"
-    
+
     # Should exclude non-Moko repos
     assert ".github-private" not in repos, ".github-private should be excluded"
     assert "test-php-quality" not in repos, "test-php-quality should be excluded"
     assert "legacy-project" not in repos, "legacy-project should be excluded"
-    
+
     # Should exclude archived repos
     assert "MokoArchivedRepo" not in repos, "MokoArchivedRepo should be excluded (archived)"
-    
+
     print("✓ All tests passed!")
     print(f"✓ Correctly filtered to {len(repos)} Moko repositories (excluding archived)")
-    
+
 
 def test_get_org_repositories_includes_archived():
     """Test that get_org_repositories includes archived Moko repos when requested."""
     repos = bulk_update_repos.get_org_repositories("mokoconsulting-tech", exclude_archived=False)
-    
+
     print("\nTesting get_org_repositories with archived repos included...")
     print(f"Returned repositories: {repos}")
-    
+
     # All returned repos should start with "Moko"
     for repo in repos:
         assert repo.startswith("Moko"), f"Repository '{repo}' does not start with 'Moko'"
-    
+
     # Should include archived Moko repos
     assert "MokoArchivedRepo" in repos, "MokoArchivedRepo should be included when exclude_archived=False"
-    
+
     # Should still exclude non-Moko repos
     assert ".github-private" not in repos, ".github-private should still be excluded"
     assert "test-php-quality" not in repos, "test-php-quality should still be excluded"
-    
+
     print("✓ All tests passed!")
     print(f"✓ Correctly filtered to {len(repos)} Moko repositories (including archived)")
 

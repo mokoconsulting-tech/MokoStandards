@@ -33,7 +33,7 @@ The build system uses a three-tier precedence system that allows customization a
 ```
 Priority 1: Repository Root Makefile
            ↓ (if not found)
-Priority 2: MokoStandards Platform Makefile  
+Priority 2: MokoStandards Platform Makefile
            ↓ (if not found)
 Priority 3: Default Build Commands
 ```

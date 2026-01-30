@@ -29,7 +29,7 @@ This document provides a reference to all official MokoStandards repository temp
 
 **Purpose**: A repository template for Joomla Component coding projects according to MokoStandards.
 
-**Use Case**: 
+**Use Case**:
 - Creating new Joomla 4.x/5.x components
 - Building admin-side and site-side component functionality
 - Database-driven Joomla applications

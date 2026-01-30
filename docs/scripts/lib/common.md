@@ -334,11 +334,11 @@ def main():
         # ... processing ...
         common.log_success("Processing complete")
         sys.exit(common.EXIT_SUCCESS)
-    
+
     except KeyboardInterrupt:
         common.log_warning("Interrupted by user")
         sys.exit(common.EXIT_ERROR)
-    
+
     except Exception as e:
         common.die(f"Unexpected error: {e}", common.EXIT_ERROR)
 ```
@@ -414,12 +414,12 @@ common.die("Cannot continue without connection", common.EXIT_ERROR)
 # Validate all inputs at script start
 def main():
     args = parse_args()
-    
+
     # Validate required files/directories immediately
     config_file = common.require_file(args.config)
     input_dir = common.require_dir(args.input_dir)
     output_dir = common.ensure_dir(args.output_dir)
-    
+
     # Continue with script logic knowing inputs are valid
 ```
 

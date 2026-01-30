@@ -29,6 +29,9 @@
 
 set -euo pipefail
 
+# Dry-run flag (default: false)
+DRY_RUN=false
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -38,33 +41,60 @@ NC='\033[0m' # No Color
 
 # Functions
 log_info() {
-	echo -e "${BLUE}ℹ️  $1${NC}"
+    echo -e "${BLUE}ℹ️  $1${NC}"
 }
 
 log_success() {
-	echo -e "${GREEN}✅ $1${NC}"
+    echo -e "${GREEN}✅ $1${NC}"
 }
 
 log_warning() {
-	echo -e "${YELLOW}⚠️  $1${NC}"
+    echo -e "${YELLOW}⚠️  $1${NC}"
 }
 
 log_error() {
-	echo -e "${RED}❌ $1${NC}"
+    echo -e "${RED}❌ $1${NC}"
 }
+
+# Parse command-line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        -h|--help)
+            echo "Usage: $0 [--dry-run] [--help]"
+            echo ""
+            echo "Options:"
+            echo "  --dry-run    Show what would be created without actually creating labels"
+            echo "  --help       Show this help message"
+            exit 0
+            ;;
+        *)
+            log_error "Unknown option: $1"
+            echo "Use --help for usage information"
+            exit 1
+            ;;
+    esac
+done
+
+if [ "$DRY_RUN" = true ]; then
+    log_info "Running in DRY-RUN mode - no labels will be created"
+fi
 
 # Check if gh CLI is installed
 if ! command -v gh &> /dev/null; then
-	log_error "GitHub CLI (gh) is not installed"
-	echo "Install it from: https://cli.github.com/"
-	exit 1
+    log_error "GitHub CLI (gh) is not installed"
+    echo "Install it from: https://cli.github.com/"
+    exit 1
 fi
 
 # Check if authenticated
 if ! gh auth status &> /dev/null; then
-	log_error "Not authenticated with GitHub CLI"
-	echo "Run: gh auth login"
-	exit 1
+    log_error "Not authenticated with GitHub CLI"
+    echo "Run: gh auth login"
+    exit 1
 fi
 
 # Get repository info
@@ -73,15 +103,19 @@ log_info "Setting up labels for repository: $REPO"
 
 # Function to create or update a label
 create_label() {
-	local name=$1
-	local color=$2
-	local description=$3
-	
-	if gh label create "$name" --color "$color" --description "$description" --force 2>/dev/null; then
-		log_success "Created/updated label: $name"
-	else
-		log_warning "Failed to create label: $name"
-	fi
+    local name=$1
+    local color=$2
+    local description=$3
+
+    if [ "$DRY_RUN" = true ]; then
+        echo "[DRY-RUN] Would create label: $name (color: #$color, description: $description)"
+    else
+        if gh label create "$name" --color "$color" --description "$description" --force 2>/dev/null; then
+            log_success "Created/updated label: $name"
+        else
+            log_warning "Failed to create label: $name"
+        fi
+    fi
 }
 
 echo ""

@@ -12,33 +12,33 @@ allowed_domains:
   - "creativecommons.org" # Creative Commons licenses
   - "apache.org"          # Apache Software Foundation
   - "fsf.org"             # Free Software Foundation
-  
+
   # Documentation and standards
   - "semver.org"          # Semantic Versioning
   - "keepachangelog.com"  # Changelog standards
   - "conventionalcommits.org" # Commit message standards
-  
+
   # GitHub and related
   - "github.com"          # GitHub main site
   - "docs.github.com"     # GitHub documentation
   - "raw.githubusercontent.com" # GitHub raw content
-  
+
   # Package managers and registries
   - "npmjs.com"           # npm registry
   - "pypi.org"            # Python Package Index
   - "packagist.org"       # PHP Composer packages
   - "rubygems.org"        # Ruby gems
-  
+
   # Standards and specifications
   - "json-schema.org"     # JSON Schema
   - "w3.org"              # W3C standards
   - "ietf.org"            # IETF RFCs and standards
-  
+
   # PHP and Joomla specific
   - "joomla.org"          # Joomla CMS
   - "docs.joomla.org"     # Joomla documentation
   - "php.net"             # PHP documentation
-  
+
   # Dolibarr specific
   - "dolibarr.org"        # Dolibarr ERP/CRM
   - "wiki.dolibarr.org"   # Dolibarr wiki
@@ -47,7 +47,7 @@ allowed_domains:
 copilot:
   # Enable Copilot for this repository
   enabled: true
-  
+
   # File patterns to include for Copilot suggestions
   include:
     - "**/*.py"
@@ -59,7 +59,7 @@ copilot:
     - "**/*.json"
     - "**/*.xml"
     - "**/*.sh"
-  
+
   # File patterns to exclude from Copilot suggestions
   exclude:
     - "**/node_modules/**"

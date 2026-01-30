@@ -493,11 +493,11 @@ ENTERPRISE_SPEC = [
 def convert_to_canonical_format():
     """Convert enterprise spec to canonical documents format."""
     canonical = {}
-    
+
     for spec in ENTERPRISE_SPEC:
         # Strip leading slash from path
         path = spec["fields"]["Document Path"].lstrip("/")
-        
+
         # Get purpose from body
         purpose_lines = spec["body"].split("\n")
         purpose = ""
@@ -505,7 +505,7 @@ def convert_to_canonical_format():
             if line.startswith("- "):
                 purpose = line[2:]
                 break
-        
+
         canonical[path] = {
             "path": path,
             "title": spec["title"],
@@ -526,15 +526,15 @@ def convert_to_canonical_format():
             "purpose": purpose,
             "owner_role": spec["fields"]["Owner Role"]
         }
-    
+
     return canonical
 
 if __name__ == "__main__":
     canonical_docs = convert_to_canonical_format()
-    
+
     print("# Generated Canonical Documents Configuration")
     print(f"# Total documents: {len(canonical_docs)}\n")
-    
+
     print("CANONICAL_DOCUMENTS = {")
     for path, config in canonical_docs.items():
         print(f'    "{path}": {{')

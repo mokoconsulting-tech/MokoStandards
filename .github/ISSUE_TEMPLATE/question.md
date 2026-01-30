@@ -32,9 +32,9 @@ assignees: []
 ## Environment (if relevant)
 
 **Your setup**:
-- Operating System: 
+- Operating System:
 - Repository type: [ ] Generic [ ] Joomla/WaaS [ ] Dolibarr/CRM
-- MokoStandards version: 
+- MokoStandards version:
 
 ## What You've Researched
 

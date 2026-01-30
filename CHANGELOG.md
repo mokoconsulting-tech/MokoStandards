@@ -15,15 +15,94 @@
  DEFGROUP: MokoStandards
  INGROUP: MokoStandards.Documentation
  REPO: https://github.com/mokoconsulting-tech/MokoStandards/
- VERSION: 03.00.00
+ VERSION: 03.01.00
  PATH: ./CHANGELOG.md
  BRIEF: Version history using Keep a Changelog
  NOTE: Adheres to SemVer when applicable
  -->
 
-# Changelog
+# CHANGELOG - MokoStandards (VERSION: 03.01.00)
 
-## [UNRELEASED]
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Changed
+- **Scripts Organization**: Reorganized scripts directory by function rather than language
+  - Python, Shell, and PowerShell scripts now live side-by-side in functional directories
+  - Eliminated `scripts/powershell/` language segregation
+  - Moved PowerShell scripts to their functional directories (automation/, validate/, lib/)
+  - Better discoverability: all tools for a function in one place
+- **Documentation Structure**: Improved scripts documentation organization
+  - Moved 11 documentation files to `scripts/docs/` subdirectory
+  - Created comprehensive README.md for every scripts folder (7 new READMEs)
+  - Regenerated all index.md files (19 total) for better navigation
+  - Cleaner scripts/ root directory (reduced from 13 files to 2)
+- **README Accuracy**: Updated repository statistics to reflect actual content
+  - Python scripts: 44 → 64
+  - PowerShell scripts: 2 → 10
+  - Added script wrappers badge: 106 wrappers
+  - Updated repository structure with accurate file counts
+  - Refined script category breakdowns for all directories
+
+### Fixed
+- **Tabs Policy Enforcement**: Corrected tab checking logic to match documented policy
+  - Tab checking now only flags files requiring spaces (YAML, Python, Haskell, F#, CoffeeScript, Nim, JSON, RST)
+  - Removed false positives for files allowed to have tabs (Markdown, PowerShell, LICENSE, etc.)
+  - Updated workflows, policy docs, and validation scripts with comprehensive language list
+  - Updated `.editorconfig` template with all 8 languages requiring spaces
+  - Fixed JSON indentation rule (was incorrectly set to tabs)
+- **File Encoding Check**: Accept ASCII files as valid UTF-8 subset in standards compliance
+- **Version Consistency**: Updated README.md version from 03.00.00 to 03.01.00
+- **Two-Tier Architecture Documentation**: Enhanced clarity of MokoStandards as source of truth
+  - Added comprehensive architecture diagram
+  - Clarified that MokoStandards (Tier 2) is the SOURCE OF TRUTH for schemas and configurations
+  - Updated both README and policy documentation
+
+### Removed
+- **Database Files from .gitignore**: Removed restrictions to allow flexible version control
+  - Removed `*.sql` and `*.sql.gz` (SQL scripts should be tracked)
+  - Removed `*.db`, `*.db-journal`, `*.sqlite`, `*.sqlite3` (may be needed for tests/fixtures)
+  - Projects can still ignore these files individually if needed
+
+## [03.01.00] - 2026-01-28
+
+### Added
+- **Copilot Standards Sync Guide**: Created comprehensive guide for syncing standards across repositories
+  - Created `docs/guide/copilot-sync-standards.md` (19KB comprehensive guide)
+  - Ready-to-use Copilot prompts for label deployment, Terraform standards, workflows, and scripts
+  - Step-by-step instructions for complete standards synchronization
+  - Verification checklists and troubleshooting section
+  - Advanced usage patterns for custom implementations
+- **Required Label Deployment Template**: Created standardized label deployment script
+  - Created `templates/required/setup-labels.sh` (REQUIRED file for all repos)
+  - 46 standard labels across 8 categories (project types, languages, components, workflow, priority, type, status, size, health)
+  - Dry-run mode for safe testing
+  - Comprehensive help and installation instructions
+  - Integration with GitHub CLI for automated deployment
+- **Infrastructure Enhancements**: Multiple improvements to developer experience
+  - Hierarchical logs/ directory structure (8 categories: automation, validation, maintenance, analysis, build, release, tests, archive)
+  - PowerShell GUI components (GuiUtils.psm1 module with reusable dialogs and forms)
+  - PowerShell GUI scripts (Invoke-RepoHealthCheckGUI.ps1, Invoke-BulkUpdateGUI.ps1)
+  - Script wrappers: 108 wrappers generated (54 bash + 54 PowerShell) for all Python scripts
+  - Auto-generation tool (generate_wrappers.py) for wrapper regeneration
+  - Dry-run analysis tool (add_dry_run_support.py) with pattern documentation
+  - Terraform metadata automation (add_terraform_metadata.py) for bulk updates
+  - Bulk label deployment script (bulk_deploy_labels.sh) with parallel execution
+  - GitHub Actions workflow for automated label deployment (bulk-label-deployment.yml)
+
+### Changed
+- **Terraform Metadata Standards**: Applied unified metadata to all Terraform files
+  - Updated 12 Terraform files with standardized metadata blocks
+  - Metadata includes: name, description, version, maintainer, schema_version, repository_url, format
+  - Consistent with metadata-standards.md policy
+- **Documentation Organization**: Enhanced guide structure
+  - Added label-deployment.md guide with deployment methods and best practices
+  - Created DRY_RUN_PATTERN.md with standard implementation patterns
+  - Improved cross-references between related documentation
 
 ### Security
 - **Code Injection Vulnerability**: Fixed potential code injection in auto-update-changelog workflow
@@ -540,7 +619,7 @@
  - `/readme.md` - Clarified docs and scaaffolding
  - `./generic-git/docs/roadmap.md`
  - `modulebuilder.txt` to `./dolibar-default/.gitignore`
- 
+
 ## [2.0] - 2025-11-23
 ### Added
  - Documentation Suite in `generic-git`
@@ -550,7 +629,7 @@
  - Created `doc` folder from generic-git
  - `.github` updated
 
- 
+
 ### Deleted
  - Joomla PHP files
  - MokoDoliDiscovery Module ID

@@ -109,10 +109,10 @@ except ImportError:
 
 class GitHubClientError(Exception):
     """Base exception for all GitHub client errors.
-    
+
     All exceptions raised by the GitHub client inherit from this class,
     allowing users to catch all client-related errors with a single handler.
-    
+
     Example:
         try:
             client.get_repo("owner", "repo")
@@ -124,20 +124,20 @@ class GitHubClientError(Exception):
 
 class TokenValidationError(GitHubClientError):
     """Raised when GitHub token validation fails.
-    
+
     This occurs when:
     - No token is provided or discoverable
     - Token has invalid format
     - Token authentication fails with GitHub API
-    
+
     Attributes:
         message: Error description
         token_hint: Hint about where to set the token (without revealing the token)
     """
-    
+
     def __init__(self, message: str, token_hint: Optional[str] = None) -> None:
         """Initialize token validation error.
-        
+
         Args:
             message: Error description
             token_hint: Optional hint about token configuration
@@ -148,16 +148,16 @@ class TokenValidationError(GitHubClientError):
 
 class RateLimitError(GitHubClientError):
     """Raised when GitHub API rate limit is exceeded.
-    
+
     Contains information about when the rate limit will reset.
-    
+
     Attributes:
         message: Error description
         reset_at: Unix timestamp when rate limit resets
         limit: Maximum requests allowed
         remaining: Remaining requests (should be 0)
     """
-    
+
     def __init__(
         self,
         message: str,
@@ -166,7 +166,7 @@ class RateLimitError(GitHubClientError):
         remaining: Optional[int] = None
     ) -> None:
         """Initialize rate limit error.
-        
+
         Args:
             message: Error description
             reset_at: Unix timestamp when rate limit resets
@@ -181,14 +181,14 @@ class RateLimitError(GitHubClientError):
 
 class APIRequestError(GitHubClientError):
     """Raised when GitHub API request fails.
-    
+
     Attributes:
         message: Error description
         status_code: HTTP status code (if available)
         response_body: Response body (if available)
         request_details: Details about the failed request
     """
-    
+
     def __init__(
         self,
         message: str,
@@ -197,7 +197,7 @@ class APIRequestError(GitHubClientError):
         request_details: Optional[Dict[str, Any]] = None
     ) -> None:
         """Initialize API request error.
-        
+
         Args:
             message: Error description
             status_code: HTTP status code
@@ -212,15 +212,15 @@ class APIRequestError(GitHubClientError):
 
 class ResourceNotFoundError(GitHubClientError):
     """Raised when a requested GitHub resource is not found (404).
-    
+
     Attributes:
         resource_type: Type of resource (e.g., "repository", "user")
         resource_id: Identifier for the resource
     """
-    
+
     def __init__(self, resource_type: str, resource_id: str) -> None:
         """Initialize resource not found error.
-        
+
         Args:
             resource_type: Type of resource
             resource_id: Identifier for the resource
@@ -238,7 +238,7 @@ class ResourceNotFoundError(GitHubClientError):
 @dataclass
 class Repository:
     """Represents a GitHub repository with core metadata.
-    
+
     Attributes:
         name: Repository name (e.g., "MokoStandards")
         full_name: Full repository name with owner (e.g., "mokoconsulting-tech/MokoStandards")
@@ -266,7 +266,7 @@ class Repository:
 @dataclass
 class PullRequest:
     """Represents a GitHub pull request.
-    
+
     Attributes:
         number: Pull request number
         title: Pull request title
@@ -298,7 +298,7 @@ class PullRequest:
 @dataclass
 class RateLimitInfo:
     """Represents GitHub API rate limit information.
-    
+
     Attributes:
         limit: Maximum requests allowed in window
         remaining: Remaining requests in current window
@@ -320,7 +320,7 @@ class RateLimitInfo:
 
 class GitHubClient:
     """Enterprise GitHub API client with comprehensive error handling and retry logic.
-    
+
     Provides a robust interface to GitHub's API with:
     - Automatic token discovery and validation
     - Rate limit detection and automatic backoff
@@ -330,24 +330,24 @@ class GitHubClient:
     - Fallback to gh CLI when requests library unavailable
     - Comprehensive metrics collection
     - Audit logging for compliance
-    
+
     The client can be used as a context manager for automatic cleanup:
-    
+
     Example:
         with GitHubClient() as client:
             repos = client.list_org_repos("mokoconsulting-tech")
             for repo in repos:
                 print(f"Found: {repo.name}")
-    
+
     Or initialized explicitly:
-    
+
     Example:
         client = GitHubClient(token="ghp_...")
         try:
             repo = client.get_repo("owner", "repo")
         finally:
             client.close()
-    
+
     Attributes:
         token: GitHub authentication token
         config: Configuration manager instance
@@ -358,7 +358,7 @@ class GitHubClient:
         use_requests: Whether to use requests library or gh CLI
         logger: Python logger for debug output
     """
-    
+
     def __init__(
         self,
         token: Optional[str] = None,
@@ -369,7 +369,7 @@ class GitHubClient:
         timeout_seconds: Optional[int] = None
     ) -> None:
         """Initialize GitHub client with optional configuration.
-        
+
         Args:
             token: GitHub personal access token. If None, attempts auto-discovery
                 from environment variables (GITHUB_TOKEN, GH_TOKEN, GH_PAT) or
@@ -383,14 +383,14 @@ class GitHubClient:
                 False to skip validation (useful for testing).
             timeout_seconds: Request timeout in seconds. If None, uses value
                 from config_manager (default: 30).
-        
+
         Raises:
             TokenValidationError: If validate_token=True and token is invalid
             ImportError: If required dependencies are missing
         """
         # Load configuration
         self.config = get_config()
-        
+
         # Set up Python logger for detailed debugging
         self.logger = logging.getLogger("github_client")
         if enable_debug_logging:
@@ -402,32 +402,32 @@ class GitHubClient:
             self.logger.addHandler(handler)
         else:
             self.logger.setLevel(logging.WARNING)
-        
+
         # Discover and validate token
         self.token = token or self._discover_token()
         if validate_token:
             self._validate_token()
         elif not self.token:
             log_warning("No GitHub token found. Some operations may fail.")
-        
+
         # Set up rate limiter
         rate_limit = rate_limit_per_hour or self.config.github.api_rate_limit
         self.rate_limiter = RateLimiter(requests_per_hour=rate_limit)
-        
+
         # Set up audit logger
         self.audit = audit_logger or AuditLogger("github_client")
-        
+
         # Configure timeouts
         self.timeout_seconds = timeout_seconds or self.config.github.timeout_seconds
-        
+
         # Determine API backend
         self.use_requests = HAS_REQUESTS and self.token is not None
-        
+
         # Metrics
         self.api_call_count = 0
         self.api_error_count = 0
         self._rate_limit_info: Optional[RateLimitInfo] = None
-        
+
         # Log initialization
         backend = "requests" if self.use_requests else "gh CLI"
         log_debug(
@@ -437,15 +437,15 @@ class GitHubClient:
         self.logger.info(
             f"Initialized with backend={backend}, rate_limit={rate_limit}/hour"
         )
-    
+
     def _discover_token(self) -> Optional[str]:
         """Discover GitHub token from environment or gh CLI.
-        
+
         Searches for token in the following order:
         1. Environment variable from config (default: GITHUB_TOKEN)
         2. Standard GitHub environment variables (GITHUB_TOKEN, GH_TOKEN, GH_PAT)
         3. gh CLI auth token command
-        
+
         Returns:
             GitHub token if found, None otherwise
         """
@@ -456,7 +456,7 @@ class GitHubClient:
             log_debug(f"Token found in ${token_var}")
             self.logger.debug(f"Token discovered from ${token_var}")
             return token
-        
+
         # Check alternative environment variables
         for var in ['GITHUB_TOKEN', 'GH_TOKEN', 'GH_PAT']:
             token = os.environ.get(var)
@@ -464,7 +464,7 @@ class GitHubClient:
                 log_debug(f"Token found in ${var}")
                 self.logger.debug(f"Token discovered from ${var}")
                 return token
-        
+
         # Try gh CLI
         try:
             result = subprocess.run(
@@ -481,15 +481,15 @@ class GitHubClient:
                     return token
         except (subprocess.TimeoutExpired, FileNotFoundError) as e:
             self.logger.debug(f"Failed to get token from gh CLI: {e}")
-        
+
         self.logger.warning("No token discovered from any source")
         return None
-    
+
     def _validate_token(self) -> None:
         """Validate GitHub token by making a test API call.
-        
+
         Validates token format and authentication by calling /user endpoint.
-        
+
         Raises:
             TokenValidationError: If token is missing, malformed, or fails auth
         """
@@ -498,18 +498,18 @@ class GitHubClient:
                 "No GitHub token available",
                 token_hint="Set GITHUB_TOKEN environment variable or use 'gh auth login'"
             )
-        
+
         # Check token format (basic validation)
         if not self._is_valid_token_format(self.token):
             raise TokenValidationError(
                 "Token has invalid format (expected 'ghp_' prefix or 'gho_' for OAuth)",
                 token_hint="Ensure token is a valid GitHub personal access token"
             )
-        
+
         # Test authentication with API
         try:
             self.logger.debug("Validating token with /user endpoint")
-            
+
             if self.use_requests:
                 # Use requests library
                 response = requests.get(
@@ -520,7 +520,7 @@ class GitHubClient:
                     },
                     timeout=10
                 )
-                
+
                 if response.status_code == 401:
                     raise TokenValidationError(
                         "Token authentication failed (401 Unauthorized)",
@@ -531,7 +531,7 @@ class GitHubClient:
                         f"Token validation failed with status {response.status_code}",
                         token_hint="Check token permissions and GitHub API status"
                     )
-                
+
                 user_data = response.json()
                 username = user_data.get("login", "unknown")
                 log_debug(f"Token validated for user: {username}")
@@ -545,7 +545,7 @@ class GitHubClient:
                     timeout=10,
                     env={**os.environ, 'GH_TOKEN': self.token}
                 )
-                
+
                 if result.returncode != 0:
                     error_msg = result.stderr.strip()
                     if "401" in error_msg or "Unauthorized" in error_msg:
@@ -557,12 +557,12 @@ class GitHubClient:
                         f"Token validation failed: {error_msg}",
                         token_hint="Check token permissions and gh CLI configuration"
                     )
-                
+
                 user_data = json.loads(result.stdout)
                 username = user_data.get("login", "unknown")
                 log_debug(f"Token validated for user: {username}")
                 self.logger.info(f"Token validated successfully for user: {username}")
-                
+
         except (subprocess.TimeoutExpired, subprocess.CalledProcessError) as e:
             raise TokenValidationError(
                 f"Token validation failed: {e}",
@@ -580,14 +580,14 @@ class GitHubClient:
                 f"Unexpected error during token validation: {e}",
                 token_hint="Check logs for details"
             )
-    
+
     @staticmethod
     def _is_valid_token_format(token: str) -> bool:
         """Check if token has valid GitHub token format.
-        
+
         Args:
             token: Token string to validate
-        
+
         Returns:
             True if format is valid, False otherwise
         """
@@ -595,36 +595,36 @@ class GitHubClient:
         # and are 40+ characters
         if len(token) < 20:
             return False
-        
+
         # Check for common prefixes
         valid_prefixes = ['ghp_', 'gho_', 'ghu_', 'ghs_', 'ghr_']
         has_valid_prefix = any(token.startswith(prefix) for prefix in valid_prefixes)
-        
+
         # Classic tokens (no prefix) are 40 hex characters
         is_classic = len(token) == 40 and all(c in '0123456789abcdef' for c in token)
-        
+
         return has_valid_prefix or is_classic
-    
+
     def _check_rate_limit(self, response_headers: Optional[Dict[str, str]] = None) -> None:
         """Check and handle GitHub API rate limits.
-        
+
         Examines rate limit headers from API response and raises RateLimitError
         if limit is exceeded. Also updates internal rate limit tracking.
-        
+
         Args:
             response_headers: HTTP response headers from GitHub API
-        
+
         Raises:
             RateLimitError: If rate limit is exceeded
         """
         if not response_headers:
             return
-        
+
         # Extract rate limit info from headers
         limit = response_headers.get('X-RateLimit-Limit')
         remaining = response_headers.get('X-RateLimit-Remaining')
         reset = response_headers.get('X-RateLimit-Reset')
-        
+
         if all([limit, remaining, reset]):
             self._rate_limit_info = RateLimitInfo(
                 limit=int(limit),
@@ -632,12 +632,12 @@ class GitHubClient:
                 reset_at=int(reset),
                 used=int(limit) - int(remaining)
             )
-            
+
             self.logger.debug(
                 f"Rate limit: {remaining}/{limit} remaining, "
                 f"resets at {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(reset)))}"
             )
-            
+
             # Check if we're hitting the limit
             if int(remaining) == 0:
                 wait_time = int(reset) - int(time.time())
@@ -647,21 +647,21 @@ class GitHubClient:
                     limit=int(limit),
                     remaining=0
                 )
-            
+
             # Warn if we're getting low
             if int(remaining) < 100:
                 log_warning(
                     f"GitHub API rate limit low: {remaining}/{limit} remaining"
                 )
-    
+
     def get_rate_limit_info(self) -> Optional[RateLimitInfo]:
         """Get current rate limit information.
-        
+
         Returns:
             RateLimitInfo object if available, None otherwise
         """
         return self._rate_limit_info
-    
+
     @retry(max_attempts=3, backoff_base=2.0, exceptions=(subprocess.CalledProcessError, subprocess.TimeoutExpired))
     def _run_gh_command(
         self,
@@ -670,19 +670,19 @@ class GitHubClient:
         log_request: bool = True
     ) -> Dict[str, Any]:
         """Run gh CLI command with retry and rate limiting.
-        
+
         Executes a gh CLI command with automatic retry on transient failures
         and rate limiting to respect GitHub API limits.
-        
+
         Args:
             args: Command arguments to pass to gh CLI (e.g., ['api', '/user'])
             timeout: Command timeout in seconds. Uses instance default if None.
             log_request: Whether to log request details to audit log
-        
+
         Returns:
             Parsed JSON response as dictionary. If response is not JSON,
             returns {"output": stdout_text}.
-        
+
         Raises:
             subprocess.CalledProcessError: If command fails after all retries
             subprocess.TimeoutExpired: If command times out
@@ -690,10 +690,10 @@ class GitHubClient:
         """
         # Apply rate limiting
         self.rate_limiter.acquire()
-        
+
         timeout = timeout or self.timeout_seconds
         cmd_str = " ".join(args)
-        
+
         # Audit log the call
         if log_request:
             self.audit.log_operation(
@@ -701,16 +701,16 @@ class GitHubClient:
                 target=cmd_str,
                 status="started"
             )
-        
+
         self.logger.debug(f"Executing: gh {cmd_str}")
-        
+
         # Run command
         try:
             cmd = ['gh'] + args
             env = os.environ.copy()
             if self.token:
                 env['GH_TOKEN'] = self.token
-            
+
             result = subprocess.run(
                 cmd,
                 capture_output=True,
@@ -719,37 +719,37 @@ class GitHubClient:
                 check=True,
                 env=env
             )
-            
+
             self.api_call_count += 1
-            
+
             # Parse JSON response if possible
             try:
                 data = json.loads(result.stdout)
             except json.JSONDecodeError:
                 data = {"output": result.stdout}
-            
+
             if log_request:
                 self.audit.log_success(
                     operation="gh_cli_command",
                     target=cmd_str
                 )
-            
+
             self.logger.debug(f"Command succeeded: {cmd_str[:100]}")
             return data
-            
+
         except subprocess.CalledProcessError as e:
             self.api_error_count += 1
             error_msg = f"Exit code {e.returncode}: {e.stderr}"
-            
+
             if log_request:
                 self.audit.log_failure(
                     operation="gh_cli_command",
                     target=cmd_str,
                     error=error_msg
                 )
-            
+
             self.logger.error(f"Command failed: {cmd_str} - {error_msg}")
-            
+
             # Check for rate limit in error message
             if "rate limit" in e.stderr.lower():
                 # Try to extract reset time
@@ -759,28 +759,28 @@ class GitHubClient:
                     "GitHub API rate limit exceeded",
                     reset_at=reset_at
                 )
-            
+
             raise APIRequestError(
                 error_msg,
                 status_code=e.returncode,
                 response_body=e.stderr,
                 request_details={"command": cmd_str}
             )
-        
+
         except subprocess.TimeoutExpired as e:
             self.api_error_count += 1
             error_msg = f"Command timed out after {timeout}s"
-            
+
             if log_request:
                 self.audit.log_failure(
                     operation="gh_cli_command",
                     target=cmd_str,
                     error=error_msg
                 )
-            
+
             self.logger.error(f"Command timeout: {cmd_str}")
             raise
-    
+
     @retry(max_attempts=3, backoff_base=2.0)
     def graphql(
         self,
@@ -789,22 +789,22 @@ class GitHubClient:
         log_request: bool = True
     ) -> Dict[str, Any]:
         """Execute GraphQL query with retry and rate limiting.
-        
+
         Executes a GraphQL query against GitHub's GraphQL API with automatic
         retry on transient failures and rate limiting.
-        
+
         Args:
             query: GraphQL query string (e.g., "query { viewer { login } }")
             variables: Optional dictionary of variables for the query
             log_request: Whether to log request details to audit log
-        
+
         Returns:
             Query response data as dictionary. Structure depends on query.
-        
+
         Raises:
             APIRequestError: If query fails after all retries
             RateLimitError: If rate limit is exceeded
-        
+
         Example:
             query = '''
                 query($org: String!) {
@@ -820,7 +820,7 @@ class GitHubClient:
         """
         # Apply rate limiting
         self.rate_limiter.acquire()
-        
+
         # Audit log
         query_preview = query[:100].replace('\n', ' ')
         if log_request:
@@ -830,24 +830,24 @@ class GitHubClient:
                 status="started",
                 metadata={"has_variables": variables is not None}
             )
-        
+
         self.logger.debug(f"Executing GraphQL query: {query_preview}...")
-        
+
         # Build command
         cmd = ['gh', 'api', 'graphql', '-f', f'query={query}']
-        
+
         if variables:
             for key, value in variables.items():
                 if isinstance(value, (dict, list)):
                     cmd.extend(['-F', f'{key}={json.dumps(value)}'])
                 else:
                     cmd.extend(['-f', f'{key}={value}'])
-        
+
         try:
             env = os.environ.copy()
             if self.token:
                 env['GH_TOKEN'] = self.token
-            
+
             result = subprocess.run(
                 cmd,
                 capture_output=True,
@@ -856,10 +856,10 @@ class GitHubClient:
                 check=True,
                 env=env
             )
-            
+
             self.api_call_count += 1
             data = json.loads(result.stdout)
-            
+
             # Check for GraphQL errors
             if 'errors' in data:
                 errors = data['errors']
@@ -872,34 +872,34 @@ class GitHubClient:
                         "errors": errors
                     }
                 )
-            
+
             if log_request:
                 self.audit.log_success(
                     operation="graphql_query",
                     target=query_preview
                 )
-            
+
             self.logger.debug("GraphQL query succeeded")
             return data
-            
+
         except (subprocess.CalledProcessError, json.JSONDecodeError) as e:
             self.api_error_count += 1
             error_msg = str(e)
-            
+
             if log_request:
                 self.audit.log_failure(
                     operation="graphql_query",
                     target=query_preview,
                     error=error_msg
                 )
-            
+
             self.logger.error(f"GraphQL query failed: {error_msg}")
-            
+
             if isinstance(e, subprocess.CalledProcessError):
                 # Check for rate limit
                 if "rate limit" in e.stderr.lower():
                     raise RateLimitError("GitHub API rate limit exceeded")
-                
+
                 raise APIRequestError(
                     f"GraphQL query failed: {e.stderr}",
                     status_code=e.returncode,
@@ -911,30 +911,30 @@ class GitHubClient:
                     f"Failed to parse GraphQL response: {error_msg}",
                     request_details={"query": query_preview}
                 )
-    
+
     def get_repo(self, owner: str, repo: str) -> Repository:
         """Get repository information.
-        
+
         Fetches detailed information about a specific repository.
-        
+
         Args:
             owner: Repository owner (username or organization)
             repo: Repository name
-        
+
         Returns:
             Repository object with metadata
-        
+
         Raises:
             ResourceNotFoundError: If repository doesn't exist or is inaccessible
             APIRequestError: If API request fails
-        
+
         Example:
             repo = client.get_repo("mokoconsulting-tech", "MokoStandards")
             print(f"Repository: {repo.name}, Stars: {repo.url}")
         """
         log_info(f"Fetching repository: {owner}/{repo}")
         self.logger.debug(f"get_repo({owner}, {repo})")
-        
+
         query = """
         query($owner: String!, $repo: String!) {
           repository(owner: $owner, name: $repo) {
@@ -955,14 +955,14 @@ class GitHubClient:
           }
         }
         """
-        
+
         try:
             response = self.graphql(query, {"owner": owner, "repo": repo})
-            
+
             repo_data = response.get("data", {}).get("repository")
             if not repo_data:
                 raise ResourceNotFoundError("repository", f"{owner}/{repo}")
-            
+
             return Repository(
                 name=repo_data["name"],
                 full_name=repo_data["nameWithOwner"],
@@ -975,12 +975,12 @@ class GitHubClient:
                 created_at=repo_data.get("createdAt"),
                 updated_at=repo_data.get("updatedAt")
             )
-            
+
         except APIRequestError as e:
             if "NOT_FOUND" in str(e) or "Could not resolve to a Repository" in str(e):
                 raise ResourceNotFoundError("repository", f"{owner}/{repo}")
             raise
-    
+
     def list_org_repos(
         self,
         org: str,
@@ -989,23 +989,23 @@ class GitHubClient:
         max_repos: Optional[int] = None
     ) -> List[Repository]:
         """List organization repositories with pagination.
-        
+
         Fetches all repositories for a GitHub organization with support for
         filtering and pagination.
-        
+
         Args:
             org: Organization name (e.g., "mokoconsulting-tech")
             include_archived: Whether to include archived repositories
             include_private: Whether to include private repositories
             max_repos: Maximum number of repositories to fetch (None = all)
-        
+
         Returns:
             List of Repository objects matching the criteria
-        
+
         Raises:
             ResourceNotFoundError: If organization doesn't exist
             APIRequestError: If API request fails
-        
+
         Example:
             # Get all non-archived public repositories
             repos = client.list_org_repos(
@@ -1021,7 +1021,7 @@ class GitHubClient:
             f"list_org_repos(org={org}, archived={include_archived}, "
             f"private={include_private}, max={max_repos})"
         )
-        
+
         query = """
         query($org: String!, $cursor: String) {
           organization(login: $org) {
@@ -1050,34 +1050,34 @@ class GitHubClient:
           }
         }
         """
-        
+
         repos: List[Repository] = []
         cursor: Optional[str] = None
         page = 1
-        
+
         while True:
             variables: Dict[str, Any] = {"org": org}
             if cursor:
                 variables["cursor"] = cursor
-            
+
             try:
                 response = self.graphql(query, variables)
-                
+
                 # Extract repositories
                 org_data = response.get("data", {}).get("organization", {})
                 if not org_data:
                     raise ResourceNotFoundError("organization", org)
-                
+
                 repo_data = org_data.get("repositories", {})
                 nodes = repo_data.get("nodes", [])
-                
+
                 for node in nodes:
                     # Apply filters
                     if not include_archived and node.get("isArchived"):
                         continue
                     if not include_private and node.get("isPrivate"):
                         continue
-                    
+
                     repos.append(Repository(
                         name=node["name"],
                         full_name=node["nameWithOwner"],
@@ -1090,31 +1090,31 @@ class GitHubClient:
                         created_at=node.get("createdAt"),
                         updated_at=node.get("updatedAt")
                     ))
-                    
+
                     # Check max limit
                     if max_repos and len(repos) >= max_repos:
                         log_info(f"Reached max repository limit: {max_repos}")
                         return repos
-                
+
                 # Check for more pages
                 page_info = repo_data.get("pageInfo", {})
                 if not page_info.get("hasNextPage"):
                     break
-                
+
                 cursor = page_info.get("endCursor")
                 page += 1
                 log_debug(f"Fetching page {page} (cursor: {cursor[:20]}...)")
-                
+
             except APIRequestError as e:
                 if "NOT_FOUND" in str(e) or "Could not resolve to an Organization" in str(e):
                     raise ResourceNotFoundError("organization", org)
                 log_error(f"Failed to fetch repositories: {e}")
                 break
-        
+
         log_info(f"Found {len(repos)} repositories")
         self.logger.info(f"Fetched {len(repos)} repositories from {org}")
         return repos
-    
+
     def list_repos(
         self,
         owner: str,
@@ -1122,18 +1122,18 @@ class GitHubClient:
         max_repos: Optional[int] = None
     ) -> List[Repository]:
         """List repositories for a user or organization.
-        
+
         Convenience method that works for both user and organization accounts.
         Automatically detects account type.
-        
+
         Args:
             owner: Username or organization name
             include_archived: Whether to include archived repositories
             max_repos: Maximum number of repositories to fetch (None = all)
-        
+
         Returns:
             List of Repository objects
-        
+
         Example:
             repos = client.list_repos("mokoconsulting-tech")
         """
@@ -1144,7 +1144,7 @@ class GitHubClient:
             # Fallback to user repositories
             log_debug(f"{owner} is not an organization, trying as user")
             return self._list_user_repos(owner, include_archived, max_repos)
-    
+
     def _list_user_repos(
         self,
         username: str,
@@ -1152,14 +1152,14 @@ class GitHubClient:
         max_repos: Optional[int] = None
     ) -> List[Repository]:
         """List repositories for a user account.
-        
+
         Internal method for fetching user repositories.
-        
+
         Args:
             username: GitHub username
             include_archived: Whether to include archived repositories
             max_repos: Maximum number of repositories to fetch
-        
+
         Returns:
             List of Repository objects
         """
@@ -1191,29 +1191,29 @@ class GitHubClient:
           }
         }
         """
-        
+
         repos: List[Repository] = []
         cursor: Optional[str] = None
-        
+
         while True:
             variables: Dict[str, Any] = {"username": username}
             if cursor:
                 variables["cursor"] = cursor
-            
+
             try:
                 response = self.graphql(query, variables)
-                
+
                 user_data = response.get("data", {}).get("user", {})
                 if not user_data:
                     raise ResourceNotFoundError("user", username)
-                
+
                 repo_data = user_data.get("repositories", {})
                 nodes = repo_data.get("nodes", [])
-                
+
                 for node in nodes:
                     if not include_archived and node.get("isArchived"):
                         continue
-                    
+
                     repos.append(Repository(
                         name=node["name"],
                         full_name=node["nameWithOwner"],
@@ -1226,23 +1226,23 @@ class GitHubClient:
                         created_at=node.get("createdAt"),
                         updated_at=node.get("updatedAt")
                     ))
-                    
+
                     if max_repos and len(repos) >= max_repos:
                         return repos
-                
+
                 page_info = repo_data.get("pageInfo", {})
                 if not page_info.get("hasNextPage"):
                     break
-                
+
                 cursor = page_info.get("endCursor")
-                
+
             except APIRequestError as e:
                 if "NOT_FOUND" in str(e):
                     raise ResourceNotFoundError("user", username)
                 raise
-        
+
         return repos
-    
+
     def create_pr(
         self,
         owner: str,
@@ -1254,9 +1254,9 @@ class GitHubClient:
         draft: bool = False
     ) -> PullRequest:
         """Create a pull request.
-        
+
         Creates a new pull request in the specified repository.
-        
+
         Args:
             owner: Repository owner
             repo: Repository name
@@ -1265,14 +1265,14 @@ class GitHubClient:
             head: Source branch (e.g., "feature-branch")
             base: Target branch (e.g., "main")
             draft: Whether to create as draft PR
-        
+
         Returns:
             PullRequest object for the created PR
-        
+
         Raises:
             APIRequestError: If PR creation fails
             ResourceNotFoundError: If repository doesn't exist
-        
+
         Example:
             pr = client.create_pr(
                 "mokoconsulting-tech",
@@ -1286,7 +1286,7 @@ class GitHubClient:
         """
         log_info(f"Creating PR: {owner}/{repo} {head} -> {base}")
         self.logger.debug(f"create_pr(title={title}, head={head}, base={base}, draft={draft})")
-        
+
         # Use gh CLI for PR creation (simpler than GraphQL mutation)
         args = [
             'pr', 'create',
@@ -1296,20 +1296,20 @@ class GitHubClient:
             '--head', head,
             '--base', base
         ]
-        
+
         if draft:
             args.append('--draft')
-        
+
         try:
             result = self._run_gh_command(args)
             pr_url = result.get("output", "").strip()
-            
+
             # Extract PR number from URL
             pr_match = re.search(r'/pull/(\d+)', pr_url)
             pr_number = int(pr_match.group(1)) if pr_match else 0
-            
+
             log_info(f"Created PR #{pr_number}: {pr_url}")
-            
+
             return PullRequest(
                 number=pr_number,
                 title=title,
@@ -1323,15 +1323,15 @@ class GitHubClient:
                 base_ref=base,
                 draft=draft
             )
-            
+
         except APIRequestError as e:
             if "not found" in str(e).lower():
                 raise ResourceNotFoundError("repository", f"{owner}/{repo}")
             raise
-    
+
     def get_metrics(self) -> Dict[str, Any]:
         """Get client metrics and statistics.
-        
+
         Returns:
             Dictionary containing:
                 - api_calls: Total API calls made
@@ -1339,7 +1339,7 @@ class GitHubClient:
                 - error_rate: Error rate as percentage
                 - rate_limit_per_hour: Configured rate limit
                 - rate_limit_info: Current rate limit info (if available)
-        
+
         Example:
             metrics = client.get_metrics()
             print(f"API calls: {metrics['api_calls']}")
@@ -1350,7 +1350,7 @@ class GitHubClient:
             if self.api_call_count > 0
             else 0
         )
-        
+
         metrics = {
             "api_calls": self.api_call_count,
             "api_errors": self.api_error_count,
@@ -1358,7 +1358,7 @@ class GitHubClient:
             "rate_limit_per_hour": self.rate_limiter.requests_per_hour,
             "backend": "requests" if self.use_requests else "gh_cli"
         }
-        
+
         if self._rate_limit_info:
             metrics["rate_limit_info"] = {
                 "limit": self._rate_limit_info.limit,
@@ -1370,15 +1370,15 @@ class GitHubClient:
                     time.localtime(self._rate_limit_info.reset_at)
                 )
             }
-        
+
         return metrics
-    
+
     def close(self) -> None:
         """Close client and cleanup resources.
-        
+
         Logs final metrics and closes audit logger. Should be called when
         done using the client, or use the client as a context manager.
-        
+
         Example:
             client = GitHubClient()
             try:
@@ -1395,19 +1395,19 @@ class GitHubClient:
         )
         self.logger.info(f"Client closed. Metrics: {metrics}")
         self.audit.close()
-    
+
     def __enter__(self) -> "GitHubClient":
         """Context manager entry.
-        
+
         Returns:
             Self for use in with statement
-        
+
         Example:
             with GitHubClient() as client:
                 repos = client.list_org_repos("mokoconsulting-tech")
         """
         return self
-    
+
     def __exit__(
         self,
         exc_type: Optional[type],
@@ -1415,7 +1415,7 @@ class GitHubClient:
         exc_tb: Optional[Any]
     ) -> None:
         """Context manager exit.
-        
+
         Args:
             exc_type: Exception type if exception occurred
             exc_val: Exception value if exception occurred
@@ -1434,19 +1434,19 @@ def get_default_client(
     validate_token: bool = True
 ) -> GitHubClient:
     """Get a GitHub client with default configuration.
-    
+
     Convenience function to create a client with sensible defaults.
-    
+
     Args:
         enable_debug_logging: Enable detailed debug logging
         validate_token: Whether to validate token on initialization
-    
+
     Returns:
         Configured GitHubClient instance
-    
+
     Raises:
         TokenValidationError: If validate_token=True and token is invalid
-    
+
     Example:
         client = get_default_client()
         repos = client.list_org_repos("mokoconsulting-tech")
@@ -1464,7 +1464,7 @@ def get_default_client(
 
 if __name__ == "__main__":
     import argparse
-    
+
     parser = argparse.ArgumentParser(
         description="Test GitHub API Client",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -1472,18 +1472,18 @@ if __name__ == "__main__":
 Examples:
   # List repositories for an organization
   %(prog)s --org mokoconsulting-tech --list-repos
-  
+
   # Include archived repositories
   %(prog)s --org mokoconsulting-tech --list-repos --include-archived
-  
+
   # Get specific repository info
   %(prog)s --get-repo mokoconsulting-tech/MokoStandards
-  
+
   # Enable debug logging
   %(prog)s --org mokoconsulting-tech --list-repos --debug
         """
     )
-    
+
     parser.add_argument(
         '--org',
         default='mokoconsulting-tech',
@@ -1520,13 +1520,13 @@ Examples:
         action='store_true',
         help='Skip token validation on initialization'
     )
-    
+
     args = parser.parse_args()
-    
+
     try:
         if args.list_repos:
             log_info(f"Listing repositories for organization: {args.org}")
-            
+
             with GitHubClient(
                 enable_debug_logging=args.debug,
                 validate_token=not args.skip_validation
@@ -1536,10 +1536,10 @@ Examples:
                     include_archived=args.include_archived,
                     max_repos=args.max_repos
                 )
-                
+
                 print(f"\n📦 Repositories in {args.org}:")
                 print("=" * 70)
-                
+
                 for repo in repos:
                     status = "🔒" if repo.is_private else "🔓"
                     archived = " [ARCHIVED]" if repo.is_archived else ""
@@ -1551,7 +1551,7 @@ Examples:
                         if len(repo.description) > 100:
                             desc += "..."
                         print(f"   Description: {desc}")
-                
+
                 print(f"\n📊 Metrics:")
                 print("=" * 70)
                 metrics = client.get_metrics()
@@ -1559,27 +1559,27 @@ Examples:
                 print(f"  Errors: {metrics['api_errors']}")
                 print(f"  Error Rate: {metrics['error_rate']:.2f}%")
                 print(f"  Backend: {metrics['backend']}")
-                
+
                 if 'rate_limit_info' in metrics:
                     rl = metrics['rate_limit_info']
                     print(f"  Rate Limit: {rl['remaining']}/{rl['limit']} remaining")
                     print(f"  Resets at: {rl['reset_at_human']}")
-        
+
         elif args.get_repo:
             parts = args.get_repo.split('/')
             if len(parts) != 2:
                 log_error("Repository must be in format: owner/repo")
                 sys.exit(EXIT_ERROR)
-            
+
             owner, repo_name = parts
             log_info(f"Fetching repository: {owner}/{repo_name}")
-            
+
             with GitHubClient(
                 enable_debug_logging=args.debug,
                 validate_token=not args.skip_validation
             ) as client:
                 repo = client.get_repo(owner, repo_name)
-                
+
                 print(f"\n📦 Repository: {repo.full_name}")
                 print("=" * 70)
                 print(f"  Name: {repo.name}")
@@ -1588,54 +1588,54 @@ Examples:
                 print(f"  Default Branch: {repo.default_branch}")
                 print(f"  Private: {'Yes' if repo.is_private else 'No'}")
                 print(f"  Archived: {'Yes' if repo.is_archived else 'No'}")
-                
+
                 if repo.description:
                     print(f"  Description: {repo.description}")
                 if repo.created_at:
                     print(f"  Created: {repo.created_at}")
                 if repo.updated_at:
                     print(f"  Updated: {repo.updated_at}")
-                
+
                 print(f"\n📊 Metrics:")
                 print("=" * 70)
                 metrics = client.get_metrics()
                 print(f"  API Calls: {metrics['api_calls']}")
                 print(f"  Backend: {metrics['backend']}")
-        
+
         else:
             parser.print_help()
-    
+
     except TokenValidationError as e:
         log_error(f"Token validation failed: {e}")
         if e.token_hint:
             log_info(f"Hint: {e.token_hint}")
         sys.exit(EXIT_ERROR)
-    
+
     except ResourceNotFoundError as e:
         log_error(f"Resource not found: {e}")
         sys.exit(EXIT_ERROR)
-    
+
     except RateLimitError as e:
         log_error(f"Rate limit exceeded: {e}")
         if e.reset_at:
             reset_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(e.reset_at))
             log_info(f"Rate limit resets at: {reset_time}")
         sys.exit(EXIT_ERROR)
-    
+
     except APIRequestError as e:
         log_error(f"API request failed: {e}")
         if e.status_code:
             log_info(f"Status code: {e.status_code}")
         sys.exit(EXIT_ERROR)
-    
+
     except GitHubClientError as e:
         log_error(f"GitHub client error: {e}")
         sys.exit(EXIT_ERROR)
-    
+
     except KeyboardInterrupt:
         log_warning("\nInterrupted by user")
         sys.exit(130)
-    
+
     except Exception as e:
         log_error(f"Unexpected error: {e}")
         if args.debug:

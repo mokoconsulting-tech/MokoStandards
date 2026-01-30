@@ -47,13 +47,13 @@ SYNC_OVERRIDE_FILE = "MokoStandards.override.tf"
 
 class FileSyncConfig:
     """Configuration for files to sync to target repositories"""
-    
+
     # Core configuration files (always sync)
     CORE_CONFIGS = {
         ".github/dependabot.yml": ".github/dependabot.yml",
         ".github/copilot.yml": ".github/copilot.yml",
     }
-    
+
     # Workflow templates by category (conditional based on platform)
     WORKFLOW_TEMPLATES = {
         # Universal workflows (all repositories)
@@ -61,34 +61,34 @@ class FileSyncConfig:
             "templates/workflows/build.yml.template": ".github/workflows/build.yml",
             "templates/workflows/unified-ci.yml.template": ".github/workflows/ci.yml",
         },
-        
+
         # Generic platform workflows
         "generic": {
             "templates/workflows/generic/code-quality.yml": ".github/workflows/code-quality.yml",
             "templates/workflows/generic/codeql-analysis.yml": ".github/workflows/codeql-analysis.yml",
             "templates/workflows/generic/repo-health.yml": ".github/workflows/repo-health.yml",
         },
-        
+
         # Terraform infrastructure workflows
         "terraform": {
             "templates/workflows/terraform/ci.yml": ".github/workflows/terraform-ci.yml",
             "templates/workflows/terraform/deploy.yml.template": ".github/workflows/terraform-deploy.yml",
             "templates/workflows/terraform/drift-detection.yml.template": ".github/workflows/terraform-drift.yml",
         },
-        
+
         # Dolibarr-specific workflows
         "dolibarr": {
             "templates/workflows/dolibarr/release.yml.template": ".github/workflows/release.yml",
             "templates/workflows/dolibarr/sync-changelogs.yml.template": ".github/workflows/sync-changelogs.yml",
         },
-        
+
         # Joomla-specific workflows
         "joomla": {
             "templates/workflows/joomla/release.yml.template": ".github/workflows/release.yml",
             "templates/workflows/joomla/repo_health.yml.template": ".github/workflows/repo-health.yml",
         },
     }
-    
+
     # Reusable workflows (all repositories)
     REUSABLE_WORKFLOWS = {
         "templates/workflows/reusable-build.yml.template": ".github/workflows/reusable-build.yml",
@@ -100,12 +100,12 @@ class FileSyncConfig:
         "templates/workflows/reusable-deploy.yml": ".github/workflows/reusable-deploy.yml",
         "templates/workflows/reusable-script-executor.yml": ".github/workflows/reusable-script-executor.yml",
     }
-    
+
     # Shared automation workflows (conditional)
     SHARED_AUTOMATION = {
         ".github/workflows/enterprise-firewall-setup.yml": ".github/workflows/enterprise-firewall-setup.yml",
     }
-    
+
     # Language-specific configuration files
     LANGUAGE_CONFIGS = {
         "php": {
@@ -146,20 +146,20 @@ DEFAULT_SCRIPTS_TO_SYNC = [
 def parse_override_file(override_path: str) -> Tuple[Set[str], Set[str]]:
     """
     Parse the MokoStandards.override.tf file.
-    
+
     Args:
         override_path: Path to the override Terraform file
-        
+
     Returns:
         Tuple of (exclude_files, protected_files) as sets of file paths
     """
     exclude_files = set()
     protected_files = set()
-    
+
     try:
         with open(override_path, 'r', encoding='utf-8') as f:
             content = f.read()
-        
+
         # Parse exclude_files list
         # Look for: exclude_files = [ { path = "..." reason = "..." }, ... ]
         exclude_match = re.search(
@@ -174,7 +174,7 @@ def parse_override_file(override_path: str) -> Tuple[Set[str], Set[str]]:
                 path = path_match.group(1)
                 if path:
                     exclude_files.add(path)
-        
+
         # Parse protected_files list
         # Look for: protected_files = [ { path = "..." reason = "..." }, ... ]
         protected_match = re.search(
@@ -189,21 +189,21 @@ def parse_override_file(override_path: str) -> Tuple[Set[str], Set[str]]:
                 path = path_match.group(1)
                 if path:
                     protected_files.add(path)
-                    
+
     except Exception as e:
         print(f"Warning: Failed to parse override file {override_path}: {e}")
-        
+
     return exclude_files, protected_files
 
 
 def load_override_config(repo_dir: str, source_dir: str) -> Tuple[Set[str], Set[str]]:
     """
     Load override configuration from target repo or MokoStandards default.
-    
+
     Args:
         repo_dir: Path to the target repository
         source_dir: Path to MokoStandards source directory
-        
+
     Returns:
         Tuple of (exclude_files, protected_files) as sets of file paths
     """
@@ -212,13 +212,13 @@ def load_override_config(repo_dir: str, source_dir: str) -> Tuple[Set[str], Set[
     if repo_override.exists():
         print(f"    Using override configuration from target repository")
         return parse_override_file(str(repo_override))
-    
+
     # Otherwise, check if MokoStandards has a default override file
     default_override = Path(source_dir) / SYNC_OVERRIDE_FILE
     if default_override.exists():
         print(f"    Using default override configuration from MokoStandards")
         return parse_override_file(str(default_override))
-    
+
     print(f"    No override configuration found, using default behavior")
     return set(), set()
 
@@ -245,12 +245,12 @@ def get_org_repositories(org: str, exclude_archived: bool = True, include_templa
         "--json", "name,isArchived,isTemplate",
         "--limit", "1000"
     ]
-    
+
     success, stdout, stderr = run_command(cmd)
     if not success:
         print(f"Error fetching repositories: {stderr}", file=sys.stderr)
         return []
-    
+
     try:
         repos = json.loads(stdout)
         if exclude_archived:
@@ -269,11 +269,11 @@ def detect_platform(repo_dir: str, source_dir: str) -> Optional[str]:
     """
     Detect the platform type of a repository using auto_detect_platform.py
     and additional terraform detection logic.
-    
+
     Args:
         repo_dir: Path to the cloned repository
         source_dir: Path to MokoStandards source directory
-        
+
     Returns:
         Platform type string (terraform, joomla, dolibarr, generic) or None if detection fails
     """
@@ -285,18 +285,18 @@ def detect_platform(repo_dir: str, source_dir: str) -> Optional[str]:
         if tf_files:
             print(f"    Detected Terraform repository (found {len(tf_files)} .tf files)")
             return "terraform"
-    
+
     script_path = Path(source_dir) / "scripts" / "validate" / "auto_detect_platform.py"
-    
+
     if not script_path.exists():
         print(f"    Warning: auto_detect_platform.py not found at {script_path}", file=sys.stderr)
         return None
-    
+
     try:
         # Run platform detection script
         cmd = ["python3", str(script_path), "--repo-path", repo_dir, "--json"]
         success, stdout, stderr = run_command(cmd)
-        
+
         if success and stdout:
             try:
                 result = json.loads(stdout)
@@ -315,61 +315,61 @@ def detect_platform(repo_dir: str, source_dir: str) -> Optional[str]:
 def get_files_to_sync(platform: str = "generic") -> Dict[str, str]:
     """
     Get the list of files to sync based on platform type.
-    
+
     Args:
         platform: Platform type (terraform, generic, dolibarr, joomla)
-        
+
     Returns:
         Dictionary mapping source files to destination paths
     """
     files = {}
-    
+
     # Always include core configs
     files.update(FileSyncConfig.CORE_CONFIGS)
-    
+
     # Add universal workflows
     files.update(FileSyncConfig.WORKFLOW_TEMPLATES["universal"])
-    
+
     # Add platform-specific workflows
     if platform in FileSyncConfig.WORKFLOW_TEMPLATES:
         files.update(FileSyncConfig.WORKFLOW_TEMPLATES[platform])
     else:
         # Default to generic if platform not recognized
         files.update(FileSyncConfig.WORKFLOW_TEMPLATES["generic"])
-    
+
     # Add reusable workflows
     files.update(FileSyncConfig.REUSABLE_WORKFLOWS)
-    
+
     # Add shared automation (can be conditional based on needs)
     files.update(FileSyncConfig.SHARED_AUTOMATION)
-    
+
     return files
 
 
 def validate_source_files(files_to_sync: Dict[str, str], source_dir: str) -> Tuple[List[str], List[str]]:
     """
     Validate that all source files exist before attempting sync.
-    
+
     Returns:
         Tuple of (existing_files, missing_files)
     """
     existing = []
     missing = []
-    
+
     for source_rel, _ in files_to_sync.items():
         source_path = Path(source_dir) / source_rel
         if source_path.exists():
             existing.append(source_rel)
         else:
             missing.append(source_rel)
-    
+
     return existing, missing
 
 
 def copy_file(source_file: str, dest_dir: str, dest_path: str) -> Tuple[bool, str]:
     """
     Copy a file from source to destination, creating directories as needed.
-    
+
     Returns:
         Tuple of (success, action) where action is 'created' or 'overwritten'
     """
@@ -377,13 +377,13 @@ def copy_file(source_file: str, dest_dir: str, dest_path: str) -> Tuple[bool, st
     if not source.exists():
         print(f"Warning: Source file does not exist: {source_file}", file=sys.stderr)
         return False, "missing"
-    
+
     dest = Path(dest_dir) / dest_path
     dest.parent.mkdir(parents=True, exist_ok=True)
-    
+
     # Check if file already exists to determine action
     action = "overwritten" if dest.exists() else "created"
-    
+
     try:
         shutil.copy2(source, dest)
         return True, action
@@ -396,21 +396,21 @@ def clone_repository(org: str, repo: str, target_dir: str) -> bool:
     """Clone a repository to a temporary directory."""
     # Use gh CLI to clone with authentication
     cmd = ["gh", "repo", "clone", f"{org}/{repo}", target_dir]
-    
+
     success, stdout, stderr = run_command(cmd)
     if not success:
         print(f"Error cloning {repo}: {stderr}", file=sys.stderr)
         return False
-    
+
     # Configure git to use gh as credential helper for push operations
     cmd = ["git", "config", "--local", "credential.helper", ""]
     run_command(cmd, cwd=target_dir)
-    
+
     cmd = ["git", "config", "--local", "credential.helper", "!gh auth git-credential"]
     success, _, stderr = run_command(cmd, cwd=target_dir)
     if not success:
         print(f"Warning: Could not configure gh credential helper: {stderr}", file=sys.stderr)
-    
+
     return True
 
 
@@ -419,19 +419,19 @@ def create_branch(repo_dir: str, branch_name: str) -> bool:
     # Check if branch already exists
     cmd = ["git", "rev-parse", "--verify", branch_name]
     success, _, _ = run_command(cmd, cwd=repo_dir)
-    
+
     if success:
         # Branch exists, checkout
         cmd = ["git", "checkout", branch_name]
     else:
         # Create new branch
         cmd = ["git", "checkout", "-b", branch_name]
-    
+
     success, stdout, stderr = run_command(cmd, cwd=repo_dir)
     if not success:
         print(f"Error creating/checking out branch: {stderr}", file=sys.stderr)
         return False
-    
+
     return True
 
 
@@ -443,7 +443,7 @@ def commit_changes(repo_dir: str, message: str) -> bool:
     if not success:
         print(f"Error adding files: {stderr}", file=sys.stderr)
         return False
-    
+
     # Check if there are changes to commit
     cmd = ["git", "diff", "--cached", "--quiet"]
     success, _, _ = run_command(cmd, cwd=repo_dir)
@@ -451,26 +451,26 @@ def commit_changes(repo_dir: str, message: str) -> bool:
         # No changes to commit
         print("No changes to commit")
         return True
-    
+
     # Commit changes
     cmd = ["git", "commit", "-m", message]
     success, _, stderr = run_command(cmd, cwd=repo_dir)
     if not success:
         print(f"Error committing changes: {stderr}", file=sys.stderr)
         return False
-    
+
     return True
 
 
 def push_branch(repo_dir: str, branch_name: str) -> bool:
     """Push branch to remote using gh CLI for proper authentication."""
     cmd = ["git", "push", "-u", "origin", branch_name]
-    
+
     success, _, stderr = run_command(cmd, cwd=repo_dir)
     if not success:
         print(f"Error pushing branch: {stderr}", file=sys.stderr)
         return False
-    
+
     return True
 
 
@@ -483,7 +483,7 @@ def create_pull_request(org: str, repo: str, branch_name: str, title: str, body:
         "--title", title,
         "--body", body
     ]
-    
+
     success, stdout, stderr = run_command(cmd)
     if not success:
         # Check if PR already exists
@@ -492,7 +492,7 @@ def create_pull_request(org: str, repo: str, branch_name: str, title: str, body:
             return True
         print(f"Error creating pull request: {stderr}", file=sys.stderr)
         return False
-    
+
     print(f"Created pull request: {stdout}")
     return True
 
@@ -510,7 +510,7 @@ def update_repository(
 ) -> Tuple[bool, Dict[str, Any]]:
     """
     Update a single repository with files and scripts.
-    
+
     Returns:
         Tuple of (success, stats) where stats contains:
         - files_created: count of new files
@@ -526,21 +526,21 @@ def update_repository(
         "files_overwritten_list": [],
         "platform": "unknown",
     }
-    
+
     print(f"\n{'[DRY RUN] ' if dry_run else ''}Processing repository: {org}/{repo}")
-    
+
     # Create temporary directory for this repo
     repo_dir = Path(temp_dir) / repo
-    
+
     if dry_run:
         print(f"  Would clone and sync repository")
         return True, stats
-    
+
     # Clone repository
     print(f"  Cloning repository...")
     if not clone_repository(org, repo, str(repo_dir)):
         return False, stats
-    
+
     # Detect platform before creating branch
     print(f"  Detecting platform type...")
     platform_type = detect_platform(str(repo_dir), source_dir)
@@ -551,14 +551,14 @@ def update_repository(
         print(f"    Platform detection failed, using generic defaults")
         platform_type = "generic"
         stats["platform"] = "generic"
-    
+
     # Load override configuration
     print(f"  Loading override configuration...")
     exclude_files, protected_files = load_override_config(str(repo_dir), source_dir)
-    
+
     # Get files to sync based on platform
     files_to_sync = get_files_to_sync(platform_type)
-    
+
     # Filter out excluded files based on override configuration
     if exclude_files:
         original_count = len(files_to_sync)
@@ -566,7 +566,7 @@ def update_repository(
         filtered_count = original_count - len(files_to_sync)
         if filtered_count > 0:
             print(f"    Filtered out {filtered_count} excluded files from override config")
-    
+
     # Validate source files exist
     existing, missing = validate_source_files(files_to_sync, source_dir)
     if missing:
@@ -577,12 +577,12 @@ def update_repository(
             print(f"    ... and {len(missing) - 5} more")
         # Filter out missing files
         files_to_sync = {k: v for k, v in files_to_sync.items() if k in existing}
-    
+
     # Create branch
     print(f"  Creating branch: {branch_name}")
     if not create_branch(str(repo_dir), branch_name):
         return False, stats
-    
+
     # Place override file in target repo if it doesn't exist and if one exists in MokoStandards
     override_source = Path(source_dir) / SYNC_OVERRIDE_FILE
     override_dest = Path(repo_dir) / SYNC_OVERRIDE_FILE
@@ -593,14 +593,14 @@ def update_repository(
             stats["files_created"] += 1
             stats["files_copied"].append(SYNC_OVERRIDE_FILE)
             print(f"    ✓ Created: {SYNC_OVERRIDE_FILE}")
-    
+
     # Copy files and track actions
     for source_rel, dest_rel in files_to_sync.items():
         # Skip protected files
         if dest_rel in protected_files:
             print(f"    ⊗ Skipped (protected): {dest_rel}")
             continue
-            
+
         source_file = Path(source_dir) / source_rel
         success, action = copy_file(str(source_file), str(repo_dir), dest_rel)
         if success:
@@ -612,14 +612,14 @@ def update_repository(
                 stats["files_overwritten"] += 1
                 stats["files_overwritten_list"].append(dest_rel)
                 print(f"    ↻ Updated: {dest_rel}")
-    
+
     # Copy scripts and track actions
     for script in DEFAULT_SCRIPTS_TO_SYNC:
         # Skip protected files
         if script in protected_files:
             print(f"    ⊗ Skipped (protected): {script}")
             continue
-            
+
         source_file = Path(source_dir) / script
         success, action = copy_file(str(source_file), str(repo_dir), script)
         if success:
@@ -631,33 +631,33 @@ def update_repository(
                 stats["files_overwritten"] += 1
                 stats["files_overwritten_list"].append(script)
                 print(f"    ↻ Updated: {script}")
-    
+
     total_files = stats["files_created"] + stats["files_overwritten"]
-    
+
     if total_files == 0:
         print(f"  No files were copied, skipping commit")
         return True, stats
-    
+
     # Commit changes
     print(f"  Committing changes...")
     if not commit_changes(str(repo_dir), commit_message):
         return False, stats
-    
+
     # Push branch
     print(f"  Pushing branch...")
     if not push_branch(str(repo_dir), branch_name):
         return False, stats
-    
+
     # Create pull request
     print(f"  Creating pull request...")
     if not create_pull_request(org, repo, branch_name, pr_title, pr_body):
         return False, stats
-    
+
     print(f"  ✓ Successfully updated {org}/{repo}")
     print(f"    - Platform: {stats['platform']}")
     print(f"    - Created: {stats['files_created']} files")
     print(f"    - Updated: {stats['files_overwritten']} files")
-    
+
     return True, stats
 
 
@@ -730,23 +730,23 @@ def main():
         action='store_true',
         help='Skip confirmation prompt (use for automation)'
     )
-    
+
     args = parser.parse_args()
-    
+
     # Check for gh CLI
     success, _, _ = run_command(["gh", "--version"])
     if not success:
         print("Error: gh CLI is not installed or not in PATH", file=sys.stderr)
         print("Install from: https://cli.github.com/", file=sys.stderr)
         sys.exit(1)
-    
+
     # Check for authentication
     success, _, _ = run_command(["gh", "auth", "status"])
     if not success:
         print("Error: Not authenticated with gh CLI", file=sys.stderr)
         print("Run: gh auth login", file=sys.stderr)
         sys.exit(1)
-    
+
     # Get repositories to update
     if args.repos:
         repos = args.repos
@@ -756,32 +756,32 @@ def main():
         if not repos:
             print("No repositories found or error fetching repositories", file=sys.stderr)
             sys.exit(1)
-    
+
     # Apply exclusions
     repos = [r for r in repos if r not in args.exclude]
-    
+
     print(f"\n{'DRY RUN: ' if args.dry_run else ''}Will update {len(repos)} repositories:")
     for repo in repos:
         print(f"  - {repo}")
-    
+
     if not args.dry_run and not args.yes:
         response = input("\nContinue? (yes/no): ")
         if response.lower() not in ['yes', 'y']:
             print("Aborted")
             sys.exit(0)
-    
+
     # Create temp directory
     temp_dir = Path(args.temp_dir)
     if not args.dry_run:
         temp_dir.mkdir(parents=True, exist_ok=True)
-    
+
     # Update each repository
     success_count = 0
     failed_repos = []
     all_stats = {}
     total_created = 0
     total_overwritten = 0
-    
+
     for repo in repos:
         try:
             success, stats = update_repository(
@@ -805,7 +805,7 @@ def main():
         except Exception as e:
             print(f"Error updating {repo}: {e}", file=sys.stderr)
             failed_repos.append(repo)
-    
+
     # Summary
     print(f"\n{'=' * 70}")
     print(f"{'DRY RUN ' if args.dry_run else ''}SUMMARY")
@@ -815,7 +815,7 @@ def main():
     print(f"  - Total files created: {total_created}")
     print(f"  - Total files updated: {total_overwritten}")
     print(f"  - Total operations: {total_created + total_overwritten}")
-    
+
     if all_stats:
         print(f"\nPer-Repository Details:")
         for repo, stats in all_stats.items():
@@ -823,13 +823,13 @@ def main():
                 print(f"  {repo}:")
                 print(f"    Platform: {stats['platform']}")
                 print(f"    Created: {stats['files_created']}, Updated: {stats['files_overwritten']}")
-    
+
     if failed_repos:
         print(f"\nFailed Repositories ({len(failed_repos)}):")
         for repo in failed_repos:
             print(f"  - {repo}")
         sys.exit(1)
-    
+
     print(f"\n{'=' * 70}")
     sys.exit(0)
 

@@ -1,8 +1,8 @@
 # Encryption Standards Policy
 
-**Status**: DRAFT  
-**Priority**: HIGH (Tier 2)  
-**Owner**: TBD  
+**Status**: DRAFT
+**Priority**: HIGH (Tier 2)
+**Owner**: TBD
 **Last Updated**: 2026-01-07
 
 ## Purpose

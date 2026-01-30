@@ -39,9 +39,10 @@ from typing import List, Optional, Tuple
 class VersionReleaser:
     """Manages version releases in CHANGELOG.md and updates VERSION in files."""
 
-    UNRELEASED_PATTERN = r"## \[UNRELEASED\]"
+    UNRELEASED_PATTERN = r"## \[Unreleased\]"  # Standard Keep a Changelog format
     VERSION_PATTERN = r"## \[(\d+\.\d+\.\d+)\]"
     VERSION_HEADER_PATTERN = r"VERSION:\s*(\d+\.\d+\.\d+)"
+    CHANGELOG_H1_PATTERN = r"^# CHANGELOG - .+ \(VERSION: (\d+\.\d+\.\d+)\)"  # H1 format
 
     def __init__(self, changelog_path: Path, repo_root: Path):
         """
@@ -95,7 +96,7 @@ class VersionReleaser:
     def has_unreleased_content(self, unreleased_index: int, next_version_index: Optional[int]) -> bool:
         """Check if UNRELEASED section has any content."""
         end_index = next_version_index if next_version_index else len(self.lines)
-        
+
         for i in range(unreleased_index + 1, end_index):
             line = self.lines[i].strip()
             # Skip empty lines and headers
@@ -120,7 +121,7 @@ class VersionReleaser:
             True if successful, False otherwise
         """
         if not self.validate_version(version):
-            print(f"Error: Invalid version format '{version}'. Must be XX.YY.ZZ (e.g., 05.01.00)", 
+            print(f"Error: Invalid version format '{version}'. Must be XX.YY.ZZ (e.g., 05.01.00)",
                   file=sys.stderr)
             return False
 
@@ -163,7 +164,32 @@ class VersionReleaser:
         for line in reversed(new_version_lines):
             self.lines.insert(insert_index, line)
 
+        # Update H1 header version
+        self.update_changelog_h1_version(version)
+
         return True
+
+    def update_changelog_h1_version(self, version: str) -> bool:
+        """
+        Update the version in the H1 header of CHANGELOG.
+        
+        Format: # CHANGELOG - RepoName (VERSION: X.Y.Z)
+        
+        Args:
+            version: New version number
+            
+        Returns:
+            True if updated, False otherwise
+        """
+        for i, line in enumerate(self.lines):
+            if re.match(self.CHANGELOG_H1_PATTERN, line):
+                # Extract repo name from current H1
+                match = re.match(r"^# CHANGELOG - (.+) \(VERSION: \d+\.\d+\.\d+\)", line)
+                if match:
+                    repo_name = match.group(1)
+                    self.lines[i] = f"# CHANGELOG - {repo_name} (VERSION: {version})\n"
+                    return True
+        return False
 
     def update_file_versions(self, version: str, dry_run: bool = False) -> List[Path]:
         """
@@ -177,11 +203,11 @@ class VersionReleaser:
             List of files that were (or would be) updated
         """
         updated_files = []
-        
+
         # Find all markdown, Python, and text files
         patterns = ["**/*.md", "**/*.py", "**/*.txt", "**/*.yml", "**/*.yaml"]
         files_to_check = []
-        
+
         for pattern in patterns:
             files_to_check.extend(self.repo_root.glob(pattern))
 
@@ -288,7 +314,7 @@ class VersionReleaser:
                 "--title", title,
                 "--notes", release_notes
             ]
-            
+
             result = subprocess.run(cmd, capture_output=True, text=True, check=True)
             print(f"\nSuccessfully created GitHub release: {tag_name}")
             print(f"Release URL: {result.stdout.strip()}")
@@ -401,13 +427,13 @@ Version format: XX.YY.ZZ (e.g., 05.01.00)
     # Update file versions if requested
     if args.update_files:
         updated_files = releaser.update_file_versions(args.version, args.dry_run)
-        
+
         if updated_files:
             if args.dry_run:
                 print(f"\n[DRY RUN] Would update VERSION in {len(updated_files)} files:")
             else:
                 print(f"\nUpdated VERSION to {args.version} in {len(updated_files)} files:")
-            
+
             for file_path in sorted(updated_files):
                 print(f"  - {file_path}")
         else:

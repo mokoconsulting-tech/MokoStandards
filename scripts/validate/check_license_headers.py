@@ -93,20 +93,20 @@ def should_exclude(path: Path) -> bool:
 def has_license_header(file_path: Path) -> bool:
     """
     Check if file has a license header.
-    
+
     Args:
         file_path: Path to file
-        
+
     Returns:
         True if license header is present
     """
     ext = file_path.suffix.lower()
     if ext not in FILE_CONFIGS:
         return True  # Skip files we don't handle
-    
+
     config = FILE_CONFIGS[ext]
     pattern = config["header_pattern"]
-    
+
     try:
         with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
             # Read first 2000 characters (headers should be at the top)
@@ -119,24 +119,24 @@ def has_license_header(file_path: Path) -> bool:
 def generate_header(file_path: Path, year: Optional[int] = None) -> str:
     """
     Generate a license header for a file.
-    
+
     Args:
         file_path: Path to file
         year: Copyright year (default: current year)
-        
+
     Returns:
         Formatted license header
     """
     if year is None:
         year = datetime.now().year
-    
+
     ext = file_path.suffix.lower()
     if ext not in FILE_CONFIGS:
         return ""
-    
+
     config = FILE_CONFIGS[ext]
     header_text = LICENSE_HEADER_TEMPLATE.format(year=year)
-    
+
     # Format with appropriate comment style
     if config["comment_end"]:
         # Multi-line comment style (/* */)
@@ -162,12 +162,12 @@ def generate_header(file_path: Path, year: Optional[int] = None) -> str:
 def add_license_header(file_path: Path, year: Optional[int] = None, dry_run: bool = False) -> bool:
     """
     Add license header to a file.
-    
+
     Args:
         file_path: Path to file
         year: Copyright year (default: current year)
         dry_run: If True, don't actually modify file
-        
+
     Returns:
         True if header was added (or would be in dry-run)
     """
@@ -177,12 +177,12 @@ def add_license_header(file_path: Path, year: Optional[int] = None, dry_run: boo
     except Exception as e:
         print(f"Warning: Could not read {file_path}: {e}", file=sys.stderr)
         return False
-    
+
     # Generate header
     header = generate_header(file_path, year)
     if not header:
         return False
-    
+
     # Handle shebang for scripts
     if content.startswith("#!"):
         shebang_end = content.find("\n")
@@ -194,7 +194,7 @@ def add_license_header(file_path: Path, year: Optional[int] = None, dry_run: boo
             new_content = f"{content}\n{header}\n"
     else:
         new_content = f"{header}\n\n{content}"
-    
+
     if not dry_run:
         try:
             with open(file_path, "w", encoding="utf-8") as f:
@@ -202,17 +202,17 @@ def add_license_header(file_path: Path, year: Optional[int] = None, dry_run: boo
         except Exception as e:
             print(f"Error: Could not write {file_path}: {e}", file=sys.stderr)
             return False
-    
+
     return True
 
 
 def scan_directory(root: Path) -> Dict:
     """
     Scan directory for files missing license headers.
-    
+
     Args:
         root: Root directory to scan
-        
+
     Returns:
         Dictionary with scan results
     """
@@ -221,18 +221,18 @@ def scan_directory(root: Path) -> Dict:
         "missing_headers": [],
         "with_headers": 0,
     }
-    
+
     for file_path in root.rglob("*"):
         if file_path.is_file() and not should_exclude(file_path):
             if file_path.suffix.lower() in CHECKABLE_EXTENSIONS:
                 results["total_files"] += 1
-                
+
                 if has_license_header(file_path):
                     results["with_headers"] += 1
                 else:
                     rel_path = str(file_path.relative_to(root))
                     results["missing_headers"].append(rel_path)
-    
+
     return results
 
 
@@ -242,25 +242,25 @@ def print_report(results: Dict, root: Path) -> None:
     print("LICENSE HEADER CHECK REPORT")
     print("=" * 80)
     print(f"\nDirectory: {root}")
-    
+
     print(f"\n📊 SUMMARY")
     print("-" * 80)
     print(f"Files scanned:         {results['total_files']:,}")
     print(f"With license headers:  {results['with_headers']:,}")
     print(f"Missing headers:       {len(results['missing_headers']):,}")
-    
+
     if results["missing_headers"]:
         print(f"\n❌ FILES MISSING LICENSE HEADERS")
         print("-" * 80)
-        
+
         for file_path in sorted(results["missing_headers"])[:50]:
             print(f"  {file_path}")
-        
+
         if len(results["missing_headers"]) > 50:
             print(f"  ... and {len(results['missing_headers']) - 50} more")
     else:
         print(f"\n✅ All files have license headers!")
-    
+
     print("\n" + "=" * 80)
 
 
@@ -286,34 +286,34 @@ def main() -> int:
         default=datetime.now().year,
         help="Copyright year (default: current year)"
     )
-    
+
     args = parser.parse_args()
     root = Path(args.path).resolve()
-    
+
     if not root.exists():
         print(f"Error: Path does not exist: {root}", file=sys.stderr)
         return 1
-    
+
     print(f"Scanning for license headers in: {root}")
-    
+
     results = scan_directory(root)
     print_report(results, root)
-    
+
     if args.fix and results["missing_headers"]:
         print(f"\n🔧 ADDING LICENSE HEADERS")
         print("-" * 80)
-        
+
         for file_path in results["missing_headers"]:
             full_path = root / file_path
             if add_license_header(full_path, args.year):
                 print(f"✅ Added header: {file_path}")
             else:
                 print(f"❌ Failed: {file_path}")
-        
+
         print("\n✅ License header update complete!")
     elif results["missing_headers"]:
         print("\n💡 Use --fix to add missing license headers")
-    
+
     return 1 if results["missing_headers"] else 0
 
 

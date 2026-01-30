@@ -43,11 +43,11 @@ Example:
         >>> config = get_config()
         >>> print(config.organization.name)
         mokoconsulting-tech
-    
+
     Custom config path:
         >>> from pathlib import Path
         >>> config = get_config(Path("custom-config.yaml"))
-    
+
     Using get() method with defaults:
         >>> manager = ConfigManager.get_instance()
         >>> value = manager.get("github.api_rate_limit", default=5000)
@@ -73,15 +73,15 @@ except ImportError:
 
 class ConfigError(Exception):
     """Base exception for configuration-related errors.
-    
+
     Attributes:
         message: The error message describing what went wrong.
         context: Optional dictionary with additional error context.
     """
-    
+
     def __init__(self, message: str, context: Optional[Dict[str, Any]] = None) -> None:
         """Initialize ConfigError.
-        
+
         Args:
             message: Error message describing the issue.
             context: Optional dictionary with additional error context.
@@ -89,7 +89,7 @@ class ConfigError(Exception):
         self.message = message
         self.context = context or {}
         super().__init__(self.message)
-    
+
     def __str__(self) -> str:
         """Return formatted error message with context."""
         if self.context:
@@ -120,7 +120,7 @@ class ConfigParseError(ConfigError):
 @dataclass
 class OrgConfig:
     """Organization configuration.
-    
+
     Attributes:
         name: GitHub organization name.
         project_number: Default project board number.
@@ -132,7 +132,7 @@ class OrgConfig:
 @dataclass
 class GitHubConfig:
     """GitHub API configuration.
-    
+
     Attributes:
         api_rate_limit: Maximum API requests per hour.
         retry_attempts: Number of retry attempts for failed requests.
@@ -150,7 +150,7 @@ class GitHubConfig:
 @dataclass
 class AutomationConfig:
     """Automation scripts configuration.
-    
+
     Attributes:
         default_branch: Default branch name for automated updates.
         temp_dir: Temporary directory for automation operations.
@@ -164,7 +164,7 @@ class AutomationConfig:
 @dataclass
 class ValidationConfig:
     """Validation scripts configuration.
-    
+
     Attributes:
         excluded_dirs: List of directories to exclude from validation.
         max_file_size_mb: Maximum file size to validate in megabytes.
@@ -185,7 +185,7 @@ class ValidationConfig:
 @dataclass
 class AuditConfig:
     """Audit logging configuration.
-    
+
     Attributes:
         enabled: Whether audit logging is enabled.
         log_dir: Directory for audit log files.
@@ -201,7 +201,7 @@ class AuditConfig:
 @dataclass
 class SyncConfig:
     """Sync configuration for MokoStandards.override.xml files.
-    
+
     Attributes:
         enabled: Whether sync is enabled.
         exclude_files: Files to exclude from sync operations.
@@ -215,7 +215,7 @@ class SyncConfig:
 @dataclass
 class RepositoryConfig:
     """Repository-specific configuration.
-    
+
     Attributes:
         compliance_level: Compliance enforcement level.
     """
@@ -225,7 +225,7 @@ class RepositoryConfig:
 @dataclass
 class Config:
     """Main configuration container.
-    
+
     Attributes:
         organization: Organization-specific configuration.
         github: GitHub API configuration.
@@ -255,7 +255,7 @@ T = TypeVar('T')
 
 class ConfigManager:
     """Centralized configuration manager with caching and validation.
-    
+
     This class provides a singleton interface for managing configuration
     across the MokoStandards scripts. It supports:
     - Loading from multiple config file formats (YAML)
@@ -263,29 +263,29 @@ class ConfigManager:
     - In-memory caching for performance
     - Schema validation
     - Thread-safe singleton pattern
-    
+
     Attributes:
         config_path: Path to the configuration file.
         _config: Cached configuration object.
         _cache: In-memory cache for nested config lookups.
-    
+
     Example:
         >>> manager = ConfigManager.get_instance()
         >>> config = manager.config
         >>> print(config.organization.name)
         mokoconsulting-tech
     """
-    
+
     DEFAULT_CONFIG_PATH = Path.home() / ".mokostandards" / "config.yaml"
     SYNC_CONFIG_NAME = "MokoStandards.override.xml"
-    
+
     _instance: Optional['ConfigManager'] = None
     _config: Optional[Config] = None
     _cache: Dict[str, Any] = {}
-    
+
     def __init__(self, config_path: Optional[Path] = None) -> None:
         """Initialize configuration manager.
-        
+
         Args:
             config_path: Optional path to configuration file. If not provided,
                 uses DEFAULT_CONFIG_PATH or searches for SYNC_CONFIG_NAME.
@@ -293,104 +293,104 @@ class ConfigManager:
         self.config_path = self._resolve_config_path(config_path)
         self._config = None
         self._cache = {}
-    
+
     def _resolve_config_path(self, config_path: Optional[Path]) -> Path:
         """Resolve the configuration file path.
-        
+
         Priority order:
         1. Explicitly provided path
         2. MokoStandards.override.xml in current directory
         3. MokoStandards.override.xml walking up directory tree
         4. Default path (~/.mokostandards/config.yaml)
-        
+
         Args:
             config_path: Optional explicitly provided path.
-        
+
         Returns:
             Resolved Path object.
         """
         if config_path is not None:
             return config_path
-        
+
         # Check for MokoStandards.override.xml in current and parent directories
         current_dir = Path.cwd()
         for parent in [current_dir] + list(current_dir.parents):
             sync_config = parent / self.SYNC_CONFIG_NAME
             if sync_config.exists():
                 return sync_config
-        
+
         # Fall back to default
         return self.DEFAULT_CONFIG_PATH
-    
+
     @classmethod
     def get_instance(cls, config_path: Optional[Path] = None) -> 'ConfigManager':
         """Get singleton instance of ConfigManager.
-        
+
         Args:
             config_path: Optional path to configuration file.
-        
+
         Returns:
             Singleton ConfigManager instance.
         """
         if cls._instance is None:
             cls._instance = ConfigManager(config_path)
         return cls._instance
-    
+
     @classmethod
     def reset_instance(cls) -> None:
         """Reset singleton instance (mainly for testing)."""
         cls._instance = None
-    
+
     @property
     def config(self) -> Config:
         """Get cached configuration object.
-        
+
         Returns:
             Configuration object.
         """
         if self._config is None:
             self._config = self._load_config()
         return self._config
-    
+
     @classmethod
     def load(cls, config_path: Optional[Path] = None) -> Config:
         """Load configuration with fallback to defaults.
-        
+
         Args:
             config_path: Optional path to configuration file.
-        
+
         Returns:
             Configuration object.
         """
         manager = cls.get_instance(config_path)
         return manager.config
-    
+
     def reload(self) -> Config:
         """Reload configuration from file, clearing cache.
-        
+
         Returns:
             Fresh configuration object.
         """
         self._config = None
         self._cache.clear()
         return self.config
-    
+
     def get(
-        self, 
-        key: str, 
+        self,
+        key: str,
         default: Optional[T] = None,
         cast_type: Optional[type] = None
     ) -> Union[T, Any]:
         """Get configuration value by dot-notation key with caching.
-        
+
         Args:
             key: Dot-notation key (e.g., 'github.api_rate_limit').
             default: Default value if key not found.
             cast_type: Optional type to cast the value to.
-        
+
         Returns:
             Configuration value or default.
-        
+
         Example:
             >>> manager = ConfigManager.get_instance()
             >>> rate_limit = manager.get("github.api_rate_limit", default=5000)
@@ -403,29 +403,29 @@ class ConfigManager:
             # Navigate nested attributes
             parts = key.split('.')
             value: Any = self.config
-            
+
             try:
                 for part in parts:
                     value = getattr(value, part)
                 self._cache[key] = value
             except AttributeError:
                 return default
-        
+
         # Apply type casting if requested
         if cast_type is not None and value is not None:
             try:
                 value = cast_type(value)
             except (ValueError, TypeError):
                 return default
-        
+
         return value
-    
+
     def _load_config(self) -> Config:
         """Load configuration from file or use defaults.
-        
+
         Returns:
             Configuration object.
-        
+
         Raises:
             ConfigParseError: If config file exists but cannot be parsed.
         """
@@ -441,17 +441,17 @@ class ConfigManager:
                 )
         else:
             if yaml is None and self.config_path.exists():
-                print("⚠️  Warning: PyYAML not installed, cannot load config file", 
+                print("⚠️  Warning: PyYAML not installed, cannot load config file",
                       file=sys.stderr)
                 print("ℹ️  Install with: pip install pyyaml", file=sys.stderr)
             return self._default_config()
-    
+
     def _load_from_yaml(self) -> Config:
         """Load configuration from YAML file.
-        
+
         Returns:
             Configuration object.
-        
+
         Raises:
             ConfigParseError: If YAML parsing fails.
         """
@@ -468,13 +468,13 @@ class ConfigManager:
                 f"Cannot read config file",
                 context={"path": str(self.config_path), "error": str(e)}
             )
-        
+
         # Apply environment variable overrides
         data = self._apply_env_overrides(data)
-        
+
         # Validate configuration
         self.validate_config(data)
-        
+
         # Build configuration objects with error handling
         try:
             return Config(
@@ -492,7 +492,7 @@ class ConfigManager:
                 f"Invalid configuration structure",
                 context={"error": str(e)}
             )
-    
+
     def _build_org_config(self, data: Dict[str, Any]) -> OrgConfig:
         """Build OrgConfig from dictionary."""
         defaults = OrgConfig()
@@ -500,7 +500,7 @@ class ConfigManager:
             name=data.get('name', defaults.name),
             project_number=data.get('project_number', defaults.project_number)
         )
-    
+
     def _build_github_config(self, data: Dict[str, Any]) -> GitHubConfig:
         """Build GitHubConfig from dictionary."""
         defaults = GitHubConfig()
@@ -511,7 +511,7 @@ class ConfigManager:
             timeout_seconds=data.get('timeout_seconds', defaults.timeout_seconds),
             token_env_var=data.get('token_env_var', defaults.token_env_var)
         )
-    
+
     def _build_automation_config(self, data: Dict[str, Any]) -> AutomationConfig:
         """Build AutomationConfig from dictionary."""
         defaults = AutomationConfig()
@@ -520,7 +520,7 @@ class ConfigManager:
             temp_dir=data.get('temp_dir', defaults.temp_dir),
             confirmation_required=data.get('confirmation_required', defaults.confirmation_required)
         )
-    
+
     def _build_validation_config(self, data: Dict[str, Any]) -> ValidationConfig:
         """Build ValidationConfig from dictionary."""
         defaults = ValidationConfig()
@@ -529,7 +529,7 @@ class ConfigManager:
             max_file_size_mb=data.get('max_file_size_mb', defaults.max_file_size_mb),
             max_results=data.get('max_results', defaults.max_results)
         )
-    
+
     def _build_audit_config(self, data: Dict[str, Any]) -> AuditConfig:
         """Build AuditConfig from dictionary."""
         defaults = AuditConfig()
@@ -539,7 +539,7 @@ class ConfigManager:
             retention_days=data.get('retention_days', defaults.retention_days),
             format=data.get('format', defaults.format)
         )
-    
+
     def _build_sync_config(self, data: Dict[str, Any]) -> SyncConfig:
         """Build SyncConfig from dictionary."""
         defaults = SyncConfig()
@@ -548,33 +548,33 @@ class ConfigManager:
             exclude_files=data.get('exclude_files', defaults.exclude_files),
             protected_files=data.get('protected_files', defaults.protected_files)
         )
-    
+
     def _build_repository_config(self, data: Dict[str, Any]) -> RepositoryConfig:
         """Build RepositoryConfig from dictionary."""
         defaults = RepositoryConfig()
         return RepositoryConfig(
             compliance_level=data.get('compliance_level', defaults.compliance_level)
         )
-    
+
     def _apply_env_overrides(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """Apply environment variable overrides.
-        
+
         Environment variables with MOKOSTANDARDS_* prefix override config values.
         Supports nested keys using double underscores (e.g., MOKOSTANDARDS_GITHUB__TOKEN).
-        
+
         Args:
             data: Configuration dictionary.
-        
+
         Returns:
             Updated configuration dictionary.
         """
         # Make a deep copy to avoid modifying the original
         data = deepcopy(data)
-        
+
         # Organization overrides
         if 'MOKOSTANDARDS_ORG' in os.environ:
             data.setdefault('organization', {})['name'] = os.environ['MOKOSTANDARDS_ORG']
-        
+
         if 'MOKOSTANDARDS_ORG_PROJECT_NUMBER' in os.environ:
             try:
                 data.setdefault('organization', {})['project_number'] = int(
@@ -582,13 +582,13 @@ class ConfigManager:
                 )
             except ValueError:
                 pass
-        
+
         # GitHub token override
         if 'GH_PAT' in os.environ:
             data.setdefault('github', {})['token_env_var'] = 'GH_PAT'
         elif 'GITHUB_TOKEN' in os.environ:
             data.setdefault('github', {})['token_env_var'] = 'GITHUB_TOKEN'
-        
+
         # GitHub configuration overrides
         if 'MOKOSTANDARDS_GITHUB_RATE_LIMIT' in os.environ:
             try:
@@ -597,43 +597,43 @@ class ConfigManager:
                 )
             except ValueError:
                 pass
-        
+
         # Automation overrides
         if 'MOKOSTANDARDS_TEMP_DIR' in os.environ:
             data.setdefault('automation', {})['temp_dir'] = os.environ['MOKOSTANDARDS_TEMP_DIR']
-        
+
         if 'MOKOSTANDARDS_DEFAULT_BRANCH' in os.environ:
             data.setdefault('automation', {})['default_branch'] = os.environ['MOKOSTANDARDS_DEFAULT_BRANCH']
-        
+
         if 'MOKOSTANDARDS_CONFIRMATION_REQUIRED' in os.environ:
             data.setdefault('automation', {})['confirmation_required'] = (
                 os.environ['MOKOSTANDARDS_CONFIRMATION_REQUIRED'].lower() in ('true', '1', 'yes')
             )
-        
+
         # Audit overrides
         if 'MOKOSTANDARDS_AUDIT_ENABLED' in os.environ:
             data.setdefault('audit', {})['enabled'] = (
                 os.environ['MOKOSTANDARDS_AUDIT_ENABLED'].lower() in ('true', '1', 'yes')
             )
-        
+
         if 'MOKOSTANDARDS_AUDIT_LOG_DIR' in os.environ:
             data.setdefault('audit', {})['log_dir'] = os.environ['MOKOSTANDARDS_AUDIT_LOG_DIR']
-        
+
         # Sync overrides
         if 'MOKOSTANDARDS_SYNC_ENABLED' in os.environ:
             data.setdefault('sync', {})['enabled'] = (
                 os.environ['MOKOSTANDARDS_SYNC_ENABLED'].lower() in ('true', '1', 'yes')
             )
-        
+
         return data
-    
+
     @staticmethod
     def validate_config(data: Dict[str, Any]) -> None:
         """Validate configuration structure and values.
-        
+
         Args:
             data: Configuration dictionary to validate.
-        
+
         Raises:
             ConfigValidationError: If validation fails.
         """
@@ -642,96 +642,96 @@ class ConfigManager:
             org = data['organization']
             if not isinstance(org, dict):
                 raise ConfigValidationError("'organization' must be a dictionary")
-            
+
             if 'name' in org and not isinstance(org['name'], str):
                 raise ConfigValidationError("'organization.name' must be a string")
-            
+
             if 'project_number' in org:
                 if not isinstance(org['project_number'], int):
                     raise ConfigValidationError("'organization.project_number' must be an integer")
                 if org['project_number'] < 0:
                     raise ConfigValidationError("'organization.project_number' must be non-negative")
-        
+
         # Validate GitHub config
         if 'github' in data:
             github = data['github']
             if not isinstance(github, dict):
                 raise ConfigValidationError("'github' must be a dictionary")
-            
+
             if 'api_rate_limit' in github:
                 if not isinstance(github['api_rate_limit'], int):
                     raise ConfigValidationError("'github.api_rate_limit' must be an integer")
                 if github['api_rate_limit'] <= 0:
                     raise ConfigValidationError("'github.api_rate_limit' must be positive")
-            
+
             if 'retry_attempts' in github:
                 if not isinstance(github['retry_attempts'], int):
                     raise ConfigValidationError("'github.retry_attempts' must be an integer")
                 if github['retry_attempts'] < 0:
                     raise ConfigValidationError("'github.retry_attempts' must be non-negative")
-            
+
             if 'timeout_seconds' in github:
                 if not isinstance(github['timeout_seconds'], int):
                     raise ConfigValidationError("'github.timeout_seconds' must be an integer")
                 if github['timeout_seconds'] <= 0:
                     raise ConfigValidationError("'github.timeout_seconds' must be positive")
-        
+
         # Validate validation config
         if 'validation' in data:
             validation = data['validation']
             if not isinstance(validation, dict):
                 raise ConfigValidationError("'validation' must be a dictionary")
-            
+
             if 'excluded_dirs' in validation:
                 if not isinstance(validation['excluded_dirs'], list):
                     raise ConfigValidationError("'validation.excluded_dirs' must be a list")
-            
+
             if 'max_file_size_mb' in validation:
                 if not isinstance(validation['max_file_size_mb'], int):
                     raise ConfigValidationError("'validation.max_file_size_mb' must be an integer")
                 if validation['max_file_size_mb'] <= 0:
                     raise ConfigValidationError("'validation.max_file_size_mb' must be positive")
-        
+
         # Validate audit config
         if 'audit' in data:
             audit = data['audit']
             if not isinstance(audit, dict):
                 raise ConfigValidationError("'audit' must be a dictionary")
-            
+
             if 'enabled' in audit and not isinstance(audit['enabled'], bool):
                 raise ConfigValidationError("'audit.enabled' must be a boolean")
-            
+
             if 'format' in audit:
                 if audit['format'] not in ('json', 'csv'):
                     raise ConfigValidationError("'audit.format' must be 'json' or 'csv'")
-        
+
         # Validate sync config
         if 'sync' in data:
             sync = data['sync']
             if not isinstance(sync, dict):
                 raise ConfigValidationError("'sync' must be a dictionary")
-            
+
             if 'enabled' in sync and not isinstance(sync['enabled'], bool):
                 raise ConfigValidationError("'sync.enabled' must be a boolean")
-            
+
             if 'exclude_files' in sync:
                 if not isinstance(sync['exclude_files'], list):
                     raise ConfigValidationError("'sync.exclude_files' must be a list")
-            
+
             if 'protected_files' in sync:
                 if not isinstance(sync['protected_files'], list):
                     raise ConfigValidationError("'sync.protected_files' must be a list")
-    
+
     def _default_config(self) -> Config:
         """Provide sensible defaults with environment overrides applied.
-        
+
         Returns:
             Default configuration object with environment variable overrides.
         """
         # Start with empty dict and apply env overrides
         data: Dict[str, Any] = {}
         data = self._apply_env_overrides(data)
-        
+
         # Build config with overrides applied
         return Config(
             organization=self._build_org_config(data.get('organization', {})),
@@ -743,26 +743,26 @@ class ConfigManager:
             repository=self._build_repository_config(data.get('repository', {})),
             config_version=data.get('config_version', '2.0')
         )
-    
+
     def save_template(self, path: Optional[Path] = None) -> Path:
         """Save configuration template to file.
-        
+
         Args:
             path: Optional path for template file. If not provided, uses config_path.
-        
+
         Returns:
             Path where template was saved.
-        
+
         Raises:
             ImportError: If PyYAML is not installed.
             IOError: If file cannot be written.
         """
         if yaml is None:
             raise ImportError("PyYAML is required to save configuration. Install with: pip install pyyaml")
-        
+
         save_path = path or self.config_path
         save_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         template = {
             'config_version': '2.0',
             'organization': {
@@ -808,27 +808,27 @@ class ConfigManager:
                 'compliance_level': 'standard'
             }
         }
-        
+
         with open(save_path, 'w', encoding='utf-8') as f:
             yaml.safe_dump(template, f, default_flow_style=False, sort_keys=False)
-        
+
         print(f"✅ Configuration template saved to: {save_path}")
         return save_path
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert current configuration to dictionary.
-        
+
         Returns:
             Dictionary representation of configuration.
         """
         return asdict(self.config)
-    
+
     def to_json(self, indent: int = 2) -> str:
         """Convert current configuration to JSON string.
-        
+
         Args:
             indent: Number of spaces for indentation.
-        
+
         Returns:
             JSON string representation of configuration.
         """
@@ -841,15 +841,15 @@ class ConfigManager:
 
 def get_config(config_path: Optional[Path] = None) -> Config:
     """Get configuration instance.
-    
+
     This is the primary interface for accessing configuration in scripts.
-    
+
     Args:
         config_path: Optional path to configuration file.
-    
+
     Returns:
         Configuration object.
-    
+
     Example:
         >>> config = get_config()
         >>> print(config.organization.name)
@@ -860,13 +860,13 @@ def get_config(config_path: Optional[Path] = None) -> Config:
 
 def create_config_template(path: Optional[Path] = None) -> Path:
     """Create configuration template file.
-    
+
     Args:
         path: Optional path for template file.
-    
+
     Returns:
         Path where template was saved.
-    
+
     Example:
         >>> from pathlib import Path
         >>> create_config_template(Path("config.yaml"))
@@ -877,13 +877,13 @@ def create_config_template(path: Optional[Path] = None) -> Path:
 
 def validate_config_file(path: Path) -> bool:
     """Validate a configuration file without loading it.
-    
+
     Args:
         path: Path to configuration file to validate.
-    
+
     Returns:
         True if valid, False otherwise.
-    
+
     Example:
         >>> from pathlib import Path
         >>> is_valid = validate_config_file(Path("config.yaml"))
@@ -891,23 +891,23 @@ def validate_config_file(path: Path) -> bool:
     if not path.exists():
         print(f"❌ Config file not found: {path}", file=sys.stderr)
         return False
-    
+
     if yaml is None:
         print("❌ PyYAML not installed", file=sys.stderr)
         return False
-    
+
     try:
         with open(path, 'r', encoding='utf-8') as f:
             data = yaml.safe_load(f)
-        
+
         if data is None:
             print("❌ Config file is empty", file=sys.stderr)
             return False
-        
+
         ConfigManager.validate_config(data)
         print(f"✅ Config file is valid: {path}")
         return True
-    
+
     except ConfigValidationError as e:
         print(f"❌ Validation error: {e}", file=sys.stderr)
         return False
@@ -925,7 +925,7 @@ def validate_config_file(path: Path) -> bool:
 
 if __name__ == "__main__":
     import argparse
-    
+
     parser = argparse.ArgumentParser(
         description="MokoStandards Configuration Manager",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -933,16 +933,16 @@ if __name__ == "__main__":
 Examples:
   # Create a configuration template
   %(prog)s --create-template
-  
+
   # Show current configuration
   %(prog)s --show
-  
+
   # Validate a configuration file
   %(prog)s --validate --config config.yaml
-  
+
   # Export configuration as JSON
   %(prog)s --export-json
-  
+
 Environment Variables:
   MOKOSTANDARDS_ORG              - Override organization name
   MOKOSTANDARDS_ORG_PROJECT_NUMBER - Override project number
@@ -952,7 +952,7 @@ Environment Variables:
   GH_PAT or GITHUB_TOKEN         - GitHub authentication token
         """
     )
-    
+
     parser.add_argument(
         '--create-template',
         action='store_true',
@@ -984,24 +984,24 @@ Environment Variables:
         metavar='KEY',
         help='Get specific configuration value (dot notation, e.g., github.api_rate_limit)'
     )
-    
+
     args = parser.parse_args()
-    
+
     try:
         if args.create_template:
             path = create_config_template(args.config)
             print(f"✅ Template created at: {path}")
             print(f"ℹ️  Edit this file to customize your configuration")
             sys.exit(0)
-        
+
         elif args.validate:
             if args.config is None:
                 print("❌ --config is required with --validate", file=sys.stderr)
                 sys.exit(1)
-            
+
             is_valid = validate_config_file(args.config)
             sys.exit(0 if is_valid else 1)
-        
+
         elif args.show:
             config = get_config(args.config)
             print(f"📋 Current Configuration:")
@@ -1015,12 +1015,12 @@ Environment Variables:
             print(f"  Sync Enabled: {config.sync.enabled}")
             print(f"  Compliance Level: {config.repository.compliance_level}")
             sys.exit(0)
-        
+
         elif args.export_json:
             manager = ConfigManager.get_instance(args.config)
             print(manager.to_json())
             sys.exit(0)
-        
+
         elif args.get:
             manager = ConfigManager.get_instance(args.config)
             value = manager.get(args.get)
@@ -1029,11 +1029,11 @@ Environment Variables:
                 sys.exit(1)
             print(value)
             sys.exit(0)
-        
+
         else:
             parser.print_help()
             sys.exit(0)
-    
+
     except ConfigError as e:
         print(f"❌ Configuration error: {e}", file=sys.stderr)
         sys.exit(1)

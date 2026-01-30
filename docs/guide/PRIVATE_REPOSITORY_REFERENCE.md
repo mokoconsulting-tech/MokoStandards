@@ -41,7 +41,7 @@ Moko Consulting uses a dual-repository strategy:
   - Public standards, templates, and documentation
   - Community-accessible workflow templates
   - Open-source best practices and governance policies
-  
+
 - **`.github-private`** - **Private and Secure Centralization**
   - Proprietary workflow implementations
   - Sensitive automation and deployment logic
@@ -67,7 +67,7 @@ The following internal documentation files have been moved to the private reposi
 - **Contains**: Internal GitHub Project #7 automation details, PAT usage, team structure
 - **Private Location**: `/docs/internal/IMPLEMENTATION_SUMMARY.md`
 
-#### MERGE_SUMMARY.md  
+#### MERGE_SUMMARY.md
 - **Reason**: Internal merge process documentation
 - **Contains**: Details of specific PR combinations, internal workflow decisions
 - **Private Location**: `/docs/internal/MERGE_SUMMARY.md`
@@ -124,7 +124,7 @@ These files were moved to maintain security and confidentiality:
 ### Accessing Private Files
 
 1. **Repository Access**: Ensure you have access to `mokoconsulting-tech/.github-private`
-2. **Clone Private Repo**: 
+2. **Clone Private Repo**:
    ```bash
    git clone https://github.com/mokoconsulting-tech/.github-private.git
    ```

@@ -320,10 +320,10 @@ validate-health-config:
   run: |
     # Download health checker script
     curl -sSL https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/scripts/validate/check_repo_health.py -o check_repo_health.py
-    
+
     # Run health check with remote config (default)
     python3 check_repo_health.py --repo-path . --output json > health-report.json
-    
+
     # Display results
     cat health-report.json
 
@@ -350,10 +350,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Download health checker
         run: curl -sSL https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/scripts/validate/check_repo_health.py -o check_repo_health.py
-      
+
       - name: Run health check
         run: python3 check_repo_health.py --config "${{ github.event.inputs.config_url }}" --repo-path . --output json
 ```
@@ -380,7 +380,7 @@ jobs:
 
 ## Support
 
-- Documentation: 
+- Documentation:
   - [Repository Structure Schema Guide](../docs/guide/repository-structure-schema.md)
   - [Repository Health Scoring System](../docs/health-scoring.md)
   - [GitHub Private Integration Prompt](../.copilot-prompts/github-private-integration-repo-health.md)
@@ -389,7 +389,7 @@ jobs:
 
 ---
 
-**Version**: 1.1.0  
+**Version**: 1.1.0
 **Last Updated**: 2026-01-08
 
 ## Metadata

@@ -28,11 +28,11 @@ from typing import Dict, List, Optional, Set
 def find_files(root: Path, patterns: List[str]) -> List[Path]:
     """
     Find files matching any of the given patterns.
-    
+
     Args:
         root: Root directory to search
         patterns: List of filename patterns to match
-        
+
     Returns:
         List of matching file paths
     """
@@ -45,10 +45,10 @@ def find_files(root: Path, patterns: List[str]) -> List[Path]:
 def analyze_python_dependencies(root: Path) -> Dict[str, List[str]]:
     """
     Analyze Python dependencies from various sources.
-    
+
     Args:
         root: Root directory to search
-        
+
     Returns:
         Dictionary with dependency information
     """
@@ -58,7 +58,7 @@ def analyze_python_dependencies(root: Path) -> Dict[str, List[str]]:
         "pyproject_toml": [],
         "pipfile": [],
     }
-    
+
     # Check requirements.txt
     req_files = find_files(root, ["requirements*.txt"])
     for req_file in req_files:
@@ -70,32 +70,32 @@ def analyze_python_dependencies(root: Path) -> Dict[str, List[str]]:
                         deps["requirements_txt"].append(line)
         except Exception as e:
             print(f"Warning: Could not read {req_file}: {e}", file=sys.stderr)
-    
+
     # Check setup.py
     setup_files = find_files(root, ["setup.py"])
     if setup_files:
         deps["setup_py"].append("Found setup.py (manual inspection required)")
-    
+
     # Check pyproject.toml
     pyproject_files = find_files(root, ["pyproject.toml"])
     if pyproject_files:
         deps["pyproject_toml"].append("Found pyproject.toml (manual inspection required)")
-    
+
     # Check Pipfile
     pipfiles = find_files(root, ["Pipfile"])
     if pipfiles:
         deps["pipfile"].append("Found Pipfile (manual inspection required)")
-    
+
     return deps
 
 
 def analyze_npm_dependencies(root: Path) -> Dict[str, Dict]:
     """
     Analyze npm dependencies from package.json files.
-    
+
     Args:
         root: Root directory to search
-        
+
     Returns:
         Dictionary with dependency information
     """
@@ -104,34 +104,34 @@ def analyze_npm_dependencies(root: Path) -> Dict[str, Dict]:
         "dependencies": {},
         "dev_dependencies": {},
     }
-    
+
     package_files = find_files(root, ["package.json"])
     for pkg_file in package_files:
         try:
             with open(pkg_file, "r") as f:
                 data = json.load(f)
                 deps["package_json_files"].append(str(pkg_file))
-                
+
                 if "dependencies" in data:
                     for name, version in data["dependencies"].items():
                         deps["dependencies"][name] = version
-                
+
                 if "devDependencies" in data:
                     for name, version in data["devDependencies"].items():
                         deps["dev_dependencies"][name] = version
         except Exception as e:
             print(f"Warning: Could not read {pkg_file}: {e}", file=sys.stderr)
-    
+
     return deps
 
 
 def analyze_composer_dependencies(root: Path) -> Dict[str, Dict]:
     """
     Analyze PHP composer dependencies from composer.json files.
-    
+
     Args:
         root: Root directory to search
-        
+
     Returns:
         Dictionary with dependency information
     """
@@ -140,35 +140,35 @@ def analyze_composer_dependencies(root: Path) -> Dict[str, Dict]:
         "require": {},
         "require_dev": {},
     }
-    
+
     composer_files = find_files(root, ["composer.json"])
     for comp_file in composer_files:
         try:
             with open(comp_file, "r") as f:
                 data = json.load(f)
                 deps["composer_json_files"].append(str(comp_file))
-                
+
                 if "require" in data:
                     for name, version in data["require"].items():
                         deps["require"][name] = version
-                
+
                 if "require-dev" in data:
                     for name, version in data["require-dev"].items():
                         deps["require_dev"][name] = version
         except Exception as e:
             print(f"Warning: Could not read {comp_file}: {e}", file=sys.stderr)
-    
+
     return deps
 
 
 def check_outdated_packages(root: Path, package_manager: str) -> Optional[str]:
     """
     Check for outdated packages using package manager commands.
-    
+
     Args:
         root: Root directory
         package_manager: Package manager to check (pip, npm, composer)
-        
+
     Returns:
         Output from outdated check command or None
     """
@@ -177,10 +177,10 @@ def check_outdated_packages(root: Path, package_manager: str) -> Optional[str]:
         "npm": ["npm", "outdated"],
         "composer": ["composer", "outdated"],
     }
-    
+
     if package_manager not in commands:
         return None
-    
+
     try:
         result = subprocess.run(
             commands[package_manager],
@@ -199,7 +199,7 @@ def check_outdated_packages(root: Path, package_manager: str) -> Optional[str]:
 def print_report(python_deps: Dict, npm_deps: Dict, composer_deps: Dict) -> None:
     """
     Print a formatted dependency report.
-    
+
     Args:
         python_deps: Python dependency data
         npm_deps: npm dependency data
@@ -208,7 +208,7 @@ def print_report(python_deps: Dict, npm_deps: Dict, composer_deps: Dict) -> None
     print("\n" + "=" * 80)
     print("DEPENDENCY ANALYSIS REPORT")
     print("=" * 80)
-    
+
     # Python dependencies
     print("\n📦 PYTHON DEPENDENCIES")
     print("-" * 80)
@@ -220,13 +220,13 @@ def print_report(python_deps: Dict, npm_deps: Dict, composer_deps: Dict) -> None
                 print(f"  - {dep}")
             if len(python_deps["requirements_txt"]) > 10:
                 print(f"  ... and {len(python_deps['requirements_txt']) - 10} more")
-        
+
         for key in ["setup_py", "pyproject_toml", "pipfile"]:
             if python_deps[key]:
                 print(f"\n{key.replace('_', '.')}: {python_deps[key][0]}")
     else:
         print("  No Python dependencies found")
-    
+
     # npm dependencies
     print("\n📦 NPM DEPENDENCIES")
     print("-" * 80)
@@ -234,7 +234,7 @@ def print_report(python_deps: Dict, npm_deps: Dict, composer_deps: Dict) -> None
         print(f"\nFound {len(npm_deps['package_json_files'])} package.json file(s)")
         print(f"Dependencies: {len(npm_deps['dependencies'])}")
         print(f"Dev Dependencies: {len(npm_deps['dev_dependencies'])}")
-        
+
         if npm_deps["dependencies"]:
             print("\nProduction Dependencies (top 10):")
             for name, version in sorted(list(npm_deps["dependencies"].items()))[:10]:
@@ -243,7 +243,7 @@ def print_report(python_deps: Dict, npm_deps: Dict, composer_deps: Dict) -> None
                 print(f"  ... and {len(npm_deps['dependencies']) - 10} more")
     else:
         print("  No npm dependencies found")
-    
+
     # Composer dependencies
     print("\n📦 COMPOSER DEPENDENCIES")
     print("-" * 80)
@@ -251,7 +251,7 @@ def print_report(python_deps: Dict, npm_deps: Dict, composer_deps: Dict) -> None
         print(f"\nFound {len(composer_deps['composer_json_files'])} composer.json file(s)")
         print(f"Required: {len(composer_deps['require'])}")
         print(f"Dev Required: {len(composer_deps['require_dev'])}")
-        
+
         if composer_deps["require"]:
             print("\nRequired Packages (top 10):")
             for name, version in sorted(list(composer_deps["require"].items()))[:10]:
@@ -260,14 +260,14 @@ def print_report(python_deps: Dict, npm_deps: Dict, composer_deps: Dict) -> None
                 print(f"  ... and {len(composer_deps['require']) - 10} more")
     else:
         print("  No composer dependencies found")
-    
+
     print("\n" + "=" * 80)
 
 
 def main() -> int:
     """
     Main entry point for dependency analyzer.
-    
+
     Returns:
         Exit code (0 for success)
     """
@@ -290,21 +290,21 @@ def main() -> int:
         action="store_true",
         help="Check for outdated packages (requires package managers installed)"
     )
-    
+
     args = parser.parse_args()
     root = Path(args.path).resolve()
-    
+
     if not root.exists():
         print(f"Error: Path does not exist: {root}", file=sys.stderr)
         return 1
-    
+
     print(f"Analyzing dependencies in: {root}")
-    
+
     # Analyze dependencies
     python_deps = analyze_python_dependencies(root)
     npm_deps = analyze_npm_dependencies(root)
     composer_deps = analyze_composer_dependencies(root)
-    
+
     if args.json:
         # Output as JSON
         result = {
@@ -316,18 +316,18 @@ def main() -> int:
     else:
         # Output as formatted report
         print_report(python_deps, npm_deps, composer_deps)
-    
+
     # Check for outdated packages if requested
     if args.check_outdated:
         print("\n📊 CHECKING FOR OUTDATED PACKAGES")
         print("=" * 80)
-        
+
         for pm in ["pip", "npm", "composer"]:
             outdated = check_outdated_packages(root, pm)
             if outdated:
                 print(f"\n{pm.upper()} outdated packages:")
                 print(outdated)
-    
+
     return 0
 
 

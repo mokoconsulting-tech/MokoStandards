@@ -490,11 +490,11 @@ jobs:
   lint:     # Runs in parallel with test
     runs-on: ubuntu-latest
     steps: [...]
-  
+
   test:     # Runs in parallel with lint
     runs-on: ubuntu-latest
     steps: [...]
-  
+
   build:    # Waits for lint and test
     needs: [lint, test]
     runs-on: ubuntu-latest
@@ -536,8 +536,8 @@ Improvements to this architecture are welcome! Please:
 
 ---
 
-**Version:** 1.0.0  
-**Last Updated:** 2026-01-13  
+**Version:** 1.0.0
+**Last Updated:** 2026-01-13
 **License:** GPL-3.0-or-later
 
 ## Metadata

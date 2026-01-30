@@ -29,9 +29,9 @@ BRIEF: Release management policy for production deployments
 
 # Release Management Policy
 
-**Status**: DRAFT  
-**Priority**: Tier 3 - Standard  
-**Implementation Phase**: Phase 4 (Months 7-8)  
+**Status**: DRAFT
+**Priority**: Tier 3 - Standard
+**Implementation Phase**: Phase 4 (Months 7-8)
 **Related Documents**: [Enterprise Readiness](../../ENTERPRISE-READINESS.md), [Project 7 Roadmap](../../PROJECT-7-ROADMAP-ITEMS.md)
 
 ## Purpose

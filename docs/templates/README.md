@@ -9,14 +9,14 @@ This directory contains comprehensive documentation for all templates provided b
 ### [Workflow Templates](./workflows/index.md)
 GitHub Actions workflow templates for CI/CD automation
 - [Generic Workflows](./workflows/generic.md) - Platform-agnostic CI/CD
-- [Joomla Workflows](./workflows/joomla.md) - Joomla extension workflows  
+- [Joomla Workflows](./workflows/joomla.md) - Joomla extension workflows
 - [Dolibarr Workflows](./workflows/dolibarr.md) - Dolibarr module workflows
 
 ### License Templates
 Authoritative license files for organizational compliance
 - See [templates/licenses/](../../templates/licenses/)
 
-### Schema Templates  
+### Schema Templates
 Repository structure definition templates
 - See [templates/schemas/](../../templates/schemas/)
 
@@ -34,5 +34,5 @@ See individual template category documentation for detailed usage instructions.
 
 ---
 
-**Last Updated**: 2026-01-16  
+**Last Updated**: 2026-01-16
 **Maintained By**: MokoStandards Team

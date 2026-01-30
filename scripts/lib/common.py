@@ -75,10 +75,10 @@ EXIT_TIMEOUT: int = 5
 
 class MokoError(Exception):
     """Base exception for MokoStandards utilities."""
-    
+
     def __init__(self, message: str, exit_code: int = EXIT_ERROR) -> None:
         """Initialize MokoError.
-        
+
         Args:
             message: Error message
             exit_code: Exit code to use when this error causes program termination
@@ -89,7 +89,7 @@ class MokoError(Exception):
 
 class CommandError(MokoError):
     """Exception raised when a command execution fails."""
-    
+
     def __init__(
         self,
         message: str,
@@ -98,7 +98,7 @@ class CommandError(MokoError):
         stderr: Optional[str] = None
     ) -> None:
         """Initialize CommandError.
-        
+
         Args:
             message: Error message
             returncode: Command return code
@@ -113,10 +113,10 @@ class CommandError(MokoError):
 
 class TimeoutError(MokoError):
     """Exception raised when a command times out."""
-    
+
     def __init__(self, message: str, timeout: float) -> None:
         """Initialize TimeoutError.
-        
+
         Args:
             message: Error message
             timeout: Timeout value in seconds
@@ -127,10 +127,10 @@ class TimeoutError(MokoError):
 
 class FileNotFoundError(MokoError):
     """Exception raised when a required file is not found."""
-    
+
     def __init__(self, path: Union[str, Path], description: str = "File") -> None:
         """Initialize FileNotFoundError.
-        
+
         Args:
             path: Path to the missing file
             description: Description of the file
@@ -141,10 +141,10 @@ class FileNotFoundError(MokoError):
 
 class DirectoryNotFoundError(MokoError):
     """Exception raised when a required directory is not found."""
-    
+
     def __init__(self, path: Union[str, Path], description: str = "Directory") -> None:
         """Initialize DirectoryNotFoundError.
-        
+
         Args:
             path: Path to the missing directory
             description: Description of the directory
@@ -155,10 +155,10 @@ class DirectoryNotFoundError(MokoError):
 
 class PermissionError(MokoError):
     """Exception raised when there are insufficient permissions."""
-    
+
     def __init__(self, message: str) -> None:
         """Initialize PermissionError.
-        
+
         Args:
             message: Error message
         """
@@ -180,10 +180,10 @@ def generate_python_header(
     note: Optional[str] = None
 ) -> str:
     """Generate a Moko Consulting standard file header for Python files.
-    
+
     Creates a standardized header with copyright, license information,
     and file metadata following MokoStandards conventions.
-    
+
     Args:
         file_path: Relative path from repository root (e.g., /scripts/lib/common.py)
         brief: Brief description of the file
@@ -191,10 +191,10 @@ def generate_python_header(
         ingroup: Parent documentation group (default: MokoStandards)
         version: File version (default: current VERSION constant)
         note: Optional additional note to append to header
-    
+
     Returns:
         Complete file header as a string with proper shebang and formatting
-    
+
     Example:
         >>> header = generate_python_header("/scripts/test.py", "Test script")
         >>> print(header.split('\\n')[0])
@@ -230,10 +230,10 @@ def generate_python_header(
         f"# BRIEF: {brief}",
         f"# PATH: {file_path}",
     ]
-    
+
     if note:
         lines.append(f"# NOTE: {note}")
-    
+
     return "\n".join(lines) + "\n"
 
 
@@ -246,10 +246,10 @@ def generate_shell_header(
     note: Optional[str] = None
 ) -> str:
     """Generate a Moko Consulting standard file header for shell scripts.
-    
+
     Creates a standardized header with copyright, license information,
     and file metadata following MokoStandards conventions for bash scripts.
-    
+
     Args:
         file_path: Relative path from repository root
         brief: Brief description of the file
@@ -257,10 +257,10 @@ def generate_shell_header(
         ingroup: Parent documentation group (default: MokoStandards)
         version: File version (default: current VERSION constant)
         note: Optional additional note to append to header
-    
+
     Returns:
         Complete file header as a string with bash shebang and formatting
-    
+
     Example:
         >>> header = generate_shell_header("/scripts/test.sh", "Test script")
         >>> print(header.split('\\n')[0])
@@ -296,10 +296,10 @@ def generate_shell_header(
         f"# BRIEF: {brief}",
         f"# PATH: {file_path}",
     ]
-    
+
     if note:
         lines.append(f"# NOTE: {note}")
-    
+
     return "\n".join(lines) + "\n"
 
 
@@ -311,7 +311,7 @@ def generate_shell_header(
 
 def log_info(message: str) -> None:
     """Print an informational message to stdout.
-    
+
     Args:
         message: Information message to display
     """
@@ -320,7 +320,7 @@ def log_info(message: str) -> None:
 
 def log_success(message: str) -> None:
     """Print a success message to stdout.
-    
+
     Args:
         message: Success message to display
     """
@@ -329,7 +329,7 @@ def log_success(message: str) -> None:
 
 def log_warning(message: str) -> None:
     """Print a warning message to stdout.
-    
+
     Args:
         message: Warning message to display
     """
@@ -338,7 +338,7 @@ def log_warning(message: str) -> None:
 
 def log_error(message: str) -> None:
     """Print an error message to stderr.
-    
+
     Args:
         message: Error message to display
     """
@@ -347,10 +347,10 @@ def log_error(message: str) -> None:
 
 def log_debug(message: str, debug: Optional[bool] = None) -> None:
     """Print a debug message if debug mode is enabled.
-    
+
     Checks DEBUG environment variable if debug parameter is not provided.
     Debug mode is enabled when DEBUG is set to '1', 'true', or 'yes'.
-    
+
     Args:
         message: Debug message to display
         debug: Override debug mode (default: check DEBUG environment variable)
@@ -368,10 +368,10 @@ def log_debug(message: str, debug: Optional[bool] = None) -> None:
 
 def die(message: str, exit_code: int = EXIT_ERROR) -> None:
     """Print an error message and exit with the specified code.
-    
+
     This function does not return. It prints an error message to stderr
     and immediately terminates the program.
-    
+
     Args:
         message: Error message to display
         exit_code: Exit code (default: EXIT_ERROR)
@@ -382,14 +382,14 @@ def die(message: str, exit_code: int = EXIT_ERROR) -> None:
 
 def require_file(file_path: Union[str, Path], description: str = "File") -> Path:
     """Ensure a file exists, raising an exception if not found.
-    
+
     Args:
         file_path: Path to file
         description: Description for error message
-    
+
     Returns:
         Path object for the validated file
-    
+
     Raises:
         FileNotFoundError: If file does not exist or is not a file
     """
@@ -403,14 +403,14 @@ def require_file(file_path: Union[str, Path], description: str = "File") -> Path
 
 def require_directory(dir_path: Union[str, Path], description: str = "Directory") -> Path:
     """Ensure a directory exists, raising an exception if not found.
-    
+
     Args:
         dir_path: Path to directory
         description: Description for error message
-    
+
     Returns:
         Path object for the validated directory
-    
+
     Raises:
         DirectoryNotFoundError: If directory does not exist or is not a directory
     """
@@ -437,11 +437,11 @@ def run_command(
     env: Optional[dict] = None
 ) -> Tuple[int, str, str]:
     """Execute a command with timeout support and error handling.
-    
+
     Runs a subprocess command with configurable timeout, output capture,
     and error handling. Provides a clean interface for command execution
     with proper exception handling.
-    
+
     Args:
         command: Command to execute (string or list of arguments)
         timeout: Timeout in seconds (default: None for no timeout)
@@ -449,15 +449,15 @@ def run_command(
         capture_output: If True, capture stdout and stderr (default: True)
         cwd: Working directory for command (default: current directory)
         env: Environment variables (default: inherit current environment)
-    
+
     Returns:
         Tuple of (returncode, stdout, stderr) where stdout and stderr
         are empty strings if capture_output is False
-    
+
     Raises:
         CommandError: If command fails and check=True
         TimeoutError: If command exceeds timeout
-    
+
     Example:
         >>> returncode, stdout, stderr = run_command(['git', 'status'], timeout=5.0)
         >>> print(stdout)
@@ -466,7 +466,7 @@ def run_command(
         cmd_list: List[str] = command.split()
     else:
         cmd_list = command
-    
+
     try:
         if capture_output:
             result = subprocess.run(
@@ -488,7 +488,7 @@ def run_command(
             )
             stdout_str = ""
             stderr_str = ""
-        
+
         if check and result.returncode != 0:
             raise CommandError(
                 f"Command failed with return code {result.returncode}: {' '.join(cmd_list)}",
@@ -496,9 +496,9 @@ def run_command(
                 stdout_str,
                 stderr_str
             )
-        
+
         return result.returncode, stdout_str, stderr_str
-    
+
     except subprocess.TimeoutExpired as e:
         raise TimeoutError(
             f"Command timed out after {timeout}s: {' '.join(cmd_list)}",
@@ -513,18 +513,18 @@ def run_command(
 
 def ensure_directory(dir_path: Union[str, Path], mode: int = 0o755) -> Path:
     """Create directory and all parent directories safely.
-    
+
     Creates the specified directory with all necessary parent directories.
     If the directory already exists, no error is raised. Thread-safe and
     handles race conditions gracefully.
-    
+
     Args:
         dir_path: Path to directory to create
         mode: Directory permissions in octal (default: 0o755)
-    
+
     Returns:
         Path object for the created/existing directory
-    
+
     Example:
         >>> path = ensure_directory("/tmp/my/nested/dir")
         >>> print(path.exists())
@@ -542,44 +542,44 @@ def atomic_write(
     mode: int = 0o644
 ) -> None:
     """Write content to a file atomically using a temporary file.
-    
+
     Writes content to a temporary file first, then moves it to the target
     location. This ensures that the target file is never partially written
     or corrupted if the process is interrupted.
-    
+
     Args:
         file_path: Destination file path
         content: Content to write to file
         encoding: Text encoding (default: utf-8)
         mode: File permissions in octal (default: 0o644)
-    
+
     Raises:
         PermissionError: If unable to write to the target location
-    
+
     Example:
         >>> atomic_write("/tmp/config.json", '{"key": "value"}')
     """
     path: Path = Path(file_path)
-    
+
     # Ensure parent directory exists
     if path.parent != Path('.'):
         ensure_directory(path.parent)
-    
+
     # Create temporary file in same directory for atomic move
     fd, tmp_path = tempfile.mkstemp(
         dir=path.parent,
         prefix=f".{path.name}.",
         suffix=".tmp"
     )
-    
+
     try:
         # Write content to temporary file
         with os.fdopen(fd, 'w', encoding=encoding) as f:
             f.write(content)
-        
+
         # Set permissions
         os.chmod(tmp_path, mode)
-        
+
         # Atomic move to destination
         shutil.move(tmp_path, path)
     except Exception:
@@ -599,17 +599,17 @@ def atomic_write(
 
 def format_bytes(num_bytes: int, precision: int = 2) -> str:
     """Format byte count as human-readable string.
-    
+
     Converts a byte count into a human-readable string using appropriate
     units (B, KB, MB, GB, TB, PB).
-    
+
     Args:
         num_bytes: Number of bytes to format
         precision: Number of decimal places (default: 2)
-    
+
     Returns:
         Formatted string with appropriate unit
-    
+
     Example:
         >>> format_bytes(1024)
         '1.00 KB'
@@ -620,15 +620,15 @@ def format_bytes(num_bytes: int, precision: int = 2) -> str:
     """
     if num_bytes < 0:
         raise ValueError("num_bytes must be non-negative")
-    
+
     units: List[str] = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
     unit_index: int = 0
     size: float = float(num_bytes)
-    
+
     while size >= 1024.0 and unit_index < len(units) - 1:
         size /= 1024.0
         unit_index += 1
-    
+
     if unit_index == 0:
         return f"{int(size)} {units[unit_index]}"
     else:
@@ -637,18 +637,18 @@ def format_bytes(num_bytes: int, precision: int = 2) -> str:
 
 def format_duration(seconds: float, precision: int = 2) -> str:
     """Format duration in seconds as human-readable string.
-    
+
     Converts a duration in seconds into a human-readable string using
     appropriate units (s, ms, μs, ns for small durations; s, m, h, d for
     large durations).
-    
+
     Args:
         seconds: Duration in seconds
         precision: Number of decimal places (default: 2)
-    
+
     Returns:
         Formatted string with appropriate unit
-    
+
     Example:
         >>> format_duration(0.001)
         '1.00 ms'
@@ -659,7 +659,7 @@ def format_duration(seconds: float, precision: int = 2) -> str:
     """
     if seconds < 0:
         raise ValueError("seconds must be non-negative")
-    
+
     # Handle sub-second durations
     if seconds < 1.0:
         if seconds < 0.000001:  # nanoseconds
@@ -668,7 +668,7 @@ def format_duration(seconds: float, precision: int = 2) -> str:
             return f"{seconds * 1_000_000:.{precision}f} μs"
         else:  # milliseconds
             return f"{seconds * 1000:.{precision}f} ms"
-    
+
     # Handle larger durations
     if seconds < 60:  # seconds
         return f"{seconds:.{precision}f} s"
@@ -687,52 +687,52 @@ def format_duration(seconds: float, precision: int = 2) -> str:
 
 def get_repo_root() -> Path:
     """Find the repository root by looking for .git directory.
-    
+
     Searches upward from the current directory to find the git repository
     root. Stops at filesystem root if no .git directory is found.
-    
+
     Returns:
         Path to repository root
-    
+
     Raises:
         MokoError: If not in a git repository
-    
+
     Example:
         >>> root = get_repo_root()
         >>> print(root.name)
         MokoStandards
     """
     current: Path = Path.cwd().resolve()
-    
+
     while current != current.parent:
         if (current / ".git").exists():
             return current
         current = current.parent
-    
+
     raise MokoError("Not in a git repository", EXIT_ERROR)
 
 
 
 def get_relative_path(file_path: Union[str, Path], from_root: bool = True) -> str:
     """Get relative path from repository root or current directory.
-    
+
     Converts an absolute path to a relative path, either from the repository
     root or from the current working directory.
-    
+
     Args:
         file_path: Path to convert
         from_root: If True, relative to repo root; if False, relative to cwd
-    
+
     Returns:
         Relative path as string (with leading / if from_root is True)
-    
+
     Example:
         >>> path = get_relative_path("/repo/scripts/test.py", from_root=True)
         >>> print(path)
         /scripts/test.py
     """
     path: Path = Path(file_path).resolve()
-    
+
     if from_root:
         root: Path = get_repo_root()
         try:
@@ -755,7 +755,7 @@ def get_relative_path(file_path: Union[str, Path], from_root: bool = True) -> st
 if __name__ == "__main__":
     print("MokoStandards Common Library v" + VERSION)
     print("=" * 70)
-    
+
     # Test header generation
     print("\nPython Header Example:")
     print("-" * 70)
@@ -764,7 +764,7 @@ if __name__ == "__main__":
         "Example Python script",
         note="This is a test"
     ))
-    
+
     print("\nShell Header Example:")
     print("-" * 70)
     print(generate_shell_header(
@@ -772,7 +772,7 @@ if __name__ == "__main__":
         "Example shell script",
         note="This is a test"
     ))
-    
+
     # Test repository utilities
     print("\nRepository Info:")
     print("-" * 70)
@@ -782,7 +782,7 @@ if __name__ == "__main__":
         print(f"Current dir relative to root: {get_relative_path(Path.cwd())}")
     except MokoError as e:
         print(f"Error: {e}")
-    
+
     # Test formatting utilities
     print("\nFormatting Examples:")
     print("-" * 70)
@@ -792,7 +792,7 @@ if __name__ == "__main__":
     print(f"0.001 seconds: {format_duration(0.001)}")
     print(f"65 seconds: {format_duration(65)}")
     print(f"3661 seconds: {format_duration(3661)}")
-    
+
     # Test command execution
     print("\nCommand Execution Test:")
     print("-" * 70)
@@ -803,7 +803,7 @@ if __name__ == "__main__":
         log_success("Command execution test passed")
     except (CommandError, TimeoutError) as e:
         log_error(f"Command execution test failed: {e}")
-    
+
     # Test directory creation
     print("\nDirectory Creation Test:")
     print("-" * 70)
@@ -813,7 +813,7 @@ if __name__ == "__main__":
         print(f"Created: {test_dir}")
         print(f"Exists: {test_dir.exists()}")
         log_success("Directory creation test passed")
-    
+
     # Test atomic write
     print("\nAtomic Write Test:")
     print("-" * 70)
@@ -824,5 +824,5 @@ if __name__ == "__main__":
         print(f"File: {test_file}")
         print(f"Content: {content}")
         log_success("Atomic write test passed")
-    
+
     print("\n✅ All tests completed successfully")

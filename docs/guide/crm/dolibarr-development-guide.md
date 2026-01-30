@@ -140,13 +140,13 @@ class modMokoExample extends DolibarrModules
         global $langs, $conf;
 
         $this->db = $db;
-        
+
         // Module ID - use reserved Moko range 185051-185099
         $this->numero = 185056; // Example number - reserve via PR!
-        
+
         // Module identification
         $this->rights_class = 'mokoexample';
-        
+
         // Module family
         $this->family = "mokoconsulting";
         $this->familyinfo = array(
@@ -155,63 +155,63 @@ class modMokoExample extends DolibarrModules
                 'label'    => $langs->trans("Moko Consulting")
             )
         );
-        
+
         $this->module_position = '1000';
         $this->name = preg_replace('/^mod/i', '', get_class($this));
         $this->description = "Example Moko module for Dolibarr";
         $this->descriptionlong = "Demonstrates best practices for custom module development";
-        
+
         // Author
         $this->editor_name = 'Moko Consulting';
         $this->editor_url = 'https://www.mokoconsulting.tech';
         $this->editor_squarred_logo = 'logo.png@mokoexample';
-        
+
         // Version
         $this->version = '1.0.0';
         $this->const_name = 'MAIN_MODULE_'.strtoupper($this->name);
-        
+
         // Images
         $this->picto = 'mokoexample@mokoexample';
-        
+
         // Dependencies
         $this->depends = array();
         $this->requiredby = array();
         $this->conflictwith = array();
-        
+
         // Language files
         $this->langfiles = array("mokoexample@mokoexample");
-        
+
         // Config pages
         $this->config_page_url = array("setup.php@mokoexample");
-        
+
         // Constants
         $this->const = array();
-        
+
         // Boxes
         $this->boxes = array();
-        
+
         // Permissions
         $this->rights = array();
         $r = 0;
-        
+
         $r++;
         $this->rights[$r][0] = $this->numero + $r;
         $this->rights[$r][1] = 'Read MokoExample objects';
         $this->rights[$r][3] = 0;
         $this->rights[$r][4] = 'read';
-        
+
         $r++;
         $this->rights[$r][0] = $this->numero + $r;
         $this->rights[$r][1] = 'Create/Update MokoExample objects';
         $this->rights[$r][3] = 0;
         $this->rights[$r][4] = 'write';
-        
+
         $r++;
         $this->rights[$r][0] = $this->numero + $r;
         $this->rights[$r][1] = 'Delete MokoExample objects';
         $this->rights[$r][3] = 0;
         $this->rights[$r][4] = 'delete';
-        
+
         // Database tables
         $this->dictionaries = array();
     }
@@ -251,28 +251,28 @@ Create `sql/llx_mokoexample_object.sql`:
 CREATE TABLE IF NOT EXISTS llx_mokoexample_object (
   rowid INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
   entity INT(11) DEFAULT 1 NOT NULL,
-  
+
   -- Object identification
   ref VARCHAR(128) NOT NULL,
   label VARCHAR(255) NOT NULL,
   description TEXT,
-  
+
   -- Status
   status SMALLINT DEFAULT 0 NOT NULL,
-  
+
   -- Audit fields
   date_creation DATETIME NOT NULL,
   tms TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   fk_user_creat INT(11),
   fk_user_modif INT(11),
-  
+
   -- Additional fields
   note_public TEXT,
   note_private TEXT,
-  
+
   -- Foreign keys
   fk_project INT(11),
-  
+
   UNIQUE KEY uk_mokoexample_ref (ref, entity)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
@@ -303,10 +303,10 @@ class MokoObject extends CommonObject
     public $element = 'mokoobject';
     public $table_element = 'mokoexample_object';
     public $fk_element = 'fk_mokoobject';
-    
+
     public $ismultientitymanaged = 1;
     public $isextrafieldmanaged = 1;
-    
+
     // Object fields
     public $ref;
     public $label;
@@ -315,7 +315,7 @@ class MokoObject extends CommonObject
     public $note_public;
     public $note_private;
     public $fk_project;
-    
+
     // Audit fields
     public $date_creation;
     public $tms;
@@ -366,7 +366,7 @@ class MokoObject extends CommonObject
 
         dol_syslog(get_class($this)."::create", LOG_DEBUG);
         $resql = $this->db->query($sql);
-        
+
         if (!$resql) {
             $error++;
             $this->errors[] = "Error ".$this->db->lasterror();
@@ -416,7 +416,7 @@ class MokoObject extends CommonObject
         $sql .= " t.fk_project";
         $sql .= " FROM ".MAIN_DB_PREFIX.$this->table_element." as t";
         $sql .= " WHERE t.entity IN (".getEntity($this->element).")";
-        
+
         if (!empty($id)) {
             $sql .= " AND t.rowid = ".((int) $id);
         } elseif (!empty($ref)) {
@@ -425,7 +425,7 @@ class MokoObject extends CommonObject
 
         dol_syslog(get_class($this)."::fetch", LOG_DEBUG);
         $resql = $this->db->query($sql);
-        
+
         if ($resql) {
             if ($this->db->num_rows($resql)) {
                 $obj = $this->db->fetch_object($resql);
@@ -521,7 +521,7 @@ class MokoObject extends CommonObject
 
             dol_syslog(get_class($this)."::delete", LOG_DEBUG);
             $resql = $this->db->query($sql);
-            
+
             if (!$resql) {
                 $error++;
                 $this->errors[] = "Error ".$this->db->lasterror();
@@ -603,9 +603,9 @@ $langs->load("mokoexample@mokoexample");
 // Actions
 if ($action == 'update') {
     $example_option = GETPOST('MOKOEXAMPLE_OPTION', 'alpha');
-    
+
     $res = dolibarr_set_const($db, "MOKOEXAMPLE_OPTION", $example_option, 'chaine', 0, '', $conf->entity);
-    
+
     if ($res > 0) {
         setEventMessages($langs->trans("SetupSaved"), null, 'mesgs');
     } else {
@@ -707,17 +707,17 @@ $result = $object->create($user);
 
 if ($result > 0) {
     print "Object created with ID: ".$result."<br>";
-    
+
     // Fetch object
     $object2 = new MokoObject($db);
     $object2->fetch($result);
     print "Fetched object: ".$object2->ref." - ".$object2->label."<br>";
-    
+
     // Update object
     $object2->label = 'Updated Label';
     $object2->update($user);
     print "Object updated<br>";
-    
+
     // Delete object
     $object2->delete($user);
     print "Object deleted<br>";

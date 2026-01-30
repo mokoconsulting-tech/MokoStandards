@@ -70,7 +70,7 @@ Located in `ISSUE_TEMPLATE/` directory:
 
 **Purpose**: Define code ownership for automatic review assignment.
 
-**Usage**: 
+**Usage**:
 1. Copy to `.github/CODEOWNERS` (remove `.template` suffix)
 2. Customize with your team and file patterns
 3. Commit to repository

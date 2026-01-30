@@ -442,18 +442,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      
+
       - name: Checkout MokoStandards
         uses: actions/checkout@v2
         with:
           repository: mokoconsulting-tech/MokoStandards
           path: MokoStandards
-      
+
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: '3.9'
-      
+
       - name: Validate Structure
         run: |
           python MokoStandards/scripts/validate/validate_structure.py \
@@ -469,7 +469,7 @@ jobs:
   - Build commands
   - Testing procedures
   - Contribution guidelines
-  
+
 - **src/README.md**: End-user audience
   - Installation steps
   - Configuration options
@@ -569,7 +569,7 @@ TODO: Add getting started instructions
     <description>Source code</description>
     <required>true</required>
     <purpose>Contains all source code files</purpose>
-    
+
     <files>
       <file extension="php">
         <name>index.php</name>
@@ -665,19 +665,19 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      
+
       - name: Checkout MokoStandards
         uses: actions/checkout@v3
         with:
           repository: mokoconsulting-tech/MokoStandards
           path: .mokostandards
           token: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
-      
+
       - name: Validate Repository Structure
         run: |
           python .mokostandards/scripts/validate/validate_structure.py \
@@ -749,8 +749,8 @@ For issues or questions:
 
 ---
 
-**Version**: 1.0.0  
-**Last Updated**: 2026-01-07  
+**Version**: 1.0.0
+**Last Updated**: 2026-01-07
 **Maintained By**: Moko Consulting
 
 ## Metadata

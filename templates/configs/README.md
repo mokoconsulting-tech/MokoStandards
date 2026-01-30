@@ -226,15 +226,15 @@ All these tools are integrated into the `code-quality.yml` workflow template. To
    # For PHP projects
    cp templates/configs/phpcs.xml .
    cp templates/configs/phpstan.neon .
-   
+
    # For JavaScript projects
    cp templates/configs/.eslintrc.json .
    cp templates/configs/.prettierrc.json .
-   
+
    # For Python projects
    cp templates/configs/.pylintrc .
    cp templates/configs/pyproject.toml .
-   
+
    # For HTML projects
    cp templates/configs/.htmlhintrc .
    ```

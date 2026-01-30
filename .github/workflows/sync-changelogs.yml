@@ -1,22 +1,5 @@
 # Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
-#
-# This file is part of a Moko Consulting project.
-#
 # SPDX-License-Identifier: GPL-3.0-or-later
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
 # FILE INFORMATION
 # DEFGROUP: GitHub.Workflow
 # INGROUP: MokoStandards.Automation
@@ -45,6 +28,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  issues: write
 
 jobs:
   sync-changelogs:
@@ -168,6 +152,82 @@ jobs:
               fi
             done
           fi
+
+      - name: Create tracking issue on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = `## 📋 CHANGELOG Sync Failed
+
+            **Event**: ${context.eventName}
+            **Workflow Run**: [${context.runId}](${context.payload.repository.html_url}/actions/runs/${context.runId})
+            **Triggered by**: @${context.actor}
+            **Date**: ${new Date().toISOString()}
+
+            ### Sync Configuration
+            - **Direction**: ${{ inputs.direction }}
+            - **Root CHANGELOG exists**: ${{ steps.check-files.outputs.root_exists }}
+            - **src/ChangeLog.md exists**: ${{ steps.check-files.outputs.src_exists }}
+            - **Files in sync**: ${{ steps.check-sync.outputs.in_sync }}
+
+            ### ❌ Error Details
+            The CHANGELOG synchronization process has failed. This affects documentation consistency between root and src directories.
+
+            ### 🔍 Common Causes
+            - **Protected branch**: Unable to push due to branch protection rules
+            - **Concurrent modifications**: Both CHANGELOG files were modified simultaneously
+            - **Permission issues**: Insufficient token permissions for push
+            - **File conflicts**: Merge conflicts during sync
+            - **Missing files**: One or both CHANGELOG files don't exist
+
+            ### ✅ Resolution Steps
+            1. Review the [workflow run logs](${context.payload.repository.html_url}/actions/runs/${context.runId})
+            2. Check if both CHANGELOG files exist
+            3. Compare content manually if conflict detected
+            4. Verify GitHub token has write permissions
+            5. Re-run workflow with appropriate sync direction
+            6. If conflict exists, manually resolve and sync
+
+            ### 📚 Resources
+            - [Workflow: sync-changelogs.yml](.github/workflows/sync-changelogs.yml)
+            - [CHANGELOG.md](CHANGELOG.md)
+            - [src/ChangeLog.md](src/ChangeLog.md)
+
+            ---
+            *This issue was automatically created by the CHANGELOG Sync workflow.*
+            `;
+
+            // Check for existing open issue
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'changelog-sync-failure',
+              per_page: 1
+            });
+
+            if (issues.data.length > 0) {
+              // Update existing issue
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issues.data[0].number,
+                body: `### 🔄 Sync Failed Again\n\n${body}`
+              });
+              console.log(`Updated existing issue #${issues.data[0].number}`);
+            } else {
+              // Create new issue
+              const issue = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `[Documentation] CHANGELOG Sync Failed - ${new Date().toISOString().split('T')[0]}`,
+                body: body,
+                labels: ['documentation', 'changelog-sync-failure', 'automation'],
+                assignees: ['copilot', 'jmiller-moko']
+              });
+              console.log(`Created new issue #${issue.data.number}`);
+            }
 
       - name: Summary
         if: always()

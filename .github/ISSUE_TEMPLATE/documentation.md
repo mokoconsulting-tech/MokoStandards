@@ -20,9 +20,9 @@ assignees: []
 ## Location
 
 **Affected documentation**:
-- File: 
-- Section: 
-- URL (if applicable): 
+- File:
+- Section:
+- URL (if applicable):
 
 **Related scripts/features** (if applicable):
 
@@ -72,12 +72,12 @@ assignees: []
 ## Related Documentation
 
 **Related documentation sections**:
-- 
-- 
+-
+-
 
 **External references** (if any):
-- 
-- 
+-
+-
 
 ## Examples Needed
 

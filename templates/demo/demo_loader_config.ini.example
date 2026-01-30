@@ -1,0 +1,29 @@
+# Demo Data Loader Configuration
+#
+# Copy this file to demo_loader_config.ini and customize for your environment.
+#
+# SECURITY: This file controls access to demo data loading.
+# For production use, restrict allowed_ips to specific addresses.
+
+[security]
+# Comma-separated list of allowed IP addresses
+# Use '*' to allow all (NOT RECOMMENDED for production)
+# Example: allowed_ips = 127.0.0.1,192.168.1.100,10.0.0.5
+allowed_ips = 127.0.0.1,::1
+
+[database]
+# Fallback database configuration (used if Joomla/Dolibarr config not found)
+# These are used by remote scripts (Python/PowerShell) when not auto-detecting
+host = localhost
+port = 3306
+name = demo_database
+user = demo_user
+password = demo_password
+prefix = 
+
+[loader]
+# Default SQL file to load if not specified
+default_sql_file = demo_data.sql
+
+# Maximum file size to load (in MB)
+max_file_size = 50

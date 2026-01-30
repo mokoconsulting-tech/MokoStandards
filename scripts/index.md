@@ -1,46 +1,89 @@
-# Scripts Index: /scripts
+# Scripts Index
 
-## Purpose
+Quick navigation for MokoStandards scripts organized by function.
 
-This folder contains utility scripts, automation tools, and build scripts
-for the MokoStandards repository.
+## Core Categories
 
-## Quick Links
+### [Automation](automation/)
+Repository automation and bulk operations
+- Python, PowerShell, and Shell scripts for bulk updates
+- File distribution utilities
+- Project creation automation
 
-- [README](./README.md) - Scripts documentation overview
-- [automation/sync_file_to_project.py](./automation/sync_file_to_project.py) - Sync documentation files to GitHub Project
+### [Validation](validate/)
+Code quality, security, and standards compliance
+- Repository health checks (Python and PowerShell GUI)
+- Structure validation
+- Security scanning
+- Platform detection
 
-## Subfolders
+### [Maintenance](maintenance/)
+Repository upkeep and housekeeping
+- Changelog management
+- Release automation
+- File header validation
+- Label setup
 
-- [analysis/](./analysis/index.md) - Analysis and reporting
-- [automation/](./automation/index.md) - Repository automation and bulk operations
-- [docs/](./docs/index.md) - Documentation generation and maintenance
-- [fix/](./fix/index.md) - Repair and fix utilities
-- [lib/](./lib/index.md) - Shared library functions
-- [maintenance/](./maintenance/index.md) - Repository maintenance tasks
-- [release/](./release/index.md) - Release management scripts
-- [run/](./run/index.md) - Runtime and execution utilities
-- [tests/](./tests/index.md) - Test scripts
-- [validate/](./validate/index.md) - Validation and verification scripts
+### [Analysis](analysis/)
+Analysis and reporting tools
+- PR conflict analysis
+- Dependency analysis
+- Configuration generation
 
-## Top-Level Scripts
+### [Build](build/)
+Build and compilation scripts
+- Makefile resolution
+- Build automation
 
-- [analyze_pr_conflicts.py](./analyze_pr_conflicts.py) - Analyze and
-  report on PR merge conflicts
-- [bulk_update_repos.py](./bulk_update_repos.py) - Bulk repository update
-  automation
-- [generate_canonical_config.py](./generate_canonical_config.py) -
-  Generate canonical configuration files
-- [release_version.py](./release_version.py) - Version release automation
+### [Release](release/)
+Release management and packaging
+- Platform detection
+- Package creation
+- Dolibarr release automation
 
-## Metadata
+### [Lib](lib/)
+Shared library code
+- Python utilities (common.py)
+- Shell utilities (common.sh)
+- PowerShell modules (Common.psm1, GuiUtils.psm1, ConfigManager.psm1)
+- Extension utilities
+- GitHub client
 
-- **Document Type:** index
-- **Manually maintained:** This file is manually curated to provide
-  script descriptions
+### [Docs](docs/)
+Documentation generation and maintenance
+- Index rebuilding
+- Documentation coverage
+- Script catalogs
+- Guides and architecture documentation
 
-## Revision History
+### [Tests](tests/)
+Test scripts
+- Bulk update tests
+- Dry-run tests
 
-| Date | Change | Author |
-| --- | --- | --- |
-| 2026-01-09 | Initial index creation | GitHub Copilot |
+### [Run](run/)
+Operational setup scripts
+- GitHub Projects setup
+
+### [Fix](fix/)
+Fix and repair scripts
+- Tab/space fixing
+
+### [Wrappers](wrappers/)
+Cross-platform wrappers
+- Bash wrappers (53 scripts)
+- PowerShell wrappers (53 scripts)
+
+## Multi-Language Support
+
+Scripts are organized by **function** rather than **language**. You'll find:
+- **Python** scripts (.py) for core functionality
+- **PowerShell** scripts (.ps1) and modules (.psm1) for Windows users
+- **Shell** scripts (.sh) for Unix/Linux systems
+
+All three languages may coexist in the same directory for the same functionality.
+
+## See Also
+
+- [README.md](README.md) - Comprehensive scripts documentation
+- [docs/](docs/) - Additional guides and documentation

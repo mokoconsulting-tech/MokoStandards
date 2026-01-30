@@ -1,22 +1,5 @@
 # Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
-#
-# This file is part of a Moko Consulting project.
-#
 # SPDX-License-Identifier: GPL-3.0-or-later
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
 # FILE INFORMATION
 # DEFGROUP: GitHub.Workflow
 # INGROUP: MokoStandards.Security
@@ -27,6 +10,61 @@
 # NOTE: Prevents organization-specific references and sensitive data from being committed
 
 name: Confidentiality Scan
+
+env:
+  ACTIONS_STEP_DEBUG: true
+  ACTIONS_RUNNER_DEBUG: true
+
+# MokoStandards Policy Compliance:
+# - File formatting: Enforces organizational coding standards
+# - Reference: docs/policy/file-formatting.md
+
+# ┌─────────────────────────────────────────────────────────────────────────┐
+# │                         WORKFLOW FLOW DIAGRAM                            │
+# └─────────────────────────────────────────────────────────────────────────┘
+#
+#   TRIGGER: Push/PR to main/dev/rc/version branches
+#        │
+#        ▼
+#   ┌──────────────────┐
+#   │ Checkout Code    │
+#   │ (Full History)   │
+#   └──────────────────┘
+#        │
+#        ├──────────────────────────────────────────────┐
+#        │                                              │
+#        ▼                                              ▼
+#   ┌────────────────────┐                    ┌────────────────────┐
+#   │ Scan Organization  │                    │  Scan Sensitive    │
+#   │    References      │───┐                │     Patterns       │
+#   │ (private repos,    │   │                │ (API keys, tokens, │
+#   │  internal URLs)    │   │                │  credentials)      │
+#   └────────────────────┘   │                └────────────────────┘
+#        │                   │                         │
+#        ▼                   │                         ▼
+#   ┌────────────────────┐   │                ┌────────────────────┐
+#   │ Detect Violations  │◀──┘                │ Detect Secrets     │
+#   │   in Files         │                    │   & Leaks          │
+#   └────────────────────┘                    └────────────────────┘
+#        │                                              │
+#        └──────────────────┬───────────────────────────┘
+#                           │
+#                           ▼
+#                  ┌─────────────────┐
+#                  │ Violations      │
+#                  │   Found?        │
+#                  └─────────────────┘
+#                      │          │
+#                  YES │          │ NO
+#                      ▼          ▼
+#            ┌─────────────┐  ┌─────────┐
+#            │CREATE ISSUE │  │ SUCCESS │
+#            │with Details:│  │  Report │
+#            │• File Paths │  └─────────┘
+#            │• Violation  │
+#            │  Types      │
+#            │• Remediation│
+#            └─────────────┘
 
 on:
   pull_request:
@@ -80,6 +118,7 @@ jobs:
       - name: Scan for organization-specific references
         id: org_scan
         run: |
+          set -x
           echo "Scanning for organization-specific references..."
 
           # Define forbidden patterns
@@ -137,6 +176,7 @@ jobs:
         id: secret_scan
         if: success() || failure()
         run: |
+          set -x
           echo "Scanning for potential secrets..."
 
           # Define secret patterns
@@ -194,6 +234,7 @@ jobs:
         id: doc_scan
         if: success() || failure()
         run: |
+          set -x
           echo "Scanning for internal documentation references..."
 
           # Patterns that suggest internal documentation
@@ -262,7 +303,7 @@ jobs:
               if (orgViolations) {
                 text += '### ❌ Organization-Specific References Found\n\n';
                 text += 'The scan detected organization-specific references that should not be in the public repository.\n\n';
-                
+
                 // Read violation details from file
                 try {
                   const violationDetails = fs.readFileSync('/tmp/violation_details.txt', 'utf8');
@@ -270,14 +311,14 @@ jobs:
                 } catch (err) {
                   text += '_Details could not be loaded._\n\n';
                 }
-                
+
                 text += '**Action Required**: Remove or generalize these references before merging.\n\n';
               }
 
               if (secretsFound) {
                 text += '### ❌ Potential Secrets Detected\n\n';
                 text += 'The scan detected patterns that may indicate secrets or credentials.\n\n';
-                
+
                 // Read secret details from file
                 try {
                   const secretDetails = fs.readFileSync('/tmp/secret_details.txt', 'utf8');
@@ -285,14 +326,14 @@ jobs:
                 } catch (err) {
                   text += '_Details could not be loaded._\n\n';
                 }
-                
+
                 text += '**Action Required**: Remove secrets and use environment variables or GitHub Secrets instead.\n\n';
               }
 
               if (internalDocsFound) {
                 text += '### ⚠️ Internal Documentation References Found\n\n';
                 text += 'The scan detected potential references to internal documentation.\n\n';
-                
+
                 // Read internal doc details from file
                 try {
                   const internalDocDetails = fs.readFileSync('/tmp/internal_doc_details.txt', 'utf8');
@@ -300,7 +341,7 @@ jobs:
                 } catch (err) {
                   text += '_Details could not be loaded._\n\n';
                 }
-                
+
                 text += '**Action Recommended**: Review these references and ensure they are appropriate for public documentation.\n\n';
               }
 
@@ -320,7 +361,7 @@ jobs:
               text = '## Confidentiality Scan Results\n\n';
               text += '### ⚠️ Internal Documentation References Found\n\n';
               text += 'The scan detected potential references to internal documentation. Review these to ensure they are appropriate for public documentation.\n\n';
-              
+
               // Read internal doc details
               try {
                 const internalDocDetails = fs.readFileSync('/tmp/internal_doc_details.txt', 'utf8');
@@ -349,7 +390,7 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            
+
             let body = `## ❌ Confidentiality Scan Failed
 
             This PR contains content that should not be in the public repository.
@@ -411,9 +452,114 @@ jobs:
               body: body
             });
 
+      - name: Create tracking issue for violations
+        if: |
+          (steps.org_scan.outcome == 'failure' || steps.secret_scan.outcome == 'failure' ||
+           steps.doc_scan.outcome == 'failure') && github.event_name == 'push'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const orgViolations = '${{ steps.org_scan.outputs.violations_found }}' || '0';
+            const secretViolations = '${{ steps.secret_scan.outputs.secrets_found }}' || '0';
+            const docViolations = '${{ steps.doc_scan.outputs.internal_docs_found }}' || '0';
+
+            let body = `## 🔒 Confidentiality Scan Violations Detected
+
+            **Branch**: \`${context.ref}\`
+            **Commit**: ${context.sha.substring(0, 7)}
+            **Triggered by**: @${context.actor}
+            **Date**: ${new Date().toISOString()}
+
+            ### Summary
+            - Organization-specific patterns: ${orgViolations}
+            - Potential secrets: ${secretViolations}
+            - Internal documentation references: ${docViolations}
+
+            `;
+
+            // Add violation details
+            if (orgViolations > 0) {
+              try {
+                const violationDetails = fs.readFileSync('/tmp/violation_details.txt', 'utf8');
+                body += '\n### 🚨 Organization-Specific References\n\n' + violationDetails + '\n';
+              } catch (err) {
+                body += '\n_Violation details could not be loaded._\n';
+              }
+            }
+
+            if (secretViolations > 0) {
+              try {
+                const secretDetails = fs.readFileSync('/tmp/secret_details.txt', 'utf8');
+                body += '\n### 🔑 Potential Secrets Detected\n\n' + secretDetails + '\n';
+              } catch (err) {
+                body += '\n_Secret details could not be loaded._\n';
+              }
+            }
+
+            if (docViolations > 0) {
+              try {
+                const docDetails = fs.readFileSync('/tmp/internal_doc_details.txt', 'utf8');
+                body += '\n### 📍 Internal Documentation References\n\n' + docDetails + '\n';
+              } catch (err) {
+                body += '\n_Internal doc details could not be loaded._\n';
+              }
+            }
+
+            body += `
+            ### ⚠️ Action Required
+            1. Review the violations listed above with file names and line numbers
+            2. Remove or generalize organization-specific content
+            3. Replace any hardcoded secrets with GitHub Secrets
+            4. Update internal references to public equivalents
+
+            ### 📚 Resources
+            - [Two-Tier Architecture](docs/TWO_TIER_ARCHITECTURE.md)
+            - [Standards Coordination](STANDARDS_COORDINATION.md)
+            - [Private Repository Reference](docs/guide/PRIVATE_REPOSITORY_REFERENCE.md)
+
+            ### ✅ Resolution
+            Once violations are addressed, this issue will be automatically closed on the next successful scan.
+
+            ---
+            *This issue was automatically created by the Confidentiality Scan workflow.*
+            `;
+
+            // Check for existing open issue
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'confidentiality-violation',
+              per_page: 1
+            });
+
+            if (issues.data.length > 0) {
+              // Update existing issue
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issues.data[0].number,
+                body: `### 🔄 New Violations Detected\n\n${body}`
+              });
+              console.log(`Updated existing issue #${issues.data[0].number}`);
+            } else {
+              // Create new issue
+              const issue = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `[Security] Confidentiality Scan Violations - ${new Date().toISOString().split('T')[0]}`,
+                body: body,
+                labels: ['security', 'confidentiality-violation', 'automation'],
+                assignees: ['copilot', 'jmiller-moko']
+              });
+              console.log(`Created new issue #${issue.data.number}`);
+            }
+
       - name: Fail if violations found
         if: steps.org_scan.outcome == 'failure' || steps.secret_scan.outcome == 'failure'
         run: |
+          set -x
           echo "❌ Confidentiality scan failed due to violations"
           echo "Review the check run and PR comment for details"
           exit 1

@@ -184,11 +184,11 @@ Add to your `~/.gitconfig`:
     # Feature workflow
     new-feature = "!f() { git checkout dev && git pull && git checkout -b feature/$1; }; f"
     finish-feature = "!f() { git push origin HEAD && echo 'Create PR to dev'; }; f"
-    
+
     # Release workflow
     new-rc = "!f() { git checkout dev && git pull && git checkout -b rc/$1; }; f"
     release = "!f() { git tag -a v$1 -m 'Release $1' && git push origin v$1; }; f"
-    
+
     # Hotfix workflow
     new-hotfix = "!f() { git checkout main && git pull && git checkout -b hotfix/$1; }; f"
 ```

@@ -14,7 +14,7 @@
 	DEFGROUP: MokoStandards
 	INGROUP: MokoStandards.Documentation
 	REPO: https://github.com/mokoconsulting-tech/MokoStandards/
-  VERSION: 04.01.00 
+  VERSION: 04.01.00
   PATH: ./CODE_OF_CONDUCT.md
   BRIEF: Community expectations and enforcement guidelines
   NOTE: Adapted with attribution from the Contributor Covenant v2.1
@@ -37,9 +37,9 @@ Unacceptable behavior includes sexualized language/imagery, trolling, harassment
 Report incidents to **dev@mokoconsulting.tech** or through [GitHub Discussions](https://github.com/mokoconsulting-tech/MokoStandards/discussions) if you prefer a community-visible approach. Private complaints will be reviewed promptly and fairly.
 
 ## Enforcement Guidelines
-1. **Correction** — Private warning  
-2. **Warning** — Formal warning and limited interaction  
-3. **Temporary Ban** — Time-boxed exclusion  
+1. **Correction** — Private warning
+2. **Warning** — Formal warning and limited interaction
+3. **Temporary Ban** — Time-boxed exclusion
 4. **Permanent Ban** — Removal from the community
 
 ## Attribution

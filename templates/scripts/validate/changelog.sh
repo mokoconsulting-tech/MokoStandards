@@ -26,6 +26,21 @@
 
 set -euo pipefail
 
+DRY_RUN=false
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        *)
+            shift
+            ;;
+    esac
+done
+
 echo "[INFO] Validating CHANGELOG.md..."
 
 if [ ! -f "CHANGELOG.md" ]; then
@@ -33,9 +48,15 @@ if [ ! -f "CHANGELOG.md" ]; then
   exit 1
 fi
 
-# Check for required header
-if ! grep -q "^# Changelog" CHANGELOG.md; then
-  echo "[ERROR] CHANGELOG.md missing required '# Changelog' header"
+# Check for required header (new format: # CHANGELOG - RepoName (VERSION: X.Y.Z))
+if ! grep -qE "^# CHANGELOG - .+ \(VERSION: [0-9]+\.[0-9]+\.[0-9]+\)" CHANGELOG.md; then
+  echo "[ERROR] CHANGELOG.md missing required '# CHANGELOG - RepoName (VERSION: X.Y.Z)' header"
+  exit 1
+fi
+
+# Check for [Unreleased] section
+if ! grep -q "^## \[Unreleased\]" CHANGELOG.md; then
+  echo "[ERROR] CHANGELOG.md missing required '## [Unreleased]' section"
   exit 1
 fi
 

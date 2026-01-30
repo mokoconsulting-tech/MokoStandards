@@ -268,12 +268,12 @@ class MokoEventsModelEvent extends JModelItem
     public function getItem($pk = null)
     {
         $item = parent::getItem($pk);
-        
+
         if (!empty($item->id)) {
             // Load additional data
             $item->category = $this->getCategory($item->catid);
         }
-        
+
         return $item;
     }
 }
@@ -302,12 +302,12 @@ class MokoEventsViewEvent extends JViewLegacy
     public function display($tpl = null)
     {
         $this->item = $this->get('Item');
-        
+
         // Check for errors
         if (count($errors = $this->get('Errors'))) {
             throw new Exception(implode("\n", $errors), 500);
         }
-        
+
         parent::display($tpl);
     }
 }
@@ -332,14 +332,14 @@ class MokoEventsControllerEvent extends JControllerForm
     {
         // Check for request forgeries
         JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
-        
+
         // Custom validation
         $data = $this->input->post->get('jform', array(), 'array');
-        
+
         if (!$this->validateEventData($data)) {
             return false;
         }
-        
+
         return parent::save($key, $urlVar);
     }
 }
@@ -357,7 +357,7 @@ CREATE TABLE IF NOT EXISTS `#__moko_events` (
   `title` varchar(255) NOT NULL,
   `alias` varchar(400) NOT NULL,
   `description` text,
-  
+
   -- Publishing fields
   `state` tinyint(4) NOT NULL DEFAULT '0',
   `catid` int(11) NOT NULL DEFAULT '0',
@@ -367,18 +367,18 @@ CREATE TABLE IF NOT EXISTS `#__moko_events` (
   `modified_by` int(11) NOT NULL DEFAULT '0',
   `publish_up` datetime NOT NULL,
   `publish_down` datetime NOT NULL,
-  
+
   -- Metadata
   `metadata` text,
   `metakey` text,
   `metadesc` text,
   `language` char(7) NOT NULL DEFAULT '*',
-  
+
   -- Ordering and access
   `ordering` int(11) NOT NULL DEFAULT '0',
   `access` int(11) NOT NULL DEFAULT '1',
   `params` text,
-  
+
   PRIMARY KEY (`id`),
   KEY `idx_access` (`access`),
   KEY `idx_state` (`state`),
@@ -404,7 +404,7 @@ class MokoEventsTableEvent extends JTable
     public function __construct(&$db)
     {
         parent::__construct('#__moko_events', 'id', $db);
-        
+
         // Set field aliases
         $this->setColumnAlias('published', 'state');
     }
@@ -422,15 +422,15 @@ class MokoEventsTableEvent extends JTable
         if (trim($this->alias) == '') {
             $this->alias = $this->title;
         }
-        
+
         $this->alias = JApplicationHelper::stringURLSafe($this->alias);
-        
+
         // Check for valid name
         if (trim($this->title) == '') {
             $this->setError(JText::_('COM_MOKOEVENTS_WARNING_PROVIDE_VALID_NAME'));
             return false;
         }
-        
+
         return true;
     }
 }
@@ -596,12 +596,12 @@ $doc->addScript($this->baseurl . '/templates/' . $this->template . '/js/template
     <header class="site-header">
         <jdoc:include type="modules" name="header" style="none" />
     </header>
-    
+
     <main class="site-main">
         <jdoc:include type="message" />
         <jdoc:include type="component" />
     </main>
-    
+
     <footer class="site-footer">
         <jdoc:include type="modules" name="footer" style="none" />
     </footer>
@@ -622,13 +622,13 @@ defined('_JEXEC') or die;
 ?>
 <article class="article">
     <h1><?php echo $this->escape($this->item->title); ?></h1>
-    
+
     <?php if (!empty($this->item->images)): ?>
         <?php $images = json_decode($this->item->images); ?>
-        <img src="<?php echo $images->image_fulltext; ?>" 
+        <img src="<?php echo $images->image_fulltext; ?>"
              alt="<?php echo $this->escape($images->image_fulltext_alt); ?>">
     <?php endif; ?>
-    
+
     <div class="article-content">
         <?php echo $this->item->text; ?>
     </div>
@@ -654,15 +654,15 @@ class PlgSystemMokoanalytics extends JPlugin
     public function onAfterRender()
     {
         $app = JFactory::getApplication();
-        
+
         // Only run on site
         if ($app->isClient('site')) {
             $body = $app->getBody();
-            
+
             // Add analytics code
             $analytics = $this->getAnalyticsCode();
             $body = str_replace('</body>', $analytics . '</body>', $body);
-            
+
             $app->setBody($body);
         }
     }
@@ -694,7 +694,7 @@ class PlgContentMokoseo extends JPlugin
                 'warning'
             );
         }
-        
+
         return true;
     }
 }
@@ -717,7 +717,7 @@ class PlgUserMokonotify extends JPlugin
     public function onUserAfterLogin($options)
     {
         $user = JFactory::getUser($options['user']->id);
-        
+
         // Send login notification
         $this->sendLoginNotification($user);
     }
@@ -768,14 +768,14 @@ class modMokoContactHelper
     {
         $db = JFactory::getDbo();
         $query = $db->getQuery(true);
-        
+
         $query->select('*')
             ->from($db->quoteName('#__moko_contacts'))
             ->where($db->quoteName('published') . ' = 1')
             ->order($db->quoteName('ordering'));
-        
+
         $db->setQuery($query);
-        
+
         return $db->loadObjectList();
     }
 }
@@ -799,14 +799,14 @@ class MokoEventsModelEventTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->model = new MokoEventsModelEvent();
     }
 
     public function testGetItem()
     {
         $item = $this->model->getItem(1);
-        
+
         $this->assertNotNull($item);
         $this->assertGreaterThan(0, $item->id);
         $this->assertNotEmpty($item->title);
@@ -880,16 +880,16 @@ $events = $cache->get(function() {
         <?php echo JText::_('COM_MOKOEVENTS_FIELD_TITLE'); ?>
         <span class="required" aria-label="required">*</span>
     </label>
-    <input type="text" 
-           id="event-title" 
-           name="jform[title]" 
+    <input type="text"
+           id="event-title"
+           name="jform[title]"
            required
            aria-required="true"
            aria-describedby="title-desc">
     <p id="title-desc" class="help-text">
         <?php echo JText::_('COM_MOKOEVENTS_FIELD_TITLE_DESC'); ?>
     </p>
-    
+
     <?php echo JHtml::_('form.token'); ?>
 </form>
 ```

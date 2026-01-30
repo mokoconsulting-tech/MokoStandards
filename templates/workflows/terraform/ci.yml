@@ -33,6 +33,7 @@ permissions:
   contents: read
   pull-requests: write
   id-token: write  # Required for OIDC authentication
+  security-events: write  # Required for CodeQL SARIF upload
 
 env:
   TF_VERSION: '1.7.0'  # Update to your preferred Terraform version

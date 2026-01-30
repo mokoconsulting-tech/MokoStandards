@@ -162,16 +162,20 @@ class DetectionCache:
         try:
             with open(cache_file, 'w', encoding='utf-8') as f:
                 json.dump(result.to_dict(), f, indent=2)
-        except (OSError, TypeError):
-            pass
+        except (OSError, TypeError) as e:
+            # Cache write failure is not critical, log and continue
+            import sys
+            print(f"Warning: Failed to write cache file: {e}", file=sys.stderr)
 
     def clear(self) -> None:
         """Clear all cached detection results."""
         for cache_file in self.cache_dir.glob("*.pkl"):
             try:
                 cache_file.unlink()
-            except OSError:
-                pass
+            except OSError as e:
+                # Log error but continue clearing other files
+                import sys
+                print(f"Warning: Failed to delete cache file {cache_file}: {e}", file=sys.stderr)
 
 
 class PlatformDetector:

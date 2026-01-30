@@ -596,8 +596,10 @@ def atomic_write(
         # Clean up temporary file on error
         try:
             os.unlink(tmp_path)
-        except OSError:
-            pass
+        except OSError as e:
+            # Log cleanup failure but don't mask the original exception
+            import sys
+            print(f"Warning: Failed to clean up temporary file {tmp_path}: {e}", file=sys.stderr)
         raise
 
 

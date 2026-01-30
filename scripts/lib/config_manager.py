@@ -580,8 +580,10 @@ class ConfigManager:
                 data.setdefault('organization', {})['project_number'] = int(
                     os.environ['MOKOSTANDARDS_ORG_PROJECT_NUMBER']
                 )
-            except ValueError:
-                pass
+            except ValueError as e:
+                # Log warning about invalid project number format
+                import sys
+                print(f"Warning: Invalid MOKOSTANDARDS_ORG_PROJECT_NUMBER value: {e}", file=sys.stderr)
 
         # GitHub token override
         if 'GH_PAT' in os.environ:
@@ -595,8 +597,10 @@ class ConfigManager:
                 data.setdefault('github', {})['api_rate_limit'] = int(
                     os.environ['MOKOSTANDARDS_GITHUB_RATE_LIMIT']
                 )
-            except ValueError:
-                pass
+            except ValueError as e:
+                # Log warning about invalid rate limit format
+                import sys
+                print(f"Warning: Invalid MOKOSTANDARDS_GITHUB_RATE_LIMIT value: {e}", file=sys.stderr)
 
         # Automation overrides
         if 'MOKOSTANDARDS_TEMP_DIR' in os.environ:

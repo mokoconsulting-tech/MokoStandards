@@ -105,8 +105,10 @@ def get_branch_last_commit_date(branch: str) -> Optional[datetime]:
         try:
             timestamp = int(output)
             return datetime.fromtimestamp(timestamp)
-        except ValueError:
-            pass
+        except ValueError as e:
+            # Log error parsing timestamp
+            import sys
+            print(f"Warning: Failed to parse branch timestamp '{output}': {e}", file=sys.stderr)
 
     return None
 

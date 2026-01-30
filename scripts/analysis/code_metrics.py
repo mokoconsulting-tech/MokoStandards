@@ -128,9 +128,10 @@ def count_lines(file_path: Path) -> Tuple[int, int, int]:
                         in_multiline_comment = False
                 else:
                     code_lines += 1
-    except Exception:
-        # If we can't read the file, return zeros
-        pass
+    except Exception as e:
+        # If we can't read the file (binary, encoding issues), return zeros
+        import sys
+        print(f"Warning: Failed to analyze {file_path}: {e}", file=sys.stderr)
 
     return total_lines, code_lines, comment_lines
 

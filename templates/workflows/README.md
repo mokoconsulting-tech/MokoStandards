@@ -60,12 +60,12 @@ The workflows are organized by platform and purpose:
 ### Platform-Specific Templates
 
 **generic/** - Universal workflows for all project types
-- `ci.yml` - Generic continuous integration
-- `code-quality.yml` - Code quality checks
-- `codeql-analysis.yml` - Security analysis
+- `ci.yml.template` - Generic continuous integration
+- `code-quality.yml.template` - Code quality checks
+- `codeql-analysis.yml.template` - Security analysis
 - `dependency-review.yml.template` - Dependency review
-- `deploy-to-dev.yml.template` - Development deployment
-- `repo-health.yml` - Repository health checks
+- `deploy.yml.template` - Generic deployment workflow
+- `repo-health.yml.template` - Repository health checks
 - `test.yml.template` - Generic testing workflow
 
 **terraform/** - Terraform infrastructure-as-code workflows
@@ -293,7 +293,7 @@ Testing workflow for Dolibarr modules with full environment setup.
 **Usage:**
 Copy to your repository as `.github/workflows/test.yml`.
 
-### generic/ci.yml
+### generic/ci.yml.template
 Multi-language continuous integration workflow with automatic language detection.
 
 **Features:**
@@ -347,7 +347,7 @@ Deployment workflow for multiple environments with rollback capabilities.
 **Usage:**
 Copy to your repository as `.github/workflows/deploy.yml`. Configure deployment commands for your infrastructure.
 
-### generic/code-quality.yml
+### generic/code-quality.yml.template
 Comprehensive code quality analysis workflow.
 
 **Features:**
@@ -475,9 +475,9 @@ When copying templates to your repository:
 All MokoStandards-governed repositories MUST implement:
 
 1. **CI workflow** - For build validation and testing
-   - Use `joomla/ci.yml` for Joomla extensions
+   - Use `joomla/ci.yml.template` for Joomla extensions
    - Use `dolibarr/ci.yml` for Dolibarr modules
-   - Use `generic/ci.yml` for other projects
+   - Use `generic/ci.yml.template` for other projects
 2. **Repository health workflow** - For ongoing compliance monitoring
 
 Optional but recommended:

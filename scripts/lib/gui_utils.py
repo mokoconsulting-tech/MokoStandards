@@ -50,14 +50,13 @@ from dataclasses import dataclass
 GUI_AVAILABLE = False
 try:
     import tkinter as tk
-    from tkinter import ttk, filedialog, messagebox, scrolledtext
+    from tkinter import ttk, filedialog, messagebox
     GUI_AVAILABLE = True
 except ImportError:
     tk = None
     ttk = None
     filedialog = None
     messagebox = None
-    scrolledtext = None
 
 
 # ============================================================

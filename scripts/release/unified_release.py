@@ -237,7 +237,6 @@ class UnifiedRelease:
             List of updated files
         """
         updated_files = []
-        version_obj = VersionInfo(version)
         
         common.log_info(f"Updating version to: {version}")
         

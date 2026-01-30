@@ -249,7 +249,6 @@ class PlatformDetector:
         indicators: List[str] = []
         metadata: Dict[str, str] = {}
 
-        manifest_patterns = ["**/*.xml"]
         skip_dirs = {".git", "vendor", "node_modules", ".github"}
 
         for xml_file in self.repo_path.glob("**/*.xml"):

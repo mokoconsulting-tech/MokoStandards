@@ -64,9 +64,9 @@ class FileSyncConfig:
 
         # Generic platform workflows
         "generic": {
-            "templates/workflows/generic/code-quality.yml": ".github/workflows/code-quality.yml",
-            "templates/workflows/generic/codeql-analysis.yml": ".github/workflows/codeql-analysis.yml",
-            "templates/workflows/generic/repo-health.yml": ".github/workflows/repo-health.yml",
+            "templates/workflows/generic/code-quality.yml.template": ".github/workflows/code-quality.yml",
+            "templates/workflows/generic/codeql-analysis.yml.template": ".github/workflows/codeql-analysis.yml",
+            "templates/workflows/generic/repo-health.yml.template": ".github/workflows/repo-health.yml",
         },
 
         # Terraform infrastructure workflows

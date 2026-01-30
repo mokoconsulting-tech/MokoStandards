@@ -38,15 +38,6 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Tuple
 
-# Add lib directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent / "lib"))
-
-try:
-    import common
-except ImportError:
-    print("Warning: Cannot import common lib, continuing without it", file=sys.stderr)
-
-
 class SecurityScanner:
     """Orchestrates security scanning operations."""
 

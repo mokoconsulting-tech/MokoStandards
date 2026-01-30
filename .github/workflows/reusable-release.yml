@@ -174,28 +174,45 @@ jobs:
         if: needs.detect.outputs.project-type == 'dolibarr'
         working-directory: ${{ inputs.working-directory }}
         run: |
+          VERSION="${{ inputs.version }}"
+          
+          # Check if src directory exists, use it if available
+          if [ -d "src" ]; then
+            SRC_DIR="src"
+            echo "📁 Using src directory for Dolibarr module" >> $GITHUB_STEP_SUMMARY
+          else
+            SRC_DIR="."
+            echo "📁 Using root directory for Dolibarr module" >> $GITHUB_STEP_SUMMARY
+          fi
+          
           mkdir -p build/package
 
-          # Copy module files
+          # Copy module files from source directory
           rsync -av \
             --exclude='build' \
             --exclude='tests' \
             --exclude='.git*' \
             --exclude='node_modules' \
             --exclude='.github' \
-            . build/package/
+            --exclude='scripts' \
+            --exclude='docs' \
+            --exclude='composer.json' \
+            --exclude='composer.lock' \
+            "${SRC_DIR}/" build/package/
 
-          # Determine module name
-          if [ -f "core/modules/modMyModule.class.php" ]; then
-            MODULE_NAME=$(grep -oP "class modMyModule extends DolibarrModules" core/modules/*.php | head -1 | sed 's/class mod//' | sed 's/ extends.*//')
-          else
+          # Determine module name from descriptor file
+          if [ -f "${SRC_DIR}/core/modules/modMyModule.class.php" ]; then
+            MODULE_NAME=$(grep -oP "class mod\K\w+" "${SRC_DIR}"/core/modules/mod*.class.php 2>/dev/null | head -1)
+          fi
+          
+          # Fallback to repository name if module name not found
+          if [ -z "$MODULE_NAME" ]; then
             MODULE_NAME=$(basename "$GITHUB_REPOSITORY" | sed 's/^dolibarr-//')
           fi
 
-          # Create ZIP package
+          # Create ZIP package with platform identifier
           cd build/package
-          VERSION="${{ inputs.version }}"
-          PACKAGE_NAME="${MODULE_NAME}-${VERSION}.zip"
+          PACKAGE_NAME="dolibarr-${MODULE_NAME}-${VERSION}.zip"
           zip -r "../${PACKAGE_NAME}" .
           cd ../..
 
@@ -322,11 +339,11 @@ jobs:
           name: release-package
           path: ./artifacts
 
-      - name: Add RC marker to artifacts
-        if: steps.release-type.outputs.is_prerelease == 'true'
+      - name: Add release type suffix to artifacts
         run: |
-          # Rename artifacts to include RC marker for prereleases
           cd artifacts
+          IS_PRERELEASE="${{ steps.release-type.outputs.is_prerelease }}"
+          
           for file in *; do
             if [[ "$file" == *.zip ]] || [[ "$file" == *.tar.gz ]]; then
               # Extract name and extension
@@ -337,11 +354,25 @@ jobs:
                 extension="tar.gz"
               fi
               
-              # Add RC marker if not already present
-              if [[ ! "$basename" =~ -rc ]]; then
-                newname="${basename}-rc.${extension}"
+              # Add appropriate suffix based on release type
+              if [ "$IS_PRERELEASE" == "true" ]; then
+                # Add RC suffix if not already present
+                if [[ ! "$basename" =~ -rc ]]; then
+                  newname="${basename}-rc.${extension}"
+                  suffix_type="RC"
+                fi
+              else
+                # Add stable suffix if not already present
+                if [[ ! "$basename" =~ -stable ]]; then
+                  newname="${basename}-stable.${extension}"
+                  suffix_type="stable"
+                fi
+              fi
+              
+              # Rename if a new name was determined
+              if [ -n "$newname" ]; then
                 mv "$file" "$newname"
-                echo "✅ Renamed $file to $newname" >> $GITHUB_STEP_SUMMARY
+                echo "✅ Renamed $file to $newname ($suffix_type)" >> $GITHUB_STEP_SUMMARY
                 
                 # Update corresponding checksum files
                 if [ -f "${file}.sha256" ]; then
@@ -352,6 +383,9 @@ jobs:
                   mv "${file}.md5" "${newname}.md5"
                   sed -i "s/${file}/${newname}/g" "${newname}.md5"
                 fi
+                
+                # Reset newname for next iteration
+                unset newname
               fi
             fi
           done

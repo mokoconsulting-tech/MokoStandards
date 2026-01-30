@@ -172,6 +172,128 @@ To sync only the Dependabot configuration, you can customize the script or manua
   --pr-body "This PR adds monthly Dependabot configuration and updated CI workflows."
 ```
 
+## File Cleanup During Sync
+
+### Overview
+
+Starting in version 03.00.00, the bulk update script includes automatic cleanup of obsolete files during sync. This ensures target repositories stay clean and don't accumulate outdated workflows or scripts.
+
+### Cleanup Modes
+
+The script supports three cleanup modes, configured via the `MokoStandards.override.tf` file:
+
+1. **`none`** - No cleanup (backward compatible)
+   - Only copies and updates files
+   - Never deletes any files
+   - Safe for repositories that need manual file management
+
+2. **`conservative`** (DEFAULT)
+   - Removes obsolete `.yml`/`.yaml` files from `.github/workflows/`
+   - Removes obsolete `.py` files from `scripts/` subdirectories
+   - Only removes files in managed directories
+   - Respects protected files configuration
+   - **Recommended for most repositories**
+
+3. **`aggressive`**
+   - Removes ALL files in managed directories not in current sync list
+   - More thorough cleanup
+   - Use with caution - may remove custom files
+
+### Managed Directories
+
+The following directories are cleaned during sync (in conservative/aggressive modes):
+
+- `.github/workflows/` - Workflow files
+- `scripts/maintenance/` - Maintenance scripts
+- `scripts/validate/` - Validation scripts
+- `scripts/release/` - Release scripts
+- `scripts/definitions/` - Definition files
+
+### Configuration
+
+Add cleanup configuration to `MokoStandards.override.tf` in target repositories:
+
+```hcl
+locals {
+  sync_config = {
+    enabled = true
+    cleanup_mode = "conservative"  # or "none", "aggressive"
+  }
+  
+  # Optional: Explicitly mark specific files for removal
+  obsolete_files = [
+    {
+      path   = ".github/workflows/old-workflow.yml"
+      reason = "Replaced by unified-ci.yml"
+    },
+    {
+      path   = "scripts/maintenance/deprecated_script.py"
+      reason = "Functionality moved to common library"
+    }
+  ]
+  
+  # Protected files are never deleted
+  protected_files = [
+    {
+      path   = ".github/workflows/custom-workflow.yml"
+      reason = "Repository-specific workflow"
+    }
+  ]
+}
+```
+
+### How It Works
+
+1. **Before sync**: Script identifies current files to sync based on platform
+2. **Cleanup phase**: Removes obsolete files not in sync list
+3. **Sync phase**: Copies/updates current files
+4. **Commit**: All changes (deletions and updates) committed together
+
+### Safety Features
+
+- **Protected files**: Never deleted, even in aggressive mode
+- **Conservative default**: Minimal risk of accidental deletions
+- **Logged operations**: All deletions logged with 🗑 icon
+- **PR visibility**: Deleted files listed in commit and PR
+
+### Example Output
+
+```
+Processing repository: mokoconsulting-tech/MokoProject
+  Cloning repository...
+  Detecting platform type...
+    Detected platform: joomla
+  Loading override configuration...
+    Cleanup mode from override: conservative
+  Creating branch: chore/sync-mokostandards-updates
+  Cleaning up obsolete files (mode: conservative)...
+    🗑  Removed obsolete: .github/workflows/old-ci.yml
+    🗑  Removed obsolete: scripts/validate/deprecated.py
+    Removed 2 obsolete file(s)
+  Placing override configuration file...
+  Copying files...
+    ✓ Created: .github/workflows/build.yml
+    ↻ Updated: .github/workflows/codeql-analysis.yml
+  ✓ Successfully updated mokoconsulting-tech/MokoProject
+    - Platform: joomla
+    - Created: 3 files
+    - Updated: 5 files
+    - Deleted: 2 files
+```
+
+### Migration Guide
+
+For existing repositories, cleanup is automatic with conservative mode. To opt out:
+
+```hcl
+locals {
+  sync_config = {
+    enabled = true
+    cleanup_mode = "none"  # Disable cleanup
+  }
+}
+```
+
 ## Best Practices
 
 1. **Always use `--dry-run` first** to preview changes
@@ -180,6 +302,7 @@ To sync only the Dependabot configuration, you can customize the script or manua
 4. **Communicate with teams** before bulk updates
 5. **Monitor CI/CD** after merging to ensure workflows work correctly
 6. **Document changes** in each repository's changelog if applicable
+7. **Review deleted files** in PR to ensure no custom files were removed
 
 ## Troubleshooting
 
@@ -336,7 +459,7 @@ For issues or questions, contact the MokoStandards maintainers or open an issue 
 | Owner          | Moko Consulting                                          |
 | Repo           | https://github.com/mokoconsulting-tech/                                      |
 | Path           | /docs/guide/bulk-repository-updates.md                                      |
-| Version        | 03.00.00                                 |
+| Version        | 04.00.00                                 |
 | Status         | Active                                         |
 | Last Reviewed  | 2026-01-28                                  |
 | Reviewed By    | Documentation Team                                    |
@@ -346,4 +469,5 @@ For issues or questions, contact the MokoStandards maintainers or open an issue 
 
 | Date       | Author          | Change                                       | Notes                                              |
 | ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-30 | Moko Consulting | Added file cleanup functionality | Version 04.00.00 - automatic cleanup of obsolete files |
 | 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 03.00.00 with all required fields |

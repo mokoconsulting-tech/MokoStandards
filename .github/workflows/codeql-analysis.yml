@@ -5,11 +5,13 @@
 # INGROUP: MokoStandards.Security
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/codeql-analysis.yml
-# VERSION: 01.00.00
-# BRIEF: CodeQL security scanning for vulnerability detection
-# NOTE: Runs SAST analysis on all supported languages in the repository
+# VERSION: 01.00.01
+# BRIEF: CodeQL security scanning for vulnerability detection - DISABLED
+# NOTE: This workflow is disabled because GitHub's default CodeQL setup is enabled
+# NOTE: To re-enable this advanced configuration, disable default setup in:
+# NOTE: Repository Settings → Code security and analysis → Code scanning → Default setup
 
-name: "CodeQL Security Scanning"
+name: "CodeQL Security Scanning (Disabled)"
 
 env:
   ACTIONS_STEP_DEBUG: true
@@ -19,6 +21,33 @@ env:
 # - File formatting: Enforces organizational coding standards
 # - Reference: docs/policy/file-formatting.md
 
+# ┌─────────────────────────────────────────────────────────────────────────┐
+# │                         WORKFLOW STATUS                                  │
+# └─────────────────────────────────────────────────────────────────────────┘
+#
+# ⚠️ WORKFLOW DISABLED
+#
+# This workflow is currently disabled to prevent conflicts with GitHub's
+# default CodeQL setup. The error was:
+#
+#   "CodeQL analyses from advanced configurations cannot be processed 
+#    when the default setup is enabled"
+#
+# RESOLUTION OPTIONS:
+#
+# 1. Use Default Setup (Current - Recommended for most projects):
+#    - Managed automatically by GitHub
+#    - No workflow file needed
+#    - Good for standard security scanning
+#    - Limited customization
+#
+# 2. Use Advanced Setup (This Workflow):
+#    - Requires disabling default setup in repository settings
+#    - Navigate to: Settings → Code security → Code scanning
+#    - Click "Configure" → Disable default setup
+#    - Then remove the "false" condition from the "on:" trigger below
+#    - Provides full control over queries and configuration
+#
 # ┌─────────────────────────────────────────────────────────────────────────┐
 # │                         WORKFLOW FLOW DIAGRAM                            │
 # └─────────────────────────────────────────────────────────────────────────┘
@@ -64,21 +93,27 @@ env:
 #   └──────────────────┘
 
 on:
+  # Workflow disabled: set to 'false' to prevent execution
+  # To re-enable: remove this push section and uncomment the one below
   push:
-    branches:
-      - main
-      - dev/**
-      - rc/**
-      - version/**
-  pull_request:
-    branches:
-      - main
-      - dev/**
-      - rc/**
-  schedule:
-    # Run weekly on Monday at 6:00 AM UTC
-    - cron: '0 6 * * 1'
-  workflow_dispatch:
+    branches-ignore:
+      - '**'  # Ignore all branches (disables workflow)
+  # Uncomment below to re-enable after disabling default setup:
+  # push:
+  #   branches:
+  #     - main
+  #     - dev/**
+  #     - rc/**
+  #     - version/**
+  # pull_request:
+  #   branches:
+  #     - main
+  #     - dev/**
+  #     - rc/**
+  # schedule:
+  #   # Run weekly on Monday at 6:00 AM UTC
+  #   - cron: '0 6 * * 1'
+  # workflow_dispatch:
 
 permissions:
   actions: read

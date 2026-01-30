@@ -76,28 +76,17 @@ Trigger manually from GitHub Actions tab:
 
 ### Command Line Deployment
 
-Run the deployment script directly:
+**Note:** The `deploy_to_dev.py` script has been removed. Use the unified release tool or workflows for deployment:
 
 ```bash
-# Using password authentication
-python scripts/release/deploy_to_dev.py \
-  --host dev.example.com \
-  --user myuser \
-  --password mypassword \
-  --remote-path /var/www/html/myapp \
-  --local-path src \
-  --protocol sftp
+# Use unified release tool
+./scripts/release/unified_release.py release --version 1.2.3
 
-# Using SSH key authentication
-python scripts/release/deploy_to_dev.py \
-  --host dev.example.com \
-  --user myuser \
-  --key-file ~/.ssh/id_rsa \
-  --remote-path /var/www/html/myapp \
-  --local-path src \
-  --protocol sftp \
-  --port 22
+# Or use the reusable deploy workflow
+# See .github/workflows/reusable-deploy.yml
 ```
+
+For advanced deployment scenarios, create a custom workflow that uses the reusable-deploy workflow.
 
 ## Examples
 

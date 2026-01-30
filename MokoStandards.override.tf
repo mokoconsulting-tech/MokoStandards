@@ -54,6 +54,13 @@ locals {
   # Sync configuration
   sync_config = {
     enabled = true
+    
+    # Cleanup configuration for obsolete files
+    # cleanup_mode options:
+    #   - "none": No cleanup, only copy/update files
+    #   - "conservative": Remove only obsolete .yml/.py files from managed directories
+    #   - "aggressive": Remove all files in managed directories not in sync list
+    cleanup_mode = "conservative"
   }
 
   # Files to exclude from sync
@@ -84,6 +91,17 @@ locals {
       path   = ".github/workflows/codeql-analysis.yml"
       reason = "corresponds to templates/workflows/generic/codeql-analysis.yml"
     },
+  ]
+
+  # Explicitly mark files as obsolete for removal during sync
+  # These files will be deleted from target repos during sync
+  # Use this to remove deprecated workflows or scripts
+  obsolete_files = [
+    # Example: Old workflow that has been replaced
+    # {
+    #   path   = ".github/workflows/old-workflow.yml"
+    #   reason = "Replaced by new unified workflow"
+    # },
   ]
 
   # Files that should never be overwritten (always preserved)

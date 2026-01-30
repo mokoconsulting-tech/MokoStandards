@@ -131,12 +131,22 @@ def update_repository(repo, data, dry_run=False):
 import subprocess
 
 def run_command(cmd, dry_run=False):
+    """Execute a command safely.
+    
+    SECURITY NOTE: Always use list format for subprocess calls.
+    Never use shell=True as it can lead to command injection vulnerabilities.
+    """
     if dry_run:
-        print(f"[DRY-RUN] Would execute: {cmd}")
+        print(f"[DRY-RUN] Would execute: {' '.join(cmd) if isinstance(cmd, list) else cmd}")
         return 0
     
-    result = subprocess.run(cmd, shell=True)
+    # SECURE: Use list format, NOT shell=True
+    result = subprocess.run(cmd, check=False, capture_output=True)
     return result.returncode
+
+# Example usage with safe list format:
+# run_command(['git', 'status'], dry_run=False)
+# run_command(['python3', 'script.py', '--arg', 'value'], dry_run=False)
 ```
 
 ## 7. Summary reporting

@@ -73,7 +73,7 @@ on:
           - finalize-release
           - hotfix
       version:
-        description: 'Version number (e.g., 1.2.3 for semantic versioning)'
+        description: 'Version number (e.g., 1.2.3 or 1.2.3-rc1 for semantic versioning with optional prerelease suffix)'
         required: true
         type: string
       release_notes:
@@ -105,17 +105,18 @@ jobs:
           # Remove 'v' prefix if present
           VERSION=${VERSION#v}
 
-          # Validate semantic versioning format (MAJOR.MINOR.PATCH)
-          if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+          # Validate semantic versioning format (MAJOR.MINOR.PATCH with optional prerelease suffix)
+          if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?$'; then
             echo "❌ Invalid version format: $VERSION" >> $GITHUB_STEP_SUMMARY
-            echo "Expected format: MAJOR.MINOR.PATCH (e.g., 1.2.3)" >> $GITHUB_STEP_SUMMARY
+            echo "Expected format: MAJOR.MINOR.PATCH[-PRERELEASE] (e.g., 1.2.3 or 1.2.3-rc1)" >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
 
-          # Extract version components
-          MAJOR=$(echo "$VERSION" | cut -d. -f1)
-          MINOR=$(echo "$VERSION" | cut -d. -f2)
-          PATCH=$(echo "$VERSION" | cut -d. -f3)
+          # Extract version components (base version without prerelease suffix)
+          BASE_VERSION=$(echo "$VERSION" | grep -oE '^[0-9]+\.[0-9]+\.[0-9]+')
+          MAJOR=$(echo "$BASE_VERSION" | cut -d. -f1)
+          MINOR=$(echo "$BASE_VERSION" | cut -d. -f2)
+          PATCH=$(echo "$BASE_VERSION" | cut -d. -f3)
 
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "major=$MAJOR" >> $GITHUB_OUTPUT
@@ -241,7 +242,17 @@ jobs:
         run: |
           set -x
           VERSION="${{ needs.validate-version.outputs.version }}"
-          TAG="v${VERSION}-rc"
+          
+          # Check if version already has a prerelease suffix
+          if echo "$VERSION" | grep -qE '-[a-zA-Z0-9.-]+$'; then
+            # Version already has suffix (e.g., 1.2.3-rc1), use as-is
+            TAG="v${VERSION}"
+            echo "✅ Using version with existing prerelease suffix: $VERSION" >> $GITHUB_STEP_SUMMARY
+          else
+            # No suffix, add -rc
+            TAG="v${VERSION}-rc"
+            echo "✅ Added -rc suffix to version: ${VERSION}-rc" >> $GITHUB_STEP_SUMMARY
+          fi
 
           git tag -a "$TAG" -m "Release Candidate $VERSION"
           git push origin "$TAG"
@@ -313,8 +324,17 @@ jobs:
           NOTES="${{ inputs.release_notes }}"
 
           if [ -z "$NOTES" ]; then
+            # Determine the RC tag to compare against
+            if echo "$VERSION" | grep -qE '-[a-zA-Z0-9.-]+$'; then
+              # Version has suffix, use as-is
+              RC_TAG="v${VERSION}"
+            else
+              # No suffix, append -rc
+              RC_TAG="v${VERSION}-rc"
+            fi
+            
             # Auto-generate from git log if not provided
-            NOTES=$(git log --pretty=format:"- %s" "v${VERSION}-rc"..HEAD 2>/dev/null || echo "Initial release")
+            NOTES=$(git log --pretty=format:"- %s" "${RC_TAG}"..HEAD 2>/dev/null || echo "Initial release")
           fi
 
           # Save to file for GitHub release
@@ -324,7 +344,7 @@ jobs:
           $NOTES
 
           ### Changes
-          $(git log --pretty=format:"- %s (%h)" "v${VERSION}-rc"..HEAD 2>/dev/null || echo "- Initial release")
+          $(git log --pretty=format:"- %s (%h)" "${RC_TAG:-HEAD~10}"..HEAD 2>/dev/null || echo "- Initial release")
           EOF
 
           echo "✅ Generated release notes" >> $GITHUB_STEP_SUMMARY

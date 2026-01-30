@@ -185,39 +185,22 @@ jobs:
             echo "📁 Using root directory for Dolibarr module" >> $GITHUB_STEP_SUMMARY
           fi
           
-          mkdir -p build/package
-
-          # Copy module files from source directory
-          rsync -av \
-            --exclude='build' \
-            --exclude='tests' \
-            --exclude='.git*' \
-            --exclude='node_modules' \
-            --exclude='.github' \
-            --exclude='scripts' \
-            --exclude='docs' \
-            --exclude='composer.json' \
-            --exclude='composer.lock' \
-            "${SRC_DIR}/" build/package/
-
-          # Determine module name from descriptor file
-          if [ -f "${SRC_DIR}/core/modules/modMyModule.class.php" ]; then
-            MODULE_NAME=$(grep -oP "class mod\K\w+" "${SRC_DIR}"/core/modules/mod*.class.php 2>/dev/null | head -1)
+          # Use package_extension.py script for platform-aware packaging
+          python3 scripts/release/package_extension.py \
+            --src-dir "${SRC_DIR}" \
+            build \
+            "${VERSION}"
+          
+          # Find the created package
+          PACKAGE=$(find build -name "*.zip" -type f | head -1)
+          if [ -z "$PACKAGE" ]; then
+            echo "❌ ERROR: No package created" >> $GITHUB_STEP_SUMMARY
+            exit 1
           fi
           
-          # Fallback to repository name if module name not found
-          if [ -z "$MODULE_NAME" ]; then
-            MODULE_NAME=$(basename "$GITHUB_REPOSITORY" | sed 's/^dolibarr-//')
-          fi
-
-          # Create ZIP package with platform identifier
-          cd build/package
-          PACKAGE_NAME="dolibarr-${MODULE_NAME}-${VERSION}.zip"
-          zip -r "../${PACKAGE_NAME}" .
-          cd ../..
-
+          PACKAGE_NAME=$(basename "$PACKAGE")
           echo "PACKAGE_NAME=${PACKAGE_NAME}" >> $GITHUB_ENV
-          echo "✅ Created Dolibarr package: ${PACKAGE_NAME}" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Created Dolibarr package with platform identifier: ${PACKAGE_NAME}" >> $GITHUB_STEP_SUMMARY
 
       - name: Create Generic package
         if: needs.detect.outputs.project-type == 'generic'
@@ -240,17 +223,17 @@ jobs:
               . build/package/
           fi
 
-          # Create package
+          # Create package with platform identifier
           REPO_NAME=$(basename "$GITHUB_REPOSITORY")
           VERSION="${{ inputs.version }}"
-          PACKAGE_NAME="${REPO_NAME}-${VERSION}.tar.gz"
+          PACKAGE_NAME="${REPO_NAME}-${VERSION}-generic.tar.gz"
 
           cd build
           tar -czf "${PACKAGE_NAME}" package/
           cd ..
 
           echo "PACKAGE_NAME=${PACKAGE_NAME}" >> $GITHUB_ENV
-          echo "✅ Created generic package: ${PACKAGE_NAME}" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Created generic package with platform identifier: ${PACKAGE_NAME}" >> $GITHUB_STEP_SUMMARY
 
       - name: Generate checksums
         working-directory: ${{ inputs.working-directory }}

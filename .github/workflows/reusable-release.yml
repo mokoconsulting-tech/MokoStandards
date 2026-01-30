@@ -176,18 +176,15 @@ jobs:
         run: |
           VERSION="${{ inputs.version }}"
           
-          # Check if src directory exists, use it if available
-          if [ -d "src" ]; then
-            SRC_DIR="src"
-            echo "📁 Using src directory for Dolibarr module" >> $GITHUB_STEP_SUMMARY
-          else
-            SRC_DIR="."
-            echo "📁 Using root directory for Dolibarr module" >> $GITHUB_STEP_SUMMARY
+          # Check if src directory exists - REQUIRED for all ZIP builds
+          if [ ! -d "src" ]; then
+            echo "❌ ERROR: src directory not found. Dolibarr modules must be in src/ directory" >> $GITHUB_STEP_SUMMARY
+            exit 1
           fi
           
           # Use package_extension.py script for platform-aware packaging
           python3 scripts/release/package_extension.py \
-            --src-dir "${SRC_DIR}" \
+            --src-dir src \
             build \
             "${VERSION}"
           
@@ -200,7 +197,7 @@ jobs:
           
           PACKAGE_NAME=$(basename "$PACKAGE")
           echo "PACKAGE_NAME=${PACKAGE_NAME}" >> $GITHUB_ENV
-          echo "✅ Created Dolibarr package with platform identifier: ${PACKAGE_NAME}" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Created Dolibarr package from src directory with platform identifier: ${PACKAGE_NAME}" >> $GITHUB_STEP_SUMMARY
 
       - name: Create Generic package
         if: needs.detect.outputs.project-type == 'generic'

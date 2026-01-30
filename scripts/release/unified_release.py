@@ -133,7 +133,7 @@ class UnifiedRelease:
             working_dir: Working directory
         """
         self.working_dir = Path(working_dir).resolve()
-        self.repo_root = common.git_root()
+        self.repo_root = common.get_repo_root()
     
     def detect_version_from_files(self) -> Optional[str]:
         """
@@ -239,8 +239,7 @@ class UnifiedRelease:
         updated_files = []
         version_obj = VersionInfo(version)
         
-        common.log_section("Updating Version Files")
-        common.log_kv("Version", version)
+        common.log_info(f"Updating version to: {version}")
         
         # Update CITATION.cff
         citation_file = self.repo_root / "CITATION.cff"
@@ -305,7 +304,7 @@ class UnifiedRelease:
         
         if ext_info:
             # Use package_extension.py for Joomla/Dolibarr
-            common.log_section("Creating Extension Package")
+            common.log_info("Creating extension package")
             from package_extension import create_package
             return create_package(
                 src_dir=str(self.working_dir),
@@ -314,9 +313,9 @@ class UnifiedRelease:
             )
         else:
             # Generic package
-            common.log_section("Creating Generic Package")
+            common.log_info("Creating generic package")
             output_path = Path(output_dir)
-            common.ensure_dir(output_path)
+            common.ensure_directory(output_path)
             
             repo_name = self.repo_root.name
             package_name = f"{repo_name}-{version}.tar.gz"
@@ -426,9 +425,8 @@ class UnifiedRelease:
         
         version_info = VersionInfo(version)
         
-        common.log_section("Release Workflow")
-        common.log_kv("Version", str(version_info))
-        common.log_kv("Type", version_info.release_type.value)
+        common.log_info(f"Release workflow for version {version_info}")
+        common.log_info(f"Release type: {version_info.release_type.value}")
         
         # Update version files
         if not args.skip_version_update:

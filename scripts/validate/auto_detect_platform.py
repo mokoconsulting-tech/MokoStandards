@@ -37,7 +37,7 @@ import xml.etree.ElementTree as ET
 from dataclasses import dataclass, asdict
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 
 # Version
@@ -68,7 +68,7 @@ class DetectionResult:
     indicators: List[str]
     metadata: Dict[str, str]
 
-    def to_dict(self) -> Dict[str, any]:
+    def to_dict(self) -> Dict[str, Any]:
         """Convert detection result to dictionary for JSON serialization.
 
         Returns:
@@ -82,7 +82,7 @@ class DetectionResult:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, any]) -> 'DetectionResult':
+    def from_dict(cls, data: Dict[str, Any]) -> 'DetectionResult':
         """Reconstruct DetectionResult from dictionary (deserialized JSON).
 
         Args:
@@ -167,7 +167,7 @@ class DetectionCache:
 
     def clear(self) -> None:
         """Clear all cached detection results."""
-        for cache_file in self.cache_dir.glob("*.pkl"):
+        for cache_file in self.cache_dir.glob("*.json"):
             try:
                 cache_file.unlink()
             except OSError:

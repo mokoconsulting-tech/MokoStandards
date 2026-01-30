@@ -33,6 +33,7 @@ NOTE: Runs CodeQL validation, secret scanning, and dependency checks
 
 import argparse
 import json
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -125,7 +126,7 @@ class SecurityScanner:
             self.log(f"Error validating CodeQL config: {e}", 'ERROR')
             return False
 
-    def scan_secrets(self) -> bool:
+    def scan_for_secrets(self) -> bool:
         """Scan for accidentally committed secrets."""
         self.log("Scanning for secrets...", 'INFO')
 
@@ -148,15 +149,70 @@ class SecurityScanner:
                 return True
             else:
                 self.findings['secrets']['status'] = 'failed'
-                # Parse output for secret findings
-                for line in stdout.split('\n'):
-                    if 'FOUND' in line or 'SECRET' in line:
+                # Prefer structured output from the secrets script if available
+                issues_recorded = False
+
+                try:
+                    parsed = json.loads(stdout)
+                except json.JSONDecodeError:
+                    parsed = None
+
+                if isinstance(parsed, dict) and 'findings' in parsed and isinstance(parsed['findings'], list):
+                    for finding in parsed['findings']:
+                        # Each finding is expected to be a dict with at least "message" or "details"
+                        message = finding.get('message', 'Potential secret detected')
+                        details = finding.get('details', finding)
+                        self.findings['secrets']['issues'].append({
+                            'severity': finding.get('severity', 'critical'),
+                            'message': message,
+                            'details': details,
+                        })
+                        issues_recorded = True
+                elif isinstance(parsed, list):
+                    # Treat a list of findings (strings or dicts) as secrets detected
+                    for item in parsed:
+                        if isinstance(item, dict):
+                            message = item.get('message', 'Potential secret detected')
+                            details = item.get('details', item)
+                        else:
+                            message = 'Potential secret detected'
+                            details = item
                         self.findings['secrets']['issues'].append({
                             'severity': 'critical',
-                            'message': 'Potential secret detected',
-                            'details': line
+                            'message': message,
+                            'details': details,
                         })
-                self.log(f"Secrets detected! {stdout}", 'ERROR')
+                        issues_recorded = True
+                else:
+                    # Fallback: heuristic parsing of plain-text output
+                    for line in stdout.split('\n'):
+                        line_stripped = line.strip()
+                        line_upper = line_stripped.upper()
+                        # Avoid matching obviously benign messages such as "no secrets found"
+                        if not line_stripped:
+                            continue
+                        if "NO SECRET" in line_upper and "FOUND" in line_upper:
+                            continue
+                        if "FOUND" in line_upper or "SECRET" in line_upper:
+                            self.findings['secrets']['issues'].append({
+                                'severity': 'critical',
+                                'message': 'Potential secret detected',
+                                'details': line_stripped,
+                            })
+                            issues_recorded = True
+
+                if issues_recorded:
+                    self.log(f"Secrets detected! {stdout}", 'ERROR')
+                    return False
+
+                # If the script returned non-zero but we could not identify specific secrets,
+                # keep the failure status but record a generic issue for diagnostics.
+                self.findings['secrets']['issues'].append({
+                    'severity': 'high',
+                    'message': 'Secret scan failed or returned unexpected output',
+                    'details': stdout or 'Secret scan exited with non-zero status without structured findings.',
+                })
+                self.log(f"Secret scan returned non-zero exit code without explicit findings: {stdout}", 'ERROR')
                 return False
         except Exception as e:
             self.findings['secrets']['status'] = 'error'
@@ -187,21 +243,16 @@ class SecurityScanner:
         # Check if pip-audit is available for Python dependencies
         if 'requirements.txt' in found_deps or (self.repo_path / 'pyproject.toml').exists():
             try:
-                # Check if pip-audit exists
-                check_cmd = subprocess.run(
-                    ['which', 'pip-audit'],
-                    capture_output=True,
-                    text=True
-                )
-
-                if check_cmd.returncode != 0:
+                # Check if pip-audit exists in PATH in a cross-platform way
+                if shutil.which('pip-audit') is None:
                     self.findings['dependencies']['status'] = 'skipped'
                     self.log("pip-audit not installed, skipping dependency check", 'WARN')
                     return True
 
-                returncode, stdout, stderr = self.run_command([
-                    'pip-audit', '--desc', '--format', 'json'
-                ], check=False)
+                cmd = ['pip-audit', '--desc', '--format', 'json']
+                if 'requirements.txt' in found_deps:
+                    cmd.extend(['--requirement', 'requirements.txt'])
+                returncode, stdout, stderr = self.run_command(cmd, check=False)
                 if returncode == 0:
                     self.findings['dependencies']['status'] = 'passed'
                     self.log("No vulnerable dependencies found", 'INFO')
@@ -216,11 +267,14 @@ class SecurityScanner:
                                 'message': f"Vulnerable dependency: {vuln.get('name')}",
                                 'details': vuln
                             })
-                    except json.JSONDecodeError:
+                    except json.JSONDecodeError as json_err:
                         self.findings['dependencies']['issues'].append({
                             'severity': 'high',
-                            'message': 'Vulnerable dependencies detected',
-                            'details': stdout
+                            'message': f'Vulnerable dependencies detected (failed to parse pip-audit JSON: {json_err})',
+                            'details': {
+                                'raw_output': stdout,
+                                'parse_error': str(json_err),
+                            }
                         })
                     self.log("Vulnerable dependencies found!", 'ERROR')
                     return False
@@ -361,7 +415,7 @@ class SecurityScanner:
         # Run all scans
         results.append(self.check_codeql_workflow())
         results.append(self.validate_codeql_config())
-        results.append(self.scan_secrets())
+        results.append(self.scan_for_secrets())
         results.append(self.check_dependencies())
 
         # Generate and print report

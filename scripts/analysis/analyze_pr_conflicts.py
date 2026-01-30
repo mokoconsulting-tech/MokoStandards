@@ -1,19 +1,40 @@
 #!/usr/bin/env python3
 """
-Analyze PR conflicts with main branch and provide resolution guidance.
+Analyze pull request merge conflicts with the main branch and provide resolution
+guidance.
 
-This script analyzes open pull requests to identify which have merge conflicts
-with the main branch and provides specific guidance for resolving them.
+This module uses the GitHub CLI (`gh`) to list open pull requests, inspects their
+mergeability status, and classifies likely conflict types based on PR metadata
+(such as the title). The analysis is printed to standard output and is intended
+to help maintainers quickly see which PRs are blocked by conflicts and how they
+might be resolved.
+
+Usage:
+    python scripts/analysis/analyze_pr_conflicts.py
+
+By default, the script queries up to 100 open pull requests. You can override
+this limit with the ``PR_LIMIT`` environment variable:
+
+    PR_LIMIT=200 python scripts/analysis/analyze_pr_conflicts.py
+
+Requirements:
+* GitHub CLI (`gh`) must be installed and authenticated for the current
+  repository.
+* Network access to GitHub is required for querying pull requests.
+
+The script exits with the same status code as the underlying GitHub CLI command
+when fetching pull requests fails, and will emit diagnostic information to
+standard error in that case.
 """
 
 import subprocess
 import json
 import sys
 import os
-from typing import List, Dict
+from typing import List, Dict, Tuple, Optional
 import re
 
-def run_command(cmd: List[str]) -> tuple[int, str, str]:
+def run_command(cmd: List[str]) -> Tuple[int, str, str]:
     """Run a command and return exit code, stdout, stderr.
 
     On failure, prints additional context (command, exit code, stderr) to stderr
@@ -46,7 +67,7 @@ def get_pr_limit() -> str:
     # Default limit matches previous behavior
     return "100"
 
-def get_open_prs() -> tuple[List[Dict], Dict | None]:
+def get_open_prs() -> Tuple[List[Dict], Optional[Dict]]:
     """Fetch list of open PRs using GitHub CLI.
 
     Returns a tuple (prs, error_info) where prs is the list of PRs (possibly empty)
@@ -73,10 +94,10 @@ def get_open_prs() -> tuple[List[Dict], Dict | None]:
     return prs, None
 
 # Compile regex patterns once at module level for efficiency
-_TEMPLATE_PATTERN = re.compile(r'\btemplate(s)?\b')
-_HEADER_PATTERN = re.compile(r'\bheader(s)?\b')
-_AUTOMATION_PATTERN = re.compile(r'\bautomation\b')
-_SCRIPT_PATTERN = re.compile(r'\bscript(s)?\b')
+_TEMPLATE_PATTERN = re.compile(r'\btemplate(s)?\b', re.IGNORECASE)
+_HEADER_PATTERN = re.compile(r'\bheader(s)?\b', re.IGNORECASE)
+_AUTOMATION_PATTERN = re.compile(r'\bautomation\b', re.IGNORECASE)
+_SCRIPT_PATTERN = re.compile(r'\bscript(s)?\b', re.IGNORECASE)
 
 def classify_pr_conflict_types(pr: Dict) -> Dict[str, bool]:
     """Classify likely conflict types for a PR based on its title."""

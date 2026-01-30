@@ -33,16 +33,48 @@ BRIEF: Two-tier architecture documentation for public standards and private enfo
 
 Moko Consulting implements a **two-tier repository architecture** that separates public coding standards from private organizational enforcement. This architecture enables open-source collaboration while protecting sensitive organizational policies and automation.
 
+### Architecture Diagram
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                 TWO-TIER ARCHITECTURE                       │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  Tier 1: .github-private (PRIVATE)                         │
+│  ├─ Organization-internal policies and procedures          │
+│  ├─ Proprietary workflows with secrets and credentials     │
+│  ├─ Sensitive deployment scripts and automation            │
+│  ├─ Enterprise compliance and audit frameworks             │
+│  ├─ Internal access control policies                       │
+│  └─ Calls reusable workflows from MokoStandards (Tier 2) → │
+│                                                             │
+│  Tier 2: MokoStandards (PUBLIC - SOURCE OF TRUTH)          │
+│  ├─ Open-source best practices and coding standards        │
+│  ├─ Community-shareable templates and workflows            │
+│  ├─ Generic CI/CD patterns (reusable workflows)            │
+│  ├─ Platform-specific standards (Joomla, Dolibarr)         │
+│  ├─ Public contribution guidelines                         │
+│  └─ Schema definitions and Terraform configurations        │
+│                                                             │
+│  Organization Repositories                                 │
+│  └─ Inherit from appropriate tier based on type            │
+│     ├─ Public projects → Use Tier 2 (MokoStandards)       │
+│     └─ Private projects → Use Tier 1 (.github-private)    │
+└─────────────────────────────────────────────────────────────┘
+```
+
 ### Architecture Components
 
 **Tier 1: `.github-private` - Private Enforcement Layer**
 - **Purpose**: Private repository for organizational policies and enforcement
+- **Authority**: Highest for internal/private projects
 - **Location**: `mokoconsulting-tech/.github-private` (internal access only)
 - **Visibility**: Organization members only
 - **Content**: Proprietary workflows, internal automation, access control policies
 
 **Tier 2: `MokoStandards` - Public Standards Layer**
-- **Purpose**: Public repository for coding standards and templates
+- **Purpose**: Public repository for coding standards and templates (SOURCE OF TRUTH)
+- **Authority**: Highest for public/open-source projects
 - **Location**: `mokoconsulting-tech/MokoStandards` (publicly accessible)
 - **Visibility**: Open source community
 - **Content**: Coding standards, quality guidelines, public templates, documentation
@@ -152,6 +184,16 @@ jobs:
 ### Purpose and Scope
 
 The `MokoStandards` repository serves as the organization's **public standards and guidelines repository**. It provides reusable coding standards, templates, and best practices that can be shared with the open-source community.
+
+⚠️ **CRITICAL: Source of Truth**
+
+**MokoStandards is the SOURCE OF TRUTH** for:
+- All schema definitions (repository structure, metadata formats)
+- Terraform configurations and infrastructure standards
+- Validation logic and compliance rules
+- Coding standards and best practices
+
+The `.github-private` repository and all organization repositories are **CONSUMERS** of these standards. They extend (not duplicate) definitions with organization-specific customizations only.
 
 ### What Belongs in MokoStandards
 

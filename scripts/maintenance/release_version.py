@@ -39,9 +39,10 @@ from typing import List, Optional, Tuple
 class VersionReleaser:
     """Manages version releases in CHANGELOG.md and updates VERSION in files."""
 
-    UNRELEASED_PATTERN = r"## \[UNRELEASED\]"
+    UNRELEASED_PATTERN = r"## \[Unreleased\]"  # Standard Keep a Changelog format
     VERSION_PATTERN = r"## \[(\d+\.\d+\.\d+)\]"
     VERSION_HEADER_PATTERN = r"VERSION:\s*(\d+\.\d+\.\d+)"
+    CHANGELOG_H1_PATTERN = r"^# CHANGELOG - .+ \(VERSION: (\d+\.\d+\.\d+)\)"  # H1 format
 
     def __init__(self, changelog_path: Path, repo_root: Path):
         """
@@ -163,7 +164,32 @@ class VersionReleaser:
         for line in reversed(new_version_lines):
             self.lines.insert(insert_index, line)
 
+        # Update H1 header version
+        self.update_changelog_h1_version(version)
+
         return True
+
+    def update_changelog_h1_version(self, version: str) -> bool:
+        """
+        Update the version in the H1 header of CHANGELOG.
+        
+        Format: # CHANGELOG - RepoName (VERSION: X.Y.Z)
+        
+        Args:
+            version: New version number
+            
+        Returns:
+            True if updated, False otherwise
+        """
+        for i, line in enumerate(self.lines):
+            if re.match(self.CHANGELOG_H1_PATTERN, line):
+                # Extract repo name from current H1
+                match = re.match(r"^# CHANGELOG - (.+) \(VERSION: \d+\.\d+\.\d+\)", line)
+                if match:
+                    repo_name = match.group(1)
+                    self.lines[i] = f"# CHANGELOG - {repo_name} (VERSION: {version})\n"
+                    return True
+        return False
 
     def update_file_versions(self, version: str, dry_run: bool = False) -> List[Path]:
         """

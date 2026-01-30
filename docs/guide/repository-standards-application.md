@@ -359,8 +359,8 @@ jobs:
           # Check required files exist
           test -f core/modules/modExample.class.php
           test -f core/boxes/box_example.php
-          test -f sql/llx_example.sql
-          test -f sql/llx_example.key.sql
+          test -f sql/example.sql
+          test -f sql/example.key.sql
 ```
 
 #### Local Setup

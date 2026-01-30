@@ -2,6 +2,22 @@
 # Converted from scripts/definitions/default-repository.xml
 # This defines the standard structure for generic repositories
 
+
+locals {
+  # Metadata for this configuration
+  config_metadata = {
+    name            = "Repository Type Default Repository"
+    description     = "Default repository structure and configuration schema definitions"
+    version         = "2.0.0"
+    last_updated    = "2026-01-28"
+    maintainer      = "MokoStandards Team"
+    schema_version  = "2.0"
+    repository_url  = "https://github.com/mokoconsulting-tech/MokoStandards"
+    repository_type = "standards"
+    format          = "terraform"
+  }
+}
+
 locals {
   default_repo_metadata = {
     name            = "Default Repository Structure"

@@ -4,13 +4,16 @@ This directory contains automation scripts for MokoStandards repository manageme
 
 ## Directory Structure
 
-The scripts are organized into functional categories:
+The scripts are organized into functional categories (with Python, Shell, and PowerShell scripts side-by-side):
 
 - **[`automation/`](automation/)** - Repository automation and bulk operations
-  - `bulk_update_repos.py` - Bulk update organization repositories
+  - `bulk_update_repos.py` - Bulk update organization repositories (Python)
+  - `Invoke-BulkUpdateGUI.ps1` - Bulk update GUI for Windows (PowerShell)
+  - `Update-BulkRepositories.ps1` - Bulk update command-line (PowerShell)
   - `sync_file_to_project.py` - Sync files to target repositories
   - `auto_create_org_projects.py` - Auto-create GitHub Projects
   - `create_repo_project.py` - Create repository-specific projects
+  - `file-distributor.py` / `file-distributor.ps1` - Enterprise file distribution
 - **[`maintenance/`](maintenance/)** - Repository maintenance tasks
   - `update_changelog.py` - Manage CHANGELOG.md updates
   - `release_version.py` - Release version management
@@ -23,13 +26,31 @@ The scripts are organized into functional categories:
 - **[`tests/`](tests/)** - Test scripts
   - `test_bulk_update_repos.py` - Test bulk update automation
   - `test_dry_run.py` - Test dry-run functionality
-- **[`docs/`](docs/)** - Documentation generation and maintenance
+- **[`docs/`](docs/)** - Documentation generation and maintenance scripts
   - `rebuild_indexes.py` - Generate documentation indexes
+  - `check_doc_coverage.py` - Check documentation coverage
+  - `generate_script_catalog.py` - Generate script catalog
+  - `update_metadata.py` - Update script metadata
+  - **Documentation Files:**
+    - `ARCHITECTURE.md` - Scripts architecture documentation
+    - `AUTO_CREATE_ORG_PROJECTS.md` - Auto-create projects guide
+    - `DRY_RUN_PATTERN.md` - Dry-run implementation pattern
+    - `NEW_SCRIPTS.md` - New scripts development guide
+    - `QUICKSTART_ORG_PROJECTS.md` - Quick start guide
+    - `REBUILD_STRATEGY.md` - Documentation rebuild strategy
+    - `REBUILD_PROGRESS.md` - Documentation rebuild progress
+    - `README_REBUILD.md` - README rebuild documentation
+    - `README_update_gitignore_patterns.md` - Gitignore update guide
+    - `LEGAL_DOC_GENERATOR_WEB_README.md` - Legal doc generator guide
+    - `legal_doc_generator.html` - Legal doc generator web interface
 - **[`run/`](run/)** - Operational setup scripts
   - `setup_github_project_v2.py` - Setup GitHub Projects
 - **[`lib/`](lib/)** - Shared library code
   - `common.py` - Python utility functions
   - `common.sh` - Shell utility functions
+  - `Common.psm1` - PowerShell utility module
+  - `ConfigManager.psm1` - PowerShell configuration management
+  - `GuiUtils.psm1` - PowerShell GUI utilities
   - `extension_utils.py` - Extension detection utilities
   - `joomla_manifest.py` - Joomla manifest parsing
 - **[`build/`](build/)** - Build and compilation scripts
@@ -47,7 +68,9 @@ The scripts are organized into functional categories:
   - `no_secrets.py` - Scan for secrets
   - `paths.py` - Check for Windows paths
   - `php_syntax.py` - Validate PHP syntax
-  - `check_repo_health.py` - Repository health checks
+  - `check_repo_health.py` - Repository health checks (Python)
+  - `Invoke-RepoHealthCheckGUI.ps1` - Repository health checks GUI (PowerShell)
+  - `Invoke-PlatformDetection.ps1` - Platform detection (PowerShell)
   - `validate_repo_health.py` - Comprehensive validation
   - `validate_structure.py` - Validate repository structure
   - `validate_codeql_config.py` - Validate CodeQL config

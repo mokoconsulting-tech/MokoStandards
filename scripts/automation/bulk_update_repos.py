@@ -71,7 +71,7 @@ class FileSyncConfig:
 
         # Terraform infrastructure workflows
         "terraform": {
-            "templates/workflows/terraform/ci.yml": ".github/workflows/terraform-ci.yml",
+            "templates/workflows/terraform/ci.yml.template": ".github/workflows/terraform-ci.yml",
             "templates/workflows/terraform/deploy.yml.template": ".github/workflows/terraform-deploy.yml",
             "templates/workflows/terraform/drift-detection.yml.template": ".github/workflows/terraform-drift.yml",
         },

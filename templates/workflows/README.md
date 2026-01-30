@@ -69,7 +69,7 @@ The workflows are organized by platform and purpose:
 - `test.yml.template` - Generic testing workflow
 
 **terraform/** - Terraform infrastructure-as-code workflows
-- `ci.yml` - Terraform validation, formatting, and planning
+- `ci.yml.template` - Terraform validation, formatting, and planning
 - `deploy.yml.template` - Infrastructure deployment workflow
 - `drift-detection.yml.template` - Automated drift detection
 

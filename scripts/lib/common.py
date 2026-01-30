@@ -44,8 +44,9 @@ import os
 import sys
 import subprocess
 import tempfile
+import json
 from pathlib import Path
-from typing import Optional, Union, List, Tuple
+from typing import Optional, Union, List, Tuple, Dict, Any
 import shutil
 
 
@@ -343,6 +344,15 @@ def log_error(message: str) -> None:
         message: Error message to display
     """
     print(f"❌ {message}", file=sys.stderr)
+
+
+def json_output(data: Dict[str, Any]) -> None:
+    """Output data as JSON to stdout.
+
+    Args:
+        data: Dictionary to output as JSON
+    """
+    print(json.dumps(data, indent=2))
 
 
 def log_debug(message: str, debug: Optional[bool] = None) -> None:

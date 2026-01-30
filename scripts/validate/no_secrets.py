@@ -74,7 +74,15 @@ EXCLUDE_DIRS = {
     'dist',
     'build',
     '.git',
+    'docs',  # Documentation often contains examples
+    'templates',  # Templates contain example patterns
 }
+
+# Files to exclude from scanning (patterns that match anywhere in path)
+EXCLUDE_FILE_PATTERNS = [
+    'no_secrets.py',  # This file contains the patterns
+    '.md',  # Markdown documentation files
+]
 
 
 def scan_file(filepath: Path, patterns: List[re.Pattern]) -> List[Dict[str, str]]:
@@ -127,6 +135,11 @@ def scan_directory(src_dir: str, patterns: List[re.Pattern]) -> List[Dict[str, s
 
         # Skip excluded directories
         if any(excluded in item.parts for excluded in EXCLUDE_DIRS):
+            continue
+
+        # Skip excluded file patterns
+        item_str = str(item)
+        if any(pattern in item_str for pattern in EXCLUDE_FILE_PATTERNS):
             continue
 
         # Skip binary files (heuristic)

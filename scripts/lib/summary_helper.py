@@ -233,8 +233,10 @@ class ExecutionSummary:
                     f.write("```\n")
                     f.write(summary_text)
                     f.write("\n```\n")
-            except Exception:
-                pass  # Silently fail if GitHub Actions not available
+            except Exception as e:
+                # Silently fail if GitHub Actions not available, but log to stderr
+                import sys
+                print(f"Warning: Failed to write summary to GitHub Actions: {e}", file=sys.stderr)
 
 
 def format_duration(seconds: float) -> str:

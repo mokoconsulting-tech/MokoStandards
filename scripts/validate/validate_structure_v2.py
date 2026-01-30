@@ -112,8 +112,9 @@ class RepositoryStructureValidator:
                         return "json"
                     elif content.startswith('<?xml') or content.startswith('<'):
                         return "xml"
-            except Exception:
-                pass
+            except Exception as e:
+                # Log error and continue to raise ValueError below
+                print(f"Warning: Failed to read schema file for format detection: {e}", file=sys.stderr)
 
             # Unable to detect format
             raise ValueError(f"Unable to detect schema format for {self.schema_path}")

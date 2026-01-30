@@ -85,8 +85,10 @@ def enumerate_folders_by_depth(root: Path, depth: int, include_hidden: bool = Tr
                 try:
                     import stat
                     return bool(p.stat().st_file_attributes & stat.FILE_ATTRIBUTE_HIDDEN)
-                except (AttributeError, OSError):
-                    pass
+                except (AttributeError, OSError) as e:
+                    # Windows API not available or stat failed, assume not hidden
+                    import sys
+                    print(f"Debug: Failed to check Windows hidden attribute for {p}: {e}", file=sys.stderr)
         return False
 
     if depth == -1:
@@ -650,8 +652,10 @@ def main() -> int:
     finally:
         try:
             app.destroy()
-        except Exception:
-            pass
+        except Exception as e:
+            # App already destroyed or error during destruction, not critical
+            import sys
+            print(f"Debug: Failed to destroy app: {e}", file=sys.stderr)
 
 
 if __name__ == "__main__":

@@ -151,8 +151,8 @@ class UnifiedRelease:
                     data = yaml.safe_load(f)
                     if 'version' in data:
                         return data['version']
-            except:
-                pass
+            except Exception as e:
+                common.log_debug(f"Failed to read version from CITATION.cff: {e}")
         
         # Try pyproject.toml
         pyproject_file = self.repo_root / "pyproject.toml"
@@ -165,8 +165,8 @@ class UnifiedRelease:
                         return data['project']['version']
                     if 'tool' in data and 'poetry' in data['tool'] and 'version' in data['tool']['poetry']:
                         return data['tool']['poetry']['version']
-            except:
-                pass
+            except Exception as e:
+                common.log_debug(f"Failed to read version from pyproject.toml: {e}")
         
         # Try package.json
         package_file = self.repo_root / "package.json"
@@ -176,8 +176,8 @@ class UnifiedRelease:
                     data = json.load(f)
                     if 'version' in data:
                         return data['version']
-            except:
-                pass
+            except Exception as e:
+                common.log_debug(f"Failed to read version from package.json: {e}")
         
         return None
     
@@ -197,8 +197,8 @@ class UnifiedRelease:
             )
             if result.returncode == 0:
                 return result.stdout.strip().lstrip('v')
-        except:
-            pass
+        except Exception as e:
+            common.log_debug(f"Failed to get last git tag: {e}")
         return None
     
     def bump_version(self, bump_type: str = "patch") -> str:
@@ -237,7 +237,6 @@ class UnifiedRelease:
             List of updated files
         """
         updated_files = []
-        version_obj = VersionInfo(version)
         
         common.log_info(f"Updating version to: {version}")
         
@@ -283,8 +282,8 @@ class UnifiedRelease:
                     f.write('\n')
                 updated_files.append(str(package_file))
                 common.log_success(f"Updated {package_file.name}")
-            except:
-                pass
+            except Exception as e:
+                common.log_warning(f"Failed to update {package_file.name}: {e}")
         
         return updated_files
     

@@ -107,8 +107,12 @@ def find_markers_in_file(file_path: Path, markers: Set[str]) -> List[Dict]:
                             })
                             break
 
-    except Exception:
-        pass
+    except Exception as e:
+        # File might be binary or have encoding issues, skip silently
+        # but log in debug mode if needed
+        import sys
+        if '--verbose' in sys.argv or '-v' in sys.argv:
+            print(f"Warning: Failed to process {file_path}: {e}", file=sys.stderr)
 
     return findings
 

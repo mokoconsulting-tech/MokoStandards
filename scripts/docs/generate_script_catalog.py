@@ -76,8 +76,10 @@ def extract_script_info(script_path: Path) -> Dict:
                 if desc_match:
                     info["brief"] = desc_match.group(1).strip()
 
-    except Exception:
-        pass
+    except Exception as e:
+        # File might be binary or have encoding issues, return partial info
+        import sys
+        print(f"Warning: Failed to fully parse {script_path}: {e}", file=sys.stderr)
 
     return info
 

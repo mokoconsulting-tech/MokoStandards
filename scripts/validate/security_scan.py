@@ -38,15 +38,6 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Tuple
 
-# Add lib directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent / "lib"))
-
-try:
-    import common
-except ImportError:
-    print("Warning: Cannot import common lib, continuing without it", file=sys.stderr)
-
-
 class SecurityScanner:
     """Orchestrates security scanning operations."""
 
@@ -72,13 +63,53 @@ class SecurityScanner:
         dry_run_prefix = '[DRY-RUN] ' if self.dry_run else ''
         print(f"{prefix} {dry_run_prefix}{message}")
 
+    def _sanitize_command_for_log(self, cmd: List[str]) -> str:
+        """Sanitize command arguments to prevent logging sensitive information."""
+        if not cmd:
+            return ""
+        
+        # Create a copy to avoid modifying the original
+        sanitized = []
+        i = 0
+        
+        # Flags that take sensitive values
+        sensitive_flags = {'-s', '--secret', '--token', '--password', '--key', '--api-key', 
+                          '--api_key', '--apikey', '-p', '--pass'}
+        
+        while i < len(cmd):
+            arg = cmd[i]
+            
+            # Check if this is a sensitive flag
+            if arg in sensitive_flags:
+                sanitized.append(arg)
+                # If next argument exists and is not another flag, mask it
+                if i + 1 < len(cmd) and not cmd[i + 1].startswith('-'):
+                    sanitized.append('[REDACTED]')
+                    i += 2
+                    continue
+            # Check if argument contains '=' with sensitive key patterns (e.g., --token=abc123)
+            elif '=' in arg:
+                key, value = arg.split('=', 1)
+                if any(pattern in key.lower() for pattern in ['password', 'token', 'secret', 'key', 'api']):
+                    sanitized.append(f"{key}=[REDACTED]")
+                else:
+                    sanitized.append(arg)
+            else:
+                sanitized.append(arg)
+            
+            i += 1
+        
+        return ' '.join(sanitized)
+
     def run_command(self, cmd: List[str], check: bool = True) -> Tuple[int, str, str]:
         """Run shell command and return exit code, stdout, stderr."""
         if self.verbose:
-            self.log(f"Running: {' '.join(cmd)}", 'DEBUG')
+            sanitized_cmd = self._sanitize_command_for_log(cmd)
+            self.log(f"Running: {sanitized_cmd}", 'DEBUG')
 
         if self.dry_run:
-            self.log(f"Would run: {' '.join(cmd)}", 'DEBUG')
+            sanitized_cmd = self._sanitize_command_for_log(cmd)
+            self.log(f"Would run: {sanitized_cmd}", 'DEBUG')
             return 0, '', ''
 
         result = subprocess.run(

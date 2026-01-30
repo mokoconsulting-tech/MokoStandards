@@ -245,8 +245,10 @@ class AuditLogger:
         if self.enable_syslog:
             try:
                 syslog.closelog()
-            except Exception:
-                pass
+            except Exception as e:
+                # Log error closing syslog but don't raise as we're already closing
+                import sys
+                print(f"Warning: Error closing syslog: {e}", file=sys.stderr)
 
     def __enter__(self):
         """Context manager entry"""

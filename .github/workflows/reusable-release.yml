@@ -145,42 +145,30 @@ jobs:
         if: needs.detect.outputs.project-type == 'joomla'
         working-directory: ${{ inputs.working-directory }}
         run: |
-          mkdir -p build/package
-
-          # Copy files excluding development artifacts
-          rsync -av \
-            --exclude='build' \
-            --exclude='tests' \
-            --exclude='.git*' \
-            --exclude='composer.json' \
-            --exclude='composer.lock' \
-            --exclude='phpunit.xml*' \
-            --exclude='phpcs.xml*' \
-            --exclude='phpstan.neon*' \
-            --exclude='psalm.xml*' \
-            --exclude='node_modules' \
-            --exclude='.github' \
-            --exclude='package.json' \
-            --exclude='package-lock.json' \
-            . build/package/
-
-          # Determine extension name from manifest
-          MANIFEST=$(find . -maxdepth 1 -name "*.xml" -not -name "phpunit.xml*" -type f | head -1)
-          if [ -n "$MANIFEST" ]; then
-            EXT_NAME=$(basename "$MANIFEST" .xml)
-          else
-            EXT_NAME=$(basename "$GITHUB_REPOSITORY" | sed 's/^joomla-//')
-          fi
-
-          # Create ZIP package
-          cd build/package
           VERSION="${{ inputs.version }}"
-          PACKAGE_NAME="${EXT_NAME}-${VERSION}.zip"
-          zip -r "../${PACKAGE_NAME}" .
-          cd ../..
-
+          
+          # Check if src directory exists
+          if [ ! -d "src" ]; then
+            echo "❌ ERROR: src directory not found. Joomla extensions must be in src/ directory" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          
+          # Use package_extension.py script with src directory
+          python3 scripts/release/package_extension.py \
+            --src-dir src \
+            build \
+            "${VERSION}"
+          
+          # Find the created package
+          PACKAGE=$(find build -name "*.zip" -type f | head -1)
+          if [ -z "$PACKAGE" ]; then
+            echo "❌ ERROR: No package created" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          
+          PACKAGE_NAME=$(basename "$PACKAGE")
           echo "PACKAGE_NAME=${PACKAGE_NAME}" >> $GITHUB_ENV
-          echo "✅ Created Joomla package: ${PACKAGE_NAME}" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Created Joomla package from src directory: ${PACKAGE_NAME}" >> $GITHUB_STEP_SUMMARY
 
       - name: Create Dolibarr package
         if: needs.detect.outputs.project-type == 'dolibarr'
@@ -287,32 +275,122 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Check for existing prerelease
+        id: check-prerelease
+        run: |
+          VERSION="${{ inputs.version }}"
+          
+          # Check if a prerelease already exists for this version
+          EXISTING_RELEASE=$(gh release view "v${VERSION}" --json isPrerelease,isDraft 2>/dev/null || echo "")
+          
+          if [ -n "$EXISTING_RELEASE" ]; then
+            IS_PRERELEASE=$(echo "$EXISTING_RELEASE" | jq -r '.isPrerelease')
+            IS_DRAFT=$(echo "$EXISTING_RELEASE" | jq -r '.isDraft')
+            
+            if [ "$IS_PRERELEASE" == "true" ] && [ "$IS_DRAFT" == "false" ]; then
+              echo "prerelease_exists=true" >> $GITHUB_OUTPUT
+              echo "⚠️ Prerelease already exists for v${VERSION}" >> $GITHUB_STEP_SUMMARY
+              echo "Will promote to stable release" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "prerelease_exists=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "prerelease_exists=false" >> $GITHUB_OUTPUT
+            echo "No existing release found for v${VERSION}" >> $GITHUB_STEP_SUMMARY
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Determine release type
+        id: release-type
+        run: |
+          # If prerelease exists, promote to stable
+          if [ "${{ steps.check-prerelease.outputs.prerelease_exists }}" == "true" ]; then
+            echo "is_prerelease=false" >> $GITHUB_OUTPUT
+            echo "release_notes_prefix=## Stable Release\n\nPromoted from prerelease.\n\n" >> $GITHUB_OUTPUT
+            echo "📦 Promoting prerelease to stable release" >> $GITHUB_STEP_SUMMARY
+          else
+            # Otherwise create as prerelease by default
+            echo "is_prerelease=true" >> $GITHUB_OUTPUT
+            echo "release_notes_prefix=## Prerelease\n\nThis is a release candidate (RC) for testing.\n\n" >> $GITHUB_OUTPUT
+            echo "🚧 Creating prerelease (RC)" >> $GITHUB_STEP_SUMMARY
+          fi
+
       - name: Download release artifacts
         uses: actions/download-artifact@v7
         with:
           name: release-package
           path: ./artifacts
 
+      - name: Add RC marker to artifacts
+        if: steps.release-type.outputs.is_prerelease == 'true'
+        run: |
+          # Rename artifacts to include RC marker for prereleases
+          cd artifacts
+          for file in *; do
+            if [[ "$file" == *.zip ]] || [[ "$file" == *.tar.gz ]]; then
+              # Extract name and extension
+              basename="${file%.*}"
+              extension="${file##*.}"
+              if [[ "$file" == *.tar.gz ]]; then
+                basename="${file%.tar.gz}"
+                extension="tar.gz"
+              fi
+              
+              # Add RC marker if not already present
+              if [[ ! "$basename" =~ -rc ]]; then
+                newname="${basename}-rc.${extension}"
+                mv "$file" "$newname"
+                echo "✅ Renamed $file to $newname" >> $GITHUB_STEP_SUMMARY
+                
+                # Update corresponding checksum files
+                if [ -f "${file}.sha256" ]; then
+                  mv "${file}.sha256" "${newname}.sha256"
+                  sed -i "s/${file}/${newname}/g" "${newname}.sha256"
+                fi
+                if [ -f "${file}.md5" ]; then
+                  mv "${file}.md5" "${newname}.md5"
+                  sed -i "s/${file}/${newname}/g" "${newname}.md5"
+                fi
+              fi
+            fi
+          done
+
       - name: Extract changelog
         id: changelog
         run: |
           VERSION="${{ inputs.version }}"
+          RELEASE_PREFIX="${{ steps.release-type.outputs.release_notes_prefix }}"
 
           if [ -f "CHANGELOG.md" ]; then
             # Extract changelog for this version
             awk "/## \[${VERSION}\]/,/## \[/{if(/## \[${VERSION}\]/)next;else if(/## \[/)exit;else print}" CHANGELOG.md > release_notes.md
 
             if [ ! -s release_notes.md ]; then
-              echo "## Release ${VERSION}" > release_notes.md
+              echo -e "${RELEASE_PREFIX}" > release_notes.md
+              echo "## Release ${VERSION}" >> release_notes.md
               echo "" >> release_notes.md
               echo "No specific changelog found for this version." >> release_notes.md
               echo "Please refer to the full CHANGELOG.md for details." >> release_notes.md
+            else
+              # Prepend release type info
+              echo -e "${RELEASE_PREFIX}" | cat - release_notes.md > temp && mv temp release_notes.md
             fi
           else
-            echo "## Release ${VERSION}" > release_notes.md
+            echo -e "${RELEASE_PREFIX}" > release_notes.md
+            echo "## Release ${VERSION}" >> release_notes.md
             echo "" >> release_notes.md
             echo "Release created from ${{ needs.detect.outputs.project-type }} project." >> release_notes.md
           fi
+
+      - name: Delete existing prerelease if promoting
+        if: steps.check-prerelease.outputs.prerelease_exists == 'true'
+        run: |
+          VERSION="${{ inputs.version }}"
+          echo "Deleting existing prerelease v${VERSION}..."
+          gh release delete "v${VERSION}" --yes --cleanup-tag || true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -321,7 +399,7 @@ jobs:
           name: Release ${{ inputs.version }}
           body_path: release_notes.md
           draft: ${{ inputs.draft }}
-          prerelease: ${{ inputs.prerelease }}
+          prerelease: ${{ steps.release-type.outputs.is_prerelease }}
           files: |
             artifacts/*
         env:
@@ -334,10 +412,16 @@ jobs:
           echo "**Version:** ${{ inputs.version }}" >> $GITHUB_STEP_SUMMARY
           echo "**Project Type:** ${{ needs.detect.outputs.project-type }}" >> $GITHUB_STEP_SUMMARY
           echo "**Extension Type:** ${{ needs.detect.outputs.extension-type }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Pre-release:** ${{ inputs.prerelease }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Pre-release:** ${{ steps.release-type.outputs.is_prerelease }}" >> $GITHUB_STEP_SUMMARY
           echo "**Draft:** ${{ inputs.draft }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Package:** ${{ needs.build-package.outputs.package-name }}" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.release-type.outputs.is_prerelease }}" == "true" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ **This is a Release Candidate (RC) for testing**" >> $GITHUB_STEP_SUMMARY
+            echo "Run this workflow again with the same version to promote to stable release." >> $GITHUB_STEP_SUMMARY
+          fi
 
   publish-marketplace:
     name: Publish to Marketplace

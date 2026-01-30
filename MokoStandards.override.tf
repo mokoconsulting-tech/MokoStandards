@@ -22,7 +22,7 @@
 # INGROUP: MokoStandards.Configuration
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /MokoStandards.override.tf
-# VERSION: 02.00.00
+# VERSION: 02.01.00
 # BRIEF: MokoStandards Sync Override Configuration for the Standards Repository
 
 # MokoStandards Repository Override Configuration
@@ -39,8 +39,8 @@ locals {
   override_metadata = {
     name           = "MokoStandards Repository Override"
     description    = "Override configuration preventing sync of template files in the standards repository"
-    version        = "2.0.0"
-    last_updated   = "2026-01-28T05:40:00Z"
+    version        = "2.1.0"
+    last_updated   = "2026-01-30T04:38:00Z"
     maintainer     = "MokoStandards Team"
     schema_version = "2.0"
     repository_url = "https://github.com/mokoconsulting-tech/MokoStandards"
@@ -65,8 +65,16 @@ locals {
       reason = "corresponds to templates/workflows/build-universal.yml.template"
     },
     {
+      path   = ".github/workflows/ci.yml"
+      reason = "corresponds to templates/workflows/unified-ci.yml.template"
+    },
+    {
       path   = ".github/workflows/code-quality.yml"
       reason = "corresponds to templates/workflows/code-quality.yml.template"
+    },
+    {
+      path   = ".github/workflows/codeql-analysis.yml"
+      reason = "corresponds to templates/workflows/generic/codeql-analysis.yml"
     },
     {
       path   = ".github/workflows/dependency-review.yml"
@@ -79,10 +87,6 @@ locals {
     {
       path   = ".github/workflows/release-cycle.yml"
       reason = "corresponds to templates/workflows/release-cycle.yml.template"
-    },
-    {
-      path   = ".github/workflows/codeql-analysis.yml"
-      reason = "corresponds to templates/workflows/generic/codeql-analysis.yml"
     },
     {
       path   = ".github/workflows/terraform-ci.yml"
@@ -100,6 +104,7 @@ locals {
 
   # Files that should never be overwritten (always preserved)
   protected_files = [
+    # Repository configuration files
     {
       path   = ".gitignore"
       reason = "Repository-specific ignore patterns"
@@ -112,64 +117,141 @@ locals {
       path   = "MokoStandards.override.tf"
       reason = "This override file itself"
     },
-    # Keep MokoStandards-specific workflows
     {
-      path   = ".github/workflows/standards-compliance.yml"
-      reason = "MokoStandards-specific workflow"
+      path   = "README.md"
+      reason = "MokoStandards-specific documentation"
     },
     {
-      path   = ".github/workflows/changelog_update.yml"
-      reason = "MokoStandards-specific workflow"
+      path   = "CONTRIBUTING.md"
+      reason = "MokoStandards-specific contribution guidelines"
+    },
+    
+    # GitHub configuration files
+    {
+      path   = ".github/copilot.yml"
+      reason = "MokoStandards-specific Copilot configuration"
     },
     {
-      path   = ".github/workflows/bulk-repo-sync.yml"
-      reason = "MokoStandards-specific workflow"
+      path   = ".github/org-settings.yml"
+      reason = "MokoStandards organization settings"
     },
     {
-      path   = ".github/workflows/confidentiality-scan.yml"
-      reason = "MokoStandards-specific workflow"
+      path   = ".github/issue-management-config.yml"
+      reason = "MokoStandards issue management configuration"
     },
+    
+    # MokoStandards-specific workflows (repository maintenance)
     {
-      path   = ".github/workflows/repo-health.yml"
-      reason = "MokoStandards-specific workflow"
+      path   = ".github/workflows/auto-create-dev-branch.yml"
+      reason = "MokoStandards branch management workflow"
     },
     {
       path   = ".github/workflows/auto-create-org-projects.yml"
-      reason = "MokoStandards-specific workflow"
+      reason = "MokoStandards project automation workflow"
+    },
+    {
+      path   = ".github/workflows/auto-release-on-version-bump.yml"
+      reason = "MokoStandards release automation workflow"
+    },
+    {
+      path   = ".github/workflows/auto-release.yml"
+      reason = "MokoStandards release workflow"
+    },
+    {
+      path   = ".github/workflows/auto-update-changelog.yml"
+      reason = "MokoStandards changelog automation workflow"
+    },
+    {
+      path   = ".github/workflows/bulk-label-deployment.yml"
+      reason = "MokoStandards label management workflow"
+    },
+    {
+      path   = ".github/workflows/bulk-repo-sync.yml"
+      reason = "MokoStandards sync workflow - CRITICAL for repo sync operations"
+    },
+    {
+      path   = ".github/workflows/confidentiality-scan.yml"
+      reason = "MokoStandards security scanning workflow"
+    },
+    {
+      path   = ".github/workflows/enterprise-firewall-setup.yml"
+      reason = "MokoStandards enterprise setup workflow"
+    },
+    {
+      path   = ".github/workflows/enterprise-issue-manager.yml"
+      reason = "MokoStandards issue management workflow"
+    },
+    {
+      path   = ".github/workflows/flush-actions-cache.yml"
+      reason = "MokoStandards maintenance workflow"
+    },
+    {
+      path   = ".github/workflows/repo-health.yml"
+      reason = "MokoStandards health check workflow"
+    },
+    {
+      path   = ".github/workflows/standards-compliance.yml"
+      reason = "MokoStandards compliance checking workflow"
     },
     {
       path   = ".github/workflows/sync-changelogs.yml"
-      reason = "MokoStandards-specific workflow"
+      reason = "MokoStandards changelog sync workflow"
     },
-    # Keep reusable workflows (these are meant to be called, not synced)
+    
+    # Reusable workflows (callable by other workflows)
     {
       path   = ".github/workflows/reusable-build.yml"
-      reason = "Reusable workflow template"
+      reason = "Reusable workflow template - callable by other workflows"
     },
     {
       path   = ".github/workflows/reusable-ci-validation.yml"
-      reason = "Reusable workflow template"
+      reason = "Reusable workflow template - callable by other workflows"
     },
     {
-      path   = ".github/workflows/reusable-release.yml"
-      reason = "Reusable workflow template"
+      path   = ".github/workflows/reusable-deploy.yml"
+      reason = "Reusable workflow template - callable by other workflows"
     },
     {
       path   = ".github/workflows/reusable-php-quality.yml"
-      reason = "Reusable workflow template"
+      reason = "Reusable workflow template - callable by other workflows"
     },
     {
       path   = ".github/workflows/reusable-platform-testing.yml"
-      reason = "Reusable workflow template"
+      reason = "Reusable workflow template - callable by other workflows"
     },
     {
       path   = ".github/workflows/reusable-project-detector.yml"
-      reason = "Reusable workflow template"
+      reason = "Reusable workflow template - callable by other workflows"
     },
-    # Keep enterprise firewall setup workflow
     {
-      path   = ".github/workflows/enterprise-firewall-setup.yml"
-      reason = "MokoStandards-specific workflow"
+      path   = ".github/workflows/reusable-release.yml"
+      reason = "Reusable workflow template - callable by other workflows"
+    },
+    {
+      path   = ".github/workflows/reusable-script-executor.yml"
+      reason = "Reusable workflow template - callable by other workflows"
+    },
+    
+    # Template directories and critical scripts
+    {
+      path   = "templates/"
+      reason = "Template files repository - source of truth for synced files"
+    },
+    {
+      path   = "scripts/automation/bulk_update_repos.py"
+      reason = "Core sync script - critical for bulk repository updates"
+    },
+    {
+      path   = "scripts/"
+      reason = "MokoStandards scripts directory"
+    },
+    {
+      path   = "docs/"
+      reason = "MokoStandards documentation"
+    },
+    {
+      path   = "terraform/"
+      reason = "MokoStandards Terraform configurations"
     },
   ]
 }

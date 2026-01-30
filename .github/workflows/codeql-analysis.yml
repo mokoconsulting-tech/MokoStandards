@@ -130,7 +130,6 @@ jobs:
 
       - name: Check for CodeQL Default Setup Conflict
         run: |
-          set -x
           echo "### ⚙️ CodeQL Configuration Check" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "This workflow uses **Advanced Setup** for CodeQL." >> $GITHUB_STEP_SUMMARY
@@ -142,7 +141,7 @@ jobs:
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Action Required**:" >> $GITHUB_STEP_SUMMARY
-          echo "1. Go to: \`Settings → Security → Code security and analysis\`" >> $GITHUB_STEP_SUMMARY
+          echo "1. Go to: Settings → Security → Code security and analysis" >> $GITHUB_STEP_SUMMARY
           echo "2. Find \"Code scanning\" section" >> $GITHUB_STEP_SUMMARY
           echo "3. Click \"...\" next to \"Default\" → \"Switch to advanced\"" >> $GITHUB_STEP_SUMMARY
           echo "4. Confirm the switch" >> $GITHUB_STEP_SUMMARY

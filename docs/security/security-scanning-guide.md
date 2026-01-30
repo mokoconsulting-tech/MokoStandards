@@ -53,7 +53,7 @@ cp docs/policy/security-scanning.md docs/policy/  # If applicable
 
 ### Step 0: Disable GitHub Default Setup (CRITICAL!)
 
-**⚠️ BEFORE copying any files**, you MUST disable GitHub's default CodeQL setup:
+**⚠️ BEFORE copying any files**, you MUST disable default setup for CodeQL:
 
 1. Navigate to your repository's `Settings → Security → Code security and analysis`
 2. Locate the "Code scanning" section
@@ -67,7 +67,7 @@ cp docs/policy/security-scanning.md docs/policy/  # If applicable
 - Attempting to use both will result in this error:
   ```
   CodeQL analyses from advanced configurations cannot be processed 
-  when the default setup is enabled
+  when default setup is enabled
   ```
 - Advanced setup provides custom query suites, schedules, and full control
 - Default setup is GitHub-managed with limited customization

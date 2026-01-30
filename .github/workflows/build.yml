@@ -110,7 +110,7 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
-        if: hashFiles('package.json') != ''
+        if: ${{ hashFiles('package.json') != '' }}
 
       # MAKEFILE PRECEDENCE SYSTEM
       # Priority Order (highest to lowest):

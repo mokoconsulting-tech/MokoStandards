@@ -83,10 +83,14 @@ locals {
 	# Base template mappings by file and repository type
 	base_templates = {
 		".github/workflows/ci.yml" = {
-			generic   = "../../templates/workflows/generic/ci.yml"
-			terraform = "../../templates/workflows/terraform/ci.yml"
+			generic   = "../../templates/workflows/generic/ci.yml.template"
+			terraform = "../../templates/workflows/terraform/ci.yml.template"
 			joomla    = "../../templates/workflows/joomla/ci-joomla.yml.template"
 			dolibarr  = "../../templates/workflows/dolibarr/ci-dolibarr.yml.template"
+		}
+		".github/workflows/release.yml" = {
+			joomla   = "../../templates/workflows/joomla/release.yml.template"
+			dolibarr = "../../templates/workflows/dolibarr/release.yml.template"
 		}
 		".github/workflows/terraform-deploy.yml" = {
 			terraform = "../../templates/workflows/terraform/deploy.yml.template"
@@ -95,8 +99,10 @@ locals {
 			terraform = "../../templates/workflows/terraform/drift-detection.yml.template"
 		}
 		".github/workflows/code-quality.yml" = {
-			generic   = "../../templates/workflows/generic/code-quality.yml"
-			terraform = "../../templates/workflows/generic/code-quality.yml"
+			generic   = "../../templates/workflows/generic/code-quality.yml.template"
+			terraform = "../../templates/workflows/generic/code-quality.yml.template"
+			joomla    = "../../templates/workflows/generic/code-quality.yml.template"
+			dolibarr  = "../../templates/workflows/generic/code-quality.yml.template"
 		}
 		".editorconfig" = {
 			all = "../../templates/configs/.editorconfig"
@@ -208,4 +214,53 @@ output "repository_topics" {
 		for name, repo in github_repository.managed_repos :
 		name => repo.topics
 	}
+}
+
+# Platform-specific release configuration
+locals {
+# Platform-specific settings for releases
+platform_release_config = {
+joomla = {
+src_required     = true
+package_script   = "scripts/release/package_extension.py"
+manifest_pattern = "*.xml"
+file_extension   = "zip"
+marketplace      = "Joomla Extensions Directory (JED)"
+}
+dolibarr = {
+src_optional     = true
+manifest_pattern = "core/modules/mod*.class.php"
+file_extension   = "zip"
+marketplace      = "Dolistore"
+}
+terraform = {
+src_required     = false
+file_extension   = "tar.gz"
+marketplace      = "Terraform Registry"
+}
+generic = {
+src_required     = false
+file_extension   = "tar.gz"
+marketplace      = null
+}
+}
+
+# Release workflow settings
+release_workflow_config = {
+prerelease_suffix = "rc"
+stable_suffix     = "stable"
+default_prerelease = true
+promotion_enabled  = true
+}
+}
+
+# Output platform configurations for reference
+output "platform_release_configs" {
+description = "Platform-specific release configurations"
+value       = local.platform_release_config
+}
+
+output "release_workflow_config" {
+description = "Release workflow configuration"
+value       = local.release_workflow_config
 }

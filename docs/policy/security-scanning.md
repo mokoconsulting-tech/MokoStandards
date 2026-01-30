@@ -92,6 +92,33 @@ Responsible for:
 - Languages supported: Python, JavaScript, TypeScript, Java, C/C++, C#, Go, Ruby
 - Query sets: `security-extended` and `security-and-quality`
 - **Language configuration must match repository contents**: Only languages with actual source files should be configured to avoid analysis failures
+- **Setup Mode**: MUST use Advanced Setup (custom workflow), NOT Default Setup
+
+**⚠️ CRITICAL: Advanced Setup Requirement**
+
+This repository uses CodeQL **Advanced Setup** via custom workflows (`.github/workflows/codeql-analysis.yml`).
+
+**GitHub's Default Setup MUST BE DISABLED** in repository settings, or you will encounter this error:
+```
+CodeQL analyses from advanced configurations cannot be processed when the default setup is enabled
+```
+
+**How to Disable Default Setup**:
+1. Navigate to: `Settings → Security → Code security and analysis`
+2. Locate the "Code scanning" section
+3. If "Default" setup is enabled, click the `...` menu → `Switch to advanced`
+4. Confirm the switch to advanced setup
+
+**Why Advanced Setup?**
+- Allows custom query suites (`security-extended`, `security-and-quality`)
+- Enables custom scheduling (weekly scans on Monday 6 AM UTC)
+- Supports custom build configurations and language-specific options
+- Provides full control over analysis parameters
+
+**Conflict Between Default and Advanced**:
+- Default setup: GitHub-managed, automatic configuration
+- Advanced setup: Custom workflows with full control
+- **Cannot coexist**: Only one mode can be active per repository
 
 **Implementation**:
 ```yaml

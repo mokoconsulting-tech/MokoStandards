@@ -93,7 +93,7 @@ jobs:
           coverage: none
 
       - name: Install Dependencies
-        if: hashFiles('composer.json') != ''
+        if: ${{ hashFiles('composer.json') != '' }}
         run: composer install --prefer-dist --no-progress
 
       - name: PHP_CodeSniffer
@@ -116,7 +116,7 @@ jobs:
           fi
 
       - name: Psalm
-        if: hashFiles('psalm.xml') != '' || hashFiles('psalm.xml.dist') != ''
+        if: ${{ hashFiles('psalm.xml') != '' || hashFiles('psalm.xml.dist') != '' }}
         run: |
           echo "### Psalm Results" >> $GITHUB_STEP_SUMMARY
           psalm --show-info=true --output-format=github || echo "⚠️ Psalm found issues" >> $GITHUB_STEP_SUMMARY
@@ -138,7 +138,7 @@ jobs:
           cache: 'npm'
 
       - name: Install Dependencies
-        if: hashFiles('package.json') != ''
+        if: ${{ hashFiles('package.json') != '' }}
         run: |
           if [ -f "package-lock.json" ]; then
             npm ci
@@ -169,7 +169,7 @@ jobs:
           fi
 
       - name: TypeScript Check
-        if: hashFiles('tsconfig.json') != ''
+        if: ${{ hashFiles('tsconfig.json') != '' }}
         run: |
           echo "### TypeScript Results" >> $GITHUB_STEP_SUMMARY
           npx tsc --noEmit || echo "⚠️ TypeScript found type errors" >> $GITHUB_STEP_SUMMARY
@@ -196,7 +196,7 @@ jobs:
           pip install pylint black mypy isort
 
       - name: Install Dependencies
-        if: hashFiles('requirements.txt') != '' || hashFiles('setup.py') != '' || hashFiles('pyproject.toml') != ''
+        if: ${{ hashFiles('requirements.txt') != '' || hashFiles('setup.py') != '' || hashFiles('pyproject.toml') != '' }}
         run: |
           if [ -f "requirements.txt" ]; then
             pip install -r requirements.txt

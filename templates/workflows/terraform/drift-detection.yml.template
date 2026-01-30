@@ -29,203 +29,203 @@
 name: Terraform Drift Detection
 
 on:
-	schedule:
-		# Run daily at 2 AM UTC
-		- cron: '0 2 * * *'
-	workflow_dispatch:
-		inputs:
-			environment:
-				description: 'Environment to check'
-				required: false
-				type: choice
-				options:
-					- all
-					- dev
-					- staging
-					- prod
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to check'
+        required: false
+        type: choice
+        options:
+          - all
+          - dev
+          - staging
+          - prod
 
 permissions:
-	contents: read
-	issues: write
-	id-token: write
+  contents: read
+  issues: write
+  id-token: write
 
 env:
-	TF_VERSION: '1.7.0'
-	TF_WORKING_DIR: '.'
+  TF_VERSION: '1.7.0'
+  TF_WORKING_DIR: '.'
 
 jobs:
-	drift-detection:
-		name: Detect Drift - ${{ matrix.environment }}
-		runs-on: ubuntu-latest
-		
-		strategy:
-			matrix:
-				environment: ${{ inputs.environment == 'all' && fromJSON('["dev", "staging", "prod"]') || fromJSON(format('["{0}"]', inputs.environment || 'prod')) }}
-		
-		steps:
-			- name: Checkout repository
-				uses: actions/checkout@v4
+  drift-detection:
+    name: Detect Drift - ${{ matrix.environment }}
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        environment: ${{ inputs.environment == 'all' && fromJSON('["dev", "staging", "prod"]') || fromJSON(format('["{0}"]', inputs.environment || 'prod')) }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-			- name: Setup Terraform
-				uses: hashicorp/setup-terraform@v3
-				with:
-					terraform_version: ${{ env.TF_VERSION }}
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
 
-			# Configure cloud credentials
-			- name: Configure AWS Credentials
-				if: ${{ vars.CLOUD_PROVIDER == 'aws' }}
-				uses: aws-actions/configure-aws-credentials@v4
-				with:
-					role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-					aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+      # Configure cloud credentials
+      - name: Configure AWS Credentials
+        if: ${{ vars.CLOUD_PROVIDER == 'aws' }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
 
-			- name: Terraform Init
-				run: |
-					terraform init \
-						-backend-config="key=${{ matrix.environment }}/terraform.tfstate"
-				working-directory: ${{ env.TF_WORKING_DIR }}
+      - name: Terraform Init
+        run: |
+          terraform init \
+            -backend-config="key=${{ matrix.environment }}/terraform.tfstate"
+        working-directory: ${{ env.TF_WORKING_DIR }}
 
-			- name: Terraform Workspace
-				run: terraform workspace select ${{ matrix.environment }}
-				working-directory: ${{ env.TF_WORKING_DIR }}
+      - name: Terraform Workspace
+        run: terraform workspace select ${{ matrix.environment }}
+        working-directory: ${{ env.TF_WORKING_DIR }}
 
-			- name: Terraform Plan (Drift Check)
-				id: plan
-				run: |
-					terraform plan \
-						-var-file="environments/${{ matrix.environment }}.tfvars" \
-						-detailed-exitcode \
-						-no-color
-				working-directory: ${{ env.TF_WORKING_DIR }}
-				continue-on-error: true
+      - name: Terraform Plan (Drift Check)
+        id: plan
+        run: |
+          terraform plan \
+            -var-file="environments/${{ matrix.environment }}.tfvars" \
+            -detailed-exitcode \
+            -no-color
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        continue-on-error: true
 
-			- name: Analyze Drift
-				id: analyze
-				run: |
-					if [ ${{ steps.plan.outputs.exitcode }} -eq 0 ]; then
-						echo "drift=false" >> $GITHUB_OUTPUT
-						echo "No drift detected"
-					elif [ ${{ steps.plan.outputs.exitcode }} -eq 2 ]; then
-						echo "drift=true" >> $GITHUB_OUTPUT
-						echo "Drift detected!"
-					else
-						echo "drift=error" >> $GITHUB_OUTPUT
-						echo "Error during plan"
-						exit 1
-					fi
+      - name: Analyze Drift
+        id: analyze
+        run: |
+          if [ ${{ steps.plan.outputs.exitcode }} -eq 0 ]; then
+            echo "drift=false" >> $GITHUB_OUTPUT
+            echo "No drift detected"
+          elif [ ${{ steps.plan.outputs.exitcode }} -eq 2 ]; then
+            echo "drift=true" >> $GITHUB_OUTPUT
+            echo "Drift detected!"
+          else
+            echo "drift=error" >> $GITHUB_OUTPUT
+            echo "Error during plan"
+            exit 1
+          fi
 
-			- name: Create Drift Issue
-				if: steps.analyze.outputs.drift == 'true'
-				uses: actions/github-script@v7
-				with:
-					script: |
-						const env = '${{ matrix.environment }}';
-						const plan = `${{ steps.plan.outputs.stdout }}`;
-						
-						// Check if drift issue already exists
-						const issues = await github.rest.issues.listForRepo({
-							owner: context.repo.owner,
-							repo: context.repo.repo,
-							labels: ['terraform-drift', `environment:${env}`],
-							state: 'open'
-						});
-						
-						const body = `## 🚨 Terraform Drift Detected
-						
-						**Environment:** \`${env}\`
-						**Detected:** ${new Date().toISOString()}
-						
-						### Drift Details
-						
-						Infrastructure has drifted from the desired state defined in Terraform configuration.
-						
-						<details><summary>Show Terraform Plan</summary>
-						
-						\`\`\`terraform
-						${plan}
-						\`\`\`
-						
-						</details>
-						
-						### Recommended Actions
-						
-						1. Review the changes shown in the plan
-						2. Determine if changes are:
-							 - Unauthorized modifications (security concern)
-							 - Manual changes that should be codified
-							 - Expected changes from other automation
-						3. Either:
-							 - Apply Terraform to restore desired state
-							 - Update Terraform config to match current state
-							 - Investigate unauthorized changes
-						
-						### Auto-generated
-						This issue was automatically created by the drift detection workflow.
-						`;
-						
-						if (issues.data.length === 0) {
-							// Create new issue
-							await github.rest.issues.create({
-								owner: context.repo.owner,
-								repo: context.repo.repo,
-								title: `[Terraform Drift] ${env} environment has drifted`,
-								body: body,
-								labels: ['terraform-drift', `environment:${env}`, 'infrastructure'],
-								assignees: ['copilot', 'jmiller-moko']
-							});
-						} else {
-							// Update existing issue
-							await github.rest.issues.createComment({
-								owner: context.repo.owner,
-								repo: context.repo.repo,
-								issue_number: issues.data[0].number,
-								body: `### New Drift Detected\n\n${body}`
-							});
-						}
+      - name: Create Drift Issue
+        if: steps.analyze.outputs.drift == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const env = '${{ matrix.environment }}';
+            const plan = `${{ steps.plan.outputs.stdout }}`;
+            
+            // Check if drift issue already exists
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['terraform-drift', `environment:${env}`],
+              state: 'open'
+            });
+            
+            const body = `## 🚨 Terraform Drift Detected
+            
+            **Environment:** \`${env}\`
+            **Detected:** ${new Date().toISOString()}
+            
+            ### Drift Details
+            
+            Infrastructure has drifted from the desired state defined in Terraform configuration.
+            
+            <details><summary>Show Terraform Plan</summary>
+            
+            \`\`\`terraform
+            ${plan}
+            \`\`\`
+            
+            </details>
+            
+            ### Recommended Actions
+            
+            1. Review the changes shown in the plan
+            2. Determine if changes are:
+               - Unauthorized modifications (security concern)
+               - Manual changes that should be codified
+               - Expected changes from other automation
+            3. Either:
+               - Apply Terraform to restore desired state
+               - Update Terraform config to match current state
+               - Investigate unauthorized changes
+            
+            ### Auto-generated
+            This issue was automatically created by the drift detection workflow.
+            `;
+            
+            if (issues.data.length === 0) {
+              // Create new issue
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `[Terraform Drift] ${env} environment has drifted`,
+                body: body,
+                labels: ['terraform-drift', `environment:${env}`, 'infrastructure'],
+                assignees: ['copilot', 'jmiller-moko']
+              });
+            } else {
+              // Update existing issue
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issues.data[0].number,
+                body: `### New Drift Detected\n\n${body}`
+              });
+            }
 
-			- name: Close Drift Issue if Resolved
-				if: steps.analyze.outputs.drift == 'false'
-				uses: actions/github-script@v7
-				with:
-					script: |
-						const env = '${{ matrix.environment }}';
-						
-						// Find open drift issues for this environment
-						const issues = await github.rest.issues.listForRepo({
-							owner: context.repo.owner,
-							repo: context.repo.repo,
-							labels: ['terraform-drift', `environment:${env}`],
-							state: 'open'
-						});
-						
-						for (const issue of issues.data) {
-							await github.rest.issues.createComment({
-								owner: context.repo.owner,
-								repo: context.repo.repo,
-								issue_number: issue.number,
-								body: `✅ Drift resolved. Infrastructure now matches Terraform configuration.\n\nDetected: ${new Date().toISOString()}`
-							});
-							
-							await github.rest.issues.update({
-								owner: context.repo.owner,
-								repo: context.repo.repo,
-								issue_number: issue.number,
-								state: 'closed'
-							});
-						}
+      - name: Close Drift Issue if Resolved
+        if: steps.analyze.outputs.drift == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const env = '${{ matrix.environment }}';
+            
+            // Find open drift issues for this environment
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['terraform-drift', `environment:${env}`],
+              state: 'open'
+            });
+            
+            for (const issue of issues.data) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `✅ Drift resolved. Infrastructure now matches Terraform configuration.\n\nDetected: ${new Date().toISOString()}`
+              });
+              
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                state: 'closed'
+              });
+            }
 
-	summary:
-		name: Drift Detection Summary
-		runs-on: ubuntu-latest
-		needs: drift-detection
-		if: always()
-		
-		steps:
-			- name: Generate Summary
-				run: |
-					echo "### Terraform Drift Detection Summary" >> $GITHUB_STEP_SUMMARY
-					echo "" >> $GITHUB_STEP_SUMMARY
-					echo "**Date:** $(date -u)" >> $GITHUB_STEP_SUMMARY
-					echo "**Status:** ${{ needs.drift-detection.result }}" >> $GITHUB_STEP_SUMMARY
-					echo "" >> $GITHUB_STEP_SUMMARY
-					echo "Check individual jobs for drift details per environment." >> $GITHUB_STEP_SUMMARY
+  summary:
+    name: Drift Detection Summary
+    runs-on: ubuntu-latest
+    needs: drift-detection
+    if: always()
+    
+    steps:
+      - name: Generate Summary
+        run: |
+          echo "### Terraform Drift Detection Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Date:** $(date -u)" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** ${{ needs.drift-detection.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Check individual jobs for drift details per environment." >> $GITHUB_STEP_SUMMARY

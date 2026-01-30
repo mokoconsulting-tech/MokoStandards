@@ -64,14 +64,14 @@ class FileSyncConfig:
 
         # Generic platform workflows
         "generic": {
-            "templates/workflows/generic/code-quality.yml": ".github/workflows/code-quality.yml",
-            "templates/workflows/generic/codeql-analysis.yml": ".github/workflows/codeql-analysis.yml",
-            "templates/workflows/generic/repo-health.yml": ".github/workflows/repo-health.yml",
+            "templates/workflows/generic/code-quality.yml.template": ".github/workflows/code-quality.yml",
+            "templates/workflows/generic/codeql-analysis.yml.template": ".github/workflows/codeql-analysis.yml",
+            "templates/workflows/generic/repo-health.yml.template": ".github/workflows/repo-health.yml",
         },
 
         # Terraform infrastructure workflows
         "terraform": {
-            "templates/workflows/terraform/ci.yml": ".github/workflows/terraform-ci.yml",
+            "templates/workflows/terraform/ci.yml.template": ".github/workflows/terraform-ci.yml",
             "templates/workflows/terraform/deploy.yml.template": ".github/workflows/terraform-deploy.yml",
             "templates/workflows/terraform/drift-detection.yml.template": ".github/workflows/terraform-drift.yml",
         },

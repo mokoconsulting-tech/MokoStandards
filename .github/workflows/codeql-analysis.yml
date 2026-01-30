@@ -5,7 +5,7 @@
 # INGROUP: MokoStandards.Security
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/codeql-analysis.yml
-# VERSION: 01.00.01
+# VERSION: 01.00.02
 # BRIEF: CodeQL security scanning for vulnerability detection - DISABLED
 # NOTE: This workflow is disabled because GitHub's default CodeQL setup is enabled
 # NOTE: To re-enable this advanced configuration, disable default setup in:
@@ -141,7 +141,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
           # Use security-extended query suite for comprehensive coverage
@@ -150,10 +150,10 @@ jobs:
           # config-file: ./.github/codeql-config.yml
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
+        uses: github/codeql-action/autobuild@v4
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
         with:
           category: "/language:${{ matrix.language }}"
           upload: true

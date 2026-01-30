@@ -84,6 +84,18 @@ locals {
       path   = ".github/workflows/codeql-analysis.yml"
       reason = "corresponds to templates/workflows/generic/codeql-analysis.yml"
     },
+    {
+      path   = ".github/workflows/terraform-ci.yml"
+      reason = "corresponds to templates/workflows/terraform/ci.yml"
+    },
+    {
+      path   = ".github/workflows/terraform-deploy.yml"
+      reason = "corresponds to templates/workflows/terraform/deploy.yml.template"
+    },
+    {
+      path   = ".github/workflows/terraform-drift.yml"
+      reason = "corresponds to templates/workflows/terraform/drift-detection.yml.template"
+    },
   ]
 
   # Files that should never be overwritten (always preserved)

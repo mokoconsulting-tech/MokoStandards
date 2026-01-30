@@ -4,7 +4,7 @@
 # DEFGROUP: GitHub.Workflow
 # INGROUP: MokoStandards.Terraform
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
-# PATH: /templates/workflows/terraform/ci.yml
+# PATH: /templates/workflows/terraform/ci.yml.template
 # VERSION: 01.00.00
 # BRIEF: Terraform continuous integration workflow with validation, formatting, and planning
 # NOTE: Validates Terraform configuration, checks formatting, and generates plans

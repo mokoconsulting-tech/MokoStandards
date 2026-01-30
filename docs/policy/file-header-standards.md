@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/file-header-standards.md
-VERSION: 03.00.00
+VERSION: 03.01.00
 BRIEF: Standards for copyright headers, file information, and document metadata
 -->
 
@@ -374,7 +374,8 @@ BRIEF: Brief description of file purpose
 - Short utility scripts
 - Template files
 - Example code
-- Files under 100 lines
+- Internal documentation files
+- Files under 100 lines (as guideline)
 
 **Use Full Header (with warranty disclaimer) for:**
 - Complex application code
@@ -383,12 +384,14 @@ BRIEF: Brief description of file purpose
 - Security-sensitive code
 - Policy documents
 - Comprehensive documentation
+- Any code that will be distributed to end users
+- Core business logic and critical system components
 
-**When in doubt:** The minimal header is sufficient for most internal files. The warranty disclaimer adds legal clarity but is not required for GPL-3.0-or-later licensed code (it's implied by the license).
+**When in doubt:** For internal files and simple utilities, the minimal header is sufficient. The warranty disclaimer is implied by the GPL-3.0-or-later license. However, for user-facing files, distributed code, or legally sensitive components, always include the full warranty disclaimer for explicit legal clarity.
 
 ### Required Warranty Disclaimer Files
 
-**The following files MUST include the full warranty disclaimer:**
+**The following file types MUST include the full warranty disclaimer:**
 
 #### 1. index.php Files (Directory Protection)
 
@@ -491,6 +494,49 @@ Joomla manifest XML files MUST include the warranty disclaimer in the `<copyrigh
 
 Users and administrators directly interact with these files, making explicit warranty disclaimers important for legal clarity.
 
+#### 5. Public API Files and Entry Points
+
+Any file that serves as a public API endpoint or application entry point MUST include the full warranty disclaimer:
+
+**Examples:**
+- Main application files (e.g., `index.php`, `app.py`, `main.js`)
+- API route handlers and controllers
+- Web service endpoints
+- CLI entry points
+- Public-facing utility functions
+
+#### 6. License and Legal Files
+
+The following legal files MUST include the warranty disclaimer as visible text:
+- `LICENSE` or `LICENSE.md` (should contain full GPL text)
+- `COPYING` files
+- `NOTICE` files
+- Any file documenting licensing or legal terms
+
+#### 7. Distributed Package Files
+
+Files included in distributed packages MUST include the full warranty disclaimer:
+- Plugin/extension main files
+- Package manifests and metadata
+- Installation scripts
+- Setup and configuration wizards
+- Distribution-specific documentation
+
+**Summary of Required Warranty Disclaimer Files:**
+
+| File Type | Requirement | Location |
+|-----------|-------------|----------|
+| index.php (directory protection) | MUST | Comment header |
+| README files | MUST | Visible text in License section |
+| Dolibarr module descriptors | MUST | Comment header |
+| Joomla manifest XML | MUST | Description section |
+| Public API/entry points | MUST | Comment header |
+| License/legal files | MUST | Full GPL text |
+| Distributed package files | MUST | Comment header |
+| Policy documents | SHOULD | Comment header |
+| Security-critical code | SHOULD | Comment header |
+| Internal utilities | MAY | Optional |
+
 ### File Information Block Fields
 
 **Required Fields:**
@@ -566,4 +612,30 @@ Users and administrators directly interact with these files, making explicit war
 
 | Date       | Author          | Change                                       | Notes                                              |
 | ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 03.00.00 with all required fields |
+```
+
+---
+
+## Metadata
+
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Document Type  | Policy                                           |
+| Domain         | Governance                                       |
+| Applies To     | All Repositories                                 |
+| Jurisdiction   | Tennessee, USA                                   |
+| Owner          | Moko Consulting                                  |
+| Repo           | https://github.com/mokoconsulting-tech/MokoStandards |
+| Path           | /docs/policy/file-header-standards.md           |
+| Version        | 03.01.00                                         |
+| Status         | Active                                           |
+| Last Reviewed  | 2026-01-30                                       |
+| Reviewed By    | Documentation Team                               |
+
+## Revision History
+
+| Date       | Author          | Change                                       | Notes                                              |
+| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-01-30 | Moko Consulting | Enhanced warranty disclaimer requirements    | Updated to version 03.01.00: Added clarity on required warranty disclaimers, expanded file types requiring warranty text, added summary table |
 | 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 03.00.00 with all required fields |

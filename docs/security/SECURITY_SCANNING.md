@@ -234,6 +234,35 @@ Only dismiss alerts with:
 
 ## Troubleshooting
 
+### CodeQL: "Cannot process advanced configuration when default setup is enabled"
+
+**Problem**: CodeQL analysis fails with error:
+```
+CodeQL analyses from advanced configurations cannot be processed 
+when the default setup is enabled
+```
+
+**Root Cause**: GitHub's default CodeQL setup is enabled in repository settings, which conflicts with the custom workflow (`.github/workflows/codeql-analysis.yml`).
+
+**Solution**: Switch to advanced setup in repository settings:
+
+1. Navigate to: `Settings → Security → Code security and analysis`
+2. Find the "Code scanning" section
+3. If you see "Default" enabled:
+   - Click the `...` menu next to "Default"
+   - Select "Switch to advanced"
+   - Confirm the switch to advanced setup
+4. Re-run the workflow
+
+**Why this happens**:
+- Default setup: GitHub-managed, automatic configuration
+- Advanced setup: Custom workflows with full control (this repository uses this)
+- **These modes cannot coexist**: GitHub prevents mixing automatic and custom configurations
+
+**Verification**: After switching, you should see "Advanced" instead of "Default" in the Code scanning section, and subsequent workflow runs should succeed.
+
+**Prevention**: When setting up a new repository, choose advanced setup from the start if you plan to use custom CodeQL workflows.
+
 ### CodeQL: "No supported languages found"
 
 **Problem**: CodeQL workflow fails because configured languages don't exist in repository

@@ -5,9 +5,32 @@
 # INGROUP: MokoStandards.Security
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/codeql-analysis.yml
-# VERSION: 01.00.00
+# VERSION: 01.01.00
 # BRIEF: CodeQL security scanning for vulnerability detection
 # NOTE: Runs SAST analysis on all supported languages in the repository
+#
+# ⚠️  IMPORTANT: ADVANCED SETUP CONFIGURATION ⚠️
+# This workflow uses CodeQL Advanced Setup (custom workflow configuration).
+# GitHub's "default setup" for code scanning MUST BE DISABLED in repository settings.
+#
+# How to disable default setup:
+# 1. Go to: Settings → Security → Code security and analysis
+# 2. Find "Code scanning" section
+# 3. If "Default" is enabled, click "..." → "Switch to advanced"
+# 4. Confirm the switch to advanced setup
+#
+# Why this is required:
+# - Default setup and advanced setup cannot coexist
+# - Default setup uses managed configuration, blocking custom workflows
+# - This workflow requires advanced setup to use custom queries and schedules
+#
+# Error if not disabled:
+# "CodeQL analyses from advanced configurations cannot be processed when 
+#  the default setup is enabled"
+#
+# For more information, see:
+# - docs/policy/security-scanning.md
+# - docs/security/security-scanning-guide.md
 
 name: "CodeQL Security Scanning"
 
@@ -104,6 +127,27 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+
+      - name: Check for CodeQL Default Setup Conflict
+        run: |
+          set -x
+          echo "### ⚙️ CodeQL Configuration Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "This workflow uses **Advanced Setup** for CodeQL." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Important**: If you see an error like:" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "CodeQL analyses from advanced configurations cannot be" >> $GITHUB_STEP_SUMMARY
+          echo "processed when the default setup is enabled" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Action Required**:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Go to: \`Settings → Security → Code security and analysis\`" >> $GITHUB_STEP_SUMMARY
+          echo "2. Find \"Code scanning\" section" >> $GITHUB_STEP_SUMMARY
+          echo "3. Click \"...\" next to \"Default\" → \"Switch to advanced\"" >> $GITHUB_STEP_SUMMARY
+          echo "4. Confirm the switch" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ This check is informational only. Continuing with analysis..." >> $GITHUB_STEP_SUMMARY
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3

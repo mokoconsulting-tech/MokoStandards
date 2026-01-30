@@ -139,7 +139,7 @@ class SecurityScanner:
             returncode, stdout, stderr = self.run_command([
                 sys.executable,
                 str(secrets_script),
-                str(self.repo_path)
+                '-s', str(self.repo_path)
             ])
 
             if returncode == 0:

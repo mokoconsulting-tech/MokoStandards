@@ -79,7 +79,7 @@ jobs:
   npm-audit:
     name: npm Audit
     runs-on: ubuntu-latest
-    if: ${{ hashFiles('package.json') != '' }}
+    if: hashFiles('package.json') != ''
 
     steps:
       - name: Checkout Repository
@@ -114,7 +114,7 @@ jobs:
   composer-audit:
     name: Composer Audit
     runs-on: ubuntu-latest
-    if: ${{ hashFiles('composer.json') != '' }}
+    if: hashFiles('composer.json') != ''
 
     steps:
       - name: Checkout Repository
@@ -154,7 +154,7 @@ jobs:
   python-safety:
     name: Python Safety Check
     runs-on: ubuntu-latest
-    if: ${{ hashFiles('requirements.txt', 'pyproject.toml', 'Pipfile') != '' }}
+    if: hashFiles('requirements.txt', 'pyproject.toml', 'Pipfile') != ''
 
     steps:
       - name: Checkout Repository

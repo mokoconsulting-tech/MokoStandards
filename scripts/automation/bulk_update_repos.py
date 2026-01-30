@@ -392,6 +392,88 @@ def copy_file(source_file: str, dest_dir: str, dest_path: str) -> Tuple[bool, st
         return False, "error"
 
 
+def cleanup_obsolete_files(
+    repo_dir: str,
+    current_files: Dict[str, str],
+    current_scripts: List[str],
+    protected_files: Set[str],
+    cleanup_mode: str = "conservative"
+) -> Tuple[List[str], int]:
+    """
+    Remove obsolete files from target repository that are no longer in the sync list.
+    
+    Args:
+        repo_dir: Path to repository directory
+        current_files: Dictionary of files currently being synced (dest_path -> source_path)
+        current_scripts: List of scripts currently being synced
+        protected_files: Set of files that should never be deleted
+        cleanup_mode: "none", "conservative", or "aggressive"
+    
+    Returns:
+        Tuple of (deleted_files list, count)
+    """
+    deleted_files = []
+    
+    if cleanup_mode == "none":
+        return deleted_files, 0
+    
+    repo_path = Path(repo_dir)
+    
+    # Define directories to clean
+    cleanup_dirs = {
+        ".github/workflows": "workflows",
+        "scripts/maintenance": "scripts",
+        "scripts/validate": "scripts",
+        "scripts/release": "scripts",
+        "scripts/definitions": "scripts",
+    }
+    
+    # Get list of all files we're syncing (destinations)
+    current_dest_files = set(current_files.values())
+    current_dest_files.update(current_scripts)
+    
+    for dir_path, category in cleanup_dirs.items():
+        dir_full = repo_path / dir_path
+        
+        if not dir_full.exists():
+            continue
+        
+        # Get all files in this directory
+        for file_path in dir_full.rglob("*"):
+            if not file_path.is_file():
+                continue
+            
+            # Get relative path from repo root
+            rel_path = str(file_path.relative_to(repo_path))
+            
+            # Skip if this file is protected
+            if rel_path in protected_files:
+                continue
+            
+            # Skip if this file is in our current sync list
+            if rel_path in current_dest_files:
+                continue
+            
+            # In conservative mode, only remove workflow and script files we would sync
+            if cleanup_mode == "conservative":
+                # Only remove .yml files from workflows directory
+                if category == "workflows" and not rel_path.endswith(('.yml', '.yaml')):
+                    continue
+                # Only remove .py files from scripts directory
+                if category == "scripts" and not rel_path.endswith('.py'):
+                    continue
+            
+            # Delete the file
+            try:
+                file_path.unlink()
+                deleted_files.append(rel_path)
+                print(f"    🗑  Removed obsolete: {rel_path}")
+            except Exception as e:
+                print(f"    Warning: Could not remove {rel_path}: {e}", file=sys.stderr)
+    
+    return deleted_files, len(deleted_files)
+
+
 def clone_repository(org: str, repo: str, target_dir: str) -> bool:
     """Clone a repository to a temporary directory."""
     # Use gh CLI to clone with authentication
@@ -522,8 +604,10 @@ def update_repository(
     stats = {
         "files_created": 0,
         "files_overwritten": 0,
+        "files_deleted": 0,
         "files_copied": [],
         "files_overwritten_list": [],
+        "deleted_files_list": [],
         "platform": "unknown",
     }
 
@@ -555,6 +639,21 @@ def update_repository(
     # Load override configuration
     print(f"  Loading override configuration...")
     exclude_files, protected_files = load_override_config(str(repo_dir), source_dir)
+    
+    # Parse cleanup mode from override file if present
+    cleanup_mode = "conservative"  # default
+    override_file = Path(repo_dir) / SYNC_OVERRIDE_FILE
+    if override_file.exists():
+        try:
+            with open(override_file, 'r') as f:
+                content = f.read()
+                # Look for cleanup_mode in sync_config
+                mode_match = re.search(r'cleanup_mode\s*=\s*"([^"]+)"', content)
+                if mode_match:
+                    cleanup_mode = mode_match.group(1)
+                    print(f"    Cleanup mode from override: {cleanup_mode}")
+        except Exception as e:
+            print(f"    Warning: Could not parse cleanup mode: {e}")
 
     # Get files to sync based on platform
     files_to_sync = get_files_to_sync(platform_type)
@@ -582,7 +681,22 @@ def update_repository(
     print(f"  Creating branch: {branch_name}")
     if not create_branch(str(repo_dir), branch_name):
         return False, stats
-
+    
+    # Clean up obsolete files before syncing new ones
+    if cleanup_mode != "none":
+        print(f"  Cleaning up obsolete files (mode: {cleanup_mode})...")
+        deleted_files, delete_count = cleanup_obsolete_files(
+            str(repo_dir),
+            files_to_sync,
+            DEFAULT_SCRIPTS_TO_SYNC,
+            protected_files,
+            cleanup_mode
+        )
+        if delete_count > 0:
+            stats["files_deleted"] = delete_count
+            stats["deleted_files_list"] = deleted_files
+            print(f"    Removed {delete_count} obsolete file(s)")
+    
     # Place override file in target repo if it doesn't exist and if one exists in MokoStandards
     override_source = Path(source_dir) / SYNC_OVERRIDE_FILE
     override_dest = Path(repo_dir) / SYNC_OVERRIDE_FILE
@@ -814,15 +928,27 @@ def main():
     print(f"\nFile Operations:")
     print(f"  - Total files created: {total_created}")
     print(f"  - Total files updated: {total_overwritten}")
-    print(f"  - Total operations: {total_created + total_overwritten}")
+    
+    # Count total deleted files
+    total_deleted = sum(stats.get("files_deleted", 0) for stats in all_stats.values())
+    if total_deleted > 0:
+        print(f"  - Total files deleted: {total_deleted}")
+    
+    total_ops = total_created + total_overwritten + total_deleted
+    print(f"  - Total operations: {total_ops}")
 
     if all_stats:
         print(f"\nPer-Repository Details:")
         for repo, stats in all_stats.items():
-            if stats["files_created"] > 0 or stats["files_overwritten"] > 0:
+            ops = stats["files_created"] + stats["files_overwritten"] + stats.get("files_deleted", 0)
+            if ops > 0:
                 print(f"  {repo}:")
                 print(f"    Platform: {stats['platform']}")
-                print(f"    Created: {stats['files_created']}, Updated: {stats['files_overwritten']}")
+                print(f"    Created: {stats['files_created']}, Updated: {stats['files_overwritten']}", end="")
+                if stats.get("files_deleted", 0) > 0:
+                    print(f", Deleted: {stats['files_deleted']}")
+                else:
+                    print()
 
     if failed_repos:
         print(f"\nFailed Repositories ({len(failed_repos)}):")

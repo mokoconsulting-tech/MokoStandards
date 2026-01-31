@@ -23,7 +23,7 @@
  INGROUP: MokoStandards
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  FILE: README.md
- VERSION: 03.01.00
+ VERSION: 03.01.01
  BRIEF: Authoritative coding standards, golden architecture, workflows, templates, and governance policies
  PATH: /README.md
  NOTE: Standards definition repository - not for duplication. Use templates to create projects.
@@ -31,7 +31,7 @@
 
 ![Moko Consulting](https://mokoconsulting.tech/images/branding/logo.png)
 
-# MokoStandards (VERSION: 03.01.00)
+# MokoStandards (VERSION: 03.01.01)
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Policy Documents](https://img.shields.io/badge/Policy_Documents-77-orange.svg)](./docs/policy)

@@ -359,22 +359,24 @@ jobs:
 
             try {
               // Create comprehensive closing comment
-              const closeComment = `## 🎉 Branch Lifecycle Complete
-
-**Branch**: \`${branchName}\` has been merged to main via PR #${prNumber}.
-
-### Merge Details
-- **PR**: #${prNumber} - ${prTitle}
-- **Merged by**: @${mergedBy}
-- **Merged at**: ${new Date().toISOString()}
-
-### 🏁 Development Cycle Completed
-
-This branch has completed its development cycle and been integrated into the main branch.
-
----
-
-*This issue was automatically closed by the Enterprise Issue Manager workflow.*`;
+              const closeComment = [
+                '## 🎉 Branch Lifecycle Complete',
+                '',
+                `**Branch**: \`${branchName}\` has been merged to main via PR #${prNumber}.`,
+                '',
+                '### Merge Details',
+                `- **PR**: #${prNumber} - ${prTitle}`,
+                `- **Merged by**: @${mergedBy}`,
+                `- **Merged at**: ${new Date().toISOString()}`,
+                '',
+                '### 🏁 Development Cycle Completed',
+                '',
+                'This branch has completed its development cycle and been integrated into the main branch.',
+                '',
+                '---',
+                '',
+                '*This issue was automatically closed by the Enterprise Issue Manager workflow.*'
+              ].join('\n');
 
               // Add closing comment
               await github.rest.issues.createComment({
@@ -447,19 +449,21 @@ This branch has completed its development cycle and been integrated into the mai
 
               if (trackingIssue) {
                 // Close with deletion message
-                const closeComment = `## 🗑️ Branch Deleted
-
-The branch \`${branchName}\` has been deleted.
-
-### Deletion Details
-- **Deleted by**: @${context.actor}
-- **Deleted at**: ${new Date().toISOString()}
-
-This tracking issue is now closed.
-
----
-
-*This issue was automatically closed by the Enterprise Issue Manager workflow.*`;
+                const closeComment = [
+                  '## 🗑️ Branch Deleted',
+                  '',
+                  `The branch \`${branchName}\` has been deleted.`,
+                  '',
+                  '### Deletion Details',
+                  `- **Deleted by**: @${context.actor}`,
+                  `- **Deleted at**: ${new Date().toISOString()}`,
+                  '',
+                  'This tracking issue is now closed.',
+                  '',
+                  '---',
+                  '',
+                  '*This issue was automatically closed by the Enterprise Issue Manager workflow.*'
+                ].join('\n');
 
                 await github.rest.issues.createComment({
                   owner: context.repo.owner,

@@ -242,7 +242,7 @@ jobs:
         run: |
           set -x
           VERSION="${{ needs.validate-version.outputs.version }}"
-          
+
           # Check if version already has a prerelease suffix
           if echo "$VERSION" | grep -qE '-[a-zA-Z0-9.-]+$'; then
             # Version already has suffix (e.g., 1.2.3-rc1), use as-is
@@ -332,7 +332,7 @@ jobs:
               # No suffix, append -rc
               RC_TAG="v${VERSION}-rc"
             fi
-            
+
             # Auto-generate from git log if not provided
             NOTES=$(git log --pretty=format:"- %s" "${RC_TAG}"..HEAD 2>/dev/null || echo "Initial release")
           fi

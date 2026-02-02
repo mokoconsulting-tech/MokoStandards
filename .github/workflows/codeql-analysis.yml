@@ -30,7 +30,7 @@ env:
 # This workflow is currently disabled to prevent conflicts with GitHub's
 # default CodeQL setup. The error was:
 #
-#   "CodeQL analyses from advanced configurations cannot be processed 
+#   "CodeQL analyses from advanced configurations cannot be processed
 #    when the default setup is enabled"
 #
 # RESOLUTION OPTIONS:

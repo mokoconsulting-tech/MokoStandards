@@ -69,7 +69,7 @@ on:
       - 'CITATION.cff'
       - 'pyproject.toml'
       - 'CHANGELOG.md'
-  
+
   # Manual release with full control
   workflow_dispatch:
     inputs:
@@ -84,12 +84,12 @@ on:
           - finalize-release   # Finalize RC to stable release
           - hotfix             # Emergency hotfix release
         default: 'simple-release'
-      
+
       version:
         description: 'Version (e.g., 1.2.3 or 1.2.3-rc1). Leave empty for auto-detect.'
         required: false
         type: string
-      
+
       version-bump:
         description: 'Auto version bump type (if version not specified)'
         required: false
@@ -100,25 +100,25 @@ on:
           - minor   # 0.X.0
           - patch   # 0.0.X
         default: 'auto'
-      
+
       prerelease:
         description: 'Mark as pre-release'
         required: false
         type: boolean
         default: false
-      
+
       draft:
         description: 'Create as draft release'
         required: false
         type: boolean
         default: false
-      
+
       skip-build:
         description: 'Skip package building (tag and branch only)'
         required: false
         type: boolean
         default: false
-      
+
       release-notes:
         description: 'Custom release notes (optional, auto-generated if empty)'
         required: false
@@ -151,20 +151,20 @@ jobs:
       action: ${{ steps.determine.outputs.action }}
       version-source: ${{ steps.determine.outputs.version-source }}
       skip-release: ${{ steps.determine.outputs.skip-release }}
-    
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      
+
       - name: Determine Version and Action
         id: determine
         run: |
           set -e
-          
+
           echo "## Version Detection" >> $GITHUB_STEP_SUMMARY
-          
+
           # ─────────────────────────────────────────────────────────────
           # Determine release action
           # ─────────────────────────────────────────────────────────────
@@ -177,9 +177,9 @@ jobs:
             ACTION="simple-release"
             echo "📋 **Mode**: Automatic (push to main)" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           echo "action=$ACTION" >> $GITHUB_OUTPUT
-          
+
           # ─────────────────────────────────────────────────────────────
           # Check for skip release flag in commit message
           # ─────────────────────────────────────────────────────────────
@@ -190,19 +190,19 @@ jobs:
             exit 0
           fi
           echo "skip-release=false" >> $GITHUB_OUTPUT
-          
+
           # ─────────────────────────────────────────────────────────────
           # Determine version
           # ─────────────────────────────────────────────────────────────
           VERSION=""
           VERSION_SOURCE=""
-          
+
           # Method 1: Manual input (highest priority)
           if [ -n "${{ inputs.version }}" ]; then
             VERSION="${{ inputs.version }}"
             VERSION_SOURCE="manual input"
             echo "✅ Version from manual input: $VERSION" >> $GITHUB_STEP_SUMMARY
-          
+
           # Method 2: File diff detection (for auto-releases)
           elif [ "${{ github.event_name }}" == "push" ]; then
             # Check CITATION.cff first
@@ -210,39 +210,39 @@ jobs:
               VERSION=$(grep "^version:" CITATION.cff | head -1 | sed 's/version: *//' | tr -d '"' | tr -d "'")
               VERSION_SOURCE="CITATION.cff"
               echo "✅ Version detected from CITATION.cff: $VERSION" >> $GITHUB_STEP_SUMMARY
-            
+
             # Check pyproject.toml
             elif git diff HEAD~1 HEAD -- pyproject.toml | grep -q "^+version"; then
               VERSION=$(grep "^version = " pyproject.toml | head -1 | sed 's/version = *//' | tr -d '"' | tr -d "'")
               VERSION_SOURCE="pyproject.toml"
               echo "✅ Version detected from pyproject.toml: $VERSION" >> $GITHUB_STEP_SUMMARY
-            
+
             # Check CHANGELOG.md
             elif git diff HEAD~1 HEAD -- CHANGELOG.md | grep -qE "^+## \[[0-9]+\.[0-9]+\.[0-9]+"; then
               VERSION=$(git diff HEAD~1 HEAD -- CHANGELOG.md | grep -E "^+## \[" | head -1 | grep -oE "[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?")
               VERSION_SOURCE="CHANGELOG.md"
               echo "✅ Version detected from CHANGELOG.md: $VERSION" >> $GITHUB_STEP_SUMMARY
             fi
-          
+
           # Method 3: Read from existing files
           elif [ -f "CITATION.cff" ]; then
             VERSION=$(grep "^version:" CITATION.cff | head -1 | sed 's/version: *//' | tr -d '"' | tr -d "'")
             VERSION_SOURCE="CITATION.cff (current)"
             echo "✅ Version read from CITATION.cff: $VERSION" >> $GITHUB_STEP_SUMMARY
-          
+
           elif [ -f "pyproject.toml" ]; then
             VERSION=$(grep "^version = " pyproject.toml | head -1 | sed 's/version = *//' | tr -d '"' | tr -d "'")
             VERSION_SOURCE="pyproject.toml (current)"
             echo "✅ Version read from pyproject.toml: $VERSION" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           # Method 4: Auto-bump from last tag
           if [ -z "$VERSION" ] && [ "${{ inputs.version-bump }}" != "" ]; then
             LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo "0.0.0")
             BUMP="${{ inputs.version-bump }}"
-            
+
             echo "📌 Last tag: $LAST_TAG" >> $GITHUB_STEP_SUMMARY
-            
+
             if [ "$BUMP" == "auto" ]; then
               # Detect from commit messages
               COMMITS=$(git log ${LAST_TAG}..HEAD --oneline)
@@ -255,31 +255,31 @@ jobs:
               fi
               echo "🔍 Auto-detected bump type: $BUMP" >> $GITHUB_STEP_SUMMARY
             fi
-            
+
             IFS='.' read -r MAJOR MINOR PATCH <<< "$LAST_TAG"
             case $BUMP in
               major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
               minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
               patch) PATCH=$((PATCH + 1)) ;;
             esac
-            
+
             VERSION=$(printf "%d.%d.%d" $MAJOR $MINOR $PATCH)
             VERSION_SOURCE="auto-bump ($BUMP from $LAST_TAG)"
             echo "✅ Auto-bumped version: $VERSION" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           # Fallback: use last tag or default
           if [ -z "$VERSION" ]; then
             VERSION=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo "0.1.0")
             VERSION_SOURCE="git tag (fallback)"
             echo "⚠️ Using fallback version: $VERSION" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           # ─────────────────────────────────────────────────────────────
           # Remove 'v' prefix if present
           # ─────────────────────────────────────────────────────────────
           VERSION=${VERSION#v}
-          
+
           # ─────────────────────────────────────────────────────────────
           # Validate semantic versioning format
           # ─────────────────────────────────────────────────────────────
@@ -288,7 +288,7 @@ jobs:
             echo "Expected: MAJOR.MINOR.PATCH[-PRERELEASE]" >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
-          
+
           # ─────────────────────────────────────────────────────────────
           # Extract version components
           # ─────────────────────────────────────────────────────────────
@@ -296,7 +296,7 @@ jobs:
           MAJOR=$(echo "$BASE_VERSION" | cut -d. -f1)
           MINOR=$(echo "$BASE_VERSION" | cut -d. -f2)
           PATCH=$(echo "$BASE_VERSION" | cut -d. -f3)
-          
+
           # Extract prerelease suffix if present
           if echo "$VERSION" | grep -qE '-[a-zA-Z0-9.-]+$'; then
             PRERELEASE_SUFFIX=$(echo "$VERSION" | grep -oE '\-[a-zA-Z0-9.-]+$')
@@ -305,7 +305,7 @@ jobs:
             PRERELEASE_SUFFIX=""
             IS_PRERELEASE="false"
           fi
-          
+
           # ─────────────────────────────────────────────────────────────
           # Output results
           # ─────────────────────────────────────────────────────────────
@@ -317,7 +317,7 @@ jobs:
           echo "prerelease-suffix=$PRERELEASE_SUFFIX" >> $GITHUB_OUTPUT
           echo "is-prerelease=$IS_PRERELEASE" >> $GITHUB_OUTPUT
           echo "version-source=$VERSION_SOURCE" >> $GITHUB_OUTPUT
-          
+
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 📦 Version Details" >> $GITHUB_STEP_SUMMARY
           echo "- **Full Version**: \`$VERSION\`" >> $GITHUB_STEP_SUMMARY
@@ -336,32 +336,32 @@ jobs:
     if: |
       needs.detect.outputs.skip-release != 'true' &&
       needs.detect.outputs.action == 'start-dev'
-    
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: main
-      
+
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-      
+
       - name: Create Development Branch
         run: |
           VERSION="${{ needs.detect.outputs.version }}"
           DEV_BRANCH="dev/$VERSION"
-          
+
           if git ls-remote --heads origin "$DEV_BRANCH" | grep -q "$DEV_BRANCH"; then
             echo "⚠️ Development branch already exists: $DEV_BRANCH" >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
-          
+
           git checkout -b "$DEV_BRANCH"
           git push origin "$DEV_BRANCH"
-          
+
           echo "✅ Created development branch: \`$DEV_BRANCH\`" >> $GITHUB_STEP_SUMMARY
 
   # ═══════════════════════════════════════════════════════════════════════
@@ -374,43 +374,43 @@ jobs:
     if: |
       needs.detect.outputs.skip-release != 'true' &&
       needs.detect.outputs.action == 'create-rc'
-    
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: dev/${{ needs.detect.outputs.version }}
-      
+
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-      
+
       - name: Create RC Branch and Tag
         run: |
           VERSION="${{ needs.detect.outputs.version }}"
           RC_BRANCH="rc/$VERSION"
-          
+
           # Create RC branch
           if git ls-remote --heads origin "$RC_BRANCH" | grep -q "$RC_BRANCH"; then
             echo "⚠️ RC branch already exists: $RC_BRANCH" >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
-          
+
           git checkout -b "$RC_BRANCH"
           git push origin "$RC_BRANCH"
-          
+
           # Create RC tag (add -rc suffix if not present)
           if echo "$VERSION" | grep -qE '-[a-zA-Z0-9.-]+$'; then
             TAG="v${VERSION}"
           else
             TAG="v${VERSION}-rc"
           fi
-          
+
           git tag -a "$TAG" -m "Release Candidate $VERSION"
           git push origin "$TAG"
-          
+
           echo "✅ Created RC branch: \`$RC_BRANCH\`" >> $GITHUB_STEP_SUMMARY
           echo "✅ Created RC tag: \`$TAG\`" >> $GITHUB_STEP_SUMMARY
 
@@ -479,7 +479,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [detect, start-dev, create-rc, finalize-release, hotfix, simple-release]
     if: always() && needs.detect.outputs.skip-release != 'true'
-    
+
     steps:
       - name: Generate Summary
         run: |
@@ -490,7 +490,7 @@ jobs:
           echo "**Source**: ${{ needs.detect.outputs.version-source }}" >> $GITHUB_STEP_SUMMARY
           echo "**Prerelease**: ${{ needs.detect.outputs.is-prerelease }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           case "${{ needs.detect.outputs.action }}" in
             start-dev)
               echo "✅ Development branch created" >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,175 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.Automation
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/auto-update-sha.yml
+# VERSION: 01.00.00
+# BRIEF: Automatically update SHA-256 hashes after merge to main
+# NOTE: Ensures security verification hashes stay synchronized with file changes
+
+name: Auto-Update SHA Hashes
+
+# MokoStandards Policy Compliance:
+# - File formatting: Enforces organizational coding standards
+# - Reference: docs/policy/file-formatting.md
+
+# ┌─────────────────────────────────────────────────────────────────────────┐
+# │                         WORKFLOW FLOW DIAGRAM                            │
+# └─────────────────────────────────────────────────────────────────────────┘
+#
+#   TRIGGER: Push to main (after merge)
+#        │
+#        ▼
+#   ┌──────────────────┐
+#   │  Check if files  │
+#   │  with SHA hashes │
+#   │    changed       │
+#   └──────────────────┘
+#        │
+#        ▼
+#   ┌──────────────────┐
+#   │  Calculate new   │
+#   │  SHA-256 hashes  │
+#   └──────────────────┘
+#        │
+#        ▼
+#   ┌──────────────────┐
+#   │  Update workflow │
+#   │  files if needed │
+#   └──────────────────┘
+#        │
+#        ▼
+#   ┌──────────────────┐
+#   │  Commit & Push   │
+#   │  if changes made │
+#   └──────────────────┘
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      # Trigger when tracked files change
+      - 'scripts/validate/validate_codeql_config.py'
+      - 'scripts/maintenance/update_sha_hashes.py'
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Force update even if no changes detected'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  update-sha-hashes:
+    name: Update SHA-256 Hashes
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          set -x
+          echo "## 🔐 SHA-256 Hash Update Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Run script in dry-run mode to check if updates needed
+          if python3 scripts/maintenance/update_sha_hashes.py --dry-run --verbose > /tmp/sha_check.txt 2>&1; then
+            echo "✅ Script execution successful" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Script execution failed" >> $GITHUB_STEP_SUMMARY
+            cat /tmp/sha_check.txt >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+          cat /tmp/sha_check.txt
+
+          # Check if changes would be made
+          if grep -q "Hash updated" /tmp/sha_check.txt || [ "${{ github.event.inputs.force }}" = "true" ]; then
+            echo "needs_update=true" >> $GITHUB_OUTPUT
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### 📝 Updates Needed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            cat /tmp/sha_check.txt >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "needs_update=false" >> $GITHUB_OUTPUT
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "ℹ️ No updates needed - all hashes are current" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Update SHA hashes
+        if: steps.check_changes.outputs.needs_update == 'true'
+        run: |
+          set -x
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔄 Updating Hashes" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          python3 scripts/maintenance/update_sha_hashes.py --verbose | tee /tmp/sha_update.txt
+
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          cat /tmp/sha_update.txt >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Configure Git
+        if: steps.check_changes.outputs.needs_update == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+      - name: Commit and push changes
+        if: steps.check_changes.outputs.needs_update == 'true'
+        run: |
+          set -x
+
+          # Check if there are actual changes to commit
+          if git diff --quiet .github/workflows/; then
+            echo "ℹ️ No changes to commit" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+
+          git add .github/workflows/
+          git commit -m "chore: auto-update SHA-256 hashes after merge" \
+                     -m "" \
+                     -m "[skip ci]" \
+                     -m "" \
+                     -m "Updated SHA-256 hashes for security verification scripts." \
+                     -m "Generated by: .github/workflows/auto-update-sha.yml" \
+                     -m "Commit: ${{ github.sha }}" \
+                     -m "Triggered by: ${{ github.event_name }}"
+
+          git push
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Changes Committed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "SHA-256 hashes have been automatically updated and committed." >> $GITHUB_STEP_SUMMARY
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Workflow:** Auto-Update SHA Hashes" >> $GITHUB_STEP_SUMMARY
+          echo "**Trigger:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY

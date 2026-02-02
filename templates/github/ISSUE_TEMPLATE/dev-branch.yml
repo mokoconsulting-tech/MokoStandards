@@ -1,0 +1,157 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# TEMPLATE: Development Branch Tracking Issue Template
+# Deploy this to: .github/ISSUE_TEMPLATE/dev-branch.yml
+
+name: Development Branch Tracking
+description: Track the lifecycle of a development branch from creation to merge
+title: "Dev Branch: [BRANCH_NAME]"
+labels: ["dev-branch", "version-management"]
+assignees:
+  - copilot
+  - jmiller-moko
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🌿 Development Branch Lifecycle Tracking
+
+        This issue tracks the complete lifecycle of a development branch,
+        from creation through all pull requests to final merge into main.
+
+  - type: input
+    id: branch_name
+    attributes:
+      label: Branch Name
+      description: The name of the development branch (e.g., dev/03.01.02)
+      placeholder: "dev/XX.YY.ZZ"
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Target Version
+      description: The version this branch is targeting (e.g., 03.01.02)
+      placeholder: "XX.YY.ZZ"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: branch_type
+    attributes:
+      label: Branch Type
+      description: Type of development branch
+      options:
+        - Development (dev/)
+        - Release Candidate (rc/)
+        - Version (version/)
+    validations:
+      required: true
+
+  - type: textarea
+    id: objectives
+    attributes:
+      label: Development Objectives
+      description: What are the goals and objectives for this development cycle?
+      placeholder: |
+        - Feature A implementation
+        - Bug fixes for issue #123
+        - Performance improvements
+        - Documentation updates
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Development priority level
+      options:
+        - priority/critical
+        - priority/high
+        - priority/medium
+        - priority/low
+      default: 1
+    validations:
+      required: true
+
+  - type: textarea
+    id: milestone_info
+    attributes:
+      label: Milestone Information
+      description: Associated milestone and target dates
+      placeholder: |
+        - Target milestone: vXX.YY.ZZ
+        - Expected completion: YYYY-MM-DD
+        - Release date: YYYY-MM-DD
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: List any dependencies, blockers, or prerequisites
+      placeholder: |
+        - Depends on: #issue_number
+        - Blocks: #issue_number
+        - Related to: #issue_number
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+
+        ### 📝 Pull Requests
+
+        This section will be automatically updated by the Enterprise Issue
+        Manager workflow as PRs are opened and merged.
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+
+        ### ℹ️ Automated Tracking
+
+        This issue is managed by the **Enterprise Issue Manager** workflow:
+        - ✅ Pull requests will be automatically linked when opened
+        - ✅ Checkboxes will be updated when PRs are merged
+        - ✅ Issue will be closed when the branch is merged to main
+        - ✅ All actions are logged for audit purposes
+
+        **Do not manually close this issue** unless the branch is being abandoned.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Branch Lifecycle Checklist
+      description: Track the progress of this development branch
+      options:
+        - label: Branch created from main
+          required: false
+        - label: Development objectives defined
+          required: false
+        - label: Initial commits pushed
+          required: false
+        - label: All features/fixes implemented
+          required: false
+        - label: Code review completed
+          required: false
+        - label: Tests passing
+          required: false
+        - label: Documentation updated
+          required: false
+        - label: Ready for merge to main
+          required: false
+        - label: Merged to main
+          required: false
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional Notes
+      description: Any additional information, notes, or context
+      placeholder: |
+        Add any relevant notes, decisions, or context here.

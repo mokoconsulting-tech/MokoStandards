@@ -1,0 +1,202 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# TEMPLATE: Sub-Task / PR Tracking Issue Template
+# Deploy this to: .github/ISSUE_TEMPLATE/sub-task.yml
+
+name: Sub-Task / PR Tracking
+description: Track a sub-task or pull request as part of a larger development effort
+title: "[PR] [TASK_NAME]"
+labels: ["sub-task", "pr-tracking"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 📋 Sub-Task / Pull Request Tracking
+
+        This issue represents a sub-task or pull request that is part of a
+        larger development branch effort. It will be automatically linked to
+        its parent tracking issue.
+
+  - type: input
+    id: parent_issue
+    attributes:
+      label: Parent Issue
+      description: The parent tracking issue this sub-task belongs to
+      placeholder: "#issue_number (e.g., #123)"
+    validations:
+      required: true
+
+  - type: input
+    id: pr_number
+    attributes:
+      label: Pull Request Number
+      description: The associated pull request number (if applicable)
+      placeholder: "#pr_number (e.g., #456)"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: task_type
+    attributes:
+      label: Task Type
+      description: Type of sub-task or work item
+      options:
+        - Pull Request
+        - Feature Implementation
+        - Bug Fix
+        - Refactoring
+        - Documentation
+        - Testing
+        - Code Review
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Task Description
+      description: Detailed description of what this sub-task accomplishes
+      placeholder: |
+        Describe the specific work being done in this task:
+        - What changes are being made?
+        - What problem does this solve?
+        - What files/components are affected?
+    validations:
+      required: true
+
+  - type: textarea
+    id: implementation_details
+    attributes:
+      label: Implementation Details
+      description: Technical details about the implementation
+      placeholder: |
+        - Files modified:
+        - New dependencies:
+        - Breaking changes:
+        - Migration required:
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Task priority level
+      options:
+        - priority/critical
+        - priority/high
+        - priority/medium
+        - priority/low
+      default: 2
+    validations:
+      required: true
+
+  - type: dropdown
+    id: size
+    attributes:
+      label: Estimated Size
+      description: Estimated effort or size of this task
+      options:
+        - XS (< 1 hour)
+        - S (1-4 hours)
+        - M (4-8 hours)
+        - L (1-2 days)
+        - XL (2-5 days)
+        - XXL (> 5 days)
+      default: 2
+    validations:
+      required: false
+
+  - type: textarea
+    id: testing
+    attributes:
+      label: Testing Plan
+      description: How will this change be tested?
+      placeholder: |
+        - Unit tests added/updated
+        - Integration tests added/updated
+        - Manual testing steps:
+          1.
+          2.
+          3.
+
+  - type: textarea
+    id: documentation
+    attributes:
+      label: Documentation Updates
+      description: What documentation needs to be updated?
+      placeholder: |
+        - README.md changes
+        - API documentation
+        - User guides
+        - Inline code comments
+
+  - type: checkboxes
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance Criteria
+      description: Criteria that must be met for this task to be considered complete
+      options:
+        - label: Code changes implemented
+          required: false
+        - label: Tests added/updated and passing
+          required: false
+        - label: Code reviewed and approved
+          required: false
+        - label: Documentation updated
+          required: false
+        - label: CI/CD pipeline passing
+          required: false
+        - label: No breaking changes (or properly documented)
+          required: false
+        - label: Security considerations addressed
+          required: false
+
+  - type: dropdown
+    id: status
+    attributes:
+      label: Status
+      description: Current status of this sub-task
+      options:
+        - 📋 Backlog
+        - 🚧 In Progress
+        - 👀 In Review
+        - ✅ Completed
+        - 🔒 Blocked
+        - ❌ Cancelled
+      default: 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: blockers
+    attributes:
+      label: Blockers / Dependencies
+      description: What is blocking this task or what does it depend on?
+      placeholder: |
+        - Blocked by: #issue_number
+        - Depends on: #issue_number
+        - Waiting for: review/approval/merge
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+
+        ### ℹ️ Automated Tracking
+
+        This sub-task is managed by the **Enterprise Issue Manager** workflow:
+        - ✅ Automatically linked to parent tracking issue
+        - ✅ Status updated when PR is opened/merged
+        - ✅ Parent issue updated with progress
+        - ✅ All actions are logged for audit purposes
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional Notes
+      description: Any additional information or context
+      placeholder: |
+        Add any relevant notes, links, or context here.

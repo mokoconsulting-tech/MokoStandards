@@ -179,7 +179,6 @@ $script:DefaultScriptsToSync = @(
     "scripts/validate/validate_codeql_config.py"
     "scripts/validate/auto_detect_platform.py"
     "scripts/validate/validate_structure_v2.py"
-    "scripts/release/deploy_to_dev.py"
     "scripts/definitions/crm-module.xml"
     "scripts/definitions/default-repository.xml"
     "scripts/definitions/waas-component.xml"

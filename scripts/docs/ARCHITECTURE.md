@@ -58,7 +58,6 @@ scripts/
 │   └── file-distributor.py         # File distribution
 │
 ├── release/               # Release management (depend on lib/, validate/)
-│   ├── deploy_to_dev.py   # Development deployment
 │   ├── detect_platform.py # Platform detection for releases
 │   ├── package_extension.py # Extension packaging
 │   └── dolibarr_release.py  # Dolibarr release management

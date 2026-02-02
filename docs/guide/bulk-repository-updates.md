@@ -93,7 +93,6 @@ Preview what would be updated without making changes:
 - `templates/workflows/generic/dependency-review.yml.template` → `.github/workflows/dependency-review.yml`
 - `templates/workflows/standards-compliance.yml.template` → `.github/workflows/standards-compliance.yml`
 - `templates/workflows/release-cycle-simple.yml.template` → `.github/workflows/release-cycle.yml`
-- `templates/workflows/deploy-to-dev.yml` → `.github/workflows/deploy-to-dev.yml` (automatic deployment to dev server on PR merge)
 - `.github/workflows/reusable-build.yml` → `.github/workflows/reusable-build.yml`
 - `.github/workflows/reusable-ci-validation.yml` → `.github/workflows/reusable-ci-validation.yml`
 - `.github/workflows/reusable-release.yml` → `.github/workflows/reusable-release.yml`
@@ -105,7 +104,6 @@ Preview what would be updated without making changes:
 - `scripts/maintenance/validate_file_headers.py`
 - `scripts/maintenance/update_changelog.py`
 - `scripts/maintenance/release_version.py`
-- `scripts/release/deploy_to_dev.py` (deployment script for dev server)
 
 ## Workflow
 

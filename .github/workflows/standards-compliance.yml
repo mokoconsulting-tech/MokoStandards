@@ -641,7 +641,7 @@ jobs:
 
           # Download validation script from MokoStandards
           SCRIPT_URL="https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/scripts/validate/validate_codeql_config.py"
-          EXPECTED_SHA256="3c07f9e7ba50a51718dfb548d1105770a369cb0e1ece46d8e1f1765ad7bb09c9"
+          EXPECTED_SHA256="b79bf71adc8968805fac1a36a764ffde543099d110a93593767bdc9fa890673d"
 
           curl -sSL "$SCRIPT_URL" -o /tmp/validate_codeql_config.py
 

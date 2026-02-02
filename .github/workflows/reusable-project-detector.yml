@@ -58,9 +58,9 @@ jobs:
 
           # Check for Joomla indicators
           if [ -f "joomla.xml" ] || \
-             find . -maxdepth 2 -name "mod_*.xml" \
+             find . -maxdepth 2 \( -name "mod_*.xml" \
                -o -name "plg_*.xml" -o -name "com_*.xml" \
-               -o -name "pkg_*.xml" -o -name "tpl_*.xml" \
+               -o -name "pkg_*.xml" -o -name "tpl_*.xml" \) \
                2>/dev/null | grep -q .; then
             echo "project-type=joomla" >> $GITHUB_OUTPUT
 

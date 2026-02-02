@@ -60,12 +60,8 @@ The MokoStandards repository uses a **unified release system** that automaticall
 **`enterprise-issue-manager.yml`** - Issue Management
 - **Purpose**: Enterprise issue tracking and lifecycle management
 - **Triggers**: PR events, issue events, manual dispatch
-- **Features**:
-  - Automatic issue creation for branches
-  - PR-to-issue linking
-  - Project board automation
-  - SLA tracking
-  - Milestone management
+- **Status**: Existing workflow (not modified in this release system rebuild)
+- **Note**: Enterprise issue management enhancements are tracked separately
 
 ## Disabled Workflows
 
@@ -188,16 +184,13 @@ git commit -m "docs: update README [skip release]"
 
 ## Enterprise Issue Management
 
-The `enterprise-issue-manager.yml` workflow provides:
+The `enterprise-issue-manager.yml` workflow is maintained separately and not modified as part of this release system rebuild.
 
-- **Automatic Issue Creation**: Creates issues for dev/rc/version branches
-- **PR Linking**: Links PRs to parent issues automatically
-- **Project Board Automation**: Moves issues through workflow stages
-- **SLA Tracking**: Monitors and reports on SLA compliance
-- **Label Management**: Applies standardized labels for governance
-- **Milestone Tracking**: Associates issues with version milestones
+For enterprise issue management features and configuration, see:
+- `.github/workflows/enterprise-issue-manager.yml`
+- `.github/issue-management-config.yml`
 
-Configuration: `.github/issue-management-config.yml`
+**Note**: Enterprise issue management enhancements are tracked in a separate issue.
 
 ## Troubleshooting
 
@@ -270,14 +263,7 @@ Configuration: `.github/issue-management-config.yml`
 │  • Package assets upload                                │
 │  • Draft/prerelease flags                               │
 └─────────────────────────────────────────────────────────┘
-                    │
-                    ▼
-┌─────────────────────────────────────────────────────────┐
-│        enterprise-issue-manager.yml (Optional)           │
-│  • Issue lifecycle tracking                              │
-│  • PR-to-issue linking                                   │
-│  • Milestone updates                                     │
-└─────────────────────────────────────────────────────────┘
+
 ```
 
 ## Configuration Files
@@ -285,8 +271,6 @@ Configuration: `.github/issue-management-config.yml`
 - `.github/workflows/unified-release.yml` - Main release workflow
 - `.github/workflows/reusable-release.yml` - Shared release logic
 - `.github/workflows/release-cycle.yml` - Staged release management
-- `.github/workflows/enterprise-issue-manager.yml` - Issue management
-- `.github/issue-management-config.yml` - Issue manager configuration
 - `CITATION.cff` - Primary version source
 - `pyproject.toml` - Secondary version source
 - `CHANGELOG.md` - Release notes source

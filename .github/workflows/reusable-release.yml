@@ -59,6 +59,8 @@ permissions:
 jobs:
   detect:
     name: Detect Project Type
+    permissions:
+      contents: read
     uses: ./.github/workflows/reusable-project-detector.yml
     with:
       working-directory: ${{ inputs.working-directory }}

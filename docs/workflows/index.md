@@ -6,7 +6,6 @@ This index provides navigation to documentation within this folder.
 
 ## Documents
 
-- [dev-deployment](./dev-deployment.md)
 - [README](./README.md)
 
 ## Metadata

@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at": "2026-02-02T09:28:08.219939Z",
+    "generated_at": "2026-02-02T09:38:40.306626Z",
     "repository": "mokoconsulting-tech/MokoStandards",
     "version": "1.0.0"
   },
@@ -398,6 +398,13 @@
       "size_bytes": 18887
     },
     {
+      "path": "scripts/validate/check_all_files.py",
+      "sha256": "e708aae24271eb2d0457acb922809d5a51e4a7fb5f1fd4cd45783dea42a63cc6",
+      "category": "validate",
+      "priority": "critical",
+      "size_bytes": 32318
+    },
+    {
       "path": "scripts/validate/check_license_headers.py",
       "sha256": "cc5f4ba9539da8fbe0a397893571bfc9a18e46da1e2fb275389cc53737fdee89",
       "category": "validate",
@@ -539,11 +546,11 @@
     }
   ],
   "summary": {
-    "total_scripts": 76,
+    "total_scripts": 77,
     "by_priority": {
       "medium": 15,
       "high": 24,
-      "critical": 37
+      "critical": 38
     },
     "by_category": {
       "analysis": 4,
@@ -555,7 +562,7 @@
       "release": 5,
       "run": 5,
       "tests": 2,
-      "validate": 23
+      "validate": 24
     }
   }
 }

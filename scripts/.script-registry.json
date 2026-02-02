@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at": "2026-02-02T09:38:40.306626Z",
+    "generated_at": "2026-02-02T09:57:29.043652Z",
     "repository": "mokoconsulting-tech/MokoStandards",
     "version": "1.0.0"
   },
@@ -350,10 +350,10 @@
     },
     {
       "path": "scripts/run/load_demo_data.py",
-      "sha256": "2013ff308f04daff18444a0d701869be34a4e7eaedfce0e550c33e6d84ef893a",
+      "sha256": "9e5ee55f8eec3b3015cafe502b1f2b5bc7f832870d2eda93bf8450cbfff5bbac",
       "category": "run",
       "priority": "medium",
-      "size_bytes": 10782
+      "size_bytes": 11125
     },
     {
       "path": "scripts/run/setup_github_project_v2.py",

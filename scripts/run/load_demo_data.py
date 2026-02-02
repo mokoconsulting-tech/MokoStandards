@@ -335,7 +335,16 @@ def main():
         return 0 if success else 1
         
     except Exception as e:
-        print(f"ERROR: Database connection failed: {e}")
+        # Sanitize error message to prevent password leakage
+        error_msg = str(e)
+        # Remove password from error message using regex
+        sanitized_msg = re.sub(
+            r"password['\"]?\s*[:=]\s*['\"]?[^'\"}\s,)]+",
+            "password='***'",
+            error_msg,
+            flags=re.IGNORECASE
+        )
+        print(f"ERROR: Database connection failed: {sanitized_msg}")
         return 1
 
 

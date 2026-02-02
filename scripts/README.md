@@ -37,7 +37,6 @@ The scripts are organized into functional categories (with Python, Shell, and Po
     - `DRY_RUN_PATTERN.md` - Dry-run implementation pattern
     - `NEW_SCRIPTS.md` - New scripts development guide
     - `QUICKSTART_ORG_PROJECTS.md` - Quick start guide
-
     - `README_update_gitignore_patterns.md` - Gitignore update guide
     - `LEGAL_DOC_GENERATOR_WEB_README.md` - Legal doc generator guide
     - `legal_doc_generator.html` - Legal doc generator web interface

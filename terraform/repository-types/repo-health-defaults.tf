@@ -30,8 +30,10 @@ locals {
   }
 
   scoring = {
-    # TODO: Calculate total_points dynamically from sum of all check points
-    # Currently hardcoded to match original XML schema value
+    # Total points based on category max_points sum
+    # Categories: CI/CD (15) + Docs (16) + Folders (10) + Workflows (12) + 
+    # Issue Templates (5) + Security (15) + Repo Settings (10) + Deployment (20) = 103
+    # Note: Not all checks implemented yet. Implemented: CI/CD + Docs + Folders + Security = 56 points
     total_points = 103
   }
 
@@ -343,10 +345,41 @@ locals {
     }
   }
 
-  # Note: Additional check categories (workflows, issue_templates, security, 
+  # Security Checks (15 points)
+  security_checks = {
+    script_integrity_critical = {
+      id          = "script-integrity-critical"
+      name        = "Critical Script Integrity Validation"
+      description = "Validate SHA-256 integrity of critical priority scripts"
+      points      = 8
+      check_type  = "script-integrity"
+      category    = "security"
+      required    = true
+      remediation = "Update script registry: python3 scripts/maintenance/generate_script_registry.py --update"
+      parameters = {
+        priority = "critical"
+      }
+    }
+
+    security_vulnerability_scan = {
+      id          = "security-vulnerability-scan"
+      name        = "Script Security Vulnerability Scan"
+      description = "Scan scripts for security vulnerabilities (hardcoded secrets, injection, etc.)"
+      points      = 7
+      check_type  = "security-scan"
+      category    = "security"
+      required    = true
+      remediation = "Fix security issues: python3 scripts/validate/check_script_security.py --verbose"
+      parameters = {
+        max_severity = "high"
+      }
+    }
+  }
+
+  # Note: Additional check categories (workflows, issue_templates, 
   # repository_settings, deployment_secrets) are defined but checks are not
   # yet fully implemented. They require GitHub API integration.
-  # TODO: Add remaining health checks for complete 103-point scoring
+  # TODO: Add remaining health checks for workflows, issue templates, etc.
 }
 
 # Output all configuration for consumption by validation scripts
@@ -360,8 +393,9 @@ output "repo_health_config" {
     checks = merge(
       local.ci_cd_checks,
       local.documentation_checks,
-      local.folder_checks
-      # TODO: Add workflows_checks, issue_template_checks, security_checks, etc.
+      local.folder_checks,
+      local.security_checks
+      # TODO: Add workflows_checks, issue_template_checks, repository_settings_checks, deployment_secrets_checks
     )
   }
 }

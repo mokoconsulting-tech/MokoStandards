@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at": "2026-02-02T09:05:09.583837Z",
+    "generated_at": "2026-02-02T09:28:08.219939Z",
     "repository": "mokoconsulting-tech/MokoStandards",
     "version": "1.0.0"
   },
@@ -279,6 +279,20 @@
       "size_bytes": 9058
     },
     {
+      "path": "scripts/maintenance/validate_script_registry.py",
+      "sha256": "8653a2fd2493a2b4659236d13b502a2630305c1832190ea97afcc879fd9b3455",
+      "category": "maintenance",
+      "priority": "critical",
+      "size_bytes": 7964
+    },
+    {
+      "path": "scripts/maintenance/validate_terraform_drift.py",
+      "sha256": "0397fd9d89b5d0bece9702c276644431f95a2ecbe4db91eb6bfd214d49eebd67",
+      "category": "maintenance",
+      "priority": "critical",
+      "size_bytes": 11484
+    },
+    {
       "path": "scripts/release/detect_platform.py",
       "sha256": "a27ed3d086aa9984b9d0a593705499e76fdb8b784c3ba4663989d312d5ab8745",
       "category": "release",
@@ -399,10 +413,17 @@
     },
     {
       "path": "scripts/validate/check_repo_health.py",
-      "sha256": "fedd12cb446f1ba49d7d0e61e3a8e57b9fcdf144a6d91c9de9b9c44edb619aea",
+      "sha256": "d7b8aa256c2eb6f400b653d6b7a9d9bc51a31292bee822827d6aedb2ca690b88",
       "category": "validate",
       "priority": "critical",
-      "size_bytes": 19469
+      "size_bytes": 23616
+    },
+    {
+      "path": "scripts/validate/check_script_security.py",
+      "sha256": "9e98e9fd750a4c0e4095b8c1951cfba3e2ceed004d056a53b58f21fd176f881b",
+      "category": "validate",
+      "priority": "critical",
+      "size_bytes": 12192
     },
     {
       "path": "scripts/validate/find_todos.py",
@@ -518,11 +539,11 @@
     }
   ],
   "summary": {
-    "total_scripts": 73,
+    "total_scripts": 76,
     "by_priority": {
       "medium": 15,
       "high": 24,
-      "critical": 34
+      "critical": 37
     },
     "by_category": {
       "analysis": 4,
@@ -530,11 +551,11 @@
       "build": 1,
       "docs": 4,
       "fix": 3,
-      "maintenance": 12,
+      "maintenance": 14,
       "release": 5,
       "run": 5,
       "tests": 2,
-      "validate": 22
+      "validate": 23
     }
   }
 }

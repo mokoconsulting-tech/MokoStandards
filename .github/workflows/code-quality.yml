@@ -240,6 +240,33 @@ jobs:
             echo "ℹ️ No mypy configuration found, skipping" >> $GITHUB_STEP_SUMMARY
           fi
 
+  yaml-validation:
+    name: YAML Tab Detection
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Check for Tabs in YAML Files
+        run: |
+          echo "### YAML Tab Detection Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if python3 scripts/validate/tabs.py --type yaml; then
+            echo "✅ No tabs found in YAML files" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Tabs found in YAML files - YAML spec forbids tabs" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Fix:** Run \`python3 scripts/validate/tabs.py --fix\` to auto-convert tabs to spaces" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
   html-validation:
     name: HTML5 Validation
     runs-on: ubuntu-latest
@@ -271,7 +298,7 @@ jobs:
   summary:
     name: Quality Check Summary
     runs-on: ubuntu-latest
-    needs: [detect-languages, php-quality, javascript-quality, python-quality, html-validation]
+    needs: [detect-languages, php-quality, javascript-quality, python-quality, yaml-validation, html-validation]
     if: always()
 
     steps:
@@ -289,6 +316,7 @@ jobs:
           echo "- PHP Quality: ${{ needs.php-quality.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- JavaScript Quality: ${{ needs.javascript-quality.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- Python Quality: ${{ needs.python-quality.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- YAML Tab Check: ${{ needs.yaml-validation.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- HTML Validation: ${{ needs.html-validation.result }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "📚 Configuration templates: https://github.com/mokoconsulting-tech/MokoStandards/tree/main/templates/configs" >> $GITHUB_STEP_SUMMARY

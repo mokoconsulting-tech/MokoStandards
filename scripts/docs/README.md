@@ -72,15 +72,6 @@ Guidelines and templates for creating new scripts in the MokoStandards repositor
 ### QUICKSTART_ORG_PROJECTS.md
 Quick start guide for setting up organization-wide GitHub Projects.
 
-### REBUILD_STRATEGY.md
-Strategy document for documentation rebuild and maintenance processes.
-
-### REBUILD_PROGRESS.md
-Progress tracking for documentation rebuild efforts.
-
-### README_REBUILD.md
-Documentation about README file rebuild and maintenance.
-
 ### README_update_gitignore_patterns.md
 Guide for updating .gitignore patterns across repositories.
 

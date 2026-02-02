@@ -40,24 +40,6 @@ Create distribution packages for extensions (Joomla, Dolibarr, etc.).
 ./scripts/release/package_extension.py --dry-run
 ```
 
-### deploy_to_dev.py
-Deploy extensions to development environment via FTP/SFTP.
-
-**Usage:**
-```bash
-# Deploy to configured dev environment
-./scripts/release/deploy_to_dev.py
-
-# Deploy with custom configuration
-./scripts/release/deploy_to_dev.py --config deploy.yml
-
-# Dry run to preview deployment
-./scripts/release/deploy_to_dev.py --dry-run
-
-# Force overwrite existing files
-./scripts/release/deploy_to_dev.py --force
-```
-
 ### detect_platform.py
 Detect the platform/extension type of the current project.
 
@@ -106,11 +88,7 @@ These scripts automate the release process:
 # 2. Create package
 ./scripts/release/package_extension.py
 
-# 3. Test deployment to dev
-./scripts/release/deploy_to_dev.py --dry-run
-./scripts/release/deploy_to_dev.py
-
-# 4. Create GitHub release
+# 3. Create GitHub release
 ./scripts/release/dolibarr_release.py --version 1.2.3
 ```
 

@@ -72,8 +72,7 @@ Beginning systematic rebuild following dependency order.
 - [ ] `automation/analyze_pr_conflicts.py`
 - [ ] `automation/generate_canonical_config.py`
 
-### Release Scripts (0/4 complete)
-- [ ] `release/deploy_to_dev.py`
+### Release Scripts (0/3 complete)
 - [ ] `release/detect_platform.py`
 - [ ] `release/package_extension.py`
 - [ ] `release/dolibarr_release.py`

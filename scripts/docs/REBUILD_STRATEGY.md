@@ -98,12 +98,7 @@ Complete top-down rebuild of all 44 scripts and 15 workflows following modern be
 #### Phase 5: Release Scripts (Day 4)
 **Priority**: MEDIUM - Release automation
 
-1. **release/deploy_to_dev.py** - Development deployment
-   - Multi-platform support
-   - Rollback capability
-   - Deployment validation
-
-2. **release/package_extension.py** - Extension packaging
+1. **release/package_extension.py** - Extension packaging
    - Platform-specific packaging
    - Dependency bundling
    - Integrity validation

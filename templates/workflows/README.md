@@ -64,7 +64,6 @@ The workflows are organized by platform and purpose:
 - `code-quality.yml` - Code quality checks
 - `codeql-analysis.yml` - Security analysis
 - `dependency-review.yml.template` - Dependency review
-- `deploy-to-dev.yml.template` - Development deployment
 - `repo-health.yml` - Repository health checks
 - `test.yml.template` - Generic testing workflow
 

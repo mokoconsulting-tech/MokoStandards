@@ -29,183 +29,183 @@
 name: Terraform Deploy
 
 on:
-	workflow_dispatch:
-		inputs:
-			environment:
-				description: 'Environment to deploy'
-				required: true
-				type: choice
-				options:
-					- dev
-					- staging
-					- prod
-			action:
-				description: 'Terraform action'
-				required: true
-				type: choice
-				options:
-					- plan
-					- apply
-					- destroy
-			auto_approve:
-				description: 'Auto-approve apply/destroy (use with caution)'
-				required: false
-				type: boolean
-				default: false
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+      action:
+        description: 'Terraform action'
+        required: true
+        type: choice
+        options:
+          - plan
+          - apply
+          - destroy
+      auto_approve:
+        description: 'Auto-approve apply/destroy (use with caution)'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
-	contents: read
-	pull-requests: write
-	id-token: write  # Required for OIDC authentication
-	issues: write
+  contents: read
+  pull-requests: write
+  id-token: write  # Required for OIDC authentication
+  issues: write
 
 env:
-	TF_VERSION: '1.7.0'
-	TF_WORKING_DIR: '.'
+  TF_VERSION: '1.7.0'
+  TF_WORKING_DIR: '.'
 
 jobs:
-	terraform-deploy:
-		name: Terraform ${{ inputs.action }} - ${{ inputs.environment }}
-		runs-on: ubuntu-latest
-		environment: ${{ inputs.environment }}
-		
-		steps:
-			- name: Checkout repository
-				uses: actions/checkout@v4
+  terraform-deploy:
+    name: Terraform ${{ inputs.action }} - ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-			- name: Setup Terraform
-				uses: hashicorp/setup-terraform@v3
-				with:
-					terraform_version: ${{ env.TF_VERSION }}
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
 
-			# Configure cloud provider credentials
-			# Example for AWS:
-			- name: Configure AWS Credentials
-				if: ${{ vars.CLOUD_PROVIDER == 'aws' }}
-				uses: aws-actions/configure-aws-credentials@v4
-				with:
-					role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-					aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+      # Configure cloud provider credentials
+      # Example for AWS:
+      - name: Configure AWS Credentials
+        if: ${{ vars.CLOUD_PROVIDER == 'aws' }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
 
-			# Example for Azure:
-			# - name: Azure Login
-			#   if: ${{ vars.CLOUD_PROVIDER == 'azure' }}
-			#   uses: azure/login@v1
-			#   with:
-			#     creds: ${{ secrets.AZURE_CREDENTIALS }}
+      # Example for Azure:
+      # - name: Azure Login
+      #   if: ${{ vars.CLOUD_PROVIDER == 'azure' }}
+      #   uses: azure/login@v1
+      #   with:
+      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-			# Example for GCP:
-			# - name: Authenticate to Google Cloud
-			#   if: ${{ vars.CLOUD_PROVIDER == 'gcp' }}
-			#   uses: google-github-actions/auth@v2
-			#   with:
-			#     workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-			#     service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+      # Example for GCP:
+      # - name: Authenticate to Google Cloud
+      #   if: ${{ vars.CLOUD_PROVIDER == 'gcp' }}
+      #   uses: google-github-actions/auth@v2
+      #   with:
+      #     workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+      #     service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
-			- name: Terraform Init
-				run: |
-					terraform init \
-						-backend-config="key=${{ inputs.environment }}/terraform.tfstate" \
-						-backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
-						-backend-config="region=${{ vars.AWS_REGION || 'us-east-1' }}"
-				working-directory: ${{ env.TF_WORKING_DIR }}
+      - name: Terraform Init
+        run: |
+          terraform init \
+            -backend-config="key=${{ inputs.environment }}/terraform.tfstate" \
+            -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
+            -backend-config="region=${{ vars.AWS_REGION || 'us-east-1' }}"
+        working-directory: ${{ env.TF_WORKING_DIR }}
 
-			- name: Terraform Workspace
-				run: |
-					terraform workspace select ${{ inputs.environment }} || terraform workspace new ${{ inputs.environment }}
-				working-directory: ${{ env.TF_WORKING_DIR }}
+      - name: Terraform Workspace
+        run: |
+          terraform workspace select ${{ inputs.environment }} || terraform workspace new ${{ inputs.environment }}
+        working-directory: ${{ env.TF_WORKING_DIR }}
 
-			- name: Terraform Plan
-				id: plan
-				run: |
-					terraform plan \
-						-var-file="environments/${{ inputs.environment }}.tfvars" \
-						-out=tfplan \
-						-no-color
-				working-directory: ${{ env.TF_WORKING_DIR }}
+      - name: Terraform Plan
+        id: plan
+        run: |
+          terraform plan \
+            -var-file="environments/${{ inputs.environment }}.tfvars" \
+            -out=tfplan \
+            -no-color
+        working-directory: ${{ env.TF_WORKING_DIR }}
 
-			- name: Upload Plan
-				uses: actions/upload-artifact@v4
-				with:
-					name: tfplan-${{ inputs.environment }}-${{ github.run_number }}
-					path: ${{ env.TF_WORKING_DIR }}/tfplan
-					retention-days: 30
+      - name: Upload Plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan-${{ inputs.environment }}-${{ github.run_number }}
+          path: ${{ env.TF_WORKING_DIR }}/tfplan
+          retention-days: 30
 
-			- name: Terraform Apply
-				if: inputs.action == 'apply' && (inputs.auto_approve || inputs.environment != 'prod')
-				id: apply
-				run: |
-					terraform apply -auto-approve tfplan
-				working-directory: ${{ env.TF_WORKING_DIR }}
+      - name: Terraform Apply
+        if: inputs.action == 'apply' && (inputs.auto_approve || inputs.environment != 'prod')
+        id: apply
+        run: |
+          terraform apply -auto-approve tfplan
+        working-directory: ${{ env.TF_WORKING_DIR }}
 
-			- name: Terraform Apply (Production - Manual Approval Required)
-				if: inputs.action == 'apply' && inputs.environment == 'prod' && !inputs.auto_approve
-				id: apply_prod
-				run: |
-					echo "Production deployment requires manual approval"
-					echo "Please review the plan and approve in GitHub environment settings"
-					terraform apply tfplan
-				working-directory: ${{ env.TF_WORKING_DIR }}
+      - name: Terraform Apply (Production - Manual Approval Required)
+        if: inputs.action == 'apply' && inputs.environment == 'prod' && !inputs.auto_approve
+        id: apply_prod
+        run: |
+          echo "Production deployment requires manual approval"
+          echo "Please review the plan and approve in GitHub environment settings"
+          terraform apply tfplan
+        working-directory: ${{ env.TF_WORKING_DIR }}
 
-			- name: Terraform Destroy
-				if: inputs.action == 'destroy' && inputs.auto_approve
-				id: destroy
-				run: |
-					terraform destroy \
-						-var-file="environments/${{ inputs.environment }}.tfvars" \
-						-auto-approve
-				working-directory: ${{ env.TF_WORKING_DIR }}
+      - name: Terraform Destroy
+        if: inputs.action == 'destroy' && inputs.auto_approve
+        id: destroy
+        run: |
+          terraform destroy \
+            -var-file="environments/${{ inputs.environment }}.tfvars" \
+            -auto-approve
+        working-directory: ${{ env.TF_WORKING_DIR }}
 
-			- name: Terraform Output
-				if: inputs.action == 'apply' && (steps.apply.outcome == 'success' || steps.apply_prod.outcome == 'success')
-				id: output
-				run: terraform output -json
-				working-directory: ${{ env.TF_WORKING_DIR }}
+      - name: Terraform Output
+        if: inputs.action == 'apply' && (steps.apply.outcome == 'success' || steps.apply_prod.outcome == 'success')
+        id: output
+        run: terraform output -json
+        working-directory: ${{ env.TF_WORKING_DIR }}
 
-			- name: Comment on Issue/PR
-				if: always()
-				uses: actions/github-script@v7
-				with:
-					script: |
-						const fs = require('fs');
-						const action = '${{ inputs.action }}';
-						const env = '${{ inputs.environment }}';
-						const outcome = '${{ steps.apply.outcome || steps.destroy.outcome || steps.plan.outcome }}';
-						
-						let body = `## Terraform ${action.toUpperCase()} - ${env}\n\n`;
-						body += `**Status:** ${outcome === 'success' ? '✅ Success' : '❌ Failed'}\n`;
-						body += `**Environment:** \`${env}\`\n`;
-						body += `**Action:** \`${action}\`\n`;
-						body += `**Triggered by:** @${{ github.actor }}\n\n`;
-						
-						if (action === 'apply' && outcome === 'success') {
-							body += '### Infrastructure Updated Successfully\n\n';
-							try {
-								const outputs = '${{ steps.output.outputs.stdout }}';
-								body += '<details><summary>Terraform Outputs</summary>\n\n';
-								body += '```json\n' + outputs + '\n```\n\n';
-								body += '</details>\n';
-							} catch (e) {
-								body += '_Outputs not available_\n';
-							}
-						}
-						
-						// Post to issue if triggered from issue
-						if (context.issue.number) {
-							github.rest.issues.createComment({
-								issue_number: context.issue.number,
-								owner: context.repo.owner,
-								repo: context.repo.repo,
-								body: body
-							});
-						}
+      - name: Comment on Issue/PR
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const action = '${{ inputs.action }}';
+            const env = '${{ inputs.environment }}';
+            const outcome = '${{ steps.apply.outcome || steps.destroy.outcome || steps.plan.outcome }}';
+            
+            let body = `## Terraform ${action.toUpperCase()} - ${env}\n\n`;
+            body += `**Status:** ${outcome === 'success' ? '✅ Success' : '❌ Failed'}\n`;
+            body += `**Environment:** \`${env}\`\n`;
+            body += `**Action:** \`${action}\`\n`;
+            body += `**Triggered by:** @${{ github.actor }}\n\n`;
+            
+            if (action === 'apply' && outcome === 'success') {
+              body += '### Infrastructure Updated Successfully\n\n';
+              try {
+                const outputs = '${{ steps.output.outputs.stdout }}';
+                body += '<details><summary>Terraform Outputs</summary>\n\n';
+                body += '```json\n' + outputs + '\n```\n\n';
+                body += '</details>\n';
+              } catch (e) {
+                body += '_Outputs not available_\n';
+              }
+            }
+            
+            // Post to issue if triggered from issue
+            if (context.issue.number) {
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body
+              });
+            }
 
-			- name: Summary
-				if: always()
-				run: |
-					echo "### Terraform Deployment Summary" >> $GITHUB_STEP_SUMMARY
-					echo "" >> $GITHUB_STEP_SUMMARY
-					echo "- **Environment:** ${{ inputs.environment }}" >> $GITHUB_STEP_SUMMARY
-					echo "- **Action:** ${{ inputs.action }}" >> $GITHUB_STEP_SUMMARY
-					echo "- **Status:** ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
-					echo "- **Run Number:** ${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+      - name: Summary
+        if: always()
+        run: |
+          echo "### Terraform Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment:** ${{ inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Action:** ${{ inputs.action }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status:** ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Run Number:** ${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY

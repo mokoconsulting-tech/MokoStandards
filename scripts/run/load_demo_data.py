@@ -5,6 +5,13 @@ Demo Data Loader for Joomla/Dolibarr (Remote)
 This script loads SQL demo data into a MySQL/MariaDB database from a remote system.
 It can parse Joomla or Dolibarr configuration files or accept manual server entry.
 
+SECURITY WARNINGS:
+    - Only execute SQL files from trusted sources
+    - The script validates table prefix input to prevent SQL injection
+    - Passwords are securely prompted using getpass (not echoed to terminal)
+    - IP whitelisting is available via configuration file
+    - Ensure proper database user permissions (avoid using root)
+
 Usage:
     python3 load_demo_data.py --sql demo_data.sql
     python3 load_demo_data.py --sql demo_data.sql --config /path/to/joomla/configuration.php
@@ -15,13 +22,14 @@ METADATA:
     AUTHOR: Moko Consulting LLC
     COPYRIGHT: 2025-2026 Moko Consulting LLC
     LICENSE: MIT
-    VERSION: 01.00.00
+    VERSION: 01.00.01
     CREATED: 2026-01-29
-    UPDATED: 2026-01-29
+    UPDATED: 2026-01-30
 """
 
 import argparse
 import configparser
+import getpass
 import os
 import re
 import socket
@@ -160,16 +168,35 @@ def prompt_for_credentials() -> dict:
     return {
         'host': input("Host [localhost]: ").strip() or 'localhost',
         'user': input("Username: ").strip(),
-        'password': input("Password: ").strip(),
+        'password': getpass.getpass("Password: "),
         'db': input("Database name: ").strip(),
         'dbprefix': input("Table prefix (optional): ").strip(),
     }
 
 
 def load_sql_file(connection, sql_file: str, db_prefix: str = ''):
-    """Load SQL file into database."""
+    """Load SQL file into database.
+    
+    SECURITY NOTE: This function executes SQL statements from a file.
+    Ensure the SQL file comes from a trusted source. The db_prefix
+    parameter is validated to prevent injection attacks.
+    
+    Args:
+        connection: Database connection object
+        sql_file: Path to the SQL file to load
+        db_prefix: Table prefix to replace {PREFIX} placeholder
+        
+    Returns:
+        bool: True if successful, False otherwise
+    """
     if not os.path.exists(sql_file):
         print(f"ERROR: SQL file not found: {sql_file}")
+        return False
+    
+    # Validate db_prefix to prevent SQL injection
+    # Only allow alphanumeric characters and underscores
+    if db_prefix and not re.match(r'^[a-zA-Z0-9_]*$', db_prefix):
+        print(f"ERROR: Invalid table prefix. Only alphanumeric characters and underscores are allowed.")
         return False
     
     print(f"Reading SQL file: {sql_file}")
@@ -308,7 +335,16 @@ def main():
         return 0 if success else 1
         
     except Exception as e:
-        print(f"ERROR: Database connection failed: {e}")
+        # Sanitize error message to prevent password leakage
+        error_msg = str(e)
+        # Remove password from error message using regex
+        sanitized_msg = re.sub(
+            r"password['\"]?\s*[:=]\s*['\"]?[^'\"}\s,)]+",
+            "password='***'",
+            error_msg,
+            flags=re.IGNORECASE
+        )
+        print(f"ERROR: Database connection failed: {sanitized_msg}")
         return 1
 
 

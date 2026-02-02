@@ -1,0 +1,240 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.Security
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/security-comprehensive.yml
+# VERSION: 01.00.00
+# BRIEF: Comprehensive security checks for all scripts and repository
+# NOTE: Runs script security analysis, integrity validation, and repo health
+
+name: Comprehensive Security Scan
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'scripts/**'
+      - '.github/workflows/**'
+  push:
+    branches:
+      - main
+    paths:
+      - 'scripts/**'
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      scan_type:
+        description: 'Type of security scan'
+        required: false
+        type: choice
+        options:
+          - all
+          - scripts
+          - integrity
+          - health
+        default: 'all'
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  script-security-scan:
+    name: Script Security Analysis
+    runs-on: ubuntu-latest
+    if: github.event.inputs.scan_type == 'all' || github.event.inputs.scan_type == 'scripts' || github.event.inputs.scan_type == ''
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Run Script Security Scan
+        id: security_scan
+        run: |
+          echo "## 🛡️ Script Security Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          python3 scripts/validate/check_script_security.py \
+            --path scripts \
+            --verbose \
+            --output /tmp/security-report.txt | tee /tmp/security-scan.log
+
+          EXIT_CODE=$?
+          echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          cat /tmp/security-scan.log >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload Security Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-report
+          path: /tmp/security-report.txt
+          retention-days: 30
+
+      - name: Check for Critical Issues
+        if: steps.security_scan.outputs.exit_code == '1'
+        run: |
+          echo "❌ Critical or high severity security issues detected!"
+          echo "Review the security report for details"
+          exit 1
+
+  script-integrity-check:
+    name: Script Integrity Validation
+    runs-on: ubuntu-latest
+    if: github.event.inputs.scan_type == 'all' || github.event.inputs.scan_type == 'integrity' || github.event.inputs.scan_type == ''
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Validate Critical Scripts
+        id: validate_critical
+        continue-on-error: true
+        run: |
+          echo "## 🔐 Script Integrity - Critical Priority" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          python3 scripts/maintenance/validate_script_registry.py \
+            --priority critical \
+            --verbose | tee /tmp/integrity-critical.log
+
+          EXIT_CODE=$?
+          echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          cat /tmp/integrity-critical.log >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Validate High Priority Scripts
+        id: validate_high
+        continue-on-error: true
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 🔐 Script Integrity - High Priority" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          python3 scripts/maintenance/validate_script_registry.py \
+            --priority high \
+            --verbose | tee /tmp/integrity-high.log
+
+          EXIT_CODE=$?
+          echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          cat /tmp/integrity-high.log >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Fail if Critical Scripts Modified
+        if: steps.validate_critical.outputs.exit_code != '0'
+        run: |
+          echo "❌ Critical script integrity validation failed!"
+          exit 1
+
+  repo-health-with-security:
+    name: Repository Health + Security
+    runs-on: ubuntu-latest
+    if: github.event.inputs.scan_type == 'all' || github.event.inputs.scan_type == 'health' || github.event.inputs.scan_type == ''
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Run Repository Health Check
+        id: health_check
+        continue-on-error: true
+        run: |
+          echo "## 🏥 Repository Health Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Note: This assumes security checks are integrated in Terraform config
+          # The check_repo_health.py now supports security-scan and script-integrity checks
+          python3 scripts/validate/check_repo_health.py \
+            --repo-path . | tee /tmp/health-check.log
+
+          EXIT_CODE=$?
+          echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          cat /tmp/health-check.log >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload Health Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: health-report
+          path: /tmp/health-check.log
+          retention-days: 30
+
+  security-summary:
+    name: Security Summary
+    runs-on: ubuntu-latest
+    needs: [script-security-scan, script-integrity-check, repo-health-with-security]
+    if: always()
+
+    steps:
+      - name: Generate Summary
+        run: |
+          echo "# 🛡️ Comprehensive Security Scan Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          SCRIPT_SEC="${{ needs.script-security-scan.result }}"
+          INTEGRITY="${{ needs.script-integrity-check.result }}"
+          HEALTH="${{ needs.repo-health-with-security.result }}"
+
+          if [ "$SCRIPT_SEC" = "success" ] || [ "$SCRIPT_SEC" = "skipped" ]; then
+            echo "- ✅ **Script Security**: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ❌ **Script Security**: FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "$INTEGRITY" = "success" ] || [ "$INTEGRITY" = "skipped" ]; then
+            echo "- ✅ **Script Integrity**: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ❌ **Script Integrity**: FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "$HEALTH" = "success" ] || [ "$HEALTH" = "skipped" ]; then
+            echo "- ✅ **Repository Health**: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ⚠️ **Repository Health**: NEEDS ATTENTION" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Workflow:** Comprehensive Security Scan" >> $GITHUB_STEP_SUMMARY
+          echo "**Trigger:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Fail if Critical Issues
+        if: needs.script-security-scan.result == 'failure' || needs.script-integrity-check.result == 'failure'
+        run: |
+          echo "❌ Critical security issues detected - workflow failed"
+          exit 1

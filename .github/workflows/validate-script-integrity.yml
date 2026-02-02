@@ -1,0 +1,238 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.Security
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/validate-script-integrity.yml
+# VERSION: 01.00.00
+# BRIEF: Validate integrity of all scripts using SHA-256 registry
+# NOTE: Ensures no unauthorized script modifications
+
+name: Validate Script Integrity
+
+# MokoStandards Policy Compliance:
+# - File formatting: Enforces organizational coding standards
+# - Reference: docs/policy/file-formatting.md
+
+# ┌─────────────────────────────────────────────────────────────────────────┐
+# │                         WORKFLOW FLOW DIAGRAM                            │
+# └─────────────────────────────────────────────────────────────────────────┘
+#
+#   TRIGGER: PR, Push to main, Manual
+#        │
+#        ▼
+#   ┌──────────────────┐
+#   │ Load Registry    │
+#   │ (.script-        │
+#   │  registry.json)  │
+#   └──────────────────┘
+#        │
+#        ▼
+#   ┌──────────────────┐
+#   │ Validate ALL     │
+#   │ Scripts against  │
+#   │ Registry         │
+#   └──────────────────┘
+#        │
+#        ├─── Pass ──────► ✅ Success
+#        │
+#        └─── Fail ──────► Report & Fail
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'scripts/**/*.py'
+      - 'scripts/**/*.sh'
+      - 'scripts/**/*.ps1'
+      - 'scripts/.script-registry.json'
+  push:
+    branches:
+      - main
+    paths:
+      - 'scripts/**/*.py'
+      - 'scripts/**/*.sh'
+      - 'scripts/**/*.ps1'
+  workflow_dispatch:
+    inputs:
+      priority:
+        description: 'Check only scripts of specified priority'
+        required: false
+        type: choice
+        options:
+          - all
+          - critical
+          - high
+        default: 'all'
+      strict:
+        description: 'Fail on any discrepancies'
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  validate-scripts:
+    name: Validate Script Integrity
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Check if registry exists
+        id: check_registry
+        run: |
+          if [ -f "scripts/.script-registry.json" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "✅ Registry found" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "⚠️ Registry not found - will generate" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Generate registry if missing
+        if: steps.check_registry.outputs.exists == 'false'
+        run: |
+          echo "## 🔐 Generating Script Registry" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          python3 scripts/maintenance/generate_script_registry.py | tee /tmp/registry_gen.log
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          cat /tmp/registry_gen.log >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Validate critical scripts
+        id: validate_critical
+        run: |
+          set +e
+          echo "## 🔐 Script Integrity Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Critical Priority Scripts" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          python3 scripts/maintenance/validate_script_registry.py \
+            --priority critical \
+            --verbose | tee /tmp/validate_critical.log
+
+          EXIT_CODE=$?
+          echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          cat /tmp/validate_critical.log >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+          exit $EXIT_CODE
+
+      - name: Validate high priority scripts
+        if: always()
+        id: validate_high
+        run: |
+          set +e
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### High Priority Scripts" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          python3 scripts/maintenance/validate_script_registry.py \
+            --priority high \
+            --verbose | tee /tmp/validate_high.log
+
+          EXIT_CODE=$?
+          echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          cat /tmp/validate_high.log >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+          exit $EXIT_CODE
+
+      - name: Validate all scripts (full check)
+        if: always() && github.event.inputs.priority == 'all'
+        id: validate_all
+        run: |
+          set +e
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### All Scripts (Full Validation)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          STRICT_FLAG=""
+          if [ "${{ github.event.inputs.strict }}" = "true" ]; then
+            STRICT_FLAG="--strict"
+          fi
+
+          python3 scripts/maintenance/validate_script_registry.py \
+            $STRICT_FLAG \
+            --verbose | tee /tmp/validate_all.log
+
+          EXIT_CODE=$?
+          echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          cat /tmp/validate_all.log >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+          exit $EXIT_CODE
+
+      - name: Generate report
+        if: always()
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 Validation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          CRITICAL_EXIT="${{ steps.validate_critical.outputs.exit_code }}"
+          HIGH_EXIT="${{ steps.validate_high.outputs.exit_code }}"
+          ALL_EXIT="${{ steps.validate_all.outputs.exit_code }}"
+
+          if [ "$CRITICAL_EXIT" = "0" ]; then
+            echo "- ✅ **Critical scripts**: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ❌ **Critical scripts**: FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "$HIGH_EXIT" = "0" ]; then
+            echo "- ✅ **High priority scripts**: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ❌ **High priority scripts**: FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ -n "$ALL_EXIT" ]; then
+            if [ "$ALL_EXIT" = "0" ]; then
+              echo "- ✅ **All scripts**: PASSED" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "- ⚠️ **All scripts**: WARNINGS" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔧 If Validation Failed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**If changes are legitimate:**" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "# Update the registry to reflect current state" >> $GITHUB_STEP_SUMMARY
+          echo "python3 scripts/maintenance/generate_script_registry.py --update" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**If changes are NOT authorized:**" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "# Restore scripts from last known good state" >> $GITHUB_STEP_SUMMARY
+          echo "git checkout HEAD -- scripts/" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Fail if critical scripts invalid
+        if: steps.validate_critical.outputs.exit_code != '0'
+        run: |
+          echo "❌ Critical script validation failed"
+          exit 1

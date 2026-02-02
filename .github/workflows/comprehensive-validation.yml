@@ -1,0 +1,325 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.Validation
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/comprehensive-validation.yml
+# VERSION: 01.00.00
+# BRIEF: Comprehensive validation for all scripts, workflows, and templates
+# NOTE: Checks syntax, runtime issues, and security vulnerabilities
+
+name: Comprehensive File Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'scripts/**'
+      - '.github/workflows/**'
+      - 'templates/**'
+      - 'docs/templates/**'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/pull_request_template.md'
+  push:
+    branches:
+      - main
+    paths:
+      - 'scripts/**'
+      - '.github/workflows/**'
+      - 'templates/**'
+  schedule:
+    # Run weekly on Sundays at 3 AM UTC
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+    inputs:
+      file_type:
+        description: 'Type of files to validate'
+        required: false
+        type: choice
+        options:
+          - all
+          - python
+          - shell
+          - powershell
+          - workflow
+          - template
+        default: 'all'
+      strict:
+        description: 'Strict mode (fail on any issues)'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  validate-python:
+    name: Validate Python Scripts
+    runs-on: ubuntu-latest
+    if: github.event.inputs.file_type == 'all' || github.event.inputs.file_type == 'python' || github.event.inputs.file_type == ''
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install PyYAML
+        run: pip install PyYAML
+
+      - name: Validate Python Scripts
+        id: validate_python
+        run: |
+          echo "## 🐍 Python Script Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          python3 scripts/validate/check_all_files.py \
+            --type python \
+            --output /tmp/python-validation.json | tee /tmp/python-validation.log
+
+          EXIT_CODE=$?
+          echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          cat /tmp/python-validation.log >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload Python Validation Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-validation-report
+          path: |
+            /tmp/python-validation.log
+            /tmp/python-validation.json
+          retention-days: 30
+
+      - name: Check Results
+        if: steps.validate_python.outputs.exit_code != '0'
+        run: |
+          echo "❌ Python validation failed"
+          exit 1
+
+  validate-shell:
+    name: Validate Shell Scripts
+    runs-on: ubuntu-latest
+    if: github.event.inputs.file_type == 'all' || github.event.inputs.file_type == 'shell' || github.event.inputs.file_type == ''
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          pip install PyYAML
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+
+      - name: Validate Shell Scripts
+        id: validate_shell
+        run: |
+          echo "## 🐚 Shell Script Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          python3 scripts/validate/check_all_files.py \
+            --type shell \
+            --output /tmp/shell-validation.json | tee /tmp/shell-validation.log
+
+          EXIT_CODE=$?
+          echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          cat /tmp/shell-validation.log >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload Shell Validation Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shell-validation-report
+          path: |
+            /tmp/shell-validation.log
+            /tmp/shell-validation.json
+          retention-days: 30
+
+      - name: Check Results
+        if: steps.validate_shell.outputs.exit_code != '0'
+        run: |
+          echo "❌ Shell validation failed"
+          exit 1
+
+  validate-workflows:
+    name: Validate GitHub Workflows
+    runs-on: ubuntu-latest
+    if: github.event.inputs.file_type == 'all' || github.event.inputs.file_type == 'workflow' || github.event.inputs.file_type == ''
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install PyYAML
+        run: pip install PyYAML
+
+      - name: Validate Workflows
+        id: validate_workflows
+        run: |
+          echo "## ⚙️ Workflow Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          python3 scripts/validate/check_all_files.py \
+            --type workflow \
+            --output /tmp/workflow-validation.json | tee /tmp/workflow-validation.log
+
+          EXIT_CODE=$?
+          echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          cat /tmp/workflow-validation.log >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload Workflow Validation Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: workflow-validation-report
+          path: |
+            /tmp/workflow-validation.log
+            /tmp/workflow-validation.json
+          retention-days: 30
+
+      - name: Check Results
+        if: steps.validate_workflows.outputs.exit_code != '0'
+        run: |
+          echo "❌ Workflow validation failed"
+          exit 1
+
+  validate-templates:
+    name: Validate Templates
+    runs-on: ubuntu-latest
+    if: github.event.inputs.file_type == 'all' || github.event.inputs.file_type == 'template' || github.event.inputs.file_type == ''
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install PyYAML
+        run: pip install PyYAML
+
+      - name: Validate Templates
+        id: validate_templates
+        run: |
+          echo "## 📝 Template Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          python3 scripts/validate/check_all_files.py \
+            --type template \
+            --output /tmp/template-validation.json | tee /tmp/template-validation.log
+
+          EXIT_CODE=$?
+          echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          cat /tmp/template-validation.log >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload Template Validation Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: template-validation-report
+          path: |
+            /tmp/template-validation.log
+            /tmp/template-validation.json
+          retention-days: 30
+
+      - name: Check Results
+        if: steps.validate_templates.outputs.exit_code != '0'
+        run: |
+          echo "❌ Template validation failed"
+          exit 1
+
+  validation-summary:
+    name: Validation Summary
+    runs-on: ubuntu-latest
+    needs: [validate-python, validate-shell, validate-workflows, validate-templates]
+    if: always()
+
+    steps:
+      - name: Generate Summary
+        run: |
+          echo "# 🔍 Comprehensive Validation Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          PYTHON="${{ needs.validate-python.result }}"
+          SHELL="${{ needs.validate-shell.result }}"
+          WORKFLOWS="${{ needs.validate-workflows.result }}"
+          TEMPLATES="${{ needs.validate-templates.result }}"
+
+          if [ "$PYTHON" = "success" ] || [ "$PYTHON" = "skipped" ]; then
+            echo "- ✅ **Python Scripts**: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ❌ **Python Scripts**: FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "$SHELL" = "success" ] || [ "$SHELL" = "skipped" ]; then
+            echo "- ✅ **Shell Scripts**: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ❌ **Shell Scripts**: FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "$WORKFLOWS" = "success" ] || [ "$WORKFLOWS" = "skipped" ]; then
+            echo "- ✅ **Workflows**: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ❌ **Workflows**: FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "$TEMPLATES" = "success" ] || [ "$TEMPLATES" = "skipped" ]; then
+            echo "- ✅ **Templates**: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ❌ **Templates**: FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Workflow:** Comprehensive File Validation" >> $GITHUB_STEP_SUMMARY
+          echo "**Trigger:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Fail if Critical Issues
+        if: |
+          needs.validate-python.result == 'failure' ||
+          needs.validate-shell.result == 'failure' ||
+          needs.validate-workflows.result == 'failure' ||
+          needs.validate-templates.result == 'failure'
+        run: |
+          echo "❌ Critical validation issues detected - workflow failed"
+          exit 1

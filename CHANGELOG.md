@@ -15,13 +15,13 @@
  DEFGROUP: MokoStandards
  INGROUP: MokoStandards.Documentation
  REPO: https://github.com/mokoconsulting-tech/MokoStandards/
- VERSION: 03.01.00
+ VERSION: 03.01.01
  PATH: ./CHANGELOG.md
  BRIEF: Version history using Keep a Changelog
  NOTE: Adheres to SemVer when applicable
  -->
 
-# CHANGELOG - MokoStandards (VERSION: 03.01.00)
+# CHANGELOG - MokoStandards (VERSION: 03.01.01)
 
 All notable changes to this project will be documented in this file.
 
@@ -29,6 +29,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [03.01.01] - 2026-01-30
+
+### Security
+- **SQL Injection Prevention**: Added input validation to `load_demo_data.py`
+  - Implemented regex whitelist (`^[a-zA-Z0-9_]*$`) for table prefix parameter
+  - Prevents SQL injection through `{PREFIX}` placeholder replacement
+  - Added comprehensive security documentation and warnings
+  - File: `scripts/run/load_demo_data.py`
+- **Password Security**: Replaced insecure password input with getpass
+  - Changed from `input()` to `getpass.getpass()` for credential prompts
+  - Prevents password echoing to terminal and process listings
+  - File: `scripts/run/load_demo_data.py`
 
 ### Changed
 - **Scripts Organization**: Reorganized scripts directory by function rather than language
@@ -47,6 +60,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added script wrappers badge: 106 wrappers
   - Updated repository structure with accurate file counts
   - Refined script category breakdowns for all directories
+- **Version Update**: Updated version from 03.01.00 to 03.01.01 across repository
+  - Updated README.md version references
+  - Updated CHANGELOG.md version
 
 ### Fixed
 - **Tabs Policy Enforcement**: Corrected tab checking logic to match documented policy
@@ -56,7 +72,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Updated `.editorconfig` template with all 8 languages requiring spaces
   - Fixed JSON indentation rule (was incorrectly set to tabs)
 - **File Encoding Check**: Accept ASCII files as valid UTF-8 subset in standards compliance
-- **Version Consistency**: Updated README.md version from 03.00.00 to 03.01.00
 - **Two-Tier Architecture Documentation**: Enhanced clarity of MokoStandards as source of truth
   - Added comprehensive architecture diagram
   - Clarified that MokoStandards (Tier 2) is the SOURCE OF TRUTH for schemas and configurations

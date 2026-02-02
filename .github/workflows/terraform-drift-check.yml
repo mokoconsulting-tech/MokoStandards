@@ -1,0 +1,92 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.Terraform
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/terraform-drift-check.yml
+# VERSION: 01.00.00
+# BRIEF: Validate Terraform configuration against Python implementations
+# NOTE: Checks for drift between Terraform schemas and actual code
+
+name: Terraform Drift Check
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'terraform/**'
+      - 'scripts/validate/**'
+      - 'scripts/maintenance/**'
+  push:
+    branches:
+      - main
+    paths:
+      - 'terraform/**'
+      - 'scripts/validate/**'
+      - 'scripts/maintenance/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  validate-terraform-drift:
+    name: Validate Terraform Drift
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Run Terraform Drift Validation
+        id: drift_check
+        run: |
+          echo "## 🔍 Terraform Drift Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          python3 scripts/maintenance/validate_terraform_drift.py --verbose | tee /tmp/drift-validation.log
+
+          EXIT_CODE=$?
+          echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          cat /tmp/drift-validation.log >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload Validation Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-drift-report
+          path: /tmp/drift-validation.log
+          retention-days: 30
+
+      - name: Check Results
+        if: steps.drift_check.outputs.exit_code != '0'
+        run: |
+          echo "## ❌ Terraform Drift Detected" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The Terraform configuration is out of sync with Python implementations." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Action Required:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Review the validation report above" >> $GITHUB_STEP_SUMMARY
+          echo "2. Update Terraform configuration to match implementations" >> $GITHUB_STEP_SUMMARY
+          echo "3. Run locally: \`python3 scripts/maintenance/validate_terraform_drift.py\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          exit 1
+
+      - name: Success Summary
+        if: steps.drift_check.outputs.exit_code == '0'
+        run: |
+          echo "## ✅ Terraform Configuration Validated" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Terraform configuration is in sync with Python implementations." >> $GITHUB_STEP_SUMMARY

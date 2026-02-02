@@ -115,6 +115,10 @@ MokoStandards/
 - [Release Workflow](docs/visual/release-workflow.md) - Automated release process
 - [CI/CD Pipeline](docs/visual/cicd-pipeline.md) - Continuous integration flows
 
+**Issue Management:**
+- [Enterprise Issue Management](docs/issue-management/README.md) - Automated issue lifecycle tracking
+- [Testing Guide](docs/issue-management/TESTING.md) - Validation and testing procedures
+
 ## Getting Started
 
 ### For New Projects

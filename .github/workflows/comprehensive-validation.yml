@@ -264,10 +264,61 @@ jobs:
           echo "❌ Template validation failed"
           exit 1
 
+  validate-yaml-tabs:
+    name: Validate YAML Files (No Tabs)
+    runs-on: ubuntu-latest
+    if: github.event.inputs.file_type == 'all' || github.event.inputs.file_type == 'workflow' || github.event.inputs.file_type == 'template' || github.event.inputs.file_type == ''
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Check YAML Files for Tabs
+        id: validate_yaml_tabs
+        run: |
+          echo "## 📝 YAML Tab Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Checking for TAB characters in YAML files (forbidden by YAML spec)..." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if python3 scripts/validate/tabs.py --type yaml 2>&1 | tee /tmp/yaml-tabs-validation.log; then
+            echo "exit_code=0" >> $GITHUB_OUTPUT
+            echo "✅ No tabs found in YAML files" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "exit_code=1" >> $GITHUB_OUTPUT
+            echo "❌ Tabs found in YAML files" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**YAML Specification:** Tab characters are forbidden in YAML files" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            cat /tmp/yaml-tabs-validation.log >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload YAML Tabs Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: yaml-tabs-validation-report
+          path: /tmp/yaml-tabs-validation.log
+          retention-days: 30
+
+      - name: Check Results
+        if: steps.validate_yaml_tabs.outputs.exit_code != '0'
+        run: |
+          echo "❌ YAML tab validation failed - tabs found in YAML files"
+          echo "Fix: Run 'python3 scripts/validate/tabs.py --fix' to auto-convert tabs to spaces"
+          exit 1
+
   validation-summary:
     name: Validation Summary
     runs-on: ubuntu-latest
-    needs: [validate-python, validate-shell, validate-workflows, validate-templates]
+    needs: [validate-python, validate-shell, validate-workflows, validate-templates, validate-yaml-tabs]
     if: always()
 
     steps:
@@ -282,6 +333,7 @@ jobs:
           SHELL="${{ needs.validate-shell.result }}"
           WORKFLOWS="${{ needs.validate-workflows.result }}"
           TEMPLATES="${{ needs.validate-templates.result }}"
+          YAML_TABS="${{ needs.validate-yaml-tabs.result }}"
 
           if [ "$PYTHON" = "success" ] || [ "$PYTHON" = "skipped" ]; then
             echo "- ✅ **Python Scripts**: PASSED" >> $GITHUB_STEP_SUMMARY
@@ -305,6 +357,12 @@ jobs:
             echo "- ✅ **Templates**: PASSED" >> $GITHUB_STEP_SUMMARY
           else
             echo "- ❌ **Templates**: FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "$YAML_TABS" = "success" ] || [ "$YAML_TABS" = "skipped" ]; then
+            echo "- ✅ **YAML Tab Check**: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ❌ **YAML Tab Check**: FAILED (tabs found)" >> $GITHUB_STEP_SUMMARY
           fi
 
           echo "" >> $GITHUB_STEP_SUMMARY

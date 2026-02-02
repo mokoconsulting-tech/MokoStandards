@@ -68,7 +68,7 @@ jobs:
     name: Terraform ${{ inputs.action }} - ${{ inputs.environment }}
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -171,13 +171,13 @@ jobs:
             const action = '${{ inputs.action }}';
             const env = '${{ inputs.environment }}';
             const outcome = '${{ steps.apply.outcome || steps.destroy.outcome || steps.plan.outcome }}';
-            
+
             let body = `## Terraform ${action.toUpperCase()} - ${env}\n\n`;
             body += `**Status:** ${outcome === 'success' ? '✅ Success' : '❌ Failed'}\n`;
             body += `**Environment:** \`${env}\`\n`;
             body += `**Action:** \`${action}\`\n`;
             body += `**Triggered by:** @${{ github.actor }}\n\n`;
-            
+
             if (action === 'apply' && outcome === 'success') {
               body += '### Infrastructure Updated Successfully\n\n';
               try {
@@ -189,7 +189,7 @@ jobs:
                 body += '_Outputs not available_\n';
               }
             }
-            
+
             // Post to issue if triggered from issue
             if (context.issue.number) {
               github.rest.issues.createComment({

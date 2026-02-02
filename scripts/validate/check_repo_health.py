@@ -169,12 +169,16 @@ class RepoHealthChecker:
                 passed, message = self._check_workflow_exists(parameters)
             elif check_type == "branch-exists":
                 passed, message = self._check_branch_exists(parameters)
+            elif check_type == "security-scan":
+                passed, message = self._check_security_scan(parameters)
+            elif check_type == "script-integrity":
+                passed, message = self._check_script_integrity(parameters)
             else:
                 passed = False
                 message = (
                     f"Check type '{check_type}' not implemented. "
                     "This version supports: file-exists, directory-exists, content-pattern, "
-                    "file-size, workflow-exists, branch-exists. "
+                    "file-size, workflow-exists, branch-exists, security-scan, script-integrity. "
                     "Check types workflow-passing, github-setting, secret-configured, and "
                     "custom-script require GitHub API access or custom handlers."
                 )
@@ -293,6 +297,97 @@ class RepoHealthChecker:
         # Returning False to indicate the check cannot be performed rather than
         # incorrectly passing all branch-exists checks.
         return False, "Branch existence check not fully implemented (requires git integration)"
+
+    def _check_security_scan(self, params: Dict) -> Tuple[bool, str]:
+        """Run security scan on scripts."""
+        try:
+            # Import and run security scanner
+            script_path = Path(__file__).parent / "check_script_security.py"
+            if not script_path.exists():
+                return False, "Security scanner not found"
+            
+            # Run security scan
+            import subprocess
+            result = subprocess.run(
+                ['python3', str(script_path), '--path', 'scripts'],
+                cwd=self.repo_path,
+                capture_output=True,
+                text=True,
+                timeout=60
+            )
+            
+            # Check severity threshold
+            max_severity = params.get('max_severity', 'medium')
+            severity_levels = {'low': 0, 'medium': 1, 'high': 2, 'critical': 3}
+            max_level = severity_levels.get(max_severity, 1)
+            
+            # Parse output for severity counts
+            output = result.stdout
+            critical_count = 0
+            high_count = 0
+            
+            for line in output.split('\n'):
+                if 'Critical:' in line:
+                    critical_count = int(line.split(':')[-1].strip())
+                elif 'High:' in line:
+                    high_count = int(line.split(':')[-1].strip())
+            
+            # Determine pass/fail based on severity threshold
+            if max_level < 3 and critical_count > 0:
+                return False, f"Security scan failed: {critical_count} critical issues found"
+            elif max_level < 2 and high_count > 0:
+                return False, f"Security scan failed: {high_count} high severity issues found"
+            
+            return True, "Security scan passed - no critical/high issues"
+            
+        except subprocess.TimeoutExpired:
+            return False, "Security scan timed out"
+        except Exception as e:
+            return False, f"Security scan error: {str(e)}"
+
+    def _check_script_integrity(self, params: Dict) -> Tuple[bool, str]:
+        """Validate script integrity against registry."""
+        try:
+            # Import and run integrity validator
+            script_path = Path(__file__).parent.parent / "maintenance" / "validate_script_registry.py"
+            if not script_path.exists():
+                return False, "Script integrity validator not found"
+            
+            # Get priority level
+            priority = params.get('priority', 'critical')
+            
+            # Run validation
+            import subprocess
+            result = subprocess.run(
+                ['python3', str(script_path), '--priority', priority],
+                cwd=self.repo_path,
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
+            
+            # Check if validation passed
+            if result.returncode == 0:
+                return True, f"Script integrity validated ({priority} priority)"
+            else:
+                # Parse output for details
+                output = result.stdout
+                modified_count = 0
+                for line in output.split('\n'):
+                    if 'Modified:' in line:
+                        try:
+                            modified_count = int(line.split('/')[0].split(':')[-1].strip())
+                        except:
+                            pass
+                
+                if modified_count > 0:
+                    return False, f"Script integrity check failed: {modified_count} scripts modified"
+                return False, "Script integrity validation failed"
+                
+        except subprocess.TimeoutExpired:
+            return False, "Script integrity check timed out"
+        except Exception as e:
+            return False, f"Script integrity check error: {str(e)}"
 
     def _determine_health_level(self, percentage: float, thresholds: Dict) -> str:
         """Determine health level based on percentage and thresholds."""

@@ -1,0 +1,124 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.Reusable
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/reusable-project-detector.yml
+# VERSION: 01.00.00
+# BRIEF: Reusable workflow for automatic project type detection
+# NOTE: Detects Joomla extensions, Dolibarr modules, or generic projects
+
+name: Reusable Project Detector
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        description: 'Working directory for detection'
+        required: false
+        type: string
+        default: '.'
+    outputs:
+      project-type:
+        description: 'Detected project type: joomla, dolibarr, or generic'
+        value: ${{ jobs.detect.outputs.project-type }}
+      extension-type:
+        description: 'Extension type: component, module, plugin, template, package, or application'
+        value: ${{ jobs.detect.outputs.extension-type }}
+      has-php:
+        description: 'Whether project contains PHP files'
+        value: ${{ jobs.detect.outputs.has-php }}
+      has-node:
+        description: 'Whether project contains package.json'
+        value: ${{ jobs.detect.outputs.has-node }}
+
+permissions:
+  contents: read
+
+jobs:
+  detect:
+    name: Detect Project Type
+    runs-on: ubuntu-latest
+    outputs:
+      project-type: ${{ steps.detect.outputs.project-type }}
+      extension-type: ${{ steps.detect.outputs.extension-type }}
+      has-php: ${{ steps.detect.outputs.has-php }}
+      has-node: ${{ steps.detect.outputs.has-node }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Detect project type and characteristics
+        id: detect
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          # Detection priority: Joomla > Dolibarr > Generic
+
+          # Check for Joomla indicators
+          if [ -f "joomla.xml" ] || \
+             find . -maxdepth 2 \( -name "mod_*.xml" \
+               -o -name "plg_*.xml" -o -name "com_*.xml" \
+               -o -name "pkg_*.xml" -o -name "tpl_*.xml" \) \
+               2>/dev/null | grep -q .; then
+            echo "project-type=joomla" >> $GITHUB_OUTPUT
+
+            # Detect Joomla extension type
+            if [ -d "administrator/components" ] || [ -d "components" ]; then
+              echo "extension-type=component" >> $GITHUB_OUTPUT
+            elif find . -maxdepth 1 -name "mod_*.xml" 2>/dev/null | grep -q .; then
+              echo "extension-type=module" >> $GITHUB_OUTPUT
+            elif find . -maxdepth 1 -name "plg_*.xml" 2>/dev/null | grep -q .; then
+              echo "extension-type=plugin" >> $GITHUB_OUTPUT
+            elif find . -maxdepth 1 -name "pkg_*.xml" 2>/dev/null | grep -q .; then
+              echo "extension-type=package" >> $GITHUB_OUTPUT
+            elif find . -maxdepth 1 -name "tpl_*.xml" 2>/dev/null | grep -q .; then
+              echo "extension-type=template" >> $GITHUB_OUTPUT
+            else
+              echo "extension-type=component" >> $GITHUB_OUTPUT
+            fi
+
+            echo "✅ Detected Joomla project" >> $GITHUB_STEP_SUMMARY
+          # Check for Dolibarr indicators
+          elif [ -d "htdocs" ] || [ -d "core/modules" ] || \
+               ([ -f "composer.json" ] && grep -q "dolibarr" composer.json 2>/dev/null); then
+            echo "project-type=dolibarr" >> $GITHUB_OUTPUT
+            echo "extension-type=module" >> $GITHUB_OUTPUT
+            echo "✅ Detected Dolibarr module project" >> $GITHUB_STEP_SUMMARY
+          # Default to Generic
+          else
+            echo "project-type=generic" >> $GITHUB_OUTPUT
+            echo "extension-type=application" >> $GITHUB_OUTPUT
+            echo "✅ Detected Generic project" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Check for PHP files
+          if find . -name "*.php" -type f \
+              -not -path "*/vendor/*" \
+              -not -path "*/node_modules/*" \
+              2>/dev/null | grep -q .; then
+            echo "has-php=true" >> $GITHUB_OUTPUT
+            echo "- Has PHP files: Yes" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "has-php=false" >> $GITHUB_OUTPUT
+            echo "- Has PHP files: No" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Check for Node.js/npm
+          if [ -f "package.json" ]; then
+            echo "has-node=true" >> $GITHUB_OUTPUT
+            echo "- Has Node.js: Yes" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "has-node=false" >> $GITHUB_OUTPUT
+            echo "- Has Node.js: No" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Summary
+        run: |
+          echo "### 🔍 Project Detection Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Project Type:** ${{ steps.detect.outputs.project-type }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Extension Type:** ${{ steps.detect.outputs.extension-type }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Has PHP:** ${{ steps.detect.outputs.has-php }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Has Node:** ${{ steps.detect.outputs.has-node }}" >> $GITHUB_STEP_SUMMARY

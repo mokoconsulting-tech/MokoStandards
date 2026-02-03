@@ -401,7 +401,7 @@ jobs:
           fi
 
           # Commit changes if any
-          if ! git diff-index --quiet HEAD --; then
+          if ! git diff --staged --quiet; then
             git commit -m "chore: bump version to $VERSION"
             git push origin "dev/$VERSION"
             echo "✅ Version files updated and committed" >> $GITHUB_STEP_SUMMARY

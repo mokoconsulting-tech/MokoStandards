@@ -15,13 +15,13 @@
  DEFGROUP: MokoStandards
  INGROUP: MokoStandards.Documentation
  REPO: https://github.com/mokoconsulting-tech/MokoStandards/
- VERSION: 03.01.01
+ VERSION: 03.02.00
  PATH: ./CHANGELOG.md
  BRIEF: Version history using Keep a Changelog
  NOTE: Adheres to SemVer when applicable
  -->
 
-# CHANGELOG - MokoStandards (VERSION: 03.01.01)
+# CHANGELOG - MokoStandards (VERSION: 03.02.00)
 
 All notable changes to this project will be documented in this file.
 
@@ -29,6 +29,59 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [03.02.00] - 2026-02-03
+
+### Added
+- **Unified Release Pipeline**: Comprehensive single-workflow release system
+  - Added version file updates (package.json, composer.json) in `start-dev` action
+  - Added explicit `version/X.Y.Z` branch creation in `finalize-release` action
+  - Added `--no-ff` merge strategy enforcement when merging to main
+  - Added CHANGELOG.md-based release notes with git log fallback
+  - Added GitHub release creation using softprops/action-gh-release@v2
+  - Added hotfix branch creation logic with explicit workflow steps
+  - File: `.github/workflows/unified-release.yml`
+- **Cross-References**: Added comprehensive workflow documentation headers
+  - Added references to reusable-release.yml (implementation)
+  - Added references to docs/release-management/ (procedures)
+  - Added references to docs/policy/governance/ (policy)
+  - Added references to .github/WORKFLOW_ARCHITECTURE.md (architecture)
+  - File: `.github/workflows/unified-release.yml`
+
+### Changed
+- **Release Workflow Consolidation**: Merged all release functionality into single workflow
+  - Consolidated release-cycle.yml functionality into unified-release.yml
+  - Changed action names: `start-release` → `start-dev`, aligned with unified naming
+  - Replaced delegation to reusable workflow with complete inline implementations
+  - Enhanced finalize-release job with version branch creation and merge steps
+  - Enhanced hotfix job with explicit branch creation
+  - Files: `.github/workflows/unified-release.yml`
+- **Documentation Updates**: Updated all references across repository
+  - Updated `docs/release-management/README.md` - Changed workflow commands and action names
+  - Updated `docs/reference/REPOSITORY_INVENTORY.md` - Replaced release-cycle with unified-release examples
+  - Updated `docs/workflows/README.md` - Added comprehensive unified-release section
+  - Updated `templates/workflows/README.md` - Removed release-cycle references
+  - Updated `scripts/definitions/default-repository.xml` - Changed to reference unified-release.yml
+  - Added version history entries to all updated documentation
+  - Added deprecation notices for release-cycle workflows
+
+### Removed
+- **Deprecated Release Templates**: Removed obsolete release-cycle templates
+  - Removed `templates/workflows/release-cycle.yml.template` (29,664 bytes)
+  - Removed `templates/workflows/release-cycle-simple.yml.template` (15,171 bytes)
+  - Removed `.github/workflows/RELEASE_SYSTEM.md` (redundant documentation)
+  - Total: 1,220 lines of deprecated templates and documentation removed
+- **Legacy Workflow References**: Cleaned up all references to deprecated workflows
+  - Removed release-cycle references from workflow selection guides
+  - Removed release-cycle from repository structure documentation
+  - Removed release-cycle from quick-start examples
+
+### Fixed
+- **Git Diff Check**: Corrected staged changes detection in version file updates
+  - Changed from `git diff-index --quiet HEAD --` to `git diff --staged --quiet`
+  - Properly detects staged changes before committing version bumps
+  - File: `.github/workflows/unified-release.yml` (line 404)
+
 
 ## [03.01.01] - 2026-01-30
 

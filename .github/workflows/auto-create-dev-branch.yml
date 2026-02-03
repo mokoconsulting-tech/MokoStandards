@@ -203,7 +203,7 @@ jobs:
 
             ## Launch Checklist - Prepare for Merge to Main
 
-            Complete this checklist before merging this dev branch to main. Reference: [Copilot Pre-Merge Checklist Policy](/docs/policy/copilot-pre-merge-checklist.md)
+            Complete this checklist before merging this dev branch to main. Reference: [Copilot Pre-Merge Checklist Policy](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/docs/policy/copilot-pre-merge-checklist.md)
 
             ### 1. Version Management ✅
             - [ ] All version numbers updated consistently (VERSION file, package.json, etc.)

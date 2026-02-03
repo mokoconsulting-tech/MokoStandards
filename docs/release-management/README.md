@@ -224,14 +224,13 @@ X.Y.Z-alpha
 
 #### 1. Initiate Release
 
-Use the release-cycle workflow:
+Use the unified release pipeline:
 
 ```bash
 # Via GitHub Actions UI
-Actions → Release Management → Run workflow
-- Action: start-release
+Actions → Unified Release Pipeline → Run workflow
+- Action: start-dev
 - Version: 1.2.3
-- Release notes: (optional) Brief description
 ```
 
 Or manually:
@@ -313,11 +312,11 @@ Continue development on `dev/1.2.3` branch:
 
 #### 1. Create RC Branch
 
-Use the release-cycle workflow:
+Use the unified release pipeline:
 
 ```bash
 # Via GitHub Actions UI
-Actions → Release Management → Run workflow
+Actions → Unified Release Pipeline → Run workflow
 - Action: create-rc
 - Version: 1.2.3
 ```
@@ -395,14 +394,13 @@ Update the release date:
 
 #### 2. Create Version Branch
 
-Use the release-cycle workflow:
+Use the unified release pipeline:
 
 ```bash
 # Via GitHub Actions UI
-Actions → Release Management → Run workflow
+Actions → Unified Release Pipeline → Run workflow
 - Action: finalize-release
 - Version: 1.2.3
-- Release notes: Final release notes content
 ```
 
 Or manually:
@@ -470,7 +468,7 @@ Create a hotfix when:
 
 ```bash
 # Via GitHub Actions UI
-Actions → Release Management → Run workflow
+Actions → Unified Release Pipeline → Run workflow
 - Action: hotfix
 - Version: 1.2.4 (increment patch version)
 ```
@@ -667,26 +665,37 @@ git push origin dev/1.2.3
 
 ### GitHub Actions Workflows
 
-#### Release Cycle Workflow
+#### Unified Release Pipeline
 
-The `release-cycle.yml` workflow automates:
-- Development branch creation
-- RC branch creation
-- Version branch creation
-- Tag creation
+The `unified-release.yml` workflow is the **primary and only** release orchestration workflow. It automates:
+- Development branch creation (dev/X.Y.Z)
+- RC branch creation (rc/X.Y.Z)
+- Version branch creation (version/X.Y.Z) - permanent record
+- Tag creation (vX.Y.Z, vX.Y.Z-rc)
 - Release notes generation
+- Merge to main using --no-ff strategy
+- GitHub release creation
+- Version file updates (package.json, composer.json)
 
-See [Release Cycle Workflow](../../templates/workflows/release-cycle-simple.yml.template) for details.
+**See**: `.github/workflows/unified-release.yml`
 
-#### Automatic Release on Version Bump
+**Actions Available**:
+1. **start-dev**: Create development branch and update version files
+2. **create-rc**: Create release candidate branch and tag
+3. **finalize-release**: Create version branch, merge to main, create release
+4. **hotfix**: Create hotfix branch for emergency fixes
+5. **simple-release**: One-step automated release (auto or manual version)
 
-The `auto-release-on-version-bump.yml` workflow provides automatic release creation when version numbers are updated in the repository. This workflow eliminates the need for manual release creation and requires no build steps.
+**Triggers**:
+- **Automatic**: Push to main when version files change (CITATION.cff, pyproject.toml, CHANGELOG.md)
+- **Manual**: Workflow dispatch with action selection
 
-**Trigger**: Automatic on push to `main` branch
+#### Deprecated Workflows
 
-**Monitored Files**:
-- `CITATION.cff` - Version field
-- `pyproject.toml` - Version field in [project] section
+The following workflows have been **consolidated into unified-release.yml**:
+- ~~`release-cycle.yml`~~ - Removed (all functionality in unified-release.yml)
+- ~~`auto-release.yml`~~ - Disabled (replaced by unified-release.yml auto-trigger)
+- ~~`auto-release-on-version-bump.yml`~~ - Disabled (replaced by unified-release.yml auto-trigger)
 
 **Workflow Steps**:
 1. **Detect Version Changes**: Automatically detects when version numbers change in monitored files
@@ -738,11 +747,7 @@ git push origin main
 - Version mismatch warnings are displayed if both CITATION.cff and pyproject.toml change with different versions
 - CITATION.cff takes precedence when both files are modified
 - Skips initial commits automatically to avoid errors
-
-**Compatibility**:
-- Works alongside the existing release-cycle.yml workflow
-- Can be used for quick hotfixes or documentation releases
-- Suitable for repositories that don't require build artifacts
+- Skip releases by including `[skip release]` or `[skip ci]` in commit message
 
 ### Manual vs Automated
 
@@ -774,11 +779,13 @@ git push origin main
 
 | Version | Date | Changes |
 |---|---|---|
+| 01.01.00 | 2026-02-03 | Updated to reflect unified-release.yml as sole release workflow; removed references to deprecated release-cycle.yml |
 | 01.00.00 | 2026-01-07 | Initial release management documentation with complete release cycle and procedures |
 
 ## See Also
 
-- [Release Cycle Workflow](../../templates/workflows/release-cycle-simple.yml.template)
+- [Unified Release Pipeline](../../.github/workflows/unified-release.yml)
 - [Build System](../build-system/README.md)
 - [Deployment Guidelines](../deployment/README.md)
 - [Project Roadmap](../policy/roadmap.md)
+- [Workflow Architecture](../../.github/WORKFLOW_ARCHITECTURE.md)

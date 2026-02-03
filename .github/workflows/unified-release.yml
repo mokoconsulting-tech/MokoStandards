@@ -5,9 +5,25 @@
 # INGROUP: MokoStandards.Release
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/unified-release.yml
-# VERSION: 01.00.00
+# VERSION: 01.01.00
 # BRIEF: Unified release pipeline consolidating all release workflows and scripts
 # NOTE: Supports auto, manual, and file-based triggers with multi-stage release flow
+#
+# RELATED FILES:
+# - .github/workflows/reusable-release.yml - Called by this workflow for build/package
+# - docs/release-management/README.md - Detailed release procedures and guidelines
+# - docs/policy/governance/release-management.md - Release management policy
+# - .github/WORKFLOW_ARCHITECTURE.md - Overall workflow architecture patterns
+#
+# WORKFLOW SELECTION:
+# - For all release scenarios, use this workflow (unified-release.yml)
+# - This is the PRIMARY and ONLY release orchestration workflow
+# - Replaces deprecated: release-cycle.yml (removed), auto-release.yml (disabled)
+#
+# QUICK START:
+# - Automatic: Update version in CITATION.cff, pyproject.toml, or CHANGELOG.md → push to main
+# - Manual: Actions → Unified Release Pipeline → Run workflow → Choose action
+# - See usage examples at end of file for detailed scenarios
 
 name: Unified Release Pipeline
 
@@ -364,6 +380,35 @@ jobs:
 
           echo "✅ Created development branch: \`$DEV_BRANCH\`" >> $GITHUB_STEP_SUMMARY
 
+      - name: Update Version Files
+        run: |
+          VERSION="${{ needs.detect.outputs.version }}"
+
+          # Update version in common files (if they exist)
+          if [ -f "package.json" ]; then
+            npm version "$VERSION" --no-git-tag-version
+            git add package.json package-lock.json 2>/dev/null || true
+            echo "✅ Updated package.json" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ -f "composer.json" ]; then
+            # Update version in composer.json if version field exists
+            if grep -q "\"version\":" composer.json; then
+              sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" composer.json
+              git add composer.json
+              echo "✅ Updated composer.json" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+
+          # Commit changes if any
+          if ! git diff-index --quiet HEAD --; then
+            git commit -m "chore: bump version to $VERSION"
+            git push origin "dev/$VERSION"
+            echo "✅ Version files updated and committed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "ℹ️ No version files to update" >> $GITHUB_STEP_SUMMARY
+          fi
+
   # ═══════════════════════════════════════════════════════════════════════
   # JOB: Create Release Candidate
   # ═══════════════════════════════════════════════════════════════════════
@@ -415,40 +460,158 @@ jobs:
           echo "✅ Created RC tag: \`$TAG\`" >> $GITHUB_STEP_SUMMARY
 
   # ═══════════════════════════════════════════════════════════════════════
-  # JOB: Finalize Release (RC → Stable)
+  # JOB: Finalize Release (RC → version → main → release)
   # ═══════════════════════════════════════════════════════════════════════
   finalize-release:
     name: Finalize Release to Main
+    runs-on: ubuntu-latest
     needs: detect
     if: |
       needs.detect.outputs.skip-release != 'true' &&
       needs.detect.outputs.action == 'finalize-release'
-    uses: ./.github/workflows/reusable-release.yml
-    with:
-      version: ${{ needs.detect.outputs.version }}
-      prerelease: false
-      draft: false
-      create-github-release: true
-    secrets: inherit
-    permissions:
-      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: rc/${{ needs.detect.outputs.version }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create Version Branch
+        run: |
+          VERSION="${{ needs.detect.outputs.version }}"
+          VERSION_BRANCH="version/$VERSION"
+
+          # Create version branch (permanent record)
+          git checkout -b "$VERSION_BRANCH"
+          git push origin "$VERSION_BRANCH"
+
+          echo "✅ Created version branch: \`$VERSION_BRANCH\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Merge to Main
+        run: |
+          VERSION="${{ needs.detect.outputs.version }}"
+
+          # Merge to main using no-fast-forward
+          git checkout main
+          git pull origin main
+          git merge --no-ff "version/$VERSION" -m "Release version $VERSION"
+          git push origin main
+
+          echo "✅ Merged to main branch using --no-ff" >> $GITHUB_STEP_SUMMARY
+
+      - name: Create Release Tag
+        run: |
+          VERSION="${{ needs.detect.outputs.version }}"
+          TAG="v$VERSION"
+
+          git tag -a "$TAG" -m "Release $VERSION"
+          git push origin "$TAG"
+
+          echo "✅ Created release tag: \`$TAG\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Generate Release Notes
+        id: release_notes
+        run: |
+          VERSION="${{ needs.detect.outputs.version }}"
+
+          # Try to extract from CHANGELOG.md first
+          if [ -f "CHANGELOG.md" ]; then
+            # Extract section for this version
+            NOTES=$(awk "/## \[$VERSION\]/,/## \[/" CHANGELOG.md | sed '1d;$d' | sed '/^$/d' || echo "")
+          fi
+
+          # Fallback to git log if CHANGELOG doesn't have content
+          if [ -z "$NOTES" ]; then
+            # Determine the RC tag to compare against
+            if echo "$VERSION" | grep -qE '-[a-zA-Z0-9.-]+$'; then
+              RC_TAG="v${VERSION}"
+            else
+              RC_TAG="v${VERSION}-rc"
+            fi
+
+            NOTES=$(git log --pretty=format:"- %s" "${RC_TAG}"..HEAD 2>/dev/null || echo "Initial release")
+          fi
+
+          # Save to file for GitHub release
+          cat > release_notes.md <<EOF
+          ## Release $VERSION
+
+          $NOTES
+          EOF
+
+          echo "✅ Generated release notes" >> $GITHUB_STEP_SUMMARY
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.detect.outputs.version }}
+          name: Release ${{ needs.detect.outputs.version }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: false
+
+      - name: Cleanup Information
+        run: |
+          VERSION="${{ needs.detect.outputs.version }}"
+          
+          echo "ℹ️ Development branches retained for history" >> $GITHUB_STEP_SUMMARY
+          echo "To manually cleanup, run:" >> $GITHUB_STEP_SUMMARY
+          echo "  \`git push origin --delete dev/$VERSION\`" >> $GITHUB_STEP_SUMMARY
+          echo "  \`git push origin --delete rc/$VERSION\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "⚠️ **Note:** version/$VERSION branch is permanent and should NOT be deleted" >> $GITHUB_STEP_SUMMARY
 
   # ═══════════════════════════════════════════════════════════════════════
   # JOB: Hotfix Release
   # ═══════════════════════════════════════════════════════════════════════
   hotfix:
     name: Create Hotfix Release
+    runs-on: ubuntu-latest
     needs: detect
     if: |
       needs.detect.outputs.skip-release != 'true' &&
       needs.detect.outputs.action == 'hotfix'
-    uses: ./.github/workflows/reusable-release.yml
-    with:
-      version: ${{ needs.detect.outputs.version }}
-      prerelease: false
-      draft: false
-      create-github-release: true
-    secrets: inherit
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create Hotfix Branch
+        run: |
+          VERSION="${{ needs.detect.outputs.version }}"
+          HOTFIX_BRANCH="hotfix/$VERSION"
+
+          # Check if hotfix branch already exists
+          if git ls-remote --heads origin "$HOTFIX_BRANCH" | grep -q "$HOTFIX_BRANCH"; then
+            echo "⚠️ Hotfix branch already exists: $HOTFIX_BRANCH" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+          # Create hotfix branch from main
+          git checkout -b "$HOTFIX_BRANCH"
+          git push origin "$HOTFIX_BRANCH"
+
+          echo "✅ Created hotfix branch: \`$HOTFIX_BRANCH\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Apply hotfix changes to \`$HOTFIX_BRANCH\`" >> $GITHUB_STEP_SUMMARY
+          echo "2. Test thoroughly" >> $GITHUB_STEP_SUMMARY
+          echo "3. Create PR to merge back to main" >> $GITHUB_STEP_SUMMARY
+          echo "4. After merge, create release tag manually or tag from main" >> $GITHUB_STEP_SUMMARY
     permissions:
       contents: write
 

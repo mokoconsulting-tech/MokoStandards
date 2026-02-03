@@ -410,21 +410,21 @@
               </file>
 
               <file extension="yml">
-                <name>release-cycle.yml</name>
-                <description>Release management workflow with automated release flow</description>
+                <name>unified-release.yml</name>
+                <description>Unified release pipeline with automated and manual release flow</description>
                 <requirement-status>required</requirement-status>
                 <always-overwrite>true</always-overwrite>
                 <source>
                   <path>.github/workflows</path>
-                  <filename>release-cycle.yml</filename>
+                  <filename>unified-release.yml</filename>
                   <type>copy</type>
                 </source>
                 <destination>
                   <path>.github/workflows</path>
-                  <filename>release-cycle.yml</filename>
+                  <filename>unified-release.yml</filename>
                   <create-path>true</create-path>
                 </destination>
-                <template>.github/workflows/release-cycle.yml</template>
+                <template>.github/workflows/unified-release.yml</template>
               </file>
               
               <file extension="yml">

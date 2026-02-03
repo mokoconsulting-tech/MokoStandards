@@ -87,11 +87,12 @@ The workflows are organized by platform and purpose:
 
 ### Release & Build Templates
 
-- `release-cycle.yml.template` - Full release cycle (main → dev → rc → version → main)
 - `release-pipeline.yml.template` - Automated release pipeline
 - `build.yml.template` - Universal build workflow
 - `version_branch.yml` - Version branch management
 - `branch-cleanup.yml.template` - Branch cleanup automation
+
+**Note**: For new projects, use the unified-release.yml workflow from `.github/workflows/unified-release.yml` which consolidates all release functionality.
 
 ### Reusable Workflows
 

@@ -108,7 +108,6 @@ MokoStandards provides reusable GitHub Actions workflow templates in `templates/
 | `generic/codeql-analysis.yml` | Security Scanning | ✅ Stable | Required | CodeQL security analysis for Python, JavaScript, and other languages to detect vulnerabilities and security issues |
 | `generic/dependency-review.yml.template` | Dependency Security | ✅ Stable | Required | Scans pull requests for dependency vulnerabilities and licensing issues before merge |
 | `standards-compliance.yml.template` | Standards Validation | ✅ Stable | Required | Validates repository compliance with MokoStandards requirements including file headers, required files, and documentation structure |
-| `release-cycle-simple.yml.template` | Release Automation | ✅ Stable | Optional | Manages the complete release cycle: main → dev → rc → version → main with automated changelog generation and version tagging |
 
 ### Workflow Template Details
 
@@ -178,22 +177,26 @@ cp templates/workflows/standards-compliance.yml.template .github/workflows/stand
 
 **Triggers**: Pull requests, manual dispatch
 
-#### release-cycle.yml
-**Purpose**: Automated release management
+#### unified-release.yml
+**Purpose**: Unified release pipeline (replaces release-cycle.yml)
 
 **Features**:
 - Multi-stage release process (dev → rc → version → main)
-- Automatic changelog generation
+- Automatic and manual trigger modes
+- File-based version detection (CITATION.cff, pyproject.toml, CHANGELOG.md)
 - Semantic versioning support
-- Branch protection integration
-- Release notes generation
+- Branch creation with --no-ff merge strategy
+- Release notes generation from CHANGELOG.md
+- Version file updates (package.json, composer.json)
 
 **Usage**:
 ```bash
-cp templates/workflows/release-cycle-simple.yml.template .github/workflows/release-cycle.yml
+cp .github/workflows/unified-release.yml .github/workflows/
 ```
 
-**Triggers**: Manual dispatch with stage selection
+**Triggers**: Push to main (auto-detect version changes), manual dispatch with action selection
+
+**Note**: This workflow consolidates all release functionality. Old release-cycle templates have been deprecated.
 
 ### Adopting Workflow Templates
 
@@ -208,8 +211,8 @@ cp /path/to/MokoStandards/templates/workflows/generic/codeql-analysis.yml .githu
 cp /path/to/MokoStandards/templates/workflows/generic/dependency-review.yml.template .github/workflows/dependency-review.yml
 cp /path/to/MokoStandards/templates/workflows/standards-compliance.yml.template .github/workflows/standards-compliance.yml
 
-# Optional: Copy release workflow if needed
-cp /path/to/MokoStandards/templates/workflows/release-cycle-simple.yml.template .github/workflows/release-cycle.yml
+# Optional: Copy unified release workflow if needed
+cp /path/to/MokoStandards/.github/workflows/unified-release.yml .github/workflows/
 ```
 
 **For Existing Repositories**:
@@ -265,7 +268,7 @@ All active repositories MUST implement these GitHub Actions workflows:
 
 Repositories MAY implement these workflows as appropriate:
 
-- `release-cycle-simple.yml.template` - Automated release management (main → dev → rc → version → main)
+- `unified-release.yml` - Unified release pipeline (automatic and manual releases)
 - `repo_health.yml` - Repository health scoring and monitoring
 - `version_branch.yml` - Version branch automation with automatic PR creation (enforces policy requirement)
 

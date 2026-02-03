@@ -12,7 +12,6 @@ MokoStandards provides workflow templates in two locations:
 
 1. **`templates/workflows/`** - **Public workflow templates** for community adoption
    - `build-universal.yml.template` - Universal build workflow with automatic project detection
-   - `release-cycle-simple.yml.template` - Automated release management workflow
    - `generic/codeql-analysis.yml` - Security scanning with CodeQL
    - `generic/dependency-review.yml.template` - Dependency vulnerability scanning
    - `standards-compliance.yml.template` - MokoStandards compliance validation
@@ -31,8 +30,8 @@ To adopt MokoStandards workflows in your repository:
 # Copy universal build workflow
 cp templates/workflows/build-universal.yml.template .github/workflows/build.yml
 
-# Copy release management workflow
-cp templates/workflows/release-cycle-simple.yml.template .github/workflows/release.yml
+# Copy unified release workflow (from live workflows)
+cp .github/workflows/unified-release.yml .github/workflows/
 
 # Copy security scanning workflows
 cp templates/workflows/generic/codeql-analysis.yml .github/workflows/
@@ -76,39 +75,46 @@ on:
 
 See [Build System Documentation](../build-system/README.md) for details on the Makefile precedence system.
 
-### 2. Release Cycle (`release-cycle-simple.yml.template`)
+### 2. Unified Release Pipeline (`unified-release.yml`)
 
-**Location**: `templates/workflows/release-cycle-simple.yml.template`
+**Location**: `.github/workflows/unified-release.yml` (live workflow, not template)
 
-Automated release management workflow implementing the MokoStandards release cycle: main → dev → rc → version → main.
+Unified release management workflow consolidating all release functionality.
 
 **Features**:
-- **Semantic versioning** - Automatic validation of version format
-- **Branch management** - Automated branch creation and merging
-- **Release actions** - start-release, create-rc, finalize-release, hotfix
-- **Release notes** - Automated generation from commits
-- **GitHub releases** - Automatic creation with artifacts
+- **Automatic releases** - Triggered by version file changes (CITATION.cff, pyproject.toml, CHANGELOG.md)
+- **Manual releases** - Full control via workflow dispatch
+- **Multi-stage releases** - dev → rc → version → main flow
+- **Semantic versioning** - Automatic validation
+- **Version detection** - Multiple sources with priority
+- **Release notes** - From CHANGELOG.md or git log
+- **Version file updates** - package.json, composer.json
 
 **Actions**:
-- `start-release` - Create development branch and update version
-- `create-rc` - Create release candidate from dev branch
-- `finalize-release` - Create version branch, merge to main, create release
+- `simple-release` - One-step automated release
+- `start-dev` - Create development branch with version updates
+- `create-rc` - Create release candidate with RC tag
+- `finalize-release` - Create version branch, merge to main (--no-ff), create release
 - `hotfix` - Create hotfix branch for emergency fixes
 
 **Trigger Pattern**:
 ```yaml
 on:
+  push:
+    branches: [main]
+    paths: ['CITATION.cff', 'pyproject.toml', 'CHANGELOG.md']
   workflow_dispatch:
     inputs:
       action:
         type: choice
-        options: [start-release, create-rc, finalize-release, hotfix]
+        options: [simple-release, start-dev, create-rc, finalize-release, hotfix]
       version:
         type: string
-        required: true
 ```
 
-**Usage**: Copy to `.github/workflows/release.yml` for automated release management.
+**Usage**: Copy from `.github/workflows/unified-release.yml` to your repository.
+
+**Note**: This workflow replaces deprecated `release-cycle` templates. All release functionality is consolidated here.
 
 See [Release Management Documentation](../release-management/README.md) for complete release procedures.
 
@@ -563,7 +569,8 @@ For issues with templates:
 
 | Version | Date | Changes |
 |---|---|---|
-| 03.00.00 | 2026-01-07 | Added public workflow templates documentation (build-universal, release-cycle, dependency-review, standards-compliance) |
+| 03.01.00 | 2026-02-03 | Updated to reflect unified-release.yml; removed deprecated release-cycle templates |
+| 03.00.00 | 2026-01-07 | Added public workflow templates documentation (build-universal, dependency-review, standards-compliance) |
 | 01.00.00 | 2026-01-07 | Initial comprehensive workflow documentation |
 
 ## See Also

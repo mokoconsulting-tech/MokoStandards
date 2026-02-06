@@ -163,11 +163,11 @@ jobs:
           if [ "${{ needs.detect.outputs.project-type }}" == "csharp" ] || \
              [ "${{ needs.detect.outputs.has-dotnet }}" == "true" ]; then
             find . -name "*.csproj" -type f -not -path "*/bin/*" -not -path "*/obj/*" \
-              -exec sed -i "s|<Version>[^<]*</Version>|<Version>${VERSION}</Version>|g" {} \;
-            find . -name "*.csproj" -type f -not -path "*/bin/*" -not -path "*/obj/*" \
-              -exec sed -i "s|<AssemblyVersion>[^<]*</AssemblyVersion>|<AssemblyVersion>${VERSION}.0</AssemblyVersion>|g" {} \;
-            find . -name "*.csproj" -type f -not -path "*/bin/*" -not -path "*/obj/*" \
-              -exec sed -i "s|<FileVersion>[^<]*</FileVersion>|<FileVersion>${VERSION}.0</FileVersion>|g" {} \;
+              -exec sh -c '
+                sed -i "s|<Version>[^<]*</Version>|<Version>'"$VERSION"'</Version>|g" "$1"
+                sed -i "s|<AssemblyVersion>[^<]*</AssemblyVersion>|<AssemblyVersion>'"$VERSION"'.0</AssemblyVersion>|g" "$1"
+                sed -i "s|<FileVersion>[^<]*</FileVersion>|<FileVersion>'"$VERSION"'.0</FileVersion>|g" "$1"
+              ' sh {} \;
             echo "- ✅ Updated version in .csproj files" >> $GITHUB_STEP_SUMMARY
           fi
 
@@ -298,10 +298,12 @@ jobs:
           for proj in $(find . -name "*.csproj" -type f -not -path "*/bin/*" -not -path "*/obj/*"); do
             echo "Packing project: $proj"
             dotnet pack "$proj" --configuration Release --output build/ --no-build 2>/dev/null || true
-            if [ -f "build/*.nupkg" ]; then
-              PACKAGE_CREATED=true
-            fi
           done
+
+          # Check if NuGet packages were created
+          if ls build/*.nupkg 1> /dev/null 2>&1; then
+            PACKAGE_CREATED=true
+          fi
 
           # If NuGet package was created, use it
           if [ "$PACKAGE_CREATED" = true ] && ls build/*.nupkg 1> /dev/null 2>&1; then

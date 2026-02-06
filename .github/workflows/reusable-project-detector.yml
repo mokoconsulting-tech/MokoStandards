@@ -91,8 +91,7 @@ jobs:
             echo "extension-type=module" >> $GITHUB_OUTPUT
             echo "✅ Detected Dolibarr module project" >> $GITHUB_STEP_SUMMARY
           # Check for C# indicators
-          elif [ -f "*.sln" ] || \
-               find . -maxdepth 2 -name "*.csproj" -type f 2>/dev/null | grep -q . || \
+          elif find . -maxdepth 2 -name "*.csproj" -type f 2>/dev/null | grep -q . || \
                find . -maxdepth 2 -name "*.sln" -type f 2>/dev/null | grep -q .; then
             echo "project-type=csharp" >> $GITHUB_OUTPUT
             echo "extension-type=application" >> $GITHUB_OUTPUT

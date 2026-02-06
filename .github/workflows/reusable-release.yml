@@ -294,20 +294,22 @@ jobs:
           fi
 
           # Pack projects that support NuGet
-          PACKAGE_CREATED=false
           for proj in $(find . -name "*.csproj" -type f -not -path "*/bin/*" -not -path "*/obj/*"); do
             echo "Packing project: $proj"
+            # Note: Not all projects support NuGet packing (e.g., test projects, apps)
             dotnet pack "$proj" --configuration Release --output build/ --no-build 2>/dev/null || true
           done
 
           # Check if NuGet packages were created
-          if ls build/*.nupkg 1> /dev/null 2>&1; then
+          if find build -maxdepth 1 -name "*.nupkg" -print -quit 2>/dev/null | grep -q .; then
             PACKAGE_CREATED=true
+          else
+            PACKAGE_CREATED=false
           fi
 
           # If NuGet package was created, use it
-          if [ "$PACKAGE_CREATED" = true ] && ls build/*.nupkg 1> /dev/null 2>&1; then
-            PACKAGE_NAME=$(basename $(ls build/*.nupkg | head -1))
+          if [ "$PACKAGE_CREATED" = true ]; then
+            PACKAGE_NAME=$(basename $(find build -maxdepth 1 -name "*.nupkg" -type f | head -1))
             echo "PACKAGE_NAME=${PACKAGE_NAME}" >> $GITHUB_ENV
             echo "✅ Created NuGet package: ${PACKAGE_NAME}" >> $GITHUB_STEP_SUMMARY
           else

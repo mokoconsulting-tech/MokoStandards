@@ -238,6 +238,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
 
           # Check for common build output directories
+          # Note: du may fail on permission issues or broken symlinks
           for dir in dist build public out bin/Release bin/Debug; do
             if [ -d "$dir" ]; then
               echo "- ✅ Found build output: \`$dir/\`" >> $GITHUB_STEP_SUMMARY

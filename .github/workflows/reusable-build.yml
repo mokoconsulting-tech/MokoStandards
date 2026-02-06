@@ -217,6 +217,7 @@ jobs:
           BUILD_FAILED=false
 
           # Build all solutions or projects
+          # Note: Solution/project files with spaces in names are not supported (uncommon in .NET)
           if find . -name "*.sln" -type f 2>/dev/null | grep -q .; then
             for sln in $(find . -name "*.sln" -type f); do
               echo "Building solution: $sln"

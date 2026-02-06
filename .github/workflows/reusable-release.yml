@@ -287,6 +287,7 @@ jobs:
           BUILD_FAILED=false
 
           # Build all solutions or projects
+          # Note: Solution files with spaces in names are not supported (uncommon in .NET)
           if find . -name "*.sln" -type f 2>/dev/null | grep -q .; then
             for sln in $(find . -name "*.sln" -type f); do
               echo "Building solution: $sln"
@@ -303,6 +304,7 @@ jobs:
           fi
 
           # Pack projects that support NuGet
+          # Note: Project files with spaces in names are not supported (uncommon in .NET)
           for proj in $(find . -name "*.csproj" -type f -not -path "*/bin/*" -not -path "*/obj/*"); do
             echo "Packing project: $proj"
             # Note: Not all projects support NuGet packing (e.g., test projects, apps)
@@ -332,6 +334,8 @@ jobs:
             PACKAGE_NAME="${REPO_NAME}-${VERSION}.zip"
 
             # Collect all Release binaries (DLLs and EXEs, excluding debug symbols)
+            # Note: Files with duplicate names from different projects will overwrite each other
+            # Consider building a single solution or using NuGet packaging for multi-project repos
             mkdir -p build/package
             find . -path "*/bin/Release/*" -type f \( -name "*.dll" -o -name "*.exe" \) \
               -exec cp {} build/package/ \;

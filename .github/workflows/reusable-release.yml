@@ -33,6 +33,11 @@ on:
         required: false
         type: string
         default: '8.1'
+      dotnet-version:
+        description: '.NET SDK version for build'
+        required: false
+        type: string
+        default: '8.0.x'
       create-github-release:
         description: 'Create GitHub release'
         required: false
@@ -92,6 +97,12 @@ jobs:
         with:
           node-version: '20.x'
 
+      - name: Setup .NET
+        if: needs.detect.outputs.has-dotnet == 'true'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ inputs.dotnet-version }}
+
       - name: Validate version format
         run: |
           VERSION="${{ inputs.version }}"
@@ -118,6 +129,11 @@ jobs:
             echo "✅ Node dependencies installed and built" >> $GITHUB_STEP_SUMMARY
           fi
 
+          if find . -name "*.csproj" -type f 2>/dev/null | grep -q .; then
+            dotnet restore
+            echo "✅ .NET dependencies restored" >> $GITHUB_STEP_SUMMARY
+          fi
+
       - name: Update version in files
         working-directory: ${{ inputs.working-directory }}
         run: |
@@ -141,6 +157,18 @@ jobs:
           if [ -f "composer.json" ]; then
             sed -i "s/\"version\": \"[^\"]*\"/\"version\": \"${VERSION}\"/g" composer.json
             echo "- ✅ Updated version in composer.json" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Update version in .csproj files
+          if [ "${{ needs.detect.outputs.project-type }}" == "csharp" ] || \
+             [ "${{ needs.detect.outputs.has-dotnet }}" == "true" ]; then
+            find . -name "*.csproj" -type f -not -path "*/bin/*" -not -path "*/obj/*" \
+              -exec sh -c "
+                sed -i 's|<Version>[^<]*</Version>|<Version>$1</Version>|g' \"\$2\"
+                sed -i 's|<AssemblyVersion>[^<]*</AssemblyVersion>|<AssemblyVersion>$1.0</AssemblyVersion>|g' \"\$2\"
+                sed -i 's|<FileVersion>[^<]*</FileVersion>|<FileVersion>$1.0</FileVersion>|g' \"\$2\"
+              " sh "${VERSION}" {} \;
+            echo "- ✅ Updated version in .csproj files" >> $GITHUB_STEP_SUMMARY
           fi
 
       - name: Create Joomla package
@@ -249,6 +277,90 @@ jobs:
           echo "PACKAGE_NAME=${PACKAGE_NAME}" >> $GITHUB_ENV
           echo "✅ Created generic package: ${PACKAGE_NAME}" >> $GITHUB_STEP_SUMMARY
 
+      - name: Create C# package
+        if: needs.detect.outputs.project-type == 'csharp'
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          mkdir -p build
+
+          VERSION="${{ inputs.version }}"
+          BUILD_FAILED=false
+
+          # Build all solutions or projects
+          # Note: Solution files with spaces in names are not supported (uncommon in .NET)
+          if find . -name "*.sln" -type f 2>/dev/null | grep -q .; then
+            for sln in $(find . -name "*.sln" -type f); do
+              echo "Building solution: $sln"
+              if ! dotnet build "$sln" --configuration Release; then
+                echo "❌ Failed to build solution: $(basename $sln)"
+                BUILD_FAILED=true
+              fi
+            done
+          fi
+
+          if [ "$BUILD_FAILED" = true ]; then
+            echo "❌ Build failed, cannot create package"
+            exit 1
+          fi
+
+          # Pack projects that support NuGet
+          # Note: Project files with spaces in names are not supported (uncommon in .NET)
+          for proj in $(find . -name "*.csproj" -type f -not -path "*/bin/*" -not -path "*/obj/*"); do
+            echo "Packing project: $proj"
+            # Note: Not all projects support NuGet packing (e.g., test projects, apps)
+            # Use --no-build since we just built everything above
+            if dotnet pack "$proj" --configuration Release --output build/ --no-build 2>/dev/null; then
+              echo "  ✅ Successfully packed: $(basename $proj)"
+            else
+              echo "  ℹ️ Project does not support NuGet packaging: $(basename $proj)"
+            fi
+          done
+
+          # Check if NuGet packages were created
+          if [ -n "$(find build -maxdepth 1 -name '*.nupkg' -print -quit 2>/dev/null)" ]; then
+            PACKAGE_CREATED=true
+          else
+            PACKAGE_CREATED=false
+          fi
+
+          # If NuGet package was created, use it
+          if [ "$PACKAGE_CREATED" = true ]; then
+            PACKAGE_NAME=$(basename "$(find build -maxdepth 1 -name '*.nupkg' -type f | head -1)")
+            echo "PACKAGE_NAME=${PACKAGE_NAME}" >> $GITHUB_ENV
+            echo "✅ Created NuGet package: ${PACKAGE_NAME}" >> $GITHUB_STEP_SUMMARY
+          else
+            # Create ZIP package with binaries
+            REPO_NAME=$(basename "$GITHUB_REPOSITORY")
+            PACKAGE_NAME="${REPO_NAME}-${VERSION}.zip"
+
+            # Collect all Release binaries (DLLs and EXEs, excluding debug symbols)
+            # Note: Files with duplicate names from different projects will overwrite each other
+            # Consider building a single solution or using NuGet packaging for multi-project repos
+            mkdir -p build/package
+            find . -path "*/bin/Release/*" -type f \( -name "*.dll" -o -name "*.exe" \) \
+              -exec cp {} build/package/ \;
+
+            cd build
+            if [ -d "package" ] && [ "$(ls -A package)" ]; then
+              zip -r "${PACKAGE_NAME}" package/
+              echo "PACKAGE_NAME=${PACKAGE_NAME}" >> $GITHUB_ENV
+              echo "✅ Created C# binary package: ${PACKAGE_NAME}" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "⚠️ No binaries found, creating source package" >> $GITHUB_STEP_SUMMARY
+              cd ..
+              tar -czf "build/${REPO_NAME}-${VERSION}.tar.gz" \
+                --exclude='build' \
+                --exclude='bin' \
+                --exclude='obj' \
+                --exclude='.git*' \
+                --exclude='node_modules' \
+                .
+              PACKAGE_NAME="${REPO_NAME}-${VERSION}.tar.gz"
+              echo "PACKAGE_NAME=${PACKAGE_NAME}" >> $GITHUB_ENV
+              echo "✅ Created C# source package: ${PACKAGE_NAME}" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+
       - name: Generate checksums
         working-directory: ${{ inputs.working-directory }}
         run: |
@@ -273,6 +385,7 @@ jobs:
           path: |
             ${{ inputs.working-directory }}/build/*.zip
             ${{ inputs.working-directory }}/build/*.tar.gz
+            ${{ inputs.working-directory }}/build/*.nupkg
             ${{ inputs.working-directory }}/build/*.sha256
             ${{ inputs.working-directory }}/build/*.md5
           retention-days: 30

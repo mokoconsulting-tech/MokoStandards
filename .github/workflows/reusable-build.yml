@@ -24,6 +24,11 @@ on:
         required: false
         type: string
         default: '20.x'
+      dotnet-version:
+        description: '.NET SDK version to use for build'
+        required: false
+        type: string
+        default: '8.0.x'
       working-directory:
         description: 'Working directory for build'
         required: false
@@ -75,6 +80,12 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
 
+      - name: Setup .NET
+        if: needs.detect.outputs.has-dotnet == 'true'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ inputs.dotnet-version }}
+
       - name: Get Composer cache directory
         if: needs.detect.outputs.has-php == 'true'
         id: composer-cache
@@ -96,6 +107,14 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.os }}-node-
 
+      - name: Cache NuGet packages
+        if: needs.detect.outputs.has-dotnet == 'true'
+        uses: actions/cache@v5
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: ${{ runner.os }}-nuget-
+
       - name: Install PHP dependencies
         if: needs.detect.outputs.has-php == 'true'
         working-directory: ${{ inputs.working-directory }}
@@ -112,6 +131,15 @@ jobs:
           if [ -f "package.json" ]; then
             npm ci
             echo "✅ npm dependencies installed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Restore .NET dependencies
+        if: needs.detect.outputs.has-dotnet == 'true'
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          if find . -name "*.csproj" -type f 2>/dev/null | grep -q .; then
+            dotnet restore
+            echo "✅ .NET dependencies restored" >> $GITHUB_STEP_SUMMARY
           fi
 
       - name: Build Joomla Extension
@@ -179,6 +207,46 @@ jobs:
 
           echo "- ✅ Generic project build completed" >> $GITHUB_STEP_SUMMARY
 
+      - name: Build C# Project
+        if: needs.detect.outputs.project-type == 'csharp'
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          echo "### 🏗️ Building C# Project" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          BUILD_FAILED=false
+
+          # Build all solutions or projects
+          # Note: Solution/project files with spaces in names are not supported (uncommon in .NET)
+          if find . -name "*.sln" -type f 2>/dev/null | grep -q .; then
+            for sln in $(find . -name "*.sln" -type f); do
+              echo "Building solution: $sln"
+              if dotnet build "$sln" --configuration Release; then
+                echo "- ✅ Built solution: $(basename $sln)" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "- ❌ Failed to build solution: $(basename $sln)" >> $GITHUB_STEP_SUMMARY
+                BUILD_FAILED=true
+              fi
+            done
+          elif find . -name "*.csproj" -type f 2>/dev/null | grep -q .; then
+            for proj in $(find . -name "*.csproj" -type f -not -path "*/bin/*" -not -path "*/obj/*"); do
+              echo "Building project: $proj"
+              if dotnet build "$proj" --configuration Release; then
+                echo "- ✅ Built project: $(basename $proj)" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "- ❌ Failed to build project: $(basename $proj)" >> $GITHUB_STEP_SUMMARY
+                BUILD_FAILED=true
+              fi
+            done
+          fi
+
+          if [ "$BUILD_FAILED" = true ]; then
+            echo "- ❌ C# project build completed with failures" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          else
+            echo "- ✅ C# project build completed" >> $GITHUB_STEP_SUMMARY
+          fi
+
       - name: Verify build output
         working-directory: ${{ inputs.working-directory }}
         run: |
@@ -186,10 +254,13 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
 
           # Check for common build output directories
-          for dir in dist build public out; do
+          for dir in dist build public out bin/Release; do
             if [ -d "$dir" ]; then
               echo "- ✅ Found build output: \`$dir/\`" >> $GITHUB_STEP_SUMMARY
-              du -sh "$dir" >> $GITHUB_STEP_SUMMARY
+              # Note: du may fail on permission issues or broken symlinks
+              if ! du -sh "$dir" 2>/dev/null >> $GITHUB_STEP_SUMMARY; then
+                echo "  (size information unavailable)" >> $GITHUB_STEP_SUMMARY
+              fi
             fi
           done
 
@@ -203,5 +274,6 @@ jobs:
             ${{ inputs.working-directory }}/build/
             ${{ inputs.working-directory }}/public/
             ${{ inputs.working-directory }}/out/
+            ${{ inputs.working-directory }}/bin/Release/
           retention-days: 7
           if-no-files-found: ignore

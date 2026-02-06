@@ -163,11 +163,11 @@ jobs:
           if [ "${{ needs.detect.outputs.project-type }}" == "csharp" ] || \
              [ "${{ needs.detect.outputs.has-dotnet }}" == "true" ]; then
             find . -name "*.csproj" -type f -not -path "*/bin/*" -not -path "*/obj/*" \
-              -exec sh -c '
-                sed -i "s|<Version>[^<]*</Version>|<Version>'"$VERSION"'</Version>|g" "$1"
-                sed -i "s|<AssemblyVersion>[^<]*</AssemblyVersion>|<AssemblyVersion>'"$VERSION"'.0</AssemblyVersion>|g" "$1"
-                sed -i "s|<FileVersion>[^<]*</FileVersion>|<FileVersion>'"$VERSION"'.0</FileVersion>|g" "$1"
-              ' sh {} \;
+              -exec sh -c "
+                sed -i 's|<Version>[^<]*</Version>|<Version>$1</Version>|g' \"\$2\"
+                sed -i 's|<AssemblyVersion>[^<]*</AssemblyVersion>|<AssemblyVersion>$1.0</AssemblyVersion>|g' \"\$2\"
+                sed -i 's|<FileVersion>[^<]*</FileVersion>|<FileVersion>$1.0</FileVersion>|g' \"\$2\"
+              " sh "${VERSION}" {} \;
             echo "- ✅ Updated version in .csproj files" >> $GITHUB_STEP_SUMMARY
           fi
 

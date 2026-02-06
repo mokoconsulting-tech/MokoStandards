@@ -30,6 +30,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Release Cycle Workflow Template**: Merged unified-release and release-cycle workflows into enhanced release-cycle.yml.template v02.00.00
+  - Combined auto-detection features from unified-release with manual dispatch from release-cycle
+  - Supports automatic version detection from CITATION.cff, pyproject.toml, package.json, CHANGELOG.md
+  - Added simple-release action for one-step releases
+  - Maintains backward compatibility with existing release-cycle workflow
+  - File: `templates/workflows/release-cycle.yml.template`
+
 ### Added
 - **Dev Branch Tracking Issue Template**: Created manual issue template for dev branch tracking
   - Created `.github/ISSUE_TEMPLATE/dev-branch-tracking.md` with complete launch checklist

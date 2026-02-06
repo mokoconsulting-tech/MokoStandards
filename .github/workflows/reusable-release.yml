@@ -297,11 +297,15 @@ jobs:
           for proj in $(find . -name "*.csproj" -type f -not -path "*/bin/*" -not -path "*/obj/*"); do
             echo "Packing project: $proj"
             # Note: Not all projects support NuGet packing (e.g., test projects, apps)
-            dotnet pack "$proj" --configuration Release --output build/ --no-build 2>/dev/null || true
+            if dotnet pack "$proj" --configuration Release --output build/ --no-build 2>/dev/null; then
+              echo "  ✅ Successfully packed: $(basename $proj)"
+            else
+              echo "  ℹ️ Project does not support NuGet packaging: $(basename $proj)"
+            fi
           done
 
           # Check if NuGet packages were created
-          if find build -maxdepth 1 -name "*.nupkg" -print -quit 2>/dev/null | grep -q .; then
+          if [ -n "$(find build -maxdepth 1 -name '*.nupkg' -print -quit 2>/dev/null)" ]; then
             PACKAGE_CREATED=true
           else
             PACKAGE_CREATED=false

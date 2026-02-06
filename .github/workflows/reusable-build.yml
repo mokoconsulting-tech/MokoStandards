@@ -238,11 +238,13 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
 
           # Check for common build output directories
-          # Note: du may fail on permission issues or broken symlinks
           for dir in dist build public out bin/Release; do
             if [ -d "$dir" ]; then
               echo "- ✅ Found build output: \`$dir/\`" >> $GITHUB_STEP_SUMMARY
-              du -sh "$dir" 2>/dev/null >> $GITHUB_STEP_SUMMARY || true
+              # Note: du may fail on permission issues or broken symlinks
+              if ! du -sh "$dir" 2>/dev/null >> $GITHUB_STEP_SUMMARY; then
+                echo "  (size information unavailable)" >> $GITHUB_STEP_SUMMARY
+              fi
             fi
           done
 

@@ -237,8 +237,8 @@ jobs:
               const prEntry = `- [ ] #${prNumber} - ${prTitle} (@${prAuthor})`;
 
               if (!body.includes(`#${prNumber}`)) {
-                // Find the PR tracking section
-                const prSectionMatch = body.match(/(### 📝 Pull Requests.*?)(\n---|\n### |$)/s);
+                // Find the PR tracking section (match until next --- or end of document)
+                const prSectionMatch = body.match(/(### 📝 Pull Requests.*?)(\n---\n|$)/s);
 
                 if (prSectionMatch) {
                   // Insert PR entry at the end of the PR section

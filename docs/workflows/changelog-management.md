@@ -6,11 +6,11 @@
  SPDX-LICENSE-IDENTIFIER: GPL-3.0-or-later
 
  # FILE INFORMATION
- DEFGROUP: MokoStandards
- INGROUP: MokoStandards.Documentation
+ DEFGROUP: MokoStandards.Documentation
+ INGROUP: MokoStandards.Workflows
  REPO: https://github.com/mokoconsulting-tech/MokoStandards/
  VERSION: 05.00.00
- PATH: ./.github/workflows/CHANGELOG_MANAGEMENT.md
+ PATH: /docs/workflows/changelog-management.md
  BRIEF: Documentation for changelog management workflows and scripts
  -->
 

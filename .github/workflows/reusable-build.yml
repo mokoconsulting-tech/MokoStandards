@@ -214,22 +214,37 @@ jobs:
           echo "### 🏗️ Building C# Project" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
+          BUILD_FAILED=false
+
           # Build all solutions or projects
           if find . -name "*.sln" -type f 2>/dev/null | grep -q .; then
             for sln in $(find . -name "*.sln" -type f); do
               echo "Building solution: $sln"
-              dotnet build "$sln" --configuration Release
-              echo "- ✅ Built solution: $(basename $sln)" >> $GITHUB_STEP_SUMMARY
+              if dotnet build "$sln" --configuration Release; then
+                echo "- ✅ Built solution: $(basename $sln)" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "- ❌ Failed to build solution: $(basename $sln)" >> $GITHUB_STEP_SUMMARY
+                BUILD_FAILED=true
+              fi
             done
           elif find . -name "*.csproj" -type f 2>/dev/null | grep -q .; then
             for proj in $(find . -name "*.csproj" -type f -not -path "*/bin/*" -not -path "*/obj/*"); do
               echo "Building project: $proj"
-              dotnet build "$proj" --configuration Release
-              echo "- ✅ Built project: $(basename $proj)" >> $GITHUB_STEP_SUMMARY
+              if dotnet build "$proj" --configuration Release; then
+                echo "- ✅ Built project: $(basename $proj)" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "- ❌ Failed to build project: $(basename $proj)" >> $GITHUB_STEP_SUMMARY
+                BUILD_FAILED=true
+              fi
             done
           fi
 
-          echo "- ✅ C# project build completed" >> $GITHUB_STEP_SUMMARY
+          if [ "$BUILD_FAILED" = true ]; then
+            echo "- ❌ C# project build completed with failures" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          else
+            echo "- ✅ C# project build completed" >> $GITHUB_STEP_SUMMARY
+          fi
 
       - name: Verify build output
         working-directory: ${{ inputs.working-directory }}

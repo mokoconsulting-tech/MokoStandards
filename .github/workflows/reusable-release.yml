@@ -284,19 +284,29 @@ jobs:
           mkdir -p build
 
           VERSION="${{ inputs.version }}"
+          BUILD_FAILED=false
 
-          # Build and pack all projects
+          # Build all solutions or projects
           if find . -name "*.sln" -type f 2>/dev/null | grep -q .; then
             for sln in $(find . -name "*.sln" -type f); do
               echo "Building solution: $sln"
-              dotnet build "$sln" --configuration Release
+              if ! dotnet build "$sln" --configuration Release; then
+                echo "❌ Failed to build solution: $(basename $sln)"
+                BUILD_FAILED=true
+              fi
             done
+          fi
+
+          if [ "$BUILD_FAILED" = true ]; then
+            echo "❌ Build failed, cannot create package"
+            exit 1
           fi
 
           # Pack projects that support NuGet
           for proj in $(find . -name "*.csproj" -type f -not -path "*/bin/*" -not -path "*/obj/*"); do
             echo "Packing project: $proj"
             # Note: Not all projects support NuGet packing (e.g., test projects, apps)
+            # Use --no-build since we just built everything above
             if dotnet pack "$proj" --configuration Release --output build/ --no-build 2>/dev/null; then
               echo "  ✅ Successfully packed: $(basename $proj)"
             else
@@ -313,7 +323,7 @@ jobs:
 
           # If NuGet package was created, use it
           if [ "$PACKAGE_CREATED" = true ]; then
-            PACKAGE_NAME=$(basename $(find build -maxdepth 1 -name "*.nupkg" -type f | head -1))
+            PACKAGE_NAME=$(basename "$(find build -maxdepth 1 -name '*.nupkg' -type f | head -1)")
             echo "PACKAGE_NAME=${PACKAGE_NAME}" >> $GITHUB_ENV
             echo "✅ Created NuGet package: ${PACKAGE_NAME}" >> $GITHUB_STEP_SUMMARY
           else
@@ -321,10 +331,10 @@ jobs:
             REPO_NAME=$(basename "$GITHUB_REPOSITORY")
             PACKAGE_NAME="${REPO_NAME}-${VERSION}.zip"
 
-            # Collect all Release binaries
+            # Collect all Release binaries (DLLs and EXEs, excluding debug symbols)
             mkdir -p build/package
-            find . -path "*/bin/Release/*" -type f \( -name "*.dll" -o -name "*.exe" -o -name "*.pdb" \) \
-              -exec cp --parents {} build/package/ \;
+            find . -path "*/bin/Release/*" -type f \( -name "*.dll" -o -name "*.exe" \) \
+              -exec cp {} build/package/ \;
 
             cd build
             if [ -d "package" ] && [ "$(ls -A package)" ]; then

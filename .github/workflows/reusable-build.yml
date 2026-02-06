@@ -6,7 +6,7 @@
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/reusable-build.yml
 # VERSION: 01.00.00
-# BRIEF: Reusable type-aware build workflow for Joomla, Dolibarr, and generic projects
+# BRIEF: Reusable type-aware build workflow for Joomla, Dolibarr, C#/.NET, and generic projects
 # NOTE: Automatically detects project type and applies appropriate build steps
 
 name: Reusable Build
@@ -24,6 +24,11 @@ on:
         required: false
         type: string
         default: '20.x'
+      dotnet-version:
+        description: '.NET SDK version to use for build'
+        required: false
+        type: string
+        default: '8.0.x'
       working-directory:
         description: 'Working directory for build'
         required: false
@@ -75,6 +80,12 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
 
+      - name: Setup .NET SDK
+        if: needs.detect.outputs.has-csharp == 'true'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ inputs.dotnet-version }}
+
       - name: Get Composer cache directory
         if: needs.detect.outputs.has-php == 'true'
         id: composer-cache
@@ -96,6 +107,14 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.os }}-node-
 
+      - name: Cache NuGet packages
+        if: needs.detect.outputs.has-csharp == 'true'
+        uses: actions/cache@v5
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: ${{ runner.os }}-nuget-
+
       - name: Install PHP dependencies
         if: needs.detect.outputs.has-php == 'true'
         working-directory: ${{ inputs.working-directory }}
@@ -113,6 +132,14 @@ jobs:
             npm ci
             echo "✅ npm dependencies installed" >> $GITHUB_STEP_SUMMARY
           fi
+
+      - name: Restore .NET dependencies
+        if: needs.detect.outputs.has-csharp == 'true'
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          echo "Restoring .NET dependencies..."
+          dotnet restore
+          echo "✅ .NET dependencies restored" >> $GITHUB_STEP_SUMMARY
 
       - name: Build Joomla Extension
         if: needs.detect.outputs.project-type == 'joomla'
@@ -160,6 +187,38 @@ jobs:
 
           echo "- ✅ Dolibarr module build completed" >> $GITHUB_STEP_SUMMARY
 
+      - name: Build C#/.NET Project
+        if: needs.detect.outputs.project-type == 'csharp'
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          echo "### 🏗️ Building C#/.NET Project" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Build the .NET project
+          if find . -maxdepth 2 -name "*.sln" 2>/dev/null | grep -q .; then
+            # Build solution
+            SOLUTION=$(find . -maxdepth 2 -name "*.sln" | head -n 1)
+            echo "Building solution: $SOLUTION"
+            dotnet build "$SOLUTION" --configuration Release --no-restore
+            echo "- ✅ Solution build completed" >> $GITHUB_STEP_SUMMARY
+          elif find . -maxdepth 3 -name "*.csproj" 2>/dev/null | grep -q .; then
+            # Build all projects
+            find . -maxdepth 3 -name "*.csproj" | while read proj; do
+              echo "Building project: $proj"
+              dotnet build "$proj" --configuration Release --no-restore
+            done
+            echo "- ✅ Project build completed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Run tests if test projects exist
+          if find . -name "*Tests.csproj" -o -name "*.Tests.csproj" 2>/dev/null | grep -q .; then
+            echo "Running .NET tests..."
+            dotnet test --configuration Release --no-build --verbosity minimal
+            echo "- ✅ Tests completed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "- ✅ C#/.NET project build completed" >> $GITHUB_STEP_SUMMARY
+
       - name: Build Generic Project
         if: needs.detect.outputs.project-type == 'generic'
         working-directory: ${{ inputs.working-directory }}
@@ -186,10 +245,10 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
 
           # Check for common build output directories
-          for dir in dist build public out; do
+          for dir in dist build public out bin/Release bin/Debug; do
             if [ -d "$dir" ]; then
               echo "- ✅ Found build output: \`$dir/\`" >> $GITHUB_STEP_SUMMARY
-              du -sh "$dir" >> $GITHUB_STEP_SUMMARY
+              du -sh "$dir" 2>/dev/null >> $GITHUB_STEP_SUMMARY || true
             fi
           done
 
@@ -203,5 +262,6 @@ jobs:
             ${{ inputs.working-directory }}/build/
             ${{ inputs.working-directory }}/public/
             ${{ inputs.working-directory }}/out/
+            ${{ inputs.working-directory }}/bin/Release/
           retention-days: 7
           if-no-files-found: ignore

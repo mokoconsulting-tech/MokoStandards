@@ -7,7 +7,7 @@
 # PATH: /.github/workflows/reusable-project-detector.yml
 # VERSION: 01.00.00
 # BRIEF: Reusable workflow for automatic project type detection
-# NOTE: Detects Joomla extensions, Dolibarr modules, or generic projects
+# NOTE: Detects Joomla extensions, Dolibarr modules, C#/.NET projects, or generic projects
 
 name: Reusable Project Detector
 
@@ -21,7 +21,7 @@ on:
         default: '.'
     outputs:
       project-type:
-        description: 'Detected project type: joomla, dolibarr, or generic'
+        description: 'Detected project type: joomla, dolibarr, csharp, or generic'
         value: ${{ jobs.detect.outputs.project-type }}
       extension-type:
         description: 'Extension type: component, module, plugin, template, package, or application'
@@ -32,6 +32,9 @@ on:
       has-node:
         description: 'Whether project contains package.json'
         value: ${{ jobs.detect.outputs.has-node }}
+      has-csharp:
+        description: 'Whether project contains C#/.NET files'
+        value: ${{ jobs.detect.outputs.has-csharp }}
 
 permissions:
   contents: read
@@ -45,6 +48,7 @@ jobs:
       extension-type: ${{ steps.detect.outputs.extension-type }}
       has-php: ${{ steps.detect.outputs.has-php }}
       has-node: ${{ steps.detect.outputs.has-node }}
+      has-csharp: ${{ steps.detect.outputs.has-csharp }}
 
     steps:
       - name: Checkout repository
@@ -54,7 +58,7 @@ jobs:
         id: detect
         working-directory: ${{ inputs.working-directory }}
         run: |
-          # Detection priority: Joomla > Dolibarr > Generic
+          # Detection priority: Joomla > Dolibarr > C# > Generic
 
           # Check for Joomla indicators
           if [ -f "joomla.xml" ] || \
@@ -86,6 +90,20 @@ jobs:
             echo "project-type=dolibarr" >> $GITHUB_OUTPUT
             echo "extension-type=module" >> $GITHUB_OUTPUT
             echo "✅ Detected Dolibarr module project" >> $GITHUB_STEP_SUMMARY
+          # Check for C#/.NET indicators
+          elif find . -maxdepth 3 \( -name "*.csproj" -o -name "*.sln" \) \
+               -not -path "*/obj/*" -not -path "*/bin/*" \
+               2>/dev/null | grep -q .; then
+            echo "project-type=csharp" >> $GITHUB_OUTPUT
+
+            # Detect C# project type
+            if find . -maxdepth 2 -name "*.sln" 2>/dev/null | grep -q .; then
+              echo "extension-type=solution" >> $GITHUB_OUTPUT
+            else
+              echo "extension-type=application" >> $GITHUB_OUTPUT
+            fi
+
+            echo "✅ Detected C#/.NET project" >> $GITHUB_STEP_SUMMARY
           # Default to Generic
           else
             echo "project-type=generic" >> $GITHUB_OUTPUT
@@ -114,6 +132,17 @@ jobs:
             echo "- Has Node.js: No" >> $GITHUB_STEP_SUMMARY
           fi
 
+          # Check for C#/.NET files
+          if find . -name "*.cs" -o -name "*.csproj" -o -name "*.sln" \
+              -not -path "*/obj/*" -not -path "*/bin/*" \
+              2>/dev/null | grep -q .; then
+            echo "has-csharp=true" >> $GITHUB_OUTPUT
+            echo "- Has C#/.NET: Yes" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "has-csharp=false" >> $GITHUB_OUTPUT
+            echo "- Has C#/.NET: No" >> $GITHUB_STEP_SUMMARY
+          fi
+
       - name: Summary
         run: |
           echo "### 🔍 Project Detection Complete" >> $GITHUB_STEP_SUMMARY
@@ -122,3 +151,4 @@ jobs:
           echo "**Extension Type:** ${{ steps.detect.outputs.extension-type }}" >> $GITHUB_STEP_SUMMARY
           echo "**Has PHP:** ${{ steps.detect.outputs.has-php }}" >> $GITHUB_STEP_SUMMARY
           echo "**Has Node:** ${{ steps.detect.outputs.has-node }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Has C#/.NET:** ${{ steps.detect.outputs.has-csharp }}" >> $GITHUB_STEP_SUMMARY

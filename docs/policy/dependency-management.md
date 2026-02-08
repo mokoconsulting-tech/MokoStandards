@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Security
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/dependency-management.md
-VERSION: 03.00.00
+VERSION: 03.01.01
 BRIEF: Dependency management policy for third-party libraries and packages
 -->
 

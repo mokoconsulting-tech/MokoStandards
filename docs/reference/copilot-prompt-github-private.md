@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Guide
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: docs/COPILOT_PROMPT_FOR_.GITHUB-PRIVATE.md
-VERSION: 03.00.00
+VERSION: 03.01.01
 BRIEF: Reference documentation for GitHub Copilot prompts stored in private repository
 -->
 

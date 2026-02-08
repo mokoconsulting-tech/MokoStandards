@@ -30,6 +30,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+- **Code Injection Fixes**: Fixed code injection vulnerabilities in reusable workflow files
+  - Fixed injection in `reusable-project-detector.yml` Summary step by using environment variables
+  - Fixed multiple injection points in `reusable-release.yml`:
+    - Version update step (project-type, has-dotnet conditions)
+    - C# package creation step (version input)
+    - Joomla, Dolibarr, and Generic package steps
+    - Extract changelog and Release summary steps
+    - Publish to marketplace step
+  - All GitHub Actions context values now passed via environment variables instead of direct interpolation
+  - Addresses unresolved security alerts from PR #164 code scanning
+  - Files: `.github/workflows/reusable-*.yml.disabled`
+
+### Changed
+- **Workflow Organization**: Disabled reusable workflows in MokoStandards repository
+  - Renamed `reusable-build.yml` to `reusable-build.yml.disabled`
+  - Renamed `reusable-project-detector.yml` to `reusable-project-detector.yml.disabled`
+  - Renamed `reusable-release.yml` to `reusable-release.yml.disabled`
+  - Renamed `reusable-php-quality.yml` to `reusable-php-quality.yml.disabled`
+  - Renamed `reusable-platform-testing.yml` to `reusable-platform-testing.yml.disabled`
+  - Rationale: MokoStandards is a template repository and doesn't need to run builds/releases
+  - Reusable workflows maintained in `templates/workflows/` for syncing to other repositories
+  - Resolves new requirement from PR #164 feedback
+- **Live Workflow Cleanup**: Removed generic/non-standards workflows from `.github/workflows/`
+  - **Removed** `code-quality.yml` - Generic multi-language linting (template exists)
+  - **Removed** `auto-update-changelog.yml` - Generic changelog automation (template exists)
+  - **Removed** `enterprise-issue-manager.yml` - Generic PR/issue management (template exists)
+  - **Removed** `repo-health.yml` - Generic reusable health checks (should be template)
+  - **Removed** `auto-create-org-projects.yml` - Generic org automation (not standards-specific)
+  - **Removed** `bulk-label-deployment.yml` - Generic label deployment (not standards-specific)
+  - **Removed** `enterprise-firewall-setup.yml` - Generic firewall config (not standards-specific)
+  - **Removed** `codeql-analysis.yml` - Redundant with GitHub default CodeQL setup
+  - **Kept 9 workflows**: standards-compliance, comprehensive-validation, validate-script-integrity, security-comprehensive, confidentiality-scan, auto-update-sha, auto-create-dev-branch, bulk-repo-sync, terraform-drift-check
+  - Rationale: Focus MokoStandards on standards enforcement and repository management only
+  - **Updated** `MokoStandards.override.tf` to version 2.3.0 with all excluded workflows documented
+- **Template Consolidation**: Merged duplicate and superseded workflow templates
+  - **Removed** `build-universal.yml.template` - exact duplicate of `build.yml.template`
+  - **Removed** `release-cycle-simple.yml.template` - superseded by `release-cycle.yml.template` v2.0
+  - **Updated** documentation to reference consolidated templates:
+    - `docs/workflows/README.md` - Updated quick start and template references
+    - `docs/build-system/README.md` - Updated build workflow references
+    - `docs/release-management/README.md` - Updated release workflow references
+  - **Updated** `MokoStandards.override.tf` to version 2.2.0:
+    - Added excluded reusable workflows to exclude_files list
+    - Added removed templates to obsolete_files list for sync cleanup
+
 ### Added
 - **Dev Branch Tracking Issue Template**: Created manual issue template for dev branch tracking
   - Created `.github/ISSUE_TEMPLATE/dev-branch-tracking.md` with complete launch checklist

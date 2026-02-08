@@ -23,7 +23,7 @@
 # INGROUP: MokoStandards.Library
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # FILE: scripts/lib/gui_utils.py
-# VERSION: 01.00.00
+# VERSION: 03.01.01
 # BRIEF: Cross-platform GUI utilities for MokoStandards scripts
 # PATH: /scripts/lib/gui_utils.py
 # NOTE: Provides optional GUI for scripts with graceful CLI fallback

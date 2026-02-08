@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.ADR
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/adr/template.md
-VERSION: 03.00.00
+VERSION: 03.01.01
 BRIEF: Template for creating Architecture Decision Records
 -->
 

@@ -22,7 +22,7 @@
 # INGROUP: MokoStandards.Configuration
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /MokoStandards.override.tf
-# VERSION: 02.01.00
+# VERSION: 03.01.01
 # BRIEF: MokoStandards Sync Override Configuration for the Standards Repository
 
 # MokoStandards Repository Override Configuration
@@ -39,8 +39,8 @@ locals {
   override_metadata = {
     name           = "MokoStandards Repository Override"
     description    = "Override configuration preventing sync of template files in the standards repository"
-    version        = "2.1.0"
-    last_updated   = "2026-02-06T11:46:00Z"
+    version        = "03.01.01"
+    last_updated   = "2026-02-08T08:07:00Z"
     maintainer     = "MokoStandards Team"
     schema_version = "2.0"
     repository_url = "https://github.com/mokoconsulting-tech/MokoStandards"
@@ -74,28 +74,72 @@ locals {
       reason = "MokoStandards does not require build workflow - disabled as build.yml.disabled"
     },
     {
+      path   = ".github/workflows/reusable-build.yml"
+      reason = "Reusable workflow not needed in template repo - disabled as reusable-build.yml.disabled"
+    },
+    {
+      path   = ".github/workflows/reusable-project-detector.yml"
+      reason = "Reusable workflow not needed in template repo - disabled as reusable-project-detector.yml.disabled"
+    },
+    {
+      path   = ".github/workflows/reusable-release.yml"
+      reason = "Reusable workflow not needed in template repo - disabled as reusable-release.yml.disabled"
+    },
+    {
+      path   = ".github/workflows/reusable-php-quality.yml"
+      reason = "Reusable workflow not needed in template repo - disabled as reusable-php-quality.yml.disabled"
+    },
+    {
+      path   = ".github/workflows/reusable-platform-testing.yml"
+      reason = "Reusable workflow not needed in template repo - disabled as reusable-platform-testing.yml.disabled"
+    },
+    {
       path   = ".github/workflows/code-quality.yml"
-      reason = "corresponds to templates/workflows/code-quality.yml.template"
+      reason = "Generic workflow - template exists at templates/workflows/code-quality.yml.template"
     },
     {
-      path   = ".github/workflows/dependency-review.yml"
-      reason = "corresponds to templates/workflows/generic/dependency-review.yml.template"
+      path   = ".github/workflows/auto-update-changelog.yml"
+      reason = "Generic workflow - template exists at templates/workflows/auto-update-changelog.yml.template"
     },
     {
-      path   = ".github/workflows/deploy-to-dev.yml"
-      reason = "template only, not active in MokoStandards"
+      path   = ".github/workflows/enterprise-issue-manager.yml"
+      reason = "Generic workflow - template exists at templates/workflows/enterprise-issue-manager.yml.template"
     },
     {
-      path   = ".github/workflows/release-cycle.yml"
-      reason = "MokoStandards does not require release workflow - disabled as release-cycle.yml.disabled"
+      path   = ".github/workflows/repo-health.yml"
+      reason = "Generic reusable workflow - should be template for other repos"
     },
     {
-      path   = ".github/workflows/unified-release.yml"
-      reason = "MokoStandards does not require unified release workflow - disabled as unified-release.yml.disabled"
+      path   = ".github/workflows/auto-create-org-projects.yml"
+      reason = "Generic org automation - not standards-specific"
+    },
+    {
+      path   = ".github/workflows/bulk-label-deployment.yml"
+      reason = "Generic label deployment - not standards-specific"
+    },
+    {
+      path   = ".github/workflows/enterprise-firewall-setup.yml"
+      reason = "Generic firewall config generator - not standards-specific"
     },
     {
       path   = ".github/workflows/codeql-analysis.yml"
-      reason = "corresponds to templates/workflows/generic/codeql-analysis.yml"
+      reason = "Generic security scanning - redundant with GitHub default CodeQL setup"
+    },
+    {
+      path   = ".github/workflows/dependency-review.yml"
+      reason = "Generic workflow - template exists at templates/workflows/generic/dependency-review.yml.template"
+    },
+    {
+      path   = ".github/workflows/deploy-to-dev.yml"
+      reason = "Generic deployment - not needed in MokoStandards (template only)"
+    },
+    {
+      path   = ".github/workflows/release-cycle.yml"
+      reason = "Not needed in template repo - actual file is release-cycle.yml.disabled"
+    },
+    {
+      path   = ".github/workflows/unified-release.yml"
+      reason = "Not needed in template repo - actual file is unified-release.yml.disabled"
     },
   ]
 
@@ -103,11 +147,14 @@ locals {
   # These files will be deleted from target repos during sync
   # Use this to remove deprecated workflows or scripts
   obsolete_files = [
-    # Example: Old workflow that has been replaced
-    # {
-    #   path   = ".github/workflows/old-workflow.yml"
-    #   reason = "Replaced by new unified workflow"
-    # },
+    {
+      path   = "templates/workflows/build-universal.yml.template"
+      reason = "Duplicate of build.yml.template - consolidated"
+    },
+    {
+      path   = "templates/workflows/release-cycle-simple.yml.template"
+      reason = "Superseded by release-cycle.yml.template v2.0 - consolidated"
+    },
   ]
 
   # Files that should never be overwritten (always preserved)

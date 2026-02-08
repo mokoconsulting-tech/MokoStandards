@@ -11,7 +11,7 @@ DEFGROUP: MokoStandards.Scripts.Validate
 INGROUP: MokoStandards.Scripts
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 FILE: scripts/validate/check_markdown_links.py
-VERSION: 03.00.00
+VERSION: 03.01.01
 BRIEF: Validates links in markdown files to ensure they are not broken
 PATH: /scripts/validate/check_markdown_links.py
 """

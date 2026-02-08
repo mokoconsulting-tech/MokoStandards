@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Summary
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /ENTERPRISE_READINESS_SUMMARY.md
-VERSION: 03.00.00
+VERSION: 03.01.01
 BRIEF: Summary of enterprise-ready enhancements and security improvements
 -->
 

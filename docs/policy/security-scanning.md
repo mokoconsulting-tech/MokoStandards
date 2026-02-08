@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Security
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/security-scanning.md
-VERSION: 03.00.00
+VERSION: 03.01.01
 BRIEF: Security scanning policy and automated vulnerability detection standards
 -->
 

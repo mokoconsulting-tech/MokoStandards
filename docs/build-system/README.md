@@ -300,7 +300,7 @@ The build system is designed to work seamlessly with GitHub Actions workflows.
 
 ### Build Universal Workflow
 
-The `build-universal.yml` workflow template automatically:
+The `build.yml` workflow template automatically:
 1. Detects project type
 2. Determines Makefile precedence
 3. Executes appropriate build commands
@@ -314,10 +314,10 @@ The `build-universal.yml` workflow template automatically:
 
 # Or let the universal workflow handle it
 - name: Run Build
-  uses: ./templates/workflows/build-universal.yml.template
+  uses: ./templates/workflows/build.yml.template
 ```
 
-See [Build Universal Workflow](../../templates/workflows/build-universal.yml.template) for implementation details.
+See [Build Workflow](../../templates/workflows/build.yml.template) for implementation details.
 
 ## Local vs CI Builds
 
@@ -543,7 +543,7 @@ build:
 - [Makefile Creation Guide](makefile-guide.md)
 - [Project Type Detection](../reference/project-types.md)
 - [Workflow Templates](../workflows/README.md)
-- [Build Universal Workflow](../../templates/workflows/build-universal.yml.template)
+- [Build Workflow](../../templates/workflows/build.yml.template)
 
 ## Metadata
 

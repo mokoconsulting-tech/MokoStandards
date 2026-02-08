@@ -10,7 +10,7 @@
  INGROUP: Policy.MonitoringAndBackup
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  PATH: /docs/policy/waas/akeeba-and-panopticon.md
- VERSION: 05.00.00
+ VERSION: 03.01.01
  BRIEF: Policy governing Akeeba licensing and mandatory Panopticon enrollment for WaaS sites.
 -->
 

@@ -10,7 +10,7 @@
  INGROUP: Policy.Analytics
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  PATH: /docs/policy/waas/google-analytics.md
- VERSION: 01.00.02
+ VERSION: 03.01.01
  BRIEF: Governance policy defining GA4 ownership, deployment, updates, validation, and privacy controls for WaaS client sites.
 -->
 

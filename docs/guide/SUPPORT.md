@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /SUPPORT.md
-VERSION: 03.00.00
+VERSION: 03.01.01
 BRIEF: Support channels, expectations, and service levels
 -->
 

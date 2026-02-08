@@ -7,7 +7,7 @@ METADATA:
     AUTHOR: Moko Consulting LLC
     COPYRIGHT: 2025-2026 Moko Consulting LLC
     LICENSE: MIT
-    VERSION: 01.00.00
+    VERSION: 03.01.01
     CREATED: 2026-01-29
     UPDATED: 2026-01-29
 """

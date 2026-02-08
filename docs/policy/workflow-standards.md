@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Workflows
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/workflow-standards.md
-VERSION: 03.00.00
+VERSION: 03.01.01
 BRIEF: Workflow governance and standards for GitHub Actions
 -->
 

@@ -21,8 +21,8 @@ This document provides comprehensive documentation for MokoStandards workflow te
 MokoStandards provides workflow templates in two locations:
 
 1. **`templates/workflows/`** - **Public workflow templates** for community adoption
-   - `build-universal.yml.template` - Universal build workflow with automatic project detection
-   - `release-cycle-simple.yml.template` - Automated release management workflow
+   - `build.yml.template` - Universal build workflow with automatic project detection
+   - `release-cycle.yml.template` - Automated release management workflow (v2.0 with auto-detect & manual modes)
    - `generic/codeql-analysis.yml` - Security scanning with CodeQL
    - `generic/dependency-review.yml.template` - Dependency vulnerability scanning
    - `standards-compliance.yml.template` - MokoStandards compliance validation
@@ -39,10 +39,10 @@ To adopt MokoStandards workflows in your repository:
 
 ```bash
 # Copy universal build workflow
-cp templates/workflows/build-universal.yml.template .github/workflows/build.yml
+cp templates/workflows/build.yml.template .github/workflows/build.yml
 
 # Copy release management workflow
-cp templates/workflows/release-cycle-simple.yml.template .github/workflows/release.yml
+cp templates/workflows/release-cycle.yml.template .github/workflows/release.yml
 
 # Copy security scanning workflows
 cp templates/workflows/generic/codeql-analysis.yml .github/workflows/
@@ -59,9 +59,9 @@ Then customize the workflows for your project as needed.
 
 ## Public Workflow Templates (`templates/workflows/`)
 
-### 1. Build Universal (`build-universal.yml.template`)
+### 1. Build Universal (`build.yml.template`)
 
-**Location**: `templates/workflows/build-universal.yml.template`
+**Location**: `templates/workflows/build.yml.template`
 
 Universal build workflow with automatic project type detection and Makefile precedence system.
 
@@ -86,11 +86,11 @@ on:
 
 See [Build System Documentation](../build-system/README.md) for details on the Makefile precedence system.
 
-### 2. Release Cycle (`release-cycle.yml.template` and `release-cycle-simple.yml.template`)
+### 2. Release Cycle (`release-cycle.yml.template`)
 
-**Location**: `templates/workflows/release-cycle.yml.template` (comprehensive) and `release-cycle-simple.yml.template` (simplified)
+**Location**: `templates/workflows/release-cycle.yml.template`
 
-**Version 02.00.00** - Merged unified-release and release-cycle workflows
+**Version 02.00.00** - Merged unified-release and release-cycle workflows with auto-detection and manual dispatch modes
 
 Automated release management workflow implementing the MokoStandards release cycle: main → dev → rc → version → main.
 
@@ -577,6 +577,7 @@ For issues with templates:
 
 | Version | Date | Changes |
 |---|---|---|
+| 04.00.00 | 2026-02-08 | Consolidated workflow templates: removed duplicate build-universal (use build.yml.template), removed superseded release-cycle-simple (use release-cycle v2.0) |
 | 03.00.00 | 2026-01-07 | Added public workflow templates documentation (build-universal, release-cycle, dependency-review, standards-compliance) |
 | 01.00.00 | 2026-01-07 | Initial comprehensive workflow documentation |
 

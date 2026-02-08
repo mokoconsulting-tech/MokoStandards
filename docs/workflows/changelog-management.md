@@ -9,7 +9,7 @@
  DEFGROUP: MokoStandards.Documentation
  INGROUP: MokoStandards.Workflows
  REPO: https://github.com/mokoconsulting-tech/MokoStandards/
- VERSION: 05.00.00
+ VERSION: 03.01.01
  PATH: /docs/workflows/changelog-management.md
  BRIEF: Documentation for changelog management workflows and scripts
  -->
@@ -231,7 +231,7 @@ git push origin main
 All files with version headers are automatically updated during release:
 
 ```markdown
-VERSION: 05.01.00
+VERSION: 03.01.01
 ```
 
 Supported file types:

@@ -233,20 +233,30 @@ jobs:
 
               let body = issue.data.body || '';
 
-              // Check if PR tracking section exists
-              if (!body.includes('### 📝 Pull Requests')) {
-                body += `\n\n### 📝 Pull Requests\n\nThis section tracks all PRs associated with this branch:\n\n`;
-              }
-
               // Add PR as a checklist item
               const prEntry = `- [ ] #${prNumber} - ${prTitle} (@${prAuthor})`;
 
               if (!body.includes(`#${prNumber}`)) {
-                // Insert before the closing separator
-                if (body.includes('---')) {
-                  body = body.replace('---', `${prEntry}\n\n---`);
+                // Find the PR tracking section (match until next --- or end of document)
+                const prSectionMatch = body.match(/(### 📝 Pull Requests.*?)(\n---\n|$)/s);
+
+                if (prSectionMatch) {
+                  // Insert PR entry at the end of the PR section
+                  const prSection = prSectionMatch[1];
+                  const updatedPrSection = prSection.trimEnd() + `\n${prEntry}\n`;
+                  body = body.replace(prSectionMatch[1], updatedPrSection);
                 } else {
-                  body += `\n${prEntry}`;
+                  // PR section doesn't exist, add it before the final separator
+                  const prSection = `\n\n### 📝 Pull Requests\n\n` +
+                    `This section tracks all PRs associated with this branch:\n\n${prEntry}\n`;
+
+                  // Find the last --- separator and insert before it
+                  const lastSeparatorIndex = body.lastIndexOf('\n---\n');
+                  if (lastSeparatorIndex !== -1) {
+                    body = body.substring(0, lastSeparatorIndex) + prSection + body.substring(lastSeparatorIndex);
+                  } else {
+                    body += prSection;
+                  }
                 }
 
                 // Update issue

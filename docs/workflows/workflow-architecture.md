@@ -22,7 +22,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Workflows
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
-PATH: /.github/WORKFLOW_ARCHITECTURE.md
+PATH: /docs/workflows/workflow-architecture.md
 VERSION: 01.00.00
 BRIEF: Workflow architecture, hierarchy, and design patterns
 -->

@@ -6,6 +6,16 @@
 
 This document provides comprehensive documentation for MokoStandards workflow templates. These templates provide standardized CI/CD configurations that ensure consistency, security, and compliance across all Moko Consulting repositories.
 
+### Workflow Documentation
+
+- [Workflow Architecture](./workflow-architecture.md) - Workflow hierarchy and design patterns
+- [Workflow Inventory](./workflow-inventory.md) - Complete inventory of workflows
+- [Reusable Workflows](./reusable-workflows.md) - Documentation for reusable GitHub Actions workflows
+- [Release System](./release-system.md) - Unified release system documentation
+- [Changelog Management](./changelog-management.md) - Changelog management workflows and scripts
+- [Dev Branch Tracking and Issue Coordination](./dev-branch-tracking.md) - Automated dev branch and PR tracking system
+- [Dev Deployment](./dev-deployment.md) - Development deployment workflows
+
 ### Workflow Template Locations
 
 MokoStandards provides workflow templates in two locations:
@@ -76,16 +86,20 @@ on:
 
 See [Build System Documentation](../build-system/README.md) for details on the Makefile precedence system.
 
-### 2. Release Cycle (`release-cycle-simple.yml.template`)
+### 2. Release Cycle (`release-cycle.yml.template` and `release-cycle-simple.yml.template`)
 
-**Location**: `templates/workflows/release-cycle-simple.yml.template`
+**Location**: `templates/workflows/release-cycle.yml.template` (comprehensive) and `release-cycle-simple.yml.template` (simplified)
+
+**Version 02.00.00** - Merged unified-release and release-cycle workflows
 
 Automated release management workflow implementing the MokoStandards release cycle: main → dev → rc → version → main.
 
 **Features**:
+- **Auto-detection** - Detects version changes from CITATION.cff, pyproject.toml, package.json, CHANGELOG.md
+- **Manual dispatch** - Full control over release actions
 - **Semantic versioning** - Automatic validation of version format
 - **Branch management** - Automated branch creation and merging
-- **Release actions** - start-release, create-rc, finalize-release, hotfix
+- **Release actions** - start-release, create-rc, finalize-release, hotfix, simple-release
 - **Release notes** - Automated generation from commits
 - **GitHub releases** - Automatic creation with artifacts
 

@@ -30,6 +30,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Dev Branch Tracking Issue Template**: Created manual issue template for dev branch tracking
+  - Created `.github/ISSUE_TEMPLATE/dev-branch-tracking.md` with complete launch checklist
+  - Mirrors format of auto-created tracking issues from auto-create-dev-branch workflow
+  - Enables manual creation of tracking issues for dev/rc branches
+  - Pre-configured with automation, version-management, and dev-branch labels
+  - Includes 10-section launch checklist aligned with pre-merge policy
+  - File: `.github/ISSUE_TEMPLATE/dev-branch-tracking.md`
+
+### Changed
+- **Release Cycle Workflow Template**: Merged unified-release and release-cycle workflows into enhanced release-cycle.yml.template v02.00.00
+  - Combined auto-detection features from unified-release with manual dispatch from release-cycle
+  - Supports automatic version detection from CITATION.cff, pyproject.toml, package.json, CHANGELOG.md
+  - Added simple-release action for one-step releases
+  - Maintains backward compatibility with existing release-cycle workflow
+  - File: `templates/workflows/release-cycle.yml.template`
+- **Enterprise Issue Manager Workflow**: Updated PR linking logic for new checklist format
+  - Enhanced regex matching to find PR tracking section reliably
+  - Fixed insertion logic to work with multiple `---` separators in issue bodies
+  - Now correctly inserts PRs in the "📝 Pull Requests" section
+  - Handles both cases: when PR section exists and when it needs to be created
+  - Improved robustness for coordinating PRs with dev branch tracking issues
+  - File: `.github/workflows/enterprise-issue-manager.yml`
+- **Auto-Create Dev Branch Workflow**: Added comprehensive launch checklist to tracking issues
+  - Added 10-section launch checklist to auto-created tracking issues
+  - Checklist includes: Version Management, Changelog Updates, Code Review, Security, Quality, Documentation, Drift Detection, Standards, Release Prep, Final Verification
+  - Aligned with existing pre-merge checklist policy
+  - Dynamic GitHub URL for policy reference ensuring proper rendering
+  - File: `.github/workflows/auto-create-dev-branch.yml`
+
 ## [03.01.01] - 2026-01-30
 
 ### Security

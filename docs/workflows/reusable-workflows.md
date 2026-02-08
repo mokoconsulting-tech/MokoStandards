@@ -6,11 +6,11 @@
  SPDX-License-Identifier: GPL-3.0-or-later
 
  # FILE INFORMATION
- DEFGROUP: MokoStandards
- INGROUP: MokoStandards.Documentation
+ DEFGROUP: MokoStandards.Documentation
+ INGROUP: MokoStandards.Workflows
  REPO: https://github.com/mokoconsulting-tech/MokoStandards/
  VERSION: 02.00.00
- PATH: ./.github/workflows/REUSABLE_WORKFLOWS.md
+ PATH: /docs/workflows/reusable-workflows.md
  BRIEF: Documentation for reusable GitHub Actions workflows
  -->
 

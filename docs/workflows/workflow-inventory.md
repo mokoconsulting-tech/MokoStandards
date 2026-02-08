@@ -4,7 +4,10 @@ Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
 SPDX-License-Identifier: GPL-3.0-or-later
 
 # FILE INFORMATION
-PATH: /.github/WORKFLOW_INVENTORY.md
+DEFGROUP: MokoStandards.Documentation
+INGROUP: MokoStandards.Workflows
+REPO: https://github.com/mokoconsulting-tech/MokoStandards
+PATH: /docs/workflows/workflow-inventory.md
 VERSION: 01.00.00
 BRIEF: Complete inventory of GitHub Actions workflows for migration planning
 -->

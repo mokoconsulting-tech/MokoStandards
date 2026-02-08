@@ -22,7 +22,7 @@
 # INGROUP: MokoStandards.Configuration
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /MokoStandards.override.tf
-# VERSION: 02.00.00
+# VERSION: 02.01.00
 # BRIEF: MokoStandards Sync Override Configuration for the Standards Repository
 
 # MokoStandards Repository Override Configuration
@@ -39,8 +39,8 @@ locals {
   override_metadata = {
     name           = "MokoStandards Repository Override"
     description    = "Override configuration preventing sync of template files in the standards repository"
-    version        = "2.0.0"
-    last_updated   = "2026-01-28T05:40:00Z"
+    version        = "2.1.0"
+    last_updated   = "2026-02-06T11:46:00Z"
     maintainer     = "MokoStandards Team"
     schema_version = "2.0"
     repository_url = "https://github.com/mokoconsulting-tech/MokoStandards"
@@ -66,10 +66,12 @@ locals {
   # Files to exclude from sync
   # These are "live" workflows that should NOT exist in MokoStandards
   # because they are templates that get synced TO other repos
+  # Note: MokoStandards is a template/standards repository and does not
+  # require build or release workflows for itself
   exclude_files = [
     {
       path   = ".github/workflows/build.yml"
-      reason = "corresponds to templates/workflows/build-universal.yml.template"
+      reason = "MokoStandards does not require build workflow - disabled as build.yml.disabled"
     },
     {
       path   = ".github/workflows/code-quality.yml"
@@ -85,7 +87,11 @@ locals {
     },
     {
       path   = ".github/workflows/release-cycle.yml"
-      reason = "corresponds to templates/workflows/release-cycle.yml.template"
+      reason = "MokoStandards does not require release workflow - disabled as release-cycle.yml.disabled"
+    },
+    {
+      path   = ".github/workflows/unified-release.yml"
+      reason = "MokoStandards does not require unified release workflow - disabled as unified-release.yml.disabled"
     },
     {
       path   = ".github/workflows/codeql-analysis.yml"
@@ -178,4 +184,33 @@ locals {
       reason = "MokoStandards-specific workflow"
     },
   ]
+
+  # Files available for sync from templates/
+  # Issue templates are available at templates/github/ISSUE_TEMPLATE/
+  # Target repos should copy these to .github/ISSUE_TEMPLATE/
+  sync_templates = {
+    issue_templates = {
+      source_dir = "templates/github/ISSUE_TEMPLATE"
+      target_dir = ".github/ISSUE_TEMPLATE"
+      files = [
+        "bug_report.md",
+        "feature_request.md",
+        "documentation.md",
+        "question.md",
+        "config.yml"
+      ]
+      description = "Standard issue templates for consistent issue reporting across repositories"
+    }
+    
+    github_templates = {
+      source_dir = "templates/github"
+      target_dir = ".github"
+      files = [
+        "CODEOWNERS.template",
+        "PULL_REQUEST_TEMPLATE.md",
+        "README.md"
+      ]
+      description = "GitHub configuration templates for repository setup"
+    }
+  }
 }

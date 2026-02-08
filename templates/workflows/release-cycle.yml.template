@@ -278,7 +278,11 @@ jobs:
         run: |
           VERSION="${{ needs.detect.outputs.version }}"
           RC_BRANCH="rc/$VERSION"
-          RC_TAG="v$VERSION-rc"
+          if [[ "$VERSION" == *-* ]]; then
+            RC_TAG="v$VERSION"
+          else
+            RC_TAG="v$VERSION-rc"
+          fi
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"

@@ -64,7 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Removed** `codeql-analysis.yml` - Redundant with GitHub default CodeQL setup
   - **Kept 9 workflows**: standards-compliance, comprehensive-validation, validate-script-integrity, security-comprehensive, confidentiality-scan, auto-update-sha, auto-create-dev-branch, bulk-repo-sync, terraform-drift-check
   - Rationale: Focus MokoStandards on standards enforcement and repository management only
-  - **Updated** `MokoStandards.override.tf` to version 2.3.0 with excluded workflows documented
+  - **Updated** `MokoStandards.override.tf` to version 2.3.0 with all excluded workflows documented
 - **Template Consolidation**: Merged duplicate and superseded workflow templates
   - **Removed** `build-universal.yml.template` - exact duplicate of `build.yml.template`
   - **Removed** `release-cycle-simple.yml.template` - superseded by `release-cycle.yml.template` v2.0

@@ -131,15 +131,15 @@ locals {
     },
     {
       path   = ".github/workflows/deploy-to-dev.yml"
-      reason = "Generic deployment - template only, not active in MokoStandards"
+      reason = "Generic deployment - not needed in MokoStandards (template only)"
     },
     {
       path   = ".github/workflows/release-cycle.yml"
-      reason = "MokoStandards does not require release workflow - disabled as release-cycle.yml.disabled"
+      reason = "Not needed in template repo - actual file is release-cycle.yml.disabled"
     },
     {
       path   = ".github/workflows/unified-release.yml"
-      reason = "MokoStandards does not require unified release workflow - disabled as unified-release.yml.disabled"
+      reason = "Not needed in template repo - actual file is unified-release.yml.disabled"
     },
   ]
 

@@ -187,9 +187,20 @@ jobs:
             "token\s*=\s*['\"][^'\"]+['\"]"
             "-----BEGIN\s+(RSA|DSA|EC|OPENSSH)\s+PRIVATE\s+KEY-----"
             "AKIA[0-9A-Z]{16}"
+            "ASIA[0-9A-Z]{16}"
             "ghp_[a-zA-Z0-9]{36}"
             "gho_[a-zA-Z0-9]{36}"
             "ghu_[a-zA-Z0-9]{36}"
+            "ghs_[a-zA-Z0-9]{36}"
+            "github_pat_[a-zA-Z0-9_]{20,}"
+            "xox[baprs]-[0-9A-Za-z-]{10,48}"
+            "sk_live_[0-9a-zA-Z]{20,}"
+            "rk_live_[0-9a-zA-Z]{20,}"
+            "AIza[0-9A-Za-z\\\\-_]{35}"
+            "npm_[A-Za-z0-9]{36}"
+            "pypi-AgEIcHlwaS5vcmc[A-Za-z0-9-_]{50,}"
+            "dckr_pat_[A-Za-z0-9_-]{20,}"
+            "glpat-[0-9a-zA-Z\\-]{20}"
           )
 
           SECRETS_FOUND=0

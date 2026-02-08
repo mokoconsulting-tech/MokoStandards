@@ -301,6 +301,9 @@ jobs:
         with:
           fetch-depth: 0
           ref: rc/${{ needs.detect.outputs.version }}
+        with:
+          fetch-depth: 0
+          ref: rc/${{ needs.detect.outputs.version }}
 
       - name: Create Git Tag
         run: |

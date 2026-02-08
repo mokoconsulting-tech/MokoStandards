@@ -22,7 +22,7 @@
 # INGROUP: MokoStandards.Configuration
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /MokoStandards.override.tf
-# VERSION: 02.02.00
+# VERSION: 02.03.00
 # BRIEF: MokoStandards Sync Override Configuration for the Standards Repository
 
 # MokoStandards Repository Override Configuration
@@ -39,8 +39,8 @@ locals {
   override_metadata = {
     name           = "MokoStandards Repository Override"
     description    = "Override configuration preventing sync of template files in the standards repository"
-    version        = "2.2.0"
-    last_updated   = "2026-02-08T07:45:00Z"
+    version        = "2.3.0"
+    last_updated   = "2026-02-08T07:54:00Z"
     maintainer     = "MokoStandards Team"
     schema_version = "2.0"
     repository_url = "https://github.com/mokoconsulting-tech/MokoStandards"
@@ -95,15 +95,43 @@ locals {
     },
     {
       path   = ".github/workflows/code-quality.yml"
-      reason = "corresponds to templates/workflows/code-quality.yml.template"
+      reason = "Generic workflow - template exists at templates/workflows/code-quality.yml.template"
+    },
+    {
+      path   = ".github/workflows/auto-update-changelog.yml"
+      reason = "Generic workflow - template exists at templates/workflows/auto-update-changelog.yml.template"
+    },
+    {
+      path   = ".github/workflows/enterprise-issue-manager.yml"
+      reason = "Generic workflow - template exists at templates/workflows/enterprise-issue-manager.yml.template"
+    },
+    {
+      path   = ".github/workflows/repo-health.yml"
+      reason = "Generic reusable workflow - should be template for other repos"
+    },
+    {
+      path   = ".github/workflows/auto-create-org-projects.yml"
+      reason = "Generic org automation - not standards-specific"
+    },
+    {
+      path   = ".github/workflows/bulk-label-deployment.yml"
+      reason = "Generic label deployment - not standards-specific"
+    },
+    {
+      path   = ".github/workflows/enterprise-firewall-setup.yml"
+      reason = "Generic firewall config generator - not standards-specific"
+    },
+    {
+      path   = ".github/workflows/codeql-analysis.yml"
+      reason = "Generic security scanning - redundant with GitHub default CodeQL setup"
     },
     {
       path   = ".github/workflows/dependency-review.yml"
-      reason = "corresponds to templates/workflows/generic/dependency-review.yml.template"
+      reason = "Generic workflow - template exists at templates/workflows/generic/dependency-review.yml.template"
     },
     {
       path   = ".github/workflows/deploy-to-dev.yml"
-      reason = "template only, not active in MokoStandards"
+      reason = "Generic deployment - template only, not active in MokoStandards"
     },
     {
       path   = ".github/workflows/release-cycle.yml"
@@ -112,10 +140,6 @@ locals {
     {
       path   = ".github/workflows/unified-release.yml"
       reason = "MokoStandards does not require unified release workflow - disabled as unified-release.yml.disabled"
-    },
-    {
-      path   = ".github/workflows/codeql-analysis.yml"
-      reason = "corresponds to templates/workflows/generic/codeql-analysis.yml"
     },
   ]
 

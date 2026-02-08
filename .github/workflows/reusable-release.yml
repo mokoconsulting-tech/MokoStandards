@@ -277,8 +277,7 @@ jobs:
             find . -name "*.csproj" -exec grep -l "<IsPackable>true</IsPackable>" {} \; | while read proj; do
               dotnet pack "$proj" --configuration Release --output build/nuget --no-build -p:PackageVersion=$VERSION
             done
-            echo "- ✅ NuGet packages created (in build/nuget/)" >> $GITHUB_STEP_SUMMARY
-            echo "- ⚠️  Note: NuGet packages are not automatically uploaded to release. Manual upload may be required." >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ NuGet packages created and will be uploaded to release" >> $GITHUB_STEP_SUMMARY
           fi
 
           # Determine package name
@@ -352,6 +351,8 @@ jobs:
             ${{ inputs.working-directory }}/build/*.tar.gz
             ${{ inputs.working-directory }}/build/*.sha256
             ${{ inputs.working-directory }}/build/*.md5
+            ${{ inputs.working-directory }}/build/nuget/*.nupkg
+            ${{ inputs.working-directory }}/build/nuget/*.snupkg
           retention-days: 30
 
   create-release:

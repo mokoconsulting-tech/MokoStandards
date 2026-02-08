@@ -136,7 +136,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added script wrappers badge: 106 wrappers
   - Updated repository structure with accurate file counts
   - Refined script category breakdowns for all directories
-- **Version Update**: Updated version from 03.01.00 to 03.01.02 across repository
+- **Version Update**: Updated version from 03.01.01 to 03.01.02 across repository
   - Updated README.md version references
   - Updated CHANGELOG.md version
 

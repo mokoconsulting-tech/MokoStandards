@@ -139,12 +139,14 @@ jobs:
 
       - name: Update version in files
         working-directory: ${{ inputs.working-directory }}
+        env:
+          PROJECT_TYPE: ${{ needs.detect.outputs.project-type }}
         run: |
           VERSION="${{ inputs.version }}"
 
           # Update version in XML manifests (Joomla/Dolibarr)
-          if [ "${{ needs.detect.outputs.project-type }}" == "joomla" ] || \
-             [ "${{ needs.detect.outputs.project-type }}" == "dolibarr" ]; then
+          if [ "${PROJECT_TYPE}" == "joomla" ] || \
+             [ "${PROJECT_TYPE}" == "dolibarr" ]; then
             find . -name "*.xml" -type f -not -path "*/node_modules/*" -not -path "*/vendor/*" \
               -exec sed -i "s/<version>[^<]*<\/version>/<version>${VERSION}<\/version>/g" {} \;
             echo "- ✅ Updated version in XML manifests" >> $GITHUB_STEP_SUMMARY
@@ -163,7 +165,7 @@ jobs:
           fi
 
           # Update version in .csproj files
-          if [ "${{ needs.detect.outputs.project-type }}" == "csharp" ]; then
+          if [ "${PROJECT_TYPE}" == "csharp" ]; then
             find . -name "*.csproj" -type f -not -path "*/obj/*" -not -path "*/bin/*" \
               -exec sed -i "s/<Version>[^<]*<\/Version>/<Version>${VERSION}<\/Version>/g" {} \;
             find . -name "*.csproj" -type f -not -path "*/obj/*" -not -path "*/bin/*" \

@@ -5,7 +5,7 @@
 # INGROUP: MokoStandards.Terraform
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/terraform-drift-check.yml
-# VERSION: 03.01.01
+# VERSION: 03.01.02
 # BRIEF: Validate Terraform configuration against Python implementations
 # NOTE: Checks for drift between Terraform schemas and actual code
 

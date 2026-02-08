@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Planning
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/ROADMAP.md
-VERSION: 03.01.01
+VERSION: 03.01.02
 BRIEF: MokoStandards development roadmap and feature planning
 -->
 

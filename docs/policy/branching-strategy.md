@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Development
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/branching-strategy.md
-VERSION: 03.01.01
+VERSION: 03.01.02
 BRIEF: Git branching strategy and release workflow policy
 -->
 

@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.CRM
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/crm/client-deployment.md
-VERSION: 03.01.01
+VERSION: 03.01.02
 BRIEF: Client deployment policy and procedures for MokoCRM
 -->
 

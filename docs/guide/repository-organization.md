@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Guide
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/guide/repository-organization.md
-VERSION: 03.01.01
+VERSION: 03.01.02
 BRIEF: Golden architecture pattern and repository organization guide
 -->
 

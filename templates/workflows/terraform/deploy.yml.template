@@ -22,7 +22,7 @@
 # INGROUP: MokoStandards.Terraform
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /templates/workflows/terraform/deploy.yml.template
-# VERSION: 01.00.00
+# VERSION: 03.01.02
 # BRIEF: Terraform infrastructure deployment workflow for multiple environments
 # NOTE: Applies Terraform configurations to provision and manage infrastructure
 
@@ -36,7 +36,6 @@ on:
         required: true
         type: choice
         options:
-          - dev
           - staging
           - prod
       action:

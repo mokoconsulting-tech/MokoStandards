@@ -10,7 +10,7 @@
  INGROUP: Policy.PublishingAndDistribution
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  PATH: /docs/policy/waas/perfectpublisher-social-accounts.md
- VERSION: 03.01.01
+ VERSION: 03.01.02
  BRIEF: Enterprise governance policy defining mandatory creation, custody, integration, and audit controls for PerfectPublisher social media accounts.
 -->
 

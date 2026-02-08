@@ -11,7 +11,7 @@ DEFGROUP: MokoStandards.Scripts.Docs
 INGROUP: MokoStandards.Scripts
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 FILE: scripts/docs/check_doc_coverage.py
-VERSION: 03.01.01
+VERSION: 03.01.02
 BRIEF: Checks documentation coverage by identifying undocumented scripts and templates
 PATH: /scripts/docs/check_doc_coverage.py
 """

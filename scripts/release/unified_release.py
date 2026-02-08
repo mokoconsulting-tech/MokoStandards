@@ -26,7 +26,7 @@ DEFGROUP: Script.Release
 INGROUP: Release.Unified
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /scripts/release/unified_release.py
-VERSION: 03.01.01
+VERSION: 03.01.02
 BRIEF: Unified release tool consolidating all release scripts
 USAGE: ./scripts/release/unified_release.py <command> [options]
 """

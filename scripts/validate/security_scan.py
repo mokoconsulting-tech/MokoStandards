@@ -26,7 +26,7 @@ DEFGROUP: MokoStandards.Scripts.Validate
 INGROUP: MokoStandards.Security
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /scripts/validate/security_scan.py
-VERSION: 03.01.01
+VERSION: 03.01.02
 BRIEF: Orchestrates comprehensive security scanning for repositories
 NOTE: Runs CodeQL validation, secret scanning, and dependency checks
 """

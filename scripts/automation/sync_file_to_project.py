@@ -24,7 +24,7 @@ DEFGROUP: MokoStandards.Automation
 INGROUP: MokoStandards.Scripts
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /scripts/sync_file_to_project.py
-VERSION: 03.01.01
+VERSION: 03.01.02
 BRIEF: Syncs created/updated docs and templates to GitHub Project tasks
 """
 

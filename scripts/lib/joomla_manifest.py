@@ -26,7 +26,7 @@ DEFGROUP: Script.Library
 INGROUP: Joomla.Manifest
 REPO: https://github.com/mokoconsulting-tech/moko-cassiopeia
 PATH: /scripts/lib/joomla_manifest.py
-VERSION: 03.01.01
+VERSION: 03.01.02
 BRIEF: Joomla manifest parsing and validation utilities
 """
 

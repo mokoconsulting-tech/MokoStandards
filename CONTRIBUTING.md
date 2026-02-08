@@ -22,7 +22,7 @@
  DEFGROUP: MokoStandards
  INGROUP: MokoStandards.Documentation
  REPO: https://github.com/mokoconsulting-tech/MokoStandards/
- VERSION: 03.01.01
+ VERSION: 03.01.02
  PATH: ./CONTRIBUTING.md
  BRIEF: v2.0 contribution guidelines with Python/PowerShell standards, Google docstrings, 100% type hints
  NOTE: Breaking changes from v1 - no backward compatibility

@@ -5,7 +5,7 @@
 # INGROUP: MokoStandards.Security
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/confidentiality-scan.yml
-# VERSION: 03.01.01
+# VERSION: 03.01.02
 # BRIEF: Scan for confidential data leakage in public repository
 # NOTE: Prevents organization-specific references and sensitive data from being committed
 

@@ -10,7 +10,7 @@
  INGROUP: Policy.SiteKeys
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  PATH: /docs/policy/waas/site-keys-and-licensing.md
- VERSION: 03.01.01
+ VERSION: 03.01.02
  BRIEF: Policy governing creation, custody, rotation, and validation of site keys and licensed assets for WaaS deployments.
 -->
 

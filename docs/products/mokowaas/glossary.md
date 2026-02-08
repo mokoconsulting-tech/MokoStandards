@@ -5,7 +5,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 # FILE INFORMATION
 PATH: /docs/products/mokowaas/glossary.md
-VERSION: 03.01.01
+VERSION: 03.01.02
 BRIEF: MokoWaaS terminology and definitions glossary
 -->
 

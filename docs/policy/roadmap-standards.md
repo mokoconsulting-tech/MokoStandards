@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: docs/policy/roadmap-standards.md
-VERSION: 03.01.01
+VERSION: 03.01.02
 BRIEF: Standards and requirements for ROADMAP.md files across organization repositories
 -->
 

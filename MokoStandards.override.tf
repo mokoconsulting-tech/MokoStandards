@@ -39,8 +39,8 @@ locals {
   override_metadata = {
     name           = "MokoStandards Repository Override"
     description    = "Override configuration preventing sync of template files in the standards repository"
-    version        = "2.3.0"
-    last_updated   = "2026-02-08T07:54:00Z"
+    version        = "03.01.01"
+    last_updated   = "2026-02-08T08:07:00Z"
     maintainer     = "MokoStandards Team"
     schema_version = "2.0"
     repository_url = "https://github.com/mokoconsulting-tech/MokoStandards"

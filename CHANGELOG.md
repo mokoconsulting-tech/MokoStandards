@@ -30,6 +30,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+- **Code Injection Fixes**: Fixed code injection vulnerabilities in reusable workflow files
+  - Fixed injection in `reusable-project-detector.yml` Summary step by using environment variables
+  - Fixed multiple injection points in `reusable-release.yml`:
+    - Version update step (project-type, has-dotnet conditions)
+    - C# package creation step (version input)
+    - Joomla, Dolibarr, and Generic package steps
+    - Extract changelog and Release summary steps
+    - Publish to marketplace step
+  - All GitHub Actions context values now passed via environment variables instead of direct interpolation
+  - Addresses unresolved security alerts from PR #164 code scanning
+  - Files: `.github/workflows/reusable-*.yml.disabled`
+
+### Changed
+- **Workflow Organization**: Disabled reusable workflows in MokoStandards repository
+  - Renamed `reusable-build.yml` to `reusable-build.yml.disabled`
+  - Renamed `reusable-project-detector.yml` to `reusable-project-detector.yml.disabled`
+  - Renamed `reusable-release.yml` to `reusable-release.yml.disabled`
+  - Renamed `reusable-php-quality.yml` to `reusable-php-quality.yml.disabled`
+  - Renamed `reusable-platform-testing.yml` to `reusable-platform-testing.yml.disabled`
+  - Rationale: MokoStandards is a template repository and doesn't need to run builds/releases
+  - Reusable workflows maintained in `templates/workflows/` for syncing to other repositories
+  - Resolves new requirement from PR #164 feedback
+
 ### Added
 - **Dev Branch Tracking Issue Template**: Created manual issue template for dev branch tracking
   - Created `.github/ISSUE_TEMPLATE/dev-branch-tracking.md` with complete launch checklist

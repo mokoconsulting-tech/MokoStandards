@@ -11,7 +11,7 @@ DEFGROUP: MokoStandards.Scripts
 INGROUP: MokoStandards.Build
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /scripts/build/resolve_makefile.py
-VERSION: 05.00.00
+VERSION: 03.01.01
 BRIEF: Resolve Makefile location with fallback to MokoStandards defaults
 """
 

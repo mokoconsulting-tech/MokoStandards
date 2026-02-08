@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Policy.Governance
 INGROUP: MokoStandards.Policy
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/governance/release-management.md
-VERSION: 03.00.00
+VERSION: 03.01.01
 BRIEF: Release management policy for production deployments
 -->
 

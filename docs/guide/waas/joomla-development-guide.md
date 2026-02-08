@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Guide
 INGROUP: MokoStandards.WaaS
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/guide/waas/joomla-development-guide.md
-VERSION: 03.00.00
+VERSION: 03.01.01
 BRIEF: Practical guide for developing custom extensions for Joomla/MokoWaaS
 -->
 

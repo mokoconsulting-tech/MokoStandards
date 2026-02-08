@@ -5,7 +5,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 # FILE INFORMATION
 PATH: /docs/products/mokocrm/glossary.md
-VERSION: 03.00.00
+VERSION: 03.01.01
 BRIEF: MokoCRM terminology and definitions glossary
 -->
 

@@ -11,7 +11,7 @@ DEFGROUP: MokoStandards.Scripts.Maintenance
 INGROUP: MokoStandards.Scripts
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 FILE: scripts/maintenance/update_copyright_year.py
-VERSION: 03.00.00
+VERSION: 03.01.01
 BRIEF: Updates copyright year in file headers across the codebase
 PATH: /scripts/maintenance/update_copyright_year.py
 """

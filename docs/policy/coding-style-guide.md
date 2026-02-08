@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Development
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/coding-style-guide.md
-VERSION: 03.00.00
+VERSION: 03.01.01
 BRIEF: Universal coding style standards across all programming languages
 -->
 

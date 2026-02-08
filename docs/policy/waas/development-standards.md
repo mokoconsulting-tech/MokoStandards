@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.WaaS
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/waas/development-standards.md
-VERSION: 03.00.00
+VERSION: 03.01.01
 BRIEF: Development standards for MokoWaaS based on Joomla platform
 -->
 

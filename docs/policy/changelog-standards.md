@@ -10,7 +10,7 @@
  INGROUP: Policy.Documentation
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  PATH: /docs/policy/changelog-standards.md
- VERSION: 03.01.00
+ VERSION: 03.01.01
  BRIEF: Policy defining changelog format and maintenance standards for MokoStandards repositories.
 -->
 
@@ -31,7 +31,7 @@ This policy defines the standard format and maintenance requirements for CHANGEL
 
 **Example:**
 ```markdown
-# CHANGELOG - MokoStandards (VERSION: 03.01.00)
+# CHANGELOG - MokoStandards (VERSION: 03.01.01)
 ```
 
 **Rules:**
@@ -101,7 +101,7 @@ Within each version section, changes are organized by category using H3:
 ## Complete Example
 
 ```markdown
-# CHANGELOG - MokoStandards (VERSION: 03.01.00)
+# CHANGELOG - MokoStandards (VERSION: 03.01.01)
 
 All notable changes to this project will be documented in this file.
 

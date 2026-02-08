@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Checklist
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/checklist/repository-setup.md
-VERSION: 03.00.00
+VERSION: 03.01.01
 BRIEF: Comprehensive checklist for setting up MokoStandards-compliant repositories
 -->
 

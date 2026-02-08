@@ -5,7 +5,7 @@
 # INGROUP: MokoStandards.Validation
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/comprehensive-validation.yml
-# VERSION: 01.00.00
+# VERSION: 03.01.01
 # BRIEF: Comprehensive validation for all scripts, workflows, and templates
 # NOTE: Checks syntax, runtime issues, and security vulnerabilities
 

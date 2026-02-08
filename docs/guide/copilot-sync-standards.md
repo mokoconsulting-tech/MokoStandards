@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Guide
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/guide/copilot-sync-standards.md
-VERSION: 03.01.00
+VERSION: 03.01.01
 BRIEF: Comprehensive guide for using GitHub Copilot to sync standards across repositories
 -->
 

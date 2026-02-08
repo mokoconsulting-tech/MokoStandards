@@ -138,11 +138,17 @@ jobs:
           fi
 
       - name: Summary
+        env:
+          PROJECT_TYPE: ${{ steps.detect.outputs.project-type }}
+          EXTENSION_TYPE: ${{ steps.detect.outputs.extension-type }}
+          HAS_PHP: ${{ steps.detect.outputs.has-php }}
+          HAS_NODE: ${{ steps.detect.outputs.has-node }}
+          HAS_DOTNET: ${{ steps.detect.outputs.has-dotnet }}
         run: |
           echo "### 🔍 Project Detection Complete" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Project Type:** ${{ steps.detect.outputs.project-type }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Extension Type:** ${{ steps.detect.outputs.extension-type }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Has PHP:** ${{ steps.detect.outputs.has-php }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Has Node:** ${{ steps.detect.outputs.has-node }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Has .NET/C#:** ${{ steps.detect.outputs.has-dotnet }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Project Type:** ${PROJECT_TYPE}" >> $GITHUB_STEP_SUMMARY
+          echo "**Extension Type:** ${EXTENSION_TYPE}" >> $GITHUB_STEP_SUMMARY
+          echo "**Has PHP:** ${HAS_PHP}" >> $GITHUB_STEP_SUMMARY
+          echo "**Has Node:** ${HAS_NODE}" >> $GITHUB_STEP_SUMMARY
+          echo "**Has .NET/C#:** ${HAS_DOTNET}" >> $GITHUB_STEP_SUMMARY

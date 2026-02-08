@@ -136,12 +136,14 @@ jobs:
 
       - name: Update version in files
         working-directory: ${{ inputs.working-directory }}
+        env:
+          VERSION: ${{ inputs.version }}
+          PROJECT_TYPE: ${{ needs.detect.outputs.project-type }}
+          HAS_DOTNET: ${{ needs.detect.outputs.has-dotnet }}
         run: |
-          VERSION="${{ inputs.version }}"
-
           # Update version in XML manifests (Joomla/Dolibarr)
-          if [ "${{ needs.detect.outputs.project-type }}" == "joomla" ] || \
-             [ "${{ needs.detect.outputs.project-type }}" == "dolibarr" ]; then
+          if [ "${PROJECT_TYPE}" == "joomla" ] || \
+             [ "${PROJECT_TYPE}" == "dolibarr" ]; then
             find . -name "*.xml" -type f -not -path "*/node_modules/*" -not -path "*/vendor/*" \
               -exec sed -i "s/<version>[^<]*<\/version>/<version>${VERSION}<\/version>/g" {} \;
             echo "- ✅ Updated version in XML manifests" >> $GITHUB_STEP_SUMMARY
@@ -160,8 +162,8 @@ jobs:
           fi
 
           # Update version in .csproj files
-          if [ "${{ needs.detect.outputs.project-type }}" == "csharp" ] || \
-             [ "${{ needs.detect.outputs.has-dotnet }}" == "true" ]; then
+          if [ "${PROJECT_TYPE}" == "csharp" ] || \
+             [ "${HAS_DOTNET}" == "true" ]; then
             find . -name "*.csproj" -type f -not -path "*/bin/*" -not -path "*/obj/*" \
               -exec sh -c "
                 sed -i 's|<Version>[^<]*</Version>|<Version>$1</Version>|g' \"\$2\"
@@ -174,6 +176,8 @@ jobs:
       - name: Create Joomla package
         if: needs.detect.outputs.project-type == 'joomla'
         working-directory: ${{ inputs.working-directory }}
+        env:
+          VERSION: ${{ inputs.version }}
         run: |
           mkdir -p build/package
 
@@ -204,7 +208,6 @@ jobs:
 
           # Create ZIP package
           cd build/package
-          VERSION="${{ inputs.version }}"
           PACKAGE_NAME="${EXT_NAME}-${VERSION}.zip"
           zip -r "../${PACKAGE_NAME}" .
           cd ../..
@@ -215,6 +218,8 @@ jobs:
       - name: Create Dolibarr package
         if: needs.detect.outputs.project-type == 'dolibarr'
         working-directory: ${{ inputs.working-directory }}
+        env:
+          VERSION: ${{ inputs.version }}
         run: |
           mkdir -p build/package
 
@@ -236,7 +241,6 @@ jobs:
 
           # Create ZIP package
           cd build/package
-          VERSION="${{ inputs.version }}"
           PACKAGE_NAME="${MODULE_NAME}-${VERSION}.zip"
           zip -r "../${PACKAGE_NAME}" .
           cd ../..
@@ -247,6 +251,8 @@ jobs:
       - name: Create Generic package
         if: needs.detect.outputs.project-type == 'generic'
         working-directory: ${{ inputs.working-directory }}
+        env:
+          VERSION: ${{ inputs.version }}
         run: |
           mkdir -p build/package
 
@@ -267,7 +273,6 @@ jobs:
 
           # Create package
           REPO_NAME=$(basename "$GITHUB_REPOSITORY")
-          VERSION="${{ inputs.version }}"
           PACKAGE_NAME="${REPO_NAME}-${VERSION}.tar.gz"
 
           cd build
@@ -280,10 +285,11 @@ jobs:
       - name: Create C# package
         if: needs.detect.outputs.project-type == 'csharp'
         working-directory: ${{ inputs.working-directory }}
+        env:
+          VERSION: ${{ inputs.version }}
         run: |
           mkdir -p build
 
-          VERSION="${{ inputs.version }}"
           BUILD_FAILED=false
 
           # Build all solutions or projects
@@ -410,9 +416,10 @@ jobs:
 
       - name: Extract changelog
         id: changelog
+        env:
+          VERSION: ${{ inputs.version }}
+          PROJECT_TYPE: ${{ needs.detect.outputs.project-type }}
         run: |
-          VERSION="${{ inputs.version }}"
-
           if [ -f "CHANGELOG.md" ]; then
             # Extract changelog for this version
             awk "/## \[${VERSION}\]/,/## \[/{if(/## \[${VERSION}\]/)next;else if(/## \[/)exit;else print}" CHANGELOG.md > release_notes.md
@@ -426,7 +433,7 @@ jobs:
           else
             echo "## Release ${VERSION}" > release_notes.md
             echo "" >> release_notes.md
-            echo "Release created from ${{ needs.detect.outputs.project-type }} project." >> release_notes.md
+            echo "Release created from ${PROJECT_TYPE} project." >> release_notes.md
           fi
 
       - name: Create GitHub Release
@@ -443,16 +450,23 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Release summary
+        env:
+          VERSION: ${{ inputs.version }}
+          PROJECT_TYPE: ${{ needs.detect.outputs.project-type }}
+          EXTENSION_TYPE: ${{ needs.detect.outputs.extension-type }}
+          PRERELEASE: ${{ inputs.prerelease }}
+          DRAFT: ${{ inputs.draft }}
+          PACKAGE_NAME: ${{ needs.build-package.outputs.package-name }}
         run: |
           echo "### 🚀 Release Created Successfully" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Version:** ${{ inputs.version }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Project Type:** ${{ needs.detect.outputs.project-type }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Extension Type:** ${{ needs.detect.outputs.extension-type }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Pre-release:** ${{ inputs.prerelease }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Draft:** ${{ inputs.draft }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${VERSION}" >> $GITHUB_STEP_SUMMARY
+          echo "**Project Type:** ${PROJECT_TYPE}" >> $GITHUB_STEP_SUMMARY
+          echo "**Extension Type:** ${EXTENSION_TYPE}" >> $GITHUB_STEP_SUMMARY
+          echo "**Pre-release:** ${PRERELEASE}" >> $GITHUB_STEP_SUMMARY
+          echo "**Draft:** ${DRAFT}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Package:** ${{ needs.build-package.outputs.package-name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Package:** ${PACKAGE_NAME}" >> $GITHUB_STEP_SUMMARY
 
   publish-marketplace:
     name: Publish to Marketplace
@@ -468,22 +482,23 @@ jobs:
           path: ./artifacts
 
       - name: Publish to marketplace
+        env:
+          PROJECT_TYPE: ${{ needs.detect.outputs.project-type }}
+          PACKAGE_NAME: ${{ needs.build-package.outputs.package-name }}
         run: |
           echo "### 🌐 Marketplace Publishing" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          PROJECT_TYPE="${{ needs.detect.outputs.project-type }}"
-
-          if [ "$PROJECT_TYPE" == "joomla" ]; then
+          if [ "${PROJECT_TYPE}" == "joomla" ]; then
             echo "⚠️ Joomla Extensions Directory (JED) publishing requires manual submission" >> $GITHUB_STEP_SUMMARY
-            echo "Package ready at: artifacts/${{ needs.build-package.outputs.package-name }}" >> $GITHUB_STEP_SUMMARY
+            echo "Package ready at: artifacts/${PACKAGE_NAME}" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "To publish to JED:" >> $GITHUB_STEP_SUMMARY
             echo "1. Visit https://extensions.joomla.org/" >> $GITHUB_STEP_SUMMARY
             echo "2. Login and submit the extension package" >> $GITHUB_STEP_SUMMARY
-          elif [ "$PROJECT_TYPE" == "dolibarr" ]; then
+          elif [ "${PROJECT_TYPE}" == "dolibarr" ]; then
             echo "⚠️ Dolistore publishing requires manual submission" >> $GITHUB_STEP_SUMMARY
-            echo "Package ready at: artifacts/${{ needs.build-package.outputs.package-name }}" >> $GITHUB_STEP_SUMMARY
+            echo "Package ready at: artifacts/${PACKAGE_NAME}" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "To publish to Dolistore:" >> $GITHUB_STEP_SUMMARY
             echo "1. Visit https://www.dolistore.com/" >> $GITHUB_STEP_SUMMARY

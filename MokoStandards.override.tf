@@ -22,7 +22,7 @@
 # INGROUP: MokoStandards.Configuration
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /MokoStandards.override.tf
-# VERSION: 02.01.00
+# VERSION: 02.02.00
 # BRIEF: MokoStandards Sync Override Configuration for the Standards Repository
 
 # MokoStandards Repository Override Configuration
@@ -39,8 +39,8 @@ locals {
   override_metadata = {
     name           = "MokoStandards Repository Override"
     description    = "Override configuration preventing sync of template files in the standards repository"
-    version        = "2.1.0"
-    last_updated   = "2026-02-06T11:46:00Z"
+    version        = "2.2.0"
+    last_updated   = "2026-02-08T07:45:00Z"
     maintainer     = "MokoStandards Team"
     schema_version = "2.0"
     repository_url = "https://github.com/mokoconsulting-tech/MokoStandards"
@@ -74,6 +74,26 @@ locals {
       reason = "MokoStandards does not require build workflow - disabled as build.yml.disabled"
     },
     {
+      path   = ".github/workflows/reusable-build.yml"
+      reason = "Reusable workflow not needed in template repo - disabled as reusable-build.yml.disabled"
+    },
+    {
+      path   = ".github/workflows/reusable-project-detector.yml"
+      reason = "Reusable workflow not needed in template repo - disabled as reusable-project-detector.yml.disabled"
+    },
+    {
+      path   = ".github/workflows/reusable-release.yml"
+      reason = "Reusable workflow not needed in template repo - disabled as reusable-release.yml.disabled"
+    },
+    {
+      path   = ".github/workflows/reusable-php-quality.yml"
+      reason = "Reusable workflow not needed in template repo - disabled as reusable-php-quality.yml.disabled"
+    },
+    {
+      path   = ".github/workflows/reusable-platform-testing.yml"
+      reason = "Reusable workflow not needed in template repo - disabled as reusable-platform-testing.yml.disabled"
+    },
+    {
       path   = ".github/workflows/code-quality.yml"
       reason = "corresponds to templates/workflows/code-quality.yml.template"
     },
@@ -103,11 +123,14 @@ locals {
   # These files will be deleted from target repos during sync
   # Use this to remove deprecated workflows or scripts
   obsolete_files = [
-    # Example: Old workflow that has been replaced
-    # {
-    #   path   = ".github/workflows/old-workflow.yml"
-    #   reason = "Replaced by new unified workflow"
-    # },
+    {
+      path   = "templates/workflows/build-universal.yml.template"
+      reason = "Duplicate of build.yml.template - consolidated"
+    },
+    {
+      path   = "templates/workflows/release-cycle-simple.yml.template"
+      reason = "Superseded by release-cycle.yml.template v2.0 - consolidated"
+    },
   ]
 
   # Files that should never be overwritten (always preserved)

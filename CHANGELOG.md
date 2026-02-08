@@ -53,6 +53,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Rationale: MokoStandards is a template repository and doesn't need to run builds/releases
   - Reusable workflows maintained in `templates/workflows/` for syncing to other repositories
   - Resolves new requirement from PR #164 feedback
+- **Template Consolidation**: Merged duplicate and superseded workflow templates
+  - **Removed** `build-universal.yml.template` - exact duplicate of `build.yml.template`
+  - **Removed** `release-cycle-simple.yml.template` - superseded by `release-cycle.yml.template` v2.0
+  - **Updated** documentation to reference consolidated templates:
+    - `docs/workflows/README.md` - Updated quick start and template references
+    - `docs/build-system/README.md` - Updated build workflow references
+    - `docs/release-management/README.md` - Updated release workflow references
+  - **Updated** `MokoStandards.override.tf` to version 2.2.0:
+    - Added excluded reusable workflows to exclude_files list
+    - Added removed templates to obsolete_files list for sync cleanup
 
 ### Added
 - **Dev Branch Tracking Issue Template**: Created manual issue template for dev branch tracking

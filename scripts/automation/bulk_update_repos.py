@@ -142,7 +142,7 @@ DEFAULT_SCRIPTS_TO_SYNC = [
 ]
 
 
-def parse_override_file(override_path: str) -> Tuple[Set[str], Set[str]]:
+def parse_override_file(override_path: str) -> Tuple[Set[str], Set[str], Optional[str]]:
     """
     Parse the MokoStandards.override.tf file.
 
@@ -150,14 +150,30 @@ def parse_override_file(override_path: str) -> Tuple[Set[str], Set[str]]:
         override_path: Path to the override Terraform file
 
     Returns:
-        Tuple of (exclude_files, protected_files) as sets of file paths
+        Tuple of (exclude_files, protected_files, repository_type) where:
+        - exclude_files: set of file paths to exclude from sync
+        - protected_files: set of file paths to protect from overwrite
+        - repository_type: platform type from override (None if not specified)
     """
     exclude_files = set()
     protected_files = set()
+    repository_type = None
 
     try:
         with open(override_path, 'r', encoding='utf-8') as f:
             content = f.read()
+
+        # Parse repository_type from metadata
+        # Look for: repository_type = "terraform" or "dolibarr" or "joomla" etc.
+        type_match = re.search(
+            r'repository_type\s*=\s*"([^"]+)"',
+            content
+        )
+        if type_match:
+            repository_type = type_match.group(1)
+            # Map "standards" to None (shouldn't use platform-specific templates)
+            if repository_type == "standards":
+                repository_type = None
 
         # Parse exclude_files list
         # Look for: exclude_files = [ { path = "..." reason = "..." }, ... ]
@@ -192,10 +208,10 @@ def parse_override_file(override_path: str) -> Tuple[Set[str], Set[str]]:
     except Exception as e:
         print(f"Warning: Failed to parse override file {override_path}: {e}")
 
-    return exclude_files, protected_files
+    return exclude_files, protected_files, repository_type
 
 
-def load_override_config(repo_dir: str, source_dir: str) -> Tuple[Set[str], Set[str]]:
+def load_override_config(repo_dir: str, source_dir: str) -> Tuple[Set[str], Set[str], Optional[str]]:
     """
     Load override configuration from target repo or MokoStandards default.
 
@@ -204,7 +220,10 @@ def load_override_config(repo_dir: str, source_dir: str) -> Tuple[Set[str], Set[
         source_dir: Path to MokoStandards source directory
 
     Returns:
-        Tuple of (exclude_files, protected_files) as sets of file paths
+        Tuple of (exclude_files, protected_files, repository_type) where:
+        - exclude_files: set of file paths to exclude from sync
+        - protected_files: set of file paths to protect from overwrite
+        - repository_type: platform type from override (None if not specified or should auto-detect)
     """
     # First, check if target repo has an override file
     repo_override = Path(repo_dir) / SYNC_OVERRIDE_FILE
@@ -219,7 +238,7 @@ def load_override_config(repo_dir: str, source_dir: str) -> Tuple[Set[str], Set[
         return parse_override_file(str(default_override))
 
     print(f"    No override configuration found, using default behavior")
-    return set(), set()
+    return set(), set(), None
 
 
 def run_command(cmd: List[str], cwd: Optional[str] = None) -> Tuple[bool, str, str]:
@@ -624,20 +643,27 @@ def update_repository(
     if not clone_repository(org, repo, str(repo_dir)):
         return False, stats
 
-    # Detect platform before creating branch
-    print(f"  Detecting platform type...")
-    platform_type = detect_platform(str(repo_dir), source_dir)
-    if platform_type:
-        print(f"    Detected platform: {platform_type}")
-        stats["platform"] = platform_type
-    else:
-        print(f"    Platform detection failed, using generic defaults")
-        platform_type = "generic"
-        stats["platform"] = "generic"
-
-    # Load override configuration
+    # Load override configuration FIRST (before platform detection)
+    # This allows override to specify platform type and avoid unnecessary detection
     print(f"  Loading override configuration...")
-    exclude_files, protected_files = load_override_config(str(repo_dir), source_dir)
+    exclude_files, protected_files, override_platform = load_override_config(str(repo_dir), source_dir)
+    
+    # Determine platform type: use override if specified, otherwise auto-detect
+    if override_platform:
+        print(f"    Platform type from override: {override_platform}")
+        platform_type = override_platform
+        stats["platform"] = f"{override_platform} (from override)"
+    else:
+        # Detect platform using auto_detect_platform.py
+        print(f"  Detecting platform type...")
+        platform_type = detect_platform(str(repo_dir), source_dir)
+        if platform_type:
+            print(f"    Detected platform: {platform_type}")
+            stats["platform"] = platform_type
+        else:
+            print(f"    Platform detection failed, using generic defaults")
+            platform_type = "generic"
+            stats["platform"] = "generic"
     
     # Parse cleanup mode from override file if present
     cleanup_mode = "conservative"  # default
@@ -777,12 +803,41 @@ def update_repository(
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(
-        description='Schema-driven bulk repository sync (v2)'
+        description='Schema-driven bulk repository sync (v2) - Syncs MokoStandards to organization repositories',
+        epilog="""
+IMPORTANT: This script defaults to the mokoconsulting-tech organization.
+Use --org only if you need to sync to a different organization.
+
+TYPICAL USAGE:
+  # Dry run to preview changes for one repo:
+  python3 bulk_update_repos.py --repos moko-cassiopeia --dry-run
+  
+  # Sync specific repos with auto-confirmation:
+  python3 bulk_update_repos.py --repos moko-cassiopeia moko-dolibarr --yes
+  
+  # Sync all repos except specific ones:
+  python3 bulk_update_repos.py --exclude MokoStandards test-repo --yes
+
+SYNC BEHAVIOR:
+  1. Checks MokoStandards.override.tf in target repo for:
+     - Platform type (repository_type field)
+     - Files to exclude (exclude_files list)
+     - Files to protect (protected_files list)
+  2. Falls back to auto-detection if override doesn't specify platform
+  3. Syncs appropriate workflows, scripts, and configs based on platform
+  4. Creates a PR with changes (never pushes to main/master directly)
+
+OVERRIDE FILE PRIORITY:
+  The script ALWAYS checks for MokoStandards.override.tf before running
+  platform detection. This allows repositories to explicitly specify their
+  platform type and avoid unnecessary auto-detection.
+        """,
+        formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(
         '--org',
         default=DEFAULT_ORG,
-        help=f'Organization name (default: {DEFAULT_ORG})'
+        help=f'Organization name (default: {DEFAULT_ORG}) - Use default for mokoconsulting-tech'
     )
     parser.add_argument(
         '--repos',

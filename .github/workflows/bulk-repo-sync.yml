@@ -75,7 +75,7 @@ on:
   workflow_dispatch:
     inputs:
       repos:
-        description: 'Specific repositories to update (space-separated, leave empty for all)'
+        description: 'Specific repositories to update (space-separated, leave empty for all mokoconsulting-tech repos)'
         required: false
         type: string
       exclude:
@@ -87,6 +87,49 @@ on:
         required: false
         type: boolean
         default: false
+
+# ┌─────────────────────────────────────────────────────────────────────────┐
+# │                         USAGE INSTRUCTIONS                               │
+# └─────────────────────────────────────────────────────────────────────────┘
+#
+# This workflow syncs MokoStandards templates to ALL repositories in the
+# mokoconsulting-tech organization.
+#
+# IMPORTANT: This workflow ALWAYS uses the mokoconsulting-tech organization.
+# It cannot sync to other organizations. The bulk_update_repos.py script
+# defaults to mokoconsulting-tech and this workflow does not override it.
+#
+# MANUAL TRIGGER OPTIONS:
+#   repos:    Specific repositories to sync (e.g., "moko-cassiopeia moko-dolibarr")
+#             Leave empty to sync ALL non-archived repos in the organization
+#   exclude:  Repositories to skip (e.g., "MokoStandards test-repo")
+#             Scheduled runs automatically exclude MokoStandards and MokoStandards-Private
+#   dry_run:  Set to true to preview changes without creating PRs
+#
+# SCHEDULED BEHAVIOR:
+#   - Runs monthly on the 1st at 00:00 UTC
+#   - Automatically excludes MokoStandards and MokoStandards-Private
+#   - Syncs to all other non-archived repositories
+#
+# SYNC BEHAVIOR:
+#   - Checks MokoStandards.override.tf in target repo for platform type
+#   - Falls back to auto-detection if override doesn't specify platform
+#   - Respects exclude_files and protected_files from override
+#   - Creates PR with synced files (never pushes directly to main/master)
+#
+# EXAMPLES:
+#   1. Test sync to one repo (dry run):
+#      repos: "moko-cassiopeia"
+#      dry_run: true
+#
+#   2. Sync to specific repos (live):
+#      repos: "moko-cassiopeia moko-dolibarr"
+#      dry_run: false
+#
+#   3. Sync to all except specific repos:
+#      exclude: "archived-repo test-repo"
+#      dry_run: false
+#
 
 jobs:
   sync-repos:

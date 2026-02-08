@@ -90,17 +90,6 @@ on:
         required: false
         type: string
 
-      version-bump:
-        description: 'Auto version bump type (if version not specified)'
-        required: false
-        type: choice
-        options:
-          - auto    # Detect from commit messages
-          - major   # X.0.0
-          - minor   # 0.X.0
-          - patch   # 0.0.X
-        default: 'auto'
-
       prerelease:
         description: 'Mark as pre-release'
         required: false
@@ -114,7 +103,7 @@ on:
         default: false
 
       release-notes:
-        description: 'Custom release notes (optional, auto-generated if empty)'
+        description: 'Custom release notes (optional; if empty, a default release body is used)'
         required: false
         type: string
 
@@ -180,24 +169,31 @@ jobs:
 
           # Method 2: File diff detection (for auto-releases)
           elif [ "${{ github.event_name }}" == "push" ]; then
+            # Use the full push range for diffing to catch multi-commit and merge pushes
+            DIFF_RANGE="${{ github.event.before }}..${{ github.sha }}"
+            # Fallback for cases where 'before' is empty or all zeros (e.g., first push)
+            if [ -z "${{ github.event.before }}" ] || [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
+              DIFF_RANGE="HEAD~1..HEAD"
+            fi
+
             # Check CITATION.cff
-            if git diff HEAD~1 HEAD -- CITATION.cff 2>/dev/null | grep -q "^+version:"; then
+            if git diff "$DIFF_RANGE" -- CITATION.cff 2>/dev/null | grep -q "^+version:"; then
               VERSION=$(grep "^version:" CITATION.cff | head -1 | sed 's/version: *//' | tr -d '"' | tr -d "'")
               echo "✅ Version from CITATION.cff: $VERSION" >> $GITHUB_STEP_SUMMARY
 
             # Check pyproject.toml
-            elif git diff HEAD~1 HEAD -- pyproject.toml 2>/dev/null | grep -q "^+version"; then
+            elif git diff "$DIFF_RANGE" -- pyproject.toml 2>/dev/null | grep -q "^+version"; then
               VERSION=$(grep "^version = " pyproject.toml | head -1 | sed 's/version = *//' | tr -d '"' | tr -d "'")
               echo "✅ Version from pyproject.toml: $VERSION" >> $GITHUB_STEP_SUMMARY
 
             # Check package.json
-            elif git diff HEAD~1 HEAD -- package.json 2>/dev/null | grep -q "^+.*\"version\""; then
+            elif git diff "$DIFF_RANGE" -- package.json 2>/dev/null | grep -q "^+.*\"version\""; then
               VERSION=$(grep '"version"' package.json | head -1 | sed 's/.*"version": "//' | sed 's/".*//')
               echo "✅ Version from package.json: $VERSION" >> $GITHUB_STEP_SUMMARY
 
             # Check CHANGELOG.md
-            elif git diff HEAD~1 HEAD -- CHANGELOG.md 2>/dev/null | grep -qE "^+## \[[0-9]+\.[0-9]+\.[0-9]+"; then
-              VERSION=$(git diff HEAD~1 HEAD -- CHANGELOG.md | grep -E "^+## \[" | head -1 | grep -oE "[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?")
+            elif git diff "$DIFF_RANGE" -- CHANGELOG.md 2>/dev/null | grep -qE "^+## \[[0-9]+\.[0-9]+\.[0-9]+"; then
+              VERSION=$(git diff "$DIFF_RANGE" -- CHANGELOG.md | grep -E "^+## \[" | head -1 | grep -oE "[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?")
               echo "✅ Version from CHANGELOG.md: $VERSION" >> $GITHUB_STEP_SUMMARY
             fi
           fi
@@ -302,6 +298,9 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: rc/${{ needs.detect.outputs.version }}
 
       - name: Create Git Tag
         run: |

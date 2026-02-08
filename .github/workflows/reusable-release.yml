@@ -262,9 +262,11 @@ jobs:
             dotnet publish "$SOLUTION" --configuration Release --output build/package --no-restore
             echo "- ✅ Solution published" >> $GITHUB_STEP_SUMMARY
           else
-            # Publish each project
+            # Publish each project to its own subdirectory to avoid overwriting outputs
             find . -maxdepth 3 -name "*.csproj" -not -path "*Tests.csproj" | while read proj; do
-              dotnet publish "$proj" --configuration Release --output build/package --no-restore
+              PROJECT_NAME=$(basename "$proj" .csproj)
+              OUTPUT_DIR="build/package/$PROJECT_NAME"
+              dotnet publish "$proj" --configuration Release --output "$OUTPUT_DIR" --no-restore
             done
             echo "- ✅ Projects published" >> $GITHUB_STEP_SUMMARY
           fi
@@ -275,7 +277,8 @@ jobs:
             find . -name "*.csproj" -exec grep -l "<IsPackable>true</IsPackable>" {} \; | while read proj; do
               dotnet pack "$proj" --configuration Release --output build/nuget --no-build -p:PackageVersion=$VERSION
             done
-            echo "- ✅ NuGet packages created" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ NuGet packages created (in build/nuget/)" >> $GITHUB_STEP_SUMMARY
+            echo "- ⚠️  Note: NuGet packages are not automatically uploaded to release. Manual upload may be required." >> $GITHUB_STEP_SUMMARY
           fi
 
           # Determine package name

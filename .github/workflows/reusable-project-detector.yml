@@ -133,7 +133,7 @@ jobs:
           fi
 
           # Check for C#/.NET files
-          if find . -name "*.cs" -o -name "*.csproj" -o -name "*.sln" \
+          if find . \( -name "*.cs" -o -name "*.csproj" -o -name "*.sln" \) \
               -not -path "*/obj/*" -not -path "*/bin/*" \
               2>/dev/null | grep -q .; then
             echo "has-csharp=true" >> $GITHUB_OUTPUT

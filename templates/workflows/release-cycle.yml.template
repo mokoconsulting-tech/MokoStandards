@@ -132,6 +132,8 @@ jobs:
 
       - name: Determine Version and Action
         id: determine
+        env:
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
           set -e
 
@@ -150,9 +152,8 @@ jobs:
 
           echo "action=$ACTION" >> $GITHUB_OUTPUT
 
-          # Check for skip release flag
-          COMMIT_MSG="${{ github.event.head_commit.message }}"
-          if [[ "$COMMIT_MSG" =~ \[skip\ release\] ]] || [[ "$COMMIT_MSG" =~ \[skip\ ci\] ]]; then
+          # Check for skip release flag (using environment variable to prevent injection)
+          if [[ "$COMMIT_MESSAGE" =~ \[skip\ release\] ]] || [[ "$COMMIT_MESSAGE" =~ \[skip\ ci\] ]]; then
             echo "⏭️ Release skipped (commit message flag)" >> $GITHUB_STEP_SUMMARY
             echo "skip-release=true" >> $GITHUB_OUTPUT
             exit 0
@@ -298,9 +299,6 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-          ref: rc/${{ needs.detect.outputs.version }}
         with:
           fetch-depth: 0
           ref: rc/${{ needs.detect.outputs.version }}

@@ -1,4 +1,4 @@
-<!--	Copyright (C) 2025 Moko Consulting <hello@mokoconsulting.tech>
+<!--	Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
 
 	This file is part of a Moko Consulting project.
 
@@ -14,7 +14,7 @@
  DEFGROUP: MokoStandards
  INGROUP: MokoStandards.Documentation
  REPO: https://github.com/mokoconsulting-tech/MokoStandards/
- VERSION: 05.00.00
+ VERSION: 03.01.02
  PATH: ./LICENSE
  BRIEF: Project license (GPL-3.0-or-later)
  NOTE: Exact text fetched from gnu.org

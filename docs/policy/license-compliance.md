@@ -279,7 +279,7 @@ Copyright (C) 2026 Moko Consulting
 This product includes software developed by third parties:
 
 1. Some Library (https://github.com/example/library)
-   Copyright (C) 2025 Original Author
+   Copyright (C) 2026 Original Author
    Licensed under MIT License
 
 2. Another Component (https://example.com/component)

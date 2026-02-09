@@ -26,7 +26,7 @@ DEFGROUP: Script.Validate
 INGROUP: Security
 REPO: https://github.com/mokoconsulting-tech/moko-cassiopeia
 PATH: /scripts/validate/no_secrets.py
-VERSION: 03.01.01
+VERSION: 03.01.02
 BRIEF: Scan for accidentally committed secrets and credentials
 NOTE: High-signal pattern detection to prevent credential exposure
 """
@@ -60,11 +60,26 @@ SECRET_PATTERNS = [
     # GitHub tokens
     r'ghp_[A-Za-z0-9]{36}',
     r'gho_[A-Za-z0-9]{36}',
+    r'ghu_[A-Za-z0-9]{36}',  # GitHub user token
+    r'ghs_[A-Za-z0-9]{36}',  # GitHub server token
     r'github_pat_[A-Za-z0-9_]{20,}',
     # Slack tokens
     r'xox[baprs]-[0-9A-Za-z-]{10,48}',
     # Stripe keys
     r'sk_live_[0-9a-zA-Z]{20,}',
+    r'rk_live_[0-9a-zA-Z]{20,}',  # Stripe restricted key
+    # Azure keys
+    r'[0-9a-zA-Z/+]{86}==',  # Azure Storage Account Key
+    # Google Cloud keys  
+    r'AIza[0-9A-Za-z\\-_]{35}',  # Google API Key
+    # NPM tokens
+    r'npm_[A-Za-z0-9]{36}',
+    # PyPI tokens
+    r'pypi-AgEIcHlwaS5vcmc[A-Za-z0-9-_]{50,}',
+    # Docker Hub
+    r'dckr_pat_[A-Za-z0-9_-]{20,}',
+    # GitLab tokens
+    r'glpat-[0-9a-zA-Z\-]{20}',
 ]
 
 # Directories to exclude from scanning

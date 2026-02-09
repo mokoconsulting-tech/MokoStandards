@@ -15,13 +15,13 @@
  DEFGROUP: MokoStandards
  INGROUP: MokoStandards.Documentation
  REPO: https://github.com/mokoconsulting-tech/MokoStandards/
- VERSION: 03.01.01
+ VERSION: 03.01.02
  PATH: ./CHANGELOG.md
  BRIEF: Version history using Keep a Changelog
  NOTE: Adheres to SemVer when applicable
  -->
 
-# CHANGELOG - MokoStandards (VERSION: 03.01.01)
+# CHANGELOG - MokoStandards (VERSION: 03.01.02)
 
 All notable changes to this project will be documented in this file.
 
@@ -106,7 +106,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Dynamic GitHub URL for policy reference ensuring proper rendering
   - File: `.github/workflows/auto-create-dev-branch.yml`
 
-## [03.01.01] - 2026-01-30
+## [03.01.02] - 2026-01-30
 
 ### Security
 - **SQL Injection Prevention**: Added input validation to `load_demo_data.py`
@@ -136,7 +136,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added script wrappers badge: 106 wrappers
   - Updated repository structure with accurate file counts
   - Refined script category breakdowns for all directories
-- **Version Update**: Updated version from 03.01.00 to 03.01.01 across repository
+- **Version Update**: Updated version from 03.01.01 to 03.01.02 across repository
   - Updated README.md version references
   - Updated CHANGELOG.md version
 

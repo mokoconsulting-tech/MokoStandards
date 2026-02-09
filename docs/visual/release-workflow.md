@@ -87,7 +87,7 @@ flowchart TD
     
     C --> F[Example: 03.01.00 → 04.00.00]
     D --> G[Example: 03.01.00 → 03.02.00]
-    E --> H[Example: 03.01.00 → 03.01.01]
+    E --> H[Example: 03.01.00 → 03.01.02]
     
     style C fill:#ff5252
     style D fill:#ffc107

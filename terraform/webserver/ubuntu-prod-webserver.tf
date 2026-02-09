@@ -7,7 +7,7 @@
 # INGROUP: MokoStandards.Infrastructure
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: terraform/webserver/ubuntu-prod-webserver.tf
-# VERSION: 03.01.01
+# VERSION: 03.01.02
 # BRIEF: Terraform definition for Ubuntu production web server configuration
 
 

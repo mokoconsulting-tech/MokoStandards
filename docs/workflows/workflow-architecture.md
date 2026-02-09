@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Workflows
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/workflows/workflow-architecture.md
-VERSION: 03.01.01
+VERSION: 03.01.02
 BRIEF: Workflow architecture, hierarchy, and design patterns
 -->
 

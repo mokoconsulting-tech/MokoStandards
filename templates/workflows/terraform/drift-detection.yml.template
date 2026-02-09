@@ -22,7 +22,7 @@
 # INGROUP: MokoStandards.Terraform
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /templates/workflows/terraform/drift-detection.yml.template
-# VERSION: 01.00.00
+# VERSION: 03.01.02
 # BRIEF: Terraform drift detection workflow to identify infrastructure changes
 # NOTE: Runs on schedule to detect configuration drift from desired state
 
@@ -40,7 +40,6 @@ on:
         type: choice
         options:
           - all
-          - dev
           - staging
           - prod
 
@@ -60,7 +59,7 @@ jobs:
 
     strategy:
       matrix:
-        environment: ${{ inputs.environment == 'all' && fromJSON('["dev", "staging", "prod"]') || fromJSON(format('["{0}"]', inputs.environment || 'prod')) }}
+        environment: ${{ inputs.environment == 'all' && fromJSON('["staging", "prod"]') || fromJSON(format('["{0}"]', inputs.environment || 'prod')) }}
 
     steps:
       - name: Checkout repository

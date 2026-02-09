@@ -23,7 +23,7 @@
 # INGROUP: MokoStandards.Library
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # FILE: scripts/lib/common.py
-# VERSION: 03.01.01
+# VERSION: 03.01.02
 # BRIEF: Common Python utilities for MokoStandards scripts (v2)
 # PATH: /scripts/lib/common.py
 # NOTE: Complete rewrite with modern Python features and no backward compatibility

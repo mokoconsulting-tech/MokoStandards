@@ -26,7 +26,7 @@ DEFGROUP: Script.Fix
 INGROUP: Code.Quality
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /scripts/fix/tabs.py
-VERSION: 03.01.01
+VERSION: 03.01.02
 BRIEF: Convert tabs to spaces in files where spaces are required
 NOTE: MokoStandards Policy - Enforces indentation standards for specific languages
 

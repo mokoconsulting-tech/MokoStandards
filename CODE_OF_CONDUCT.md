@@ -1,4 +1,4 @@
-<!--	Copyright (C) 2025 Moko Consulting <hello@mokoconsulting.tech>
+<!--	Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
 
 	This file is part of a Moko Consulting project.
 
@@ -14,7 +14,7 @@
 	DEFGROUP: MokoStandards
 	INGROUP: MokoStandards.Documentation
 	REPO: https://github.com/mokoconsulting-tech/MokoStandards/
-  VERSION: 04.01.00
+  VERSION: 03.01.02
   PATH: ./CODE_OF_CONDUCT.md
   BRIEF: Community expectations and enforcement guidelines
   NOTE: Adapted with attribution from the Contributor Covenant v2.1

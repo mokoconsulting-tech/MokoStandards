@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (C) 2025 Moko Consulting <hello@mokoconsulting.tech>
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
 #
 # This file is part of a Moko Consulting project.
 #
@@ -55,9 +55,9 @@ import shutil
 # Constants
 # ============================================================
 
-VERSION: str = "05.00.00"
+VERSION: str = "03.01.02"
 REPO_URL: str = "https://github.com/mokoconsulting-tech/MokoStandards"
-COPYRIGHT: str = "Copyright (C) 2025 Moko Consulting <hello@mokoconsulting.tech>"
+COPYRIGHT: str = "Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>"
 LICENSE: str = "GPL-3.0-or-later"
 
 # Exit codes

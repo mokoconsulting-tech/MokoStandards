@@ -1,0 +1,353 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.Maintenance
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/log-cleanup.yml
+# VERSION: 03.01.02
+# BRIEF: Automated log cleanup workflow - prunes old log files
+# NOTE: Runs monthly by default, can be triggered manually with custom retention
+
+name: Log Cleanup
+
+# MokoStandards Policy Compliance:
+# - Log retention: Enforces 30-day retention policy per logs/README.md
+# - Reference: logs/README.md (Log Retention section)
+
+# ┌─────────────────────────────────────────────────────────────────────────┐
+# │                         WORKFLOW FLOW DIAGRAM                            │
+# └─────────────────────────────────────────────────────────────────────────┘
+#
+#   TRIGGER: Monthly schedule OR manual dispatch
+#        │
+#        ▼
+#   ┌──────────────────┐
+#   │  Find log files  │
+#   │  older than N    │
+#   │  days (default   │
+#   │  30)             │
+#   └──────────────────┘
+#        │
+#        ▼
+#   ┌──────────────────┐
+#   │  Compress logs   │
+#   │  7-30 days old   │
+#   │  (*.log.gz)      │
+#   └──────────────────┘
+#        │
+#        ▼
+#   ┌──────────────────┐
+#   │  Delete *.log    │
+#   │  files older     │
+#   │  than retention  │
+#   └──────────────────┘
+#        │
+#        ▼
+#   ┌──────────────────┐
+#   │  Delete *.log.gz │
+#   │  files older     │
+#   │  than 90 days    │
+#   └──────────────────┘
+#        │
+#        ▼
+#   ┌──────────────────┐
+#   │  Generate        │
+#   │  cleanup report  │
+#   └──────────────────┘
+
+on:
+  # Run monthly on the 1st at 02:00 UTC
+  schedule:
+    - cron: '0 2 1 * *'
+
+  # Allow manual trigger with configurable retention
+  workflow_dispatch:
+    inputs:
+      retention_days:
+        description: 'Number of days to retain uncompressed logs (default: 30)'
+        required: false
+        default: '30'
+        type: number
+      compress_days:
+        description: 'Compress logs older than N days (default: 7)'
+        required: false
+        default: '7'
+        type: number
+      archive_retention_days:
+        description: 'Delete compressed logs older than N days (default: 90)'
+        required: false
+        default: '90'
+        type: number
+      dry_run:
+        description: 'Perform dry run without deleting files'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup-logs:
+    name: Clean Up Old Logs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set Cleanup Parameters
+        id: params
+        run: |
+          # Set retention parameters
+          # Use inputs if triggered manually, otherwise use defaults
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            RETENTION="${{ inputs.retention_days }}"
+            COMPRESS="${{ inputs.compress_days }}"
+            ARCHIVE="${{ inputs.archive_retention_days }}"
+            DRYRUN="${{ inputs.dry_run }}"
+          else
+            RETENTION="30"
+            COMPRESS="7"
+            ARCHIVE="90"
+            DRYRUN="false"
+          fi
+
+          echo "retention_days=$RETENTION" >> $GITHUB_OUTPUT
+          echo "compress_days=$COMPRESS" >> $GITHUB_OUTPUT
+          echo "archive_retention_days=$ARCHIVE" >> $GITHUB_OUTPUT
+          echo "dry_run=$DRYRUN" >> $GITHUB_OUTPUT
+
+      - name: Display Cleanup Configuration
+        run: |
+          echo "## 🧹 Log Cleanup Configuration" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Parameter | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|-------|" >> $GITHUB_STEP_SUMMARY
+          RETENTION="${{ steps.params.outputs.retention_days }}"
+          COMPRESS="${{ steps.params.outputs.compress_days }}"
+          ARCHIVE="${{ steps.params.outputs.archive_retention_days }}"
+          DRYRUN="${{ steps.params.outputs.dry_run }}"
+          echo "| Retention Period (uncompressed) | $RETENTION days |" \
+            >> $GITHUB_STEP_SUMMARY
+          echo "| Compress Logs After | $COMPRESS days |" \
+            >> $GITHUB_STEP_SUMMARY
+          echo "| Archive Retention Period | $ARCHIVE days |" \
+            >> $GITHUB_STEP_SUMMARY
+          echo "| Dry Run | $DRYRUN |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+      - name: Find and Report Log Files
+        id: report
+        run: |
+          echo "## 📊 Current Log Statistics" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Check if logs directory exists
+          if [ ! -d "logs" ]; then
+            echo "⚠️ No logs directory found." >> $GITHUB_STEP_SUMMARY
+            echo "has_logs=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "has_logs=true" >> $GITHUB_OUTPUT
+
+          # Count current log files
+          TOTAL_LOGS=$(find logs/ -name "*.log" -type f 2>/dev/null | wc -l)
+          TOTAL_GZ=$(find logs/ -name "*.log.gz" -type f 2>/dev/null | wc -l)
+          TOTAL_SIZE=$(du -sh logs/ 2>/dev/null | cut -f1)
+
+          echo "| Metric | Count |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Uncompressed Logs | $TOTAL_LOGS |" >> $GITHUB_STEP_SUMMARY
+          echo "| Compressed Logs | $TOTAL_GZ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Total Size | $TOTAL_SIZE |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+      - name: Compress Old Logs
+        if: steps.report.outputs.has_logs == 'true'
+        run: |
+          COMPRESS_DAYS="${{ steps.params.outputs.compress_days }}"
+          DRY_RUN="${{ steps.params.outputs.dry_run }}"
+
+          echo "### 📦 Compress Logs Older Than $COMPRESS_DAYS Days" \
+            >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Find logs older than compress_days
+          MATCHES=$(find logs/ -name "*.log" -type f \
+            -mtime +$COMPRESS_DAYS 2>/dev/null)
+
+          if [ -z "$MATCHES" ]; then
+            echo "✅ No logs older than $COMPRESS_DAYS days." \
+              >> $GITHUB_STEP_SUMMARY
+          else
+            COUNT=$(echo "$MATCHES" | wc -l)
+            echo "Found $COUNT log file(s) to compress:" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "$MATCHES" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "🔍 **Dry run** - Files not modified." \
+                >> $GITHUB_STEP_SUMMARY
+            else
+              # Compress the files
+              echo "$MATCHES" | xargs -I {} gzip {}
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "✅ Compressed $COUNT log file(s)." >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+      - name: Delete Old Uncompressed Logs
+        if: steps.report.outputs.has_logs == 'true'
+        run: |
+          RETENTION_DAYS="${{ steps.params.outputs.retention_days }}"
+          DRY_RUN="${{ steps.params.outputs.dry_run }}"
+
+          echo "### 🗑️ Delete Uncompressed Logs Older Than" \
+            "$RETENTION_DAYS Days" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Find logs older than retention period
+          MATCHES=$(find logs/ -name "*.log" -type f \
+            -mtime +$RETENTION_DAYS 2>/dev/null)
+
+          if [ -z "$MATCHES" ]; then
+            echo "✅ No uncompressed logs older than $RETENTION_DAYS days." \
+              >> $GITHUB_STEP_SUMMARY
+          else
+            COUNT=$(echo "$MATCHES" | wc -l)
+            echo "Found $COUNT log file(s) to delete:" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "$MATCHES" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "🔍 **Dry run** - Files not modified." \
+                >> $GITHUB_STEP_SUMMARY
+            else
+              # Delete the files
+              echo "$MATCHES" | xargs rm -f
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "✅ Deleted $COUNT log file(s)." >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+      - name: Delete Old Compressed Archives
+        if: steps.report.outputs.has_logs == 'true'
+        run: |
+          ARCHIVE_RETENTION="${{ steps.params.outputs.archive_retention_days }}"
+          DRY_RUN="${{ steps.params.outputs.dry_run }}"
+
+          echo "### 🗄️ Delete Compressed Archives Older Than" \
+            "$ARCHIVE_RETENTION Days" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Find compressed logs older than archive retention period
+          MATCHES=$(find logs/ -name "*.log.gz" -type f \
+            -mtime +$ARCHIVE_RETENTION 2>/dev/null)
+
+          if [ -z "$MATCHES" ]; then
+            echo "✅ No archives older than $ARCHIVE_RETENTION days." \
+              >> $GITHUB_STEP_SUMMARY
+          else
+            COUNT=$(echo "$MATCHES" | wc -l)
+            echo "Found $COUNT archive(s) to delete:" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "$MATCHES" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "🔍 **Dry run** - Files not modified." \
+                >> $GITHUB_STEP_SUMMARY
+            else
+              # Delete the files
+              echo "$MATCHES" | xargs rm -f
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "✅ Deleted $COUNT archive(s)." >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+      - name: Generate Final Report
+        if: steps.report.outputs.has_logs == 'true'
+        run: |
+          echo "## 📈 Final Log Statistics" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Count remaining log files
+          REMAINING=$(find logs/ -name "*.log" -type f 2>/dev/null | wc -l)
+          REMAINING_GZ=$(find logs/ -name "*.log.gz" -type f \
+            2>/dev/null | wc -l)
+          FINAL_SIZE=$(du -sh logs/ 2>/dev/null | cut -f1)
+
+          echo "| Metric | Count |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Remaining Uncompressed Logs | $REMAINING |" \
+            >> $GITHUB_STEP_SUMMARY
+          echo "| Remaining Compressed Logs | $REMAINING_GZ |" \
+            >> $GITHUB_STEP_SUMMARY
+          echo "| Total Size | $FINAL_SIZE |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Log cleanup completed successfully!**" \
+            >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          LINK="[logs/README.md](../blob/main/logs/README.md)"
+          echo "For more information, see $LINK." >> $GITHUB_STEP_SUMMARY
+
+      - name: Commit Changes
+        if: |
+          steps.report.outputs.has_logs == 'true' &&
+          steps.params.outputs.dry_run == 'false'
+        run: |
+          # Configure git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Check if there are any changes
+          if [ -n "$(git status --porcelain)" ]; then
+            git add logs/
+
+            COMPRESS="${{ steps.params.outputs.compress_days }}"
+            RETENTION="${{ steps.params.outputs.retention_days }}"
+            ARCHIVE="${{ steps.params.outputs.archive_retention_days }}"
+
+            git commit -m "chore: automated log cleanup" \
+              -m "" \
+              -m "- Compressed logs older than $COMPRESS days" \
+              -m "- Deleted uncompressed logs older than $RETENTION days" \
+              -m "- Deleted archives older than $ARCHIVE days" \
+              -m "" \
+              -m "Automated by log-cleanup workflow"
+
+            git push
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "📝 Changes committed and pushed." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "ℹ️ No changes to commit." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Workflow Summary
+        if: always()
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Workflow Information**" >> $GITHUB_STEP_SUMMARY
+          echo "- Trigger: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Run ID: ${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
+          TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          echo "- Timestamp: $TIMESTAMP" >> $GITHUB_STEP_SUMMARY

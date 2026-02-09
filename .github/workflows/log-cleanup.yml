@@ -6,20 +6,27 @@
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/log-cleanup.yml
 # VERSION: 03.01.02
-# BRIEF: Automated log cleanup workflow - prunes old log files
-# NOTE: Runs monthly by default, can be triggered manually with custom retention
+# BRIEF: Automated cleanup workflow - prunes logs and caches
+# NOTE: Runs every 30 days by default, can be triggered manually
 
-name: Log Cleanup
+name: Cleanup & Maintenance
 
 # MokoStandards Policy Compliance:
 # - Log retention: Enforces 30-day retention policy per logs/README.md
+# - Cache cleanup: Removes old GitHub Actions cache entries
 # - Reference: logs/README.md (Log Retention section)
 
 # ┌─────────────────────────────────────────────────────────────────────────┐
 # │                         WORKFLOW FLOW DIAGRAM                            │
 # └─────────────────────────────────────────────────────────────────────────┘
 #
-#   TRIGGER: Monthly schedule OR manual dispatch
+#   TRIGGER: Every 30 days OR manual dispatch
+#        │
+#        ▼
+#   ┌──────────────────┐
+#   │  Clean GitHub    │
+#   │  Actions cache   │
+#   └──────────────────┘
 #        │
 #        ▼
 #   ┌──────────────────┐
@@ -57,9 +64,12 @@ name: Log Cleanup
 #   └──────────────────┘
 
 on:
-  # Run monthly on the 1st at 02:00 UTC
+  # Run every 30 days at 02:00 UTC (approximately monthly)
+  # Note: GitHub Actions doesn't support exact 30-day intervals,
+  # so we use day-of-month 1 and 31 to approximate 30-day cycles
   schedule:
-    - cron: '0 2 1 * *'
+    - cron: '0 2 1 * *'  # 1st of each month
+    - cron: '0 2 31 * *'  # 31st of each month (when it exists)
 
   # Allow manual trigger with configurable retention
   workflow_dispatch:
@@ -87,10 +97,11 @@ on:
 
 permissions:
   contents: write
+  actions: write  # Required to delete cache entries
 
 jobs:
   cleanup-logs:
-    name: Clean Up Old Logs
+    name: Cleanup & Maintenance
     runs-on: ubuntu-latest
 
     steps:
@@ -121,9 +132,68 @@ jobs:
           echo "archive_retention_days=$ARCHIVE" >> $GITHUB_OUTPUT
           echo "dry_run=$DRYRUN" >> $GITHUB_OUTPUT
 
+      - name: Clean GitHub Actions Cache
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          echo "## 🗄️ GitHub Actions Cache Cleanup" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Get list of caches older than 7 days
+          CACHE_LIST=$(gh cache list --repo "$REPO" --json key,createdAt \
+            --limit 1000 2>/dev/null || echo "[]")
+
+          if [ "$CACHE_LIST" = "[]" ]; then
+            echo "ℹ️ No caches found or unable to list caches." \
+              >> $GITHUB_STEP_SUMMARY
+          else
+            # Calculate date 7 days ago
+            CUTOFF_DATE=$(date -u -d '7 days ago' +%s 2>/dev/null || \
+              date -u -v-7d +%s 2>/dev/null)
+
+            DELETED_COUNT=0
+            TOTAL_COUNT=$(echo "$CACHE_LIST" | jq 'length')
+
+            echo "Found $TOTAL_COUNT cache entries" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            # Iterate through caches and delete old ones
+            echo "$CACHE_LIST" | jq -r '.[] | "\(.key)|\(.createdAt)"' | \
+              while IFS='|' read -r KEY CREATED_AT; do
+                # Convert ISO date to timestamp
+                CACHE_DATE=$(date -u -d "$CREATED_AT" +%s 2>/dev/null || \
+                  date -j -f "%Y-%m-%dT%H:%M:%SZ" "$CREATED_AT" +%s 2>/dev/null)
+
+                if [ -n "$CACHE_DATE" ] && \
+                   [ "$CACHE_DATE" -lt "$CUTOFF_DATE" ]; then
+                  if [ "${{ steps.params.outputs.dry_run }}" = "true" ]; then
+                    echo "Would delete: $KEY (created: $CREATED_AT)"
+                    DELETED_COUNT=$((DELETED_COUNT + 1))
+                  else
+                    if gh cache delete "$KEY" --repo "$REPO" 2>/dev/null; then
+                      echo "Deleted: $KEY (created: $CREATED_AT)"
+                      DELETED_COUNT=$((DELETED_COUNT + 1))
+                    fi
+                  fi
+                fi
+              done
+
+            echo "" >> $GITHUB_STEP_SUMMARY
+            if [ "${{ steps.params.outputs.dry_run }}" = "true" ]; then
+              echo "🔍 **Dry run** - Would delete $DELETED_COUNT cache(s)" \
+                >> $GITHUB_STEP_SUMMARY
+            else
+              echo "✅ Deleted $DELETED_COUNT old cache(s)" \
+                >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+
       - name: Display Cleanup Configuration
         run: |
-          echo "## 🧹 Log Cleanup Configuration" >> $GITHUB_STEP_SUMMARY
+          echo "## 🧹 Cleanup & Maintenance Configuration" \
+            >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Parameter | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|-----------|-------|" >> $GITHUB_STEP_SUMMARY

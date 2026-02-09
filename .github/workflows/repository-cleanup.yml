@@ -4,16 +4,18 @@
 # DEFGROUP: GitHub.Workflow
 # INGROUP: MokoStandards.Maintenance
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
-# PATH: /.github/workflows/log-cache-cleanup.yml
+# PATH: /.github/workflows/repository-cleanup.yml
 # VERSION: 03.01.02
-# BRIEF: Automated cleanup workflow - prunes logs and caches
+# BRIEF: Automated cleanup workflow - comprehensive repository maintenance
 # NOTE: Runs monthly on 1st by default, can be triggered manually
 
-name: Log & Cache Cleanup
+name: Repository Cleanup
 
 # MokoStandards Policy Compliance:
+# - Repository cleanup: Comprehensive automated maintenance
 # - Log retention: Enforces 30-day retention policy per logs/README.md
 # - Cache cleanup: Removes old GitHub Actions cache entries
+# - Build artifacts: Cleans temporary build outputs
 # - Reference: logs/README.md (Log Retention section)
 
 # ┌─────────────────────────────────────────────────────────────────────────┐
@@ -26,6 +28,36 @@ name: Log & Cache Cleanup
 #   ┌──────────────────┐
 #   │  Clean GitHub    │
 #   │  Actions cache   │
+#   └──────────────────┘
+#        │
+#        ▼
+#   ┌──────────────────┐
+#   │  Clean Python    │
+#   │  cache files     │
+#   └──────────────────┘
+#        │
+#        ▼
+#   ┌──────────────────┐
+#   │  Clean build     │
+#   │  artifacts       │
+#   └──────────────────┘
+#        │
+#        ▼
+#   ┌──────────────────┐
+#   │  Clean editor    │
+#   │  temp files      │
+#   └──────────────────┘
+#        │
+#        ▼
+#   ┌──────────────────┐
+#   │  Clean PHP       │
+#   │  cache files     │
+#   └──────────────────┘
+#        │
+#        ▼
+#   ┌──────────────────┐
+#   │  Clean test      │
+#   │  artifacts       │
 #   └──────────────────┘
 #        │
 #        ▼
@@ -97,8 +129,8 @@ permissions:
   actions: write  # Required to delete cache entries
 
 jobs:
-  cleanup-logs:
-    name: Log & Cache Cleanup
+  cleanup-repository:
+    name: Repository Cleanup
     runs-on: ubuntu-latest
 
     steps:
@@ -202,9 +234,284 @@ jobs:
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
 
+      - name: Clean Python Cache Files
+        run: |
+          echo "## 🐍 Python Cache Cleanup" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          DRY_RUN="${{ steps.params.outputs.dry_run }}"
+          CLEANED=0
+
+          # Clean __pycache__ directories
+          PYCACHE_DIRS=$(find . -type d -name "__pycache__" 2>/dev/null)
+          if [ -n "$PYCACHE_DIRS" ]; then
+            COUNT=$(echo "$PYCACHE_DIRS" | wc -l)
+            echo "Found $COUNT __pycache__ directories" >> $GITHUB_STEP_SUMMARY
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "🔍 **Dry run** - Would delete $COUNT directories" \
+                >> $GITHUB_STEP_SUMMARY
+            else
+              echo "$PYCACHE_DIRS" | xargs rm -rf 2>/dev/null || true
+              CLEANED=$((CLEANED + COUNT))
+            fi
+          fi
+
+          # Clean .pyc files
+          PYC_FILES=$(find . -type f -name "*.pyc" 2>/dev/null)
+          if [ -n "$PYC_FILES" ]; then
+            COUNT=$(echo "$PYC_FILES" | wc -l)
+            echo "Found $COUNT .pyc files" >> $GITHUB_STEP_SUMMARY
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "🔍 **Dry run** - Would delete $COUNT files" \
+                >> $GITHUB_STEP_SUMMARY
+            else
+              echo "$PYC_FILES" | xargs rm -f 2>/dev/null || true
+              CLEANED=$((CLEANED + COUNT))
+            fi
+          fi
+
+          # Clean pytest cache
+          PYTEST_DIRS=$(find . -type d -name ".pytest_cache" 2>/dev/null)
+          if [ -n "$PYTEST_DIRS" ]; then
+            COUNT=$(echo "$PYTEST_DIRS" | wc -l)
+            echo "Found $COUNT .pytest_cache directories" >> $GITHUB_STEP_SUMMARY
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "🔍 **Dry run** - Would delete $COUNT directories" \
+                >> $GITHUB_STEP_SUMMARY
+            else
+              echo "$PYTEST_DIRS" | xargs rm -rf 2>/dev/null || true
+              CLEANED=$((CLEANED + COUNT))
+            fi
+          fi
+
+          # Clean other Python caches
+          for CACHE_DIR in ".mypy_cache" ".ruff_cache" ".tox" ".nox"; do
+            CACHE_FOUND=$(find . -type d -name "$CACHE_DIR" 2>/dev/null)
+            if [ -n "$CACHE_FOUND" ]; then
+              COUNT=$(echo "$CACHE_FOUND" | wc -l)
+              echo "Found $COUNT $CACHE_DIR directories" >> $GITHUB_STEP_SUMMARY
+              if [ "$DRY_RUN" = "true" ]; then
+                echo "🔍 **Dry run** - Would delete $COUNT directories" \
+                  >> $GITHUB_STEP_SUMMARY
+              else
+                echo "$CACHE_FOUND" | xargs rm -rf 2>/dev/null || true
+                CLEANED=$((CLEANED + COUNT))
+              fi
+            fi
+          done
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "$DRY_RUN" = "false" ] && [ $CLEANED -gt 0 ]; then
+            echo "✅ Cleaned $CLEANED Python cache items" >> $GITHUB_STEP_SUMMARY
+          elif [ $CLEANED -eq 0 ]; then
+            echo "✅ No Python cache files found" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+      - name: Clean Build Artifacts
+        run: |
+          echo "## 🏗️ Build Artifacts Cleanup" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          DRY_RUN="${{ steps.params.outputs.dry_run }}"
+          CLEANED=0
+
+          # Clean build directories
+          for BUILD_DIR in ".cache" "build" "dist" "out" "site" \
+                            ".mkdocs-build" ".parcel-cache"; do
+            BUILD_FOUND=$(find . -maxdepth 2 -type d -name "$BUILD_DIR" 2>/dev/null)
+            if [ -n "$BUILD_FOUND" ]; then
+              COUNT=$(echo "$BUILD_FOUND" | wc -l)
+              echo "Found $COUNT $BUILD_DIR directories" >> $GITHUB_STEP_SUMMARY
+              if [ "$DRY_RUN" = "true" ]; then
+                echo "🔍 **Dry run** - Would delete $COUNT directories" \
+                  >> $GITHUB_STEP_SUMMARY
+              else
+                echo "$BUILD_FOUND" | xargs rm -rf 2>/dev/null || true
+                CLEANED=$((CLEANED + COUNT))
+              fi
+            fi
+          done
+
+          # Clean .tsbuildinfo files
+          TSB_FILES=$(find . -type f -name "*.tsbuildinfo" 2>/dev/null)
+          if [ -n "$TSB_FILES" ]; then
+            COUNT=$(echo "$TSB_FILES" | wc -l)
+            echo "Found $COUNT .tsbuildinfo files" >> $GITHUB_STEP_SUMMARY
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "🔍 **Dry run** - Would delete $COUNT files" \
+                >> $GITHUB_STEP_SUMMARY
+            else
+              echo "$TSB_FILES" | xargs rm -f 2>/dev/null || true
+              CLEANED=$((CLEANED + COUNT))
+            fi
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "$DRY_RUN" = "false" ] && [ $CLEANED -gt 0 ]; then
+            echo "✅ Cleaned $CLEANED build artifacts" >> $GITHUB_STEP_SUMMARY
+          elif [ $CLEANED -eq 0 ]; then
+            echo "✅ No build artifacts found" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+      - name: Clean Editor Temp Files
+        run: |
+          echo "## 📝 Editor Temp Files Cleanup" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          DRY_RUN="${{ steps.params.outputs.dry_run }}"
+          CLEANED=0
+
+          # Clean various temp file types
+          for EXT in "bak" "swp" "swo" "tmp"; do
+            TEMP_FILES=$(find . -type f -name "*.$EXT" 2>/dev/null)
+            if [ -n "$TEMP_FILES" ]; then
+              COUNT=$(echo "$TEMP_FILES" | wc -l)
+              echo "Found $COUNT .$EXT files" >> $GITHUB_STEP_SUMMARY
+              if [ "$DRY_RUN" = "true" ]; then
+                echo "🔍 **Dry run** - Would delete $COUNT files" \
+                  >> $GITHUB_STEP_SUMMARY
+              else
+                echo "$TEMP_FILES" | xargs rm -f 2>/dev/null || true
+                CLEANED=$((CLEANED + COUNT))
+              fi
+            fi
+          done
+
+          # Clean OS-specific files
+          DS_STORE=$(find . -type f -name ".DS_Store" 2>/dev/null)
+          if [ -n "$DS_STORE" ]; then
+            COUNT=$(echo "$DS_STORE" | wc -l)
+            echo "Found $COUNT .DS_Store files" >> $GITHUB_STEP_SUMMARY
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "🔍 **Dry run** - Would delete $COUNT files" \
+                >> $GITHUB_STEP_SUMMARY
+            else
+              echo "$DS_STORE" | xargs rm -f 2>/dev/null || true
+              CLEANED=$((CLEANED + COUNT))
+            fi
+          fi
+
+          THUMBS=$(find . -type f -name "Thumbs.db" 2>/dev/null)
+          if [ -n "$THUMBS" ]; then
+            COUNT=$(echo "$THUMBS" | wc -l)
+            echo "Found $COUNT Thumbs.db files" >> $GITHUB_STEP_SUMMARY
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "🔍 **Dry run** - Would delete $COUNT files" \
+                >> $GITHUB_STEP_SUMMARY
+            else
+              echo "$THUMBS" | xargs rm -f 2>/dev/null || true
+              CLEANED=$((CLEANED + COUNT))
+            fi
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "$DRY_RUN" = "false" ] && [ $CLEANED -gt 0 ]; then
+            echo "✅ Cleaned $CLEANED editor temp files" >> $GITHUB_STEP_SUMMARY
+          elif [ $CLEANED -eq 0 ]; then
+            echo "✅ No editor temp files found" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+      - name: Clean PHP Cache Files
+        run: |
+          echo "## 🐘 PHP Cache Cleanup" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          DRY_RUN="${{ steps.params.outputs.dry_run }}"
+          CLEANED=0
+
+          # Clean PHP cache files
+          for CACHE_FILE in ".phpunit.result.cache" ".php-cs-fixer.cache" \
+                             ".phpstan.cache" ".phplint-cache"; do
+            PHP_CACHE=$(find . -type f -name "$CACHE_FILE" 2>/dev/null)
+            if [ -n "$PHP_CACHE" ]; then
+              COUNT=$(echo "$PHP_CACHE" | wc -l)
+              echo "Found $COUNT $CACHE_FILE files" >> $GITHUB_STEP_SUMMARY
+              if [ "$DRY_RUN" = "true" ]; then
+                echo "🔍 **Dry run** - Would delete $COUNT files" \
+                  >> $GITHUB_STEP_SUMMARY
+              else
+                echo "$PHP_CACHE" | xargs rm -f 2>/dev/null || true
+                CLEANED=$((CLEANED + COUNT))
+              fi
+            fi
+          done
+
+          # Clean PHP cache directories
+          for CACHE_DIR in "phpmd-cache" ".psalm" ".rector"; do
+            PHP_DIR=$(find . -type d -name "$CACHE_DIR" 2>/dev/null)
+            if [ -n "$PHP_DIR" ]; then
+              COUNT=$(echo "$PHP_DIR" | wc -l)
+              echo "Found $COUNT $CACHE_DIR directories" >> $GITHUB_STEP_SUMMARY
+              if [ "$DRY_RUN" = "true" ]; then
+                echo "🔍 **Dry run** - Would delete $COUNT directories" \
+                  >> $GITHUB_STEP_SUMMARY
+              else
+                echo "$PHP_DIR" | xargs rm -rf 2>/dev/null || true
+                CLEANED=$((CLEANED + COUNT))
+              fi
+            fi
+          done
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "$DRY_RUN" = "false" ] && [ $CLEANED -gt 0 ]; then
+            echo "✅ Cleaned $CLEANED PHP cache items" >> $GITHUB_STEP_SUMMARY
+          elif [ $CLEANED -eq 0 ]; then
+            echo "✅ No PHP cache files found" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+      - name: Clean Test Artifacts
+        run: |
+          echo "## 🧪 Test Artifacts Cleanup" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          DRY_RUN="${{ steps.params.outputs.dry_run }}"
+          CLEANED=0
+
+          # Clean test artifact directories
+          for TEST_DIR in "coverage" "htmlcov" "test-results" ".coverage"; do
+            TEST_FOUND=$(find . -maxdepth 2 -type d -name "$TEST_DIR" 2>/dev/null)
+            if [ -n "$TEST_FOUND" ]; then
+              COUNT=$(echo "$TEST_FOUND" | wc -l)
+              echo "Found $COUNT $TEST_DIR directories" >> $GITHUB_STEP_SUMMARY
+              if [ "$DRY_RUN" = "true" ]; then
+                echo "🔍 **Dry run** - Would delete $COUNT directories" \
+                  >> $GITHUB_STEP_SUMMARY
+              else
+                echo "$TEST_FOUND" | xargs rm -rf 2>/dev/null || true
+                CLEANED=$((CLEANED + COUNT))
+              fi
+            fi
+          done
+
+          # Clean coverage files
+          COV_FILES=$(find . -maxdepth 2 -type f -name ".coverage.*" 2>/dev/null)
+          if [ -n "$COV_FILES" ]; then
+            COUNT=$(echo "$COV_FILES" | wc -l)
+            echo "Found $COUNT coverage files" >> $GITHUB_STEP_SUMMARY
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "🔍 **Dry run** - Would delete $COUNT files" \
+                >> $GITHUB_STEP_SUMMARY
+            else
+              echo "$COV_FILES" | xargs rm -f 2>/dev/null || true
+              CLEANED=$((CLEANED + COUNT))
+            fi
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "$DRY_RUN" = "false" ] && [ $CLEANED -gt 0 ]; then
+            echo "✅ Cleaned $CLEANED test artifacts" >> $GITHUB_STEP_SUMMARY
+          elif [ $CLEANED -eq 0 ]; then
+            echo "✅ No test artifacts found" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+
       - name: Display Cleanup Configuration
         run: |
-          echo "## 🧹 Log & Cache Cleanup Configuration" \
+          echo "## 🧹 Repository Cleanup Configuration" \
             >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Parameter | Value |" >> $GITHUB_STEP_SUMMARY

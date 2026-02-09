@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Copyright (C) 2025 Moko Consulting <hello@mokoconsulting.tech>
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # Convert tabs to spaces in files

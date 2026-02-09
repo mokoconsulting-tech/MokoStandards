@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (C) 2025 Moko Consulting <hello@mokoconsulting.tech>
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 """
@@ -30,11 +30,11 @@ from pathlib import Path
 from typing import Tuple, Optional
 
 # Compressed header templates
-COMPRESSED_HEADER_YAML = """# Copyright (C) 2025 Moko Consulting <hello@mokoconsulting.tech>
+COMPRESSED_HEADER_YAML = """# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
 # SPDX-License-Identifier: GPL-3.0-or-later
 """
 
-COMPRESSED_HEADER_HTML = """<!-- Copyright (C) 2025 Moko Consulting <hello@mokoconsulting.tech> -->
+COMPRESSED_HEADER_HTML = """<!-- Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech> -->
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 """
 

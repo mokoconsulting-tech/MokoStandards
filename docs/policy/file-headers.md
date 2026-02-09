@@ -1,5 +1,5 @@
 <!--
- Copyright (C) 2025 Moko Consulting <hello@mokoconsulting.tech>
+ Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
 
  This file is part of a Moko Consulting project.
 
@@ -48,7 +48,7 @@ All files must include copyright and licensing information, but the format varie
 
 **Format (YAML/Shell/Python):**
 ```yaml
-# Copyright (C) 2025 Moko Consulting <hello@mokoconsulting.tech>
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
 #
 # This file is part of a Moko Consulting project.
 #
@@ -71,7 +71,7 @@ All files must include copyright and licensing information, but the format varie
 **Format (HTML/Markdown):**
 ```html
 <!--
- Copyright (C) 2025 Moko Consulting <hello@mokoconsulting.tech>
+ Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
 
  This file is part of a Moko Consulting project.
 
@@ -104,13 +104,13 @@ All files must include copyright and licensing information, but the format varie
 
 **Format:**
 ```yaml
-# Copyright (C) 2025 Moko Consulting <hello@mokoconsulting.tech>
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
 # SPDX-License-Identifier: GPL-3.0-or-later
 ```
 
 or for HTML/XML:
 ```html
-<!-- Copyright (C) 2025 Moko Consulting <hello@mokoconsulting.tech> -->
+<!-- Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech> -->
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 ```
 

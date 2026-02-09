@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Copyright (C) 2025 Moko Consulting <hello@mokoconsulting.tech>
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
 #
 # This file is part of a Moko Consulting project.
 #
@@ -46,7 +46,7 @@
 
 readonly MOKO_VERSION="04.01.00"
 readonly MOKO_REPO_URL="https://github.com/mokoconsulting-tech/MokoStandards"
-readonly MOKO_COPYRIGHT="Copyright (C) 2025 Moko Consulting <hello@mokoconsulting.tech>"
+readonly MOKO_COPYRIGHT="Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>"
 readonly MOKO_LICENSE="GPL-3.0-or-later"
 
 # Exit codes

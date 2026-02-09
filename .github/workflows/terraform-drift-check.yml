@@ -7,17 +7,14 @@
 # PATH: /.github/workflows/terraform-drift-check.yml
 # VERSION: 03.01.02
 # BRIEF: Validate Terraform configuration against Python implementations
-# NOTE: Checks for drift - runs every 30 days and on-demand
+# NOTE: Checks for drift - runs monthly and on-demand
 
 name: Terraform Drift Check
 
 on:
-  # Run every 30 days at 03:00 UTC (approximately monthly)
-  # Note: GitHub Actions doesn't support exact 30-day intervals,
-  # so we use day-of-month 1 and 31 to approximate 30-day cycles
+  # Run monthly on the 1st at 03:00 UTC
   schedule:
     - cron: '0 3 1 * *'  # 1st of each month
-    - cron: '0 3 31 * *'  # 31st of each month (when it exists)
 
   pull_request:
     branches:

@@ -4,7 +4,7 @@
 # DEFGROUP: GitHub.Workflow
 # INGROUP: MokoStandards.Maintenance
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
-# PATH: /.github/workflows/log-cleanup.yml
+# PATH: /.github/workflows/log-cache-cleanup.yml
 # VERSION: 03.01.02
 # BRIEF: Automated cleanup workflow - prunes logs and caches
 # NOTE: Runs monthly on 1st by default, can be triggered manually

@@ -140,44 +140,59 @@ jobs:
           echo "## 🗄️ GitHub Actions Cache Cleanup" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          # Get list of caches older than 7 days
+          # Get list of caches
           CACHE_LIST=$(gh cache list --repo "$REPO" --json key,createdAt \
             --limit 1000 2>/dev/null || echo "[]")
 
-          if [ "$CACHE_LIST" = "[]" ]; then
+          if [ "$CACHE_LIST" = "[]" ] || [ -z "$CACHE_LIST" ]; then
             echo "ℹ️ No caches found or unable to list caches." \
               >> $GITHUB_STEP_SUMMARY
           else
-            # Calculate date 7 days ago
+            # Calculate date 7 days ago (in seconds since epoch)
             CUTOFF_DATE=$(date -u -d '7 days ago' +%s 2>/dev/null || \
               date -u -v-7d +%s 2>/dev/null)
 
-            DELETED_COUNT=0
             TOTAL_COUNT=$(echo "$CACHE_LIST" | jq 'length')
-
             echo "Found $TOTAL_COUNT cache entries" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
 
-            # Iterate through caches and delete old ones
-            echo "$CACHE_LIST" | jq -r '.[] | "\(.key)|\(.createdAt)"' | \
-              while IFS='|' read -r KEY CREATED_AT; do
-                # Convert ISO date to timestamp
-                CACHE_DATE=$(date -u -d "$CREATED_AT" +%s 2>/dev/null || \
-                  date -j -f "%Y-%m-%dT%H:%M:%SZ" "$CREATED_AT" +%s 2>/dev/null)
+            # Use temp file for counting (avoids subshell scope issues)
+            TEMP_COUNT_FILE=$(mktemp)
+            echo "0" > "$TEMP_COUNT_FILE"
 
-                if [ -n "$CACHE_DATE" ] && \
-                   [ "$CACHE_DATE" -lt "$CUTOFF_DATE" ]; then
-                  if [ "${{ steps.params.outputs.dry_run }}" = "true" ]; then
-                    echo "Would delete: $KEY (created: $CREATED_AT)"
-                    DELETED_COUNT=$((DELETED_COUNT + 1))
-                  else
-                    if gh cache delete "$KEY" --repo "$REPO" 2>/dev/null; then
-                      echo "Deleted: $KEY (created: $CREATED_AT)"
-                      DELETED_COUNT=$((DELETED_COUNT + 1))
-                    fi
+            # Process each cache entry using null-separated output
+            echo "$CACHE_LIST" | jq -r '.[] | @base64' | while read -r ENTRY; do
+              # Decode the base64 entry
+              DECODED=$(echo "$ENTRY" | base64 -d)
+              KEY=$(echo "$DECODED" | jq -r '.key')
+              CREATED_AT=$(echo "$DECODED" | jq -r '.createdAt')
+
+              # Extract just the date part (handles various ISO formats)
+              # Strip milliseconds and timezone, convert to epoch
+              CLEAN_DATE=$(echo "$CREATED_AT" | \
+                sed 's/\.[0-9]*Z$/Z/' | sed 's/+00:00$/Z/')
+              CACHE_DATE=$(date -u -d "$CLEAN_DATE" +%s 2>/dev/null || \
+                date -j -u -f "%Y-%m-%dT%H:%M:%SZ" "$CLEAN_DATE" +%s 2>/dev/null)
+
+              if [ -n "$CACHE_DATE" ] && \
+                 [ "$CACHE_DATE" -lt "$CUTOFF_DATE" ]; then
+                if [ "${{ steps.params.outputs.dry_run }}" = "true" ]; then
+                  echo "Would delete: $KEY (created: $CREATED_AT)"
+                  CURRENT=$(cat "$TEMP_COUNT_FILE")
+                  echo $((CURRENT + 1)) > "$TEMP_COUNT_FILE"
+                else
+                  if gh cache delete "$KEY" --repo "$REPO" 2>/dev/null; then
+                    echo "Deleted: $KEY (created: $CREATED_AT)"
+                    CURRENT=$(cat "$TEMP_COUNT_FILE")
+                    echo $((CURRENT + 1)) > "$TEMP_COUNT_FILE"
                   fi
                 fi
-              done
+              fi
+            done
+
+            # Read final count from temp file
+            DELETED_COUNT=$(cat "$TEMP_COUNT_FILE")
+            rm -f "$TEMP_COUNT_FILE"
 
             echo "" >> $GITHUB_STEP_SUMMARY
             if [ "${{ steps.params.outputs.dry_run }}" = "true" ]; then

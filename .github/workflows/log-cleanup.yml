@@ -196,8 +196,10 @@ jobs:
               echo "🔍 **Dry run** - Files not modified." \
                 >> $GITHUB_STEP_SUMMARY
             else
-              # Compress the files
-              echo "$MATCHES" | xargs -I {} gzip {}
+              # Compress the files (using -print0/-0 for safe handling)
+              find logs/ -name "*.log" -type f \
+                -mtime +$COMPRESS_DAYS -print0 2>/dev/null | \
+                xargs -0 -r gzip
               echo "" >> $GITHUB_STEP_SUMMARY
               echo "✅ Compressed $COUNT log file(s)." >> $GITHUB_STEP_SUMMARY
             fi
@@ -233,8 +235,10 @@ jobs:
               echo "🔍 **Dry run** - Files not modified." \
                 >> $GITHUB_STEP_SUMMARY
             else
-              # Delete the files
-              echo "$MATCHES" | xargs rm -f
+              # Delete the files (using -print0/-0 for safe handling)
+              find logs/ -name "*.log" -type f \
+                -mtime +$RETENTION_DAYS -print0 2>/dev/null | \
+                xargs -0 -r rm -f
               echo "" >> $GITHUB_STEP_SUMMARY
               echo "✅ Deleted $COUNT log file(s)." >> $GITHUB_STEP_SUMMARY
             fi
@@ -270,8 +274,10 @@ jobs:
               echo "🔍 **Dry run** - Files not modified." \
                 >> $GITHUB_STEP_SUMMARY
             else
-              # Delete the files
-              echo "$MATCHES" | xargs rm -f
+              # Delete the files (using -print0/-0 for safe handling)
+              find logs/ -name "*.log.gz" -type f \
+                -mtime +$ARCHIVE_RETENTION -print0 2>/dev/null | \
+                xargs -0 -r rm -f
               echo "" >> $GITHUB_STEP_SUMMARY
               echo "✅ Deleted $COUNT archive(s)." >> $GITHUB_STEP_SUMMARY
             fi

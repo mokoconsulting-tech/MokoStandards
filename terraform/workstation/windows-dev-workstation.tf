@@ -7,7 +7,7 @@
 # INGROUP: MokoStandards.Infrastructure
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: terraform/workstation/dev-workstation.tf
-# VERSION: 03.01.02
+# VERSION: 03.01.03
 # BRIEF: Terraform definition for Windows development workstation provisioning configuration
 
 

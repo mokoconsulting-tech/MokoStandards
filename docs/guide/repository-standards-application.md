@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Standards
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/guide/repository-standards-application.md
-VERSION: 03.01.02
+VERSION: 03.01.03
 BRIEF: Guidance on applying MokoStandards to repositories
 -->
 

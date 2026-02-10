@@ -23,7 +23,7 @@ DEFGROUP: Scripts.Utility
 INGROUP: FileDistribution
 REPO: https://github.com/mokoconsulting-tech/
 FILE: guide-file-distributor.md
-VERSION: 03.01.02
+VERSION: 03.01.03
 BRIEF: Operational guide for distributing a file across folder trees with PowerShell and Python utilities.
 PATH: /docs/scripts/automation/guide-file-distributor.md
 NOTE:

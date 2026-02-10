@@ -10,7 +10,7 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Reference
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/reference/repository-templates.md
-VERSION: 03.01.02
+VERSION: 03.01.03
 BRIEF: Reference documentation for MokoStandards repository templates
 -->
 

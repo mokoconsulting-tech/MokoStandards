@@ -10,7 +10,7 @@
  INGROUP: Policy.BaselineProvisioning
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  PATH: /docs/policy/waas/demo-baseline.md
- VERSION: 03.01.02
+ VERSION: 03.01.03
  BRIEF: Policy defining waas.demo.mokoconsulting.tech as the mandatory provisioning baseline for new WaaS clients.
 -->
 

@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Guide
 INGROUP: MokoStandards.Automation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/guide/changelog-synchronization.md
-VERSION: 03.01.02
+VERSION: 03.01.03
 BRIEF: Guide for automatic CHANGELOG synchronization in Dolibarr modules
 -->
 

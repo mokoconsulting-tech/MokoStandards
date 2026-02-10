@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Reference
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /PRIVATE_REPOSITORY_REFERENCE.md
-VERSION: 03.01.02
+VERSION: 03.01.03
 BRIEF: Reference to sensitive items moved to private repository
 -->
 

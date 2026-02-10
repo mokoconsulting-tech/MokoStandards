@@ -4,7 +4,7 @@ DESCRIPTION: Standard pattern for adding --help documentation flags to all scrip
 AUTHOR: Moko Consulting LLC
 COPYRIGHT: 2025-2026 Moko Consulting LLC
 LICENSE: MIT
-VERSION: 03.01.02
+VERSION: 03.01.03
 CREATED: 2026-01-29
 UPDATED: 2026-01-29
 CATEGORY: Development
@@ -195,7 +195,7 @@ DESCRIPTION: Brief description
 AUTHOR: Moko Consulting LLC
 COPYRIGHT: 2025-2026 Moko Consulting LLC
 LICENSE: MIT
-VERSION: 03.01.02
+VERSION: 03.01.03
 CREATED: YYYY-MM-DD
 UPDATED: YYYY-MM-DD
 CATEGORY: Category

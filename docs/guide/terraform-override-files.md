@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Guide
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/guide/terraform-override-files.md
-VERSION: 03.01.02
+VERSION: 03.01.03
 BRIEF: Guide for using MokoStandards.override.tf files to control bulk sync behavior
 -->
 

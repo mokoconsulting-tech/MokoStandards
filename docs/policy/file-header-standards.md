@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/file-header-standards.md
-VERSION: 03.01.02
+VERSION: 03.01.03
 BRIEF: Standards for copyright headers, file information, and document metadata
 -->
 

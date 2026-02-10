@@ -8,7 +8,7 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Workflows
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/workflows/dev-branch-tracking.md
-VERSION: 03.01.02
+VERSION: 03.01.03
 BRIEF: Dev branch tracking and issue coordination system documentation
 -->
 

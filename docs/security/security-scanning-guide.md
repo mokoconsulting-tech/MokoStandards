@@ -8,7 +8,7 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Security
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/security/security-scanning-guide.md
-VERSION: 03.01.02
+VERSION: 03.01.03
 BRIEF: Guide for implementing security scanning in org repositories
 -->
 

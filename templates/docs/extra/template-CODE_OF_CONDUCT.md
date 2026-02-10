@@ -14,7 +14,7 @@
 	DEFGROUP:
 	INGROUP: Project.Documentation
 	REPO:
-	VERSION: 00.00.01
+	VERSION: 03.01.03
 	PATH: ./CODE_OF_CONDUCT.md
 	BRIEF: Reference + packaging repo for Moko Consulting Developer GPT Other Default
 -->

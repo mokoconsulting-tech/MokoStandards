@@ -11,7 +11,7 @@ DEFGROUP: MokoStandards.Scripts.Maintenance
 INGROUP: MokoStandards.Scripts
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 FILE: scripts/maintenance/clean_old_branches.py
-VERSION: 03.01.02
+VERSION: 03.01.03
 BRIEF: Identifies and optionally deletes old Git branches
 PATH: /scripts/maintenance/clean_old_branches.py
 """

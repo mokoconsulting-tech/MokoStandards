@@ -46,10 +46,13 @@
 
 # Fallback version if README.md cannot be read
 # NOTE: This must be kept in sync with _FALLBACK_VERSION in common.py
+# NOTE: This version is now sourced from README.md title line. The previous hardcoded
+#       version (04.01.00) was out of sync with README.md (03.01.03). The README is
+#       now the single source of truth for the repository version.
 readonly _FALLBACK_VERSION="03.01.03"
 
 # Extract version from README.md title line
-# Searches for pattern: # MokoStandards (VERSION: XX.YY.ZZ)
+# Searches for pattern: # README - <REPO> (VERSION: XX.YY.ZZ)
 _get_version_from_readme() {
     local repo_root
     local current_dir

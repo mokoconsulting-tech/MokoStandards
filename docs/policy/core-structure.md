@@ -57,6 +57,24 @@ All repositories **MUST** include these files in the root:
 └── CODE_OF_CONDUCT.md # Community code of conduct
 ```
 
+#### README.md Title Format
+
+The README.md title **MUST** follow this format:
+```markdown
+# README - <RepositoryName> (VERSION: XX.YY.ZZ)
+```
+
+**Example**:
+```markdown
+# README - MokoStandards (VERSION: 03.01.03)
+```
+
+**Purpose**: This format provides:
+- Clear identification as the README file
+- Repository name
+- Current version in a machine-readable format
+- Single source of truth for repository version (used by build and release scripts)
+
 ### `/docs/` Folder Structure
 
 The `docs/` folder follows a standardized hierarchy based on content type and audience:

@@ -62,7 +62,7 @@ _FALLBACK_VERSION: str = "03.01.03"
 def _get_version_from_readme() -> str:
     """Extract version from README.md title line.
     
-    Searches for the pattern '# MokoStandards (VERSION: XX.YY.ZZ)' in README.md
+    Searches for the pattern '# README - MokoStandards (VERSION: XX.YY.ZZ)' in README.md
     and extracts the version number.
     
     Returns:

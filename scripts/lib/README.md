@@ -8,12 +8,14 @@ This directory contains shared library code and utility functions used by other 
 Core Python utility functions and common operations.
 
 **Features:**
+- Dynamic version extraction from README.md title line
 - File system utilities
 - Git operations
 - GitHub API helpers
 - Configuration management
 - Logging and error handling
 - Path manipulation
+- Standard file header generation
 
 ### github_client.py
 Comprehensive GitHub API client with authentication and rate limiting.
@@ -97,6 +99,7 @@ GUI utilities for PowerShell and Python scripts (dialogs, file pickers, etc.).
 Core shell utility functions for bash scripts.
 
 **Features:**
+- Dynamic version extraction from README.md title line
 - Color output functions
 - Error handling
 - Git operations
@@ -156,6 +159,24 @@ These libraries provide:
 - **Consistency**: Standard patterns and practices
 - **Maintainability**: Centralized updates affect all dependent scripts
 - **Testing**: Isolated testing of shared functionality
+- **Version Management**: Single source of truth for repository version in README.md
+
+## Version Management
+
+The repository version is maintained in the README.md title line:
+```markdown
+# README - MokoStandards (VERSION: XX.YY.ZZ)
+```
+
+Both `common.py` and `common.sh` dynamically extract this version at runtime:
+- **Python**: `VERSION` constant is set by `_get_version_from_readme()`
+- **Shell**: `MOKO_VERSION` constant is set by `_get_version_from_readme()`
+
+This ensures:
+- Single source of truth for version information
+- No manual synchronization needed between scripts
+- Automatic version updates when README.md is updated
+- Fallback to "03.01.03" if README.md is not accessible
 
 ## Usage
 

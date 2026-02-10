@@ -98,6 +98,9 @@ locals {
 			generic   = "../../templates/workflows/generic/code-quality.yml"
 			terraform = "../../templates/workflows/generic/code-quality.yml"
 		}
+		".github/workflows/codeql-analysis.yml" = {
+			all = "../../templates/workflows/codeql-analysis.yml.template"
+		}
 		".editorconfig" = {
 			all = "../../templates/configs/.editorconfig"
 		}

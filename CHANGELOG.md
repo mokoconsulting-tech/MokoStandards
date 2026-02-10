@@ -30,6 +30,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- **Branch and Version Automation Required**: All automation scripts now required in org repositories
+  - Updated terraform to require branch management scripts
+  - Updated terraform to require release automation scripts
+  - All scripts auto-sync to organization repositories
+
 ## [03.01.05] - 2026-02-10
 
 ### Added
@@ -75,13 +80,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fallback to "03.01.05" when README not accessible
   - Files: `scripts/lib/common.py`, `scripts/lib/common.sh`, `templates/scripts/lib/common.sh`
 
+- **Terraform Distribution - All Automation Scripts Required**: Expanded terraform to require all automation
+  - Branch management scripts now REQUIRED in all repositories
+  - Release automation scripts now REQUIRED in all repositories
+  - Updated `terraform/repository-types/default-repository.tf` with:
+    * Added `maintenance` subdirectory as required
+    * Added `release` subdirectory as required
+    * Added 5 new required scripts to required_files configuration
+  - Updated `terraform/repository-management/main.tf` base_templates with:
+    * `scripts/maintenance/clean_old_branches.py` (type: all)
+    * `scripts/maintenance/release_version.py` (type: all)
+    * `scripts/release/unified_release.py` (type: all)
+    * `scripts/release/detect_platform.py` (type: all)
+    * `scripts/release/package_extension.py` (type: all)
+  - Total: 9 scripts now required and auto-distributed
+  - Files: `terraform/repository-types/default-repository.tf`, `terraform/repository-management/main.tf`
+
 ### Changed
 - **Version Bump Documentation**: Enhanced automation documentation
-  - Added comprehensive usage examples and integration patterns
-  - Documented enterprise features and security capabilities
-  - Added troubleshooting guide
-  - Included GitHub Actions workflow examples
-  - Files: `scripts/automation/README.md`
+  - Renamed `VERSION_BUMP_DISTRIBUTION.md` to reflect broader scope
+  - Added comprehensive documentation for all 9 required scripts
+  - Added usage examples for branch management scripts
+  - Added usage examples for release automation scripts
+  - Updated terraform configuration examples
+  - Updated repository structure diagram with maintenance/ and release/ directories
+  - Files: `terraform/repository-management/VERSION_BUMP_DISTRIBUTION.md`
+
+- **Scripts Documentation**: Updated maintenance and release script README files
+  - Marked all required scripts with REQUIRED status
+  - Added terraform distribution notes
+  - Comprehensive usage examples for each script
+  - Added related documentation links
+  - Files: `scripts/maintenance/README.md`, `scripts/release/README.md`
 
 - **Datetime Handling**: Updated to use timezone-aware datetime objects
   - Replaced deprecated `datetime.utcnow()` with `datetime.now(timezone.utc)`

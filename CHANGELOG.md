@@ -30,10 +30,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- **Branch and Version Automation Required**: All automation scripts now required in org repositories
-  - Updated terraform to require branch management scripts
-  - Updated terraform to require release automation scripts
-  - All scripts auto-sync to organization repositories
+### Added
+- **Comprehensive Automation Documentation**: Complete guide for branch and version automation
+  - Created `docs/automation/branch-version-automation.md` (comprehensive guide, 500+ lines)
+  - Created `docs/automation/README.md` (index and quick start)
+  - Documented all 9 required automation scripts with usage examples
+  - Added troubleshooting guide with common issues and solutions
+  - Included CI/CD integration patterns (GitHub Actions, pre-commit hooks)
+  - Documented terraform distribution mechanism
+  - Added best practices for version management, branch cleanup, and releases
+  - Files: `docs/automation/branch-version-automation.md`, `docs/automation/README.md`
 
 ## [03.01.05] - 2026-02-10
 

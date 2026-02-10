@@ -62,8 +62,8 @@ _FALLBACK_VERSION: str = "03.01.03"
 def _get_version_from_readme() -> str:
     """Extract version from README.md title line.
     
-    Searches for the pattern '# README - MokoStandards (VERSION: XX.YY.ZZ)' in README.md
-    and extracts the version number.
+    Searches for the pattern '# README - <REPO> (VERSION: XX.YY.ZZ)' in README.md
+    and extracts the version number. Falls back to _FALLBACK_VERSION if not found.
     
     Returns:
         Version string (e.g., "03.01.03")
@@ -77,8 +77,9 @@ def _get_version_from_readme() -> str:
                 if readme_path.exists():
                     with open(readme_path, 'r', encoding='utf-8') as f:
                         for line in f:
-                            # Look for pattern: # MokoStandards (VERSION: XX.YY.ZZ)
-                            if line.startswith('#') and 'VERSION:' in line:
+                            # Look for pattern: # README - <REPO> (VERSION: XX.YY.ZZ)
+                            # More strict: line must start with "# README" and contain VERSION
+                            if line.startswith('# README') and 'VERSION:' in line:
                                 match = re.search(r'VERSION:\s*(\d+\.\d+\.\d+)', line)
                                 if match:
                                     return match.group(1)

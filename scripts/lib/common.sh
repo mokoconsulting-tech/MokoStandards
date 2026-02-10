@@ -73,8 +73,9 @@ _get_version_from_readme() {
         readme_path="$repo_root/README.md"
         if [[ -f "$readme_path" ]]; then
             # Extract version using grep and sed
+            # More strict: line must start with "# README" and contain VERSION
             local version
-            version=$(grep -E '^# .* \(VERSION:' "$readme_path" | head -n1 | sed -E 's/.*VERSION:\s*([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+            version=$(grep -E '^# README .* \(VERSION:' "$readme_path" | head -n1 | sed -E 's/.*VERSION:\s*([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
             if [[ -n "$version" ]]; then
                 echo "$version"
                 return 0

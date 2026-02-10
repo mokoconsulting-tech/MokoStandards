@@ -3,7 +3,7 @@
 FILE: scripts/lib/summary_helper.py
 AUTHOR: MokoStandards Team
 DATE: 2026-01-30
-VERSION: 03.01.03
+VERSION: 03.01.04
 DESCRIPTION: Helper module for creating execution summaries in scripts.
              Provides tools to track execution time, collect statistics,
              and display formatted summaries before script exit.

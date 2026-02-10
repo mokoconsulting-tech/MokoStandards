@@ -24,7 +24,7 @@ DEFGROUP: MokoStandards.Scripts
 INGROUP: MokoStandards.Maintenance
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /scripts/maintenance/flush_actions_cache.py
-VERSION: 03.01.03
+VERSION: 03.01.04
 BRIEF: Flush GitHub Actions caches for a repository
 """
 

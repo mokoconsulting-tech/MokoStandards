@@ -24,7 +24,7 @@ DEFGROUP: MokoStandards.Scripts
 INGROUP: MokoStandards.Release
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /scripts/release/dolibarr_release.py
-VERSION: 03.01.03
+VERSION: 03.01.04
 BRIEF: Script to create release packages for Dolibarr modules
 NOTE: Builds ZIP packages following main > dev > rc > version > main release cycle
 """

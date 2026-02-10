@@ -176,7 +176,7 @@ This ensures:
 - Single source of truth for version information
 - No manual synchronization needed between scripts
 - Automatic version updates when README.md is updated
-- Fallback to "03.01.03" if README.md is not accessible
+- Fallback to "03.01.04" if README.md is not accessible
 
 ## Usage
 

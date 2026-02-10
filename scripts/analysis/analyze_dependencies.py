@@ -11,7 +11,7 @@ DEFGROUP: MokoStandards.Scripts.Analysis
 INGROUP: MokoStandards.Scripts
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 FILE: scripts/analysis/analyze_dependencies.py
-VERSION: 03.01.03
+VERSION: 03.01.04
 BRIEF: Analyzes project dependencies across Python, npm, and composer
 PATH: /scripts/analysis/analyze_dependencies.py
 """

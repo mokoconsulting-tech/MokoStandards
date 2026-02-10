@@ -91,11 +91,12 @@ scripts/
 ### common.py
 **Purpose**: Foundation module with core utilities
 **Exports**:
-- Constants (VERSION, REPO_URL, EXIT codes)
+- Constants (VERSION dynamically read from README.md, REPO_URL, EXIT codes)
 - File header generation
 - Logging utilities
 - Error handling decorators
 - Path utilities
+- Version extraction from README.md title line
 
 ### validation_framework.py
 **Purpose**: Base classes and interfaces for validation
@@ -205,9 +206,15 @@ All files must include:
 # INGROUP: [Parent Group]
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: [Relative path from repo root]
-# VERSION: [X.Y.Z]
+# VERSION: [X.Y.Z]  # Version is dynamically read from README.md title line
 # BRIEF: [One-line description]
 ```
+
+**Note**: The VERSION constant in `common.py` and `MOKO_VERSION` in `common.sh` are now dynamically extracted from the README.md title line, which follows the format:
+```markdown
+# README - MokoStandards (VERSION: XX.YY.ZZ)
+```
+This ensures a single source of truth for the repository version.
 
 ## Error Handling Strategy
 

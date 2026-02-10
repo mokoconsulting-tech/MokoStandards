@@ -44,7 +44,48 @@
 # Constants
 # ============================================================
 
-readonly MOKO_VERSION="04.01.00"
+# Fallback version if README.md cannot be read
+# NOTE: This must be kept in sync with _FALLBACK_VERSION in common.py
+readonly _FALLBACK_VERSION="03.01.04"
+
+# Extract version from README.md title line
+# Searches for pattern: # README - <REPO> (VERSION: XX.YY.ZZ)
+_get_version_from_readme() {
+    local repo_root
+    local current_dir
+    local readme_path
+    
+    # Find repo root by looking for .git directory
+    current_dir="$(pwd)"
+    while [[ "$current_dir" != "/" ]]; do
+        if [[ -d "$current_dir/.git" ]]; then
+            repo_root="$current_dir"
+            break
+        fi
+        current_dir="$(dirname "$current_dir")"
+    done
+    
+    # If we found repo root and README exists
+    if [[ -n "$repo_root" ]]; then
+        readme_path="$repo_root/README.md"
+        if [[ -f "$readme_path" ]]; then
+            # Extract version using grep and sed
+            # More strict: line must start with "# README" and contain VERSION
+            local version
+            version=$(grep -E '^# README .* \(VERSION:' "$readme_path" | head -n1 | sed -E 's/.*VERSION:\s*([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+            if [[ -n "$version" ]]; then
+                echo "$version"
+                return 0
+            fi
+        fi
+    fi
+    
+    # Fallback version
+    echo "$_FALLBACK_VERSION"
+}
+
+# Initialize MOKO_VERSION by reading from README
+readonly MOKO_VERSION="$(_get_version_from_readme)"
 readonly MOKO_REPO_URL="https://github.com/mokoconsulting-tech/MokoStandards"
 readonly MOKO_COPYRIGHT="Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>"
 readonly MOKO_LICENSE="GPL-3.0-or-later"

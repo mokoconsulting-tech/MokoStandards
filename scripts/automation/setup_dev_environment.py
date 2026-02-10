@@ -11,7 +11,7 @@ DEFGROUP: MokoStandards.Scripts.Automation
 INGROUP: MokoStandards.Scripts
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 FILE: scripts/automation/setup_dev_environment.py
-VERSION: 03.01.03
+VERSION: 03.01.04
 BRIEF: Quick setup script for new contributors to set up their development environment
 PATH: /scripts/automation/setup_dev_environment.py
 """

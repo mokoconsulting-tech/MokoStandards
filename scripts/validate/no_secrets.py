@@ -26,7 +26,7 @@ DEFGROUP: Script.Validate
 INGROUP: Security
 REPO: https://github.com/mokoconsulting-tech/moko-cassiopeia
 PATH: /scripts/validate/no_secrets.py
-VERSION: 03.01.03
+VERSION: 03.01.04
 BRIEF: Scan for accidentally committed secrets and credentials
 NOTE: High-signal pattern detection to prevent credential exposure
 """

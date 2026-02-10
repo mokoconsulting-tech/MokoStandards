@@ -11,7 +11,7 @@ DEFGROUP: MokoStandards.Scripts.Docs
 INGROUP: MokoStandards.Scripts
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 FILE: scripts/docs/generate_script_catalog.py
-VERSION: 03.01.03
+VERSION: 03.01.04
 BRIEF: Generates a comprehensive catalog of all scripts in the repository
 PATH: /scripts/docs/generate_script_catalog.py
 """

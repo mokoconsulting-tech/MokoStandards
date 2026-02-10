@@ -23,7 +23,7 @@
 # INGROUP: MokoStandards.Library
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # FILE: scripts/lib/common.py
-# VERSION: 03.01.03
+# VERSION: 03.01.04
 # BRIEF: Common Python utilities for MokoStandards scripts (v2)
 # PATH: /scripts/lib/common.py
 # NOTE: Complete rewrite with modern Python features and no backward compatibility
@@ -45,6 +45,7 @@ import sys
 import subprocess
 import tempfile
 import json
+import re
 from pathlib import Path
 from typing import Optional, Union, List, Tuple, Dict, Any
 import shutil
@@ -55,7 +56,44 @@ import shutil
 # Constants
 # ============================================================
 
-VERSION: str = "03.01.03"
+# Fallback version if README.md cannot be read
+_FALLBACK_VERSION: str = "03.01.04"
+
+def _get_version_from_readme() -> str:
+    """Extract version from README.md title line.
+    
+    Searches for the pattern '# README - <REPO> (VERSION: XX.YY.ZZ)' in README.md
+    and extracts the version number. Falls back to _FALLBACK_VERSION if not found.
+    
+    Returns:
+        Version string (e.g., "03.01.04")
+    """
+    try:
+        # Find repo root by looking for .git directory
+        current = Path.cwd().resolve()
+        while current != current.parent:
+            if (current / ".git").exists():
+                readme_path = current / "README.md"
+                if readme_path.exists():
+                    with open(readme_path, 'r', encoding='utf-8') as f:
+                        for line in f:
+                            # Look for pattern: # README - <REPO> (VERSION: XX.YY.ZZ)
+                            # More strict: line must start with "# README" and contain VERSION
+                            if line.startswith('# README') and 'VERSION:' in line:
+                                match = re.search(r'VERSION:\s*(\d+\.\d+\.\d+)', line)
+                                if match:
+                                    return match.group(1)
+                break
+            current = current.parent
+        
+        # Fallback if version not found
+        return _FALLBACK_VERSION
+    except Exception:
+        # Fallback on any error
+        return _FALLBACK_VERSION
+
+# Initialize VERSION by reading from README
+VERSION: str = _get_version_from_readme()
 REPO_URL: str = "https://github.com/mokoconsulting-tech/MokoStandards"
 COPYRIGHT: str = "Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>"
 LICENSE: str = "GPL-3.0-or-later"

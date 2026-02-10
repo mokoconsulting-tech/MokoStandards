@@ -11,7 +11,7 @@
 # INGROUP: MokoStandards
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /scripts/validate/validate_repo_health.py
-# VERSION: 03.01.03
+# VERSION: 03.01.04
 # BRIEF: Validates repository health configuration XML against schema
 # ============================================================================
 

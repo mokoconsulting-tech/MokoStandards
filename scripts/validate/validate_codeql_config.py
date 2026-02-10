@@ -24,7 +24,7 @@ DEFGROUP: MokoStandards.Scripts.Validate
 INGROUP: MokoStandards
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /scripts/validate/validate_codeql_config.py
-VERSION: 03.01.03
+VERSION: 03.01.04
 BRIEF: Validates CodeQL workflow language configuration matches repository contents
 """
 

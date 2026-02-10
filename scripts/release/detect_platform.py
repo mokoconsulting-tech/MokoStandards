@@ -26,7 +26,7 @@ DEFGROUP: Script.Release
 INGROUP: Extension.Detection
 REPO: https://github.com/mokoconsulting-tech/moko-cassiopeia
 PATH: /scripts/release/detect_platform.py
-VERSION: 03.01.03
+VERSION: 03.01.04
 BRIEF: Detect extension platform and type for build workflow
 USAGE: ./scripts/release/detect_platform.py [src_dir]
 """

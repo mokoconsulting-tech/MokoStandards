@@ -84,7 +84,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Check Required Directories
         run: |
@@ -197,7 +197,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Validate README.md
         run: |
@@ -377,7 +377,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Check for Tab Characters
         run: |
@@ -463,7 +463,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Check SPDX Headers
         run: |
@@ -523,7 +523,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -573,7 +573,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Check Required Workflows
         run: |
@@ -624,7 +624,7 @@ jobs:
 
       - name: Setup Python for CodeQL Validation
         if: hashFiles('.github/workflows/codeql-analysis.yml') != ''
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.x'
 
@@ -841,7 +841,7 @@ jobs:
 
       - name: Create tracking issue for standards violations
         if: failure() && github.event_name == 'push'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const compliancePercent = '${{ needs.compliance-check.outputs.compliance_percentage }}' || '0';

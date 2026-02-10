@@ -252,6 +252,20 @@ locals {
           requirement_status = "suggested"
           purpose            = "Unit and integration tests for scripts"
         }
+        maintenance = {
+          name               = "maintenance"
+          path               = "scripts/maintenance"
+          description        = "Maintenance and cleanup scripts"
+          requirement_status = "required"
+          purpose            = "Branch cleanup and repository maintenance automation"
+        }
+        release = {
+          name               = "release"
+          path               = "scripts/release"
+          description        = "Release management scripts"
+          requirement_status = "required"
+          purpose            = "Version release and packaging automation"
+        }
       }
       required_files = {
         version_bump_detector = {
@@ -280,6 +294,51 @@ locals {
           source_template    = "scripts/lib/common.py"
           always_overwrite   = false
           purpose            = "Shared utilities for Python scripts"
+        }
+        clean_old_branches = {
+          name               = "clean_old_branches.py"
+          path               = "scripts/maintenance/clean_old_branches.py"
+          description        = "Branch cleanup and archival automation"
+          requirement_status = "required"
+          source_template    = "scripts/maintenance/clean_old_branches.py"
+          always_overwrite   = true
+          purpose            = "Identifies and cleans old Git branches"
+        }
+        release_version = {
+          name               = "release_version.py"
+          path               = "scripts/maintenance/release_version.py"
+          description        = "Version release and CHANGELOG management"
+          requirement_status = "required"
+          source_template    = "scripts/maintenance/release_version.py"
+          always_overwrite   = true
+          purpose            = "Manages version releases in CHANGELOG.md"
+        }
+        unified_release = {
+          name               = "unified_release.py"
+          path               = "scripts/release/unified_release.py"
+          description        = "Unified release orchestration tool"
+          requirement_status = "required"
+          source_template    = "scripts/release/unified_release.py"
+          always_overwrite   = true
+          purpose            = "Consolidates all release functionality"
+        }
+        detect_platform = {
+          name               = "detect_platform.py"
+          path               = "scripts/release/detect_platform.py"
+          description        = "Platform and project type detection"
+          requirement_status = "required"
+          source_template    = "scripts/release/detect_platform.py"
+          always_overwrite   = true
+          purpose            = "Detects project platform for release automation"
+        }
+        package_extension = {
+          name               = "package_extension.py"
+          path               = "scripts/release/package_extension.py"
+          description        = "Extension packaging automation"
+          requirement_status = "required"
+          source_template    = "scripts/release/package_extension.py"
+          always_overwrite   = true
+          purpose            = "Packages extensions for distribution"
         }
       }
     }

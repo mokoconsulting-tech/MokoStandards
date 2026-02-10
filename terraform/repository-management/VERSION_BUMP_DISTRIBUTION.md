@@ -1,10 +1,10 @@
-# Version Bump Scripts Distribution via Terraform
+# Branch and Version Automation Distribution via Terraform
 
-This document explains how version bump detection scripts are automatically distributed to all organization repositories using Terraform.
+This document explains how branch management and version automation scripts are automatically distributed to all organization repositories using Terraform.
 
 ## Overview
 
-The version bump detection system is required in all MokoStandards organization repositories. Terraform manages the automatic distribution and synchronization of these scripts across all repos.
+All branch and version automation scripts are REQUIRED in all MokoStandards organization repositories. Terraform manages the automatic distribution and synchronization of these scripts across all repos.
 
 ## Required Scripts
 
@@ -35,9 +35,48 @@ The following scripts are automatically deployed to all repositories:
    - Source: `scripts/automation/detect_version_bump.py`
    - Always overwrite: `true` (ensures latest features)
 
+### Maintenance Scripts
+
+4. **`scripts/maintenance/clean_old_branches.py`**
+   - Branch cleanup and archival automation
+   - Identifies and optionally deletes old Git branches
+   - Prevents branch accumulation
+   - Source: `scripts/maintenance/clean_old_branches.py`
+   - Always overwrite: `true` (ensures latest logic)
+
+5. **`scripts/maintenance/release_version.py`**
+   - Version release and CHANGELOG management
+   - Moves UNRELEASED items to versioned sections
+   - Updates VERSION in files
+   - Source: `scripts/maintenance/release_version.py`
+   - Always overwrite: `true` (ensures latest features)
+
+### Release Scripts
+
+6. **`scripts/release/unified_release.py`**
+   - Unified release orchestration tool
+   - Consolidates all release functionality
+   - Handles version bumps, tagging, and packaging
+   - Source: `scripts/release/unified_release.py`
+   - Always overwrite: `true` (ensures latest release logic)
+
+7. **`scripts/release/detect_platform.py`**
+   - Platform and project type detection
+   - Identifies Joomla, Dolibarr, WordPress, etc.
+   - Enables platform-specific release workflows
+   - Source: `scripts/release/detect_platform.py`
+   - Always overwrite: `true` (ensures platform detection accuracy)
+
+8. **`scripts/release/package_extension.py`**
+   - Extension packaging automation
+   - Creates distribution packages
+   - Handles platform-specific packaging requirements
+   - Source: `scripts/release/package_extension.py`
+   - Always overwrite: `true` (ensures packaging standards)
+
 ### Test Suites
 
-4. **`scripts/tests/test_version_bump_detector.py`**
+9. **`scripts/tests/test_version_bump_detector.py`**
    - Comprehensive unit tests (36 tests)
    - Validates detection logic
    - Ensures script reliability
@@ -67,6 +106,14 @@ scripts = {
       requirement_status = "required"
       purpose            = "Repository automation including version bump detection"
     }
+    maintenance = {
+      requirement_status = "required"
+      purpose            = "Branch cleanup and repository maintenance automation"
+    }
+    release = {
+      requirement_status = "required"
+      purpose            = "Version release and packaging automation"
+    }
     tests = {
       requirement_status = "suggested"
       purpose            = "Unit and integration tests for scripts"
@@ -74,6 +121,7 @@ scripts = {
   }
   
   required_files = {
+    # Version automation
     version_bump_detector = {
       name               = "version_bump_detector.py"
       path               = "scripts/lib/version_bump_detector.py"
@@ -91,6 +139,38 @@ scripts = {
       path               = "scripts/lib/common.py"
       requirement_status = "required"
       always_overwrite   = false
+    }
+    # Branch management
+    clean_old_branches = {
+      name               = "clean_old_branches.py"
+      path               = "scripts/maintenance/clean_old_branches.py"
+      requirement_status = "required"
+      always_overwrite   = true
+    }
+    release_version = {
+      name               = "release_version.py"
+      path               = "scripts/maintenance/release_version.py"
+      requirement_status = "required"
+      always_overwrite   = true
+    }
+    # Release automation
+    unified_release = {
+      name               = "unified_release.py"
+      path               = "scripts/release/unified_release.py"
+      requirement_status = "required"
+      always_overwrite   = true
+    }
+    detect_platform = {
+      name               = "detect_platform.py"
+      path               = "scripts/release/detect_platform.py"
+      requirement_status = "required"
+      always_overwrite   = true
+    }
+    package_extension = {
+      name               = "package_extension.py"
+      path               = "scripts/release/package_extension.py"
+      requirement_status = "required"
+      always_overwrite   = true
     }
   }
 }
@@ -114,6 +194,23 @@ base_templates = {
   }
   "scripts/tests/test_version_bump_detector.py" = {
     all = "../../scripts/tests/test_version_bump_detector.py"
+  }
+  # Branch management scripts - required in all repositories
+  "scripts/maintenance/clean_old_branches.py" = {
+    all = "../../scripts/maintenance/clean_old_branches.py"
+  }
+  "scripts/maintenance/release_version.py" = {
+    all = "../../scripts/maintenance/release_version.py"
+  }
+  # Release management scripts - required in all repositories
+  "scripts/release/unified_release.py" = {
+    all = "../../scripts/release/unified_release.py"
+  }
+  "scripts/release/detect_platform.py" = {
+    all = "../../scripts/release/detect_platform.py"
+  }
+  "scripts/release/package_extension.py" = {
+    all = "../../scripts/release/package_extension.py"
   }
 }
 ```
@@ -161,6 +258,13 @@ repository/
 │   │   └── common.py                 (required, manual-sync)
 │   ├── automation/
 │   │   └── detect_version_bump.py    (required, auto-sync)
+│   ├── maintenance/
+│   │   ├── clean_old_branches.py     (required, auto-sync)
+│   │   └── release_version.py        (required, auto-sync)
+│   ├── release/
+│   │   ├── unified_release.py        (required, auto-sync)
+│   │   ├── detect_platform.py        (required, auto-sync)
+│   │   └── package_extension.py      (required, auto-sync)
 │   └── tests/
 │       └── test_version_bump_detector.py  (suggested, auto-sync)
 ├── logs/
@@ -192,9 +296,9 @@ To manually update:
 
 ## Usage in Repositories
 
-Once deployed, repositories can use the version bump system:
+Once deployed, repositories can use all automation systems:
 
-### Detect Version Bump
+### Version Bump Detection
 
 ```bash
 # From PR description
@@ -203,18 +307,40 @@ Once deployed, repositories can use the version bump system:
 # From text
 ./scripts/automation/detect_version_bump.py --text "New feature added"
 
-# From checkboxes
-./scripts/automation/detect_version_bump.py --checkboxes "- [x] Bug fix"
+# Apply version bump
+./scripts/automation/detect_version_bump.py --text "Bug fix" --bump-type patch --apply
 ```
 
-### Apply Version Bump
+### Branch Management
 
 ```bash
-# Apply with backup and audit
-./scripts/automation/detect_version_bump.py --text "Bug fix" --bump-type patch --apply
+# List old branches (older than 90 days)
+./scripts/maintenance/clean_old_branches.py --days 90 --list
 
-# Dry run first
-./scripts/automation/detect_version_bump.py --text "New feature" --apply --dry-run
+# Delete old branches (dry run first)
+./scripts/maintenance/clean_old_branches.py --days 90 --delete --dry-run
+
+# Delete old branches (actual deletion)
+./scripts/maintenance/clean_old_branches.py --days 90 --delete
+```
+
+### Release Management
+
+```bash
+# Create a new release
+./scripts/maintenance/release_version.py --version 1.2.3 --yes
+
+# Update CHANGELOG only
+./scripts/maintenance/release_version.py --version 1.2.3 --changelog-only
+
+# Unified release (detects platform and handles everything)
+./scripts/release/unified_release.py --version 1.2.3 --release-type stable
+
+# Detect platform
+./scripts/release/detect_platform.py
+
+# Package extension
+./scripts/release/package_extension.py --version 1.2.3
 ```
 
 ### Run Tests

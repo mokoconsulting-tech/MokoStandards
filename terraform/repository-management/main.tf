@@ -111,6 +111,23 @@ locals {
 		"scripts/tests/test_version_bump_detector.py" = {
 			all = "../../scripts/tests/test_version_bump_detector.py"
 		}
+		# Branch management scripts - required in all repositories
+		"scripts/maintenance/clean_old_branches.py" = {
+			all = "../../scripts/maintenance/clean_old_branches.py"
+		}
+		"scripts/maintenance/release_version.py" = {
+			all = "../../scripts/maintenance/release_version.py"
+		}
+		# Release management scripts - required in all repositories
+		"scripts/release/unified_release.py" = {
+			all = "../../scripts/release/unified_release.py"
+		}
+		"scripts/release/detect_platform.py" = {
+			all = "../../scripts/release/detect_platform.py"
+		}
+		"scripts/release/package_extension.py" = {
+			all = "../../scripts/release/package_extension.py"
+		}
 		".github/workflows/codeql-analysis.yml" = {
 			all = "../../templates/workflows/codeql-analysis.yml.template"
 		}

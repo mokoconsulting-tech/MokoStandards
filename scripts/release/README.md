@@ -1,100 +1,180 @@
 # Release Scripts
 
-This directory contains scripts for managing releases, deployments, and packaging.
+This directory contains release management and packaging automation scripts.
 
-## Scripts
+**Status**: ⚠️ **REQUIRED** - All scripts are automatically distributed to all organization repositories via Terraform.
 
-### dolibarr_release.py
-Create and publish Dolibarr module releases.
+## Required Scripts (Terraform-Managed)
 
-**Usage:**
-```bash
-# Create release for current version
-./scripts/release/dolibarr_release.py
+The following scripts are deployed to all repositories and must be maintained:
 
-# Create release with specific version
-./scripts/release/dolibarr_release.py --version 1.2.3
+### unified_release.py
+**Status**: REQUIRED (Auto-sync enabled)
 
-# Dry run to preview release
-./scripts/release/dolibarr_release.py --dry-run
-
-# Create pre-release
-./scripts/release/dolibarr_release.py --pre-release
-```
-
-### package_extension.py
-Create distribution packages for extensions (Joomla, Dolibarr, etc.).
+Unified release orchestration tool that consolidates all release functionality.
 
 **Usage:**
 ```bash
-# Package current extension
-./scripts/release/package_extension.py
+# Create a stable release
+./scripts/release/unified_release.py --version 1.2.3 --release-type stable
 
-# Package with custom output directory
-./scripts/release/package_extension.py --output dist/
+# Create a release candidate
+./scripts/release/unified_release.py --version 1.2.3 --release-type rc
 
-# Include development files
-./scripts/release/package_extension.py --include-dev
+# Create a beta release
+./scripts/release/unified_release.py --version 1.2.3 --release-type beta
 
-# Dry run to preview packaging
-./scripts/release/package_extension.py --dry-run
+# Dry run
+./scripts/release/unified_release.py --version 1.2.3 --release-type stable --dry-run
 ```
+
+**Features:**
+- Auto-detects project platform (Joomla, Dolibarr, etc.)
+- Handles version bumps and tagging
+- Creates release packages
+- Updates CHANGELOG and documentation
+- GitHub release integration
+- Multi-platform support
 
 ### detect_platform.py
-Detect the platform/extension type of the current project.
+**Status**: REQUIRED (Auto-sync enabled)
+
+Platform and project type detection for release automation.
 
 **Usage:**
 ```bash
-# Detect platform
+# Detect current platform
 ./scripts/release/detect_platform.py
 
-# Output in JSON format
-./scripts/release/detect_platform.py --json
-
-# Verbose detection info
+# Verbose output
 ./scripts/release/detect_platform.py --verbose
+
+# JSON output
+./scripts/release/detect_platform.py --json
 ```
 
-### update_dates.sh
-Update copyright dates and version dates in project files.
+**Detects:**
+- Joomla extensions
+- Dolibarr modules
+- WordPress plugins
+- Generic projects
+- Python packages
+- Node.js packages
+
+### package_extension.py
+**Status**: REQUIRED (Auto-sync enabled)
+
+Extension packaging automation for various platforms.
 
 **Usage:**
 ```bash
-# Update all dates to current year
-./scripts/release/update_dates.sh
+# Package for detected platform
+./scripts/release/package_extension.py --version 1.2.3
 
-# Update dates for specific year
-./scripts/release/update_dates.sh 2026
+# Force specific platform
+./scripts/release/package_extension.py --version 1.2.3 --platform joomla
 
-# Dry run to preview changes
-./scripts/release/update_dates.sh --dry-run
+# Create package without version bump
+./scripts/release/package_extension.py --version 1.2.3 --no-bump
+
+# Dry run
+./scripts/release/package_extension.py --version 1.2.3 --dry-run
 ```
 
-## Purpose
+**Features:**
+- Platform-specific packaging (ZIP, TAR.GZ)
+- Manifest file generation
+- Checksum creation
+- Signature generation
+- Multi-platform support
 
-These scripts automate the release process:
-- **Version Management**: Detect, validate, and update version numbers
-- **Packaging**: Create distribution packages with proper structure
-- **Deployment**: Deploy to development and production environments
-- **Documentation**: Update changelogs and release notes
-- **Platform Detection**: Identify Joomla, Dolibarr, or other platforms
+### Platform-Specific Scripts
 
-## Typical Release Workflow
+#### dolibarr_release.py
+**Status**: Optional (Platform-specific)
 
+Specialized release tool for Dolibarr modules.
+
+**Usage:**
 ```bash
-# 1. Update version and dates
-./scripts/release/update_dates.sh
-
-# 2. Create package
-./scripts/release/package_extension.py
-
-# 3. Create GitHub release
-./scripts/release/dolibarr_release.py --version 1.2.3
+# Create Dolibarr module package
+./scripts/release/dolibarr_release.py --version 1.2.3 --module-name MyModule
 ```
 
-## Configuration
+## Release Process
 
-Release scripts use configuration files:
-- `.release.yml` - Release configuration
-- `deploy.yml` - Deployment configuration
-- Environment variables for credentials
+Standard release workflow using the unified tool:
+
+1. **Prepare Release**
+   ```bash
+   # Update CHANGELOG with unreleased items
+   ./scripts/maintenance/release_version.py --version 1.2.3 --changelog-only
+   ```
+
+2. **Detect Platform**
+   ```bash
+   # Verify platform detection
+   ./scripts/release/detect_platform.py
+   ```
+
+3. **Create Release**
+   ```bash
+   # Run unified release (handles everything)
+   ./scripts/release/unified_release.py --version 1.2.3 --release-type stable
+   ```
+
+4. **Verify Package**
+   ```bash
+   # Check created packages
+   ls -la release/
+   ```
+
+## Terraform Distribution
+
+Required scripts are automatically deployed via:
+- **Configuration**: `terraform/repository-types/default-repository.tf`
+- **Distribution**: `terraform/repository-management/main.tf`
+- **Always Overwrite**: `true` (ensures latest version)
+
+**Deployment:**
+```bash
+# Deploy to all repositories
+./scripts/automation/bulk_update_repos.py --yes --set-standards
+```
+
+## Release Types
+
+- **stable**: Production-ready release (e.g., 1.2.3)
+- **rc**: Release candidate (e.g., 1.2.3-rc1)
+- **beta**: Beta release for testing (e.g., 1.2.3-beta1)
+- **alpha**: Alpha release for early testing (e.g., 1.2.3-alpha1)
+- **dev**: Development release (e.g., 1.2.3-dev)
+
+## Semantic Versioning
+
+All releases follow semantic versioning (semver.org):
+- **MAJOR**: Breaking changes (X.y.z)
+- **MINOR**: New features, backward compatible (x.Y.z)
+- **PATCH**: Bug fixes and patches (x.y.Z)
+
+## Related Documentation
+
+- [Branch & Version Automation Distribution](../../terraform/repository-management/VERSION_BUMP_DISTRIBUTION.md)
+- [Release Management Policy](../../docs/policy/governance/release-management.md)
+- [Release Workflow](../../docs/workflows/release-system.md)
+- [Version Bump Detection](../automation/README.md)
+
+## Support
+
+For issues with release scripts:
+1. Check this documentation
+2. Review release logs in `logs/release/`
+3. Verify platform detection
+4. Contact MokoStandards maintainers
+
+## Requirements
+
+- Python 3.8+
+- Git installed
+- GitHub CLI (`gh`) for release creation
+- Platform-specific tools (for respective platforms)

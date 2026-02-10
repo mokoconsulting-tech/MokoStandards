@@ -55,7 +55,41 @@ import shutil
 # Constants
 # ============================================================
 
-VERSION: str = "03.01.03"
+def _get_version_from_readme() -> str:
+    """Extract version from README.md title line.
+    
+    Searches for the pattern '# MokoStandards (VERSION: XX.YY.ZZ)' in README.md
+    and extracts the version number.
+    
+    Returns:
+        Version string (e.g., "03.01.03")
+    """
+    import re
+    try:
+        # Find repo root by looking for .git directory
+        current = Path.cwd().resolve()
+        while current != current.parent:
+            if (current / ".git").exists():
+                readme_path = current / "README.md"
+                if readme_path.exists():
+                    with open(readme_path, 'r', encoding='utf-8') as f:
+                        for line in f:
+                            # Look for pattern: # MokoStandards (VERSION: XX.YY.ZZ)
+                            if line.startswith('#') and 'VERSION:' in line:
+                                match = re.search(r'VERSION:\s*(\d+\.\d+\.\d+)', line)
+                                if match:
+                                    return match.group(1)
+                break
+            current = current.parent
+        
+        # Fallback if version not found
+        return "03.01.03"
+    except Exception:
+        # Fallback on any error
+        return "03.01.03"
+
+# Initialize VERSION by reading from README
+VERSION: str = _get_version_from_readme()
 REPO_URL: str = "https://github.com/mokoconsulting-tech/MokoStandards"
 COPYRIGHT: str = "Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>"
 LICENSE: str = "GPL-3.0-or-later"

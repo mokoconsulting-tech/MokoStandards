@@ -23,7 +23,7 @@
 # INGROUP: MokoStandards.Library
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # FILE: scripts/lib/common.py
-# VERSION: 03.01.02
+# VERSION: 03.01.03
 # BRIEF: Common Python utilities for MokoStandards scripts (v2)
 # PATH: /scripts/lib/common.py
 # NOTE: Complete rewrite with modern Python features and no backward compatibility
@@ -55,7 +55,7 @@ import shutil
 # Constants
 # ============================================================
 
-VERSION: str = "03.01.02"
+VERSION: str = "03.01.03"
 REPO_URL: str = "https://github.com/mokoconsulting-tech/MokoStandards"
 COPYRIGHT: str = "Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>"
 LICENSE: str = "GPL-3.0-or-later"

@@ -26,7 +26,7 @@ DEFGROUP: Script.Validate
 INGROUP: CI.Validation
 REPO: https://github.com/mokoconsulting-tech/moko-cassiopeia
 PATH: /scripts/validate/workflows.py
-VERSION: 03.01.02
+VERSION: 03.01.03
 BRIEF: Validate GitHub Actions workflow files
 NOTE: Checks YAML syntax, structure, and best practices
 """

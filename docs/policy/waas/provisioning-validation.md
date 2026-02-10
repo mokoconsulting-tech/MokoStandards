@@ -10,7 +10,7 @@
  INGROUP: Policy.ProvisioningValidation
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  PATH: /docs/policy/waas/provisioning-validation.md
- VERSION: 03.01.02
+ VERSION: 03.01.03
  BRIEF: Policy defining mandatory validation and acceptance controls for WaaS client site provisioning.
 -->
 

@@ -12,7 +12,7 @@ METADATA:
     AUTHOR: Moko Consulting LLC
     COPYRIGHT: 2026 Moko Consulting LLC
     LICENSE: GPL-3.0-or-later
-    VERSION: 03.01.02
+    VERSION: 03.01.03
     CREATED: 2026-02-02
     UPDATED: 2026-02-02
 """

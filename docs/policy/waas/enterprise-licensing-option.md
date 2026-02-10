@@ -10,7 +10,7 @@
  INGROUP: Policy.EnterpriseLicensing
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  PATH: /docs/policy/waas/enterprise-licensing-option.md
- VERSION: 03.01.02
+ VERSION: 03.01.03
  BRIEF: Enterprise option defining enhanced licensing, site key governance, and centralized control for WaaS deployments.
 -->
 

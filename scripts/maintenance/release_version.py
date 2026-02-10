@@ -20,7 +20,7 @@ You should have received a copy of the GNU General Public License (./LICENSE).
 DEFGROUP: MokoStandards
 INGROUP: MokoStandards.Scripts
 REPO: https://github.com/mokoconsulting-tech/MokoStandards/
-VERSION: 03.01.02
+VERSION: 03.01.03
 PATH: ./scripts/release_version.py
 BRIEF: Script to release a version by moving UNRELEASED items to versioned section
 NOTE: Updates CHANGELOG.md and optionally updates VERSION in files

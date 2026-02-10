@@ -15,13 +15,13 @@
  DEFGROUP: MokoStandards
  INGROUP: MokoStandards.Documentation
  REPO: https://github.com/mokoconsulting-tech/MokoStandards/
- VERSION: 03.01.02
+ VERSION: 03.01.03
  PATH: ./CHANGELOG.md
  BRIEF: Version history using Keep a Changelog
  NOTE: Adheres to SemVer when applicable
  -->
 
-# CHANGELOG - MokoStandards (VERSION: 03.01.02)
+# CHANGELOG - MokoStandards (VERSION: 03.01.03)
 
 All notable changes to this project will be documented in this file.
 
@@ -29,6 +29,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [03.01.03] - 2026-02-10
+
+### Added
+- **Terraform Repository Management**: Added CodeQL security analysis workflow to repository management
+  - Added `.github/workflows/codeql-analysis.yml` to base template mappings
+  - Maps to `codeql-analysis.yml.template` with `all` repository type
+  - Enables automatic deployment of CodeQL workflow to all managed repositories
+  - Files: `terraform/repository-management/main.tf`
 
 ### Security
 - **Code Injection Fixes**: Fixed code injection vulnerabilities in reusable workflow files

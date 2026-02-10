@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Architecture
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/two-tier-architecture.md
-VERSION: 03.01.02
+VERSION: 03.01.03
 BRIEF: Two-tier architecture documentation for public standards and private enforcement
 -->
 

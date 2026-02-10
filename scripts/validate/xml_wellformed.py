@@ -26,7 +26,7 @@ DEFGROUP: Moko-Cassiopeia.Scripts
 INGROUP: Scripts.Validate
 REPO: https://github.com/mokoconsulting-tech/moko-cassiopeia
 PATH: /scripts/validate/xml_wellformed.py
-VERSION: 03.01.02
+VERSION: 03.01.03
 BRIEF: Validate XML well-formedness in all XML files
 """
 

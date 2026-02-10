@@ -11,7 +11,7 @@ DEFGROUP: MokoStandards.Scripts.Automation
 INGROUP: MokoStandards.Scripts
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 FILE: scripts/automation/check_outdated_actions.py
-VERSION: 03.01.02
+VERSION: 03.01.03
 BRIEF: Checks for outdated GitHub Actions in workflow files
 PATH: /scripts/automation/check_outdated_actions.py
 """

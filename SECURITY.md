@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /SECURITY.md
-VERSION: 03.01.02
+VERSION: 03.01.03
 BRIEF: Security vulnerability reporting and handling policy
 -->
 

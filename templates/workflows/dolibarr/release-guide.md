@@ -52,7 +52,7 @@ VERSION: development
 
 # When ready to release:
 # 1. Update README.md
-VERSION: 1.0.0
+VERSION: 03.01.03
 
 # 2. Commit and tag
 git add README.md

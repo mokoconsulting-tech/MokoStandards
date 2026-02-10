@@ -5,7 +5,7 @@
 # INGROUP: MokoStandards.Configuration
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/settings.yml
-# VERSION: 01.00.00
+# VERSION: 03.01.03
 # BRIEF: GitHub repository settings configuration for merge strategy and PR behavior
 # NOTE: Configures squash merge as the only allowed merge method to maintain clean history
 

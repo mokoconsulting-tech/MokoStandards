@@ -11,7 +11,7 @@ DEFGROUP: MokoStandards.Scripts.Validate
 INGROUP: MokoStandards.Scripts
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 FILE: scripts/validate/check_license_headers.py
-VERSION: 03.01.02
+VERSION: 03.01.03
 BRIEF: Checks and optionally fixes missing or incorrect license headers in source files
 PATH: /scripts/validate/check_license_headers.py
 """

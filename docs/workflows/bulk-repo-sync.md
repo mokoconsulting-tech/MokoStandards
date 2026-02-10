@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Workflow
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/workflows/bulk-repo-sync.md
-VERSION: 03.01.02
+VERSION: 03.01.03
 BRIEF: Comprehensive documentation for the bulk repository sync workflow
 -->
 

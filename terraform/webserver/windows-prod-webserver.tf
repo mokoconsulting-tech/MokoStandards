@@ -7,7 +7,7 @@
 # INGROUP: MokoStandards.Infrastructure
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: terraform/webserver/windows-prod-webserver.tf
-# VERSION: 03.01.02
+# VERSION: 03.01.03
 # BRIEF: Terraform definition for Windows production web server configuration
 
 

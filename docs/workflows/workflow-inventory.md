@@ -8,7 +8,7 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Workflows
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/workflows/workflow-inventory.md
-VERSION: 03.01.02
+VERSION: 03.01.03
 BRIEF: Complete inventory of GitHub Actions workflows for migration planning
 -->
 

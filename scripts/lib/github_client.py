@@ -23,7 +23,7 @@
 # INGROUP: MokoStandards.Library
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # FILE: scripts/lib/github_client.py
-# VERSION: 03.01.02
+# VERSION: 03.01.03
 # BRIEF: Enterprise GitHub API client with rate limiting and retry logic
 # PATH: /scripts/lib/github_client.py
 # NOTE: Wraps GitHub CLI and GraphQL with enterprise features

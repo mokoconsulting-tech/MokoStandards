@@ -24,7 +24,7 @@ DEFGROUP: MokoStandards.Automation
 INGROUP: MokoStandards.Scripts
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /scripts/auto_create_org_projects.py
-VERSION: 03.01.02
+VERSION: 03.01.03
 BRIEF: Automatically create smart GitHub Projects for every organization repository
 """
 

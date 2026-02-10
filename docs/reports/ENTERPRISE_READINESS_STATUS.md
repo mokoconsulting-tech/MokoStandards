@@ -10,7 +10,7 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Status
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/reports/ENTERPRISE_READINESS_STATUS.md
-VERSION: 03.01.02
+VERSION: 03.01.03
 BRIEF: Current status of enterprise readiness implementation
 -->
 

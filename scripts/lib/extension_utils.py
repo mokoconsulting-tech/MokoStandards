@@ -26,7 +26,7 @@ DEFGROUP: Script.Library
 INGROUP: Extension.Utils
 REPO: https://github.com/mokoconsulting-tech/moko-cassiopeia
 PATH: /scripts/lib/extension_utils.py
-VERSION: 03.01.02
+VERSION: 03.01.03
 BRIEF: Platform-aware extension utilities for Joomla and Dolibarr
 """
 

@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Security
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/security/confidentiality-scan.md
-VERSION: 03.01.02
+VERSION: 03.01.03
 BRIEF: Confidentiality scan workflow documentation and usage guide
 -->
 

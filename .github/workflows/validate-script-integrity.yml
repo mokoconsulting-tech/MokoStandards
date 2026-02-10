@@ -5,7 +5,7 @@
 # INGROUP: MokoStandards.Security
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/validate-script-integrity.yml
-# VERSION: 03.01.02
+# VERSION: 03.01.03
 # BRIEF: Validate integrity of all scripts using SHA-256 registry
 # NOTE: Ensures no unauthorized script modifications
 

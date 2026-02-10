@@ -44,6 +44,10 @@
 # Constants
 # ============================================================
 
+# Fallback version if README.md cannot be read
+# NOTE: This must be kept in sync with _FALLBACK_VERSION in common.py
+readonly _FALLBACK_VERSION="03.01.03"
+
 # Extract version from README.md title line
 # Searches for pattern: # MokoStandards (VERSION: XX.YY.ZZ)
 _get_version_from_readme() {
@@ -76,7 +80,7 @@ _get_version_from_readme() {
     fi
     
     # Fallback version
-    echo "03.01.03"
+    echo "$_FALLBACK_VERSION"
 }
 
 # Initialize MOKO_VERSION by reading from README

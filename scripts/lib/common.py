@@ -45,6 +45,7 @@ import sys
 import subprocess
 import tempfile
 import json
+import re
 from pathlib import Path
 from typing import Optional, Union, List, Tuple, Dict, Any
 import shutil
@@ -55,6 +56,9 @@ import shutil
 # Constants
 # ============================================================
 
+# Fallback version if README.md cannot be read
+_FALLBACK_VERSION: str = "03.01.03"
+
 def _get_version_from_readme() -> str:
     """Extract version from README.md title line.
     
@@ -64,7 +68,6 @@ def _get_version_from_readme() -> str:
     Returns:
         Version string (e.g., "03.01.03")
     """
-    import re
     try:
         # Find repo root by looking for .git directory
         current = Path.cwd().resolve()
@@ -83,10 +86,10 @@ def _get_version_from_readme() -> str:
             current = current.parent
         
         # Fallback if version not found
-        return "03.01.03"
+        return _FALLBACK_VERSION
     except Exception:
         # Fallback on any error
-        return "03.01.03"
+        return _FALLBACK_VERSION
 
 # Initialize VERSION by reading from README
 VERSION: str = _get_version_from_readme()

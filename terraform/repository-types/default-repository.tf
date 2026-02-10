@@ -157,6 +157,55 @@ locals {
       }
     }
 
+    logs = {
+      name               = "logs"
+      path               = "logs"
+      description        = "Application and workflow logs"
+      requirement_status = "required"
+      purpose            = "Centralized logging for scripts, automation, and copilot runs"
+      subdirectories = {
+        automation = {
+          name               = "automation"
+          path               = "logs/automation"
+          description        = "Logs from automation scripts"
+          requirement_status = "required"
+          purpose            = "Automation script execution logs"
+        }
+
+        validation = {
+          name               = "validation"
+          path               = "logs/validation"
+          description        = "Logs from validation scripts"
+          requirement_status = "required"
+          purpose            = "Validation script execution logs"
+        }
+
+        release = {
+          name               = "release"
+          path               = "logs/release"
+          description        = "Logs from release processes"
+          requirement_status = "required"
+          purpose            = "Release script execution logs"
+        }
+
+        copilot = {
+          name               = "copilot"
+          path               = "logs/copilot"
+          description        = "Logs from GitHub Copilot agent runs"
+          requirement_status = "required"
+          purpose            = "Copilot agent session logs"
+        }
+
+        maintenance = {
+          name               = "maintenance"
+          path               = "logs/maintenance"
+          description        = "Logs from maintenance scripts"
+          requirement_status = "required"
+          purpose            = "Maintenance script execution logs"
+        }
+      }
+    }
+
     docs = {
       name               = "docs"
       path               = "docs"

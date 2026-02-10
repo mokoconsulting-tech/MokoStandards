@@ -82,6 +82,7 @@ replit.md
 *.zip
 artifacts/
 release/
+!logs/release/
 releases/
 
 # ============================================================
@@ -192,7 +193,10 @@ data/
 cache/
 temp/
 tmp/
-logs/
+logs/*.log
+logs/**/*.log
+!logs/README.md
+!logs/**/.gitkeep
 htdocs/documents/
 htdocs/custom/
 htdocs/cache/

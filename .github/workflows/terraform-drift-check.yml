@@ -7,11 +7,15 @@
 # PATH: /.github/workflows/terraform-drift-check.yml
 # VERSION: 03.01.02
 # BRIEF: Validate Terraform configuration against Python implementations
-# NOTE: Checks for drift between Terraform schemas and actual code
+# NOTE: Checks for drift - runs monthly and on-demand
 
 name: Terraform Drift Check
 
 on:
+  # Run monthly on the 1st at 03:00 UTC
+  schedule:
+    - cron: '0 3 1 * *'  # 1st of each month
+
   pull_request:
     branches:
       - main

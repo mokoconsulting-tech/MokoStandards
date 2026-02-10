@@ -30,7 +30,7 @@
 
 # Fallback version if README.md cannot be read
 # NOTE: This must be kept in sync with _FALLBACK_VERSION in common.py
-readonly _FALLBACK_VERSION="03.01.04"
+readonly _FALLBACK_VERSION="03.01.05"
 
 # Extract version from README.md title line
 # Searches for pattern: # README - <REPO> (VERSION: XX.YY.ZZ)

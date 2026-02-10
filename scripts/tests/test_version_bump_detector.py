@@ -23,7 +23,7 @@
 # INGROUP: MokoStandards.Scripts
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # FILE: scripts/tests/test_version_bump_detector.py
-# VERSION: 03.01.04
+# VERSION: 03.01.05
 # BRIEF: Unit tests for version_bump_detector module
 # PATH: /scripts/tests/test_version_bump_detector.py
 

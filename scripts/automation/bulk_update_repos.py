@@ -24,7 +24,7 @@ DEFGROUP: MokoStandards.Automation
 INGROUP: MokoStandards.Scripts
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /scripts/automation/bulk_update_repos.py
-VERSION: 03.01.04
+VERSION: 03.01.05
 BRIEF: Schema-driven bulk repository sync - Clean v2 implementation
 """
 

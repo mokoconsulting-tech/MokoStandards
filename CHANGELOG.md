@@ -15,13 +15,13 @@
  DEFGROUP: MokoStandards
  INGROUP: MokoStandards.Documentation
  REPO: https://github.com/mokoconsulting-tech/MokoStandards/
- VERSION: 03.01.04
+ VERSION: 03.01.05
  PATH: ./CHANGELOG.md
  BRIEF: Version history using Keep a Changelog
  NOTE: Adheres to SemVer when applicable
  -->
 
-# CHANGELOG - MokoStandards (VERSION: 03.01.04)
+# CHANGELOG - MokoStandards (VERSION: 03.01.05)
 
 All notable changes to this project will be documented in this file.
 
@@ -30,54 +30,105 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [03.01.04] - 2026-02-10
+## [03.01.05] - 2026-02-10
 
 ### Added
+- **Version Bump Detection System**: Enterprise-ready automated version bump detection and application
+  - Added `scripts/lib/version_bump_detector.py` module with semantic versioning logic
+  - Detects version bump type (major/minor/patch) from PR templates and issue types
+  - Breaking change → MAJOR bump, New feature → MINOR bump, Bug fix/Docs/etc → PATCH bump
+  - Comprehensive test suite with 36 unit tests (all passing)
+  - Files: `scripts/lib/version_bump_detector.py`, `scripts/tests/test_version_bump_detector.py`
+
+- **Version Bump Automation Script**: Enterprise-grade CLI tool `scripts/automation/detect_version_bump.py`
+  - Analyzes PR descriptions, checkboxes, and text to determine version bump type
+  - Updates version numbers across all repository files (.md, .py, .sh, .tf, .yml, .json, etc.)
+  - Enterprise features:
+    * Comprehensive audit logging with JSON output (logs/automation/)
+    * Backup and rollback capabilities with transaction-like operations
+    * Configuration file support
+    * Validation and sanity checks (version format, progression)
+    * Detailed error reporting and recovery
+    * Performance metrics and statistics
+    * File integrity validation with SHA-256 hashing
+  - Multiple input sources: file, stdin, text, checkboxes
+  - Dry-run mode to preview changes
+  - JSON output for CI/CD integration
+  - Supports explicit version bump type override
+  - Files: `scripts/automation/detect_version_bump.py`
+
+- **Enterprise Security Features**: Robust error handling and data protection
+  - Automatic file backup before modifications
+  - Rollback on error with full restore capability
+  - File integrity validation before changes
+  - Audit trail with timestamps, file hashes, and event logging
+  - Protection against binary file modification
+  - Skips dependency directories (node_modules, vendor, __pycache__, .venv, .cache)
+  - Files: `scripts/automation/detect_version_bump.py` (AuditLogger, BackupManager, VersionValidator classes)
+
 - **Dynamic Version Management**: Centralized version management with README as single source of truth
   - Added `_get_version_from_readme()` function to `scripts/lib/common.py`
   - Added `_get_version_from_readme()` function to `scripts/lib/common.sh`
   - Added version extraction to `templates/scripts/lib/common.sh` template
   - VERSION constants now dynamically read from `README.md` title line
   - Strict pattern matching (`^# README`) prevents false positives
-  - Fallback to "03.01.04" when README not accessible
+  - Fallback to "03.01.05" when README not accessible
   - Files: `scripts/lib/common.py`, `scripts/lib/common.sh`, `templates/scripts/lib/common.sh`
 
 ### Changed
+- **Version Bump Documentation**: Enhanced automation documentation
+  - Added comprehensive usage examples and integration patterns
+  - Documented enterprise features and security capabilities
+  - Added troubleshooting guide
+  - Included GitHub Actions workflow examples
+  - Files: `scripts/automation/README.md`
+
+- **Datetime Handling**: Updated to use timezone-aware datetime objects
+  - Replaced deprecated `datetime.utcnow()` with `datetime.now(timezone.utc)`
+  - Ensures compliance with Python 3.12+ standards
+  - Files: `scripts/automation/detect_version_bump.py`
+
 - **README Format**: Standardized README title format
   - Updated from `# MokoStandards (VERSION: XX.YY.ZZ)` 
   - To `# README - MokoStandards (VERSION: XX.YY.ZZ)`
   - Provides machine-readable version extraction
   - Files: `README.md`
-- **Version Bump**: Incremented patch version from 03.01.03 to 03.01.04
-  - Updated across all file headers and documentation
-  - Version now managed centrally via README.md
+
 - **Template Updates**: Enhanced build script templates
   - Updated `templates/scripts/lib/common.sh` with version extraction
   - Added comprehensive utility functions matching main common.sh
   - Improved logging functions with emoji support
   - Added error handling and repository utilities
 
-### Documentation
-- **Architecture Documentation**: Updated scripts architecture documentation
-  - Documented dynamic version extraction in `scripts/docs/ARCHITECTURE.md`
-  - Added version management section to File Header Standard
-  - Files: `scripts/docs/ARCHITECTURE.md`
-- **Library Documentation**: Enhanced library documentation
-  - Added Version Management section to `scripts/lib/README.md`
-  - Documented version extraction behavior and fallback mechanism
-  - Files: `scripts/lib/README.md`
-- **Core Structure Policy**: Added README title format requirement
-  - Documented mandatory format in `docs/policy/core-structure.md`
-  - Added validation note explaining consequences of non-compliance
-  - Files: `docs/policy/core-structure.md`
-
 ### Fixed
+- **Pattern Matching**: Fixed "non-breaking" false positive detection
+  - Improved checkbox detection to exclude "non-breaking change" from breaking change matches
+  - Added regex-based validation for breaking change patterns
+  - Fixed test cases for checkbox detection
+  - Files: `scripts/lib/version_bump_detector.py`, `scripts/tests/test_version_bump_detector.py`
+
 - **Version Synchronization**: Eliminated manual version sync between scripts
   - Single source of truth prevents version drift
   - Automatic propagation when README updated
   - No more manual updates needed across multiple files
 
-## [03.01.03] - 2026-02-10
+### Documentation
+- **Architecture Documentation**: Updated scripts architecture documentation
+  - Documented dynamic version extraction in `scripts/docs/ARCHITECTURE.md`
+  - Added version management section to File Header Standard
+  - Files: `scripts/docs/ARCHITECTURE.md`
+
+- **Library Documentation**: Enhanced library documentation
+  - Added Version Management section to `scripts/lib/README.md`
+  - Documented version extraction behavior and fallback mechanism
+  - Files: `scripts/lib/README.md`
+
+- **Core Structure Policy**: Added README title format requirement
+  - Documented mandatory format in `docs/policy/core-structure.md`
+  - Added validation note explaining consequences of non-compliance
+  - Files: `docs/policy/core-structure.md`
+
+## [03.01.04] - 2026-02-10
 
 ### Added
 - **Terraform Repository Management**: Added CodeQL security analysis workflow to repository management

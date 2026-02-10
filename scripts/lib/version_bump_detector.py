@@ -23,7 +23,7 @@
 # INGROUP: MokoStandards.Library
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # FILE: scripts/lib/version_bump_detector.py
-# VERSION: 03.01.04
+# VERSION: 03.01.05
 # BRIEF: Version bump type detection based on change types
 # PATH: /scripts/lib/version_bump_detector.py
 # NOTE: Implements semantic versioning rules for automated version management

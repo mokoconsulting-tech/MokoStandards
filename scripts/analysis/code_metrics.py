@@ -11,7 +11,7 @@ DEFGROUP: MokoStandards.Scripts.Analysis
 INGROUP: MokoStandards.Scripts
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 FILE: scripts/analysis/code_metrics.py
-VERSION: 03.01.04
+VERSION: 03.01.05
 BRIEF: Analyzes code metrics including lines of code, file counts, and language distribution
 PATH: /scripts/analysis/code_metrics.py
 """

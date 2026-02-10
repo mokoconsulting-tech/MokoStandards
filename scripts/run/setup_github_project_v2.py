@@ -23,7 +23,7 @@
 # INGROUP: MokoStandards.Automation
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # FILE: scripts/run/setup_github_project_v2.py
-# VERSION: 03.01.04
+# VERSION: 03.01.05
 # BRIEF: GitHub Project v2 setup automation - creates documentation control register
 # PATH: /scripts/run/setup_github_project_v2.py
 # NOTE: Creates project, custom fields, and populates items from repository scan

@@ -26,7 +26,7 @@ DEFGROUP: Script.Release
 INGROUP: Extension.Packaging
 REPO: https://github.com/mokoconsulting-tech/moko-cassiopeia
 PATH: /scripts/release/package_extension.py
-VERSION: 03.01.04
+VERSION: 03.01.05
 BRIEF: Package Joomla extension as distributable ZIP
 USAGE: ./scripts/release/package_extension.py [output_dir] [version]
 """

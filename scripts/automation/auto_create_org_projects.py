@@ -39,7 +39,11 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 # Import from existing helper modules
-sys.path.insert(0, str(Path(__file__).parent / "lib"))
+sys.path.insert(0, str(Path(__file__).parent.parent / "lib"))
+
+from enterprise_audit import AuditLogger
+from api_client import APIClient
+from metrics_collector import MetricsCollector
 
 try:
     import requests
@@ -79,6 +83,10 @@ class OrgProjectsCreator:
         self.created_projects = []
         self.skipped_repos = []
         self.roadmaps_created = []
+        
+        # Initialize enterprise libraries
+        self.audit_logger = AuditLogger(service='auto_create_org_projects', enable_console=verbose)
+        self.metrics = MetricsCollector(service_name='auto_create_org_projects')
 
     def log_verbose(self, message: str):
         """Print verbose log message."""
@@ -136,6 +144,9 @@ class OrgProjectsCreator:
         """Get all repositories in the organization."""
         print(f"\n🔍 Fetching repositories from {self.org}...")
 
+        with self.audit_logger.transaction('fetch_repositories') as txn:
+            txn.log_event('fetch_start', {'org': self.org})
+
         query = """
         query($org: String!, $cursor: String) {
             organization(login: $org) {
@@ -191,6 +202,16 @@ class OrgProjectsCreator:
         active_repos = [r for r in repositories if not r.get("isArchived", False)]
 
         print(f"✅ Found {len(repositories)} total repositories ({len(active_repos)} active)")
+        
+        with self.audit_logger.transaction('fetch_repositories_complete') as txn:
+            txn.log_event('fetch_complete', {
+                'org': self.org,
+                'total_repos': len(repositories),
+                'active_repos': len(active_repos)
+            })
+        self.metrics.set_gauge('repositories_total', len(repositories))
+        self.metrics.set_gauge('repositories_active', len(active_repos))
+        
         return active_repos
 
     def detect_project_type(self, repo_name: str, default_branch: str = "main") -> str:
@@ -524,6 +545,12 @@ Last Updated: {current_date}
         repo_name = repo["name"]
         print(f"\n📁 Creating project for {repo_name} ({project_type})...")
 
+        with self.audit_logger.transaction('create_project') as txn:
+            txn.log_event('project_creation_start', {
+                'repo': repo_name,
+                'project_type': project_type
+            })
+
         if self.dry_run:
             print(f"  [DRY RUN] Would create {project_type} project for {repo_name}")
             self.created_projects.append(repo_name)
@@ -545,6 +572,7 @@ Last Updated: {current_date}
 
         print(f"  ✅ Project creation queued for {repo_name}")
         self.created_projects.append(repo_name)
+        self.metrics.increment('projects_created')
         return True
 
     def process_repositories(self):

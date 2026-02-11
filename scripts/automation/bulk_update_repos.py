@@ -37,6 +37,14 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any, Set
 
+# Add lib directory to path for enterprise libraries
+sys.path.insert(0, str(Path(__file__).parent.parent / "lib"))
+
+from enterprise_audit import AuditLogger
+from api_client import APIClient
+from error_recovery import CheckpointManager
+from metrics_collector import MetricsCollector
+
 # Default organization
 DEFAULT_ORG = "mokoconsulting-tech"
 
@@ -802,6 +810,11 @@ def update_repository(
 
 def main():
     """Main entry point."""
+    # Initialize enterprise libraries
+    audit_logger = AuditLogger(service='bulk_update_repos', enable_console=False)
+    metrics = MetricsCollector(service_name='bulk_update_repos')
+    checkpoint_mgr = CheckpointManager()
+    
     parser = argparse.ArgumentParser(
         description='Schema-driven bulk repository sync (v2) - Syncs MokoStandards to organization repositories',
         epilog="""
@@ -901,6 +914,14 @@ OVERRIDE FILE PRIORITY:
 
     args = parser.parse_args()
 
+    # Log script start
+    with audit_logger.transaction('bulk_update_start') as txn:
+        txn.log_event('script_started', {
+            'org': args.org,
+            'repos_specified': args.repos or 'all',
+            'dry_run': args.dry_run
+        })
+
     # Check for gh CLI
     success, _, _ = run_command(["gh", "--version"])
     if not success:
@@ -951,28 +972,45 @@ OVERRIDE FILE PRIORITY:
     total_overwritten = 0
 
     for repo in repos:
-        try:
-            success, stats = update_repository(
-                args.org,
-                repo,
-                args.source_dir,
-                args.branch,
-                args.commit_message,
-                args.pr_title,
-                args.pr_body,
-                str(temp_dir),
-                args.dry_run,
-            )
-            if success:
-                success_count += 1
-                all_stats[repo] = stats
-                total_created += stats["files_created"]
-                total_overwritten += stats["files_overwritten"]
-            else:
+        with metrics.timer('repo_update_duration', labels={'repo': repo}):
+            try:
+                with audit_logger.transaction('update_repository') as txn:
+                    txn.log_event('repo_update_start', {'repo': repo, 'org': args.org})
+                    
+                    success, stats = update_repository(
+                        args.org,
+                        repo,
+                        args.source_dir,
+                        args.branch,
+                        args.commit_message,
+                        args.pr_title,
+                        args.pr_body,
+                        str(temp_dir),
+                        args.dry_run,
+                    )
+                    if success:
+                        success_count += 1
+                        all_stats[repo] = stats
+                        total_created += stats["files_created"]
+                        total_overwritten += stats["files_overwritten"]
+                        metrics.increment('repos_updated_success')
+                        txn.log_event('repo_update_success', {
+                            'repo': repo,
+                            'files_created': stats["files_created"],
+                            'files_overwritten': stats["files_overwritten"]
+                        })
+                    else:
+                        failed_repos.append(repo)
+                        metrics.increment('repos_updated_failure')
+                        txn.log_event('repo_update_failure', {'repo': repo})
+            except Exception as e:
+                print(f"Error updating {repo}: {e}", file=sys.stderr)
                 failed_repos.append(repo)
-        except Exception as e:
-            print(f"Error updating {repo}: {e}", file=sys.stderr)
-            failed_repos.append(repo)
+                metrics.increment('repos_updated_error')
+                audit_logger.log_error('repo_update_error', {
+                    'repo': repo,
+                    'error': str(e)
+                })
 
     # Summary
     print(f"\n{'=' * 70}")
@@ -990,6 +1028,20 @@ OVERRIDE FILE PRIORITY:
     
     total_ops = total_created + total_overwritten + total_deleted
     print(f"  - Total operations: {total_ops}")
+
+    # Log completion metrics
+    with audit_logger.transaction('bulk_update_complete') as txn:
+        txn.log_event('script_completed', {
+            'success_count': success_count,
+            'failed_count': len(failed_repos),
+            'total_files_created': total_created,
+            'total_files_overwritten': total_overwritten,
+            'total_operations': total_ops
+        })
+    
+    metrics.set_gauge('repos_total', len(repos))
+    metrics.set_gauge('repos_succeeded', success_count)
+    metrics.set_gauge('repos_failed', len(failed_repos))
 
     if all_stats:
         print(f"\nPer-Repository Details:")

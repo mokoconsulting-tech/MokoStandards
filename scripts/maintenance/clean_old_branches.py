@@ -23,6 +23,12 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List, Optional, Tuple
 
+# Add lib directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent / "lib"))
+
+from enterprise_audit import AuditLogger
+from metrics_collector import MetricsCollector
+
 
 def run_git_command(args: List[str]) -> Optional[str]:
     """
@@ -254,6 +260,10 @@ def main() -> int:
     Returns:
         Exit code (0 for success)
     """
+    # Initialize enterprise libraries
+    audit_logger = AuditLogger(service='clean_old_branches', enable_console=False)
+    metrics = MetricsCollector(service_name='clean_old_branches')
+    
     parser = argparse.ArgumentParser(
         description="Identify and optionally delete old Git branches"
     )
@@ -286,6 +296,15 @@ def main() -> int:
 
     args = parser.parse_args()
 
+    # Log script start
+    with audit_logger.transaction('clean_branches_start') as txn:
+        txn.log_event('script_started', {
+            'days_threshold': args.days,
+            'base_branch': args.base_branch,
+            'delete_merged': args.delete_merged,
+            'delete_all': args.delete_all
+        })
+
     # Verify we're in a git repository
     if not Path(".git").exists():
         print("Error: Not in a git repository", file=sys.stderr)
@@ -295,6 +314,18 @@ def main() -> int:
 
     results = analyze_branches(args.days, args.base_branch)
     print_report(results, args.days)
+    
+    # Log and record metrics
+    metrics.set_gauge('branches_total', results['total_branches'])
+    metrics.set_gauge('branches_old', len(results['old_branches']))
+    metrics.set_gauge('branches_merged', len(results['merged_branches']))
+    
+    with audit_logger.transaction('analysis_complete') as txn:
+        txn.log_event('analysis_results', {
+            'total_branches': results['total_branches'],
+            'old_branches': len(results['old_branches']),
+            'merged_branches': len(results['merged_branches'])
+        })
 
     # Delete branches if requested
     if args.delete_merged or args.delete_all:
@@ -309,11 +340,21 @@ def main() -> int:
             print(f"\n🗑️  DELETING BRANCHES")
             print("-" * 80)
 
+            deleted_count = 0
             for branch in branches_to_delete:
                 if delete_branch(branch, args.force):
                     print(f"✅ Deleted: {branch}")
+                    deleted_count += 1
+                    metrics.increment('branches_deleted')
                 else:
                     print(f"❌ Failed to delete: {branch}")
+                    metrics.increment('branches_delete_failed')
+            
+            with audit_logger.transaction('branches_deleted') as txn:
+                txn.log_event('deletion_complete', {
+                    'deleted_count': deleted_count,
+                    'failed_count': len(branches_to_delete) - deleted_count
+                })
 
             print("\n✅ Branch cleanup complete!")
         else:

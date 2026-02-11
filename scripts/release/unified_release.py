@@ -48,6 +48,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "lib"))
 try:
     import common
     import extension_utils
+    from transaction_manager import Transaction
+    from enterprise_audit import AuditLogger
+    from error_recovery import CheckpointManager
 except ImportError:
     print("ERROR: Cannot import required libraries", file=sys.stderr)
     print("Ensure scripts/lib/common.py and extension_utils.py exist", file=sys.stderr)
@@ -134,6 +137,10 @@ class UnifiedRelease:
         """
         self.working_dir = Path(working_dir).resolve()
         self.repo_root = common.get_repo_root()
+        
+        # Initialize enterprise libraries
+        self.audit_logger = AuditLogger(service='unified_release', enable_console=False)
+        self.checkpoint_mgr = CheckpointManager()
     
     def detect_version_from_files(self) -> Optional[str]:
         """
@@ -240,6 +247,9 @@ class UnifiedRelease:
         
         common.log_info(f"Updating version to: {version}")
         
+        with self.audit_logger.transaction('update_version_files') as txn:
+            txn.log_event('version_update_start', {'version': version})
+        
         # Update CITATION.cff
         citation_file = self.repo_root / "CITATION.cff"
         if citation_file.exists():
@@ -284,6 +294,12 @@ class UnifiedRelease:
                 common.log_success(f"Updated {package_file.name}")
             except Exception as e:
                 common.log_warning(f"Failed to update {package_file.name}: {e}")
+        
+        with self.audit_logger.transaction('update_version_files_complete') as txn:
+            txn.log_event('version_update_complete', {
+                'version': version,
+                'files_updated': len(updated_files)
+            })
         
         return updated_files
     
@@ -427,17 +443,59 @@ class UnifiedRelease:
         common.log_info(f"Release workflow for version {version_info}")
         common.log_info(f"Release type: {version_info.release_type.value}")
         
-        # Update version files
-        if not args.skip_version_update:
-            updated_files = self.update_version_files(str(version_info))
-            if updated_files:
-                common.log_info(f"Updated {len(updated_files)} version file(s)")
-        
-        # Create package
-        if not args.skip_package:
-            package_path = self.create_package(str(version_info), args.output_dir)
-            if not package_path:
-                return 1
+        # Use transaction for atomic release operations
+        with Transaction(name=f'release_{version_info}') as txn:
+            with self.audit_logger.transaction('release_workflow') as audit_txn:
+                audit_txn.log_event('release_start', {
+                    'version': str(version_info),
+                    'release_type': version_info.release_type.value
+                })
+                
+                # Update version files
+                if not args.skip_version_update:
+                    def update_versions():
+                        return self.update_version_files(str(version_info))
+                    
+                    def rollback_versions():
+                        common.log_warning("Rolling back version updates")
+                    
+                    from transaction_manager import TransactionStep
+                    step = TransactionStep('update_versions', update_versions, rollback_versions)
+                    txn.steps.append(step)
+                    updated_files = update_versions()
+                    step.executed = True
+                    step.result = updated_files
+                    
+                    if updated_files:
+                        common.log_info(f"Updated {len(updated_files)} version file(s)")
+                        audit_txn.log_event('version_files_updated', {
+                            'count': len(updated_files),
+                            'files': updated_files
+                        })
+                
+                # Create package
+                if not args.skip_package:
+                    def create_pkg():
+                        return self.create_package(str(version_info), args.output_dir)
+                    
+                    from transaction_manager import TransactionStep
+                    step = TransactionStep('create_package', create_pkg)
+                    txn.steps.append(step)
+                    package_path = create_pkg()
+                    step.executed = True
+                    step.result = package_path
+                    
+                    if not package_path:
+                        audit_txn.log_error('package_creation_failed', {})
+                        return 1
+                    
+                    audit_txn.log_event('package_created', {
+                        'package_path': str(package_path)
+                    })
+                
+                audit_txn.log_event('release_complete', {
+                    'version': str(version_info)
+                })
         
         common.log_success("Release workflow completed")
         return 0

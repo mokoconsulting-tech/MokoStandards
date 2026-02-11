@@ -48,7 +48,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "lib"))
 try:
     import common
     import extension_utils
-    from transaction_manager import Transaction
+    from transaction_manager import Transaction, TransactionStep
     from enterprise_audit import AuditLogger
     from error_recovery import CheckpointManager
 except ImportError:
@@ -250,52 +250,51 @@ class UnifiedRelease:
         with self.audit_logger.transaction('update_version_files') as txn:
             txn.log_event('version_update_start', {'version': version})
         
-        # Update CITATION.cff
-        citation_file = self.repo_root / "CITATION.cff"
-        if citation_file.exists():
-            content = citation_file.read_text()
-            new_content = re.sub(
-                r'^version:.*$',
-                f'version: {version}',
-                content,
-                flags=re.MULTILINE
-            )
-            if content != new_content:
-                citation_file.write_text(new_content)
-                updated_files.append(str(citation_file))
-                common.log_success(f"Updated {citation_file.name}")
-        
-        # Update pyproject.toml
-        pyproject_file = self.repo_root / "pyproject.toml"
-        if pyproject_file.exists():
-            content = pyproject_file.read_text()
-            new_content = re.sub(
-                r'^version\s*=\s*["\'].*["\']',
-                f'version = "{version}"',
-                content,
-                flags=re.MULTILINE
-            )
-            if content != new_content:
-                pyproject_file.write_text(new_content)
-                updated_files.append(str(pyproject_file))
-                common.log_success(f"Updated {pyproject_file.name}")
-        
-        # Update package.json
-        package_file = self.repo_root / "package.json"
-        if package_file.exists():
-            try:
-                with open(package_file) as f:
-                    data = json.load(f)
-                data['version'] = version
-                with open(package_file, 'w') as f:
-                    json.dump(data, f, indent=2)
-                    f.write('\n')
-                updated_files.append(str(package_file))
-                common.log_success(f"Updated {package_file.name}")
-            except Exception as e:
-                common.log_warning(f"Failed to update {package_file.name}: {e}")
-        
-        with self.audit_logger.transaction('update_version_files_complete') as txn:
+            # Update CITATION.cff
+            citation_file = self.repo_root / "CITATION.cff"
+            if citation_file.exists():
+                content = citation_file.read_text()
+                new_content = re.sub(
+                    r'^version:.*$',
+                    f'version: {version}',
+                    content,
+                    flags=re.MULTILINE
+                )
+                if content != new_content:
+                    citation_file.write_text(new_content)
+                    updated_files.append(str(citation_file))
+                    common.log_success(f"Updated {citation_file.name}")
+            
+            # Update pyproject.toml
+            pyproject_file = self.repo_root / "pyproject.toml"
+            if pyproject_file.exists():
+                content = pyproject_file.read_text()
+                new_content = re.sub(
+                    r'^version\s*=\s*["\'].*["\']',
+                    f'version = "{version}"',
+                    content,
+                    flags=re.MULTILINE
+                )
+                if content != new_content:
+                    pyproject_file.write_text(new_content)
+                    updated_files.append(str(pyproject_file))
+                    common.log_success(f"Updated {pyproject_file.name}")
+            
+            # Update package.json
+            package_file = self.repo_root / "package.json"
+            if package_file.exists():
+                try:
+                    with open(package_file) as f:
+                        data = json.load(f)
+                    data['version'] = version
+                    with open(package_file, 'w') as f:
+                        json.dump(data, f, indent=2)
+                        f.write('\n')
+                    updated_files.append(str(package_file))
+                    common.log_success(f"Updated {package_file.name}")
+                except Exception as e:
+                    common.log_warning(f"Failed to update {package_file.name}: {e}")
+            
             txn.log_event('version_update_complete', {
                 'version': version,
                 'files_updated': len(updated_files)
@@ -459,7 +458,6 @@ class UnifiedRelease:
                     def rollback_versions():
                         common.log_warning("Rolling back version updates")
                     
-                    from transaction_manager import TransactionStep
                     step = TransactionStep('update_versions', update_versions, rollback_versions)
                     txn.steps.append(step)
                     updated_files = update_versions()
@@ -478,7 +476,6 @@ class UnifiedRelease:
                     def create_pkg():
                         return self.create_package(str(version_info), args.output_dir)
                     
-                    from transaction_manager import TransactionStep
                     step = TransactionStep('create_package', create_pkg)
                     txn.steps.append(step)
                     package_path = create_pkg()

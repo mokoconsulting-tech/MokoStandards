@@ -60,13 +60,21 @@ import shutil
 _FALLBACK_VERSION: str = "03.02.00"
 
 def _get_version_from_readme() -> str:
-    """Extract version from README.md title line.
+    """Extract version from README.md.
     
-    Searches for the pattern '# README - <REPO> (VERSION: XX.YY.ZZ)' in README.md
-    and extracts the version number. Falls back to _FALLBACK_VERSION if not found.
+    Tries multiple patterns in order of preference:
+    1. Version badge (preferred): MokoStandards-XX.YY.ZZ-color
+    2. Title with version (deprecated): # README - <REPO> (VERSION: XX.YY.ZZ)
+    
+    Falls back to _FALLBACK_VERSION if neither pattern found.
+    Issues deprecation warning if only title version is present.
     
     Returns:
         Version string (e.g., "03.02.00")
+        
+    Note:
+        As of version 03.02.00, version badges are preferred over title versions.
+        Scripts will warn if only title version is found.
     """
     try:
         # Find repo root by looking for .git directory
@@ -76,13 +84,25 @@ def _get_version_from_readme() -> str:
                 readme_path = current / "README.md"
                 if readme_path.exists():
                     with open(readme_path, 'r', encoding='utf-8') as f:
-                        for line in f:
-                            # Look for pattern: # README - <REPO> (VERSION: XX.YY.ZZ)
-                            # More strict: line must start with "# README" and contain VERSION
-                            if line.startswith('# README') and 'VERSION:' in line:
-                                match = re.search(r'VERSION:\s*(\d+\.\d+\.\d+)', line)
-                                if match:
-                                    return match.group(1)
+                        content = f.read()
+                        
+                        # Pattern 1: Version badge (preferred)
+                        # Matches: [![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](...)
+                        badge_match = re.search(r'MokoStandards-(\d+\.\d+\.\d+)-', content)
+                        if badge_match:
+                            return badge_match.group(1)
+                        
+                        # Pattern 2: Title version (deprecated, fallback)
+                        # Matches: # README - RepoName (VERSION: 03.02.00)
+                        title_match = re.search(r'#\s+README.*?\(VERSION:\s*(\d+\.\d+\.\d+)\)', content)
+                        if title_match:
+                            version = title_match.group(1)
+                            # Issue deprecation warning
+                            print(f"⚠️  Version {version} found in README title (deprecated). "
+                                  f"Please add MokoStandards version badge. "
+                                  f"See: docs/guides/version-badge-guide.md",
+                                  file=sys.stderr)
+                            return version
                 break
             current = current.parent
         

@@ -27,6 +27,8 @@ VERSION: 03.01.03
 BRIEF: Architecture plan for splitting public and private repository content
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Repository Split Plan: MokoStandards Public vs Private
 
 ## Overview

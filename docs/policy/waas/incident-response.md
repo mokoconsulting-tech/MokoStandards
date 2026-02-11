@@ -14,6 +14,8 @@
  BRIEF: Policy defining incident classification, response, escalation, and client notification requirements for WaaS operations.
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # MokoStandard: WaaS Incident Response Policy
 
 ## Purpose

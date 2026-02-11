@@ -6,6 +6,8 @@ This file is part of a Moko Consulting project.
 SPDX-License-Identifier: GPL-3.0-or-later
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Technical Terms Glossary
 
 ## Purpose

@@ -14,6 +14,8 @@
  BRIEF: Enterprise governance policy defining content approval, publishing cadence, and authority controls for PerfectPublisher.
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # MokoStandard: PerfectPublisher Content Approval, Cadence, and Publishing Controls Policy
 
 ## Purpose

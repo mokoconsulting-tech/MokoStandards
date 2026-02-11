@@ -1,3 +1,5 @@
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Automation Documentation
 
 Documentation for all automation systems deployed across MokoStandards organization repositories.

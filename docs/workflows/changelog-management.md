@@ -14,6 +14,8 @@
  BRIEF: Documentation for changelog management workflows and scripts
  -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Changelog Management System
 
 This document describes the changelog management system for MokoStandards, including scripts and workflows for maintaining CHANGELOG.md according to [Keep a Changelog](https://keepachangelog.com/) format.

@@ -1,3 +1,5 @@
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # GitHub Workflow Templates Documentation
 
 **Status**: Active | **Version**: 03.00.00 | **Effective**: 2026-01-07

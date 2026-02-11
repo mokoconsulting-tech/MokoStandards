@@ -27,6 +27,8 @@ VERSION: 03.01.03
 BRIEF: Universal coding style standards across all programming languages
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Coding Style Guide
 
 ## Purpose

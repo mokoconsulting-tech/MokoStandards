@@ -27,6 +27,8 @@ VERSION: 03.01.03
 BRIEF: Workflow governance and standards for GitHub Actions
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Workflow Standards Policy
 
 ## Purpose

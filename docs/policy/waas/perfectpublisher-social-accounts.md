@@ -14,6 +14,8 @@
  BRIEF: Enterprise governance policy defining mandatory creation, custody, integration, and audit controls for PerfectPublisher social media accounts.
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # MokoStandard: PerfectPublisher Social Media Account Creation and Governance Policy
 
 ## Purpose

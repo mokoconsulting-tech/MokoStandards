@@ -27,6 +27,8 @@ VERSION: 03.01.03
 BRIEF: Reference documentation for GitHub Copilot prompts stored in private repository
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # GitHub Copilot Prompt Reference for .github-private
 
 ## Overview

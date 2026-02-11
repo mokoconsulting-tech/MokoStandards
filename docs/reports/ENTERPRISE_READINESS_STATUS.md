@@ -14,6 +14,8 @@ VERSION: 03.01.03
 BRIEF: Current status of enterprise readiness implementation
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Enterprise Readiness Status
 
 ## Overview

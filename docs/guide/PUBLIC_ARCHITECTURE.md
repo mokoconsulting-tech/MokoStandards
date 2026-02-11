@@ -1,3 +1,5 @@
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Public Architecture Guide
 
 This document describes the public-facing architecture patterns and best practices used in MokoStandards for building maintainable, scalable open-source projects.

@@ -203,6 +203,8 @@ The `index.html` template must include:
 
 ```html
 <!-- Meta refresh redirect -->
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 <meta http-equiv="refresh" content="0;url=/">
 
 <!-- SEO directives -->

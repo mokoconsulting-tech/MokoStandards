@@ -27,6 +27,8 @@ VERSION: 03.01.03
 BRIEF: Confidentiality scan workflow documentation and usage guide
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Confidentiality Scan
 
 ## Overview

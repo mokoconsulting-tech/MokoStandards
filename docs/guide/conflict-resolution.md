@@ -28,6 +28,8 @@
  PATH: /docs/guide/conflict-resolution.md
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Conflict Resolution Guide
 
 This guide explains how to identify and resolve merge conflicts in pull requests targeting the main branch.

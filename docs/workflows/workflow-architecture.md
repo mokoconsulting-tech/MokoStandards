@@ -27,6 +27,8 @@ VERSION: 03.01.03
 BRIEF: Workflow architecture, hierarchy, and design patterns
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Workflow Architecture
 
 ## Overview

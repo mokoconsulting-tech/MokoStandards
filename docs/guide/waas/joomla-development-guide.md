@@ -27,6 +27,8 @@ VERSION: 03.01.03
 BRIEF: Practical guide for developing custom extensions for Joomla/MokoWaaS
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Joomla Development Guide
 
 ## Overview

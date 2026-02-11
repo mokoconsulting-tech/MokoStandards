@@ -27,6 +27,8 @@ VERSION: 03.02.00
 BRIEF: Standards and requirements for ROADMAP.md files across organization repositories
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # ROADMAP.md Standards
 
 ## Overview

@@ -1,3 +1,5 @@
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 ---
 TITLE: Help Flag Implementation Pattern
 DESCRIPTION: Standard pattern for adding --help documentation flags to all scripts

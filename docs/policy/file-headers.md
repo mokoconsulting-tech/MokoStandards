@@ -19,6 +19,8 @@
  (./LICENSE).
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # File Headers Policy
 
 **Version:** 1.0.0

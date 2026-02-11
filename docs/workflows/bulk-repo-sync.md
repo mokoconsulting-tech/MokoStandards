@@ -27,6 +27,8 @@ VERSION: 03.02.00
 BRIEF: Comprehensive documentation for the bulk repository sync workflow
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Bulk Repository Sync Workflow
 
 **Status**: Active | **Version**: 2.0.0 | **Last Updated**: 2026-02-11

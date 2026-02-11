@@ -27,6 +27,8 @@ VERSION: 03.02.00
 BRIEF: Guide for using MokoStandards.override.tf files to control bulk sync behavior
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Terraform Override Files - Complete Guide
 
 **Version**: 2.0.0  

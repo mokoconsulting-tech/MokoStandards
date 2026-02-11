@@ -14,6 +14,8 @@
  BRIEF: Policy defining waas.demo.mokoconsulting.tech as the mandatory provisioning baseline for new WaaS clients.
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # MokoStandard: WaaS Demo Baseline Policy
 
 ## Purpose

@@ -14,6 +14,8 @@
  BRIEF: Documentation for reusable GitHub Actions workflows
  -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Reusable Workflows
 
 MokoStandards provides seven reusable GitHub Actions workflows that enable consistent CI/CD across all organization repositories, with automatic project type detection for Joomla extensions, Dolibarr modules, and generic applications.

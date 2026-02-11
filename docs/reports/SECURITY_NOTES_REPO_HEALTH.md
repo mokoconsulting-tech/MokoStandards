@@ -1,3 +1,5 @@
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Security Considerations for Repository Health System
 
 This document outlines security considerations and potential improvements for the XML-based repository health system.

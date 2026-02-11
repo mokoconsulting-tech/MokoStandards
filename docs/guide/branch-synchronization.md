@@ -28,6 +28,8 @@
  PATH: /docs/guide/branch-synchronization.md
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Branch Synchronization Guide
 
 This guide explains how to handle the common Git error: "Updates were rejected because the tip of your current branch is behind its remote counterpart."

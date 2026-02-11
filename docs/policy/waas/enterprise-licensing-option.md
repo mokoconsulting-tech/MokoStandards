@@ -14,6 +14,8 @@
  BRIEF: Enterprise option defining enhanced licensing, site key governance, and centralized control for WaaS deployments.
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # MokoStandard: Enterprise Licensing and Site Key Option
 
 ## Purpose

@@ -1,3 +1,5 @@
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 ---
 TITLE: Demo Data Loader
 DESCRIPTION: Comprehensive guide for loading SQL demo data into Joomla/Dolibarr applications

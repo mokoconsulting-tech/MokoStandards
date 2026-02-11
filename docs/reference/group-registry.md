@@ -1,3 +1,5 @@
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # MokoStandards Group Registry
 
 **Purpose**: Official registry of all MokoStandards groups with definitions, purposes, and membership criteria.

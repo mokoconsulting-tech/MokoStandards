@@ -1,3 +1,5 @@
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Demo Tools and Resources
 
 This directory contains tools and documentation for loading demo data into Joomla and Dolibarr applications.

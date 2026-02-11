@@ -27,6 +27,8 @@ VERSION: 03.02.00
 BRIEF: Enterprise guidance for implementation planning and sprint documentation
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Planning Guidance
 
 **Document Type**: Policy  

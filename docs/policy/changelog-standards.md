@@ -14,6 +14,8 @@
  BRIEF: Policy defining changelog format and maintenance standards for MokoStandards repositories.
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # MokoStandards: Changelog Standards Policy
 
 ## Purpose

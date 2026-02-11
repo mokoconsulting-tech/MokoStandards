@@ -1,3 +1,5 @@
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Execution Summaries
 
 **Purpose**: Display execution summaries in job/console output before scripts and workflows exit.

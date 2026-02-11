@@ -1,3 +1,5 @@
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Enterprise Documentation Roadmap
 
 This document outlines the gaps in MokoStandards documentation to achieve enterprise readiness and provides a prioritized roadmap for filling those gaps.

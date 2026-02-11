@@ -1,3 +1,5 @@
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Development Server Deployment
 
 Automated deployment of `src` directory to development server via FTP/SFTP.

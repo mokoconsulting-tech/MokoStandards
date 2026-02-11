@@ -23,18 +23,19 @@ DEFGROUP: MokoStandards.Workflow
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/workflows/bulk-repo-sync.md
-VERSION: 03.01.03
+VERSION: 03.02.00
 BRIEF: Comprehensive documentation for the bulk repository sync workflow
 -->
 
 # Bulk Repository Sync Workflow
 
-**Status**: Active | **Version**: 1.0.0 | **Last Updated**: 2026-02-09
+**Status**: Active | **Version**: 2.0.0 | **Last Updated**: 2026-02-11
 
 ## Table of Contents
 
 - [Overview](#overview)
 - [Quick Start](#quick-start)
+- [Enterprise Features](#enterprise-features)
 - [How It Works](#how-it-works)
 - [Workflow Triggers](#workflow-triggers)
 - [Configuration](#configuration)
@@ -51,12 +52,15 @@ BRIEF: Comprehensive documentation for the bulk repository sync workflow
 
 The **Bulk Repository Sync** workflow is MokoStandards' automated system for deploying and maintaining organizational standards across all repositories in the mokoconsulting-tech organization.
 
+**Version 2.0 Updates**: Enhanced with enterprise libraries for audit logging, metrics collection, API rate limiting, and error recovery.
+
 ### Purpose
 
 - **Consistency**: Ensure all repositories follow MokoStandards conventions
 - **Automation**: Deploy workflows, scripts, and configurations automatically
 - **Maintenance**: Keep repositories up-to-date with latest standards
 - **Compliance**: Enforce organizational coding standards across projects
+- **Observability**: Track operations with audit logs and metrics
 
 ### Key Features
 
@@ -66,12 +70,54 @@ The **Bulk Repository Sync** workflow is MokoStandards' automated system for dep
 ✅ **Override Support**: Respects repository-specific configurations  
 ✅ **Platform Detection**: Automatically detects terraform, dolibarr, joomla, generic projects  
 ✅ **Safe PR Creation**: Creates pull requests instead of direct commits  
+✅ **Enterprise Audit Logging**: All operations logged for compliance  
+✅ **API Rate Limiting**: Intelligent GitHub API usage with circuit breaker  
+✅ **Error Recovery**: Automatic retry with checkpointing  
+✅ **Metrics Collection**: Performance and success metrics tracked
 
 ### Workflow Location
 
 - **File**: `.github/workflows/bulk-repo-sync.yml`
 - **Script**: `scripts/automation/bulk_update_repos.py`
-- **Version**: 2.0 (schema-driven architecture)
+- **Version**: 2.0 (schema-driven architecture with enterprise libraries)
+
+---
+
+## Enterprise Features
+
+### Integrated Enterprise Libraries
+
+The bulk_update_repos.py script now integrates:
+
+1. **Audit Logging** (`enterprise_audit.py`)
+   - Transaction tracking for each repository sync
+   - Security event logging
+   - Compliance reports in `logs/audit/`
+
+2. **API Client** (`api_client.py`)
+   - Rate limiting (5000 requests/hour default)
+   - Exponential backoff retry
+   - Circuit breaker protection
+   - Response caching
+
+3. **Error Recovery** (`error_recovery.py`)
+   - Checkpoint management for batch operations
+   - Automatic state recovery
+   - Transaction rollback on failure
+
+4. **Metrics Collection** (`metrics_collector.py`)
+   - Operation counters and timers
+   - Success/failure rates
+   - Prometheus-compatible export
+
+### Monitoring Workflows
+
+New enterprise monitoring workflows are available:
+- `audit-log-archival.yml` - Weekly audit log processing
+- `metrics-collection.yml` - Daily metrics aggregation  
+- `health-check.yml` - Hourly health monitoring
+- `security-scan.yml` - Enhanced security scanning
+- `integration-tests.yml` - Enterprise library testing
 
 ---
 

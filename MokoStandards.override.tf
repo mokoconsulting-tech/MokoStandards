@@ -22,7 +22,7 @@
 # INGROUP: MokoStandards.Configuration
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /MokoStandards.override.tf
-# VERSION: 03.01.03
+# VERSION: 03.02.00
 # BRIEF: MokoStandards Sync Override Configuration for the Standards Repository
 
 # MokoStandards Repository Override Configuration
@@ -39,8 +39,8 @@ locals {
   override_metadata = {
     name           = "MokoStandards Repository Override"
     description    = "Override configuration preventing sync of template files in the standards repository"
-    version        = "03.01.03"
-    last_updated   = "2026-02-10T21:39:00Z"
+    version        = "03.02.00"
+    last_updated   = "2026-02-11T06:53:00Z"
     maintainer     = "MokoStandards Team"
     schema_version = "2.0"
     repository_url = "https://github.com/mokoconsulting-tech/MokoStandards"
@@ -229,6 +229,27 @@ locals {
     {
       path   = ".github/workflows/enterprise-firewall-setup.yml"
       reason = "MokoStandards-specific workflow"
+    },
+    # Keep new Week 1 enterprise workflows (MokoStandards-specific)
+    {
+      path   = ".github/workflows/audit-log-archival.yml"
+      reason = "MokoStandards-specific enterprise audit workflow"
+    },
+    {
+      path   = ".github/workflows/metrics-collection.yml"
+      reason = "MokoStandards-specific enterprise metrics workflow"
+    },
+    {
+      path   = ".github/workflows/health-check.yml"
+      reason = "MokoStandards-specific enterprise health monitoring workflow"
+    },
+    {
+      path   = ".github/workflows/security-scan.yml"
+      reason = "MokoStandards-specific enhanced security workflow"
+    },
+    {
+      path   = ".github/workflows/integration-tests.yml"
+      reason = "MokoStandards-specific enterprise library integration tests"
     },
   ]
 

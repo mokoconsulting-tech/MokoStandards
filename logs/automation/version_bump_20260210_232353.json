@@ -5,8 +5,8 @@
   "elapsed_seconds": 0.094,
   "status": "success",
   "summary": {
-    "old_version": "03.01.05",
-    "new_version": "03.01.05",
+    "old_version": "03.02.00",
+    "new_version": "03.02.00",
     "bump_type": "patch",
     "files_updated": 59,
     "files_failed": 0,
@@ -18,8 +18,8 @@
       "event_type": "version_update_started",
       "session_id": "20260210_232353",
       "details": {
-        "old_version": "03.01.05",
-        "new_version": "03.01.05",
+        "old_version": "03.02.00",
+        "new_version": "03.02.00",
         "dry_run": true
       }
     },

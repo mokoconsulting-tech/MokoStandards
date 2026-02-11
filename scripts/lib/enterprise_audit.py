@@ -10,7 +10,7 @@ This module provides enterprise-grade audit logging capabilities with:
 - Compliance reporting capabilities
 
 File: scripts/lib/enterprise_audit.py
-Version: 03.01.05
+Version: 03.02.00
 Classification: EnterpriseLibrary
 Author: MokoStandards Team
 Copyright: (C) 2026 Moko Consulting LLC. All rights reserved.
@@ -31,7 +31,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
 # Version constant
-VERSION = "03.01.05"
+VERSION = "03.02.00"
 
 
 class AuditLogger:

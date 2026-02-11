@@ -12,7 +12,7 @@ Provides rich terminal output including:
 
 FILE: scripts/lib/visual_helper.py
 AUTHOR: Moko Consulting <hello@mokoconsulting.tech>
-VERSION: 03.01.05
+VERSION: 03.02.00
 LICENSE: GPL-3.0-or-later
 """
 

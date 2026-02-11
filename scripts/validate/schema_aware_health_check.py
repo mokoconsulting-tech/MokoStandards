@@ -11,7 +11,7 @@ DEFGROUP: MokoStandards.Scripts
 INGROUP: MokoStandards.Validation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /scripts/validate/schema_aware_health_check.py
-VERSION: 03.01.05
+VERSION: 03.02.00
 BRIEF: Schema-aware repository health checker that uses repository structure schema
 
 DESCRIPTION:

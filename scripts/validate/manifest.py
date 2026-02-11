@@ -26,7 +26,7 @@ DEFGROUP: Moko-Cassiopeia.Scripts
 INGROUP: Scripts.Validate
 REPO: https://github.com/mokoconsulting-tech/moko-cassiopeia
 PATH: /scripts/validate/manifest.py
-VERSION: 03.01.05
+VERSION: 03.02.00
 BRIEF: Validate Joomla extension manifest files
 """
 

@@ -3,7 +3,7 @@
 Configuration Manager - Centralized, environment-aware configuration.
 
 File: scripts/lib/config_manager.py
-Version: 03.01.05
+Version: 03.02.00
 Classification: EnterpriseLibrary
 Author: MokoStandards Team
 Copyright: (C) 2026 Moko Consulting LLC. All rights reserved.
@@ -17,7 +17,7 @@ import os
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-VERSION = "03.01.05"
+VERSION = "03.02.00"
 
 
 class ConfigValidationError(Exception):

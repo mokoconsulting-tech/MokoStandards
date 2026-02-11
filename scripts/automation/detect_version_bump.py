@@ -23,7 +23,7 @@
 # INGROUP: MokoStandards.Automation
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # FILE: scripts/automation/detect_version_bump.py
-# VERSION: 03.01.05
+# VERSION: 03.02.00
 # BRIEF: Detect version bump type and optionally update version across all files
 # PATH: /scripts/automation/detect_version_bump.py
 # NOTE: Analyzes PR/issue templates to determine semantic version bump type
@@ -369,7 +369,7 @@ class VersionManager:
 		Get current version from README.md.
 		
 		Returns:
-			Current version string (e.g., "03.01.05")
+			Current version string (e.g., "03.02.00")
 		"""
 		readme_path = self.repo_root / "README.md"
 		if not readme_path.exists():
@@ -418,7 +418,7 @@ class VersionManager:
 		else:  # PATCH
 			patch += 1
 		
-		# Format with leading zeros to match existing style (e.g., 03.01.05)
+		# Format with leading zeros to match existing style (e.g., 03.02.00)
 		return f"{major:02d}.{minor:02d}.{patch:02d}"
 	
 	def update_version_in_files(self, old_version: str, new_version: str, dry_run: bool = False) -> Dict[str, Any]:

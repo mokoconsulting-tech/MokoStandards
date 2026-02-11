@@ -24,7 +24,7 @@ DEFGROUP: MokoStandards.Automation
 INGROUP: MokoStandards.Scripts
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /scripts/create_repo_project.py
-VERSION: 03.01.05
+VERSION: 03.02.00
 BRIEF: Create a smart GitHub Project for a specific repository
 """
 

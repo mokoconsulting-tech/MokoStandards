@@ -6,7 +6,7 @@
   "status": "success",
   "summary": {
     "old_version": "03.01.04",
-    "new_version": "03.01.05",
+    "new_version": "03.02.00",
     "bump_type": "patch",
     "files_updated": 60,
     "files_failed": 0,
@@ -19,7 +19,7 @@
       "session_id": "20260210_232413",
       "details": {
         "old_version": "03.01.04",
-        "new_version": "03.01.05",
+        "new_version": "03.02.00",
         "dry_run": false
       }
     },

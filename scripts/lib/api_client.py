@@ -11,7 +11,7 @@ This module provides enterprise-grade API client capabilities with:
 - Health monitoring
 
 File: scripts/lib/api_client.py
-Version: 03.01.05
+Version: 03.02.00
 Classification: EnterpriseLibrary
 Author: MokoStandards Team
 Copyright: (C) 2026 Moko Consulting LLC. All rights reserved.
@@ -34,7 +34,7 @@ from urllib.parse import urlencode, urlparse
 from urllib.request import Request, urlopen
 
 # Version constant
-VERSION = "03.01.05"
+VERSION = "03.02.00"
 
 
 class CircuitState(Enum):

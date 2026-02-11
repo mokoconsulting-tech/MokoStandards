@@ -31,7 +31,7 @@
 
 ![Moko Consulting](https://mokoconsulting.tech/images/branding/logo.png)
 
-# README - MokoStandards (VERSION: 03.01.05)
+# README - MokoStandards (VERSION: 03.02.00)
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Policy Documents](https://img.shields.io/badge/Policy_Documents-77-orange.svg)](./docs/policy)

@@ -227,10 +227,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Observability**: Full audit trail and metrics
 - **Reliability**: Automatic retry and recovery
 - **Consistency**: Standard CLI across all scripts
-- ⏳ Input Validation Library (Week 3)
-- ⏳ Metrics Exporter (Week 4)
-- ⏳ Transaction Logger (Week 4)
-- ⏳ Security Hardening Module (Week 4)
 
 ## [03.02.00] - 2026-02-10
 

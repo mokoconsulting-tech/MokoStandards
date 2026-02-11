@@ -68,10 +68,26 @@ class ValidationPlugin(ABC):
         """Perform validation.
         
         Args:
-            context: Validation context with data to validate
+            context: Validation context with data to validate.
+                    Different plugins expect different keys:
+                    - PathValidator: 'paths' (list of paths)
+                    - MarkdownValidator: 'markdown_files' (list of file paths)
+                    - LicenseValidator: 'source_files' (list), 'copyright_year' (str)
+                    - WorkflowValidator: 'workflow_dir' (str path)
+                    - SecurityValidator: 'scan_dir' (str path)
+                    
+                    Example context:
+                    {
+                        'paths': ['/tmp', '/usr'],
+                        'markdown_files': ['README.md'],
+                        'source_files': ['script.py'],
+                        'copyright_year': '2026',
+                        'workflow_dir': '.github/workflows',
+                        'scan_dir': 'scripts'
+                    }
             
         Returns:
-            ValidationResult
+            ValidationResult indicating pass/fail with details
         """
         pass
     

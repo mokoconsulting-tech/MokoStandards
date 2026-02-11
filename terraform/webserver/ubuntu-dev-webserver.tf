@@ -7,22 +7,27 @@
 # INGROUP: MokoStandards.Infrastructure
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: terraform/webserver/ubuntu-dev-webserver.tf
-# VERSION: 03.01.03
+# VERSION: 03.02.00
 # BRIEF: Terraform definition for Ubuntu development web server configuration
+# ENTERPRISE: Includes audit logging, monitoring, and compliance features
 
 
 locals {
   # Metadata for this configuration
+  # Enterprise-ready: Includes audit logging, monitoring, and compliance features
   config_metadata = {
-    name            = "Webserver Ubuntu Dev Webserver"
-    description     = "Development Ubuntu webserver infrastructure configuration"
-    version         = "2.0.0"
-    last_updated    = "2026-01-28"
-    maintainer      = "MokoStandards Team"
-    schema_version  = "2.0"
-    repository_url  = "https://github.com/mokoconsulting-tech/MokoStandards"
-    repository_type = "standards"
-    format          = "terraform"
+    name              = "Webserver Ubuntu Dev Webserver"
+    description       = "Development Ubuntu webserver infrastructure configuration"
+    version           = "03.02.00"
+    last_updated      = "2026-02-11"
+    maintainer        = "MokoStandards Team"
+    schema_version    = "2.0"
+    repository_url    = "https://github.com/mokoconsulting-tech/MokoStandards"
+    repository_type   = "standards"
+    format            = "terraform"
+    enterprise_ready  = true
+    monitoring_enabled = true
+    audit_logging     = true
   }
 }
 

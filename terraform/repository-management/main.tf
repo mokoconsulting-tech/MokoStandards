@@ -5,16 +5,20 @@
 
 locals {
   # Metadata for this configuration
+  # Enterprise-ready: Includes audit logging, monitoring, and compliance features
   config_metadata = {
-    name            = "Repository Management Main"
-    description     = "Repository template management and bulk operations configuration"
-    version         = "2.0.0"
-    last_updated    = "2026-01-28"
-    maintainer      = "MokoStandards Team"
-    schema_version  = "2.0"
-    repository_url  = "https://github.com/mokoconsulting-tech/MokoStandards"
-    repository_type = "standards"
-    format          = "terraform"
+    name              = "Repository Management Main"
+    description       = "Repository template management and bulk operations configuration"
+    version           = "03.02.00"
+    last_updated      = "2026-02-11"
+    maintainer        = "MokoStandards Team"
+    schema_version    = "2.0"
+    repository_url    = "https://github.com/mokoconsulting-tech/MokoStandards"
+    repository_type   = "standards"
+    format            = "terraform"
+    enterprise_ready  = true
+    monitoring_enabled = true
+    audit_logging     = true
   }
 }
 
@@ -97,6 +101,22 @@ locals {
 		".github/workflows/code-quality.yml" = {
 			generic   = "../../templates/workflows/generic/code-quality.yml"
 			terraform = "../../templates/workflows/generic/code-quality.yml"
+		}
+		# Enterprise workflow distributions for audit, metrics, and health monitoring
+		".github/workflows/audit-log-archival.yml" = {
+			all = "../../templates/workflows/audit-log-archival.yml"
+		}
+		".github/workflows/metrics-collection.yml" = {
+			all = "../../templates/workflows/metrics-collection.yml"
+		}
+		".github/workflows/health-check.yml" = {
+			all = "../../templates/workflows/health-check.yml"
+		}
+		".github/workflows/security-scan.yml" = {
+			all = "../../templates/workflows/security-scan.yml"
+		}
+		".github/workflows/integration-tests.yml" = {
+			all = "../../templates/workflows/integration-tests.yml"
 		}
 		# Version management scripts - required in all repositories
 		"scripts/lib/version_bump_detector.py" = {

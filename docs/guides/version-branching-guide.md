@@ -79,12 +79,18 @@ version/02.05.03  ← Old major version
 
 ### Required: Version Bumps
 
-**Always create a version branch when**:
+**Always create a version branch AND release when**:
 - Bumping MAJOR version (breaking changes)
 - Bumping MINOR version (new features)
 - Releasing a version to production
 
-**Example - MINOR Bump**:
+**Process includes**:
+1. Create version branch (e.g., `version/03.02.00`)
+2. Create GitHub release (e.g., `v03.02.00`)
+3. Generate release notes from CHANGELOG
+4. Bump version on main
+
+**Example - MINOR Bump with Release**:
 ```bash
 # Current: main at 03.02.00
 # Bumping to: 03.03.00
@@ -94,11 +100,21 @@ git checkout main
 git checkout -b version/03.02.00
 git push origin version/03.02.00
 
-# Step 2: Bump version on main
+# Step 2: Create GitHub release for old version
+gh release create v03.02.00 \
+  --title "Release 03.02.00" \
+  --notes-file CHANGELOG.md \
+  --target version/03.02.00
+
+# Step 3: Return to main and bump version
 git checkout main
 # Update version to 03.03.00 in files
 git commit -m "Bump version to 03.03.00"
 git push origin main
+
+# Step 4: Create tag for new version (optional, release later)
+git tag v03.03.00
+git push origin v03.03.00
 ```
 
 ### Optional: PATCH Bumps
@@ -119,20 +135,22 @@ git push origin main
 **Using version bump scripts**:
 
 ```bash
-# Script automatically creates version branch
+# Script automatically creates version branch AND release
 ./scripts/maintenance/release_version.py --version 03.03.00
 
 # Script will:
 # 1. Validate current version
 # 2. Create version/03.02.00 branch
 # 3. Push version branch
-# 4. Update version to 03.03.00
-# 5. Commit and push to main
+# 4. Create GitHub release v03.02.00 with notes
+# 5. Update version to 03.03.00 on main
+# 6. Commit and push to main
+# 7. Create tag v03.03.00
 ```
 
 ### Manual Process
 
-**Step-by-step manual creation**:
+**Step-by-step manual creation with release**:
 
 ```bash
 # 1. Ensure you're on main with latest changes
@@ -149,20 +167,27 @@ git checkout -b version/03.02.00
 # 4. Push version branch
 git push origin version/03.02.00
 
-# 5. Return to main
+# 5. Create GitHub release for the old version
+gh release create v03.02.00 \
+  --title "Release 03.02.00 - Enterprise Transformation Complete" \
+  --notes "$(./scripts/maintenance/generate_release_notes.sh 03.02.00)" \
+  --target version/03.02.00 \
+  --latest
+
+# 6. Return to main
 git checkout main
 
-# 6. Update version to new number
+# 7. Update version to new number
 # Edit README.md, update badge: 03.02.00 → 03.03.00
 # Edit CHANGELOG.md, add entry for 03.03.00
 # Update any other version references
 
-# 7. Commit version bump
+# 8. Commit version bump
 git add .
 git commit -m "Bump version to 03.03.00"
 git push origin main
 
-# 8. Tag the new version (optional but recommended)
+# 9. Tag the new version (release created later when ready)
 git tag v03.03.00
 git push origin v03.03.00
 ```
@@ -291,22 +316,28 @@ v03.00.10
 
 ### Script Integration
 
-**Version bump detector** automatically creates branches:
+**Version bump detector** automatically creates branches and releases:
 
 ```python
 # In scripts/maintenance/release_version.py
 
 def bump_version(old_version, new_version):
-    """Bump version and create version branch."""
+    """Bump version, create version branch, and publish release."""
     
     # 1. Create version branch for old version
     create_version_branch(old_version)
     
-    # 2. Update version to new number
+    # 2. Create GitHub release for old version
+    create_github_release(old_version)
+    
+    # 3. Update version to new number
     update_version_in_files(new_version)
     
-    # 3. Commit and push
+    # 4. Commit and push
     commit_and_push(f"Bump version to {new_version}")
+    
+    # 5. Create tag for new version
+    create_version_tag(new_version)
     
 def create_version_branch(version):
     """Create and push version branch."""
@@ -320,14 +351,30 @@ def create_version_branch(version):
     
     # Return to main
     subprocess.run(['git', 'checkout', 'main'])
+
+def create_github_release(version):
+    """Create GitHub release with changelog notes."""
+    tag_name = f"v{version}"
+    
+    # Extract release notes from CHANGELOG
+    release_notes = extract_changelog_for_version(version)
+    
+    # Create release via GitHub CLI
+    subprocess.run([
+        'gh', 'release', 'create', tag_name,
+        '--title', f'Release {version}',
+        '--notes', release_notes,
+        '--target', f'version/{version}',
+        '--latest'
+    ])
 ```
 
 ### CI/CD Integration
 
-**GitHub Actions workflow** example:
+**GitHub Actions workflow** example for automatic release:
 
 ```yaml
-name: Create Version Branch
+name: Create Version Branch and Release
 
 on:
   push:
@@ -335,8 +382,11 @@ on:
       - 'v*.*.*'
 
 jobs:
-  create-branch:
+  create-branch-and-release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      
     steps:
       - uses: actions/checkout@v4
         with:
@@ -353,6 +403,26 @@ jobs:
           BRANCH=version/${{ steps.version.outputs.version }}
           git checkout -b $BRANCH
           git push origin $BRANCH
+      
+      - name: Generate release notes
+        id: notes
+        run: |
+          # Extract from CHANGELOG.md
+          NOTES=$(./scripts/maintenance/generate_release_notes.sh ${{ steps.version.outputs.version }})
+          echo "notes<<EOF" >> $GITHUB_OUTPUT
+          echo "$NOTES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          release_name: Release ${{ steps.version.outputs.version }}
+          body: ${{ steps.notes.outputs.notes }}
+          draft: false
+          prerelease: false
 ```
 
 ## Best Practices
@@ -360,23 +430,111 @@ jobs:
 ### Do's
 
 - ✅ Create version branch BEFORE bumping version
-- ✅ Use consistent naming (version/XX.YY.ZZ)
+- ✅ Create GitHub release for the old version
+- ✅ Use consistent naming (version/XX.YY.ZZ, vXX.YY.ZZ)
+- ✅ Generate release notes from CHANGELOG
 - ✅ Protect version branches from direct pushes
 - ✅ Document which versions are LTS
 - ✅ Keep tags even if deleting old branches
+- ✅ Include artifacts in releases (if applicable)
 - ✅ Test hotfixes thoroughly before merging
 - ✅ Cherry-pick fixes to main when applicable
 
 ### Don'ts
 
 - ❌ Don't create version branch after version bump
+- ❌ Don't skip creating GitHub release
 - ❌ Don't use inconsistent naming
+- ❌ Don't create releases without release notes
 - ❌ Don't push directly to version branches
 - ❌ Don't delete version branches without documentation
 - ❌ Don't apply non-critical changes to old versions
 - ❌ Don't forget to cherry-pick fixes to main
 
-## Version Branch Management
+## GitHub Releases
+
+### Release Creation
+
+**Every version branch should have a corresponding GitHub release**:
+
+- **Tag**: `vXX.YY.ZZ` (e.g., `v03.02.00`)
+- **Target**: Version branch (e.g., `version/03.02.00`)
+- **Title**: "Release XX.YY.ZZ" or descriptive title
+- **Notes**: Generated from CHANGELOG.md
+- **Assets**: Include build artifacts if applicable
+
+### Release Notes
+
+**Automatically generate from CHANGELOG**:
+
+```bash
+# Extract version section from CHANGELOG.md
+./scripts/maintenance/generate_release_notes.sh 03.02.00
+```
+
+**Manual creation**:
+
+```markdown
+## What's New in 03.02.00
+
+### New Features
+- Enterprise audit library with transaction tracking
+- API client with rate limiting and circuit breaker
+- 8 new enterprise libraries total
+
+### Improvements
+- Enhanced version detection (badge-first)
+- Two-tier roadmap structure
+- Complete policy framework
+
+### Bug Fixes
+- None (new features only)
+
+### Breaking Changes
+- None (fully backward compatible)
+
+**Full Changelog**: https://github.com/org/repo/compare/v03.01.05...v03.02.00
+```
+
+### Release Assets
+
+**Include artifacts when applicable**:
+- Compiled binaries
+- Distribution packages
+- Documentation archives
+- Source code (automatic)
+
+**Example**:
+```bash
+gh release create v03.02.00 \
+  --title "Release 03.02.00 - Enterprise Libraries" \
+  --notes-file release_notes.md \
+  --target version/03.02.00 \
+  dist/*.tar.gz \
+  dist/*.zip
+```
+
+### Release Management
+
+**List releases**:
+```bash
+gh release list
+```
+
+**View release details**:
+```bash
+gh release view v03.02.00
+```
+
+**Edit release**:
+```bash
+gh release edit v03.02.00 --notes "Updated notes"
+```
+
+**Delete release** (use with caution):
+```bash
+gh release delete v03.02.00
+```
 
 ### List All Version Branches
 

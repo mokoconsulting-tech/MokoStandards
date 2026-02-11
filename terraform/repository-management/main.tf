@@ -148,6 +148,17 @@ locals {
 		"scripts/release/package_extension.py" = {
 			all = "../../scripts/release/package_extension.py"
 		}
+		# Terraform installation scripts - required in all repositories for IaC capabilities
+		"scripts/automation/install_terraform.sh" = {
+			all = "../../scripts/automation/install_terraform.sh"
+		}
+		"scripts/automation/install_terraform.py" = {
+			all = "../../scripts/automation/install_terraform.py"
+		}
+		# Terraform setup workflow - reusable workflow for Terraform operations
+		".github/workflows/terraform-setup.yml" = {
+			all = "../../.github/workflows/terraform-setup.yml"
+		}
 		".github/workflows/codeql-analysis.yml" = {
 			all = "../../templates/workflows/codeql-analysis.yml.template"
 		}

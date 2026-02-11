@@ -31,9 +31,10 @@
 
 ![Moko Consulting](https://mokoconsulting.tech/images/branding/logo.png)
 
-# README - MokoStandards (VERSION: 03.01.04)
+# README - MokoStandards
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 [![Policy Documents](https://img.shields.io/badge/Policy_Documents-77-orange.svg)](./docs/policy)
 [![Python Scripts](https://img.shields.io/badge/Python_Scripts-67-green.svg)](./scripts)
 [![PowerShell Scripts](https://img.shields.io/badge/PowerShell_Scripts-13-blue.svg)](./scripts)

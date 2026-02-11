@@ -85,3 +85,61 @@ Enterprise-grade utility that distributes a selected source file across a contro
 - Supports "Yes to All" confirmation and hidden folder control
 - See [guide-file-distributor.md](../../docs/scripts/automation/guide-file-distributor.md) for details
 
+
+### detect_version_bump.py
+Detect semantic version bump type from PR/issue templates and optionally update version numbers across all repository files.
+
+**Version Bump Rules:**
+- **Breaking change** → MAJOR version bump (X.y.z)
+- **New feature** → MINOR version bump (x.Y.z)
+- **Bug fix, Documentation, Performance, Refactoring, Dependency, Security** → PATCH version bump (x.y.Z)
+
+**Usage:**
+```bash
+# Detect from PR template file
+./scripts/automation/detect_version_bump.py --file pr_description.md
+
+# Detect from text
+./scripts/automation/detect_version_bump.py --text "Added new feature"
+
+# Detect from checkboxes
+./scripts/automation/detect_version_bump.py --checkboxes "- [x] New feature"
+
+# Apply detected version bump (updates all files in repository)
+./scripts/automation/detect_version_bump.py --file pr.md --apply
+
+# Dry run to preview changes
+./scripts/automation/detect_version_bump.py --file pr.md --apply --dry-run
+
+# Apply specific bump type
+./scripts/automation/detect_version_bump.py --apply --bump-type minor
+
+# JSON output for CI/CD integration
+./scripts/automation/detect_version_bump.py --text "Bug fix" --json
+```
+
+**Features:**
+- Analyzes PR descriptions and issue templates
+- Follows semantic versioning principles
+- Updates version numbers in all relevant files (.md, .py, .sh, .tf, .yml, .json, etc.)
+- Supports dry-run mode
+- JSON output for automation
+- Excludes binary files and dependency directories
+
+**Files Updated:**
+- Markdown files (README, CHANGELOG, docs)
+- Python scripts (headers, version constants)
+- Shell scripts (headers)
+- Terraform files
+- YAML workflows and configs
+- JSON config files
+- Other text files (.txt, .cff, .toml)
+
+See the [version_bump_detector.py library](../lib/version_bump_detector.py) for the detection logic and API.
+
+**Testing:**
+```bash
+# Run tests
+python3 -m unittest scripts/tests/test_version_bump_detector.py -v
+```
+

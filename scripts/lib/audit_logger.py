@@ -23,7 +23,7 @@
 # INGROUP: MokoStandards.Library
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # FILE: scripts/lib/audit_logger.py
-# VERSION: 03.01.04
+# VERSION: 03.02.00
 # BRIEF: Enterprise audit trail system for MokoStandards scripts
 # PATH: /scripts/lib/audit_logger.py
 # NOTE: Provides structured logging with transaction tracking and SIEM integration

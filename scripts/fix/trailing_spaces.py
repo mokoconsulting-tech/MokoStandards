@@ -26,7 +26,7 @@ DEFGROUP: Script.Fix
 INGROUP: Code.Quality
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /scripts/fix/trailing_spaces.py
-VERSION: 03.01.04
+VERSION: 03.02.00
 BRIEF: Remove trailing whitespace from files
 NOTE: MokoStandards Policy - File formatting: Enforces organizational coding standards
 

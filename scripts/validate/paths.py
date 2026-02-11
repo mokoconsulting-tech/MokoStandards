@@ -26,7 +26,7 @@ DEFGROUP: Script.Validate
 INGROUP: Path.Normalization
 REPO: https://github.com/mokoconsulting-tech/moko-cassiopeia
 PATH: /scripts/validate/paths.py
-VERSION: 03.01.04
+VERSION: 03.02.00
 BRIEF: Detect Windows-style path separators (backslashes)
 NOTE: Ensures cross-platform path compatibility
 """

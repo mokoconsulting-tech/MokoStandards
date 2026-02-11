@@ -24,7 +24,7 @@ DEFGROUP: MokoStandards.Scripts
 INGROUP: MokoStandards.Dolibarr
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /scripts/automation/sync_dolibarr_changelog.py
-VERSION: 03.01.04
+VERSION: 03.02.00
 BRIEF: Synchronizes CHANGELOG.md from root to src/ChangeLog for Dolibarr modules
 
 DESCRIPTION:

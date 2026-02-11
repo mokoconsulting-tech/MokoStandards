@@ -26,7 +26,7 @@ DEFGROUP: Script.Validate
 INGROUP: Code.Quality
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /scripts/validate/tabs.py
-VERSION: 03.01.04
+VERSION: 03.02.00
 BRIEF: Detect TAB characters in files where spaces are required
 NOTE: Enforces MokoStandards indentation policy - tabs by default, spaces for specific languages
 """

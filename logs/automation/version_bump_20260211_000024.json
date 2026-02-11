@@ -1,0 +1,749 @@
+{
+  "session_id": "20260211_000024",
+  "start_time": "2026-02-11T00:00:24.639853Z",
+  "end_time": "2026-02-11T00:00:24.724443+00:00Z",
+  "elapsed_seconds": 0.085,
+  "status": "success",
+  "summary": {
+    "old_version": "03.01.05",
+    "new_version": "03.02.00",
+    "bump_type": "minor",
+    "files_updated": 64,
+    "files_failed": 0,
+    "dry_run": false
+  },
+  "events": [
+    {
+      "timestamp": "2026-02-11T00:00:24.640116+00:00Z",
+      "event_type": "version_update_started",
+      "session_id": "20260211_000024",
+      "details": {
+        "old_version": "03.01.05",
+        "new_version": "03.02.00",
+        "dry_run": false
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.674825+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/CHANGELOG.md",
+        "old_hash": "f6edb4036840d5d76c5b3c3d0387c95c56610e36e5368e95970a59c383e52951",
+        "new_hash": "bc4be74c3d6e75e1071c77c201e134b47eeb3b9cced16bbc7dd79e4a2b60d72e"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.675499+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/CONTRIBUTING.md",
+        "old_hash": "848492dbdd27b2f11e8ea575bb756fcb734eb6af9d797f41f45b7410688bb1a6",
+        "new_hash": "c9d3f77a00629d350a4d329e488968abdcca6cae384401068d8ed4d0a34c774b"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.675955+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/README.md",
+        "old_hash": "f6be50e0889c30dc98b837ec2cd7358dd9f10849b058c69c8b238ced1ddcc578",
+        "new_hash": "1f2f598a1f22916a523ce466649b1182a43625be7ba794ba25b82e8d2971e50b"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.687574+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/logs/automation/version_bump_20260210_232353.json",
+        "old_hash": "51ad2b3539a31e94e435dbcde3b621eadcce9448d6d079facf31437360a9b43d",
+        "new_hash": "388217039afd54c997c3441806dd9a6b65673f095b8183022e5ba5a922a083dd"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.688091+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/logs/automation/version_bump_20260210_232413.json",
+        "old_hash": "bb4eff1665cfd3debdc8162bcdd55f0d7805abb5e016b90b2fdf1398d4e1769e",
+        "new_hash": "7b1986de3fd4cb695d12b75f470b8edb98cf17fd36d03680d3d247a0cea284b3"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.688839+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/analysis/analyze_dependencies.py",
+        "old_hash": "fcbf2c1e4e1687c9a51073ddaae2efa9af30a659cb4adc6e2ff1d5e315220e92",
+        "new_hash": "d5b517a85f67d95c066ddffac3526c0e95131c5d7c4a58a5d91ad3b7c13adb46"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.689341+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/analysis/code_metrics.py",
+        "old_hash": "10c0a424cb08181489d49c01878d188ec62293ce4289ee9187b113db9b131a17",
+        "new_hash": "6891f9ce712b4234627ea2e272cdfaa3e59b2d3496bd3c228cc352d0e17f4e98"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.690152+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/automation/auto_create_org_projects.py",
+        "old_hash": "6b0dfbc5d956f06e996c5fd73244853a2e82a1fd1ddb4d6c13ca97fb16626739",
+        "new_hash": "7619c1ffde67dbc5e9b4a585fc4dbaed5d7d8cc6b15809943d37c41e6dfec695"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.690880+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/automation/bulk_update_repos.py",
+        "old_hash": "5405129103525a6a48a09c2e906b350c66f6fa107bbb0fccdaf497d797a67096",
+        "new_hash": "d826c133e9ff447526c3d439bbcd55296a5b0061d3695b8a62045d1e174dff6d"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.691331+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/automation/check_outdated_actions.py",
+        "old_hash": "68f4338b93eebcf4d2470fa8cebd8e0f43f8fc3cd6b46d627df371cbf14c975a",
+        "new_hash": "785220b6540c0b1a64604b0787411c101e7216ab2e98b2530750f85b27d1837e"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.691764+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/automation/create_repo_project.py",
+        "old_hash": "b329c9f7461ef5bfbc4770a4bd5c79d2904ead0d1472a46d7c538ff97aaf7cbc",
+        "new_hash": "24db639613d76bcc582425eeccad8cf19156db95361e4e4b33393723a00a8607"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.692256+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/automation/detect_version_bump.py",
+        "old_hash": "8782e3e084dcdc829468f36ba79b63b6e5c602cdecd3da923957e5b2b2f41880",
+        "new_hash": "729a06cd4024647f5ee4d3f534c33dc6f3c42472065a4c3b1bef98c2d654717e"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.692887+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/automation/setup_dev_environment.py",
+        "old_hash": "42f5e6f695564f13044cbaf132fad33175faf46e5f94c2136cd66a08632c5033",
+        "new_hash": "2287489833e2f58e8b862f0a8e6e28df9e1efaf6c4c6f2d483b89aed1cc7e6bf"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.693336+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/automation/sync_dolibarr_changelog.py",
+        "old_hash": "c86c0513d945dafcbe3d8ab734897e26a9cf4361e55ca502056a16b940ccd395",
+        "new_hash": "5986f1afe638770dc6eefcf81e74e4db00fe1528a6b5b2b865322310be652a16"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.693736+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/automation/sync_file_to_project.py",
+        "old_hash": "165bca5c7499d4d1e2650992d6e75ee49f40e4f071b8e88fa5b78a118e5dcac5",
+        "new_hash": "aa513cd54df373fecf6ac26ffb240936c88a83275ad9bbf2be939bdc8e7bd4b3"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.694268+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/build/resolve_makefile.py",
+        "old_hash": "23b8789637a3269dfa5bfc184fed0af2a45322e6e8d0b7e254e9868498d813ab",
+        "new_hash": "e66cba6e51c0c53391bfae087d453308a772dc0e591f23114fce457ee2e5a308"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.695172+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/docs/check_doc_coverage.py",
+        "old_hash": "52f69e36712ee57e4e05ebca645df8e529b2b2eaabc4729aafa11b2b51074eaf",
+        "new_hash": "b0aa322a7dcfbd66f13a99f5c34fb208e6d92d3698648b32c560e07043158c83"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.695548+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/docs/generate_script_catalog.py",
+        "old_hash": "650a909fb6e96f52766b70afe670048881774d78755566c6bdd96d601a7a2ba6",
+        "new_hash": "7775b83a2bab0b51adf00e79da7a10f71a4f31236aab9f52365cb07e806e87f9"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.696226+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/fix/tabs.py",
+        "old_hash": "96e800a30e5b548ed783149ecc81510c0e62054c61e5f68ba02f0514f0f6fad3",
+        "new_hash": "9c6ae131e3477324145e5b89956ba6f7336aca04e86b3abcc1a99631745feced"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.696585+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/fix/trailing_spaces.py",
+        "old_hash": "8d85db9e51b4d74092aa33737880241645d046de6c2f81c3df154a33cb5c7435",
+        "new_hash": "b18cad0be5ad584f47e47dfa425485dc38843caad7b87b1b8a43eb4a3176c3b0"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.696974+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/lib/README.md",
+        "old_hash": "a6de7533dff3d3b9202f55dbd00397804d9e3dfa145dd9d714accbfd172fbfb4",
+        "new_hash": "8b8e214ed5aae30c926826b9823420589eb3e21fac219dad527f1e37f931e552"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.697443+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/lib/api_client.py",
+        "old_hash": "40451ec25d29637fea24dc5619c37c121251946145b96f7ac129cdd633551c23",
+        "new_hash": "d2ef3cbe672b238a8882fd4e9073b446ba2330d732be61a87b5628b2d3a8f455"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.697853+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/lib/audit_logger.py",
+        "old_hash": "54c6ec0668cda6799912d1f9f2af19e8e09e6beee5c207315d71b44aa5349777",
+        "new_hash": "d5d1ac76f16d3c55d677b444bcbcdc6bdd84e0ade0be0316139fc4f87ceaf572"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.698401+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/lib/common.py",
+        "old_hash": "ea232a30618e5b834603e90e0bde8c3e602dca0881f96a62f558df69adfe6a79",
+        "new_hash": "f39feb5f9ebbbc30513c10b818d244a2fe6d41b29782355073f0a450a3bea31a"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.698833+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/lib/common.sh",
+        "old_hash": "3255764dee8c719e402408196de92d21b602c4bd013ec489f320e6890698a408",
+        "new_hash": "97e89e28be4a45103e0d90ec4bd182f4a783600913d3fc10efad24d0aa26b668"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.699192+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/lib/config_manager.py",
+        "old_hash": "a498d47e9a5ed2a80d6dfa1e50e7d89c5e8791ec93d400cf19898206ecf42716",
+        "new_hash": "fc2d18cc255fa564b43c67d38380de9769ca19ac28dd50db60413d4da400781e"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.699663+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/lib/enterprise_audit.py",
+        "old_hash": "3fb6d4487f6241feeb4a4d44b1d94215a6db516363bf59814b03afd46bd437b3",
+        "new_hash": "85f3aa1cf8f111ebc01655373c2cdf68dc9ff21bae8f70872092e425c428f7a3"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.700030+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/lib/extension_utils.py",
+        "old_hash": "25d4bed0fdca661fda98c22b8907f0365154dd8292d309d124b730ebacb785d6",
+        "new_hash": "170efeb3672f3dbde50212c97674fc86b8b20ebcbad2e3d2dc0f7a6d46e1f3a8"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.700862+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/lib/github_client.py",
+        "old_hash": "bdda34c36e95c73a9dace9a0730a2609278c8f5bfc82c8715644db2e5498acc1",
+        "new_hash": "8dbcba2bde4c8e34be3c2a0cf35291a20edde1d7c5e713e6c9833cccf616f0e3"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.701310+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/lib/gui_utils.py",
+        "old_hash": "6b843dbacb4e3ccad8f0b22ce156d82c9d72a164a53bd6edb406860f93226b09",
+        "new_hash": "b8289d9720b1cb41c55828eacaa2203e503e03681f77eb7acf8bb625db100fe5"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.701749+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/lib/joomla_manifest.py",
+        "old_hash": "a0591828b13a8c5acebcbb27499b893c52625cd2ae324a4d5182c0c694d2bf6c",
+        "new_hash": "aaed8b99ad215410f28da462176e6937028a767006dc1706f48e9fcbb1d18783"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.702192+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/lib/summary_helper.py",
+        "old_hash": "9205844407cadf113ade642b0d40229b2b9480d2870b4844ff3e457f411d6e1b",
+        "new_hash": "235e538c324a4ac3407e95fc084b033c6071bd1549d964b19092ba5ce98a2062"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.702793+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/lib/validation_framework.py",
+        "old_hash": "09a93a24ba88e855c7e5626e95e0c2679044075cb7a61cb40aa1ecaf33be7ec6",
+        "new_hash": "9acc70eaa534062aa17231f8de17b0cd6c49797378c10eb0582c5018ba9db698"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.703206+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/lib/version_bump_detector.py",
+        "old_hash": "354ed6558ce8f680fed9cbd8731a13a650c88f07fcb50ba8afc39afe2274d2f5",
+        "new_hash": "6380dd0abb37e8ac8c83314ffa3c4d4a0d6e41af6eb823113322f44f2cf2409a"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.703624+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/lib/visual_helper.py",
+        "old_hash": "0cdec80c2061c014cb3513a662c9af6c38011eeb300361a21339603a7c890c56",
+        "new_hash": "11de1ecfea97bc46ac3d28dec6be4af6d826bc72858aaa5971b7f6629eff63f3"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.704204+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/maintenance/clean_old_branches.py",
+        "old_hash": "0a741fc81d5235092797373b64dcd02370ba913ea1993e61a5cb8d4ebc0890f1",
+        "new_hash": "27c3d1ec494943ce0fffe5f4b60d4a16896662fc7a4854f20b6c5c4470a8a1e7"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.704618+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/maintenance/flush_actions_cache.py",
+        "old_hash": "e93e2be351f430b9df6d8f3831f3c369cf525daf885fedbf67a0feecb63d1daa",
+        "new_hash": "1c0487bc3ce3120dc457f968b78274c4fcfde9a81df8d0f82f3292c1c6101703"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.705117+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/maintenance/release_version.py",
+        "old_hash": "cd0f9e4993764c984894f9c59edb19749e14dcaaa5d49fe635cbc152ce47f445",
+        "new_hash": "9d04e6e381b987c84f2ccb74b3e8e0a78e08f0908f6d038ea001d949197646c1"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.705569+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/maintenance/update_changelog.py",
+        "old_hash": "8e3ce5b59a2f747733ad343b0bebd562418eb5888479dd23320d5fb55626ad57",
+        "new_hash": "ac08044285fc0284180d179e7d77a5faa785867dcd8b9ff3a031fcf65e5b2b73"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.705946+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/maintenance/update_copyright_year.py",
+        "old_hash": "0b6a105711da7e0fe7dd717f7c81aabaa28754972f49d59547976aaf2bb2a539",
+        "new_hash": "a131fe23cb61ab11cf2f2a635e5afab298b3711596a2f8b8ef656aaf34cf13ba"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.706477+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/maintenance/validate_file_headers.py",
+        "old_hash": "313be56fc8d93f697f2c8714a48d1c847a10eaa743998a0c89abf67aa1880cdc",
+        "new_hash": "27239b0da8e3d0f8a5ab5a3af095d33aa5eb062b9b5abf3f1738388a7a08b66c"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.707045+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/release/detect_platform.py",
+        "old_hash": "61dbbaf2401c7bca63e1f163cad7487b2f83db18cfda894ba68da371aecd5813",
+        "new_hash": "af301d1881fb7a25e4898f015551fa30a780ccff7baeac43ee30e02e7ef8542a"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.707445+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/release/dolibarr_release.py",
+        "old_hash": "dc0094b99a9efb9ab63e4302e7dd4a3579ee12be66bb032140d79ccb75b7b6a3",
+        "new_hash": "f17ae582b4aae75e0a1173561ee88992a883dc045748443974760cc9def3ae5a"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.707859+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/release/package_extension.py",
+        "old_hash": "a54a0d7a8e006a525e3a39b1726354a948ff971d6ee905e6abd4b43201b8df4d",
+        "new_hash": "fc7b26b1101b47ba5379821052308a873549e253ff7467475a639f0d4cdf3bc6"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.708298+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/release/unified_release.py",
+        "old_hash": "1684863319141a0cbb98c617a452da9e1d63deb0663cf67df73720da6701c02b",
+        "new_hash": "fea4fbb255ae1c8a8eb23bf5f65fc05c3f747490f798cbef5631ba3d9ae7e49f"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.709088+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/run/setup_github_project_v2.py",
+        "old_hash": "62a1fa2c4874ebace3bd5b4bdab741f900d3996e966e2e01581bcd0cef83a2b2",
+        "new_hash": "be63262c90bdd0bcee47eb2c6ac540d54f9e95078fb7201d9c2941bbaf4301be"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.709693+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/tests/test_version_bump_detector.py",
+        "old_hash": "145ba767e69cfa512ecf88a6bfa60e6a3fd9e853d69ef177a282bc420f581c3a",
+        "new_hash": "c40956d2f3c6d48420e71b6b187ea8ac33c5b1214e3d0fbcc22e9af4fa0ee171"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.710598+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/validate/check_license_headers.py",
+        "old_hash": "c0683ec5e8ab348eab42c36e16618850a0daf0112f06f71bdc2aff27ec9e5dad",
+        "new_hash": "e370cad94821e70f3ddceed7a4cd2431cd3b27d7b9ed8e850f40f3065441c39e"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.710990+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/validate/check_markdown_links.py",
+        "old_hash": "8715d5b9e0e785291d7eae3dc074741d563969103f4203a191ed08a4d043d052",
+        "new_hash": "925578ef8b87b7fb94bf141c83bd723b39592653727f64d58738ff743d5386fa"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.711477+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/validate/check_repo_health.py",
+        "old_hash": "9fbe51e83af8d5b6007db8ee8e40948dfe0778e0a4bb0a2bbb8fc48a7cf166a8",
+        "new_hash": "ab2f7e0d41c328c183c4ba3b4d28247a3e81753721c4a3716528d531d87721f1"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.711935+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/validate/find_todos.py",
+        "old_hash": "f66fe7a23d4c48e34a459934e28aa841048610da1e961287602a4e66b0106a5e",
+        "new_hash": "d76ab331436a89c9e789450a979fcad3f91a15191164208f1063cbf5da5439c6"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.712442+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/validate/manifest.py",
+        "old_hash": "0f45c3080e81743a629fb7d521870959457d3fe18d9d416b23bbf02ed434a129",
+        "new_hash": "b84545e92c46a665051ab508f62a8fd4e7f487369566ae4d7ac6b76080b8c569"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.712830+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/validate/no_secrets.py",
+        "old_hash": "22eea847078d832348fe451148dd836b0ebdc736cc24f6a20b4a308ebcc86e1c",
+        "new_hash": "d3b05661a015d1e2c8a9ff6964c11dade9bf50d7cf99028b0bde48356f5f3343"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.713219+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/validate/paths.py",
+        "old_hash": "00701accf25f163dc93ebc23ba1d154e2d129a2f809bc64887201f34c6de3340",
+        "new_hash": "c937e1fd16e1250f08d65dff019b96f4b1e2cfacee7fb7657ccbfca43f665493"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.713617+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/validate/php_syntax.py",
+        "old_hash": "8882b52cca0a29272473a557887e3d8871bd61dcfd1298863215e59e19d415bf",
+        "new_hash": "05c638061dc1db929f6ad81aad437a1da73324081d71ba68de4dc4a3d4e8f2b3"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.714077+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/validate/schema_aware_health_check.py",
+        "old_hash": "b455ff65f1f7f539408979f970131cf701e786c1b36254161abd5320744ceea8",
+        "new_hash": "b93c6e34e25e76a20c309d9d7caf2cf91fdf824b1c441de8ae0b17548f7a4842"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.714524+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/validate/security_scan.py",
+        "old_hash": "91f8b7396adee7e75ec0fa1c6c8896c0047ea4b5614fe3dc0676b1efb8dd027b",
+        "new_hash": "a03f3470a02ad622754b6dfa04c560defe52e04fcd147506d1276a4af7f45b09"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.714890+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/validate/tabs.py",
+        "old_hash": "b0df8f5390c65c6fd3cbe4d43bd465a5ba42feb9702b0df565f158ca0d7d9934",
+        "new_hash": "f46a82414292a92f31d1c371be5e18e225db1254d09f41e53c6750bf7b1a8c08"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.715271+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/validate/validate_codeql_config.py",
+        "old_hash": "4f768959739e9fb0e802ccbb6c0d08cbb0f38c0724963f560f67ce52c07c4f7c",
+        "new_hash": "bbf639aad15872bce8bc25225bc09513e782784e39cabf8182142107019d532f"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.715653+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/validate/validate_repo_health.py",
+        "old_hash": "464d622d2a6579c344524b57f508bdda16a0d97122ff45e772154338308e2c1b",
+        "new_hash": "31cb1e3f770e433eba92544908c9ff63f014faf77700e390e7553ef2752ad1f1"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.716275+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/validate/workflows.py",
+        "old_hash": "4ec42ab13024afe335568c36149745e97ece3598f268cc69774e814460921043",
+        "new_hash": "c62bad2099ded737f6841983e39bbf875b9b7bd86db6d9152836355d8fce9805"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.716649+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/scripts/validate/xml_wellformed.py",
+        "old_hash": "60f4ed984c2a77179fff66010b104ae873c74e107ccd026bc037240230323774",
+        "new_hash": "d15f50b59a3f554f29a0a7ff1db47f23bd414b64b394a2c265cd00e60bd2b6b3"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.721228+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/templates/scripts/lib/common.sh",
+        "old_hash": "3dca469df18a6d3a9ff23e4cba2868c6c41438b6f290f7dbb2f41ab46dfed659",
+        "new_hash": "6f79297ba3d8434ef0731034dfc51cfac41b213506dff633cd8a34030f4f0240"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.722989+00:00Z",
+      "event_type": "file_modified",
+      "session_id": "20260211_000024",
+      "details": {
+        "file": "/home/runner/work/MokoStandards/MokoStandards/terraform/repository-management/VERSION_BUMP_DISTRIBUTION.md",
+        "old_hash": "cf0a433dd6bf287a036c8212ceae3cac2bf3c0d1fa71d591c6c461cd8ea4f3a9",
+        "new_hash": "6d667428a45887fdb502c97dceeafda1ef07e191673802e8fc8308c75a55e010"
+      }
+    },
+    {
+      "timestamp": "2026-02-11T00:00:24.724057+00:00Z",
+      "event_type": "version_update_completed",
+      "session_id": "20260211_000024",
+      "details": {
+        "success": true,
+        "updated_files": [
+          "CHANGELOG.md",
+          "CONTRIBUTING.md",
+          "README.md",
+          "logs/automation/version_bump_20260210_232353.json",
+          "logs/automation/version_bump_20260210_232413.json",
+          "scripts/analysis/analyze_dependencies.py",
+          "scripts/analysis/code_metrics.py",
+          "scripts/automation/auto_create_org_projects.py",
+          "scripts/automation/bulk_update_repos.py",
+          "scripts/automation/check_outdated_actions.py",
+          "scripts/automation/create_repo_project.py",
+          "scripts/automation/detect_version_bump.py",
+          "scripts/automation/setup_dev_environment.py",
+          "scripts/automation/sync_dolibarr_changelog.py",
+          "scripts/automation/sync_file_to_project.py",
+          "scripts/build/resolve_makefile.py",
+          "scripts/docs/check_doc_coverage.py",
+          "scripts/docs/generate_script_catalog.py",
+          "scripts/fix/tabs.py",
+          "scripts/fix/trailing_spaces.py",
+          "scripts/lib/README.md",
+          "scripts/lib/api_client.py",
+          "scripts/lib/audit_logger.py",
+          "scripts/lib/common.py",
+          "scripts/lib/common.sh",
+          "scripts/lib/config_manager.py",
+          "scripts/lib/enterprise_audit.py",
+          "scripts/lib/extension_utils.py",
+          "scripts/lib/github_client.py",
+          "scripts/lib/gui_utils.py",
+          "scripts/lib/joomla_manifest.py",
+          "scripts/lib/summary_helper.py",
+          "scripts/lib/validation_framework.py",
+          "scripts/lib/version_bump_detector.py",
+          "scripts/lib/visual_helper.py",
+          "scripts/maintenance/clean_old_branches.py",
+          "scripts/maintenance/flush_actions_cache.py",
+          "scripts/maintenance/release_version.py",
+          "scripts/maintenance/update_changelog.py",
+          "scripts/maintenance/update_copyright_year.py",
+          "scripts/maintenance/validate_file_headers.py",
+          "scripts/release/detect_platform.py",
+          "scripts/release/dolibarr_release.py",
+          "scripts/release/package_extension.py",
+          "scripts/release/unified_release.py",
+          "scripts/run/setup_github_project_v2.py",
+          "scripts/tests/test_version_bump_detector.py",
+          "scripts/validate/check_license_headers.py",
+          "scripts/validate/check_markdown_links.py",
+          "scripts/validate/check_repo_health.py",
+          "scripts/validate/find_todos.py",
+          "scripts/validate/manifest.py",
+          "scripts/validate/no_secrets.py",
+          "scripts/validate/paths.py",
+          "scripts/validate/php_syntax.py",
+          "scripts/validate/schema_aware_health_check.py",
+          "scripts/validate/security_scan.py",
+          "scripts/validate/tabs.py",
+          "scripts/validate/validate_codeql_config.py",
+          "scripts/validate/validate_repo_health.py",
+          "scripts/validate/workflows.py",
+          "scripts/validate/xml_wellformed.py",
+          "templates/scripts/lib/common.sh",
+          "terraform/repository-management/VERSION_BUMP_DISTRIBUTION.md"
+        ],
+        "failed_files": [],
+        "statistics": {
+          "files_scanned": 523,
+          "files_updated": 64,
+          "files_skipped": 459,
+          "files_failed": 0,
+          "bytes_processed": 4167144
+        }
+      }
+    }
+  ]
+}

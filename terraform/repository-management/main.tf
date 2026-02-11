@@ -159,6 +159,41 @@ locals {
 		".github/workflows/terraform-setup.yml" = {
 			all = "../../.github/workflows/terraform-setup.yml"
 		}
+		# Enterprise library files (10 required) - distributed to all repositories
+		"scripts/lib/enterprise_audit.py" = {
+			all = "../../scripts/lib/enterprise_audit.py"
+		}
+		"scripts/lib/audit_logger.py" = {
+			all = "../../scripts/lib/audit_logger.py"
+		}
+		"scripts/lib/validation_framework.py" = {
+			all = "../../scripts/lib/validation_framework.py"
+		}
+		"scripts/lib/unified_validation.py" = {
+			all = "../../scripts/lib/unified_validation.py"
+		}
+		"scripts/lib/config_manager.py" = {
+			all = "../../scripts/lib/config_manager.py"
+		}
+		"scripts/lib/security_validator.py" = {
+			all = "../../scripts/lib/security_validator.py"
+		}
+		"scripts/lib/error_recovery.py" = {
+			all = "../../scripts/lib/error_recovery.py"
+		}
+		"scripts/lib/transaction_manager.py" = {
+			all = "../../scripts/lib/transaction_manager.py"
+		}
+		"scripts/lib/cli_framework.py" = {
+			all = "../../scripts/lib/cli_framework.py"
+		}
+		# Enterprise readiness and setup scripts - distributed to all repositories
+		"scripts/validate/check_enterprise_readiness.py" = {
+			all = "../../scripts/validate/check_enterprise_readiness.py"
+		}
+		"scripts/automation/setup_enterprise_repo.py" = {
+			all = "../../scripts/automation/setup_enterprise_repo.py"
+		}
 		".github/workflows/codeql-analysis.yml" = {
 			all = "../../templates/workflows/codeql-analysis.yml.template"
 		}

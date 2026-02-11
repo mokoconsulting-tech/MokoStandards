@@ -108,3 +108,11 @@ exclude_lines = [
     "if TYPE_CHECKING:",
     "@abstractmethod",
 ]
+
+[tool.mokostandards]
+enterprise_ready = true
+monitoring_enabled = true
+audit_logging = true
+version = "03.02.00"
+repository_type = "standards"
+schema_version = "2.0"

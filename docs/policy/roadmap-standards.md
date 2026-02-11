@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: docs/policy/roadmap-standards.md
-VERSION: 03.01.03
+VERSION: 03.02.00
 BRIEF: Standards and requirements for ROADMAP.md files across organization repositories
 -->
 
@@ -31,17 +31,49 @@ BRIEF: Standards and requirements for ROADMAP.md files across organization repos
 
 ## Overview
 
-This document defines standards for `ROADMAP.md` files across all Moko Consulting organization repositories. A well-structured roadmap provides transparency, manages expectations, and serves as a strategic communication tool for stakeholders.
+This document defines standards for roadmap documentation across all Moko Consulting organization repositories. The roadmap system uses a **two-tier structure** that separates high-level version planning from detailed implementation plans.
+
+## Two-Tier Roadmap Structure
+
+### Tier 1: Root ROADMAP.md (Version Planning)
+
+**Location**: Repository root (`ROADMAP.md`)  
+**Purpose**: High-level version planning and release strategy  
+**Audience**: Everyone (developers, management, stakeholders)  
+**Update Frequency**: Per release (monthly for MINOR, quarterly for MAJOR)
+
+**Focus**:
+- Current and upcoming versions
+- Release schedule and strategy
+- Version milestones
+- Feature summary per version
+- Links to detailed planning
+
+### Tier 2: Implementation Planning (Detailed)
+
+**Location**: `docs/planning/` directory  
+**Purpose**: Detailed implementation plans, tasks, and resources  
+**Audience**: Implementation teams (developers, team leads)  
+**Update Frequency**: Weekly/sprint cycles
+
+**Focus**:
+- Week-by-week action items
+- Resource allocation
+- Integration examples
+- Training schedules
+- Success metrics tracking
+- Sprint planning
 
 ## Purpose
 
-The `ROADMAP.md` file serves to:
+The roadmap system serves to:
 
 1. **Communicate Direction**: Provide clear visibility into project evolution and priorities
 2. **Manage Expectations**: Set realistic timelines and scope for stakeholders
 3. **Track Progress**: Document completed, in-progress, and planned work
 4. **Enable Planning**: Support strategic decision-making with version-based milestones
-5. **Maintain History**: Preserve decisions and rationale for future reference
+5. **Separate Concerns**: Version planning (what/when) vs implementation (how/who)
+6. **Maintain History**: Preserve decisions and rationale for future reference
 
 ## Scope
 
@@ -62,9 +94,9 @@ The `ROADMAP.md` file serves to:
 
 ## Content Requirements
 
-### Required Sections
+### Required Sections for Root ROADMAP.md
 
-All ROADMAP.md files MUST include:
+All root ROADMAP.md files MUST include:
 
 1. **Scope and Intent**
    - Clear statement of what the roadmap covers
@@ -94,13 +126,48 @@ All ROADMAP.md files MUST include:
 6. **Revision History**
    - Table of changes with dates, authors, and descriptions
 
-### Recommended Sections
+### Recommended Sections for Root ROADMAP.md
 
-- **Guidelines for Version Planning**: Versioning scheme explanation
-- **Planning Horizon**: Timeframe and confidence levels
+- **Release Strategy**: MAJOR/MINOR/PATCH cycle explanation
+- **Planning Horizon**: Timeframe and confidence levels (Q1, Q2, Year 1)
 - **Status Indicators**: Legend for tracking symbols
-- **Dependencies**: Cross-project or external dependencies
-- **Success Criteria**: How to measure version completion
+- **Quick Reference**: Table linking to detailed documentation
+- **Role-based Navigation**: Links for developers, team leads, management
+- **Links to Implementation Plans**: Point to docs/planning/ for details
+
+### Required Sections for docs/planning/README.md
+
+All implementation planning documents MUST include:
+
+1. **Immediate Actions** (Week 1)
+   - Specific tasks with hour estimates
+   - Priority levels
+   - Assignees or team allocation
+   
+2. **Short-term Goals** (Month 1)
+   - Integration milestones
+   - Resource requirements
+   - Training schedules
+   
+3. **Medium-term Goals** (Quarter 1)
+   - Feature completion targets
+   - Performance metrics
+   - Rollout plans
+   
+4. **Long-term Vision** (Year 1)
+   - Strategic initiatives
+   - Advanced capabilities
+   - Architectural evolution
+   
+5. **Success Metrics**
+   - KPIs and tracking dashboards
+   - Adoption metrics
+   - Performance targets
+   
+6. **Resource Requirements**
+   - Team allocation by phase
+   - Budget estimates
+   - Timeline dependencies
 
 ## Version Numbering Standards
 
@@ -178,20 +245,29 @@ Frame outcomes as value statements:
 
 ## File Structure
 
-### Location
+### Location - Two-Tier System
 
-- **Primary**: `ROADMAP.md` in repository root
-- **Alternative**: `docs/ROADMAP.md` (if root is too crowded)
+**Tier 1: Version Planning**
+- **Location**: `ROADMAP.md` in repository root (REQUIRED)
+- **Purpose**: Version planning and releases
+- **Size**: Typically 5-10KB
+- **Format**: Markdown (.md), UTF-8, LF line endings
 
-### Format
+**Tier 2: Implementation Planning**
+- **Location**: `docs/planning/` directory (REQUIRED for complex projects)
+- **Primary File**: `docs/planning/README.md`
+- **Supporting Files**:
+  - `docs/planning/phases/` - Phase documentation
+  - `docs/planning/milestones/` - Milestone tracking
+  - `docs/planning/sprints/` - Sprint plans (optional)
+- **Purpose**: Detailed implementation plans
+- **Size**: 10-20KB+ depending on project complexity
+- **Format**: Markdown (.md), UTF-8, LF line endings
 
-- **File Format**: Markdown (.md)
-- **Encoding**: UTF-8
-- **Line Endings**: LF (Unix-style)
+### Templates
 
-### Template
-
-Use the provided template: `templates/docs/extra/template-ROADMAP.md`
+- **Root ROADMAP.md**: `templates/docs/extra/template-ROADMAP.md`
+- **Planning Directory**: `templates/docs/extra/template-planning-README.md`
 
 ## Integration with Repository Schemas
 

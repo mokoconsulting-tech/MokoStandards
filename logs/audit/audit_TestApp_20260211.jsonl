@@ -1,0 +1,1 @@
+{"level": "SYSTEM", "event_type": "session_start", "details": {"service": "TestApp", "user": "runner", "session_id": "20260211_001505_bfe8cc81"}, "timestamp": "2026-02-11T00:15:05.945626+00:00", "session_id": "20260211_001505_bfe8cc81", "service": "TestApp", "user": "runner"}

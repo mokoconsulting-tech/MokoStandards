@@ -18,7 +18,7 @@ declare(strict_types=1);
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
  * @package MokoStandards\Enterprise
- * @version 03.02.00
+ * @version 04.00.00
  * @author MokoStandards Team
  * @license GPL-3.0-or-later
  */
@@ -55,13 +55,13 @@ class ValidationError extends RuntimeException
  *
  * $path = InputValidator::validatePath('/tmp/file.txt');
  * $email = InputValidator::validateEmail('user@example.com');
- * $version = InputValidator::validateVersion('03.02.00', 'moko');
+ * $version = InputValidator::validateVersion('04.00.00', 'moko');
  * $safe = InputValidator::sanitizeShellInput('user; rm -rf /');
  * ```
  */
 class InputValidator
 {
-    public const VERSION = '03.02.00';
+    public const VERSION = '04.00.00';
 
     /**
      * Validate and sanitize file paths to prevent path traversal.

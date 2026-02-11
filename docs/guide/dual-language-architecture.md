@@ -10,11 +10,11 @@ DEFGROUP: MokoStandards.Guide
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: docs/guide/dual-language-architecture.md
-VERSION: 03.02.00
+VERSION: 04.00.00
 BRIEF: Guide to MokoStandards dual-language architecture (Python + PHP)
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Dual-Language Architecture: Python + PHP
 
@@ -56,7 +56,7 @@ Both languages coexist, providing flexibility for different use cases:
 
 ## Architecture Strategy
 
-### Current State (v03.02.00)
+### Current State (v04.00.00)
 
 ```
 MokoStandards Repository

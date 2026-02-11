@@ -1,0 +1,278 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.SecurityScan
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/security-scan.yml
+# VERSION: 03.02.00
+# BRIEF: Daily security scanning and report generation
+# NOTE: Enhanced security scanning using security_validator.py
+
+name: Security Scan
+
+on:
+  schedule:
+    # Run daily at 02:00 UTC
+    - cron: '0 2 * * *'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'scripts/**'
+      - '.github/workflows/**'
+  workflow_dispatch:
+    inputs:
+      scan_type:
+        description: 'Type of security scan'
+        required: false
+        type: choice
+        options:
+          - all
+          - credentials
+          - vulnerabilities
+          - best-practices
+        default: 'all'
+      strict_mode:
+        description: 'Fail on any security issues'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+
+      - name: Create Reports Directory
+        run: |
+          mkdir -p logs/security
+          mkdir -p logs/reports
+
+      - name: Scan for Credentials
+        id: credentials
+        if: github.event.inputs.scan_type == 'all' || github.event.inputs.scan_type == 'credentials' || github.event.inputs.scan_type == ''
+        run: |
+          echo "## 🔐 Credential Scan" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          python3 << 'EOF'
+          import sys
+          import json
+          from pathlib import Path
+          sys.path.insert(0, 'scripts/lib')
+          
+          from security_validator import SecurityValidator
+          
+          try:
+              validator = SecurityValidator()
+              all_findings = []
+              
+              # Scan Python files
+              py_files = list(Path('scripts').rglob('*.py'))
+              for file_path in py_files:
+                  findings = validator.scan_file(str(file_path), check_credentials=True)
+                  if findings:
+                      all_findings.extend(findings)
+              
+              # Scan workflow files
+              yml_files = list(Path('.github/workflows').rglob('*.yml'))
+              for file_path in yml_files:
+                  findings = validator.scan_file(str(file_path), check_credentials=True)
+                  if findings:
+                      all_findings.extend(findings)
+              
+              print(f"Scanned {len(py_files)} Python files and {len(yml_files)} workflow files")
+              print(f"Found {len(all_findings)} potential credential issues")
+              
+              if all_findings:
+                  print("\n⚠️ Potential credential issues found:")
+                  for finding in all_findings[:10]:  # Show first 10
+                      print(f"  - {finding.get('file')}: {finding.get('issue')}")
+              else:
+                  print("✅ No credential issues found")
+              
+              # Save findings
+              with open('logs/security/credentials-scan.json', 'w') as f:
+                  json.dump(all_findings, f, indent=2)
+              
+              with open('/tmp/credential_summary.json', 'w') as f:
+                  json.dump({
+                      'files_scanned': len(py_files) + len(yml_files),
+                      'issues_found': len(all_findings)
+                  }, f)
+              
+          except Exception as e:
+              print(f"❌ Credential scan failed: {e}")
+              sys.exit(1)
+          EOF
+          
+          if [ -f "/tmp/credential_summary.json" ]; then
+            SUMMARY=$(cat /tmp/credential_summary.json)
+            FILES=$(echo $SUMMARY | python3 -c "import sys, json; print(json.load(sys.stdin)['files_scanned'])")
+            ISSUES=$(echo $SUMMARY | python3 -c "import sys, json; print(json.load(sys.stdin)['issues_found'])")
+            
+            echo "files_scanned=$FILES" >> $GITHUB_OUTPUT
+            echo "issues_found=$ISSUES" >> $GITHUB_OUTPUT
+            
+            echo "- Files scanned: **${FILES}**" >> $GITHUB_STEP_SUMMARY
+            echo "- Issues found: **${ISSUES}**" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Vulnerability Scan
+        id: vulnerabilities
+        if: github.event.inputs.scan_type == 'all' || github.event.inputs.scan_type == 'vulnerabilities' || github.event.inputs.scan_type == ''
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 🛡️ Vulnerability Scan" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          python3 << 'EOF'
+          import sys
+          import json
+          from pathlib import Path
+          sys.path.insert(0, 'scripts/lib')
+          
+          from security_validator import SecurityValidator
+          
+          try:
+              validator = SecurityValidator()
+              vulnerabilities = []
+              
+              # Scan for dangerous functions
+              py_files = list(Path('scripts').rglob('*.py'))
+              for file_path in py_files:
+                  findings = validator.scan_file(
+                      str(file_path),
+                      check_credentials=False,
+                      check_dangerous_functions=True
+                  )
+                  if findings:
+                      vulnerabilities.extend(findings)
+              
+              print(f"Scanned {len(py_files)} Python files")
+              print(f"Found {len(vulnerabilities)} potential vulnerabilities")
+              
+              if vulnerabilities:
+                  print("\n⚠️ Potential vulnerabilities found:")
+                  for vuln in vulnerabilities[:10]:  # Show first 10
+                      print(f"  - {vuln.get('file')}: {vuln.get('issue')}")
+              else:
+                  print("✅ No vulnerabilities found")
+              
+              # Save findings
+              with open('logs/security/vulnerabilities-scan.json', 'w') as f:
+                  json.dump(vulnerabilities, f, indent=2)
+              
+              with open('/tmp/vuln_summary.json', 'w') as f:
+                  json.dump({'vulnerabilities_found': len(vulnerabilities)}, f)
+              
+          except Exception as e:
+              print(f"❌ Vulnerability scan failed: {e}")
+              sys.exit(1)
+          EOF
+          
+          if [ -f "/tmp/vuln_summary.json" ]; then
+            SUMMARY=$(cat /tmp/vuln_summary.json)
+            VULNS=$(echo $SUMMARY | python3 -c "import sys, json; print(json.load(sys.stdin)['vulnerabilities_found'])")
+            
+            echo "vulnerabilities_found=$VULNS" >> $GITHUB_OUTPUT
+            echo "- Vulnerabilities found: **${VULNS}**" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Generate Security Report
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📋 Security Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          python3 << 'EOF'
+          import sys
+          import json
+          from pathlib import Path
+          from datetime import datetime
+          
+          try:
+              report = {
+                  'scan_date': datetime.now().isoformat(),
+                  'scan_type': '${{ github.event.inputs.scan_type || 'all' }}',
+                  'repository': 'MokoStandards',
+                  'results': {}
+              }
+              
+              # Load credential scan results
+              cred_file = Path('logs/security/credentials-scan.json')
+              if cred_file.exists():
+                  with open(cred_file, 'r') as f:
+                      report['results']['credentials'] = json.load(f)
+              
+              # Load vulnerability scan results
+              vuln_file = Path('logs/security/vulnerabilities-scan.json')
+              if vuln_file.exists():
+                  with open(vuln_file, 'r') as f:
+                      report['results']['vulnerabilities'] = json.load(f)
+              
+              # Calculate summary
+              total_issues = sum(
+                  len(v) if isinstance(v, list) else 0
+                  for v in report['results'].values()
+              )
+              
+              report['summary'] = {
+                  'total_issues': total_issues,
+                  'credential_issues': len(report['results'].get('credentials', [])),
+                  'vulnerabilities': len(report['results'].get('vulnerabilities', []))
+              }
+              
+              # Save report
+              with open('logs/reports/security-report.json', 'w') as f:
+                  json.dump(report, f, indent=2)
+              
+              print(f"✅ Security report generated")
+              print(f"Total issues: {total_issues}")
+              
+          except Exception as e:
+              print(f"⚠️ Report generation failed: {e}")
+          EOF
+          
+          if [ -f "logs/reports/security-report.json" ]; then
+            echo "✅ Security report generated" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload Security Report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: security-report-${{ github.run_number }}
+          path: |
+            logs/security/
+            logs/reports/security-report.json
+          retention-days: 90
+
+      - name: Check Strict Mode
+        if: github.event.inputs.strict_mode == 'true'
+        run: |
+          ISSUES=$(cat logs/reports/security-report.json | python3 -c "import sys, json; print(json.load(sys.stdin)['summary']['total_issues'])")
+          if [ "$ISSUES" -gt "0" ]; then
+            echo "❌ Security issues found in strict mode" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+      - name: Notify on Failure
+        if: failure()
+        run: |
+          echo "❌ Security scan failed or found critical issues" >> $GITHUB_STEP_SUMMARY
+          echo "Please review the security report" >> $GITHUB_STEP_SUMMARY

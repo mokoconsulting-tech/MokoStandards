@@ -1,0 +1,225 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.MetricsCollection
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/metrics-collection.yml
+# VERSION: 03.02.00
+# BRIEF: Daily metrics collection and trend report generation
+# NOTE: Collects and exports metrics using metrics_collector.py
+
+name: Metrics Collection
+
+on:
+  schedule:
+    # Run daily at 06:00 UTC
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      export_format:
+        description: 'Export format for metrics'
+        required: false
+        type: choice
+        options:
+          - prometheus
+          - json
+          - both
+        default: 'both'
+      generate_trends:
+        description: 'Generate trend reports'
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  collect-metrics:
+    name: Collect Metrics
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+
+      - name: Create Metrics Directory
+        run: |
+          mkdir -p logs/metrics
+          mkdir -p logs/reports
+
+      - name: Collect System Metrics
+        id: collect
+        run: |
+          echo "## 📊 Metrics Collection" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          python3 << 'EOF'
+          import sys
+          import json
+          import os
+          from pathlib import Path
+          from datetime import datetime
+          sys.path.insert(0, 'scripts/lib')
+          
+          from metrics_collector import MetricsCollector
+          
+          try:
+              # Initialize metrics collector
+              metrics = MetricsCollector(service_name='mokostandards')
+              
+              # Collect repository metrics
+              metrics.increment('workflow_runs_total')
+              metrics.increment('metrics_collection_runs')
+              
+              # Collect file counts
+              py_files = len(list(Path('.').rglob('*.py')))
+              yml_files = len(list(Path('.github/workflows').rglob('*.yml')))
+              
+              metrics.set_gauge('python_files_total', py_files)
+              metrics.set_gauge('workflow_files_total', yml_files)
+              
+              # Collect disk usage
+              total_size = sum(f.stat().st_size for f in Path('.').rglob('*') if f.is_file())
+              metrics.set_gauge('repository_size_bytes', total_size)
+              
+              print(f"✅ Collected metrics:")
+              print(f"  - Python files: {py_files}")
+              print(f"  - Workflow files: {yml_files}")
+              print(f"  - Repository size: {total_size / (1024*1024):.2f} MB")
+              
+              # Export metrics
+              export_format = '${{ github.event.inputs.export_format || 'both' }}'
+              
+              if export_format in ['json', 'both']:
+                  metrics_data = metrics.export_json()
+                  with open('logs/metrics/metrics.json', 'w') as f:
+                      json.dump(metrics_data, f, indent=2)
+                  print("✅ Exported metrics to JSON")
+              
+              if export_format in ['prometheus', 'both']:
+                  prom_data = metrics.export_prometheus()
+                  with open('logs/metrics/metrics.prom', 'w') as f:
+                      f.write(prom_data)
+                  print("✅ Exported metrics to Prometheus format")
+              
+              # Write summary data
+              with open('/tmp/metrics_summary.json', 'w') as f:
+                  json.dump({
+                      'python_files': py_files,
+                      'workflow_files': yml_files,
+                      'repo_size_mb': round(total_size / (1024*1024), 2)
+                  }, f)
+              
+          except Exception as e:
+              print(f"❌ Metrics collection failed: {e}")
+              sys.exit(1)
+          EOF
+          
+          # Read summary and output
+          SUMMARY=$(cat /tmp/metrics_summary.json)
+          PY_FILES=$(echo $SUMMARY | python3 -c "import sys, json; print(json.load(sys.stdin)['python_files'])")
+          WF_FILES=$(echo $SUMMARY | python3 -c "import sys, json; print(json.load(sys.stdin)['workflow_files'])")
+          REPO_SIZE=$(echo $SUMMARY | python3 -c "import sys, json; print(json.load(sys.stdin)['repo_size_mb'])")
+          
+          echo "python_files=$PY_FILES" >> $GITHUB_OUTPUT
+          echo "workflow_files=$WF_FILES" >> $GITHUB_OUTPUT
+          echo "repo_size_mb=$REPO_SIZE" >> $GITHUB_OUTPUT
+          
+          echo "### Collected Metrics" >> $GITHUB_STEP_SUMMARY
+          echo "- Python files: **${PY_FILES}**" >> $GITHUB_STEP_SUMMARY
+          echo "- Workflow files: **${WF_FILES}**" >> $GITHUB_STEP_SUMMARY
+          echo "- Repository size: **${REPO_SIZE} MB**" >> $GITHUB_STEP_SUMMARY
+
+      - name: Generate Trend Report
+        if: github.event.inputs.generate_trends != 'false'
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📈 Trend Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          python3 << 'EOF'
+          import sys
+          import json
+          from pathlib import Path
+          from datetime import datetime, timedelta
+          sys.path.insert(0, 'scripts/lib')
+          
+          from metrics_collector import MetricsCollector
+          
+          try:
+              # Load current metrics
+              with open('logs/metrics/metrics.json', 'r') as f:
+                  current = json.load(f)
+              
+              # Load historical metrics if available
+              history_file = Path('logs/metrics/history.json')
+              if history_file.exists():
+                  with open(history_file, 'r') as f:
+                      history = json.load(f)
+              else:
+                  history = []
+              
+              # Add current to history
+              current['timestamp'] = datetime.now().isoformat()
+              history.append(current)
+              
+              # Keep last 30 days
+              cutoff = datetime.now() - timedelta(days=30)
+              history = [h for h in history if datetime.fromisoformat(h['timestamp']) > cutoff]
+              
+              # Save updated history
+              with open('logs/metrics/history.json', 'w') as f:
+                  json.dump(history, f, indent=2)
+              
+              # Generate trend report
+              if len(history) > 1:
+                  first = history[0]
+                  last = history[-1]
+                  
+                  with open('logs/reports/trends-report.json', 'w') as f:
+                      json.dump({
+                          'period_days': len(history),
+                          'first_date': first['timestamp'],
+                          'last_date': last['timestamp'],
+                          'trends': {
+                              'python_files': {
+                                  'start': first.get('gauges', {}).get('python_files_total', 0),
+                                  'end': last.get('gauges', {}).get('python_files_total', 0)
+                              }
+                          }
+                      }, f, indent=2)
+                  
+                  print(f"✅ Trend report generated for {len(history)} data points")
+              else:
+                  print(f"⚠️ Insufficient data for trend analysis (need > 1 day)")
+              
+          except Exception as e:
+              print(f"⚠️ Trend generation failed: {e}")
+          EOF
+          
+          if [ -f "logs/reports/trends-report.json" ]; then
+            echo "✅ Trend report generated" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload Metrics Report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: metrics-report-${{ github.run_number }}
+          path: |
+            logs/metrics/
+            logs/reports/trends-report.json
+          retention-days: 30
+
+      - name: Notify on Failure
+        if: failure()
+        run: |
+          echo "❌ Metrics collection failed" >> $GITHUB_STEP_SUMMARY
+          echo "Please check the logs for details" >> $GITHUB_STEP_SUMMARY

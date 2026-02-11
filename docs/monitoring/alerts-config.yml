@@ -1,0 +1,193 @@
+# Prometheus AlertManager Configuration for MokoStandards
+# This file defines alerting rules for monitoring script execution, API usage, and system health
+
+groups:
+  - name: moko_standards_alerts
+    interval: 30s
+    rules:
+      # Alert when script failure rate exceeds 5%
+      - alert: HighScriptFailureRate
+        expr: |
+          (
+            sum(rate(moko_script_executions_total{status="failure"}[5m]))
+            /
+            sum(rate(moko_script_executions_total[5m]))
+          ) * 100 > 5
+        for: 5m
+        labels:
+          severity: warning
+          component: script_execution
+          team: devops
+        annotations:
+          summary: "High script failure rate detected"
+          description: "Script failure rate is {{ $value | humanizePercentage }} (threshold: 5%). Check script logs and error messages."
+          runbook_url: "https://github.com/MokoStandards/wiki/runbooks/high-failure-rate"
+          dashboard_url: "https://grafana.example.com/d/moko-standards-monitoring"
+
+      # Alert when script failure rate is critically high (>20%)
+      - alert: CriticalScriptFailureRate
+        expr: |
+          (
+            sum(rate(moko_script_executions_total{status="failure"}[5m]))
+            /
+            sum(rate(moko_script_executions_total[5m]))
+          ) * 100 > 20
+        for: 2m
+        labels:
+          severity: critical
+          component: script_execution
+          team: devops
+        annotations:
+          summary: "CRITICAL: Script failure rate is extremely high"
+          description: "Script failure rate is {{ $value | humanizePercentage }} (threshold: 20%). Immediate action required!"
+          runbook_url: "https://github.com/MokoStandards/wiki/runbooks/critical-failure-rate"
+          dashboard_url: "https://grafana.example.com/d/moko-standards-monitoring"
+
+      # Alert when GitHub API rate limit usage exceeds 90%
+      - alert: HighAPIRateLimitUsage
+        expr: |
+          (
+            1 - (
+              moko_api_rate_limit_remaining{api="github"}
+              /
+              moko_api_rate_limit_total{api="github"}
+            )
+          ) * 100 > 90
+        for: 2m
+        labels:
+          severity: warning
+          component: api_client
+          api: github
+          team: devops
+        annotations:
+          summary: "GitHub API rate limit usage is high"
+          description: "GitHub API rate limit usage is {{ $value | humanizePercentage }} (threshold: 90%). Remaining requests: {{ with query \"moko_api_rate_limit_remaining{api='github'}\" }}{{ . | first | value }}{{ end }}. Consider implementing request throttling or waiting for rate limit reset."
+          runbook_url: "https://github.com/MokoStandards/wiki/runbooks/api-rate-limit"
+          dashboard_url: "https://grafana.example.com/d/moko-standards-monitoring"
+
+      # Alert when API rate limit is nearly exhausted (>95%)
+      - alert: CriticalAPIRateLimitUsage
+        expr: |
+          (
+            1 - (
+              moko_api_rate_limit_remaining{api="github"}
+              /
+              moko_api_rate_limit_total{api="github"}
+            )
+          ) * 100 > 95
+        for: 1m
+        labels:
+          severity: critical
+          component: api_client
+          api: github
+          team: devops
+        annotations:
+          summary: "CRITICAL: GitHub API rate limit nearly exhausted"
+          description: "GitHub API rate limit usage is {{ $value | humanizePercentage }} (threshold: 95%). Only {{ with query \"moko_api_rate_limit_remaining{api='github'}\" }}{{ . | first | value }}{{ end }} requests remaining. API calls may be blocked soon."
+          runbook_url: "https://github.com/MokoStandards/wiki/runbooks/api-rate-limit-critical"
+          dashboard_url: "https://grafana.example.com/d/moko-standards-monitoring"
+
+      # Alert when circuit breaker opens (state changes to OPEN)
+      - alert: CircuitBreakerOpen
+        expr: moko_circuit_breaker_state == 1
+        for: 30s
+        labels:
+          severity: warning
+          component: circuit_breaker
+          team: devops
+        annotations:
+          summary: "Circuit breaker opened for {{ $labels.service }}"
+          description: "Circuit breaker for service '{{ $labels.service }}' has opened, indicating repeated failures. Service calls are being blocked to prevent cascading failures."
+          runbook_url: "https://github.com/MokoStandards/wiki/runbooks/circuit-breaker-open"
+          dashboard_url: "https://grafana.example.com/d/moko-standards-monitoring"
+
+      # Alert when circuit breaker stays open for extended period
+      - alert: CircuitBreakerStuckOpen
+        expr: moko_circuit_breaker_state == 1
+        for: 10m
+        labels:
+          severity: critical
+          component: circuit_breaker
+          team: devops
+        annotations:
+          summary: "Circuit breaker stuck open for {{ $labels.service }}"
+          description: "Circuit breaker for service '{{ $labels.service }}' has been open for more than 10 minutes. Service may be down or experiencing persistent issues."
+          runbook_url: "https://github.com/MokoStandards/wiki/runbooks/circuit-breaker-stuck"
+          dashboard_url: "https://grafana.example.com/d/moko-standards-monitoring"
+
+      # Alert when security findings are detected
+      - alert: SecurityFindingsDetected
+        expr: increase(moko_security_findings_total[5m]) > 0
+        for: 1m
+        labels:
+          severity: warning
+          component: security_scanner
+          team: security
+        annotations:
+          summary: "New security findings detected"
+          description: "{{ $value }} new security finding(s) detected in the last 5 minutes. Severity: {{ $labels.severity }}. Type: {{ $labels.finding_type }}."
+          runbook_url: "https://github.com/MokoStandards/wiki/runbooks/security-findings"
+          dashboard_url: "https://grafana.example.com/d/moko-standards-monitoring"
+
+      # Alert for high severity security findings
+      - alert: HighSeveritySecurityFinding
+        expr: increase(moko_security_findings_total{severity=~"high|critical"}[5m]) > 0
+        for: 30s
+        labels:
+          severity: critical
+          component: security_scanner
+          team: security
+        annotations:
+          summary: "CRITICAL: High severity security findings detected"
+          description: "{{ $value }} high/critical severity security finding(s) detected. Type: {{ $labels.finding_type }}. Immediate review and remediation required!"
+          runbook_url: "https://github.com/MokoStandards/wiki/runbooks/critical-security-findings"
+          dashboard_url: "https://grafana.example.com/d/moko-standards-monitoring"
+
+      # Alert when script execution duration is unusually high
+      - alert: SlowScriptExecution
+        expr: |
+          histogram_quantile(0.95,
+            rate(moko_script_duration_seconds_bucket[5m])
+          ) > 300
+        for: 5m
+        labels:
+          severity: warning
+          component: script_execution
+          team: devops
+        annotations:
+          summary: "Script execution time is high"
+          description: "P95 execution time for script '{{ $labels.script_name }}' is {{ $value }}s (threshold: 300s). Performance degradation detected."
+          runbook_url: "https://github.com/MokoStandards/wiki/runbooks/slow-execution"
+          dashboard_url: "https://grafana.example.com/d/moko-standards-monitoring"
+
+      # Alert when no script executions are detected (possible monitoring gap)
+      - alert: NoScriptExecutions
+        expr: |
+          sum(rate(moko_script_executions_total[10m])) == 0
+        for: 15m
+        labels:
+          severity: info
+          component: monitoring
+          team: devops
+        annotations:
+          summary: "No script executions detected"
+          description: "No script executions have been recorded in the last 15 minutes. This may indicate a monitoring issue or that scripts are not running."
+          runbook_url: "https://github.com/MokoStandards/wiki/runbooks/no-executions"
+          dashboard_url: "https://grafana.example.com/d/moko-standards-monitoring"
+
+      # Alert when API rate limit resets are approaching
+      - alert: APIRateLimitResetSoon
+        expr: |
+          (moko_api_rate_limit_reset_timestamp_seconds{api="github"} - time()) < 300
+          and
+          moko_api_rate_limit_remaining{api="github"} < 100
+        for: 1m
+        labels:
+          severity: info
+          component: api_client
+          api: github
+          team: devops
+        annotations:
+          summary: "GitHub API rate limit will reset soon"
+          description: "GitHub API rate limit will reset in {{ $value }}s. Current remaining: {{ with query \"moko_api_rate_limit_remaining{api='github'}\" }}{{ . | first | value }}{{ end }} requests."
+          dashboard_url: "https://grafana.example.com/d/moko-standards-monitoring"

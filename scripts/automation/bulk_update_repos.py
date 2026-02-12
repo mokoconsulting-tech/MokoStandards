@@ -813,7 +813,6 @@ def main():
     # Initialize enterprise libraries
     audit_logger = AuditLogger(service='bulk_update_repos', enable_console=False)
     metrics = MetricsCollector(service_name='bulk_update_repos')
-    checkpoint_mgr = CheckpointManager()
     
     parser = argparse.ArgumentParser(
         description='Schema-driven bulk repository sync (v2) - Syncs MokoStandards to organization repositories',

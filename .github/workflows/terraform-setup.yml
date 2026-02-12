@@ -22,7 +22,7 @@ on:
         required: false
         type: string
         default: '1.7.4'
-      
+
       working_directory:
         description: 'Working directory for Terraform commands'
         required: false
@@ -33,21 +33,21 @@ jobs:
   setup:
     name: Setup Terraform
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ inputs.terraform_version }}
-          
+
       - name: Verify Terraform installation
         run: |
           terraform version
           echo "✓ Terraform ${{ inputs.terraform_version }} is installed"
-          
+
       - name: Initialize Terraform
         if: inputs.working_directory != '.'
         working-directory: ${{ inputs.working_directory }}
@@ -59,7 +59,7 @@ jobs:
           else
             echo "No Terraform files found, skipping initialization"
           fi
-          
+
       - name: Validate Terraform configuration
         if: inputs.working_directory != '.'
         working-directory: ${{ inputs.working_directory }}

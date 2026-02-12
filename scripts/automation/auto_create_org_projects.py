@@ -42,7 +42,6 @@ from typing import Dict, List, Optional, Tuple
 sys.path.insert(0, str(Path(__file__).parent.parent / "lib"))
 
 from enterprise_audit import AuditLogger
-from api_client import APIClient
 from metrics_collector import MetricsCollector
 
 try:

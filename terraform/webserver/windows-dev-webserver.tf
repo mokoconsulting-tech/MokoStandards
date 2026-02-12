@@ -7,7 +7,7 @@
 # INGROUP: MokoStandards.Infrastructure
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: terraform/webserver/windows-dev-webserver.tf
-# VERSION: 03.02.00
+# VERSION: 04.00.00
 # BRIEF: Terraform definition for Windows development web server configuration
 # ENTERPRISE: Includes audit logging, monitoring, and compliance features
 

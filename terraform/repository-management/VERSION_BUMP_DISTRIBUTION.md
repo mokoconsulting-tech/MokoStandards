@@ -400,7 +400,7 @@ python3 -m unittest scripts/tests/test_version_bump_detector.py
 **Solution**:
 1. Ensure README.md exists
 2. Check format: `# README - ProjectName (VERSION: XX.YY.ZZ)`
-3. Verify VERSION pattern has two-digit format (03.02.00)
+3. Verify VERSION pattern has two-digit format (04.00.00)
 
 ### Permission Errors
 

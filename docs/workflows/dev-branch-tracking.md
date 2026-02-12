@@ -12,7 +12,7 @@ VERSION: 03.01.03
 BRIEF: Dev branch tracking and issue coordination system documentation
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Dev Branch Tracking and Issue Coordination
 

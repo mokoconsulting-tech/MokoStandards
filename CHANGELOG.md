@@ -21,7 +21,7 @@
  NOTE: Adheres to SemVer when applicable
  -->
 
-# CHANGELOG - MokoStandards (VERSION: 03.02.00)
+# CHANGELOG - MokoStandards (VERSION: 04.00.00)
 
 All notable changes to this project will be documented in this file.
 

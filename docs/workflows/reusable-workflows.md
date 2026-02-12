@@ -14,7 +14,7 @@
  BRIEF: Documentation for reusable GitHub Actions workflows
  -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Reusable Workflows
 

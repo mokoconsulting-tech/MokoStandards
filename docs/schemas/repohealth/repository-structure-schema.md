@@ -534,7 +534,7 @@ Create a new XML file in `scripts/definitions/`:
 
   <structure>
     <!-- Define your structure here -->
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
   </structure>
 </repository-structure>

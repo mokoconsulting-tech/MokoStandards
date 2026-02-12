@@ -14,7 +14,7 @@
  BRIEF: Policy governing creation, custody, rotation, and validation of site keys and licensed assets for WaaS deployments.
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # MokoStandard: WaaS Site Keys and Licensing Policy
 

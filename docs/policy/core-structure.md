@@ -27,7 +27,7 @@ VERSION: 03.01.03
 BRIEF: Core organization structure for docs and scripts folders across all organization repositories
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Core Organization Structure
 

@@ -14,7 +14,7 @@
  BRIEF: Policy governing Akeeba licensing and mandatory Panopticon enrollment for WaaS sites.
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # MokoStandard: WaaS Akeeba and Panopticon Governance Policy
 

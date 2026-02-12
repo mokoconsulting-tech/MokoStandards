@@ -1,6 +1,6 @@
 # Enterprise Readiness Guide
 
-![Version](https://img.shields.io/badge/version-03.02.00-blue) ![Enterprise Ready](https://img.shields.io/badge/enterprise-ready-green)
+![Version](https://img.shields.io/badge/version-04.00.00-blue) ![Enterprise Ready](https://img.shields.io/badge/enterprise-ready-green)
 
 **Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>**
 
@@ -90,7 +90,7 @@ Use this checklist to assess and track enterprise readiness:
   - [ ] `scripts/automation/install_terraform.py` - Terraform installer (Python)
 
 - [ ] **Version Documentation** (10 points)
-  - [ ] README.md has version badge (03.02.00)
+  - [ ] README.md has version badge (04.00.00)
   - [ ] CHANGELOG.md exists and is current
   - [ ] Version badges use correct format
 
@@ -100,7 +100,7 @@ Use this checklist to assess and track enterprise readiness:
   - [ ] `MokoStandards.override.tf` exists
   - [ ] Contains `override_metadata` block
   - [ ] Contains `sync_config` block
-  - [ ] Version is 03.02.00 or later
+  - [ ] Version is 04.00.00 or later
 
 - [ ] **Enterprise Metadata** (10 points)
   - [ ] Configuration files contain enterprise flags
@@ -276,7 +276,7 @@ Terraform configuration for sync behavior:
 locals {
   override_metadata = {
     name           = "Repository Override"
-    version        = "03.02.00"
+    version        = "04.00.00"
     enterprise_ready = true
     monitoring_enabled = true
     audit_logging = true
@@ -449,7 +449,7 @@ locals {
   override_metadata = {
     name           = "Repository Override Configuration"
     description    = "Override configuration for repository"
-    version        = "03.02.00"
+    version        = "04.00.00"
     last_updated   = "2026-02-11T00:00:00Z"
     maintainer     = "MokoStandards Team"
     schema_version = "2.0"
@@ -484,7 +484,7 @@ locals {
 Add to the top of `README.md` (after the first heading):
 
 ```markdown
-![Version](https://img.shields.io/badge/version-03.02.00-blue) ![Enterprise Ready](https://img.shields.io/badge/enterprise-ready-green)
+![Version](https://img.shields.io/badge/version-04.00.00-blue) ![Enterprise Ready](https://img.shields.io/badge/enterprise-ready-green)
 ```
 
 ### Step 7: Configure Package Metadata
@@ -496,7 +496,7 @@ Add to the top of `README.md` (after the first heading):
 enterprise_ready = true
 monitoring_enabled = true
 audit_logging = true
-version = "03.02.00"
+version = "04.00.00"
 ```
 
 #### For Node.js projects (`package.json`):
@@ -507,7 +507,7 @@ version = "03.02.00"
     "enterprise_ready": true,
     "monitoring_enabled": true,
     "audit_logging": true,
-    "version": "03.02.00"
+    "version": "04.00.00"
   }
 }
 ```
@@ -521,7 +521,7 @@ version = "03.02.00"
       "enterprise_ready": true,
       "monitoring_enabled": true,
       "audit_logging": true,
-      "version": "03.02.00"
+      "version": "04.00.00"
     }
   }
 }
@@ -664,7 +664,7 @@ Review recommendations and address each issue:
 **Solution:** Ensure correct format:
 
 ```markdown
-![Version](https://img.shields.io/badge/version-03.02.00-blue)
+![Version](https://img.shields.io/badge/version-04.00.00-blue)
 ```
 
 Version **must** match pattern: `03.0[12].0[0-9]`
@@ -676,7 +676,7 @@ Version **must** match pattern: `03.0[12].0[0-9]`
 ```hcl
 locals {
   override_metadata = {
-    version = "03.02.00"  # Must be present
+    version = "04.00.00"  # Must be present
     enterprise_ready = true
     # ... other fields
   }
@@ -820,8 +820,8 @@ When MokoStandards version changes:
 
 ```bash
 # Update version in all files
-find . -type f -name "*.md" -exec sed -i 's/03\.01\.00/03.02.00/g' {} +
-find . -type f -name "*.tf" -exec sed -i 's/03\.01\.00/03.02.00/g' {} +
+find . -type f -name "*.md" -exec sed -i 's/03\.01\.00/04.00.00/g' {} +
+find . -type f -name "*.tf" -exec sed -i 's/03\.01\.00/04.00.00/g' {} +
 
 # Verify
 python scripts/validate/check_enterprise_readiness.py
@@ -849,7 +849,7 @@ Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
 
 ## Revision History
 
-- **2026-02-11**: Initial version 03.02.00
+- **2026-02-11**: Initial version 04.00.00
 - Added comprehensive enterprise readiness documentation
 - Included automated and manual setup instructions
 - Added troubleshooting and examples

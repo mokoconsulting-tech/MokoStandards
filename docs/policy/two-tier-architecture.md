@@ -27,7 +27,7 @@ VERSION: 03.01.03
 BRIEF: Two-tier architecture documentation for public standards and private enforcement
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Two-Tier Architecture
 

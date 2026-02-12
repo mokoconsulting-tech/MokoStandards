@@ -45,7 +45,7 @@
 ---
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 [![Policy Documents](https://img.shields.io/badge/Policy_Documents-77-orange.svg)](./docs/policy)
 [![Python Scripts](https://img.shields.io/badge/Python_Scripts-DEPRECATED-red.svg)](./docs/policy/python-sunset-plan.md)
 [![PHP Libraries](https://img.shields.io/badge/PHP_Libraries-2%2F10-green.svg)](./src/Enterprise)

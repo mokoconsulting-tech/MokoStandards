@@ -27,7 +27,7 @@ VERSION: 03.01.03
 BRIEF: Template for creating Architecture Decision Records
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # ADR-NNNN: [Short Title of Decision]
 

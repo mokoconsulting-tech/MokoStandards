@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Workflow
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/workflows/bulk-repo-sync.md
-VERSION: 03.02.00
+VERSION: 04.00.00
 BRIEF: Comprehensive documentation for the bulk repository sync workflow
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Bulk Repository Sync Workflow
 

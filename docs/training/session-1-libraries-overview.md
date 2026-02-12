@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Training
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: docs/training/session-1-libraries-overview.md
-VERSION: 03.02.00
+VERSION: 04.00.00
 BRIEF: Session 1 - Enterprise Libraries Overview training materials
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-03.02.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Session 1: Enterprise Libraries Overview
 

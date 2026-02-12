@@ -391,3 +391,7 @@ if __name__ == "__main__":
         print(f"   ✓ Recovered state: {state['step'] if state else 'None'}")
     
     print("\n✓ All tests passed!")
+
+
+# Backward compatibility alias
+ErrorRecovery = RecoveryManager

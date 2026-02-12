@@ -132,6 +132,11 @@ class APIClient:
         self._failed_requests = 0
         self._cached_responses = 0
     
+    @property
+    def circuit_state(self) -> CircuitState:
+        """Get current circuit breaker state."""
+        return self._circuit_state
+    
     def _check_rate_limit(self):
         """Check if rate limit would be exceeded."""
         now = time.time()

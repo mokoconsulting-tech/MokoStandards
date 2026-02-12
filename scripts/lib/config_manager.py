@@ -60,7 +60,16 @@ class Config:
         }
     }
     
-    def __init__(self, config_data: Dict[str, Any], environment: str = 'development'):
+    def __init__(self, config_data: Optional[Dict[str, Any]] = None, environment: str = 'development'):
+        """Initialize configuration.
+        
+        Args:
+            config_data: Configuration dictionary (uses DEFAULT_CONFIG if None)
+            environment: Environment name (development, staging, production)
+        """
+        if config_data is None:
+            config_data = self.DEFAULT_CONFIG.copy()
+            environment = os.environ.get('MOKO_ENV', environment)
         self._config_data = config_data
         self._environment = environment
         self._override_data: Dict[str, Any] = {}
@@ -120,6 +129,10 @@ class Config:
     
     def __repr__(self) -> str:
         return f"Config(environment='{self._environment}')"
+
+
+# Backward compatibility alias
+ConfigManager = Config
 
 
 if __name__ == '__main__':

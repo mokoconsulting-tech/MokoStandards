@@ -41,7 +41,6 @@ from typing import Dict, List, Optional, Tuple, Any, Set
 sys.path.insert(0, str(Path(__file__).parent.parent / "lib"))
 
 from enterprise_audit import AuditLogger
-from api_client import APIClient
 from error_recovery import CheckpointManager
 from metrics_collector import MetricsCollector
 

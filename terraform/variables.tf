@@ -6,7 +6,7 @@ locals {
   config_metadata = {
     name              = "Repository Schema Variables"
     description       = "Variable definitions for MokoStandards repository schemas and health thresholds"
-    version           = "03.02.00"
+    version           = "04.00.00"
     last_updated      = "2026-02-11"
     maintainer        = "MokoStandards Team"
     schema_version    = "2.0"

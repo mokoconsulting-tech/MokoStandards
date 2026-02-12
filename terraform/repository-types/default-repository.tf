@@ -9,8 +9,8 @@ locals {
   config_metadata = {
     name              = "Repository Type Default Repository"
     description       = "Default repository structure and configuration schema definitions"
-    version           = "03.02.00"
-    last_updated      = "2026-02-11"
+    version           = "04.00.00"
+    last_updated      = "2026-02-12"
     maintainer        = "MokoStandards Team"
     schema_version    = "2.0"
     repository_url    = "https://github.com/mokoconsulting-tech/MokoStandards"

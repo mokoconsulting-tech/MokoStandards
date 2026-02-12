@@ -55,17 +55,17 @@ jobs:
         run: |
           echo "## 📦 Audit Log Archival" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           RETENTION_DAYS="${{ github.event.inputs.retention_days || 90 }}"
-          
+
           python3 << 'EOF'
           import sys
           import json
           from pathlib import Path
           sys.path.insert(0, 'scripts/lib')
-          
+
           from enterprise_audit import AuditLogger
-          
+
           try:
               # Initialize audit logger
               logger = AuditLogger(
@@ -73,7 +73,7 @@ jobs:
                   log_dir=Path('logs/audit'),
                   retention_days=int('${{ github.event.inputs.retention_days || 90 }}')
               )
-              
+
               # Archive old logs
               with logger.transaction('archive_logs') as txn:
                   archived_count = logger.rotate_logs()
@@ -81,18 +81,18 @@ jobs:
                       'count': archived_count,
                       'retention_days': int('${{ github.event.inputs.retention_days || 90 }}')
                   })
-                  
+
               print(f"✅ Successfully archived {archived_count} log files")
               print(f"archive_count={archived_count}", file=open('/tmp/archive_output.txt', 'w'))
-              
+
           except Exception as e:
               print(f"❌ Archival failed: {e}")
               sys.exit(1)
           EOF
-          
+
           ARCHIVE_COUNT=$(grep archive_count /tmp/archive_output.txt | cut -d= -f2)
           echo "archive_count=$ARCHIVE_COUNT" >> $GITHUB_OUTPUT
-          
+
           echo "✅ Archived **${ARCHIVE_COUNT}** log files" >> $GITHUB_STEP_SUMMARY
 
       - name: Generate Compliance Report
@@ -101,42 +101,42 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "## 📊 Compliance Report Generation" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           python3 << 'EOF'
           import sys
           import json
           from pathlib import Path
           from datetime import datetime, timedelta
           sys.path.insert(0, 'scripts/lib')
-          
+
           from enterprise_audit import AuditLogger
-          
+
           try:
               logger = AuditLogger(
                   service='compliance_report',
                   log_dir=Path('logs/audit')
               )
-              
+
               # Generate compliance report for last 7 days
               end_date = datetime.now()
               start_date = end_date - timedelta(days=7)
-              
+
               report = logger.generate_compliance_report(
                   start_date=start_date,
                   end_date=end_date,
                   output_file=Path('logs/reports/compliance-report.json')
               )
-              
+
               print(f"✅ Compliance report generated")
               print(f"Report period: {start_date.date()} to {end_date.date()}")
               print(f"Total events: {report.get('total_events', 0)}")
               print(f"Security events: {report.get('security_events', 0)}")
-              
+
           except Exception as e:
               print(f"⚠️ Report generation failed: {e}")
               # Don't fail the job if report generation fails
           EOF
-          
+
           if [ -f "logs/reports/compliance-report.json" ]; then
             echo "✅ Compliance report generated successfully" >> $GITHUB_STEP_SUMMARY
           fi

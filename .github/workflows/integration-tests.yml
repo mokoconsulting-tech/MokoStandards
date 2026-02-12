@@ -67,17 +67,17 @@ jobs:
         run: |
           echo "## 🧪 Enterprise Library Integration Tests" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           python3 << 'EOF'
           import sys
           import json
           import time
           from pathlib import Path
           sys.path.insert(0, 'scripts/lib')
-          
+
           test_results = {}
           failed_tests = []
-          
+
           # List of enterprise libraries to test
           libraries = [
               'api_client',
@@ -91,67 +91,67 @@ jobs:
               'metrics_collector',
               'security_validator'
           ]
-          
+
           library_filter = '${{ github.event.inputs.library_filter }}'
           if library_filter:
               libraries = [lib for lib in libraries if library_filter in lib]
-          
+
           print(f"Testing {len(libraries)} enterprise libraries...\n")
-          
+
           for lib_name in libraries:
               try:
                   start_time = time.time()
-                  
+
                   # Import and basic test
                   module = __import__(lib_name)
-                  
+
                   # Check VERSION constant
                   version = getattr(module, 'VERSION', 'unknown')
-                  
+
                   # Library-specific tests
                   test_passed = True
                   test_details = {'version': version}
-                  
+
                   if lib_name == 'api_client':
                       from api_client import APIClient, CircuitState
                       client = APIClient(base_url='https://api.github.com')
                       test_details['circuit_state'] = client.circuit_state.value
-                      
+
                   elif lib_name == 'enterprise_audit':
                       from enterprise_audit import AuditLogger
                       logger = AuditLogger(service='test', enable_file=False)
                       test_details['service'] = logger.service
-                      
+
                   elif lib_name == 'metrics_collector':
                       from metrics_collector import MetricsCollector
                       metrics = MetricsCollector()
                       metrics.increment('test_metric')
                       test_details['test_metric'] = metrics.counters.get('test_metric', 0)
-                      
+
                   elif lib_name == 'security_validator':
                       from security_validator import SecurityValidator
                       validator = SecurityValidator()
                       test_details['patterns'] = len(validator.CREDENTIAL_PATTERNS)
-                      
+
                   elif lib_name == 'config_manager':
                       from config_manager import ConfigManager
                       config = ConfigManager()
                       test_details['config_loaded'] = True
-                      
+
                   elif lib_name == 'error_recovery':
                       from error_recovery import ErrorRecovery
                       recovery = ErrorRecovery()
                       test_details['initialized'] = True
-                  
+
                   elapsed = time.time() - start_time
                   test_details['load_time_ms'] = round(elapsed * 1000, 2)
-                  
+
                   test_results[lib_name] = {
                       'status': 'passed',
                       'details': test_details
                   }
                   print(f"✅ {lib_name}: PASSED ({test_details['load_time_ms']}ms)")
-                  
+
               except Exception as e:
                   test_results[lib_name] = {
                       'status': 'failed',
@@ -159,15 +159,15 @@ jobs:
                   }
                   failed_tests.append(lib_name)
                   print(f"❌ {lib_name}: FAILED - {e}")
-          
+
           # Save test results
           with open('logs/tests/integration-results.json', 'w') as f:
               json.dump(test_results, f, indent=2)
-          
+
           # Summary
           passed = len([r for r in test_results.values() if r['status'] == 'passed'])
           total = len(test_results)
-          
+
           with open('/tmp/test_summary.json', 'w') as f:
               json.dump({
                   'total': total,
@@ -175,26 +175,26 @@ jobs:
                   'failed': len(failed_tests),
                   'failed_libs': failed_tests
               }, f)
-          
+
           print(f"\n{'='*50}")
           print(f"Total: {total} | Passed: {passed} | Failed: {len(failed_tests)}")
           print(f"{'='*50}")
-          
+
           if failed_tests:
               sys.exit(1)
           EOF
-          
+
           # Read summary and output
           if [ -f "/tmp/test_summary.json" ]; then
             SUMMARY=$(cat /tmp/test_summary.json)
             TOTAL=$(echo $SUMMARY | python3 -c "import sys, json; print(json.load(sys.stdin)['total'])")
             PASSED=$(echo $SUMMARY | python3 -c "import sys, json; print(json.load(sys.stdin)['passed'])")
             FAILED=$(echo $SUMMARY | python3 -c "import sys, json; print(json.load(sys.stdin)['failed'])")
-            
+
             echo "total_tests=$TOTAL" >> $GITHUB_OUTPUT
             echo "passed_tests=$PASSED" >> $GITHUB_OUTPUT
             echo "failed_tests=$FAILED" >> $GITHUB_OUTPUT
-            
+
             echo "### Test Results" >> $GITHUB_STEP_SUMMARY
             echo "- Total libraries: **${TOTAL}**" >> $GITHUB_STEP_SUMMARY
             echo "- Passed: **${PASSED}** ✅" >> $GITHUB_STEP_SUMMARY
@@ -207,16 +207,16 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "## ⚡ Performance Benchmarks" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           python3 << 'EOF'
           import sys
           import json
           import time
           from pathlib import Path
           sys.path.insert(0, 'scripts/lib')
-          
+
           benchmarks = {}
-          
+
           try:
               # Benchmark 1: API Client rate limiting
               from api_client import APIClient
@@ -231,7 +231,7 @@ jobs:
                   'avg_time_ms': round(elapsed * 1000 / 100, 4)
               }
               print(f"✅ API Client rate limit: {benchmarks['api_client_rate_limit']['avg_time_ms']}ms/op")
-              
+
               # Benchmark 2: Audit logging
               from enterprise_audit import AuditLogger
               logger = AuditLogger(service='benchmark', enable_file=False)
@@ -245,7 +245,7 @@ jobs:
                   'avg_time_ms': round(elapsed * 1000 / 100, 4)
               }
               print(f"✅ Audit logging: {benchmarks['audit_logging']['avg_time_ms']}ms/op")
-              
+
               # Benchmark 3: Metrics collection
               from metrics_collector import MetricsCollector
               metrics = MetricsCollector()
@@ -260,7 +260,7 @@ jobs:
                   'avg_time_ms': round(elapsed * 1000 / 1000, 4)
               }
               print(f"✅ Metrics collection: {benchmarks['metrics_collection']['avg_time_ms']}ms/op")
-              
+
               # Benchmark 4: Security scanning
               from security_validator import SecurityValidator
               validator = SecurityValidator()
@@ -276,17 +276,17 @@ jobs:
                   'avg_time_ms': round(elapsed * 1000 / 10, 4)
               }
               print(f"✅ Security scanning: {benchmarks['security_scanning']['avg_time_ms']}ms/op")
-              
+
               # Save benchmarks
               with open('logs/benchmarks/performance.json', 'w') as f:
                   json.dump(benchmarks, f, indent=2)
-              
+
               print("\n✅ All benchmarks completed")
-              
+
           except Exception as e:
               print(f"⚠️ Benchmark failed: {e}")
           EOF
-          
+
           if [ -f "logs/benchmarks/performance.json" ]; then
             echo "✅ Performance benchmarks completed" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
@@ -300,32 +300,32 @@ jobs:
           import json
           from pathlib import Path
           from datetime import datetime
-          
+
           try:
               report = {
                   'test_date': datetime.now().isoformat(),
                   'repository': 'MokoStandards',
                   'trigger': '${{ github.event_name }}'
               }
-              
+
               # Load test results
               test_file = Path('logs/tests/integration-results.json')
               if test_file.exists():
                   with open(test_file, 'r') as f:
                       report['tests'] = json.load(f)
-              
+
               # Load benchmarks
               bench_file = Path('logs/benchmarks/performance.json')
               if bench_file.exists():
                   with open(bench_file, 'r') as f:
                       report['benchmarks'] = json.load(f)
-              
+
               # Save report
               with open('logs/reports/integration-report.json', 'w') as f:
                   json.dump(report, f, indent=2)
-              
+
               print("✅ Integration report generated")
-              
+
           except Exception as e:
               print(f"⚠️ Report generation failed: {e}")
           EOF

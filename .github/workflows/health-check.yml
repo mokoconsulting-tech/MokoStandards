@@ -55,20 +55,20 @@ jobs:
         run: |
           echo "## 🏥 Library Health Check" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           python3 << 'EOF'
           import sys
           import json
           from pathlib import Path
           sys.path.insert(0, 'scripts/lib')
-          
+
           health_status = {}
           failed_libraries = []
-          
+
           # Test api_client.py
           try:
               from api_client import APIClient, CircuitState
-              
+
               # Create a test client
               client = APIClient(
                   base_url='https://api.github.com',
@@ -76,7 +76,7 @@ jobs:
                   circuit_breaker_threshold=5,
                   circuit_breaker_timeout=30
               )
-              
+
               # Check circuit breaker state
               health_status['api_client'] = {
                   'status': 'healthy',
@@ -84,32 +84,32 @@ jobs:
                   'version': getattr(client, 'VERSION', 'unknown')
               }
               print("✅ api_client.py: healthy")
-              
+
           except Exception as e:
               health_status['api_client'] = {'status': 'unhealthy', 'error': str(e)}
               failed_libraries.append('api_client')
               print(f"❌ api_client.py: {e}")
-          
+
           # Test enterprise_audit.py
           try:
               from enterprise_audit import AuditLogger
-              
+
               logger = AuditLogger(service='health_check', enable_file=False)
               health_status['enterprise_audit'] = {
                   'status': 'healthy',
                   'version': logger.VERSION
               }
               print("✅ enterprise_audit.py: healthy")
-              
+
           except Exception as e:
               health_status['enterprise_audit'] = {'status': 'unhealthy', 'error': str(e)}
               failed_libraries.append('enterprise_audit')
               print(f"❌ enterprise_audit.py: {e}")
-          
+
           # Test metrics_collector.py
           try:
               from metrics_collector import MetricsCollector
-              
+
               metrics = MetricsCollector()
               metrics.increment('health_check_test')
               health_status['metrics_collector'] = {
@@ -117,32 +117,32 @@ jobs:
                   'version': metrics.VERSION
               }
               print("✅ metrics_collector.py: healthy")
-              
+
           except Exception as e:
               health_status['metrics_collector'] = {'status': 'unhealthy', 'error': str(e)}
               failed_libraries.append('metrics_collector')
               print(f"❌ metrics_collector.py: {e}")
-          
+
           # Test security_validator.py
           try:
               from security_validator import SecurityValidator
-              
+
               validator = SecurityValidator()
               health_status['security_validator'] = {
                   'status': 'healthy',
                   'version': validator.VERSION
               }
               print("✅ security_validator.py: healthy")
-              
+
           except Exception as e:
               health_status['security_validator'] = {'status': 'unhealthy', 'error': str(e)}
               failed_libraries.append('security_validator')
               print(f"❌ security_validator.py: {e}")
-          
+
           # Save health report
           with open('logs/health/health-report.json', 'w') as f:
               json.dump(health_status, f, indent=2)
-          
+
           with open('/tmp/health_summary.json', 'w') as f:
               json.dump({
                   'total': len(health_status),
@@ -150,22 +150,22 @@ jobs:
                   'unhealthy': len(failed_libraries),
                   'failed': failed_libraries
               }, f)
-          
+
           if failed_libraries:
               sys.exit(1)
           EOF
-          
+
           # Read summary and output
           if [ -f "/tmp/health_summary.json" ]; then
             SUMMARY=$(cat /tmp/health_summary.json)
             TOTAL=$(echo $SUMMARY | python3 -c "import sys, json; print(json.load(sys.stdin)['total'])")
             HEALTHY=$(echo $SUMMARY | python3 -c "import sys, json; print(json.load(sys.stdin)['healthy'])")
             UNHEALTHY=$(echo $SUMMARY | python3 -c "import sys, json; print(json.load(sys.stdin)['unhealthy'])")
-            
+
             echo "total_libraries=$TOTAL" >> $GITHUB_OUTPUT
             echo "healthy_count=$HEALTHY" >> $GITHUB_OUTPUT
             echo "unhealthy_count=$UNHEALTHY" >> $GITHUB_OUTPUT
-            
+
             echo "### Health Status" >> $GITHUB_STEP_SUMMARY
             echo "- Total libraries checked: **${TOTAL}**" >> $GITHUB_STEP_SUMMARY
             echo "- Healthy: **${HEALTHY}** ✅" >> $GITHUB_STEP_SUMMARY
@@ -178,24 +178,24 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "## 🔌 Circuit Breaker Test" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           python3 << 'EOF'
           import sys
           import time
           sys.path.insert(0, 'scripts/lib')
-          
+
           try:
               from api_client import APIClient, CircuitState, CircuitBreakerOpen
-              
+
               # Create test client with low threshold
               client = APIClient(
                   base_url='https://httpbin.org',
                   circuit_breaker_threshold=3,
                   circuit_breaker_timeout=5
               )
-              
+
               print(f"Initial state: {client.circuit_state.value}")
-              
+
               # Simulate failures to trip circuit breaker
               for i in range(4):
                   try:
@@ -206,9 +206,9 @@ jobs:
                           client._circuit_breaker_open_until = time.time() + 5
                   except:
                       pass
-              
+
               print(f"After simulated failures: {client.circuit_state.value}")
-              
+
               # Verify circuit is open
               try:
                   if client.circuit_state == CircuitState.OPEN:
@@ -217,22 +217,22 @@ jobs:
                       print("⚠️ Circuit breaker did not open as expected")
               except CircuitBreakerOpen:
                   print("✅ Circuit breaker is open (raising exception)")
-              
+
               # Wait for timeout
               print("Waiting for circuit timeout...")
               time.sleep(6)
-              
+
               # Check if circuit moved to half-open
               client._check_circuit_breaker()
               print(f"After timeout: {client.circuit_state.value}")
-              
+
               print("✅ Circuit breaker test completed successfully")
-              
+
           except Exception as e:
               print(f"❌ Circuit breaker test failed: {e}")
               sys.exit(1)
           EOF
-          
+
           echo "✅ Circuit breaker test passed" >> $GITHUB_STEP_SUMMARY
 
       - name: Upload Health Report

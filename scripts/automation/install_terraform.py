@@ -20,6 +20,7 @@ import hashlib
 import os
 import platform
 import shutil
+import stat
 import subprocess
 import sys
 import tempfile
@@ -200,7 +201,8 @@ class TerraformInstaller:
                 )
             else:
                 shutil.move(str(terraform_binary), str(target_path))
-                os.chmod(target_path, 0o755)
+                current_mode = os.stat(target_path).st_mode
+                os.chmod(target_path, current_mode | stat.S_IXUSR)
                 
             self.log_info(f"Terraform {self.version} installed successfully!")
             return True

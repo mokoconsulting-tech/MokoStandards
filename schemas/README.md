@@ -35,9 +35,9 @@ terraform/
 
 ### For Script Developers
 
-If you were using the old XML/JSON schemas in your scripts, update to use the new Terraform-based approach:
+If you were using the old XML/JSON schemas in your scripts, update to use the new Terraform-based approach with PHP:
 
-**Old approach (XML):**
+**Old approach (Python with XML):**
 ```python
 from xml.etree import ElementTree as ET
 
@@ -46,28 +46,27 @@ root = tree.getroot()
 # Parse XML...
 ```
 
-**New approach (Terraform):**
-```python
-from terraform_schema_reader import TerraformSchemaReader
+**New approach (PHP with Terraform):**
+```php
+<?php
+require_once 'vendor/autoload.php';
 
-reader = TerraformSchemaReader()
-config = reader.get_health_config()
-# Use config dictionary directly
+use MokoStandards\Enterprise\RepositoryHealthChecker;
+
+$checker = new RepositoryHealthChecker();
+$config = $checker->getHealthConfig();
+// Use config array directly
 ```
 
 ### Updated Scripts
 
-The following scripts have been updated to use Terraform:
+The following scripts have been updated to use PHP with Terraform:
 
-- ✅ `scripts/validate/check_repo_health.py` - Uses `TerraformSchemaReader`
-- ✅ `scripts/lib/terraform_schema_reader.py` - New helper module
+- ✅ `scripts/validate/check_repo_health.php` - PHP script using Terraform config
+- ✅ `scripts/validate/check_enterprise_readiness.php` - PHP enterprise validation
+- ✅ `scripts/automation/bulk_update_repos.php` - PHP repository synchronization
 
-Scripts still being updated:
-- 🔄 `scripts/validate/validate_structure.py`
-- 🔄 `scripts/validate/validate_structure_v2.py`
-- 🔄 `scripts/validate/schema_aware_health_check.py`
-- 🔄 `scripts/validate/validate_repo_health.py`
-- 🔄 `scripts/validate/generate_stubs.py`
+**Note**: All validation scripts have been migrated to PHP. Python scripts were removed in February 2026.
 
 ### Documentation
 
@@ -98,6 +97,6 @@ If you have questions about the migration or need help updating your scripts, pl
 
 ---
 
-**Last Updated**: January 2026
-**Migration Status**: Complete
+**Last Updated**: February 2026
+**Migration Status**: Complete (PHP-Only)  
 **Schema Version**: 2.0 (Terraform-based)

@@ -59,10 +59,11 @@
 
 This repository provides:
 - **77 Policy Documents**: Comprehensive coding standards, security policies, and best practices
-- **187+ Scripts**: Automation tools for validation, maintenance, and operations (Python, PowerShell, Shell, PHP)
+- **PHP Enterprise Libraries**: 13 operational libraries for validation, automation, and operations
+- **CLI Scripts**: PHP scripts for repository management and validation
 - **Templates**: Project templates for creating standards-compliant repositories
-- **Workflows**: Reusable GitHub Actions workflows
-- **Visual Tools**: GUI applications and visual documentation with Mermaid diagrams
+- **Workflows**: Reusable GitHub Actions workflows (PHP-based)
+- **Visual Tools**: Documentation with Mermaid diagrams
 
 ## Quick Reference
 
@@ -145,18 +146,23 @@ MokoStandards/
 # Clone MokoStandards to a separate tools directory
 git clone https://github.com/mokoconsulting-tech/MokoStandards.git ~/tools/MokoStandards
 
-# Run validation against your project
+# Run validation against your project (using PHP)
 cd ~/tools/MokoStandards
-python3 scripts/validate/validate_structure.py /path/to/your/project
+php scripts/validate/check_repo_health.php --path /path/to/your/project
 ```
 
-### Using Visual Features
+### Using PHP Enterprise Libraries
 
-**Python Scripts**:
-```python
-from visual_helper import ProgressBar, print_success
+**PHP Scripts**:
+```php
+<?php
+require_once 'vendor/autoload.php';
 
-progress = ProgressBar(total=100, prefix='Processing')
+use MokoStandards\Enterprise\RepositoryHealthChecker;
+use MokoStandards\Enterprise\SecurityValidator;
+
+$checker = new RepositoryHealthChecker();
+$result = $checker->checkRepository('/path/to/project');
 for i in range(100):
     progress.update(i + 1)
 progress.finish()

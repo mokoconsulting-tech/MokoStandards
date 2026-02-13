@@ -148,7 +148,7 @@ jobs:
           WF_FILES=$(echo $SUMMARY | php -r 'echo json_decode(file_get_contents("php://stdin"), true)["workflow_files"];')
           REPO_SIZE=$(echo $SUMMARY | php -r 'echo json_decode(file_get_contents("php://stdin"), true)["repo_size_mb"];')
 
-          echo "python_files=$PHP_FILES" >> $GITHUB_OUTPUT
+          echo "php_files=$PHP_FILES" >> $GITHUB_OUTPUT
           echo "workflow_files=$WF_FILES" >> $GITHUB_OUTPUT
           echo "repo_size_mb=$REPO_SIZE" >> $GITHUB_OUTPUT
 

@@ -144,17 +144,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Setup Python
-        with:
-          python-version: '3.11'
-
-      - name: Install Python dependencies
-        run: |
-          set -x
-          python -m pip install --upgrade pip
-          echo "## 📦 Python Dependencies Installed" >> $GITHUB_STEP_SUMMARY
-          echo "- No additional dependencies required (Terraform override parsing uses built-in regex)" >> $GITHUB_STEP_SUMMARY
-
       - name: Setup GitHub CLI
         run: |
           set -x

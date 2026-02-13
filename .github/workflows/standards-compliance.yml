@@ -5,7 +5,7 @@
 # INGROUP: MokoStandards.Compliance
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/standards-compliance.yml
-# VERSION: 03.01.03
+# VERSION: 04.00.00
 # BRIEF: MokoStandards compliance validation workflow
 # NOTE: Validates repository structure, documentation, and coding standards
 
@@ -609,7 +609,7 @@ jobs:
           INVALID=0
           for workflow in $(find .github/workflows -maxdepth 1 -type f \( -name "*.yml" -o -name "*.yaml" \) 2>/dev/null); do
             if [ -f "$workflow" ]; then
-              if python3 -c "import yaml; yaml.safe_load(open('$workflow'))" 2>/dev/null; then
+              if yamllint('$workflow'))" 2>/dev/null; then
                 echo "✅ $(basename $workflow)" >> $GITHUB_STEP_SUMMARY
               else
                 echo "❌ $(basename $workflow) - invalid YAML" >> $GITHUB_STEP_SUMMARY

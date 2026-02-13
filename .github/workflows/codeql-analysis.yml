@@ -5,14 +5,13 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # FILE INFORMATION
-# DEFGROUP: GitHub.Workflow.Template
+# DEFGROUP: GitHub.Workflow
 # INGROUP: MokoStandards.Security
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
-# PATH: /templates/workflows/codeql-analysis.yml.template
+# PATH: /.github/workflows/codeql-analysis.yml
 # VERSION: 04.00.00
-# BRIEF: Template for CodeQL security scanning workflow
-# NOTE: Copy to .github/workflows/codeql-analysis.yml and adjust language matrix
-# NOTE: MokoStandards is PHP-only (v04.00.00). Use JavaScript for general scanning.
+# BRIEF: CodeQL security scanning workflow for PHP codebase
+# NOTE: Repository is PHP-only (v04.00.00). Python was removed Feb 12, 2026.
 
 name: "CodeQL Security Scanning"
 
@@ -48,11 +47,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # IMPORTANT: Only list languages that actually exist in your repository
-        # Supported: 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby'
-        # NOTE: CodeQL doesn't support PHP directly. Use JavaScript for JSON/YAML/shell scripts.
-        # For PHP-specific security, use PHP SecurityValidator enterprise library.
-        language: ['javascript']  # CHANGE THIS based on your repository
+        # MokoStandards is PHP-only (v04.00.00)
+        # JavaScript covers JSON/YAML/shell scripts
+        # Note: CodeQL doesn't support PHP directly, so we use JavaScript for general coverage
+        language: ['javascript']
 
     steps:
       - name: Checkout repository
@@ -91,6 +89,10 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Language**: ${{ matrix.language }}" >> $GITHUB_STEP_SUMMARY
           echo "**Query Suite**: security-extended, security-and-quality" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Note**: MokoStandards is PHP-only (v04.00.00)." >> $GITHUB_STEP_SUMMARY
+          echo "JavaScript scanning covers JSON, YAML, and shell scripts." >> $GITHUB_STEP_SUMMARY
+          echo "For PHP-specific security: Use PHP SecurityValidator enterprise library." >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           URL="https://github.com/${{ github.repository }}/security/code-scanning"
           echo "Check the [Security tab]($URL) for detailed findings." >> $GITHUB_STEP_SUMMARY

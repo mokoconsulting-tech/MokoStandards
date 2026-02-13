@@ -5,9 +5,9 @@
 # INGROUP: MokoStandards.AuditLogArchival
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/audit-log-archival.yml
-# VERSION: 03.02.00
+# VERSION: 04.00.00
 # BRIEF: Weekly audit log archival and compliance report generation
-# NOTE: Archives audit logs and generates compliance reports using enterprise_audit.py
+# NOTE: Archives audit logs and generates compliance reports using PHP AuditLogger
 
 name: Audit Log Archival
 
@@ -40,6 +40,15 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
+      - name: Set up PHP
+        uses: shivammathur/setup-php@2cb9b829437ee246e9b3cac53555a39208ca6d28 # v2.31.0
+        with:
+          php-version: '8.1'
+          extensions: mbstring, curl, json
+          tools: composer
+
+      - name: Install Composer Dependencies
+        run: composer install --no-dev --optimize-autoloader
 
       - name: Create Archive Directory
         run: |
@@ -54,36 +63,33 @@ jobs:
 
           RETENTION_DAYS="${{ github.event.inputs.retention_days || 90 }}"
 
-          python3 << 'EOF'
-          import sys
-          import json
-          from pathlib import Path
-          sys.path.insert(0, 'scripts/lib')
+          php << 'EOF'
+          <?php
+          require_once __DIR__ . '/vendor/autoload.php';
 
-          from enterprise_audit import AuditLogger
+          use MokoStandards\Enterprise\AuditLogger;
 
-          try:
-              # Initialize audit logger
-              logger = AuditLogger(
-                  service='audit_archival',
-                  log_dir=Path('logs/audit'),
-                  retention_days=int('${{ github.event.inputs.retention_days || 90 }}')
-              )
+          try {
+              // Initialize audit logger
+              $logger = new AuditLogger('audit_archival', 'logs/audit');
+              $retentionDays = (int)'${{ github.event.inputs.retention_days || 90 }}';
 
-              # Archive old logs
-              with logger.transaction('archive_logs') as txn:
-                  archived_count = logger.rotate_logs()
-                  txn.log_event('logs_archived', {
-                      'count': archived_count,
-                      'retention_days': int('${{ github.event.inputs.retention_days || 90 }}')
-                  })
+              // Archive old logs
+              $transaction = $logger->startTransaction('archive_logs');
+              $archivedCount = $logger->rotateLogs($retentionDays);
+              $transaction->logEvent('logs_archived', [
+                  'count' => $archivedCount,
+                  'retention_days' => $retentionDays
+              ]);
+              $transaction->commit();
 
-              print(f"✅ Successfully archived {archived_count} log files")
-              print(f"archive_count={archived_count}", file=open('/tmp/archive_output.txt', 'w'))
+              echo "✅ Successfully archived {$archivedCount} log files\n";
+              file_put_contents('/tmp/archive_output.txt', "archive_count={$archivedCount}");
 
-          except Exception as e:
-              print(f"❌ Archival failed: {e}")
-              sys.exit(1)
+          } catch (Exception $e) {
+              echo "❌ Archival failed: " . $e->getMessage() . "\n";
+              exit(1);
+          }
           EOF
 
           ARCHIVE_COUNT=$(grep archive_count /tmp/archive_output.txt | cut -d= -f2)
@@ -98,39 +104,34 @@ jobs:
           echo "## 📊 Compliance Report Generation" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          python3 << 'EOF'
-          import sys
-          import json
-          from pathlib import Path
-          from datetime import datetime, timedelta
-          sys.path.insert(0, 'scripts/lib')
+          php << 'EOF'
+          <?php
+          require_once __DIR__ . '/vendor/autoload.php';
 
-          from enterprise_audit import AuditLogger
+          use MokoStandards\Enterprise\AuditLogger;
 
-          try:
-              logger = AuditLogger(
-                  service='compliance_report',
-                  log_dir=Path('logs/audit')
-              )
+          try {
+              $logger = new AuditLogger('compliance_report', 'logs/audit');
 
-              # Generate compliance report for last 7 days
-              end_date = datetime.now()
-              start_date = end_date - timedelta(days=7)
+              // Generate compliance report for last 7 days
+              $endDate = new DateTime();
+              $startDate = (clone $endDate)->modify('-7 days');
 
-              report = logger.generate_compliance_report(
-                  start_date=start_date,
-                  end_date=end_date,
-                  output_file=Path('logs/reports/compliance-report.json')
-              )
+              $report = $logger->generateComplianceReport(
+                  $startDate,
+                  $endDate,
+                  'logs/reports/compliance-report.json'
+              );
 
-              print(f"✅ Compliance report generated")
-              print(f"Report period: {start_date.date()} to {end_date.date()}")
-              print(f"Total events: {report.get('total_events', 0)}")
-              print(f"Security events: {report.get('security_events', 0)}")
+              echo "✅ Compliance report generated\n";
+              echo "Report period: " . $startDate->format('Y-m-d') . " to " . $endDate->format('Y-m-d') . "\n";
+              echo "Total events: " . ($report['total_events'] ?? 0) . "\n";
+              echo "Security events: " . ($report['security_events'] ?? 0) . "\n";
 
-          except Exception as e:
-              print(f"⚠️ Report generation failed: {e}")
-              # Don't fail the job if report generation fails
+          } catch (Exception $e) {
+              echo "⚠️ Report generation failed: " . $e->getMessage() . "\n";
+              // Don't fail the job if report generation fails
+          }
           EOF
 
           if [ -f "logs/reports/compliance-report.json" ]; then

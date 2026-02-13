@@ -5,9 +5,9 @@
 # INGROUP: MokoStandards.HealthCheck
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/health-check.yml
-# VERSION: 03.02.00
+# VERSION: 04.00.00
 # BRIEF: Hourly library health check and circuit breaker testing
-# NOTE: Monitors library health and tests circuit breakers using api_client.py
+# NOTE: Monitors library health and tests circuit breakers using PHP ApiClient
 
 name: Health Check
 
@@ -40,6 +40,15 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
+      - name: Set up PHP
+        uses: shivammathur/setup-php@2cb9b829437ee246e9b3cac53555a39208ca6d28 # v2.31.0
+        with:
+          php-version: '8.1'
+          extensions: mbstring, curl, json
+          tools: composer
+
+      - name: Install Composer Dependencies
+        run: composer install --no-dev --optimize-autoloader
 
       - name: Create Health Check Directory
         run: |
@@ -52,111 +61,104 @@ jobs:
           echo "## 🏥 Library Health Check" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          python3 << 'EOF'
-          import sys
-          import json
-          from pathlib import Path
-          sys.path.insert(0, 'scripts/lib')
+          php << 'EOF'
+          <?php
+          require_once __DIR__ . '/vendor/autoload.php';
 
-          health_status = {}
-          failed_libraries = []
+          use MokoStandards\Enterprise\ApiClient;
+          use MokoStandards\Enterprise\AuditLogger;
+          use MokoStandards\Enterprise\MetricsCollector;
+          use MokoStandards\Enterprise\SecurityValidator;
+          use MokoStandards\Enterprise\RepositoryHealthChecker;
 
-          # Test api_client.py
-          try:
-              from api_client import APIClient, CircuitState
+          $healthStatus = [];
+          $failedLibraries = [];
 
-              # Create a test client
-              client = APIClient(
-                  base_url='https://api.github.com',
-                  max_requests_per_hour=5000,
-                  circuit_breaker_threshold=5,
-                  circuit_breaker_timeout=30
-              )
+          // Test ApiClient
+          try {
+              $client = new ApiClient(
+                  'https://api.github.com',
+                  5000,
+                  5,
+                  30
+              );
+              $healthStatus['ApiClient'] = [
+                  'status' => 'healthy',
+                  'circuit_state' => $client->getCircuitState(),
+                  'version' => '04.00.00'
+              ];
+              echo "✅ ApiClient: healthy\n";
+          } catch (Exception $e) {
+              $healthStatus['ApiClient'] = ['status' => 'unhealthy', 'error' => $e->getMessage()];
+              $failedLibraries[] = 'ApiClient';
+              echo "❌ ApiClient: " . $e->getMessage() . "\n";
+          }
 
-              # Check circuit breaker state
-              health_status['api_client'] = {
-                  'status': 'healthy',
-                  'circuit_state': client.circuit_state.value,
-                  'version': getattr(client, 'VERSION', 'unknown')
-              }
-              print("✅ api_client.py: healthy")
+          // Test AuditLogger
+          try {
+              $logger = new AuditLogger('health_check');
+              $healthStatus['AuditLogger'] = [
+                  'status' => 'healthy',
+                  'version' => '04.00.00'
+              ];
+              echo "✅ AuditLogger: healthy\n";
+          } catch (Exception $e) {
+              $healthStatus['AuditLogger'] = ['status' => 'unhealthy', 'error' => $e->getMessage()];
+              $failedLibraries[] = 'AuditLogger';
+              echo "❌ AuditLogger: " . $e->getMessage() . "\n";
+          }
 
-          except Exception as e:
-              health_status['api_client'] = {'status': 'unhealthy', 'error': str(e)}
-              failed_libraries.append('api_client')
-              print(f"❌ api_client.py: {e}")
+          // Test MetricsCollector
+          try {
+              $metrics = new MetricsCollector('health_check');
+              $metrics->increment('health_check_test');
+              $healthStatus['MetricsCollector'] = [
+                  'status' => 'healthy',
+                  'version' => '04.00.00'
+              ];
+              echo "✅ MetricsCollector: healthy\n";
+          } catch (Exception $e) {
+              $healthStatus['MetricsCollector'] = ['status' => 'unhealthy', 'error' => $e->getMessage()];
+              $failedLibraries[] = 'MetricsCollector';
+              echo "❌ MetricsCollector: " . $e->getMessage() . "\n";
+          }
 
-          # Test enterprise_audit.py
-          try:
-              from enterprise_audit import AuditLogger
+          // Test SecurityValidator
+          try {
+              $validator = new SecurityValidator();
+              $healthStatus['SecurityValidator'] = [
+                  'status' => 'healthy',
+                  'version' => '04.00.00'
+              ];
+              echo "✅ SecurityValidator: healthy\n";
+          } catch (Exception $e) {
+              $healthStatus['SecurityValidator'] = ['status' => 'unhealthy', 'error' => $e->getMessage()];
+              $failedLibraries[] = 'SecurityValidator';
+              echo "❌ SecurityValidator: " . $e->getMessage() . "\n";
+          }
 
-              logger = AuditLogger(service='health_check', enable_file=False)
-              health_status['enterprise_audit'] = {
-                  'status': 'healthy',
-                  'version': logger.VERSION
-              }
-              print("✅ enterprise_audit.py: healthy")
+          // Save health report
+          file_put_contents('logs/health/health-report.json', json_encode($healthStatus, JSON_PRETTY_PRINT));
 
-          except Exception as e:
-              health_status['enterprise_audit'] = {'status': 'unhealthy', 'error': str(e)}
-              failed_libraries.append('enterprise_audit')
-              print(f"❌ enterprise_audit.py: {e}")
+          $summary = [
+              'total' => count($healthStatus),
+              'healthy' => count(array_filter($healthStatus, fn($s) => $s['status'] === 'healthy')),
+              'unhealthy' => count($failedLibraries),
+              'failed' => $failedLibraries
+          ];
+          file_put_contents('/tmp/health_summary.json', json_encode($summary));
 
-          # Test metrics_collector.py
-          try:
-              from metrics_collector import MetricsCollector
-
-              metrics = MetricsCollector()
-              metrics.increment('health_check_test')
-              health_status['metrics_collector'] = {
-                  'status': 'healthy',
-                  'version': metrics.VERSION
-              }
-              print("✅ metrics_collector.py: healthy")
-
-          except Exception as e:
-              health_status['metrics_collector'] = {'status': 'unhealthy', 'error': str(e)}
-              failed_libraries.append('metrics_collector')
-              print(f"❌ metrics_collector.py: {e}")
-
-          # Test security_validator.py
-          try:
-              from security_validator import SecurityValidator
-
-              validator = SecurityValidator()
-              health_status['security_validator'] = {
-                  'status': 'healthy',
-                  'version': validator.VERSION
-              }
-              print("✅ security_validator.py: healthy")
-
-          except Exception as e:
-              health_status['security_validator'] = {'status': 'unhealthy', 'error': str(e)}
-              failed_libraries.append('security_validator')
-              print(f"❌ security_validator.py: {e}")
-
-          # Save health report
-          with open('logs/health/health-report.json', 'w') as f:
-              json.dump(health_status, f, indent=2)
-
-          with open('/tmp/health_summary.json', 'w') as f:
-              json.dump({
-                  'total': len(health_status),
-                  'healthy': len([s for s in health_status.values() if s['status'] == 'healthy']),
-                  'unhealthy': len(failed_libraries),
-                  'failed': failed_libraries
-              }, f)
-
-          if failed_libraries:
-              sys.exit(1)
+          if (count($failedLibraries) > 0) {
+              exit(1);
+          }
           EOF
 
           # Read summary and output
           if [ -f "/tmp/health_summary.json" ]; then
             SUMMARY=$(cat /tmp/health_summary.json)
-            TOTAL=$(echo $SUMMARY | python3 -c "import sys, json; print(json.load(sys.stdin)['total'])")
-            HEALTHY=$(echo $SUMMARY | python3 -c "import sys, json; print(json.load(sys.stdin)['healthy'])")
-            UNHEALTHY=$(echo $SUMMARY | python3 -c "import sys, json; print(json.load(sys.stdin)['unhealthy'])")
+            TOTAL=$(echo $SUMMARY | php -r 'echo json_decode(file_get_contents("php://stdin"), true)["total"];')
+            HEALTHY=$(echo $SUMMARY | php -r 'echo json_decode(file_get_contents("php://stdin"), true)["healthy"];')
+            UNHEALTHY=$(echo $SUMMARY | php -r 'echo json_decode(file_get_contents("php://stdin"), true)["unhealthy"];')
 
             echo "total_libraries=$TOTAL" >> $GITHUB_OUTPUT
             echo "healthy_count=$HEALTHY" >> $GITHUB_OUTPUT
@@ -175,58 +177,55 @@ jobs:
           echo "## 🔌 Circuit Breaker Test" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          python3 << 'EOF'
-          import sys
-          import time
-          sys.path.insert(0, 'scripts/lib')
+          php << 'EOF'
+          <?php
+          require_once __DIR__ . '/vendor/autoload.php';
 
-          try:
-              from api_client import APIClient, CircuitState, CircuitBreakerOpen
+          use MokoStandards\Enterprise\ApiClient;
 
-              # Create test client with low threshold
-              client = APIClient(
-                  base_url='https://httpbin.org',
-                  circuit_breaker_threshold=3,
-                  circuit_breaker_timeout=5
-              )
+          try {
+              // Create test client with low threshold
+              $client = new ApiClient(
+                  'https://httpbin.org',
+                  5000,
+                  3,
+                  5
+              );
 
-              print(f"Initial state: {client.circuit_state.value}")
+              echo "Initial state: " . $client->getCircuitState() . "\n";
 
-              # Simulate failures to trip circuit breaker
-              for i in range(4):
-                  try:
-                      # This will fail and increment failure count
-                      client._circuit_breaker_failures = i
-                      if i >= 3:
-                          client.circuit_state = CircuitState.OPEN
-                          client._circuit_breaker_open_until = time.time() + 5
-                  except:
-                      pass
+              // Simulate failures to trip circuit breaker
+              for ($i = 0; $i < 4; $i++) {
+                  try {
+                      $client->simulateFailure();
+                  } catch (Exception $e) {
+                      // Expected
+                  }
+              }
 
-              print(f"After simulated failures: {client.circuit_state.value}")
+              echo "After simulated failures: " . $client->getCircuitState() . "\n";
 
-              # Verify circuit is open
-              try:
-                  if client.circuit_state == CircuitState.OPEN:
-                      print("✅ Circuit breaker correctly opened after threshold")
-                  else:
-                      print("⚠️ Circuit breaker did not open as expected")
-              except CircuitBreakerOpen:
-                  print("✅ Circuit breaker is open (raising exception)")
+              // Verify circuit is open
+              if ($client->getCircuitState() === 'OPEN') {
+                  echo "✅ Circuit breaker correctly opened after threshold\n";
+              } else {
+                  echo "⚠️ Circuit breaker did not open as expected\n";
+              }
 
-              # Wait for timeout
-              print("Waiting for circuit timeout...")
-              time.sleep(6)
+              // Wait for timeout
+              echo "Waiting for circuit timeout...\n";
+              sleep(6);
 
-              # Check if circuit moved to half-open
-              client._check_circuit_breaker()
-              print(f"After timeout: {client.circuit_state.value}")
+              // Check if circuit moved to half-open
+              $client->checkCircuitBreaker();
+              echo "After timeout: " . $client->getCircuitState() . "\n";
 
-              print("✅ Circuit breaker test completed successfully")
+              echo "✅ Circuit breaker test completed successfully\n";
 
-          except Exception as e:
-              print(f"❌ Circuit breaker test failed: {e}")
-              sys.exit(1)
+          } catch (Exception $e) {
+              echo "❌ Circuit breaker test failed: " . $e->getMessage() . "\n";
+              exit(1);
+          }
           EOF
 
           echo "✅ Circuit breaker test passed" >> $GITHUB_STEP_SUMMARY

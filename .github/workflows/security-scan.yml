@@ -5,9 +5,9 @@
 # INGROUP: MokoStandards.SecurityScan
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/security-scan.yml
-# VERSION: 03.02.00
+# VERSION: 04.00.00
 # BRIEF: Daily security scanning and report generation
-# NOTE: Enhanced security scanning using security_validator.py
+# NOTE: Enhanced security scanning using PHP SecurityValidator
 
 name: Security Scan
 
@@ -52,6 +52,15 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
+      - name: Set up PHP
+        uses: shivammathur/setup-php@2cb9b829437ee246e9b3cac53555a39208ca6d28 # v2.31.0
+        with:
+          php-version: '8.1'
+          extensions: mbstring, curl, json
+          tools: composer
+
+      - name: Install Composer Dependencies
+        run: composer install --no-dev --optimize-autoloader
 
       - name: Create Reports Directory
         run: |
@@ -65,61 +74,78 @@ jobs:
           echo "## 🔐 Credential Scan" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          python3 << 'EOF'
-          import sys
-          import json
-          from pathlib import Path
-          sys.path.insert(0, 'scripts/lib')
+          php << 'EOF'
+          <?php
+          require_once __DIR__ . '/vendor/autoload.php';
 
-          from security_validator import SecurityValidator
+          use MokoStandards\Enterprise\SecurityValidator;
 
-          try:
-              validator = SecurityValidator()
-              all_findings = []
+          try {
+              $validator = new SecurityValidator();
+              $allFindings = [];
 
-              # Scan Python files
-              py_files = list(Path('scripts').rglob('*.py'))
-              for file_path in py_files:
-                  findings = validator.scan_file(str(file_path), check_credentials=True)
-                  if findings:
-                      all_findings.extend(findings)
+              // Scan PHP files
+              $phpFiles = new RecursiveIteratorIterator(
+                  new RecursiveCallbackFilterIterator(
+                      new RecursiveDirectoryIterator('src', RecursiveDirectoryIterator::SKIP_DOTS),
+                      function ($file, $key, $iterator) {
+                          return $file->isDir() || $file->getExtension() === 'php';
+                      }
+                  )
+              );
 
-              # Scan workflow files
-              yml_files = list(Path('.github/workflows').rglob('*.yml'))
-              for file_path in yml_files:
-                  findings = validator.scan_file(str(file_path), check_credentials=True)
-                  if findings:
-                      all_findings.extend(findings)
+              $phpFileCount = 0;
+              foreach ($phpFiles as $file) {
+                  if ($file->isFile()) {
+                      $phpFileCount++;
+                      $findings = $validator->scanFile($file->getPathname(), true, false);
+                      if (!empty($findings)) {
+                          $allFindings = array_merge($allFindings, $findings);
+                      }
+                  }
+              }
 
-              print(f"Scanned {len(py_files)} Python files and {len(yml_files)} workflow files")
-              print(f"Found {len(all_findings)} potential credential issues")
+              // Scan workflow files
+              $ymlFiles = glob('.github/workflows/*.yml');
+              foreach ($ymlFiles as $filePath) {
+                  $findings = $validator->scanFile($filePath, true, false);
+                  if (!empty($findings)) {
+                      $allFindings = array_merge($allFindings, $findings);
+                  }
+              }
 
-              if all_findings:
-                  print("\n⚠️ Potential credential issues found:")
-                  for finding in all_findings[:10]:  # Show first 10
-                      print(f"  - {finding.get('file')}: {finding.get('issue')}")
-              else:
-                  print("✅ No credential issues found")
+              $totalFiles = $phpFileCount + count($ymlFiles);
+              echo "Scanned {$phpFileCount} PHP files and " . count($ymlFiles) . " workflow files\n";
+              echo "Found " . count($allFindings) . " potential credential issues\n";
 
-              # Save findings
-              with open('logs/security/credentials-scan.json', 'w') as f:
-                  json.dump(all_findings, f, indent=2)
+              if (!empty($allFindings)) {
+                  echo "\n⚠️ Potential credential issues found:\n";
+                  foreach (array_slice($allFindings, 0, 10) as $finding) {
+                      echo "  - {$finding['file']}: {$finding['issue']}\n";
+                  }
+              } else {
+                  echo "✅ No credential issues found\n";
+              }
 
-              with open('/tmp/credential_summary.json', 'w') as f:
-                  json.dump({
-                      'files_scanned': len(py_files) + len(yml_files),
-                      'issues_found': len(all_findings)
-                  }, f)
+              // Save findings
+              file_put_contents('logs/security/credentials-scan.json', json_encode($allFindings, JSON_PRETTY_PRINT));
 
-          except Exception as e:
-              print(f"❌ Credential scan failed: {e}")
-              sys.exit(1)
+              $summary = [
+                  'files_scanned' => $totalFiles,
+                  'issues_found' => count($allFindings)
+              ];
+              file_put_contents('/tmp/credential_summary.json', json_encode($summary));
+
+          } catch (Exception $e) {
+              echo "❌ Credential scan failed: {$e->getMessage()}\n";
+              exit(1);
+          }
           EOF
 
           if [ -f "/tmp/credential_summary.json" ]; then
             SUMMARY=$(cat /tmp/credential_summary.json)
-            FILES=$(echo $SUMMARY | python3 -c "import sys, json; print(json.load(sys.stdin)['files_scanned'])")
-            ISSUES=$(echo $SUMMARY | python3 -c "import sys, json; print(json.load(sys.stdin)['issues_found'])")
+            FILES=$(echo $SUMMARY | php -r 'echo json_decode(file_get_contents("php://stdin"), true)["files_scanned"];')
+            ISSUES=$(echo $SUMMARY | php -r 'echo json_decode(file_get_contents("php://stdin"), true)["issues_found"];')
 
             echo "files_scanned=$FILES" >> $GITHUB_OUTPUT
             echo "issues_found=$ISSUES" >> $GITHUB_OUTPUT
@@ -136,54 +162,64 @@ jobs:
           echo "## 🛡️ Vulnerability Scan" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          python3 << 'EOF'
-          import sys
-          import json
-          from pathlib import Path
-          sys.path.insert(0, 'scripts/lib')
+          php << 'EOF'
+          <?php
+          require_once __DIR__ . '/vendor/autoload.php';
 
-          from security_validator import SecurityValidator
+          use MokoStandards\Enterprise\SecurityValidator;
 
-          try:
-              validator = SecurityValidator()
-              vulnerabilities = []
+          try {
+              $validator = new SecurityValidator();
+              $vulnerabilities = [];
 
-              # Scan for dangerous functions
-              py_files = list(Path('scripts').rglob('*.py'))
-              for file_path in py_files:
-                  findings = validator.scan_file(
-                      str(file_path),
-                      check_credentials=False,
-                      check_dangerous_functions=True
+              // Scan for dangerous functions
+              $phpFiles = new RecursiveIteratorIterator(
+                  new RecursiveCallbackFilterIterator(
+                      new RecursiveDirectoryIterator('src', RecursiveDirectoryIterator::SKIP_DOTS),
+                      function ($file, $key, $iterator) {
+                          return $file->isDir() || $file->getExtension() === 'php';
+                      }
                   )
-                  if findings:
-                      vulnerabilities.extend(findings)
+              );
 
-              print(f"Scanned {len(py_files)} Python files")
-              print(f"Found {len(vulnerabilities)} potential vulnerabilities")
+              $phpFileCount = 0;
+              foreach ($phpFiles as $file) {
+                  if ($file->isFile()) {
+                      $phpFileCount++;
+                      $findings = $validator->scanFile($file->getPathname(), false, true);
+                      if (!empty($findings)) {
+                          $vulnerabilities = array_merge($vulnerabilities, $findings);
+                      }
+                  }
+              }
 
-              if vulnerabilities:
-                  print("\n⚠️ Potential vulnerabilities found:")
-                  for vuln in vulnerabilities[:10]:  # Show first 10
-                      print(f"  - {vuln.get('file')}: {vuln.get('issue')}")
-              else:
-                  print("✅ No vulnerabilities found")
+              echo "Scanned {$phpFileCount} PHP files\n";
+              echo "Found " . count($vulnerabilities) . " potential vulnerabilities\n";
 
-              # Save findings
-              with open('logs/security/vulnerabilities-scan.json', 'w') as f:
-                  json.dump(vulnerabilities, f, indent=2)
+              if (!empty($vulnerabilities)) {
+                  echo "\n⚠️ Potential vulnerabilities found:\n";
+                  foreach (array_slice($vulnerabilities, 0, 10) as $vuln) {
+                      echo "  - {$vuln['file']}: {$vuln['issue']}\n";
+                  }
+              } else {
+                  echo "✅ No vulnerabilities found\n";
+              }
 
-              with open('/tmp/vuln_summary.json', 'w') as f:
-                  json.dump({'vulnerabilities_found': len(vulnerabilities)}, f)
+              // Save findings
+              file_put_contents('logs/security/vulnerabilities-scan.json', json_encode($vulnerabilities, JSON_PRETTY_PRINT));
 
-          except Exception as e:
-              print(f"❌ Vulnerability scan failed: {e}")
-              sys.exit(1)
+              $summary = ['vulnerabilities_found' => count($vulnerabilities)];
+              file_put_contents('/tmp/vuln_summary.json', json_encode($summary));
+
+          } catch (Exception $e) {
+              echo "❌ Vulnerability scan failed: {$e->getMessage()}\n";
+              exit(1);
+          }
           EOF
 
           if [ -f "/tmp/vuln_summary.json" ]; then
             SUMMARY=$(cat /tmp/vuln_summary.json)
-            VULNS=$(echo $SUMMARY | python3 -c "import sys, json; print(json.load(sys.stdin)['vulnerabilities_found'])")
+            VULNS=$(echo $SUMMARY | php -r 'echo json_decode(file_get_contents("php://stdin"), true)["vulnerabilities_found"];')
 
             echo "vulnerabilities_found=$VULNS" >> $GITHUB_OUTPUT
             echo "- Vulnerabilities found: **${VULNS}**" >> $GITHUB_STEP_SUMMARY
@@ -195,53 +231,53 @@ jobs:
           echo "## 📋 Security Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          python3 << 'EOF'
-          import sys
-          import json
-          from pathlib import Path
-          from datetime import datetime
+          php << 'EOF'
+          <?php
+          require_once __DIR__ . '/vendor/autoload.php';
 
-          try:
-              report = {
-                  'scan_date': datetime.now().isoformat(),
-                  'scan_type': '${{ github.event.inputs.scan_type || 'all' }}',
-                  'repository': 'MokoStandards',
-                  'results': {}
+          try {
+              $report = [
+                  'scan_date' => date('c'),
+                  'scan_type' => '${{ github.event.inputs.scan_type }}' ?: 'all',
+                  'repository' => 'MokoStandards',
+                  'results' => []
+              ];
+
+              // Load credential scan results
+              $credFile = 'logs/security/credentials-scan.json';
+              if (file_exists($credFile)) {
+                  $report['results']['credentials'] = json_decode(file_get_contents($credFile), true);
               }
 
-              # Load credential scan results
-              cred_file = Path('logs/security/credentials-scan.json')
-              if cred_file.exists():
-                  with open(cred_file, 'r') as f:
-                      report['results']['credentials'] = json.load(f)
-
-              # Load vulnerability scan results
-              vuln_file = Path('logs/security/vulnerabilities-scan.json')
-              if vuln_file.exists():
-                  with open(vuln_file, 'r') as f:
-                      report['results']['vulnerabilities'] = json.load(f)
-
-              # Calculate summary
-              total_issues = sum(
-                  len(v) if isinstance(v, list) else 0
-                  for v in report['results'].values()
-              )
-
-              report['summary'] = {
-                  'total_issues': total_issues,
-                  'credential_issues': len(report['results'].get('credentials', [])),
-                  'vulnerabilities': len(report['results'].get('vulnerabilities', []))
+              // Load vulnerability scan results
+              $vulnFile = 'logs/security/vulnerabilities-scan.json';
+              if (file_exists($vulnFile)) {
+                  $report['results']['vulnerabilities'] = json_decode(file_get_contents($vulnFile), true);
               }
 
-              # Save report
-              with open('logs/reports/security-report.json', 'w') as f:
-                  json.dump(report, f, indent=2)
+              // Calculate summary
+              $totalIssues = 0;
+              foreach ($report['results'] as $issues) {
+                  if (is_array($issues)) {
+                      $totalIssues += count($issues);
+                  }
+              }
 
-              print(f"✅ Security report generated")
-              print(f"Total issues: {total_issues}")
+              $report['summary'] = [
+                  'total_issues' => $totalIssues,
+                  'credential_issues' => count($report['results']['credentials'] ?? []),
+                  'vulnerabilities' => count($report['results']['vulnerabilities'] ?? [])
+              ];
 
-          except Exception as e:
-              print(f"⚠️ Report generation failed: {e}")
+              // Save report
+              file_put_contents('logs/reports/security-report.json', json_encode($report, JSON_PRETTY_PRINT));
+
+              echo "✅ Security report generated\n";
+              echo "Total issues: {$totalIssues}\n";
+
+          } catch (Exception $e) {
+              echo "⚠️ Report generation failed: {$e->getMessage()}\n";
+          }
           EOF
 
           if [ -f "logs/reports/security-report.json" ]; then
@@ -261,7 +297,7 @@ jobs:
       - name: Check Strict Mode
         if: github.event.inputs.strict_mode == 'true'
         run: |
-          ISSUES=$(cat logs/reports/security-report.json | python3 -c "import sys, json; print(json.load(sys.stdin)['summary']['total_issues'])")
+          ISSUES=$(cat logs/reports/security-report.json | php -r 'echo json_decode(file_get_contents("php://stdin"), true)["summary"]["total_issues"];')
           if [ "$ISSUES" -gt "0" ]; then
             echo "❌ Security issues found in strict mode" >> $GITHUB_STEP_SUMMARY
             exit 1

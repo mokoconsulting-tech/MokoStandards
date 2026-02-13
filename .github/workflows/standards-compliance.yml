@@ -624,7 +624,6 @@ jobs:
 
       - name: Setup Python for CodeQL Validation
         if: hashFiles('.github/workflows/codeql-analysis.yml') != ''
-        uses: actions/setup-python@v6
         with:
           python-version: '3.x'
 

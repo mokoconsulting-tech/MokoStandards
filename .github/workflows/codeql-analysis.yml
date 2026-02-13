@@ -60,6 +60,8 @@ jobs:
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
+          # Reference explicit config to prevent Python auto-detection
+          config-file: ./.github/codeql/codeql-config.yml
           # Use security-extended query suite for comprehensive coverage
           queries: security-extended,security-and-quality
 

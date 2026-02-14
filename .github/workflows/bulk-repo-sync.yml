@@ -142,7 +142,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup GitHub CLI
         run: |
@@ -328,7 +328,7 @@ jobs:
 
       - name: Create tracking issue on failure
         if: failure()
-        uses: actions/github-script@v8
+        uses: actions/github-script@v4
         with:
           script: |
             const fs = require('fs');

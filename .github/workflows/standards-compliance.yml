@@ -84,7 +84,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Check Required Directories
         run: |
@@ -213,7 +213,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Validate README.md
         run: |
@@ -407,7 +407,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Check for Tab Characters
         run: |
@@ -493,7 +493,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Check SPDX Headers
         run: |
@@ -560,7 +560,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -617,7 +617,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Check Required Workflows
         run: |
@@ -1025,7 +1025,7 @@ jobs:
 
       - name: Create tracking issue for standards violations
         if: failure() && github.event_name == 'push'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v4
         with:
           script: |
             const compliancePercent = '${{ needs.compliance-check.outputs.compliance_percentage }}' || '0';

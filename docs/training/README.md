@@ -32,7 +32,7 @@ BRIEF: Training program index for MokoStandards enterprise libraries
 # MokoStandards Enterprise Libraries Training Program
 
 **Version**: 04.00.00  
-**Duration**: 7 hours across 3 sessions  
+**Duration**: 12 hours across 5 sessions  
 **Format**: Instructor-led with hands-on exercises  
 **Level**: Intermediate to Advanced
 
@@ -40,15 +40,19 @@ BRIEF: Training program index for MokoStandards enterprise libraries
 
 ## Overview
 
-This comprehensive training program introduces developers to the MokoStandards enterprise library ecosystem. Through a combination of presentations, live demonstrations, and hands-on exercises, participants will learn to integrate 13 powerful PHP enterprise libraries into their automation scripts, workflows, and web applications.
+This comprehensive training program introduces developers to the MokoStandards enterprise library ecosystem and complete policy framework. Through a combination of presentations, live demonstrations, and hands-on exercises, participants will learn to integrate 13 powerful PHP enterprise libraries into their automation scripts, workflows, and web applications while ensuring full compliance with all 31 MokoStandards policies.
 
 **What You'll Learn**:
+- Complete MokoStandards policy framework (31 policy documents)
 - How to use all 13 PHP enterprise libraries effectively
+- Standards application and compliance verification
 - Best practices for enterprise-grade automation with PHP 8.1+
 - Error recovery and resilience patterns
 - Transaction management and audit logging
 - Security and performance optimization techniques
 - Web-based interface development with Material Design 3
+- Code review and quality assurance processes
+- Audit readiness and compliance documentation
 
 ---
 
@@ -95,6 +99,28 @@ This comprehensive training program introduces developers to the MokoStandards e
 ---
 
 ## Training Schedule
+
+### Session 0: Standards Foundation (Prerequisite)
+**Duration**: 2 hours  
+**Format**: Self-paced + Instructor Overview  
+**File**: [session-0-standards-foundation.md](session-0-standards-foundation.md)
+
+**Topics**:
+- Overview of all 31 MokoStandards policy documents
+- Repository structure and organization standards
+- Standards categories (code, documentation, security, workflow, quality)
+- How to locate and apply standards effectively
+- Compliance requirements overview
+- Quality assurance principles and practices
+
+**Learning Objectives**:
+- ✅ Understand the complete MokoStandards policy framework
+- ✅ Navigate repository structure and locate standards efficiently
+- ✅ Identify applicable standards for different development scenarios
+- ✅ Understand compliance requirements and quality principles
+- ✅ Use standards documentation effectively in daily work
+
+---
 
 ### Session 1: Enterprise Libraries Overview
 **Duration**: 2 hours  
@@ -163,6 +189,33 @@ This comprehensive training program introduces developers to the MokoStandards e
 
 ---
 
+### Session 4: Standards Compliance & Certification (Capstone)
+**Duration**: 3 hours  
+**Format**: Comprehensive Workshop + Assessment  
+**File**: [session-4-standards-compliance.md](session-4-standards-compliance.md)
+
+**Topics**:
+- Complete policy review (all 31 policy documents)
+- Code review guidelines application
+- Repository standards deep dive
+- Security standards and compliance verification
+- Quality and testing standards enforcement
+- Workflow and automation standards
+- Documentation standards and governance
+- Real-world compliance scenarios
+- Audit readiness and compliance documentation
+- Final certification assessment
+
+**Learning Objectives**:
+- ✅ Master all 31 MokoStandards policy documents
+- ✅ Apply standards to real-world compliance scenarios
+- ✅ Conduct comprehensive code reviews using all guidelines
+- ✅ Implement security, quality, and workflow standards
+- ✅ Verify audit readiness and compliance
+- ✅ Earn MokoStandards Certified Developer certification
+
+---
+
 ## Training Materials Structure
 
 Each training session includes:
@@ -176,33 +229,52 @@ Each training session includes:
 
 ## Recommended Learning Path
 
-### For New PHP Developers
-1. Complete all prerequisites (ensure PHP 8.1+ installed)
-2. Attend Session 1 (PHP Libraries Overview)
-3. Practice with provided exercises between sessions
+### For New Developers
+1. **Start with Session 0** (Standards Foundation) - REQUIRED
+2. Complete all prerequisites (ensure PHP 8.1+ installed)
+3. Attend Session 1 (PHP Libraries Overview)
+4. Practice with provided exercises between sessions
+5. Attend Session 2 (Integration Workshop)
+6. Implement a simple script using 3+ PHP libraries
+7. Attend Session 3 (Advanced Features)
+8. Review and refactor your script with advanced patterns
+9. **Complete Session 4** (Standards Compliance) for certification
+
+### For Experienced Developers
+1. **Start with Session 0** (Standards Foundation) - REQUIRED
+2. Review prerequisites (skip if proficient in PHP 8.1+)
+3. Self-study Session 1 materials
 4. Attend Session 2 (Integration Workshop)
-5. Implement a simple script using 3+ PHP libraries
-6. Attend Session 3 (Advanced Features)
-7. Review and refactor your script with advanced patterns
+5. Attend Session 3 (Advanced Features)
+6. Create a production-ready script using enterprise libraries
+7. **Complete Session 4** (Standards Compliance) for certification
 
-### For Experienced PHP Developers
-1. Review prerequisites (skip if proficient in PHP 8.1+)
-2. Self-study Session 1 materials
-3. Attend Session 2 (Integration Workshop)
-4. Attend Session 3 (Advanced Features)
-5. Create a production-ready script using enterprise libraries
+### For Team Leads & Architects
+1. **Complete Session 0** (Standards Foundation) - REQUIRED
+2. Complete Sessions 1-3 (can be self-paced)
+3. **Complete Session 4** (Standards Compliance & Certification)
+4. Review the [Implementation Roadmap](../planning/README.md)
+5. Review all [Policy Documents](../policy/index.md)
+6. Plan team migration strategy
+7. Establish coding standards using these libraries
+8. Lead team training and compliance initiatives
 
-### For Team Leads
-1. Complete all three sessions
-2. Review the [Implementation Roadmap](../planning/README.md)
-3. Plan team migration strategy
-4. Establish coding standards using these libraries
+### For Auditors & Compliance Officers
+1. **Complete Session 0** (Standards Foundation) - REQUIRED
+2. Review Session 1 materials (understand technical implementation)
+3. **Focus on Session 4** (Standards Compliance & Certification)
+4. Review all [Security Policies](../policy/security/index.md)
+5. Review [Quality Standards](../policy/quality/index.md)
+6. Understand audit evidence and compliance verification
 
 ---
 
 ## Additional Resources
 
 ### Documentation
+- **[Policy Documents](../policy/index.md)**: All 31 MokoStandards policy documents
+- **[Security Policies](../policy/security/index.md)**: Security-specific standards (10 policies)
+- **[Quality Policies](../policy/quality/index.md)**: Quality assurance standards (3 policies)
 - **[PHP-Only Architecture](../guide/php-only-architecture.md)**: Complete architecture guide
 - **[Automation Guide](../automation/README.md)**: Complete automation documentation
 - **[Planning Roadmap](../planning/README.md)**: Implementation roadmap and future plans
@@ -227,6 +299,13 @@ Each training session includes:
 
 After completing this training program, you should be able to:
 
+✅ **Master MokoStandards Framework**
+- Understand all 31 policy documents and their application
+- Navigate repository structure and locate standards efficiently
+- Identify applicable standards for any development scenario
+- Apply standards consistently in all work
+- Verify compliance and audit readiness
+
 ✅ **Use PHP Libraries Independently**
 - Import and initialize any of the 13 PHP enterprise libraries
 - Use PSR-4 autoloading with Composer
@@ -239,6 +318,7 @@ After completing this training program, you should be able to:
 - Add metrics and monitoring
 - Apply security best practices
 - Use strict types and modern PHP 8.1+ features
+- Follow all applicable MokoStandards policies
 
 ✅ **Follow Best Practices**
 - Write maintainable, well-documented PHP code
@@ -247,12 +327,21 @@ After completing this training program, you should be able to:
 - Meet compliance requirements
 - Follow PSR standards (PSR-1, PSR-4, PSR-12)
 
+✅ **Conduct Comprehensive Code Reviews**
+- Apply all code review guidelines systematically
+- Identify security vulnerabilities and quality issues
+- Verify compliance with all applicable standards
+- Provide constructive, actionable feedback
+- Approve or block merges based on standards compliance
+
 ---
 
 ## Assessment & Certification
 
 ### Knowledge Checks
-Each session includes quiz questions to validate understanding. Minimum passing score: 80%.
+Each session includes quiz questions to validate understanding:
+- **Session 0**: Minimum passing score: 80% (8/10 questions)
+- **Session 4**: Minimum passing score: 87% (13/15 questions)
 
 ### Hands-On Project
 Final assessment: Create a production-ready PHP automation script using:
@@ -263,12 +352,25 @@ Final assessment: Create a production-ready PHP automation script using:
 - ✅ Security validation
 - ✅ Strict types and proper PHP 8.1+ syntax
 - ✅ PSR-4 autoloading and namespace structure
+- ✅ Compliance with all applicable MokoStandards policies
+- ✅ Complete documentation following standards
+- ✅ Passes all quality gates and security scans
 
-### Certification
+### Certification Requirements
+To earn **MokoStandards Certified Developer** certification:
+- ✅ Complete Session 0 (Standards Foundation) - REQUIRED
+- ✅ Complete Sessions 1-3 (Enterprise Libraries)
+- ✅ Complete Session 4 (Standards Compliance & Certification)
+- ✅ Pass all knowledge checks (80%+ each)
+- ✅ Complete final project meeting all standards
+- ✅ Demonstrate audit readiness and compliance verification
+
+### Certification Benefits
 Upon successful completion:
-- **Certificate**: "MokoStandards Enterprise Libraries Certified Developer"
-- **Badge**: Add to GitHub profile or LinkedIn
+- **Certificate**: "MokoStandards Certified Developer"
+- **Digital Badge**: Add to GitHub profile or LinkedIn
 - **Recognition**: Listed on team developer registry
+- **Recertification**: Required every 12 months with standards updates
 
 ---
 
@@ -280,12 +382,15 @@ Upon successful completion:
 - **Best Practices**: Review updated documentation quarterly
 
 ### Advanced Topics (Future Sessions)
+- Advanced security patterns and threat modeling
 - Distributed automation patterns with PHP
 - Multi-organization management
 - Custom library extensions and PSR-4 practices
 - PHP 8.1+ performance tuning (JIT, OPcache)
 - Web interface customization with Material Design 3
 - Testing with PHPUnit and integration tests
+- Compliance automation and audit preparation
+- Policy governance and standards evolution
 
 ---
 
@@ -306,9 +411,14 @@ We continuously improve this training program based on participant feedback.
 
 | Resource | Link |
 |----------|------|
+| **Session 0** | [Standards Foundation (Prerequisite)](session-0-standards-foundation.md) ⭐ |
 | **Session 1** | [PHP Libraries Overview](session-1-libraries-overview.md) |
 | **Session 2** | [Integration Workshop](session-2-integration-workshop.md) |
 | **Session 3** | [Advanced Features](session-3-advanced-features.md) |
+| **Session 4** | [Standards Compliance & Certification](session-4-standards-compliance.md) 🎓 |
+| **Policy Documents** | [docs/policy/](../policy/index.md) |
+| **Security Policies** | [docs/policy/security/](../policy/security/index.md) |
+| **Quality Policies** | [docs/policy/quality/](../policy/quality/index.md) |
 | **PHP Libraries** | [src/Enterprise/](../../src/Enterprise/) |
 | **PHP Architecture** | [docs/guide/php-only-architecture.md](../guide/php-only-architecture.md) |
 | **Automation Guide** | [docs/automation/README.md](../automation/README.md) |
@@ -316,4 +426,4 @@ We continuously improve this training program based on participant feedback.
 
 ---
 
-**Ready to get started?** → Begin with [Session 1: Enterprise Libraries Overview](session-1-libraries-overview.md)
+**Ready to get started?** → Begin with [Session 0: Standards Foundation](session-0-standards-foundation.md) ⭐ **(REQUIRED PREREQUISITE)**

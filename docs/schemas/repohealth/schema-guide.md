@@ -296,20 +296,23 @@ set -e
 echo "TODO: Implement [filename]"
 ```
 
-**Python (.py)**:
-```python
-#!/usr/bin/env python3
-"""[Filename]
+**PHP (.php)**:
+```php
+<?php
+declare(strict_types=1);
 
-TODO: Add module documentation
-"""
+/**
+ * [Filename]
+ *
+ * TODO: Add module documentation
+ */
 
-def main():
-    """Main function."""
-    pass
+function main(): void
+{
+    // TODO: Implement functionality
+}
 
-if __name__ == "__main__":
-    main()
+main();
 ```
 
 ### Stub Example - Config File
@@ -897,7 +900,7 @@ Source and destination extensions should match intent:
 | Owner          | Moko Consulting                                          |
 | Repo           | https://github.com/mokoconsulting-tech/                                      |
 | Path           | /docs/schemas/repohealth/schema-guide.md                                      |
-| Version        | 03.00.00                                 |
+| Version        | 04.00.00                                 |
 | Status         | Active                                         |
 | Last Reviewed  | 2026-01-28                                  |
 | Reviewed By    | Documentation Team                                    |
@@ -907,4 +910,4 @@ Source and destination extensions should match intent:
 
 | Date       | Author          | Change                                       | Notes                                              |
 | ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
-| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 03.00.00 with all required fields |
+| 2026-02-14 | Moko Consulting | Updated for PHP-only architecture | Updated to version 04.00.00, PHP code examples |

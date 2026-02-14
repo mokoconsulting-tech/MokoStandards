@@ -632,7 +632,7 @@ jobs:
 
           # Inline validation (rewritten from Python to bash for PHP-only architecture)
           CODEQL_FILE=".github/workflows/codeql-analysis.yml"
-          
+
           if [ ! -f "$CODEQL_FILE" ]; then
             echo "⚠️ CodeQL workflow file not found" >> $GITHUB_STEP_SUMMARY
             exit 0
@@ -643,7 +643,7 @@ jobs:
 
           # Extract configured languages from workflow
           LANGUAGES=$(grep -A5 "language:" "$CODEQL_FILE" | grep -oP "(?<=')[^']+(?=')" | tr '\n' ' ' || echo "")
-          
+
           if [ -z "$LANGUAGES" ]; then
             echo "❌ No languages configured in CodeQL workflow" >> $GITHUB_STEP_SUMMARY
             exit 1

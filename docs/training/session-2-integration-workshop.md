@@ -1437,7 +1437,7 @@ Reference: Production script from the repository.
 - Error Recovery for checkpointing batch updates
 - Metrics for tracking update statistics
 
-**Code Walkthrough**: See `scripts/bulk_update_repos.py`
+**Code Walkthrough**: See `scripts/automation/bulk_update_repos.php`
 
 ---
 
@@ -1452,7 +1452,7 @@ Reference: Production script from the repository.
 - Transaction Manager for atomic project creation
 - Security Validator for input validation
 
-**Code Walkthrough**: See `scripts/auto_create_org_projects.py`
+**Code Walkthrough**: See PHP web interface at `public/index.php` (Organization Management section)
 
 ---
 
@@ -1467,7 +1467,7 @@ Reference: Production script from the repository.
 - Error Recovery with checkpoint-based recovery
 - Metrics for cleanup statistics
 
-**Code Walkthrough**: See `scripts/clean_old_branches.py`
+**Code Walkthrough**: See PHP web interface at `public/index.php` (Branch Management section)
 
 ---
 
@@ -1482,7 +1482,7 @@ Reference: Production script from the repository.
 - Transaction Manager for atomic multi-repo releases
 - Error Recovery for release rollback
 
-**Code Walkthrough**: See `scripts/unified_release.py`
+**Code Walkthrough**: See PHP web interface at `public/index.php` (Release Management section)
 
 ---
 
@@ -1543,10 +1543,10 @@ Reference: Production script from the repository.
    - d) Transaction requires manual commit
 
 4. **Which library handles automatic retry with exponential backoff?**
-   - a) api_client.py
-   - b) transaction_manager.py
-   - c) error_recovery.py ✅
-   - d) cli_framework.py
+   - a) ApiClient.php
+   - b) TransactionManager.php
+   - c) ErrorRecovery.php ✅
+   - d) CliFramework.php
 
 5. **What's the recommended pattern for batch processing?**
    - a) Essential Stack only

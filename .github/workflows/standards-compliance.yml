@@ -657,10 +657,19 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Workflow YAML Syntax" >> $GITHUB_STEP_SUMMARY
 
+          # Check if .yamllint override file exists
+          if [ -f ".yamllint" ]; then
+            echo "ℹ️ Using .yamllint configuration file" >> $GITHUB_STEP_SUMMARY
+            YAMLLINT_CONFIG="-c .yamllint"
+          else
+            echo "ℹ️ Using default yamllint configuration" >> $GITHUB_STEP_SUMMARY
+            YAMLLINT_CONFIG=""
+          fi
+
           INVALID=0
           for workflow in $(find .github/workflows -maxdepth 1 -type f \( -name "*.yml" -o -name "*.yaml" \) 2>/dev/null); do
             if [ -f "$workflow" ]; then
-              if yamllint "$workflow" >/dev/null 2>&1; then
+              if yamllint $YAMLLINT_CONFIG "$workflow" >/dev/null 2>&1; then
                 echo "✅ $(basename $workflow)" >> $GITHUB_STEP_SUMMARY
               else
                 echo "❌ $(basename $workflow) - invalid YAML" >> $GITHUB_STEP_SUMMARY

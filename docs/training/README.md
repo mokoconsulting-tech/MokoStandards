@@ -32,7 +32,7 @@ BRIEF: Training program index for MokoStandards enterprise libraries
 # MokoStandards Enterprise Libraries Training Program
 
 **Version**: 04.00.00  
-**Duration**: 12 hours across 5 sessions  
+**Duration**: 14.5 hours across 6 sessions  
 **Format**: Instructor-led with hands-on exercises  
 **Level**: Intermediate to Advanced
 
@@ -45,6 +45,7 @@ This comprehensive training program introduces developers to the MokoStandards e
 **What You'll Learn**:
 - Complete MokoStandards policy framework (31 policy documents)
 - How to use all 13 PHP enterprise libraries effectively
+- Git and GitHub standard workflow with GitHub Projects
 - Standards application and compliance verification
 - Best practices for enterprise-grade automation with PHP 8.1+
 - Error recovery and resilience patterns
@@ -60,7 +61,7 @@ This comprehensive training program introduces developers to the MokoStandards e
 
 ### Required Knowledge
 - **PHP**: Intermediate level (classes, namespaces, attributes, strict types)
-- **Git/GitHub**: Basic operations (clone, commit, push, pull requests)
+- **Git/GitHub**: Basic command line knowledge (Session 6 covers full workflow)
 - **Command Line**: Comfortable with terminal/shell operations
 - **APIs**: Understanding of REST APIs and HTTP methods
 - **Web Development**: Basic HTML/CSS for web interface usage (helpful but not required)
@@ -189,10 +190,10 @@ This comprehensive training program introduces developers to the MokoStandards e
 
 ---
 
-### Session 4: Standards Compliance & Certification (Capstone)
+### Session 5: Standards Compliance & Certification (Capstone)
 **Duration**: 3 hours  
 **Format**: Comprehensive Workshop + Assessment  
-**File**: [session-4-standards-compliance.md](session-4-standards-compliance.md)
+**File**: [session-5-standards-compliance.md](session-5-standards-compliance.md)
 
 **Topics**:
 - Complete policy review (all 31 policy documents)
@@ -216,6 +217,35 @@ This comprehensive training program introduces developers to the MokoStandards e
 
 ---
 
+### Session 6: Git, GitHub & GitHub Projects Workflow
+**Duration**: 2.5 hours  
+**Format**: Interactive Workshop with Hands-on Exercises  
+**File**: [session-6-git-github-workflow.md](session-6-git-github-workflow.md)
+
+**Topics**:
+- Git fundamentals and repository management
+- Standard Git workflow (clone, branch, commit, push, pull)
+- Branching strategies and naming conventions
+- GitHub workflow (fork, pull request, code review)
+- GitHub Projects for work tracking and management
+- Integrating Git workflow with GitHub Projects boards
+- Commit message standards (Conventional Commits)
+- Pull request guidelines and best practices
+- Managing issues and linking to work items
+- GitHub Actions integration basics
+
+**Learning Objectives**:
+- ✅ Master Git fundamentals and core commands
+- ✅ Follow standard Git workflow for MokoStandards projects
+- ✅ Create and manage branches following conventions
+- ✅ Write effective commit messages following standards
+- ✅ Create and review pull requests professionally
+- ✅ Use GitHub Projects to track and manage work
+- ✅ Integrate Git workflow with project management
+- ✅ Follow MokoStandards Git and GitHub policies
+
+---
+
 ## Training Materials Structure
 
 Each training session includes:
@@ -230,24 +260,26 @@ Each training session includes:
 ## Recommended Learning Path
 
 ### For New Developers
-1. **Start with Session 0** (Standards Foundation) - REQUIRED
+1. **Start with Session 1** (Standards Foundation) - REQUIRED
 2. Complete all prerequisites (ensure PHP 8.1+ installed)
-3. Attend Session 1 (PHP Libraries Overview)
-4. Practice with provided exercises between sessions
-5. Attend Session 2 (Integration Workshop)
-6. Implement a simple script using 3+ PHP libraries
-7. Attend Session 3 (Advanced Features)
-8. Review and refactor your script with advanced patterns
-9. **Complete Session 4** (Standards Compliance) for certification
+3. **Attend Session 6** (Git & GitHub Workflow) - REQUIRED for version control
+4. Attend Session 2 (PHP Libraries Overview)
+5. Practice with provided exercises between sessions
+6. Attend Session 3 (Integration Workshop)
+7. Implement a simple script using 3+ PHP libraries
+8. Attend Session 4 (Advanced Features)
+9. Review and refactor your script with advanced patterns
+10. **Complete Session 5** (Standards Compliance) for certification
 
 ### For Experienced Developers
-1. **Start with Session 0** (Standards Foundation) - REQUIRED
+1. **Start with Session 1** (Standards Foundation) - REQUIRED
 2. Review prerequisites (skip if proficient in PHP 8.1+)
-3. Self-study Session 1 materials
-4. Attend Session 2 (Integration Workshop)
-5. Attend Session 3 (Advanced Features)
-6. Create a production-ready script using enterprise libraries
-7. **Complete Session 4** (Standards Compliance) for certification
+3. **Review Session 6** (Git & GitHub) - Complete if unfamiliar with GitHub Projects
+4. Self-study Session 2 materials
+5. Attend Session 3 (Integration Workshop)
+6. Attend Session 4 (Advanced Features)
+7. Create a production-ready script using enterprise libraries
+8. **Complete Session 5** (Standards Compliance) for certification
 
 ### For Team Leads & Architects
 1. **Complete Session 0** (Standards Foundation) - REQUIRED

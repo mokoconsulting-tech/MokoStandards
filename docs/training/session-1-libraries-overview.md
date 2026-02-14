@@ -33,14 +33,14 @@ BRIEF: Session 1 - Enterprise Libraries Overview training materials
 
 **Duration**: 2 hours  
 **Format**: Presentation + Live Demos  
-**Prerequisite**: Basic Python and Git knowledge
+**Prerequisite**: Basic PHP 8.1+ and Git knowledge
 
 ---
 
 ## Session Objectives
 
 By the end of this session, you will:
-- ✅ Understand all 10 enterprise libraries and their purposes
+- ✅ Understand all 13 PHP enterprise libraries and their purposes
 - ✅ Know when to use each library in your scripts
 - ✅ See live demonstrations of each library in action
 - ✅ Complete basic hands-on exercises
@@ -53,8 +53,8 @@ By the end of this session, you will:
 | Time | Topic | Format |
 |------|-------|--------|
 | 0:00-0:15 | Introduction & Setup | Presentation |
-| 0:15-0:45 | Core Libraries (1-5) | Demo + Discussion |
-| 0:45-1:15 | Advanced Libraries (6-10) | Demo + Discussion |
+| 0:15-0:45 | Core Libraries (1-7) | Demo + Discussion |
+| 0:45-1:15 | Advanced Libraries (8-13) | Demo + Discussion |
 | 1:15-1:40 | Hands-on Exercises | Interactive |
 | 1:40-2:00 | Q&A and Wrap-up | Discussion |
 
@@ -71,28 +71,31 @@ Enterprise libraries are production-ready, reusable code modules that provide:
 - ✅ **Observability**: Audit logging and metrics collection
 - ✅ **Maintainability**: Well-documented, tested code
 
-### The 10 Libraries Overview
+### The 13 PHP Enterprise Libraries Overview
 
 | # | Library | Purpose | Priority |
 |---|---------|---------|----------|
-| 1 | Enterprise Audit | Transaction tracking & compliance | CRITICAL |
-| 2 | API Client | Rate-limited, resilient API calls | CRITICAL |
-| 3 | CLI Framework | Standardized command-line interface | HIGH |
-| 4 | Common Utilities | Shared helper functions | HIGH |
-| 5 | Config Manager | Environment-aware configuration | HIGH |
-| 6 | Doc Helper | Documentation generation | MEDIUM |
-| 7 | Error Recovery | Automatic retry & checkpointing | HIGH |
-| 8 | Metrics Collector | Observability & monitoring | MEDIUM |
-| 9 | Security Validator | Security scanning & validation | HIGH |
-| 10 | Transaction Manager | Atomic operations & rollback | MEDIUM |
+| 1 | AuditLogger | Transaction tracking & compliance | CRITICAL |
+| 2 | ApiClient | Rate-limited, resilient API calls | CRITICAL |
+| 3 | CliFramework | Standardized command-line interface | HIGH |
+| 4 | Config | Environment-aware configuration | HIGH |
+| 5 | ErrorRecovery | Automatic retry & checkpointing | HIGH |
+| 6 | InputValidator | Input sanitization & validation | HIGH |
+| 7 | MetricsCollector | Observability & monitoring | MEDIUM |
+| 8 | SecurityValidator | Security scanning & validation | HIGH |
+| 9 | TransactionManager | Atomic operations & rollback | MEDIUM |
+| 10 | UnifiedValidation | Multi-source validation framework | MEDIUM |
+| 11 | RepositorySynchronizer | Repository sync operations | MEDIUM |
+| 12 | RepositoryHealthChecker | Repository health monitoring | MEDIUM |
+| 13 | EnterpriseReadinessValidator | Enterprise compliance validation | MEDIUM |
 
 ---
 
 ## Part 2: Core Libraries (30 minutes)
 
-### 1. Enterprise Audit Library ⭐ CRITICAL
+### 1. AuditLogger Library ⭐ CRITICAL
 
-**File**: `scripts/lib/enterprise_audit.py` (470 lines)
+**File**: `src/Enterprise/AuditLogger.php` (470 lines)
 
 **Purpose**: Structured audit logging with transaction tracking for compliance and debugging.
 
@@ -110,56 +113,72 @@ Enterprise libraries are production-ready, reusable code modules that provide:
 - ✅ Multi-step workflows
 
 **Live Demo**:
-```python
-from scripts.lib.enterprise_audit import AuditLogger
+```php
+<?php
 
-# Initialize logger for your service
-logger = AuditLogger(service='demo_script', retention_days=90)
+declare(strict_types=1);
 
-# Start a transaction
-with logger.transaction('user_provisioning') as txn:
-    # Log individual steps
-    txn.log_event('create_user', {
-        'username': 'john.doe',
-        'email': 'john@example.com',
-        'status': 'success'
-    })
+use MokoStandards\Enterprise\AuditLogger;
+
+// Initialize logger for your service
+$logger = new AuditLogger(
+    service: 'demo_script',
+    retentionDays: 90
+);
+
+// Start a transaction
+$transaction = $logger->startTransaction('user_provisioning');
+
+try {
+    // Log individual steps
+    $transaction->logEvent('create_user', [
+        'username' => 'john.doe',
+        'email' => 'john@example.com',
+        'status' => 'success'
+    ]);
     
-    txn.log_event('assign_permissions', {
-        'permissions': ['read', 'write'],
-        'status': 'success'
-    })
+    $transaction->logEvent('assign_permissions', [
+        'permissions' => ['read', 'write'],
+        'status' => 'success'
+    ]);
     
-    # Transaction automatically completes
+    // Transaction automatically completes
+    $transaction->end();
+    
+} catch (Exception $e) {
+    $transaction->fail($e->getMessage());
+    throw $e;
+}
 
-# Log security events
-logger.log_security_event(
-    event_type='login_attempt',
-    severity='INFO',
-    details={'user': 'admin', 'ip': '192.168.1.1'}
-)
+// Log security events
+$logger->logSecurityEvent(
+    eventType: 'login_attempt',
+    severity: 'INFO',
+    details: ['user' => 'admin', 'ip' => '192.168.1.1']
+);
 
-# Generate audit report
-report = logger.generate_report(
-    start_date='2026-01-01',
-    end_date='2026-02-01',
-    filter_by={'service': 'demo_script'}
-)
-print(f"Found {len(report)} audit events")
+// Generate audit report
+$report = $logger->generateReport(
+    startDate: '2026-01-01',
+    endDate: '2026-02-01',
+    filterBy: ['service' => 'demo_script']
+);
+echo "Found " . count($report) . " audit events\n";
 ```
 
 **Exercise 1.1**: Create an audit trail
-```python
-# TODO: Create an audit logger and log a transaction with 3 steps
-# Steps: validate_input -> process_data -> save_results
-# Include relevant metadata for each step
+```php
+<?php
+// TODO: Create an audit logger and log a transaction with 3 steps
+// Steps: validate_input -> process_data -> save_results
+// Include relevant metadata for each step
 ```
 
 ---
 
-### 2. API Client Library ⭐ CRITICAL
+### 2. ApiClient Library ⭐ CRITICAL
 
-**File**: `scripts/lib/api_client.py` (580 lines)
+**File**: `src/Enterprise/ApiClient.php` (580 lines)
 
 **Purpose**: Rate-limited, resilient API interactions with automatic retry and circuit breaker.
 
@@ -177,62 +196,64 @@ print(f"Found {len(report)} audit events")
 - ✅ Rate-limited APIs
 
 **Live Demo**:
-```python
-from scripts.lib.api_client import GitHubClient, RateLimitConfig
-import os
+```php
+<?php
 
-# Configure rate limiting
-rate_config = RateLimitConfig(
-    max_requests_per_hour=5000,
-    burst_size=100,
-    enable_caching=True,
-    cache_ttl=300  # 5 minutes
-)
+declare(strict_types=1);
 
-# Initialize client
-client = GitHubClient(
-    token=os.getenv('GITHUB_TOKEN'),
-    rate_limit_config=rate_config
-)
+use MokoStandards\Enterprise\ApiClient;
 
-# Automatic rate limiting in action
-try:
-    # List repositories (cached for 5 minutes)
-    repos = client.list_repos(org='mokoconsulting-tech')
-    print(f"Found {len(repos)} repositories")
+// Initialize client with rate limiting
+$client = new ApiClient(
+    baseUrl: 'https://api.github.com',
+    authToken: getenv('GITHUB_TOKEN'),
+    maxRequestsPerHour: 5000,
+    enableCaching: true,
+    cacheTtl: 300  // 5 minutes
+);
+
+// Automatic rate limiting in action
+try {
+    // List repositories (cached for 5 minutes)
+    $repos = $client->get('/orgs/mokoconsulting-tech/repos');
+    echo "Found " . count($repos) . " repositories\n";
     
-    # Get repository details (with retry and circuit breaker)
-    for repo in repos[:5]:
-        details = client.get_repo(org='mokoconsulting-tech', repo=repo['name'])
-        print(f"Repo: {details['name']}, Stars: {details['stargazers_count']}")
-        
-except Exception as e:
-    # Circuit breaker tripped or rate limit exceeded
-    print(f"API error: {e}")
+    // Get repository details (with retry and circuit breaker)
+    foreach (array_slice($repos, 0, 5) as $repo) {
+        $details = $client->get("/repos/mokoconsulting-tech/{$repo['name']}");
+        echo "Repo: {$details['name']}, Stars: {$details['stargazers_count']}\n";
+    }
     
-# Check rate limit status
-status = client.get_rate_limit_status()
-print(f"Remaining requests: {status['remaining']}/{status['limit']}")
+} catch (RateLimitExceeded $e) {
+    echo "Rate limit exceeded: {$e->getMessage()}\n";
+} catch (CircuitBreakerOpen $e) {
+    echo "Circuit breaker open: {$e->getMessage()}\n";
+}
+
+// Check rate limit status
+$status = $client->getRateLimitStatus();
+echo "Remaining requests: {$status['remaining']}/{$status['limit']}\n";
 ```
 
 **Exercise 1.2**: Use API client with rate limiting
-```python
-# TODO: Create a GitHubClient and list all issues in a repository
-# Configure rate limiting to 1000 requests per hour
-# Print the title of each issue
+```php
+<?php
+// TODO: Create an ApiClient and list all issues in a repository
+// Configure rate limiting to 1000 requests per hour
+// Print the title of each issue
 ```
 
 ---
 
-### 3. CLI Framework Library
+### 3. CliFramework Library
 
-**File**: `scripts/lib/cli_framework.py` (470 lines)
+**File**: `src/Enterprise/CliFramework.php` (470 lines)
 
 **Purpose**: Standardized command-line interface for all automation scripts.
 
 **Key Features**:
-- CLIApp base class for consistent structure
-- Common arguments (--verbose, --dry-run, --json, --config)
+- CliApp base class for consistent structure
+- Common options (--verbose, --dry-run, --json, --config)
 - Integrated logging setup
 - Enterprise library integration
 - Standard error handling and exit codes
@@ -244,141 +265,99 @@ print(f"Remaining requests: {status['remaining']}/{status['limit']}")
 - ✅ User-facing automation tools
 
 **Live Demo**:
-```python
-from scripts.lib.cli_framework import CLIApp
-import argparse
+```php
+<?php
 
-class MyAutomationScript(CLIApp):
-    def setup_arguments(self, parser: argparse.ArgumentParser):
-        """Add script-specific arguments"""
-        parser.add_argument('--org', required=True, help='GitHub organization')
-        parser.add_argument('--repo', help='Specific repository (optional)')
+declare(strict_types=1);
+
+use MokoStandards\Enterprise\CliFramework;
+use Symfony\Component\Console\Input\InputOption;
+
+class MyAutomationScript extends CliFramework
+{
+    protected function configure(): void
+    {
+        parent::configure();
         
-    def run(self):
-        """Main script logic"""
-        org = self.args.org
-        repo = self.args.repo
+        $this
+            ->setName('my-automation')
+            ->setDescription('My automation script')
+            ->addOption('org', null, InputOption::VALUE_REQUIRED, 'GitHub organization')
+            ->addOption('repo', null, InputOption::VALUE_OPTIONAL, 'Specific repository');
+    }
+    
+    protected function execute($input, $output): int
+    {
+        $org = $input->getOption('org');
+        $repo = $input->getOption('repo');
         
-        self.logger.info(f"Processing organization: {org}")
+        $this->logger->info("Processing organization: {$org}");
         
-        if self.args.dry_run:
-            self.logger.warning("DRY RUN: No changes will be made")
-            
-        # Your automation logic here
-        results = self.process_organization(org, repo)
-        
-        if self.args.json:
-            self.output_json(results)
-        else:
-            self.output_text(results)
-            
-        return 0  # Success exit code
-        
-    def process_organization(self, org, repo=None):
-        """Business logic"""
-        return {
-            'org': org,
-            'processed': 42,
-            'errors': 0
+        if ($input->getOption('dry-run')) {
+            $this->logger->warning('DRY RUN: No changes will be made');
         }
+        
+        // Your automation logic here
+        $results = $this->processOrganization($org, $repo);
+        
+        if ($input->getOption('json')) {
+            $this->outputJson($results);
+        } else {
+            $this->outputText($results);
+        }
+        
+        return 0;  // Success exit code
+    }
+    
+    private function processOrganization(string $org, ?string $repo = null): array
+    {
+        return [
+            'org' => $org,
+            'processed' => 42,
+            'errors' => 0
+        ];
+    }
+}
 
-if __name__ == '__main__':
-    app = MyAutomationScript()
-    exit(app.execute())
+// Run the application
+$app = new MyAutomationScript();
+exit($app->run());
 ```
 
 **Usage**:
 ```bash
 # Standard usage
-python my_script.py --org mokoconsulting-tech
+php my_script.php --org mokoconsulting-tech
 
 # Dry run mode
-python my_script.py --org mokoconsulting-tech --dry-run
+php my_script.php --org mokoconsulting-tech --dry-run
 
 # Verbose logging
-python my_script.py --org mokoconsulting-tech --verbose
+php my_script.php --org mokoconsulting-tech --verbose
 
 # JSON output
-python my_script.py --org mokoconsulting-tech --json
+php my_script.php --org mokoconsulting-tech --json
 ```
 
 **Exercise 1.3**: Create a CLI application
-```python
-# TODO: Create a CLIApp subclass that accepts --name argument
-# Print "Hello, {name}!" when run
-# Add --uppercase flag to print in uppercase
+```php
+<?php
+// TODO: Create a CliFramework subclass that accepts --name option
+// Print "Hello, {name}!" when run
+// Add --uppercase flag to print in uppercase
 ```
 
 ---
 
-### 4. Common Utilities Library
+### 4. Config Library
 
-**File**: `scripts/lib/common.py` (820 lines)
-
-**Purpose**: Shared utility functions used across all scripts.
-
-**Key Features**:
-- File system operations (safe read/write)
-- String manipulation utilities
-- Date/time helpers
-- Data structure utilities
-- Environment detection
-
-**When to Use**:
-- ✅ Common operations across scripts
-- ✅ File handling with error checking
-- ✅ Data transformations
-- ✅ Cross-platform compatibility
-
-**Live Demo**:
-```python
-from scripts.lib.common import (
-    safe_read_file,
-    safe_write_file,
-    ensure_directory,
-    format_timestamp,
-    parse_yaml_safe,
-    deep_merge_dict
-)
-
-# Safe file operations
-content = safe_read_file('/path/to/config.yaml')
-parsed = parse_yaml_safe(content)
-
-# Ensure directory exists
-ensure_directory('/path/to/output')
-
-# Write file safely
-safe_write_file('/path/to/output/result.txt', 'Results here')
-
-# Timestamp formatting
-timestamp = format_timestamp(format='iso')
-print(f"Current time: {timestamp}")
-
-# Deep merge dictionaries
-base_config = {'db': {'host': 'localhost', 'port': 5432}}
-override = {'db': {'port': 3306}, 'cache': {'enabled': True}}
-merged = deep_merge_dict(base_config, override)
-print(merged)  # {'db': {'host': 'localhost', 'port': 3306}, 'cache': {'enabled': True}}
-```
-
-**Exercise 1.4**: Use common utilities
-```python
-# TODO: Read a YAML file, modify a value, and write it back
-# Use safe_read_file, parse_yaml_safe, and safe_write_file
-```
-
----
-
-### 5. Config Manager Library
-
-**File**: `scripts/lib/config_manager.py` (120 lines)
+**File**: `src/Enterprise/Config.php` (320 lines)
 
 **Purpose**: Environment-aware configuration management with validation.
 
 **Key Features**:
 - Environment-specific configs (dev, staging, production)
-- Dot notation access (`config.get('db.host')`)
+- Dot notation access (`$config->get('db.host')`)
 - Type-safe getters
 - Runtime overrides
 - Configuration validation
@@ -390,29 +369,33 @@ print(merged)  # {'db': {'host': 'localhost', 'port': 3306}, 'cache': {'enabled'
 - ✅ Configuration validation needs
 
 **Live Demo**:
-```python
-from scripts.lib.config_manager import Config
+```php
+<?php
 
-# Load configuration for current environment
-config = Config.load(env='production')
+declare(strict_types=1);
 
-# Access with dot notation
-db_host = config.get('database.host')
-db_port = config.get('database.port', default=5432)
+use MokoStandards\Enterprise\Config;
 
-# Type-safe getters
-max_retries = config.get_int('api.max_retries', default=3)
-enable_cache = config.get_bool('api.cache.enabled', default=True)
-timeout = config.get_float('api.timeout', default=30.0)
+// Load configuration for current environment
+$config = Config::load('production');
 
-# Runtime overrides (for testing)
-config.set('api.max_retries', 5)
+// Access with dot notation
+$dbHost = $config->get('database.host');
+$dbPort = $config->get('database.port', 5432);
 
-# Validate required keys
-config.require(['database.host', 'database.port', 'api.token'])
+// Type-safe getters
+$maxRetries = $config->getInt('api.max_retries', 3);
+$enableCache = $config->getBool('api.cache.enabled', true);
+$timeout = $config->getFloat('api.timeout', 30.0);
 
-# Export configuration
-config.export_env_vars()  # Sets environment variables
+// Runtime overrides (for testing)
+$config->set('api.max_retries', 5);
+
+// Validate required keys
+$config->require(['database.host', 'database.port', 'api.token']);
+
+// Export configuration
+$config->exportEnvVars();  // Sets environment variables
 ```
 
 **Configuration File Example** (`config/production.yaml`):
@@ -435,56 +418,19 @@ logging:
   format: json
 ```
 
-**Exercise 1.5**: Load and use configuration
-```python
-# TODO: Create a config file with your settings
-# Load it and access values using dot notation
-# Validate that required keys exist
+**Exercise 1.4**: Load and use configuration
+```php
+<?php
+// TODO: Create a config file with your settings
+// Load it and access values using dot notation
+// Validate that required keys exist
 ```
 
 ---
 
-## Part 3: Advanced Libraries (30 minutes)
+### 5. ErrorRecovery Library ⭐ HIGH PRIORITY
 
-### 6. Doc Helper Library
-
-**File**: `scripts/lib/doc_helper.py` (220 lines)
-
-**Purpose**: Automated documentation generation and validation.
-
-**Key Features**:
-- Extract docstrings and metadata
-- Generate markdown documentation
-- Validate documentation completeness
-- Auto-generate API docs
-
-**When to Use**:
-- ✅ Documenting new scripts
-- ✅ Generating API documentation
-- ✅ Validating doc completeness
-- ✅ Automated doc updates
-
-**Live Demo**:
-```python
-from scripts.lib.doc_helper import DocGenerator
-
-# Generate documentation for a module
-doc_gen = DocGenerator()
-docs = doc_gen.generate_module_docs('scripts.lib.api_client')
-
-# Save to markdown
-doc_gen.save_markdown(docs, 'docs/api/api_client.md')
-
-# Validate documentation
-issues = doc_gen.validate_docs('scripts/')
-print(f"Found {len(issues)} documentation issues")
-```
-
----
-
-### 7. Error Recovery Library ⭐ HIGH PRIORITY
-
-**File**: `scripts/lib/error_recovery.py` (390 lines)
+**File**: `src/Enterprise/ErrorRecovery.php` (390 lines)
 
 **Purpose**: Automatic error recovery with retry logic and checkpointing.
 
@@ -502,56 +448,138 @@ print(f"Found {len(issues)} documentation issues")
 - ✅ Critical operations requiring reliability
 
 **Live Demo**:
-```python
-from scripts.lib.error_recovery import Recoverable, Checkpoint, retry_with_backoff
+```php
+<?php
 
-# Automatic retry with decorator
-@retry_with_backoff(max_retries=3, base_delay=1.0)
-def fetch_data_from_api(url):
-    """Automatically retries on failure with exponential backoff"""
-    response = requests.get(url)
-    response.raise_for_status()
-    return response.json()
+declare(strict_types=1);
 
-# Checkpointing for batch operations
-checkpoint = Checkpoint(name='process_repos', checkpoint_dir='/tmp/checkpoints')
+use MokoStandards\Enterprise\ErrorRecovery;
+use MokoStandards\Enterprise\Checkpoint;
 
-repositories = ['repo1', 'repo2', 'repo3', 'repo4', 'repo5']
+// Automatic retry with attribute
+class ApiService
+{
+    #[RetryWithBackoff(maxRetries: 3, baseDelay: 1.0)]
+    public function fetchDataFromApi(string $url): array
+    {
+        // Automatically retries on failure with exponential backoff
+        $response = file_get_contents($url);
+        if ($response === false) {
+            throw new RuntimeException('Failed to fetch data');
+        }
+        return json_decode($response, true);
+    }
+}
 
-for repo in repositories:
-    if checkpoint.is_completed(repo):
-        print(f"Skipping {repo} (already processed)")
-        continue
+// Checkpointing for batch operations
+$checkpoint = new Checkpoint(
+    name: 'process_repos',
+    checkpointDir: '/tmp/checkpoints'
+);
+
+$repositories = ['repo1', 'repo2', 'repo3', 'repo4', 'repo5'];
+
+foreach ($repositories as $repo) {
+    if ($checkpoint->isCompleted($repo)) {
+        echo "Skipping {$repo} (already processed)\n";
+        continue;
+    }
+    
+    try {
+        // Process repository
+        $result = processRepository($repo);
         
-    try:
-        # Process repository
-        result = process_repository(repo)
+        // Mark as completed
+        $checkpoint->markCompleted($repo, $result);
         
-        # Mark as completed
-        checkpoint.mark_completed(repo, result)
-        
-    except Exception as e:
-        print(f"Failed to process {repo}: {e}")
-        checkpoint.mark_failed(repo, str(e))
-        
-# Recovery after failure
-if checkpoint.has_failures():
-    failed = checkpoint.get_failures()
-    print(f"Retry {len(failed)} failed items")
+    } catch (Exception $e) {
+        echo "Failed to process {$repo}: {$e->getMessage()}\n";
+        $checkpoint->markFailed($repo, $e->getMessage());
+    }
+}
+
+// Recovery after failure
+if ($checkpoint->hasFailures()) {
+    $failed = $checkpoint->getFailures();
+    echo "Retry " . count($failed) . " failed items\n";
+}
 ```
 
-**Exercise 1.6**: Implement error recovery
-```python
-# TODO: Create a function that fails randomly (50% chance)
-# Use @retry_with_backoff to automatically retry
-# Use checkpointing to track progress
+**Exercise 1.5**: Implement error recovery
+```php
+<?php
+// TODO: Create a function that fails randomly (50% chance)
+// Use #[RetryWithBackoff] to automatically retry
+// Use checkpointing to track progress
 ```
 
 ---
 
-### 8. Metrics Collector Library
+## Part 3: Advanced Libraries (30 minutes)
 
-**File**: `scripts/lib/metrics_collector.py` (340 lines)
+### 6. InputValidator Library
+
+**File**: `src/Enterprise/InputValidator.php` (450 lines)
+
+**Purpose**: Comprehensive input sanitization and validation.
+
+**Key Features**:
+- Multi-format validation (email, URL, IP, etc.)
+- XSS prevention and sanitization
+- SQL injection detection
+- Custom validation rules
+- Type coercion with validation
+
+**When to Use**:
+- ✅ Validating user input
+- ✅ API request validation
+- ✅ Form data processing
+- ✅ Security-critical input handling
+
+**Live Demo**:
+```php
+<?php
+
+declare(strict_types=1);
+
+use MokoStandards\Enterprise\InputValidator;
+
+$validator = new InputValidator();
+
+// Email validation
+$email = $validator->validateEmail('user@example.com');
+if ($email === null) {
+    echo "Invalid email\n";
+}
+
+// URL validation and sanitization
+$url = $validator->validateUrl('https://example.com/path?query=value');
+
+// Sanitize HTML input (XSS prevention)
+$safeHtml = $validator->sanitizeHtml('<script>alert("XSS")</script><p>Safe content</p>');
+// Result: '<p>Safe content</p>'
+
+// Custom validation rules
+$validator->addRule('username', function($value) {
+    return preg_match('/^[a-z0-9_]{3,20}$/i', $value);
+});
+
+$username = $validator->validate('john_doe123', 'username');
+```
+
+**Exercise 1.6**: Input validation
+```php
+<?php
+// TODO: Create a validator and validate multiple inputs
+// Validate: email, URL, and a custom phone number format
+// Handle validation errors appropriately
+```
+
+---
+
+### 7. MetricsCollector Library
+
+**File**: `src/Enterprise/MetricsCollector.php` (340 lines)
 
 **Purpose**: Collect, track, and export metrics for observability.
 
@@ -569,50 +597,56 @@ if checkpoint.has_failures():
 - ✅ Capacity planning
 
 **Live Demo**:
-```python
-from scripts.lib.metrics_collector import MetricsCollector
+```php
+<?php
 
-# Initialize metrics collector
-metrics = MetricsCollector(service='my_script')
+declare(strict_types=1);
 
-# Counter: increment operations
-metrics.increment('repositories_processed', labels={'org': 'mokoconsulting-tech'})
-metrics.increment('api_calls_total', labels={'method': 'GET', 'endpoint': '/repos'})
+use MokoStandards\Enterprise\MetricsCollector;
 
-# Gauge: set current value
-metrics.set_gauge('active_connections', 42)
-metrics.set_gauge('queue_size', 128)
+// Initialize metrics collector
+$metrics = new MetricsCollector(service: 'my_script');
 
-# Histogram: track distributions
-metrics.record_histogram('request_duration_seconds', 0.234)
-metrics.record_histogram('file_size_bytes', 1024000)
+// Counter: increment operations
+$metrics->increment('repositories_processed', ['org' => 'mokoconsulting-tech']);
+$metrics->increment('api_calls_total', ['method' => 'GET', 'endpoint' => '/repos']);
 
-# Time tracking with context manager
-with metrics.time_operation('process_repository'):
-    # Your operation here
-    process_repository()
+// Gauge: set current value
+$metrics->setGauge('active_connections', 42);
+$metrics->setGauge('queue_size', 128);
 
-# Export metrics
-prometheus_data = metrics.export_prometheus()
-print(prometheus_data)
+// Histogram: track distributions
+$metrics->recordHistogram('request_duration_seconds', 0.234);
+$metrics->recordHistogram('file_size_bytes', 1024000);
 
-# Get specific metric
-total_processed = metrics.get_counter('repositories_processed')
-print(f"Total processed: {total_processed}")
+// Time tracking
+$startTime = microtime(true);
+processRepository();
+$duration = microtime(true) - $startTime;
+$metrics->recordHistogram('process_repository_duration', $duration);
+
+// Export metrics
+$prometheusData = $metrics->exportPrometheus();
+echo $prometheusData;
+
+// Get specific metric
+$totalProcessed = $metrics->getCounter('repositories_processed');
+echo "Total processed: {$totalProcessed}\n";
 ```
 
 **Exercise 1.7**: Track metrics
-```python
-# TODO: Create a metrics collector
-# Track: operations_total (counter), error_rate (gauge), duration (histogram)
-# Export to Prometheus format
+```php
+<?php
+// TODO: Create a metrics collector
+// Track: operations_total (counter), error_rate (gauge), duration (histogram)
+// Export to Prometheus format
 ```
 
 ---
 
-### 9. Security Validator Library ⭐ HIGH PRIORITY
+### 8. SecurityValidator Library ⭐ HIGH PRIORITY
 
-**File**: `scripts/lib/security_validator.py` (430 lines)
+**File**: `src/Enterprise/SecurityValidator.php` (430 lines)
 
 **Purpose**: Security scanning and validation for scripts and code.
 
@@ -630,39 +664,45 @@ print(f"Total processed: {total_processed}")
 - ✅ Pre-deployment checks
 
 **Live Demo**:
-```python
-from scripts.lib.security_validator import SecurityValidator
+```php
+<?php
 
-validator = SecurityValidator()
+declare(strict_types=1);
 
-# Scan a directory for security issues
-findings = validator.scan_directory('/path/to/code')
+use MokoStandards\Enterprise\SecurityValidator;
 
-for finding in findings:
-    print(f"{finding['severity']}: {finding['message']}")
-    print(f"  File: {finding['file']}:{finding['line']}")
-    
-# Validate file permissions
-is_safe = validator.check_file_permissions('/path/to/script.sh')
+$validator = new SecurityValidator();
 
-# Detect credentials in code
-has_secrets = validator.detect_credentials(code_content)
+// Scan a directory for security issues
+$findings = $validator->scanDirectory('/path/to/code');
 
-# Validate user input
-safe_input = validator.validate_input(user_input, input_type='email')
+foreach ($findings as $finding) {
+    echo "{$finding['severity']}: {$finding['message']}\n";
+    echo "  File: {$finding['file']}:{$finding['line']}\n";
+}
+
+// Validate file permissions
+$isSafe = $validator->checkFilePermissions('/path/to/script.sh');
+
+// Detect credentials in code
+$hasSecrets = $validator->detectCredentials($codeContent);
+
+// Validate user input for path traversal
+$safePath = $validator->validatePath($userInput);
 ```
 
 **Exercise 1.8**: Security scanning
-```python
-# TODO: Scan the scripts/lib directory for security issues
-# Print a summary of findings by severity
+```php
+<?php
+// TODO: Scan the src/Enterprise directory for security issues
+// Print a summary of findings by severity
 ```
 
 ---
 
-### 10. Transaction Manager Library
+### 9. TransactionManager Library
 
-**File**: `scripts.lib/transaction_manager.py` (300 lines)
+**File**: `src/Enterprise/TransactionManager.php` (300 lines)
 
 **Purpose**: Atomic operations with automatic rollback on failure.
 
@@ -680,157 +720,268 @@ safe_input = validator.validate_input(user_input, input_type='email')
 - ✅ Operations with dependencies
 
 **Live Demo**:
-```python
-from scripts.lib.transaction_manager import Transaction, TransactionManager
+```php
+<?php
 
-manager = TransactionManager()
+declare(strict_types=1);
 
-try:
-    with manager.begin_transaction('update_repos') as txn:
-        # Step 1: Update repository settings
-        txn.add_operation(
-            'update_settings',
-            lambda: update_repo_settings('repo1'),
-            rollback=lambda: restore_repo_settings('repo1')
-        )
-        
-        # Step 2: Update branch protection
-        txn.add_operation(
-            'update_protection',
-            lambda: update_branch_protection('repo1', 'main'),
-            rollback=lambda: restore_branch_protection('repo1', 'main')
-        )
-        
-        # Step 3: Update webhooks
-        txn.add_operation(
-            'update_webhooks',
-            lambda: update_webhooks('repo1'),
-            rollback=lambda: restore_webhooks('repo1')
-        )
-        
-        # Commit transaction (executes all operations)
-        txn.commit()
-        
-except Exception as e:
-    # Automatic rollback occurred
-    print(f"Transaction failed and rolled back: {e}")
+use MokoStandards\Enterprise\TransactionManager;
+
+$manager = new TransactionManager();
+
+try {
+    $txn = $manager->beginTransaction('update_repos');
     
-# View transaction history
-history = manager.get_history()
-print(f"Completed {len(history)} transactions")
+    // Step 1: Update repository settings
+    $txn->addOperation(
+        name: 'update_settings',
+        operation: fn() => updateRepoSettings('repo1'),
+        rollback: fn() => restoreRepoSettings('repo1')
+    );
+    
+    // Step 2: Update branch protection
+    $txn->addOperation(
+        name: 'update_protection',
+        operation: fn() => updateBranchProtection('repo1', 'main'),
+        rollback: fn() => restoreBranchProtection('repo1', 'main')
+    );
+    
+    // Step 3: Update webhooks
+    $txn->addOperation(
+        name: 'update_webhooks',
+        operation: fn() => updateWebhooks('repo1'),
+        rollback: fn() => restoreWebhooks('repo1')
+    );
+    
+    // Commit transaction (executes all operations)
+    $txn->commit();
+    
+} catch (Exception $e) {
+    // Automatic rollback occurred
+    echo "Transaction failed and rolled back: {$e->getMessage()}\n";
+}
+
+// View transaction history
+$history = $manager->getHistory();
+echo "Completed " . count($history) . " transactions\n";
 ```
 
 **Exercise 1.9**: Use transaction management
-```python
-# TODO: Create a transaction with 3 operations
-# Make one operation fail and verify rollback occurs
-# Check transaction history
+```php
+<?php
+// TODO: Create a transaction with 3 operations
+// Make one operation fail and verify rollback occurs
+// Check transaction history
 ```
 
 ---
 
-## Part 4: Hands-On Exercises (25 minutes)
+### 10. UnifiedValidation Library
 
-### Exercise Set 1: Basic Integration
+**File**: `src/Enterprise/UnifiedValidation.php` (450 lines)
 
-**Task**: Create a simple script that uses 5 libraries together.
+**Purpose**: Multi-source validation framework with pluggable validators.
 
-```python
-#!/usr/bin/env python3
-"""
-Exercise: Integrated Script
-Combines multiple enterprise libraries in one script
-"""
+**Key Features**:
+- Unified validation API
+- Support for multiple validation sources
+- Composite validation rules
+- Validation result aggregation
+- Custom validator plugins
 
-from scripts.lib.cli_framework import CLIApp
-from scripts.lib.enterprise_audit import AuditLogger
-from scripts.lib.api_client import GitHubClient
-from scripts.lib.metrics_collector import MetricsCollector
-from scripts.lib.error_recovery import retry_with_backoff
-import argparse
-import os
+**When to Use**:
+- ✅ Complex validation scenarios
+- ✅ Multi-step validation pipelines
+- ✅ Combining multiple validation sources
+- ✅ Enterprise compliance checks
 
-class IntegratedScript(CLIApp):
-    def setup_arguments(self, parser: argparse.ArgumentParser):
-        parser.add_argument('--org', required=True, help='GitHub organization')
-        
-    def initialize(self):
-        """Initialize all enterprise libraries"""
-        # TODO: Initialize audit logger
-        self.audit = None
-        
-        # TODO: Initialize metrics collector
-        self.metrics = None
-        
-        # TODO: Initialize API client
-        self.api_client = None
-        
-    @retry_with_backoff(max_retries=3)
-    def fetch_repositories(self, org):
-        """Fetch repositories with automatic retry"""
-        # TODO: Use API client to fetch repositories
-        # TODO: Track metrics
-        # TODO: Log audit events
-        pass
-        
-    def run(self):
-        org = self.args.org
-        
-        # TODO: Start audit transaction
-        # TODO: Fetch repositories
-        # TODO: Track metrics
-        # TODO: Generate report
-        
-        return 0
+**Live Demo**:
+```php
+<?php
 
-if __name__ == '__main__':
-    app = IntegratedScript()
-    exit(app.execute())
+declare(strict_types=1);
+
+use MokoStandards\Enterprise\UnifiedValidation;
+
+$validator = new UnifiedValidation();
+
+// Add multiple validators
+$validator->addValidator('email', new EmailValidator());
+$validator->addValidator('security', new SecurityValidator());
+$validator->addValidator('business', new BusinessRuleValidator());
+
+// Validate data through all validators
+$data = [
+    'email' => 'user@example.com',
+    'password' => 'SecurePass123!',
+    'role' => 'admin'
+];
+
+$result = $validator->validateAll($data);
+
+if ($result->isValid()) {
+    echo "All validations passed\n";
+} else {
+    foreach ($result->getErrors() as $error) {
+        echo "Error: {$error['message']}\n";
+    }
+}
 ```
 
-**Requirements**:
-1. Initialize all 5 libraries correctly
-2. Create an audit transaction for the operation
-3. Track metrics (repositories_found, api_calls_total)
-4. Use retry logic for API calls
-5. Print a summary report
+---
 
-**Solution** (revealed after exercise):
-<details>
-<summary>Click to show solution</summary>
+### 11. RepositorySynchronizer Library
 
-```python
-def initialize(self):
-    self.audit = AuditLogger(service='integrated_script')
-    self.metrics = MetricsCollector(service='integrated_script')
-    self.api_client = GitHubClient(token=os.getenv('GITHUB_TOKEN'))
-    
-@retry_with_backoff(max_retries=3)
-def fetch_repositories(self, org):
-    repos = self.api_client.list_repos(org=org)
-    self.metrics.increment('api_calls_total')
-    self.metrics.set_gauge('repositories_found', len(repos))
-    return repos
-    
-def run(self):
-    org = self.args.org
-    
-    with self.audit.transaction('fetch_repositories') as txn:
-        txn.log_event('start', {'org': org})
-        
-        repos = self.fetch_repositories(org)
-        
-        txn.log_event('complete', {
-            'org': org,
-            'count': len(repos)
-        })
-        
-    print(f"Found {len(repos)} repositories in {org}")
-    print(f"Metrics: {self.metrics.export_prometheus()}")
-    
-    return 0
+**File**: `src/Enterprise/RepositorySynchronizer.php` (280 lines)
+
+**Purpose**: Automated repository synchronization and configuration management.
+
+**Key Features**:
+- Repository settings sync
+- Branch protection synchronization
+- Webhook management
+- Label synchronization
+- Team permission sync
+
+**When to Use**:
+- ✅ Managing multiple repositories
+- ✅ Standardizing repository configuration
+- ✅ Bulk repository updates
+- ✅ Repository compliance enforcement
+
+**Live Demo**:
+```php
+<?php
+
+declare(strict_types=1);
+
+use MokoStandards\Enterprise\RepositorySynchronizer;
+
+$synchronizer = new RepositorySynchronizer(
+    apiClient: $apiClient,
+    auditLogger: $logger
+);
+
+// Sync repository settings
+$synchronizer->syncSettings(
+    org: 'mokoconsulting-tech',
+    repos: ['repo1', 'repo2'],
+    settings: [
+        'has_issues' => true,
+        'has_wiki' => false,
+        'allow_squash_merge' => true
+    ]
+);
+
+// Sync branch protection
+$synchronizer->syncBranchProtection(
+    org: 'mokoconsulting-tech',
+    repos: ['repo1', 'repo2'],
+    branch: 'main',
+    rules: [
+        'required_reviews' => 2,
+        'enforce_admins' => true
+    ]
+);
 ```
-</details>
+
+---
+
+### 12. RepositoryHealthChecker Library
+
+**File**: `src/Enterprise/RepositoryHealthChecker.php` (320 lines)
+
+**Purpose**: Comprehensive repository health monitoring and reporting.
+
+**Key Features**:
+- Repository health scoring
+- Security check validation
+- Documentation completeness
+- CI/CD status monitoring
+- Dependency health checks
+
+**When to Use**:
+- ✅ Regular health audits
+- ✅ Compliance reporting
+- ✅ Quality gate enforcement
+- ✅ Repository metrics tracking
+
+**Live Demo**:
+```php
+<?php
+
+declare(strict_types=1);
+
+use MokoStandards\Enterprise\RepositoryHealthChecker;
+
+$healthChecker = new RepositoryHealthChecker(
+    apiClient: $apiClient,
+    thresholds: [
+        'min_health_score' => 75,
+        'max_open_issues' => 50,
+        'max_pr_age_days' => 30
+    ]
+);
+
+// Check repository health
+$health = $healthChecker->checkHealth(
+    org: 'mokoconsulting-tech',
+    repo: 'MokoStandards'
+);
+
+echo "Health Score: {$health['score']}/100\n";
+echo "Status: {$health['status']}\n";
+
+foreach ($health['checks'] as $check) {
+    echo "  [{$check['status']}] {$check['name']}\n";
+}
+```
+
+---
+
+### 13. EnterpriseReadinessValidator Library
+
+**File**: `src/Enterprise/EnterpriseReadinessValidator.php` (280 lines)
+
+**Purpose**: Validate enterprise compliance and readiness standards.
+
+**Key Features**:
+- Security compliance validation
+- Documentation requirement checks
+- CI/CD pipeline validation
+- License compliance verification
+- Code quality standards
+
+**When to Use**:
+- ✅ Pre-production deployment checks
+- ✅ Enterprise certification
+- ✅ Compliance audits
+- ✅ Quality gate validation
+
+**Live Demo**:
+```php
+<?php
+
+declare(strict_types=1);
+
+use MokoStandards\Enterprise\EnterpriseReadinessValidator;
+
+$validator = new EnterpriseReadinessValidator();
+
+// Validate enterprise readiness
+$result = $validator->validate(
+    org: 'mokoconsulting-tech',
+    repo: 'MokoStandards'
+);
+
+echo "Enterprise Ready: " . ($result['ready'] ? 'YES' : 'NO') . "\n";
+echo "Compliance Score: {$result['score']}%\n";
+
+foreach ($result['requirements'] as $req) {
+    $status = $req['met'] ? '✅' : '❌';
+    echo "{$status} {$req['name']}\n";
+}
+```
 
 ---
 
@@ -838,7 +989,7 @@ def run(self):
 
 **Challenge 1**: Create an audit logger and log a 3-step transaction  
 **Challenge 2**: Use the API client to fetch all issues from a repository  
-**Challenge 3**: Create a CLI app with custom arguments  
+**Challenge 3**: Create a CLI app with custom options  
 **Challenge 4**: Implement checkpointing for a batch operation  
 **Challenge 5**: Scan a directory for security issues and generate a report  
 
@@ -849,7 +1000,7 @@ def run(self):
 ### Common Questions
 
 **Q: Which libraries should I use in every script?**
-A: At minimum, use CLI Framework for consistency and Enterprise Audit for compliance.
+A: At minimum, use CliFramework for consistency and AuditLogger for compliance.
 
 **Q: Can I use these libraries together?**
 A: Yes! They're designed to work together. See Session 2 for integration patterns.
@@ -858,73 +1009,77 @@ A: Yes! They're designed to work together. See Session 2 for integration pattern
 A: Minimal. Most libraries add <50ms overhead. Session 3 covers optimization.
 
 **Q: How do I handle library updates?**
-A: Follow semantic versioning. Check CHANGELOG.md for breaking changes.
+A: Follow semantic versioning. Check CHANGELOG.md for breaking changes via `composer update`.
 
 **Q: Can I extend these libraries?**
-A: Yes! All libraries support extension. See source code for details.
+A: Yes! All libraries support extension via inheritance and composition. See source code for details.
 
 ### Quick Reference Guide
 
 | Need | Use This Library | Key Class/Function |
 |------|------------------|-------------------|
-| Audit trail | enterprise_audit.py | AuditLogger |
-| API calls | api_client.py | GitHubClient |
-| CLI interface | cli_framework.py | CLIApp |
-| Configuration | config_manager.py | Config |
-| Error recovery | error_recovery.py | @retry_with_backoff, Checkpoint |
-| Metrics | metrics_collector.py | MetricsCollector |
-| Security | security_validator.py | SecurityValidator |
-| Transactions | transaction_manager.py | Transaction |
-| Utilities | common.py | Various helpers |
-| Documentation | doc_helper.py | DocGenerator |
+| Audit trail | AuditLogger.php | AuditLogger |
+| API calls | ApiClient.php | ApiClient |
+| CLI interface | CliFramework.php | CliFramework |
+| Configuration | Config.php | Config |
+| Error recovery | ErrorRecovery.php | #[RetryWithBackoff], Checkpoint |
+| Input validation | InputValidator.php | InputValidator |
+| Metrics | MetricsCollector.php | MetricsCollector |
+| Security | SecurityValidator.php | SecurityValidator |
+| Transactions | TransactionManager.php | TransactionManager |
+| Unified validation | UnifiedValidation.php | UnifiedValidation |
+| Repo sync | RepositorySynchronizer.php | RepositorySynchronizer |
+| Health checks | RepositoryHealthChecker.php | RepositoryHealthChecker |
+| Readiness | EnterpriseReadinessValidator.php | EnterpriseReadinessValidator |
 
 ### Resources for Further Learning
 
-1. **Source Code**: `/scripts/lib/` - Read the actual implementation
-2. **Tests**: `/.github/workflows/integration-tests.yml` - See usage examples
+1. **Source Code**: `/src/Enterprise/` - Read the actual implementation
+2. **Tests**: `/tests/` - See usage examples in unit tests
 3. **Documentation**: `/docs/automation/README.md` - Complete automation guide
 4. **Planning**: `/docs/planning/README.md` - Implementation roadmap
+5. **Composer**: `composer.json` - Dependency management and autoloading
 
 ---
 
 ## Knowledge Check Quiz
 
 **Question 1**: Which library should you use for tracking API rate limits?
-- a) metrics_collector.py
-- b) api_client.py ✅
-- c) error_recovery.py
-- d) audit_logger.py
+- a) MetricsCollector.php
+- b) ApiClient.php ✅
+- c) ErrorRecovery.php
+- d) AuditLogger.php
 
-**Question 2**: What decorator provides automatic retry logic?
-- a) @transaction
-- b) @recoverable
-- c) @retry_with_backoff ✅
-- d) @resilient
+**Question 2**: What attribute provides automatic retry logic in PHP 8.1+?
+- a) #[Transaction]
+- b) #[Recoverable]
+- c) #[RetryWithBackoff] ✅
+- d) #[Resilient]
 
 **Question 3**: Which library provides compliance audit trails?
-- a) enterprise_audit.py ✅
-- b) audit_logger.py
-- c) transaction_manager.py
-- d) metrics_collector.py
+- a) AuditLogger.php ✅
+- b) TransactionManager.php
+- c) SecurityValidator.php
+- d) MetricsCollector.php
 
 **Question 4**: What's the base class for CLI applications?
-- a) CLIBase
-- b) CLIApp ✅
+- a) CliBase
+- b) CliFramework ✅
 - c) Application
 - d) BaseScript
 
 **Question 5**: Which library detects security vulnerabilities?
-- a) input_validator.py
-- b) security_scanner.py
-- c) security_validator.py ✅
-- d) vulnerability_detector.py
+- a) InputValidator.php
+- b) SecurityScanner.php
+- c) SecurityValidator.php ✅
+- d) VulnerabilityDetector.php
 
 ---
 
 ## Session Summary
 
 ### What We Covered
-✅ All 10 enterprise libraries and their purposes  
+✅ All 13 PHP enterprise libraries and their purposes  
 ✅ Live demonstrations of each library  
 ✅ Basic hands-on exercises  
 ✅ When to use each library  
@@ -934,12 +1089,13 @@ A: Yes! All libraries support extension. See source code for details.
 1. **Enterprise libraries provide consistency** across all automation
 2. **Use multiple libraries together** for enterprise-grade scripts
 3. **Start simple** - add libraries as needed
-4. **Read the source code** - it's well-documented
+4. **Read the source code** - it's well-documented with full docblocks
 5. **Practice with exercises** - hands-on learning is key
+6. **Use PSR-4 autoloading** - follow PHP standards
 
 ### Next Steps
 1. ✅ Complete all hands-on exercises
-2. 📝 Review library source code
+2. 📝 Review library source code in `src/Enterprise/`
 3. 🔨 Migrate a simple script to use 2-3 libraries
 4. 📚 Read Session 2 materials before next session
 5. ❓ Prepare questions for Session 2
@@ -949,11 +1105,23 @@ A: Yes! All libraries support extension. See source code for details.
 ## Homework Assignment (Optional)
 
 Create a simple automation script that:
-1. Uses CLI Framework for argument parsing
-2. Uses Enterprise Audit to log operations
-3. Uses API Client to fetch data from GitHub
-4. Uses Metrics Collector to track performance
+1. Uses CliFramework for argument parsing
+2. Uses AuditLogger to log operations
+3. Uses ApiClient to fetch data from GitHub
+4. Uses MetricsCollector to track performance
 5. Prints a summary report
+
+**Setup**:
+```bash
+# Install dependencies
+composer install
+
+# Set GitHub token
+export GITHUB_TOKEN="your_token_here"
+
+# Run your script
+php my_script.php --org mokoconsulting-tech
+```
 
 **Due**: Before Session 2  
 **Estimated Time**: 1-2 hours

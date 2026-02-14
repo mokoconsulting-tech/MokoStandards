@@ -128,6 +128,14 @@ jobs:
             [ ! -d ".github" ] && echo "- Create .github directory: \`mkdir -p .github/workflows\`" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "📚 Reference: [MokoStandards Repository Structure](https://github.com/mokoconsulting-tech/MokoStandards/tree/main/docs/policy/core-structure.md)" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### ❌ Validation Failed: Required Directories Missing" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Status:** Repository structure does not meet MokoStandards requirements" >> $GITHUB_STEP_SUMMARY
+            echo "**Missing:** $MISSING required director(y|ies)" >> $GITHUB_STEP_SUMMARY
+            echo "**Compliance:** $PERCENT% ($PRESENT/$TOTAL directories present)" >> $GITHUB_STEP_SUMMARY
+            echo ""
+            echo "❌ ERROR: Required directories missing - See job summary for remediation steps"
             exit 1
           fi
 
@@ -188,6 +196,14 @@ jobs:
             [ ! -f ".editorconfig" ] && echo "- Add .editorconfig: Use [template](https://github.com/mokoconsulting-tech/MokoStandards/tree/main/templates/.editorconfig)" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "📚 Reference: [MokoStandards File Requirements](https://github.com/mokoconsulting-tech/MokoStandards/tree/main/docs/policy/file-header-standards.md)" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### ❌ Validation Failed: Required Files Missing" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Status:** Repository files do not meet MokoStandards requirements" >> $GITHUB_STEP_SUMMARY
+            echo "**Missing:** $MISSING required file(s)" >> $GITHUB_STEP_SUMMARY
+            echo "**Compliance:** $PERCENT% ($PRESENT/$TOTAL files present)" >> $GITHUB_STEP_SUMMARY
+            echo ""
+            echo "❌ ERROR: Required files missing - See job summary for remediation steps"
             exit 1
           fi
 
@@ -209,6 +225,13 @@ jobs:
 
           if [ ! -f "README.md" ]; then
             echo "❌ **Critical:** README.md not found" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### ❌ Validation Failed: README.md Missing" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Error:** README.md is required for all MokoStandards-compliant repositories" >> $GITHUB_STEP_SUMMARY
+            echo "**Action Required:** Create README.md with project description, setup instructions, and usage examples" >> $GITHUB_STEP_SUMMARY
+            echo ""
+            echo "❌ ERROR: README.md not found - This is a critical requirement"
             exit 1
           fi
 
@@ -304,6 +327,13 @@ jobs:
 
           if [ ! -f "CHANGELOG.md" ]; then
             echo "❌ **Critical:** CHANGELOG.md not found" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### ❌ Validation Failed: CHANGELOG.md Missing" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Error:** CHANGELOG.md is required for all MokoStandards-compliant repositories" >> $GITHUB_STEP_SUMMARY
+            echo "**Action Required:** Create CHANGELOG.md following [Keep a Changelog](https://keepachangelog.com/) format" >> $GITHUB_STEP_SUMMARY
+            echo ""
+            echo "❌ ERROR: CHANGELOG.md not found - This is a critical requirement"
             exit 1
           fi
 
@@ -498,6 +528,13 @@ jobs:
 
           if [ ! -f "LICENSE" ]; then
             echo "❌ LICENSE file not found" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### ❌ Validation Failed: LICENSE File Missing" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Error:** LICENSE file is required for all MokoStandards-compliant repositories" >> $GITHUB_STEP_SUMMARY
+            echo "**Action Required:** Add LICENSE file with appropriate open-source license (GPL-3.0-or-later recommended)" >> $GITHUB_STEP_SUMMARY
+            echo ""
+            echo "❌ ERROR: LICENSE file not found - This is a critical requirement"
             exit 1
           fi
 
@@ -534,6 +571,13 @@ jobs:
 
           if [ ! -f ".gitignore" ]; then
             echo "⚠️ .gitignore file not found" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### ⚠️ Warning: .gitignore Not Found" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Status:** .gitignore file is recommended but not required" >> $GITHUB_STEP_SUMMARY
+            echo "**Recommendation:** Add .gitignore to exclude build artifacts, dependencies, and temporary files" >> $GITHUB_STEP_SUMMARY
+            echo ""
+            echo "⚠️ WARNING: .gitignore file not found - Continuing validation"
             exit 0
           fi
 
@@ -584,6 +628,13 @@ jobs:
 
           if [ ! -d "$WORKFLOWS_DIR" ]; then
             echo "❌ No workflows directory found" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### ❌ Validation Failed: Workflows Directory Missing" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Error:** .github/workflows directory is required for CI/CD automation" >> $GITHUB_STEP_SUMMARY
+            echo "**Action Required:** Create .github/workflows directory and add GitHub Actions workflows" >> $GITHUB_STEP_SUMMARY
+            echo ""
+            echo "❌ ERROR: .github/workflows directory not found"
             exit 1
           fi
 
@@ -619,8 +670,21 @@ jobs:
           done
 
           if [ "$INVALID" -gt 0 ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### ❌ Validation Failed: Invalid Workflow YAML Syntax" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Error:** $INVALID workflow file(s) have invalid YAML syntax" >> $GITHUB_STEP_SUMMARY
+            echo "**Action Required:** Fix YAML syntax errors in the marked workflow files" >> $GITHUB_STEP_SUMMARY
+            echo "**Tool:** Run \`yamllint .github/workflows/\` locally to identify issues" >> $GITHUB_STEP_SUMMARY
+            echo ""
+            echo "❌ ERROR: $INVALID workflow file(s) with invalid YAML syntax"
             exit 1
           fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ All Workflow Files Have Valid YAML Syntax" >> $GITHUB_STEP_SUMMARY
+          echo ""
+          echo "✅ SUCCESS: All workflow files passed YAML validation"
 
       - name: Validate CodeQL Configuration
         if: hashFiles('.github/workflows/codeql-analysis.yml') != ''
@@ -635,6 +699,12 @@ jobs:
 
           if [ ! -f "$CODEQL_FILE" ]; then
             echo "⚠️ CodeQL workflow file not found" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### ⚠️ CodeQL Workflow Not Found" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Status:** CodeQL workflow file not present - skipping language validation" >> $GITHUB_STEP_SUMMARY
+            echo ""
+            echo "⚠️ INFO: CodeQL workflow not found - Skipping validation"
             exit 0
           fi
 
@@ -646,6 +716,13 @@ jobs:
 
           if [ -z "$LANGUAGES" ]; then
             echo "❌ No languages configured in CodeQL workflow" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### ❌ Validation Failed: CodeQL Languages Not Configured" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Error:** CodeQL workflow exists but has no languages configured" >> $GITHUB_STEP_SUMMARY
+            echo "**Action Required:** Configure appropriate languages in codeql-analysis.yml" >> $GITHUB_STEP_SUMMARY
+            echo ""
+            echo "❌ ERROR: No languages configured in CodeQL workflow"
             exit 1
           fi
 
@@ -736,6 +813,12 @@ jobs:
           fi
 
           # Always succeed - this is informational only
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ CodeQL Configuration Validation Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** CodeQL language configuration reviewed successfully" >> $GITHUB_STEP_SUMMARY
+          echo ""
+          echo "✅ SUCCESS: CodeQL validation complete"
           exit 0
 
   summary:
@@ -900,8 +983,24 @@ jobs:
 
           # Exit with error if not fully compliant
           if [ "$COMPLIANCE_PERCENT" -lt 100 ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### ❌ Standards Compliance Failed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Overall Compliance:** $COMPLIANCE_PERCENT%" >> $GITHUB_STEP_SUMMARY
+            echo "**Status:** Repository does not meet 100% compliance requirement" >> $GITHUB_STEP_SUMMARY
+            echo "**Action Required:** Review and fix all validation failures above" >> $GITHUB_STEP_SUMMARY
+            echo ""
+            echo "❌ ERROR: Standards compliance at $COMPLIANCE_PERCENT% - 100% required"
             exit 1
           fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Full Standards Compliance Achieved" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Overall Compliance:** 100%" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** Repository meets all MokoStandards requirements" >> $GITHUB_STEP_SUMMARY
+          echo ""
+          echo "✅ SUCCESS: Repository is fully MokoStandards compliant"
 
       - name: Create tracking issue for standards violations
         if: failure() && github.event_name == 'push'

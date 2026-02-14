@@ -43,7 +43,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.2
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -68,7 +68,7 @@ jobs:
 
       - name: Upload Validation Report
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v6.0.0
         with:
           name: terraform-drift-report
           path: /tmp/drift-validation.log

@@ -38,10 +38,10 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Set up PHP
-        uses: shivammathur/setup-php@2cb9b829437ee246e9b3cac53555a39208ca6d28 # v2.31.0
+        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.31.0
         with:
           php-version: '8.1'
           extensions: mbstring, curl, json
@@ -232,7 +232,7 @@ jobs:
 
       - name: Upload Health Report
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v6.0.0
         with:
           name: health-report-${{ github.run_number }}
           path: |

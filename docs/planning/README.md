@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Planning
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: docs/planning/README.md
-VERSION: 03.02.00
+VERSION: 04.00.00
 BRIEF: Comprehensive implementation roadmap for MokoStandards enterprise transformation
 -->
 

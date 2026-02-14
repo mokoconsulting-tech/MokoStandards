@@ -49,7 +49,7 @@ BRIEF: Guide for installing and using Terraform across organization repositories
 
 ## Overview
 
-As part of the enterprise transformation (version 03.02.00), Terraform is now distributed to all organization repositories to enable Infrastructure as Code (IaC) capabilities across the organization.
+As part of the enterprise transformation (version 04.00.00), Terraform is now distributed to all organization repositories to enable Infrastructure as Code (IaC) capabilities across the organization.
 
 ### Key Benefits
 

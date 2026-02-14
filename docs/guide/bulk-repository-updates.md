@@ -176,7 +176,7 @@ To sync only the Dependabot configuration, you can customize the script or manua
 
 ### Overview
 
-Starting in version 03.00.00, the bulk update script includes automatic cleanup of obsolete files during sync. This ensures target repositories stay clean and don't accumulate outdated workflows or scripts.
+Starting in version 04.00.00, the bulk update script includes automatic cleanup of obsolete files during sync. This ensures target repositories stay clean and don't accumulate outdated workflows or scripts.
 
 ### Cleanup Modes
 
@@ -470,4 +470,4 @@ For issues or questions, contact the MokoStandards maintainers or open an issue 
 | Date       | Author          | Change                                       | Notes                                              |
 | ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
 | 2026-01-30 | Moko Consulting | Added file cleanup functionality | Version 04.00.00 - automatic cleanup of obsolete files |
-| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 03.00.00 with all required fields |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 04.00.00 with all required fields |

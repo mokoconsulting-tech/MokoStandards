@@ -8,7 +8,7 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Workflows
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/workflows/dev-branch-tracking.md
-VERSION: 03.01.03
+VERSION: 04.00.00
 BRIEF: Dev branch tracking and issue coordination system documentation
 -->
 
@@ -198,7 +198,7 @@ No action required. When a PR is merged to main:
 ```bash
 # Developer merges PR to main via GitHub UI
 # Workflow automatically:
-# 1. Creates dev/03.02.00 branch
+# 1. Creates dev/04.00.00 branch
 # 2. Creates tracking issue #456
 # 3. Assigns to copilot and jmiller-moko
 ```
@@ -223,16 +223,16 @@ For manually created dev branches:
 ```bash
 # 1. Check out the dev branch
 git fetch origin
-git checkout dev/03.02.00
+git checkout dev/04.00.00
 
 # 2. Find the tracking issue (labeled 'dev-branch')
 # 3. Create PR targeting the dev branch
-gh pr create --base dev/03.02.00 --title "Add feature X"
+gh pr create --base dev/04.00.00 --title "Add feature X"
 
 # 4. PR automatically added to tracking issue
 # 5. When ready to merge to main, complete checklist in tracking issue
 # 6. Create final PR to main
-gh pr create --base main --head dev/03.02.00 --title "Release 03.02.00"
+gh pr create --base main --head dev/04.00.00 --title "Release 04.00.00"
 ```
 
 **As a Reviewer:**

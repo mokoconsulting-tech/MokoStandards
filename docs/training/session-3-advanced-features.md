@@ -67,50 +67,65 @@ By the end of this session, you will:
 
 **Scenario**: Different operations require different retry strategies.
 
-```python
-from scripts.lib.error_recovery import retry_with_backoff, Checkpoint
-from scripts.lib.api_client import GitHubClient
-from scripts.lib.enterprise_audit import AuditLogger
-import time
+```php
+<?php
+declare(strict_types=1);
 
-class AdvancedErrorRecovery:
-    def __init__(self):
-        self.api = GitHubClient()
-        self.audit = AuditLogger(service='advanced_recovery')
-        self.checkpoint = Checkpoint(name='multi_level_recovery')
+use MokoStandards\Enterprise\RetryWithBackoff;
+use MokoStandards\Enterprise\Checkpoint;
+use MokoStandards\Enterprise\GitHubClient;
+use MokoStandards\Enterprise\AuditLogger;
+
+class AdvancedErrorRecovery
+{
+    public function __construct()
+    {
+        $this->api = new GitHubClient();
+        $this->audit = new AuditLogger(service: 'advanced_recovery');
+        $this->checkpoint = new Checkpoint(name: 'multi_level_recovery');
+    }
     
-    @retry_with_backoff(
-        max_retries=5,
-        base_delay=2.0,
-        max_delay=60.0,
-        exponential_base=2,
-        jitter=True
-    )
-    def fetch_with_aggressive_retry(self, url):
-        """Aggressive retry for critical operations"""
-        return self.api.get(url)
+    #[RetryWithBackoff(
+        maxRetries: 5,
+        baseDelay: 2.0,
+        maxDelay: 60.0,
+        exponentialBase: 2,
+        jitter: true
+    )]
+    protected function fetchWithAggressiveRetry(string $url): mixed
+    {
+        // Aggressive retry for critical operations
+        return $this->api->get($url);
+    }
     
-    @retry_with_backoff(
-        max_retries=2,
-        base_delay=1.0,
-        max_delay=10.0
-    )
-    def fetch_with_conservative_retry(self, url):
-        """Conservative retry for less critical operations"""
-        return self.api.get(url)
+    #[RetryWithBackoff(
+        maxRetries: 2,
+        baseDelay: 1.0,
+        maxDelay: 10.0
+    )]
+    protected function fetchWithConservativeRetry(string $url): mixed
+    {
+        // Conservative retry for less critical operations
+        return $this->api->get($url);
+    }
     
-    def fetch_with_circuit_breaker(self, url, circuit_breaker):
-        """Use circuit breaker to prevent cascade failures"""
-        if circuit_breaker.is_open():
-            raise Exception("Circuit breaker is open")
+    protected function fetchWithCircuitBreaker(string $url, $circuitBreaker): mixed
+    {
+        // Use circuit breaker to prevent cascade failures
+        if ($circuitBreaker->isOpen()) {
+            throw new \Exception("Circuit breaker is open");
+        }
         
-        try:
-            response = self.api.get(url)
-            circuit_breaker.record_success()
-            return response
-        except Exception as e:
-            circuit_breaker.record_failure()
-            raise
+        try {
+            $response = $this->api->get($url);
+            $circuitBreaker->recordSuccess();
+            return $response;
+        } catch (\Exception $e) {
+            $circuitBreaker->recordFailure();
+            throw $e;
+        }
+    }
+}
 ```
 
 **Key Concepts**:
@@ -125,88 +140,109 @@ class AdvancedErrorRecovery:
 
 **Scenario**: Long-running operations that need to resume after failures.
 
-```python
-from scripts.lib.error_recovery import Checkpoint
-from scripts.lib.enterprise_audit import AuditLogger
-import json
-from datetime import datetime
+```php
+<?php
+declare(strict_types=1);
 
-class StateRecoveryManager:
-    def __init__(self, operation_name):
-        self.checkpoint = Checkpoint(
-            name=operation_name,
-            checkpoint_dir='/var/lib/myapp/checkpoints'
-        )
-        self.audit = AuditLogger(service='state_recovery')
+use MokoStandards\Enterprise\Checkpoint;
+use MokoStandards\Enterprise\AuditLogger;
+
+class StateRecoveryManager
+{
+    public function __construct(string $operationName)
+    {
+        $this->checkpoint = new Checkpoint(
+            name: $operationName,
+            checkpointDir: '/var/lib/myapp/checkpoints'
+        );
+        $this->audit = new AuditLogger(service: 'state_recovery');
+    }
     
-    def save_state(self, item_id, state_data):
-        """Save detailed state for recovery"""
-        self.checkpoint.mark_completed(item_id, {
-            'state': state_data,
-            'timestamp': datetime.utcnow().isoformat(),
-            'version': '1.0'
-        })
+    protected function saveState(string $itemId, array $stateData): mixed
+    {
+        // Save detailed state for recovery
+        $this->checkpoint->markCompleted($itemId, [
+            'state' => $stateData,
+            'timestamp' => (new \DateTime('now', new \DateTimeZone('UTC')))->format(\DateTime::ATOM),
+            'version' => '1.0'
+        ]);
+    }
     
-    def load_state(self, item_id):
-        """Load saved state"""
-        return self.checkpoint.get_state(item_id)
+    protected function loadState(string $itemId): mixed
+    {
+        // Load saved state
+        return $this->checkpoint->getState($itemId);
+    }
     
-    def process_with_recovery(self, items):
-        """Process items with state recovery"""
+    protected function processWithRecovery(array $items): mixed
+    {
+        // Process items with state recovery
         
-        for item in items:
-            item_id = item['id']
+        foreach ($items as $item) {
+            $itemId = $item['id'];
             
-            # Check if already completed
-            if self.checkpoint.is_completed(item_id):
-                print(f"Resuming from completed state: {item_id}")
-                continue
+            // Check if already completed
+            if ($this->checkpoint->isCompleted($itemId)) {
+                echo "Resuming from completed state: {$itemId}";
+                continue;
+            }
             
-            # Load previous state if exists
-            previous_state = self.load_state(item_id)
-            if previous_state:
-                print(f"Resuming from checkpoint: {item_id}")
-                current_step = previous_state.get('current_step', 0)
-            else:
-                current_step = 0
+            // Load previous state if exists
+            $previousState = $this->loadState($itemId);
+            if ($previousState) {
+                echo "Resuming from checkpoint: {$itemId}";
+                $currentStep = $previousState['current_step'] ?? 0;
+            } else {
+                $currentStep = 0;
+            }
             
-            # Multi-step processing with state saving
-            try:
-                # Step 1
-                if current_step < 1:
-                    self.process_step1(item)
-                    self.save_state(item_id, {'current_step': 1, 'data': item})
-                    current_step = 1
+            // Multi-step processing with state saving
+            try {
+                // Step 1
+                if ($currentStep < 1) {
+                    $this->processStep1($item);
+                    $this->saveState($itemId, ['current_step' => 1, 'data' => $item]);
+                    $currentStep = 1;
+                }
                 
-                # Step 2
-                if current_step < 2:
-                    self.process_step2(item)
-                    self.save_state(item_id, {'current_step': 2, 'data': item})
-                    current_step = 2
+                // Step 2
+                if ($currentStep < 2) {
+                    $this->processStep2($item);
+                    $this->saveState($itemId, ['current_step' => 2, 'data' => $item]);
+                    $currentStep = 2;
+                }
                 
-                # Step 3
-                if current_step < 3:
-                    self.process_step3(item)
-                    self.save_state(item_id, {'current_step': 3, 'data': item})
-                    current_step = 3
+                // Step 3
+                if ($currentStep < 3) {
+                    $this->processStep3($item);
+                    $this->saveState($itemId, ['current_step' => 3, 'data' => $item]);
+                    $currentStep = 3;
+                }
                 
-                # Mark as fully completed
-                self.checkpoint.mark_completed(item_id, {
-                    'status': 'complete',
-                    'steps_completed': 3
-                })
+                // Mark as fully completed
+                $this->checkpoint->markCompleted($itemId, [
+                    'status' => 'complete',
+                    'steps_completed' => 3
+                ]);
                 
-            except Exception as e:
-                print(f"Failed at step {current_step}: {e}")
-                self.checkpoint.mark_failed(item_id, str(e))
-                # State is already saved, can resume later
+            } catch (\Exception $e) {
+                echo "Failed at step {$currentStep}: {$e}";
+                $this->checkpoint->markFailed($itemId, (string)$e);
+                // State is already saved, can resume later
+            }
+        }
+    }
+}
 ```
 
 **Exercise 3.1**: Implement multi-step processing with state recovery
-```python
-# TODO: Create a 5-step process with checkpoint after each step
-# TODO: Simulate failures at different steps
-# TODO: Verify recovery continues from last successful checkpoint
+```php
+<?php
+declare(strict_types=1);
+
+// TODO: Create a 5-step process with checkpoint after each step
+// TODO: Simulate failures at different steps
+// TODO: Verify recovery continues from last successful checkpoint
 ```
 
 ---
@@ -215,94 +251,113 @@ class StateRecoveryManager:
 
 **Scenario**: Handle items that fail repeatedly without blocking the entire process.
 
-```python
-from scripts.lib.error_recovery import Checkpoint
-from scripts.lib.metrics_collector import MetricsCollector
-import json
-from pathlib import Path
+```php
+<?php
+declare(strict_types=1);
 
-class DeadLetterQueue:
-    def __init__(self, name, max_retries=3):
-        self.name = name
-        self.max_retries = max_retries
-        self.checkpoint = Checkpoint(name=name)
-        self.metrics = MetricsCollector(service=name)
-        self.dlq_path = Path(f'/var/lib/myapp/dlq/{name}')
-        self.dlq_path.mkdir(parents=True, exist_ok=True)
-    
-    def process_with_dlq(self, items):
-        """Process items with dead letter queue"""
-        
-        for item in items:
-            item_id = item['id']
-            
-            # Check retry count
-            retry_count = self.checkpoint.get_retry_count(item_id)
-            
-            if retry_count >= self.max_retries:
-                # Move to dead letter queue
-                self.move_to_dlq(item, f"Max retries ({self.max_retries}) exceeded")
-                self.metrics.increment('items_moved_to_dlq')
-                continue
-            
-            try:
-                self.process_item(item)
-                self.checkpoint.mark_completed(item_id)
-                self.metrics.increment('items_processed_success')
-                
-            except Exception as e:
-                # Increment retry count
-                self.checkpoint.increment_retry_count(item_id)
-                self.checkpoint.mark_failed(item_id, str(e))
-                self.metrics.increment('items_retried')
-                
-                print(f"Failed {item_id} (attempt {retry_count + 1}/{self.max_retries}): {e}")
-    
-    def move_to_dlq(self, item, reason):
-        """Move failed item to dead letter queue"""
-        dlq_file = self.dlq_path / f"{item['id']}.json"
-        
-        dlq_entry = {
-            'item': item,
-            'reason': reason,
-            'timestamp': datetime.utcnow().isoformat(),
-            'retry_count': self.checkpoint.get_retry_count(item['id'])
+use MokoStandards\Enterprise\Checkpoint;
+use MokoStandards\Enterprise\MetricsCollector;
+
+class DeadLetterQueue
+{
+    public function __construct(string $name, int $maxRetries = 3)
+    {
+        $this->name = $name;
+        $this->maxRetries = $maxRetries;
+        $this->checkpoint = new Checkpoint(name: $name);
+        $this->metrics = new MetricsCollector(service: $name);
+        $this->dlqPath = new \SplFileInfo("/var/lib/myapp/dlq/{$name}");
+        if (!is_dir($this->dlqPath->getPathname())) {
+            mkdir($this->dlqPath->getPathname(), 0755, true);
         }
-        
-        with open(dlq_file, 'w') as f:
-            json.dump(dlq_entry, f, indent=2)
-        
-        print(f"Moved {item['id']} to dead letter queue: {reason}")
+    }
     
-    def process_dlq(self):
-        """Manually process items from dead letter queue"""
-        dlq_items = list(self.dlq_path.glob('*.json'))
+    protected function processWithDlq(array $items): mixed
+    {
+        // Process items with dead letter queue
         
-        print(f"Found {len(dlq_items)} items in dead letter queue")
-        
-        for dlq_file in dlq_items:
-            with open(dlq_file) as f:
-                dlq_entry = json.load(f)
+        foreach ($items as $item) {
+            $itemId = $item['id'];
             
-            item = dlq_entry['item']
-            print(f"Manual processing: {item['id']}")
+            // Check retry count
+            $retryCount = $this->checkpoint->getRetryCount($itemId);
             
-            try:
-                self.process_item(item)
-                # Remove from DLQ
-                dlq_file.unlink()
-                self.checkpoint.mark_completed(item['id'])
-                print(f"Successfully processed {item['id']} from DLQ")
+            if ($retryCount >= $this->maxRetries) {
+                // Move to dead letter queue
+                $this->moveToDlq($item, "Max retries ({$this->maxRetries}) exceeded");
+                $this->metrics->increment('items_moved_to_dlq');
+                continue;
+            }
+            
+            try {
+                $this->processItem($item);
+                $this->checkpoint->markCompleted($itemId);
+                $this->metrics->increment('items_processed_success');
                 
-            except Exception as e:
-                print(f"Still failing: {item['id']}: {e}")
+            } catch (\Exception $e) {
+                // Increment retry count
+                $this->checkpoint->incrementRetryCount($itemId);
+                $this->checkpoint->markFailed($itemId, (string)$e);
+                $this->metrics->increment('items_retried');
+                
+                echo "Failed {$itemId} (attempt " . ($retryCount + 1) . "/{$this->maxRetries}): {$e}";
+            }
+        }
+    }
+    
+    protected function moveToDlq(array $item, string $reason): mixed
+    {
+        // Move failed item to dead letter queue
+        $dlqFile = $this->dlqPath->getPathname() . "/{$item['id']}.json";
+        
+        $dlqEntry = [
+            'item' => $item,
+            'reason' => $reason,
+            'timestamp' => (new \DateTime('now', new \DateTimeZone('UTC')))->format(\DateTime::ATOM),
+            'retry_count' => $this->checkpoint->getRetryCount($item['id'])
+        ];
+        
+        file_put_contents($dlqFile, json_encode($dlqEntry, JSON_PRETTY_PRINT));
+        
+        echo "Moved {$item['id']} to dead letter queue: {$reason}";
+    }
+    
+    protected function processDlq(): mixed
+    {
+        // Manually process items from dead letter queue
+        $dlqItems = glob($this->dlqPath->getPathname() . '/*.json');
+        
+        echo "Found " . count($dlqItems) . " items in dead letter queue";
+        
+        foreach ($dlqItems as $dlqFile) {
+            $dlqEntry = json_decode(file_get_contents($dlqFile), true);
+            
+            $item = $dlqEntry['item'];
+            echo "Manual processing: {$item['id']}";
+            
+            try {
+                $this->processItem($item);
+                // Remove from DLQ
+                unlink($dlqFile);
+                $this->checkpoint->markCompleted($item['id']);
+                echo "Successfully processed {$item['id']} from DLQ";
+                
+            } catch (\Exception $e) {
+                echo "Still failing: {$item['id']}: {$e}";
+            }
+        }
+    }
+}
 ```
 
 **Exercise 3.2**: Implement DLQ pattern
-```python
-# TODO: Process a batch where 10% of items fail
-# TODO: Verify failed items move to DLQ after max retries
-# TODO: Implement manual DLQ processing
+```php
+<?php
+declare(strict_types=1);
+
+// TODO: Process a batch where 10% of items fail
+// TODO: Verify failed items move to DLQ after max retries
+// TODO: Implement manual DLQ processing
 ```
 
 ---
@@ -313,62 +368,86 @@ class DeadLetterQueue:
 
 **Scenario**: Complex operations with sub-operations that need independent rollback.
 
-```python
-from scripts.lib.transaction_manager import TransactionManager
-from scripts.lib.enterprise_audit import AuditLogger
+```php
+<?php
+declare(strict_types=1);
 
-class NestedTransactionExample:
-    def __init__(self):
-        self.txn_manager = TransactionManager()
-        self.audit = AuditLogger(service='nested_transactions')
+use MokoStandards\Enterprise\TransactionManager;
+use MokoStandards\Enterprise\AuditLogger;
+
+class NestedTransactionExample
+{
+    public function __construct()
+    {
+        $this->txnManager = new TransactionManager();
+        $this->audit = new AuditLogger(service: 'nested_transactions');
+    }
     
-    def update_organization(self, org):
-        """Update organization with nested transactions"""
+    protected function updateOrganization(string $org): mixed
+    {
+        // Update organization with nested transactions
         
-        with self.txn_manager.begin_transaction(f'update_org_{org}') as parent_txn:
+        try {
+            $parentTxn = $this->txnManager->beginTransaction("update_org_{$org}");
             
-            # Sub-transaction 1: Update organization settings
-            with self.txn_manager.begin_transaction(f'org_settings_{org}') as txn1:
-                txn1.add_operation(
+            // Sub-transaction 1: Update organization settings
+            try {
+                $txn1 = $this->txnManager->beginTransaction("org_settings_{$org}");
+                $txn1->addOperation(
                     'update_org_settings',
-                    forward=lambda: self.update_org_settings(org),
-                    rollback=lambda: self.restore_org_settings(org)
-                )
-                txn1.commit()
+                    forward: fn() => $this->updateOrgSettings($org),
+                    rollback: fn() => $this->restoreOrgSettings($org)
+                );
+                $txn1->commit();
+            } finally {
+            }
             
-            # Sub-transaction 2: Update all repositories
-            with self.txn_manager.begin_transaction(f'org_repos_{org}') as txn2:
-                repos = self.get_repositories(org)
+            // Sub-transaction 2: Update all repositories
+            try {
+                $txn2 = $this->txnManager->beginTransaction("org_repos_{$org}");
+                $repos = $this->getRepositories($org);
                 
-                for repo in repos:
-                    # Independent transaction per repository
-                    try:
-                        with self.txn_manager.begin_transaction(f'repo_{repo}') as repo_txn:
-                            repo_txn.add_operation(
-                                'update_repo',
-                                forward=lambda r=repo: self.update_repository(org, r),
-                                rollback=lambda r=repo: self.restore_repository(org, r)
-                            )
-                            repo_txn.commit()
-                    except Exception as e:
-                        # Individual repo failure doesn't affect others
-                        print(f"Failed to update {repo}: {e}")
-                        continue
+                foreach ($repos as $repo) {
+                    // Independent transaction per repository
+                    try {
+                        $repoTxn = $this->txnManager->beginTransaction("repo_{$repo}");
+                        $repoTxn->addOperation(
+                            'update_repo',
+                            forward: fn() => $this->updateRepository($org, $repo),
+                            rollback: fn() => $this->restoreRepository($org, $repo)
+                        );
+                        $repoTxn->commit();
+                    } catch (\Exception $e) {
+                        // Individual repo failure doesn't affect others
+                        echo "Failed to update {$repo}: {$e}";
+                        continue;
+                    } finally {
+                    }
+                }
                 
-                txn2.commit()
+                $txn2->commit();
+            } finally {
+            }
             
-            # Sub-transaction 3: Update team settings
-            with self.txn_manager.begin_transaction(f'org_teams_{org}') as txn3:
-                txn3.add_operation(
+            // Sub-transaction 3: Update team settings
+            try {
+                $txn3 = $this->txnManager->beginTransaction("org_teams_{$org}");
+                $txn3->addOperation(
                     'update_teams',
-                    forward=lambda: self.update_teams(org),
-                    rollback=lambda: self.restore_teams(org)
-                )
-                txn3.commit()
+                    forward: fn() => $this->updateTeams($org),
+                    rollback: fn() => $this->restoreTeams($org)
+                );
+                $txn3->commit();
+            } finally {
+            }
             
-            # Commit parent transaction
-            parent_txn.commit()
-            print(f"Successfully updated organization: {org}")
+            // Commit parent transaction
+            $parentTxn->commit();
+            echo "Successfully updated organization: {$org}";
+        } finally {
+        }
+    }
+}
 ```
 
 **Key Concepts**:
@@ -383,98 +462,123 @@ class NestedTransactionExample:
 
 **Scenario**: Handle operations that can't be rolled back directly.
 
-```python
-from scripts.lib.transaction_manager import TransactionManager
-import json
-from datetime import datetime
+```php
+<?php
+declare(strict_types=1);
 
-class CompensatingTransaction:
-    def __init__(self):
-        self.txn_manager = TransactionManager()
-        self.state_log = []
+use MokoStandards\Enterprise\TransactionManager;
+
+class CompensatingTransaction
+{
+    public function __construct()
+    {
+        $this->txnManager = new TransactionManager();
+        $this->stateLog = [];
+    }
     
-    def create_repository(self, org, repo_name, settings):
-        """Create repository with compensating transaction"""
+    protected function createRepository(string $org, string $repoName, array $settings): mixed
+    {
+        // Create repository with compensating transaction
         
-        with self.txn_manager.begin_transaction(f'create_repo_{repo_name}') as txn:
+        try {
+            $txn = $this->txnManager->beginTransaction("create_repo_{$repoName}");
             
-            # Operation 1: Create repository
-            # (Can't be rolled back, so we use compensating action)
-            txn.add_operation(
+            
+            // Operation 1: Create repository
+            // (Can't be rolled back, so we use compensating action)
+            $txn->addOperation(
                 'create_repository',
-                forward=lambda: self.api.create_repo(org, repo_name, settings),
-                rollback=lambda: self.api.delete_repo(org, repo_name)  # Compensating action
-            )
+                forward: fn() => $this->api->createRepo($org, $repoName, $settings),
+                rollback: fn() => $this->api->deleteRepo($org, $repoName)  // Compensating action
+            );
             
-            # Operation 2: Set up branch protection
-            txn.add_operation(
+            // Operation 2: Set up branch protection
+            $txn->addOperation(
                 'setup_protection',
-                forward=lambda: self.api.update_branch_protection(org, repo_name, 'main', {...}),
-                rollback=lambda: self.api.delete_branch_protection(org, repo_name, 'main')
-            )
+                forward: fn() => $this->api->updateBranchProtection($org, $repoName, 'main', []),
+                rollback: fn() => $this->api->deleteBranchProtection($org, $repoName, 'main')
+            );
             
-            # Operation 3: Add collaborators
-            txn.add_operation(
+            // Operation 3: Add collaborators
+            $txn->addOperation(
                 'add_collaborators',
-                forward=lambda: self.add_team_access(org, repo_name),
-                rollback=lambda: self.remove_team_access(org, repo_name)
-            )
+                forward: fn() => $this->addTeamAccess($org, $repoName),
+                rollback: fn() => $this->removeTeamAccess($org, $repoName)
+            );
             
-            # Operation 4: Create initial issues
-            txn.add_operation(
+            // Operation 4: Create initial issues
+            $txn->addOperation(
                 'create_issues',
-                forward=lambda: self.create_initial_issues(org, repo_name),
-                rollback=lambda: self.close_initial_issues(org, repo_name)
-            )
+                forward: fn() => $this->createInitialIssues($org, $repoName),
+                rollback: fn() => $this->closeInitialIssues($org, $repoName)
+            );
             
-            try:
-                txn.commit()
-                print(f"Repository {repo_name} created successfully")
-                return True
+            try {
+                $txn->commit();
+                echo "Repository {$repoName} created successfully";
+                return true;
                 
-            except Exception as e:
-                print(f"Failed to create repository: {e}")
-                print("Rolling back all operations...")
-                # Compensating actions execute automatically
-                return False
+            } catch (\Exception $e) {
+                echo "Failed to create repository: {$e}";
+                echo "Rolling back all operations...";
+                // Compensating actions execute automatically
+                return false;
+            }
+        } finally {
+        }
+    }
     
-    def add_team_access(self, org, repo_name):
-        """Add team access with state tracking"""
-        teams = ['developers', 'maintainers', 'admins']
-        added_teams = []
+    protected function addTeamAccess(string $org, string $repoName): mixed
+    {
+        // Add team access with state tracking
+        $teams = ['developers', 'maintainers', 'admins'];
+        $addedTeams = [];
         
-        try:
-            for team in teams:
-                self.api.add_team_to_repo(org, repo_name, team)
-                added_teams.append(team)
+        try {
+            foreach ($teams as $team) {
+                $this->api->addTeamToRepo($org, $repoName, $team);
+                $addedTeams[] = $team;
+            }
             
-            # Save state for rollback
-            self.state_log.append({
-                'operation': 'add_team_access',
-                'repo': repo_name,
-                'teams': added_teams
-            })
+            // Save state for rollback
+            $this->stateLog[] = [
+                'operation' => 'add_team_access',
+                'repo' => $repoName,
+                'teams' => $addedTeams
+            ];
             
-        except Exception as e:
-            # Partial rollback
-            for team in added_teams:
-                self.api.remove_team_from_repo(org, repo_name, team)
-            raise
+        } catch (\Exception $e) {
+            // Partial rollback
+            foreach ($addedTeams as $team) {
+                $this->api->removeTeamFromRepo($org, $repoName, $team);
+            }
+            throw $e;
+        }
+    }
     
-    def remove_team_access(self, org, repo_name):
-        """Compensating action: remove team access"""
-        # Find teams from state log
-        for entry in self.state_log:
-            if entry['operation'] == 'add_team_access' and entry['repo'] == repo_name:
-                for team in entry['teams']:
-                    self.api.remove_team_from_repo(org, repo_name, team)
+    protected function removeTeamAccess(string $org, string $repoName): mixed
+    {
+        // Compensating action: remove team access
+        // Find teams from state log
+        foreach ($this->stateLog as $entry) {
+            if ($entry['operation'] === 'add_team_access' && $entry['repo'] === $repoName) {
+                foreach ($entry['teams'] as $team) {
+                    $this->api->removeTeamFromRepo($org, $repoName, $team);
+                }
+            }
+        }
+    }
+}
 ```
 
 **Exercise 3.3**: Implement compensating transactions
-```python
-# TODO: Create a multi-step workflow with compensating actions
-# TODO: Trigger a failure in step 3 of 5
-# TODO: Verify all previous steps are compensated correctly
+```php
+<?php
+declare(strict_types=1);
+
+// TODO: Create a multi-step workflow with compensating actions
+// TODO: Trigger a failure in step 3 of 5
+// TODO: Verify all previous steps are compensated correctly
 ```
 
 ---
@@ -483,81 +587,101 @@ class CompensatingTransaction:
 
 **Scenario**: Coordinate operations across multiple systems.
 
-```python
-class SagaOrchestrator:
-    def __init__(self):
-        self.txn_manager = TransactionManager()
-        self.audit = AuditLogger(service='saga_orchestrator')
-    
-    def execute_saga(self, saga_name, steps):
-        """Execute a saga with compensation"""
-        
-        with self.audit.transaction(saga_name) as audit_txn:
-            with self.txn_manager.begin_transaction(saga_name) as txn:
-                
-                for step in steps:
-                    step_name = step['name']
-                    forward_action = step['forward']
-                    compensating_action = step['compensate']
-                    
-                    audit_txn.log_event(f'step_start', {'step': step_name})
-                    
-                    txn.add_operation(
-                        step_name,
-                        forward=forward_action,
-                        rollback=compensating_action
-                    )
-                    
-                    audit_txn.log_event(f'step_complete', {'step': step_name})
-                
-                try:
-                    txn.commit()
-                    audit_txn.log_event('saga_complete', {'status': 'success'})
-                    return True
-                    
-                except Exception as e:
-                    audit_txn.log_event('saga_failed', {
-                        'status': 'failure',
-                        'error': str(e),
-                        'compensating': True
-                    })
-                    # Compensating actions execute in reverse order
-                    return False
+```php
+<?php
+declare(strict_types=1);
 
-# Example usage
-orchestrator = SagaOrchestrator()
-
-saga_steps = [
+class SagaOrchestrator
+{
+    public function __construct()
     {
-        'name': 'create_github_repo',
-        'forward': lambda: github_api.create_repo('myrepo'),
-        'compensate': lambda: github_api.delete_repo('myrepo')
-    },
-    {
-        'name': 'create_ci_pipeline',
-        'forward': lambda: ci_system.create_pipeline('myrepo'),
-        'compensate': lambda: ci_system.delete_pipeline('myrepo')
-    },
-    {
-        'name': 'setup_monitoring',
-        'forward': lambda: monitoring.add_repo('myrepo'),
-        'compensate': lambda: monitoring.remove_repo('myrepo')
-    },
-    {
-        'name': 'notify_team',
-        'forward': lambda: slack.notify('New repo: myrepo'),
-        'compensate': lambda: slack.notify('Repo creation failed: myrepo')
+        $this->txnManager = new TransactionManager();
+        $this->audit = new AuditLogger(service: 'saga_orchestrator');
     }
-]
+    
+    protected function executeSaga(string $sagaName, array $steps): mixed
+    {
+        // Execute a saga with compensation
+        
+        try {
+            $auditTxn = $this->audit->transaction($sagaName);
+            try {
+                $txn = $this->txnManager->beginTransaction($sagaName);
+                
+                foreach ($steps as $step) {
+                    $stepName = $step['name'];
+                    $forwardAction = $step['forward'];
+                    $compensatingAction = $step['compensate'];
+                    
+                    $auditTxn->logEvent('step_start', ['step' => $stepName]);
+                    
+                    $txn->addOperation(
+                        $stepName,
+                        forward: $forwardAction,
+                        rollback: $compensatingAction
+                    );
+                    
+                    $auditTxn->logEvent('step_complete', ['step' => $stepName]);
+                }
+                
+                try {
+                    $txn->commit();
+                    $auditTxn->logEvent('saga_complete', ['status' => 'success']);
+                    return true;
+                    
+                } catch (\Exception $e) {
+                    $auditTxn->logEvent('saga_failed', [
+                        'status' => 'failure',
+                        'error' => (string)$e,
+                        'compensating' => true
+                    ]);
+                    // Compensating actions execute in reverse order
+                    return false;
+                }
+            } finally {
+            }
+        } finally {
+        }
+    }
+}
 
-success = orchestrator.execute_saga('onboard_repository', saga_steps)
+// Example usage
+$orchestrator = new SagaOrchestrator();
+
+$sagaSteps = [
+    [
+        'name' => 'create_github_repo',
+        'forward' => fn() => $githubApi->createRepo('myrepo'),
+        'compensate' => fn() => $githubApi->deleteRepo('myrepo')
+    ],
+    [
+        'name' => 'create_ci_pipeline',
+        'forward' => fn() => $ciSystem->createPipeline('myrepo'),
+        'compensate' => fn() => $ciSystem->deletePipeline('myrepo')
+    ],
+    [
+        'name' => 'setup_monitoring',
+        'forward' => fn() => $monitoring->addRepo('myrepo'),
+        'compensate' => fn() => $monitoring->removeRepo('myrepo')
+    ],
+    [
+        'name' => 'notify_team',
+        'forward' => fn() => $slack->notify('New repo: myrepo'),
+        'compensate' => fn() => $slack->notify('Repo creation failed: myrepo')
+    ]
+];
+
+$success = $orchestrator->executeSaga('onboard_repository', $sagaSteps);
 ```
 
 **Exercise 3.4**: Build a saga orchestrator
-```python
-# TODO: Create a saga with 4 distributed operations
-# TODO: Implement proper compensation for each step
-# TODO: Test failure at different points in the saga
+```php
+<?php
+declare(strict_types=1);
+
+// TODO: Create a saga with 4 distributed operations
+// TODO: Implement proper compensation for each step
+// TODO: Test failure at different points in the saga
 ```
 
 ---
@@ -568,90 +692,122 @@ success = orchestrator.execute_saga('onboard_repository', saga_steps)
 
 **Scenario**: Optimize API calls with intelligent caching.
 
-```python
-from scripts.lib.api_client import GitHubClient, RateLimitConfig
-from functools import lru_cache
-import time
+```php
+<?php
+declare(strict_types=1);
 
-class OptimizedAPIClient:
-    def __init__(self):
-        # Configure aggressive caching
-        rate_config = RateLimitConfig(
-            max_requests_per_hour=5000,
-            burst_size=100,
-            enable_caching=True,
-            cache_ttl=3600  # 1 hour cache
-        )
+use MokoStandards\Enterprise\GitHubClient;
+use MokoStandards\Enterprise\RateLimitConfig;
+
+class OptimizedAPIClient
+{
+    public function __construct()
+    {
+        // Configure aggressive caching
+        $rateConfig = new RateLimitConfig(
+            maxRequestsPerHour: 5000,
+            burstSize: 100,
+            enableCaching: true,
+            cacheTtl: 3600  // 1 hour cache
+        );
         
-        self.api = GitHubClient(
-            token=os.getenv('GITHUB_TOKEN'),
-            rate_limit_config=rate_config
-        )
+        $this->api = new GitHubClient(
+            token: getenv('GITHUB_TOKEN'),
+            rateLimitConfig: $rateConfig
+        );
         
-        self.local_cache = {}
-        self.cache_hits = 0
-        self.cache_misses = 0
+        $this->localCache = [];
+        $this->cacheHits = 0;
+        $this->cacheMisses = 0;
+    }
     
-    @lru_cache(maxsize=1000)
-    def get_repository_cached(self, org, repo):
-        """Get repository with local LRU cache"""
-        self.cache_misses += 1
-        return self.api.get_repo(org, repo)
-    
-    def get_repository_with_etag(self, org, repo):
-        """Get repository with ETag-based caching"""
-        cache_key = f"{org}/{repo}"
+    protected function getRepositoryCached(string $org, string $repo): mixed
+    {
+        // Get repository with local LRU cache
+        static $cache = [];
+        $key = "{$org}/{$repo}";
         
-        # Check local cache
-        if cache_key in self.local_cache:
-            cached_data, etag, timestamp = self.local_cache[cache_key]
-            
-            # Cache still valid?
-            if time.time() - timestamp < 300:  # 5 minutes
-                self.cache_hits += 1
-                return cached_data
-            
-            # Conditional request with ETag
-            response = self.api.get_repo(
-                org, repo,
-                headers={'If-None-Match': etag}
-            )
-            
-            if response.status_code == 304:  # Not Modified
-                self.cache_hits += 1
-                # Update timestamp
-                self.local_cache[cache_key] = (cached_data, etag, time.time())
-                return cached_data
-        
-        # Fetch fresh data
-        self.cache_misses += 1
-        response = self.api.get_repo(org, repo)
-        
-        # Cache with ETag
-        etag = response.headers.get('ETag')
-        self.local_cache[cache_key] = (response.json(), etag, time.time())
-        
-        return response.json()
-    
-    def get_cache_stats(self):
-        """Get cache performance statistics"""
-        total_requests = self.cache_hits + self.cache_misses
-        hit_rate = self.cache_hits / total_requests if total_requests > 0 else 0
-        
-        return {
-            'cache_hits': self.cache_hits,
-            'cache_misses': self.cache_misses,
-            'hit_rate': f"{hit_rate:.2%}",
-            'cache_size': len(self.local_cache)
+        if (isset($cache[$key])) {
+            $this->cacheHits++;
+            return $cache[$key];
         }
+        
+        $this->cacheMisses++;
+        $result = $this->api->getRepo($org, $repo);
+        $cache[$key] = $result;
+        
+        if (count($cache) > 1000) {
+            array_shift($cache);
+        }
+        
+        return $result;
+    }
+    
+    protected function getRepositoryWithEtag(string $org, string $repo): mixed
+    {
+        // Get repository with ETag-based caching
+        $cacheKey = "{$org}/{$repo}";
+        
+        // Check local cache
+        if (isset($this->localCache[$cacheKey])) {
+            [$cachedData, $etag, $timestamp] = $this->localCache[$cacheKey];
+            
+            // Cache still valid?
+            if (time() - $timestamp < 300) {  // 5 minutes
+                $this->cacheHits++;
+                return $cachedData;
+            }
+            
+            // Conditional request with ETag
+            $response = $this->api->getRepo(
+                $org, $repo,
+                headers: ['If-None-Match' => $etag]
+            );
+            
+            if ($response->statusCode === 304) {  // Not Modified
+                $this->cacheHits++;
+                // Update timestamp
+                $this->localCache[$cacheKey] = [$cachedData, $etag, time()];
+                return $cachedData;
+            }
+        }
+        
+        // Fetch fresh data
+        $this->cacheMisses++;
+        $response = $this->api->getRepo($org, $repo);
+        
+        // Cache with ETag
+        $etag = $response->headers['ETag'] ?? null;
+        $this->localCache[$cacheKey] = [$response->json(), $etag, time()];
+        
+        return $response->json();
+    }
+    
+    protected function getCacheStats(): mixed
+    {
+        // Get cache performance statistics
+        $totalRequests = $this->cacheHits + $this->cacheMisses;
+        $hitRate = $totalRequests > 0 ? $this->cacheHits / $totalRequests : 0;
+        
+        return [
+            'cache_hits' => $this->cacheHits,
+            'cache_misses' => $this->cacheMisses,
+            'hit_rate' => sprintf("%.2f%%", $hitRate * 100),
+            'cache_size' => count($this->localCache)
+        ];
+    }
+}
 ```
 
 **Exercise 3.5**: Optimize API performance
-```python
-# TODO: Fetch 100 repositories multiple times
-# TODO: Compare performance with and without caching
-# TODO: Measure cache hit rate
-# TODO: Calculate API rate limit savings
+```php
+<?php
+declare(strict_types=1);
+
+// TODO: Fetch 100 repositories multiple times
+// TODO: Compare performance with and without caching
+// TODO: Measure cache hit rate
+// TODO: Calculate API rate limit savings
 ```
 
 ---
@@ -660,125 +816,143 @@ class OptimizedAPIClient:
 
 **Scenario**: Process large datasets efficiently.
 
-```python
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from scripts.lib.metrics_collector import MetricsCollector
-import time
+```php
+<?php
+declare(strict_types=1);
 
-class BatchOptimizer:
-    def __init__(self, max_workers=10):
-        self.max_workers = max_workers
-        self.metrics = MetricsCollector(service='batch_optimizer')
+use MokoStandards\Enterprise\MetricsCollector;
+
+class BatchOptimizer
+{
+    public function __construct(int $maxWorkers = 10)
+    {
+        $this->maxWorkers = $maxWorkers;
+        $this->metrics = new MetricsCollector(service: 'batch_optimizer');
+    }
     
-    def process_sequential(self, items):
-        """Sequential processing (baseline)"""
-        start_time = time.time()
-        results = []
+    protected function processSequential(array $items): mixed
+    {
+        // Sequential processing (baseline)
+        $startTime = microtime(true);
+        $results = [];
         
-        for item in items:
-            result = self.process_item(item)
-            results.append(result)
-        
-        elapsed = time.time() - start_time
-        self.metrics.record_histogram('batch_duration_sequential', elapsed)
-        
-        return results
-    
-    def process_parallel(self, items):
-        """Parallel processing with thread pool"""
-        start_time = time.time()
-        results = []
-        
-        with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-            # Submit all tasks
-            future_to_item = {
-                executor.submit(self.process_item, item): item
-                for item in items
-            }
-            
-            # Collect results as they complete
-            for future in as_completed(future_to_item):
-                item = future_to_item[future]
-                try:
-                    result = future.result()
-                    results.append(result)
-                    self.metrics.increment('items_processed_success')
-                except Exception as e:
-                    print(f"Failed to process {item}: {e}")
-                    self.metrics.increment('items_processed_failure')
-        
-        elapsed = time.time() - start_time
-        self.metrics.record_histogram('batch_duration_parallel', elapsed)
-        
-        return results
-    
-    def process_batched(self, items, batch_size=50):
-        """Process in batches for better throughput"""
-        start_time = time.time()
-        results = []
-        
-        # Split into batches
-        batches = [items[i:i+batch_size] for i in range(0, len(items), batch_size)]
-        
-        for batch_num, batch in enumerate(batches, 1):
-            print(f"Processing batch {batch_num}/{len(batches)}")
-            
-            with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-                batch_results = list(executor.map(self.process_item, batch))
-                results.extend(batch_results)
-            
-            # Brief pause between batches to avoid overwhelming systems
-            time.sleep(0.5)
-        
-        elapsed = time.time() - start_time
-        self.metrics.record_histogram('batch_duration_batched', elapsed)
-        
-        return results
-    
-    def compare_performance(self, items):
-        """Compare different processing strategies"""
-        print(f"Processing {len(items)} items...\n")
-        
-        # Sequential
-        print("Sequential processing...")
-        start = time.time()
-        self.process_sequential(items[:100])  # Sample
-        seq_time = time.time() - start
-        seq_rate = 100 / seq_time
-        
-        # Parallel
-        print("Parallel processing...")
-        start = time.time()
-        self.process_parallel(items[:100])  # Sample
-        par_time = time.time() - start
-        par_rate = 100 / par_time
-        
-        # Batched
-        print("Batched processing...")
-        start = time.time()
-        self.process_batched(items[:100], batch_size=20)  # Sample
-        batch_time = time.time() - start
-        batch_rate = 100 / batch_time
-        
-        # Report
-        print(f"\nPerformance Comparison:")
-        print(f"Sequential: {seq_time:.2f}s ({seq_rate:.1f} items/sec)")
-        print(f"Parallel:   {par_time:.2f}s ({par_rate:.1f} items/sec) - {par_time/seq_time:.1f}x faster")
-        print(f"Batched:    {batch_time:.2f}s ({batch_rate:.1f} items/sec) - {batch_time/seq_time:.1f}x faster")
-        
-        return {
-            'sequential': seq_rate,
-            'parallel': par_rate,
-            'batched': batch_rate
+        foreach ($items as $item) {
+            $result = $this->processItem($item);
+            $results[] = $result;
         }
+        
+        $elapsed = microtime(true) - $startTime;
+        $this->metrics->recordHistogram('batch_duration_sequential', $elapsed);
+        
+        return $results;
+    }
+    
+    protected function processParallel(array $items): mixed
+    {
+        // Parallel processing with thread pool
+        $startTime = microtime(true);
+        $results = [];
+        
+        $pool = new \Pool($this->maxWorkers);
+        $futures = [];
+        
+        foreach ($items as $item) {
+            $futures[] = $pool->submit(fn() => $this->processItem($item));
+        }
+        
+        foreach ($futures as $i => $future) {
+            try {
+                $result = $future->get();
+                $results[] = $result;
+                $this->metrics->increment('items_processed_success');
+            } catch (\Exception $e) {
+                echo "Failed to process {$items[$i]}: {$e}";
+                $this->metrics->increment('items_processed_failure');
+            }
+        }
+        
+        $elapsed = microtime(true) - $startTime;
+        $this->metrics->recordHistogram('batch_duration_parallel', $elapsed);
+        
+        return $results;
+    }
+    
+    protected function processBatched(array $items, int $batchSize = 50): mixed
+    {
+        // Process in batches for better throughput
+        $startTime = microtime(true);
+        $results = [];
+        
+        // Split into batches
+        $batches = array_chunk($items, $batchSize);
+        
+        foreach ($batches as $batchNum => $batch) {
+            echo "Processing batch " . ($batchNum + 1) . "/" . count($batches);
+            
+            $pool = new \Pool($this->maxWorkers);
+            $batchResults = array_map(fn($item) => $this->processItem($item), $batch);
+            $results = array_merge($results, $batchResults);
+            
+            // Brief pause between batches to avoid overwhelming systems
+            usleep(500000);
+        }
+        
+        $elapsed = microtime(true) - $startTime;
+        $this->metrics->recordHistogram('batch_duration_batched', $elapsed);
+        
+        return $results;
+    }
+    
+    protected function comparePerformance(array $items): mixed
+    {
+        // Compare different processing strategies
+        echo "Processing " . count($items) . " items...\n";
+        
+        // Sequential
+        echo "Sequential processing...";
+        $start = microtime(true);
+        $this->processSequential(array_slice($items, 0, 100));  // Sample
+        $seqTime = microtime(true) - $start;
+        $seqRate = 100 / $seqTime;
+        
+        // Parallel
+        echo "Parallel processing...";
+        $start = microtime(true);
+        $this->processParallel(array_slice($items, 0, 100));  // Sample
+        $parTime = microtime(true) - $start;
+        $parRate = 100 / $parTime;
+        
+        // Batched
+        echo "Batched processing...";
+        $start = microtime(true);
+        $this->processBatched(array_slice($items, 0, 100), batchSize: 20);  // Sample
+        $batchTime = microtime(true) - $start;
+        $batchRate = 100 / $batchTime;
+        
+        // Report
+        echo "\nPerformance Comparison:";
+        echo sprintf("Sequential: %.2fs (%.1f items/sec)", $seqTime, $seqRate);
+        echo sprintf("Parallel:   %.2fs (%.1f items/sec) - %.1fx faster", $parTime, $parRate, $seqTime / $parTime);
+        echo sprintf("Batched:    %.2fs (%.1f items/sec) - %.1fx faster", $batchTime, $batchRate, $seqTime / $batchTime);
+        
+        return [
+            'sequential' => $seqRate,
+            'parallel' => $parRate,
+            'batched' => $batchRate
+        ];
+    }
+}
 ```
 
 **Exercise 3.6**: Optimize batch processing
-```python
-# TODO: Process 500 items using all three strategies
-# TODO: Measure and compare performance
-# TODO: Find optimal batch size and worker count
-# TODO: Consider memory usage and API rate limits
+```php
+<?php
+declare(strict_types=1);
+
+// TODO: Process 500 items using all three strategies
+// TODO: Measure and compare performance
+// TODO: Find optimal batch size and worker count
+// TODO: Consider memory usage and API rate limits
 ```
 
 ---
@@ -787,74 +961,105 @@ class BatchOptimizer:
 
 **Scenario**: Process large datasets without loading everything into memory.
 
-```python
-from scripts.lib.api_client import GitHubClient
-import itertools
+```php
+<?php
+declare(strict_types=1);
 
-class MemoryEfficientProcessor:
-    def __init__(self):
-        self.api = GitHubClient()
+use MokoStandards\Enterprise\GitHubClient;
+
+class MemoryEfficientProcessor
+{
+    public function __construct()
+    {
+        $this->api = new GitHubClient();
+    }
     
-    def stream_repositories(self, org):
-        """Stream repositories without loading all into memory"""
-        page = 1
-        per_page = 100
+    protected function streamRepositories(string $org): mixed
+    {
+        // Stream repositories without loading all into memory
+        $page = 1;
+        $perPage = 100;
         
-        while True:
-            repos = self.api.list_repos(
-                org=org,
-                page=page,
-                per_page=per_page
-            )
+        while (true) {
+            $repos = $this->api->listRepos(
+                org: $org,
+                page: $page,
+                perPage: $perPage
+            );
             
-            if not repos:
-                break
+            if (!$repos) {
+                break;
+            }
             
-            for repo in repos:
-                yield repo
+            foreach ($repos as $repo) {
+                yield $repo;
+            }
             
-            page += 1
+            $page++;
             
-            if len(repos) < per_page:
-                break
+            if (count($repos) < $perPage) {
+                break;
+            }
+        }
+    }
     
-    def process_large_dataset(self, org):
-        """Process repositories one at a time"""
-        processed = 0
+    protected function processLargeDataset(string $org): mixed
+    {
+        // Process repositories one at a time
+        $processed = 0;
         
-        for repo in self.stream_repositories(org):
-            # Process individual repo
-            self.process_repository(repo)
-            processed += 1
+        foreach ($this->streamRepositories($org) as $repo) {
+            // Process individual repo
+            $this->processRepository($repo);
+            $processed++;
             
-            if processed % 100 == 0:
-                print(f"Processed {processed} repositories...")
+            if ($processed % 100 === 0) {
+                echo "Processed {$processed} repositories...";
+            }
+        }
         
-        print(f"Total processed: {processed}")
+        echo "Total processed: {$processed}";
+    }
     
-    def process_in_chunks(self, org, chunk_size=10):
-        """Process repositories in small chunks"""
-        repo_stream = self.stream_repositories(org)
+    protected function processInChunks(string $org, int $chunkSize = 10): mixed
+    {
+        // Process repositories in small chunks
+        $repoStream = $this->streamRepositories($org);
         
-        while True:
-            # Get next chunk
-            chunk = list(itertools.islice(repo_stream, chunk_size))
+        while (true) {
+            // Get next chunk
+            $chunk = [];
+            $count = 0;
+            foreach ($repoStream as $repo) {
+                $chunk[] = $repo;
+                $count++;
+                if ($count >= $chunkSize) {
+                    break;
+                }
+            }
             
-            if not chunk:
-                break
+            if (empty($chunk)) {
+                break;
+            }
             
-            # Process chunk
-            self.process_chunk(chunk)
+            // Process chunk
+            $this->processChunk($chunk);
             
-            # Explicit memory cleanup
-            del chunk
+            // Explicit memory cleanup
+            unset($chunk);
+        }
+    }
+}
 ```
 
 **Exercise 3.7**: Implement memory-efficient processing
-```python
-# TODO: Process 1000+ repositories without loading all into memory
-# TODO: Monitor memory usage during processing
-# TODO: Compare memory footprint with traditional approach
+```php
+<?php
+declare(strict_types=1);
+
+// TODO: Process 1000+ repositories without loading all into memory
+// TODO: Monitor memory usage during processing
+// TODO: Compare memory footprint with traditional approach
 ```
 
 ---
@@ -865,120 +1070,155 @@ class MemoryEfficientProcessor:
 
 **Scenario**: Implement defense-in-depth security.
 
-```python
-from scripts.lib.security_validator import SecurityValidator
-from scripts.lib.enterprise_audit import AuditLogger
-from scripts.lib.config_manager import Config
+```php
+<?php
+declare(strict_types=1);
 
-class SecureAutomation:
-    def __init__(self):
-        self.security = SecurityValidator()
-        self.audit = AuditLogger(service='secure_automation')
-        self.config = Config.load(env='production')
+use MokoStandards\Enterprise\SecurityValidator;
+use MokoStandards\Enterprise\AuditLogger;
+use MokoStandards\Enterprise\ConfigManager;
+
+class SecureAutomation
+{
+    public function __construct()
+    {
+        $this->security = new SecurityValidator();
+        $this->audit = new AuditLogger(service: 'secure_automation');
+        $this->config = ConfigManager::load(env: 'production');
+    }
     
-    def validate_all_inputs(self, user_inputs):
-        """Multi-layer input validation"""
+    protected function validateAllInputs(array $userInputs): mixed
+    {
+        // Multi-layer input validation
         
-        with self.audit.transaction('input_validation') as txn:
+        try {
+            $txn = $this->audit->transaction('input_validation');
             
-            # Layer 1: Type validation
-            for key, value in user_inputs.items():
-                expected_type = self.config.get(f'validation.{key}.type')
-                if not isinstance(value, eval(expected_type)):
-                    raise ValueError(f"Invalid type for {key}")
+            // Layer 1: Type validation
+            foreach ($userInputs as $key => $value) {
+                $expectedType = $this->config->get("validation.{$key}.type");
+                if (!($value instanceof $expectedType)) {
+                    throw new \ValueError("Invalid type for {$key}");
+                }
+            }
             
-            # Layer 2: Pattern validation
-            for key, value in user_inputs.items():
-                if isinstance(value, str):
-                    if not self.security.validate_input(value, input_type='identifier'):
-                        txn.log_security_event('validation_failure', {
-                            'field': key,
-                            'reason': 'invalid_pattern'
-                        })
-                        raise ValueError(f"Invalid pattern in {key}")
+            // Layer 2: Pattern validation
+            foreach ($userInputs as $key => $value) {
+                if (is_string($value)) {
+                    if (!$this->security->validateInput($value, inputType: 'identifier')) {
+                        $txn->logSecurityEvent('validation_failure', [
+                            'field' => $key,
+                            'reason' => 'invalid_pattern'
+                        ]);
+                        throw new \ValueError("Invalid pattern in {$key}");
+                    }
+                }
+            }
             
-            # Layer 3: Credential detection
-            for key, value in user_inputs.items():
-                if self.security.detect_credentials(str(value)):
-                    txn.log_security_event('credential_detected', {
-                        'field': key,
-                        'severity': 'HIGH'
-                    })
-                    raise ValueError(f"Credential detected in {key}")
+            // Layer 3: Credential detection
+            foreach ($userInputs as $key => $value) {
+                if ($this->security->detectCredentials((string)$value)) {
+                    $txn->logSecurityEvent('credential_detected', [
+                        'field' => $key,
+                        'severity' => 'HIGH'
+                    ]);
+                    throw new \ValueError("Credential detected in {$key}");
+                }
+            }
             
-            # Layer 4: SQL injection detection
-            for key, value in user_inputs.items():
-                if isinstance(value, str):
-                    if self.security.detect_sql_injection(value):
-                        txn.log_security_event('sql_injection_attempt', {
-                            'field': key,
-                            'severity': 'CRITICAL'
-                        })
-                        raise ValueError(f"SQL injection detected in {key}")
+            // Layer 4: SQL injection detection
+            foreach ($userInputs as $key => $value) {
+                if (is_string($value)) {
+                    if ($this->security->detectSqlInjection($value)) {
+                        $txn->logSecurityEvent('sql_injection_attempt', [
+                            'field' => $key,
+                            'severity' => 'CRITICAL'
+                        ]);
+                        throw new \ValueError("SQL injection detected in {$key}");
+                    }
+                }
+            }
             
-            # Layer 5: Path traversal prevention
-            for key, value in user_inputs.items():
-                if 'path' in key.lower() or 'file' in key.lower():
-                    if not self.security.validate_path(value):
-                        txn.log_security_event('path_traversal_attempt', {
-                            'field': key,
-                            'value': value,
-                            'severity': 'HIGH'
-                        })
-                        raise ValueError(f"Path traversal detected in {key}")
+            // Layer 5: Path traversal prevention
+            foreach ($userInputs as $key => $value) {
+                if (stripos($key, 'path') !== false || stripos($key, 'file') !== false) {
+                    if (!$this->security->validatePath($value)) {
+                        $txn->logSecurityEvent('path_traversal_attempt', [
+                            'field' => $key,
+                            'value' => $value,
+                            'severity' => 'HIGH'
+                        ]);
+                        throw new \ValueError("Path traversal detected in {$key}");
+                    }
+                }
+            }
             
-            txn.log_event('validation_complete', {
-                'fields_validated': len(user_inputs),
-                'status': 'success'
-            })
+            $txn->logEvent('validation_complete', [
+                'fields_validated' => count($userInputs),
+                'status' => 'success'
+            ]);
             
-            return True
+            return true;
+        } finally {
+        }
+    }
     
-    def scan_before_execution(self, script_path):
-        """Security scan before executing scripts"""
+    protected function scanBeforeExecution(string $scriptPath): mixed
+    {
+        // Security scan before executing scripts
         
-        with self.audit.transaction('security_scan') as txn:
+        try {
+            $txn = $this->audit->transaction('security_scan');
             
-            # Scan for security issues
-            findings = self.security.scan_directory(script_path)
+            // Scan for security issues
+            $findings = $this->security->scanDirectory($scriptPath);
             
-            # Categorize by severity
-            critical = [f for f in findings if f['severity'] == 'CRITICAL']
-            high = [f for f in findings if f['severity'] == 'HIGH']
-            medium = [f for f in findings if f['severity'] == 'MEDIUM']
+            // Categorize by severity
+            $critical = array_filter($findings, fn($f) => $f['severity'] === 'CRITICAL');
+            $high = array_filter($findings, fn($f) => $f['severity'] === 'HIGH');
+            $medium = array_filter($findings, fn($f) => $f['severity'] === 'MEDIUM');
             
-            # Log findings
-            txn.log_event('scan_complete', {
-                'critical': len(critical),
-                'high': len(high),
-                'medium': len(medium)
-            })
+            // Log findings
+            $txn->logEvent('scan_complete', [
+                'critical' => count($critical),
+                'high' => count($high),
+                'medium' => count($medium)
+            ]);
             
-            # Block on critical findings
-            if critical:
-                txn.log_security_event('execution_blocked', {
-                    'reason': 'critical_security_findings',
-                    'count': len(critical)
-                })
-                raise SecurityError(f"Found {len(critical)} critical security issues")
+            // Block on critical findings
+            if (!empty($critical)) {
+                $txn->logSecurityEvent('execution_blocked', [
+                    'reason' => 'critical_security_findings',
+                    'count' => count($critical)
+                ]);
+                throw new \SecurityError("Found " . count($critical) . " critical security issues");
+            }
             
-            # Warn on high findings
-            if high:
-                txn.log_security_event('execution_warning', {
-                    'reason': 'high_security_findings',
-                    'count': len(high)
-                })
-                print(f"WARNING: Found {len(high)} high-severity security issues")
+            // Warn on high findings
+            if (!empty($high)) {
+                $txn->logSecurityEvent('execution_warning', [
+                    'reason' => 'high_security_findings',
+                    'count' => count($high)
+                ]);
+                echo "WARNING: Found " . count($high) . " high-severity security issues";
+            }
             
-            return findings
+            return $findings;
+        } finally {
+        }
+    }
+}
 ```
 
 **Exercise 3.8**: Build comprehensive security validation
-```python
-# TODO: Implement all 5 validation layers
-# TODO: Test with various malicious inputs
-# TODO: Verify all attacks are detected and blocked
-# TODO: Ensure audit trail captures all security events
+```php
+<?php
+declare(strict_types=1);
+
+// TODO: Implement all 5 validation layers
+// TODO: Test with various malicious inputs
+// TODO: Verify all attacks are detected and blocked
+// TODO: Ensure audit trail captures all security events
 ```
 
 ---
@@ -987,132 +1227,158 @@ class SecureAutomation:
 
 **Scenario**: Generate compliance reports for auditors.
 
-```python
-from scripts.lib.enterprise_audit import AuditLogger
-from scripts.lib.metrics_collector import MetricsCollector
-from datetime import datetime, timedelta
-import json
+```php
+<?php
+declare(strict_types=1);
 
-class ComplianceReporter:
-    def __init__(self):
-        self.audit = AuditLogger(service='compliance_reporter')
-        self.metrics = MetricsCollector(service='compliance_reporter')
+use MokoStandards\Enterprise\AuditLogger;
+use MokoStandards\Enterprise\MetricsCollector;
+
+class ComplianceReporter
+{
+    public function __construct()
+    {
+        $this->audit = new AuditLogger(service: 'compliance_reporter');
+        $this->metrics = new MetricsCollector(service: 'compliance_reporter');
+    }
     
-    def generate_compliance_report(self, start_date, end_date):
-        """Generate comprehensive compliance report"""
+    protected function generateComplianceReport(string $startDate, string $endDate): mixed
+    {
+        // Generate comprehensive compliance report
         
-        report = {
-            'report_metadata': {
-                'generated_at': datetime.utcnow().isoformat(),
-                'period_start': start_date,
-                'period_end': end_date,
-                'report_version': '1.0'
-            },
-            'audit_summary': self.get_audit_summary(start_date, end_date),
-            'security_events': self.get_security_events(start_date, end_date),
-            'access_log': self.get_access_log(start_date, end_date),
-            'changes_made': self.get_change_log(start_date, end_date),
-            'compliance_metrics': self.get_compliance_metrics(start_date, end_date)
+        $report = [
+            'report_metadata' => [
+                'generated_at' => (new \DateTime('now', new \DateTimeZone('UTC')))->format(\DateTime::ATOM),
+                'period_start' => $startDate,
+                'period_end' => $endDate,
+                'report_version' => '1.0'
+            ],
+            'audit_summary' => $this->getAuditSummary($startDate, $endDate),
+            'security_events' => $this->getSecurityEvents($startDate, $endDate),
+            'access_log' => $this->getAccessLog($startDate, $endDate),
+            'changes_made' => $this->getChangeLog($startDate, $endDate),
+            'compliance_metrics' => $this->getComplianceMetrics($startDate, $endDate)
+        ];
+        
+        return $report;
+    }
+    
+    protected function getAuditSummary(string $startDate, string $endDate): mixed
+    {
+        // Get audit trail summary
+        $events = $this->audit->generateReport(
+            startDate: $startDate,
+            endDate: $endDate
+        );
+        
+        return [
+            'total_transactions' => count(array_unique(array_column($events, 'transaction_id'))),
+            'total_events' => count($events),
+            'services' => array_values(array_unique(array_column($events, 'service'))),
+            'users' => array_values(array_unique(array_map(fn($e) => $e['user'] ?? 'system', $events)))
+        ];
+    }
+    
+    protected function getSecurityEvents(string $startDate, string $endDate): mixed
+    {
+        // Get security-related events
+        $events = $this->audit->generateReport(
+            startDate: $startDate,
+            endDate: $endDate,
+            filterBy: ['event_type' => 'security']
+        );
+        
+        // Group by severity
+        $bySeverity = [];
+        foreach ($events as $event) {
+            $severity = $event['severity'] ?? 'UNKNOWN';
+            if (!isset($bySeverity[$severity])) {
+                $bySeverity[$severity] = [];
+            }
+            $bySeverity[$severity][] = $event;
         }
         
-        return report
+        return [
+            'total_security_events' => count($events),
+            'by_severity' => array_map('count', $bySeverity),
+            'critical_events' => $bySeverity['CRITICAL'] ?? [],
+            'high_events' => $bySeverity['HIGH'] ?? []
+        ];
+    }
     
-    def get_audit_summary(self, start_date, end_date):
-        """Get audit trail summary"""
-        events = self.audit.generate_report(
-            start_date=start_date,
-            end_date=end_date
-        )
+    protected function getAccessLog(string $startDate, string $endDate): mixed
+    {
+        // Get access log for audit trail
+        $events = $this->audit->generateReport(
+            startDate: $startDate,
+            endDate: $endDate,
+            filterBy: ['event_type' => 'access']
+        );
         
-        return {
-            'total_transactions': len(set(e['transaction_id'] for e in events)),
-            'total_events': len(events),
-            'services': list(set(e['service'] for e in events)),
-            'users': list(set(e.get('user', 'system') for e in events))
+        return [
+            'total_access_events' => count($events),
+            'unique_users' => count(array_unique(array_filter(array_column($events, 'user')))),
+            'access_by_service' => $this->groupByService($events)
+        ];
+    }
+    
+    protected function getChangeLog(string $startDate, string $endDate): mixed
+    {
+        // Get all changes made during period
+        $events = $this->audit->generateReport(
+            startDate: $startDate,
+            endDate: $endDate,
+            filterBy: ['event_type' => 'change']
+        );
+        
+        return [
+            'total_changes' => count($events),
+            'changes_by_type' => $this->groupByType($events),
+            'rollbacks' => array_filter($events, fn($e) => $e['rollback'] ?? false)
+        ];
+    }
+    
+    protected function getComplianceMetrics(string $startDate, string $endDate): mixed
+    {
+        // Get compliance-specific metrics
+        return [
+            'audit_coverage' => $this->calculateAuditCoverage(),
+            'security_scan_results' => $this->getSecurityScanStats(),
+            'failed_operations' => $this->getFailedOperationsCount(),
+            'sla_compliance' => $this->calculateSlaCompliance()
+        ];
+    }
+    
+    protected function exportReport(array $report, string $format = 'json'): mixed
+    {
+        // Export compliance report
+        
+        if ($format === 'json') {
+            return json_encode($report, JSON_PRETTY_PRINT);
         }
-    
-    def get_security_events(self, start_date, end_date):
-        """Get security-related events"""
-        events = self.audit.generate_report(
-            start_date=start_date,
-            end_date=end_date,
-            filter_by={'event_type': 'security'}
-        )
         
-        # Group by severity
-        by_severity = {}
-        for event in events:
-            severity = event.get('severity', 'UNKNOWN')
-            if severity not in by_severity:
-                by_severity[severity] = []
-            by_severity[severity].append(event)
-        
-        return {
-            'total_security_events': len(events),
-            'by_severity': {k: len(v) for k, v in by_severity.items()},
-            'critical_events': by_severity.get('CRITICAL', []),
-            'high_events': by_severity.get('HIGH', [])
+        if ($format === 'html') {
+            return $this->generateHtmlReport($report);
         }
-    
-    def get_access_log(self, start_date, end_date):
-        """Get access log for audit trail"""
-        events = self.audit.generate_report(
-            start_date=start_date,
-            end_date=end_date,
-            filter_by={'event_type': 'access'}
-        )
         
-        return {
-            'total_access_events': len(events),
-            'unique_users': len(set(e.get('user') for e in events)),
-            'access_by_service': self.group_by_service(events)
+        if ($format === 'pdf') {
+            return $this->generatePdfReport($report);
         }
-    
-    def get_change_log(self, start_date, end_date):
-        """Get all changes made during period"""
-        events = self.audit.generate_report(
-            start_date=start_date,
-            end_date=end_date,
-            filter_by={'event_type': 'change'}
-        )
         
-        return {
-            'total_changes': len(events),
-            'changes_by_type': self.group_by_type(events),
-            'rollbacks': [e for e in events if e.get('rollback', False)]
-        }
-    
-    def get_compliance_metrics(self, start_date, end_date):
-        """Get compliance-specific metrics"""
-        return {
-            'audit_coverage': self.calculate_audit_coverage(),
-            'security_scan_results': self.get_security_scan_stats(),
-            'failed_operations': self.get_failed_operations_count(),
-            'sla_compliance': self.calculate_sla_compliance()
-        }
-    
-    def export_report(self, report, format='json'):
-        """Export compliance report"""
-        
-        if format == 'json':
-            return json.dumps(report, indent=2)
-        
-        elif format == 'html':
-            return self.generate_html_report(report)
-        
-        elif format == 'pdf':
-            return self.generate_pdf_report(report)
-        
-        else:
-            raise ValueError(f"Unsupported format: {format}")
+        throw new \ValueError("Unsupported format: {$format}");
+    }
+}
 ```
 
 **Exercise 3.9**: Generate compliance report
-```python
-# TODO: Run various operations with audit logging
-# TODO: Generate compliance report for the period
-# TODO: Verify all required data is present
-# TODO: Export in multiple formats
+```php
+<?php
+declare(strict_types=1);
+
+// TODO: Run various operations with audit logging
+// TODO: Generate compliance report for the period
+// TODO: Verify all required data is present
+// TODO: Export in multiple formats
 ```
 
 ---
@@ -1123,101 +1389,129 @@ class ComplianceReporter:
 
 **Scenario**: Protect against cascading failures.
 
-```python
-from scripts.lib.api_client import GitHubClient
-import time
-from enum import Enum
+```php
+<?php
+declare(strict_types=1);
 
-class CircuitState(Enum):
-    CLOSED = "closed"  # Normal operation
-    OPEN = "open"  # Failing, reject requests
-    HALF_OPEN = "half_open"  # Testing recovery
+use MokoStandards\Enterprise\GitHubClient;
 
-class CircuitBreaker:
-    def __init__(self, failure_threshold=5, timeout=60, success_threshold=2):
-        self.failure_threshold = failure_threshold
-        self.timeout = timeout
-        self.success_threshold = success_threshold
+enum CircuitState: string
+{
+    case CLOSED = "closed";  // Normal operation
+    case OPEN = "open";  // Failing, reject requests
+    case HALF_OPEN = "half_open";  // Testing recovery
+}
+
+class CircuitBreaker
+{
+    public function __construct(int $failureThreshold = 5, int $timeout = 60, int $successThreshold = 2)
+    {
+        $this->failureThreshold = $failureThreshold;
+        $this->timeout = $timeout;
+        $this->successThreshold = $successThreshold;
         
-        self.failure_count = 0
-        self.success_count = 0
-        self.last_failure_time = None
-        self.state = CircuitState.CLOSED
+        $this->failureCount = 0;
+        $this->successCount = 0;
+        $this->lastFailureTime = null;
+        $this->state = CircuitState::CLOSED;
+    }
     
-    def call(self, func, *args, **kwargs):
-        """Execute function through circuit breaker"""
+    protected function call(callable $func, ...$args): mixed
+    {
+        // Execute function through circuit breaker
         
-        if self.state == CircuitState.OPEN:
-            if time.time() - self.last_failure_time >= self.timeout:
-                # Try to recover
-                self.state = CircuitState.HALF_OPEN
-                print("Circuit breaker moving to HALF_OPEN state")
-            else:
-                raise Exception("Circuit breaker is OPEN")
+        if ($this->state === CircuitState::OPEN) {
+            if (time() - $this->lastFailureTime >= $this->timeout) {
+                // Try to recover
+                $this->state = CircuitState::HALF_OPEN;
+                echo "Circuit breaker moving to HALF_OPEN state";
+            } else {
+                throw new \Exception("Circuit breaker is OPEN");
+            }
+        }
         
-        try:
-            result = func(*args, **kwargs)
-            self.on_success()
-            return result
+        try {
+            $result = $func(...$args);
+            $this->onSuccess();
+            return $result;
             
-        except Exception as e:
-            self.on_failure()
-            raise
+        } catch (\Exception $e) {
+            $this->onFailure();
+            throw $e;
+        }
+    }
     
-    def on_success(self):
-        """Handle successful call"""
-        if self.state == CircuitState.HALF_OPEN:
-            self.success_count += 1
+    protected function onSuccess(): mixed
+    {
+        // Handle successful call
+        if ($this->state === CircuitState::HALF_OPEN) {
+            $this->successCount++;
             
-            if self.success_count >= self.success_threshold:
-                # Recovery successful
-                self.state = CircuitState.CLOSED
-                self.failure_count = 0
-                self.success_count = 0
-                print("Circuit breaker CLOSED - recovered")
-        else:
-            # Reset failure count on success
-            self.failure_count = 0
+            if ($this->successCount >= $this->successThreshold) {
+                // Recovery successful
+                $this->state = CircuitState::CLOSED;
+                $this->failureCount = 0;
+                $this->successCount = 0;
+                echo "Circuit breaker CLOSED - recovered";
+            }
+        } else {
+            // Reset failure count on success
+            $this->failureCount = 0;
+        }
+    }
     
-    def on_failure(self):
-        """Handle failed call"""
-        self.failure_count += 1
-        self.last_failure_time = time.time()
+    protected function onFailure(): mixed
+    {
+        // Handle failed call
+        $this->failureCount++;
+        $this->lastFailureTime = time();
         
-        if self.failure_count >= self.failure_threshold:
-            self.state = CircuitState.OPEN
-            print(f"Circuit breaker OPEN after {self.failure_count} failures")
+        if ($this->failureCount >= $this->failureThreshold) {
+            $this->state = CircuitState::OPEN;
+            echo "Circuit breaker OPEN after {$this->failureCount} failures";
+        }
         
-        if self.state == CircuitState.HALF_OPEN:
-            # Failed during recovery
-            self.state = CircuitState.OPEN
-            self.success_count = 0
-            print("Circuit breaker reopened - recovery failed")
+        if ($this->state === CircuitState::HALF_OPEN) {
+            // Failed during recovery
+            $this->state = CircuitState::OPEN;
+            $this->successCount = 0;
+            echo "Circuit breaker reopened - recovery failed";
+        }
+    }
+}
 
-# Usage with API client
-class ResilientAPIClient:
-    def __init__(self):
-        self.api = GitHubClient()
-        self.circuit_breaker = CircuitBreaker(
-            failure_threshold=3,
-            timeout=30,
-            success_threshold=2
-        )
+// Usage with API client
+class ResilientAPIClient
+{
+    public function __construct()
+    {
+        $this->api = new GitHubClient();
+        $this->circuitBreaker = new CircuitBreaker(
+            failureThreshold: 3,
+            timeout: 30,
+            successThreshold: 2
+        );
+    }
     
-    def get_repository(self, org, repo):
-        """Get repository with circuit breaker protection"""
-        return self.circuit_breaker.call(
-            self.api.get_repo,
-            org, repo
-        )
+    protected function getRepository(string $org, string $repo): mixed
+    {
+        // Get repository with circuit breaker protection
+        return $this->circuitBreaker->call(
+            fn() => $this->api->getRepo($org, $repo)
+        );
+    }
+}
 ```
 
 **Exercise 3.10**: Implement circuit breaker
-```python
-# TODO: Create API client with circuit breaker
-# TODO: Simulate API failures
-# TODO: Verify circuit breaker opens after threshold
-# TODO: Test recovery after timeout
+```php
+<?php
+declare(strict_types=1);
+
+// TODO: Create API client with circuit breaker
+// TODO: Simulate API failures
+// TODO: Verify circuit breaker opens after threshold
+// TODO: Test recovery after timeout
 ```
 
 ---

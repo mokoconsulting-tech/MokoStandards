@@ -1025,7 +1025,7 @@ jobs:
 
       - name: Create tracking issue for standards violations
         if: failure() && github.event_name == 'push'
-        uses: actions/github-script@v4
+        uses: actions/github-script@v6
         with:
           script: |
             const compliancePercent = '${{ needs.compliance-check.outputs.compliance_percentage }}' || '0';

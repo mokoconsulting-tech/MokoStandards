@@ -33,24 +33,14 @@ The system consists of the following components:
 
 ### 3. Validation Tool
 
-**Note**: As of MokoStandards v04.00.00 (Feb 2026), validation and stub generation scripts have been removed from the Python-based CLI tools. Repository structure validation is now handled through:
+Repository structure validation is handled through:
 1. **Web Interface**: Material Design 3 dashboard at `public/index.php`
 2. **Manual Validation**: Using the XML/JSON schema definitions as reference
 3. **CI/CD Integration**: GitHub Actions workflows for automated checks
 
-**Historical Reference**: Previous Python-based validation tools (v03.xx.xx and earlier):
-- **File**: `scripts/validate/validate_structure.py` (deprecated)
-- **Purpose**: Validated an existing repository against a structure definition
-- **Output**: List of errors, warnings, and info messages
-
 ### 4. Stub Generation Tool
 
-**Historical Reference**: Previous Python-based stub generation (v03.xx.xx and earlier):
-- **File**: `scripts/validate/generate_stubs.py` (deprecated)
-- **Purpose**: Generated missing files and directories based on a structure definition
-- **Features**: Dry-run mode, force overwrite, template substitution
-
-**Current Approach** (v04.00.00+):
+**Current Approach**:
 - Use XML/JSON schema as structural reference
 - Manual file creation following schema guidelines
 - Web-based repository management tools

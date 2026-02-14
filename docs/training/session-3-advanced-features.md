@@ -149,6 +149,9 @@ use MokoStandards\Enterprise\AuditLogger;
 
 class StateRecoveryManager
 {
+    private Checkpoint $checkpoint;
+    private AuditLogger $audit;
+    
     public function __construct(string $operationName)
     {
         $this->checkpoint = new Checkpoint(
@@ -158,7 +161,7 @@ class StateRecoveryManager
         $this->audit = new AuditLogger(service: 'state_recovery');
     }
     
-    protected function saveState(string $itemId, array $stateData): mixed
+    protected function saveState(string $itemId, array $stateData): void
     {
         // Save detailed state for recovery
         $this->checkpoint->markCompleted($itemId, [
@@ -168,13 +171,13 @@ class StateRecoveryManager
         ]);
     }
     
-    protected function loadState(string $itemId): mixed
+    protected function loadState(string $itemId): ?array
     {
         // Load saved state
         return $this->checkpoint->getState($itemId);
     }
     
-    protected function processWithRecovery(array $items): mixed
+    protected function processWithRecovery(array $items): void
     {
         // Process items with state recovery
         
@@ -183,14 +186,14 @@ class StateRecoveryManager
             
             // Check if already completed
             if ($this->checkpoint->isCompleted($itemId)) {
-                echo "Resuming from completed state: {$itemId}";
+                echo "Resuming from completed state: {$itemId}\n";
                 continue;
             }
             
             // Load previous state if exists
             $previousState = $this->loadState($itemId);
             if ($previousState) {
-                echo "Resuming from checkpoint: {$itemId}";
+                echo "Resuming from checkpoint: {$itemId}\n";
                 $currentStep = $previousState['current_step'] ?? 0;
             } else {
                 $currentStep = 0;

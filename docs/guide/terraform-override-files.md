@@ -117,13 +117,13 @@ With an override file, you can:
 
 ### Available Enterprise Features
 
-#### 1. Enterprise Libraries (scripts/lib/)
-- **enterprise_audit.py** - Transaction tracking and security event logging
-- **api_client.py** - Rate limiting, circuit breaker, and response caching
-- **error_recovery.py** - Automatic retry, checkpointing, and state recovery
-- **metrics_collector.py** - Prometheus-compatible metrics collection
-- **transaction_manager.py** - Atomic operations with rollback support
-- **cli_framework.py** - Standardized CLI with common arguments
+#### 1. Enterprise Libraries (src/Enterprise/)
+- **EnterpriseAudit.php** - Transaction tracking and security event logging
+- **ApiClient.php** - Rate limiting, circuit breaker, and response caching
+- **ErrorRecovery.php** - Automatic retry, checkpointing, and state recovery
+- **MetricsCollector.php** - Prometheus-compatible metrics collection
+- **TransactionManager.php** - Atomic operations with rollback support
+- **CliFramework.php** - Standardized CLI with common arguments
 
 #### 2. Monitoring Workflows
 - **audit-log-archival.yml** - Weekly audit log archival and compliance reports
@@ -160,11 +160,11 @@ protected_files = [
 
 ### Integration Status
 
-The following critical scripts have been enhanced with enterprise libraries:
-- ✅ `scripts/automation/bulk_update_repos.py` - Audit, API client, error recovery, metrics
-- ✅ `scripts/automation/auto_create_org_projects.py` - Audit, API client, metrics
-- ✅ `scripts/maintenance/clean_old_branches.py` - Audit, metrics
-- ✅ `scripts/release/unified_release.py` - Transaction management, audit, error recovery
+The following critical operations have been enhanced with enterprise libraries:
+- ✅ Bulk repository updates - Audit, API client, error recovery, metrics
+- ✅ Organization project creation - Audit, API client, metrics
+- ✅ Branch maintenance - Audit, metrics
+- ✅ Release management - Transaction management, audit, error recovery
 
 See [docs/planning/README.md](../planning/README.md) for the complete enterprise transformation roadmap.
 
@@ -667,7 +667,7 @@ Before committing your override file:
 For questions or issues with override files:
 
 1. Review this documentation
-2. Check [bulk_update_repos.py](../../scripts/automation/bulk_update_repos.py) source code
+2. Check the bulk repository update documentation
 3. Open an issue in [MokoStandards](https://github.com/mokoconsulting-tech/MokoStandards/issues)
 4. Contact the MokoStandards team
 

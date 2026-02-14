@@ -37,8 +37,6 @@ Comprehensive guide covering all automation scripts, terraform distribution, and
 
 ### Technical Reference
 - [Terraform Distribution](../../terraform/repository-management/VERSION_BUMP_DISTRIBUTION.md)
-- [Common Utilities](../scripts/lib/common-py.md)
-- [Version Bump Detector API](../scripts/lib/version-bump-detector.md)
 
 ## Quick Start
 

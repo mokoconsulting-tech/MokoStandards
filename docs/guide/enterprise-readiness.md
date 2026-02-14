@@ -67,16 +67,16 @@ Use this checklist to assess and track enterprise readiness:
 ### Core Infrastructure (40 points)
 
 - [ ] **Enterprise Libraries** (10 points)
-  - [ ] `scripts/lib/enterprise_audit.py` - Audit logging framework
-  - [ ] `scripts/lib/audit_logger.py` - Structured audit logs
-  - [ ] `scripts/lib/validation_framework.py` - Validation infrastructure
-  - [ ] `scripts/lib/unified_validation.py` - Unified validation APIs
-  - [ ] `scripts/lib/config_manager.py` - Configuration management
-  - [ ] `scripts/lib/security_validator.py` - Security validation
-  - [ ] `scripts/lib/error_recovery.py` - Error handling and recovery
-  - [ ] `scripts/lib/transaction_manager.py` - Transaction management
-  - [ ] `scripts/lib/cli_framework.py` - CLI framework
-  - [ ] `scripts/lib/common.py` - Common utilities
+  - [ ] `src/Enterprise/EnterpriseAudit.php` - Audit logging framework
+  - [ ] `src/Enterprise/AuditLogger.php` - Structured audit logs
+  - [ ] `src/Enterprise/ValidationFramework.php` - Validation infrastructure
+  - [ ] `src/Enterprise/UnifiedValidation.php` - Unified validation APIs
+  - [ ] `src/Enterprise/ConfigManager.php` - Configuration management
+  - [ ] `src/Enterprise/SecurityValidator.php` - Security validation
+  - [ ] `src/Enterprise/ErrorRecovery.php` - Error handling and recovery
+  - [ ] `src/Enterprise/TransactionManager.php` - Transaction management
+  - [ ] `src/Enterprise/CliFramework.php` - CLI framework
+  - [ ] `src/Enterprise/Common.php` - Common utilities
 
 - [ ] **Enterprise Workflows** (10 points)
   - [ ] `.github/workflows/audit-log-archival.yml` - Audit log management
@@ -134,72 +134,73 @@ Use this checklist to assess and track enterprise readiness:
 
 ### 1. Enterprise Libraries (10 Required)
 
-Located in `scripts/lib/`, these provide core enterprise functionality:
+Located in `src/Enterprise/`, these provide core enterprise functionality:
 
-#### `enterprise_audit.py`
+#### `EnterpriseAudit.php`
 Comprehensive audit logging with:
 - Structured JSON logging
 - Transaction ID tracking
 - Security event logging
 - Audit log rotation
 
-```python
-from scripts.lib.enterprise_audit import AuditLogger
+```php
+<?php
+use MokoStandards\Enterprise\AuditLogger;
 
-logger = AuditLogger()
-logger.log_event('user.login', {'user_id': 123})
+$logger = new AuditLogger();
+$logger->logEvent('user.login', ['user_id' => 123]);
 ```
 
-#### `audit_logger.py`
+#### `AuditLogger.php`
 Structured audit logging to database/files:
 - Who, what, when, where tracking
 - Compliance reporting
 - Automated archival
 
-#### `validation_framework.py`
+#### `ValidationFramework.php`
 Validation infrastructure for all checks:
 - Consistent validation patterns
 - Error collection and reporting
 - Validation result aggregation
 
-#### `unified_validation.py`
+#### `UnifiedValidation.php`
 Unified validation APIs across all validators:
 - Single interface for all validations
 - Consistent error handling
 - Validation orchestration
 
-#### `config_manager.py`
+#### `ConfigManager.php`
 Centralized configuration management:
 - Environment-aware configuration
 - Override support
 - Secure credential handling
 
-#### `security_validator.py`
+#### `SecurityValidator.php`
 Security validation and scanning:
 - Credential detection
 - Vulnerability scanning
 - Security best practices
 
-#### `error_recovery.py`
+#### `ErrorRecovery.php`
 Robust error handling:
 - Automatic retry logic
 - Graceful degradation
 - Transaction rollback
 
-#### `transaction_manager.py`
+#### `TransactionManager.php`
 Transaction management for atomic operations:
 - ACID compliance
 - Rollback support
 - Transaction logging
 
-#### `cli_framework.py`
+#### `CliFramework.php`
 CLI framework for consistent interfaces:
 - Argument parsing
 - Output formatting
 - Error handling
 
-#### `common.py`
-Common utilities shared across scripts:
+#### `Common.php`
+Common utilities shared across operations:
 - File operations
 - String utilities
 - Data structures
@@ -382,9 +383,7 @@ For fine-grained control or learning purposes, you can set up components manuall
 ### Step 1: Create Directory Structure
 
 ```bash
-mkdir -p scripts/lib
-mkdir -p scripts/automation
-mkdir -p scripts/validate
+mkdir -p src/Enterprise
 mkdir -p .github/workflows
 mkdir -p logs/audit
 mkdir -p logs/metrics
@@ -403,19 +402,10 @@ From MokoStandards repository:
 
 ```bash
 # Copy all enterprise libraries
-cp MokoStandards/scripts/lib/enterprise_audit.py scripts/lib/
-cp MokoStandards/scripts/lib/audit_logger.py scripts/lib/
-cp MokoStandards/scripts/lib/validation_framework.py scripts/lib/
-cp MokoStandards/scripts/lib/unified_validation.py scripts/lib/
-cp MokoStandards/scripts/lib/config_manager.py scripts/lib/
-cp MokoStandards/scripts/lib/security_validator.py scripts/lib/
-cp MokoStandards/scripts/lib/error_recovery.py scripts/lib/
-cp MokoStandards/scripts/lib/transaction_manager.py scripts/lib/
-cp MokoStandards/scripts/lib/cli_framework.py scripts/lib/
-cp MokoStandards/scripts/lib/common.py scripts/lib/
+cp -r MokoStandards/src/Enterprise src/
 
-# Make them executable
-chmod +x scripts/lib/*.py
+# Set appropriate permissions
+chmod -R 755 src/Enterprise/
 ```
 
 ### Step 3: Copy Enterprise Workflows

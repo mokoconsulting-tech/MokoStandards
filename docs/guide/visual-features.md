@@ -14,65 +14,62 @@ MokoStandards provides rich visual output to improve user experience:
 - **Box frames** for important messages
 - **Spinners** for background operations
 
-## Python Scripts - visual_helper Module
+## PHP Scripts - Visual Output Features
 
 ### Installation
 
-The `visual_helper.py` module is located in `scripts/lib/` and is automatically available to all Python scripts.
+Visual output is available through the PHP enterprise libraries.
 
-```python
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent / 'lib'))
-from visual_helper import *
+```php
+<?php
+declare(strict_types=1);
+
+use MokoStandards\Enterprise\VisualHelper;
+
+$visual = new VisualHelper();
 ```
 
 ### Status Messages
 
-```python
-from visual_helper import print_success, print_error, print_warning, print_info
+```php
+$visual->printSuccess('Operation completed successfully!');
+//  ✓ Operation completed successfully!
 
-print_success('Operation completed successfully!')
-#  ✓ Operation completed successfully!
+$visual->printError('Failed to connect to database');
+//  ✗ Failed to connect to database
 
-print_error('Failed to connect to database')
-#  ✗ Failed to connect to database
+$visual->printWarning('Configuration file not found, using defaults');
+//  ⚠ Configuration file not found, using defaults
 
-print_warning('Configuration file not found, using defaults')
-#  ⚠ Configuration file not found, using defaults
-
-print_info('Processing 150 files...')
-#  ℹ Processing 150 files...
+$visual->printInfo('Processing 150 files...');
+//  ℹ Processing 150 files...
 ```
 
 ### Headers
 
-```python
-from visual_helper import print_header
-
-print_header('Repository Validator', 'Version 03.01.00')
+```php
+$visual->printHeader('Repository Validator', 'Version 04.00.00');
 ```
 
 Output:
 ```
 ╔══════════════════════════════════════════════════╗
 ║           Repository Validator                   ║
-║            Version 03.01.00                      ║
+║            Version 04.00.00                      ║
 ╚══════════════════════════════════════════════════╝
 ```
 
 ### Progress Bars
 
-```python
-from visual_helper import ProgressBar
+```php
+$progress = new ProgressBar(total: 100, prefix: 'Processing files');
 
-progress = ProgressBar(total=100, prefix='Processing files')
-
-for i in range(100):
-    # Do work
-    progress.update(i + 1, suffix=f'file_{i}.txt')
+for ($i = 0; $i < 100; $i++) {
+    // Do work
+    $progress->update($i + 1, suffix: "file_{$i}.txt");
+}
     
-progress.finish('All files processed')
+$progress->finish('All files processed');
 ```
 
 Output:
@@ -83,17 +80,14 @@ Processing files: 50/100 50.0% [████████████████
 
 ### Spinners
 
-```python
-from visual_helper import Spinner
+```php
+$spinner = new Spinner('Loading configuration');
+$spinner->start();
 
-spinner = Spinner('Loading configuration')
-spinner.start()
+// Do long-running work
+sleep(3);
 
-# Do long-running work
-import time
-time.sleep(3)
-
-spinner.stop('Configuration loaded')
+$spinner->stop('Configuration loaded');
 ```
 
 Output:
@@ -104,13 +98,11 @@ Output:
 
 ### Message Boxes
 
-```python
-from visual_helper import print_box
-
-print_box('This is an important informational message that users should read carefully.', 'info')
-print_box('Operation completed successfully!', 'success')
-print_box('Warning: This action cannot be undone.', 'warning')
-print_box('Error: Connection failed.', 'error')
+```php
+$visual->printBox('This is an important informational message that users should read carefully.', 'info');
+$visual->printBox('Operation completed successfully!', 'success');
+$visual->printBox('Warning: This action cannot be undone.', 'warning');
+$visual->printBox('Error: Connection failed.', 'error');
 ```
 
 Output:
@@ -123,46 +115,45 @@ Output:
 
 ### Tables
 
-```python
-from visual_helper import print_table
-
-print_table(
-    headers=['Script', 'Status', 'Duration', 'Files'],
-    rows=[
-        ['validate_structure.py', 'Pass', '1.2s', '150'],
-        ['check_repo_health.py', 'Pass', '0.8s', '87'],
-        ['security_scan.py', 'Warn', '2.1s', '3'],
+```php
+$visual->printTable(
+    headers: ['Script', 'Status', 'Duration', 'Files'],
+    rows: [
+        ['validate_structure', 'Pass', '1.2s', '150'],
+        ['check_repo_health', 'Pass', '0.8s', '87'],
+        ['security_scan', 'Warn', '2.1s', '3'],
     ],
-    title='Validation Results',
-    show_index=True
-)
+    title: 'Validation Results',
+    showIndex: true
+);
 ```
 
 Output:
 ```
 Validation Results
-┌───┬───────────────────────┬────────┬──────────┬───────┐
-│ # │ Script                │ Status │ Duration │ Files │
-├───┼───────────────────────┼────────┼──────────┼───────┤
-│ 1 │ validate_structure.py │ Pass   │ 1.2s     │ 150   │
-│ 2 │ check_repo_health.py  │ Pass   │ 0.8s     │ 87    │
-│ 3 │ security_scan.py      │ Warn   │ 2.1s     │ 3     │
-└───┴───────────────────────┴────────┴──────────┴───────┘
+┌───┬────────────────────┬────────┬──────────┬───────┐
+│ # │ Script             │ Status │ Duration │ Files │
+├───┼────────────────────┼────────┼──────────┼───────┤
+│ 1 │ validate_structure │ Pass   │ 1.2s     │ 150   │
+│ 2 │ check_repo_health  │ Pass   │ 0.8s     │ 87    │
+│ 3 │ security_scan      │ Warn   │ 2.1s     │ 3     │
+└───┴────────────────────┴────────┴──────────┴───────┘
 ```
 
 ### Summaries
 
-```python
-from visual_helper import print_summary
-
-print_summary({
-    'Total Files': 150,
-    'Passed': 147,
-    'Warnings': 3,
-    'Errors': 0,
-    'Duration': '2.5s',
-    'Status': 'SUCCESS'
-}, title='Execution Summary')
+```php
+$visual->printSummary(
+    items: [
+        'Total Files' => 150,
+        'Passed' => 147,
+        'Warnings' => 3,
+        'Errors' => 0,
+        'Duration' => '2.5s',
+        'Status' => 'SUCCESS'
+    ],
+    title: 'Execution Summary'
+);
 ```
 
 Output:
@@ -181,13 +172,12 @@ Output:
 
 ### Confirmation Prompts
 
-```python
-from visual_helper import confirm
-
-if confirm('Delete all temporary files?', default=False):
-    print_success('Files deleted')
-else:
-    print_info('Operation cancelled')
+```php
+if ($visual->confirm('Delete all temporary files?', default: false)) {
+    $visual->printSuccess('Files deleted');
+} else {
+    $visual->printInfo('Operation cancelled');
+}
 ```
 
 Output:
@@ -198,15 +188,13 @@ Output:
 
 ### Colors
 
-```python
-from visual_helper import colorize, Color
+```php
+$text = $visual->colorize('This is red text', Color::RED, bold: true);
+echo $text;
 
-text = colorize('This is red text', Color.RED, bold=True)
-print(text)
-
-# Available colors:
-# RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE
-# BRIGHT_RED, BRIGHT_GREEN, BRIGHT_YELLOW, etc.
+// Available colors:
+// RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE
+// BRIGHT_RED, BRIGHT_GREEN, BRIGHT_YELLOW, etc.
 ```
 
 ## PowerShell Scripts - VisualUtils Module
@@ -342,88 +330,88 @@ MokoStandards provides GUI alternatives for Windows users:
 
 ### Performance Considerations
 
-```python
-# Check if terminal supports color before heavy use
-from visual_helper import supports_color
-
-if supports_color():
-    # Use rich output
-    print_header('My Script')
-else:
-    # Use plain output
-    print('=== My Script ===')
+```php
+// Check if terminal supports color before heavy use
+if ($visual->supportsColor()) {
+    // Use rich output
+    $visual->printHeader('My Script');
+} else {
+    // Use plain output
+    echo "=== My Script ===\n";
+}
 ```
 
 ### Logging vs Visual Output
 
-```python
-import logging
-from visual_helper import print_success, print_error
+```php
+use MokoStandards\Enterprise\AuditLogger;
 
-# Visual output for user
-print_success('File processed successfully')
+$audit = new AuditLogger();
 
-# Logging for audit trail
-logging.info('Processed file: example.txt (150 lines)')
+// Visual output for user
+$visual->printSuccess('File processed successfully');
+
+// Logging for audit trail
+$audit->info('Processed file: example.txt (150 lines)');
 ```
 
 ## Examples
 
 ### Complete Script Example
 
-```python
-#!/usr/bin/env python3
-import sys
-from pathlib import Path
+```php
+<?php
+declare(strict_types=1);
 
-sys.path.insert(0, str(Path(__file__).parent.parent / 'lib'))
-from visual_helper import (
-    print_header, print_info, print_success, 
-    ProgressBar, print_table, print_summary
-)
+use MokoStandards\Enterprise\VisualHelper;
+use MokoStandards\Enterprise\ProgressBar;
 
-def main():
-    # Header
-    print_header('File Processor', 'Version 1.0.0')
+function main(): void
+{
+    $visual = new VisualHelper();
     
-    # Info
-    print_info('Starting file processing...')
+    // Header
+    $visual->printHeader('File Processor', 'Version 1.0.0');
     
-    # Process with progress
-    files = ['file1.txt', 'file2.txt', 'file3.txt']
-    progress = ProgressBar(total=len(files), prefix='Processing')
+    // Info
+    $visual->printInfo('Starting file processing...');
     
-    results = []
-    for i, file in enumerate(files):
-        # Process file
-        result = process_file(file)
-        results.append([file, result['status'], result['lines']])
-        progress.update(i + 1)
+    // Process with progress
+    $files = ['file1.txt', 'file2.txt', 'file3.txt'];
+    $progress = new ProgressBar(total: count($files), prefix: 'Processing');
     
-    progress.finish('Processing complete')
+    $results = [];
+    foreach ($files as $i => $file) {
+        // Process file
+        $result = processFile($file);
+        $results[] = [$file, $result['status'], $result['lines']];
+        $progress->update($i + 1);
+    }
     
-    # Results table
-    print_table(
-        headers=['File', 'Status', 'Lines'],
-        rows=results,
-        title='Processing Results'
-    )
+    $progress->finish('Processing complete');
     
-    # Summary
-    print_summary({
-        'Total Files': len(files),
-        'Processed': len([r for r in results if r[1] == 'Success']),
-        'Status': 'COMPLETE'
-    })
+    // Results table
+    $visual->printTable(
+        headers: ['File', 'Status', 'Lines'],
+        rows: $results,
+        title: 'Processing Results'
+    );
     
-    print_success('All operations completed successfully!')
+    // Summary
+    $processed = count(array_filter($results, fn($r) => $r[1] === 'Success'));
+    $visual->printSummary([
+        'Total Files' => count($files),
+        'Processed' => $processed,
+        'Status' => 'COMPLETE'
+    ]);
+    
+    $visual->printSuccess('All operations completed successfully!');
+}
 
-if __name__ == '__main__':
-    main()
+main();
 ```
 
 ## See Also
 
-- [visual_helper.py](../../scripts/lib/visual_helper.py) - Python implementation
-- [VisualUtils.psm1](../../scripts/lib/VisualUtils.psm1) - PowerShell implementation
-- [GuiUtils.psm1](../../scripts/lib/GuiUtils.psm1) - GUI utilities for Windows
+- `src/Enterprise/VisualHelper.php` - PHP implementation
+- Web-based interfaces for GUI operations

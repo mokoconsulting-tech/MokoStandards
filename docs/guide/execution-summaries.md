@@ -73,59 +73,68 @@ Use visual indicators for quick scanning:
 
 ## Implementation Patterns
 
-### Python Scripts
+### PHP Scripts
 
-Use the `summary_helper` module:
+Use the web interface or CLI framework:
 
-```python
-from summary_helper import ExecutionSummary
+```php
+<?php
+declare(strict_types=1);
 
-def main():
-    # Create summary
-    summary = ExecutionSummary(script_name='my_validator.py', version='1.0.0')
-    summary.start()
+use MokoStandards\Enterprise\ExecutionSummary;
+
+function main(): int
+{
+    // Create summary
+    $summary = new ExecutionSummary(scriptName: 'my_validator', version: '1.0.0');
+    $summary->start();
     
-    try:
-        # Perform work
-        files_checked = 0
-        files_passed = 0
-        files_failed = 0
+    try {
+        // Perform work
+        $filesChecked = 0;
+        $filesPassed = 0;
+        $filesFailed = 0;
         
-        for file in files:
-            files_checked += 1
-            if validate(file):
-                files_passed += 1
-            else:
-                files_failed += 1
-                summary.add_error(f"Validation failed: {file}")
+        foreach ($files as $file) {
+            $filesChecked++;
+            if (validate($file)) {
+                $filesPassed++;
+            } else {
+                $filesFailed++;
+                $summary->addError("Validation failed: {$file}");
+            }
+        }
         
-        # Set status
-        if files_failed == 0:
-            summary.set_status("Success")
-        else:
-            summary.set_status("Failed")
+        // Set status
+        if ($filesFailed === 0) {
+            $summary->setStatus("Success");
+        } else {
+            $summary->setStatus("Failed");
+        }
         
-        # Add statistics
-        summary.add_stat("Files Checked", files_checked)
-        summary.add_stat("Passed", files_passed)
-        summary.add_stat("Failed", files_failed)
+        // Add statistics
+        $summary->addStat("Files Checked", $filesChecked);
+        $summary->addStat("Passed", $filesPassed);
+        $summary->addStat("Failed", $filesFailed);
         
-        # Add next steps
-        if files_failed > 0:
-            summary.add_next_step(f"Fix {files_failed} failed validations")
-            summary.add_next_step("Re-run validation after fixes")
-        else:
-            summary.add_next_step("All validations passed - ready to proceed")
+        // Add next steps
+        if ($filesFailed > 0) {
+            $summary->addNextStep("Fix {$filesFailed} failed validations");
+            $summary->addNextStep("Re-run validation after fixes");
+        } else {
+            $summary->addNextStep("All validations passed - ready to proceed");
+        }
         
-        return 0 if files_failed == 0 else 1
+        return $filesFailed === 0 ? 0 : 1;
         
-    finally:
-        # Always show summary
-        summary.stop()
-        summary.print_summary()
+    } finally {
+        // Always show summary
+        $summary->stop();
+        $summary->printSummary();
+    }
+}
 
-if __name__ == "__main__":
-    sys.exit(main())
+exit(main());
 ```
 
 ### PowerShell Scripts
@@ -337,8 +346,7 @@ jobs:
 
 See these files for complete examples:
 
-- `scripts/lib/summary_helper.py` - Python implementation
-- `scripts/lib/VisualUtils.psm1` - PowerShell implementation
+- `src/Enterprise/ExecutionSummary.php` - PHP implementation
 - `.github/workflows/standards-compliance.yml` - Workflow example
 
 ## Benefits

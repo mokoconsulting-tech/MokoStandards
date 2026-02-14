@@ -68,91 +68,155 @@ By the end of this session, you will:
 **Use Case**: Every production script  
 **Libraries**: CLI Framework + Enterprise Audit + Metrics
 
-```python
-from scripts.lib.cli_framework import CLIApp
-from scripts.lib.enterprise_audit import AuditLogger
-from scripts.lib.metrics_collector import MetricsCollector
+```php
+<?php
+declare(strict_types=1);
 
-class MyScript(CLIApp):
-    def initialize(self):
-        self.audit = AuditLogger(service=self.__class__.__name__)
-        self.metrics = MetricsCollector(service=self.__class__.__name__)
+use MokoStandards\Enterprise\CliFramework;
+use MokoStandards\Enterprise\AuditLogger;
+use MokoStandards\Enterprise\MetricsCollector;
+
+class MyScript extends CliFramework
+{
+    private AuditLogger $audit;
+    private MetricsCollector $metrics;
     
-    def run(self):
-        with self.audit.transaction('main_operation') as txn:
-            with self.metrics.time_operation('execution'):
-                # Your logic here
-                txn.log_event('complete', {'status': 'success'})
-        return 0
+    protected function initialize(): void
+    {
+        $this->audit = new AuditLogger(service: self::class);
+        $this->metrics = new MetricsCollector(service: self::class);
+    }
+    
+    protected function run(): int
+    {
+        try {
+            $txn = $this->audit->transaction('main_operation');
+            try {
+                $timer = $this->metrics->timeOperation('execution');
+                try {
+                    // Your logic here
+                    $txn->logEvent('complete', ['status' => 'success']);
+                } finally {
+                    $timer->stop();
+                }
+            } finally {
+                $txn->commit();
+            }
+        } finally {
+            // Transaction cleanup
+        }
+        return 0;
+    }
+}
 ```
 
 #### Pattern 2: The API Integration Stack
 **Use Case**: Scripts making API calls  
 **Libraries**: Essential Stack + API Client + Error Recovery
 
-```python
-from scripts.lib.cli_framework import CLIApp
-from scripts.lib.enterprise_audit import AuditLogger
-from scripts.lib.api_client import GitHubClient
-from scripts.lib.error_recovery import retry_with_backoff
-from scripts.lib.metrics_collector import MetricsCollector
+```php
+<?php
+declare(strict_types=1);
 
-class APIScript(CLIApp):
-    def initialize(self):
-        self.audit = AuditLogger(service=self.__class__.__name__)
-        self.metrics = MetricsCollector(service=self.__class__.__name__)
-        self.api = GitHubClient(token=self.get_token())
+use MokoStandards\Enterprise\CliFramework;
+use MokoStandards\Enterprise\AuditLogger;
+use MokoStandards\Enterprise\GitHubClient;
+use MokoStandards\Enterprise\RetryWithBackoff;
+use MokoStandards\Enterprise\MetricsCollector;
+
+class APIScript extends CliFramework
+{
+    private AuditLogger $audit;
+    private MetricsCollector $metrics;
+    private GitHubClient $api;
     
-    @retry_with_backoff(max_retries=3)
-    def fetch_data(self):
-        self.metrics.increment('api_calls_total')
-        return self.api.list_repos(org='mokoconsulting-tech')
+    protected function initialize(): void
+    {
+        $this->audit = new AuditLogger(service: self::class);
+        $this->metrics = new MetricsCollector(service: self::class);
+        $this->api = new GitHubClient(token: $this->getToken());
+    }
+    
+    #[RetryWithBackoff(maxRetries: 3)]
+    protected function fetchData(): array
+    {
+        $this->metrics->increment('api_calls_total');
+        return $this->api->listRepos(org: 'mokoconsulting-tech');
+    }
+}
 ```
 
 #### Pattern 3: The Batch Processing Stack
 **Use Case**: Long-running batch operations  
 **Libraries**: API Stack + Checkpointing + Transaction Manager
 
-```python
-from scripts.lib.error_recovery import Checkpoint
-from scripts.lib.transaction_manager import Transaction
+```php
+<?php
+declare(strict_types=1);
 
-class BatchProcessor(CLIApp):
-    def process_batch(self, items):
-        checkpoint = Checkpoint('batch_process')
+use MokoStandards\Enterprise\Checkpoint;
+use MokoStandards\Enterprise\Transaction;
+
+class BatchProcessor extends CliFramework
+{
+    protected function processBatch(array $items): void
+    {
+        $checkpoint = new Checkpoint('batch_process');
         
-        for item in items:
-            if checkpoint.is_completed(item):
-                continue
-                
-            try:
-                with Transaction() as txn:
-                    self.process_item(item, txn)
-                    txn.commit()
-                checkpoint.mark_completed(item)
-            except Exception as e:
-                checkpoint.mark_failed(item, str(e))
+        foreach ($items as $item) {
+            if ($checkpoint->isCompleted($item)) {
+                continue;
+            }
+            
+            try {
+                $txn = new Transaction();
+                try {
+                    $this->processItem($item, $txn);
+                    $txn->commit();
+                    $checkpoint->markCompleted($item);
+                } finally {
+                    // Transaction cleanup
+                }
+            } catch (\Exception $e) {
+                $checkpoint->markFailed($item, $e->getMessage());
+            }
+        }
+    }
+}
 ```
 
 #### Pattern 4: The Security-First Stack
 **Use Case**: Scripts handling sensitive data  
 **Libraries**: Essential Stack + Security Validator + Config Manager
 
-```python
-from scripts.lib.security_validator import SecurityValidator
-from scripts.lib.config_manager import Config
+```php
+<?php
+declare(strict_types=1);
 
-class SecureScript(CLIApp):
-    def initialize(self):
-        super().initialize()
-        self.security = SecurityValidator()
-        self.config = Config.load(env=self.args.env)
-        
-    def validate_input(self, user_input):
-        # Security validation
-        if self.security.detect_credentials(user_input):
-            raise ValueError("Input contains credentials!")
-        return self.security.validate_input(user_input)
+use MokoStandards\Enterprise\SecurityValidator;
+use MokoStandards\Enterprise\Config;
+
+class SecureScript extends CliFramework
+{
+    private SecurityValidator $security;
+    private Config $config;
+    
+    protected function initialize(): void
+    {
+        parent::initialize();
+        $this->security = new SecurityValidator();
+        $this->config = Config::load(env: $this->args->env);
+    }
+    
+    protected function validateInput(string $userInput): string
+    {
+        // Security validation
+        if ($this->security->detectCredentials($userInput)) {
+            throw new \ValueError("Input contains credentials!");
+        }
+        return $this->security->validateInput($userInput);
+    }
+}
 ```
 
 ### Integration Best Practices
@@ -183,86 +247,106 @@ class SecureScript(CLIApp):
 
 #### Original Script (Legacy)
 
-```python
-#!/usr/bin/env python3
-"""
-Legacy script: manage_repositories.py
-Fetches repositories and updates their settings
-"""
+```php
+<?php
+declare(strict_types=1);
 
-import os
-import sys
-import requests
-import time
-import argparse
+/**
+ * Legacy script: manage_repositories.php
+ * Fetches repositories and updates their settings
+ */
 
-def main():
-    parser = argparse.ArgumentParser(description='Manage repositories')
-    parser.add_argument('--org', required=True, help='Organization')
-    parser.add_argument('--dry-run', action='store_true', help='Dry run')
-    args = parser.parse_args()
+function main(): void
+{
+    $options = getopt('', ['org:', 'dry-run']);
     
-    # Get token from environment
-    token = os.getenv('GITHUB_TOKEN')
-    if not token:
-        print("Error: GITHUB_TOKEN not set")
-        sys.exit(1)
+    if (!isset($options['org'])) {
+        fwrite(STDERR, "Error: --org is required\n");
+        exit(1);
+    }
     
-    # Fetch repositories
-    print(f"Fetching repositories for {args.org}...")
-    headers = {'Authorization': f'token {token}'}
+    $org = $options['org'];
+    $dryRun = isset($options['dry-run']);
     
-    url = f'https://api.github.com/orgs/{args.org}/repos'
-    response = requests.get(url, headers=headers)
+    // Get token from environment
+    $token = getenv('GITHUB_TOKEN');
+    if (!$token) {
+        fwrite(STDERR, "Error: GITHUB_TOKEN not set\n");
+        exit(1);
+    }
     
-    if response.status_code != 200:
-        print(f"Error: API returned {response.status_code}")
-        sys.exit(1)
+    // Fetch repositories
+    echo "Fetching repositories for {$org}...\n";
+    $headers = ["Authorization: token {$token}"];
     
-    repos = response.json()
-    print(f"Found {len(repos)} repositories")
+    $url = "https://api.github.com/orgs/{$org}/repos";
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $response = curl_exec($ch);
+    $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
     
-    # Update each repository
-    updated_count = 0
-    failed_count = 0
+    if ($statusCode !== 200) {
+        fwrite(STDERR, "Error: API returned {$statusCode}\n");
+        exit(1);
+    }
     
-    for repo in repos:
-        repo_name = repo['name']
-        print(f"Processing {repo_name}...")
+    $repos = json_decode($response, true);
+    $repoCount = count($repos);
+    echo "Found {$repoCount} repositories\n";
+    
+    // Update each repository
+    $updatedCount = 0;
+    $failedCount = 0;
+    
+    foreach ($repos as $repo) {
+        $repoName = $repo['name'];
+        echo "Processing {$repoName}...\n";
         
-        if args.dry_run:
-            print(f"  [DRY RUN] Would update {repo_name}")
-            updated_count += 1
-            continue
-        
-        # Update repository settings
-        update_url = f'https://api.github.com/repos/{args.org}/{repo_name}'
-        data = {
-            'has_issues': True,
-            'has_wiki': False,
-            'has_projects': False
+        if ($dryRun) {
+            echo "  [DRY RUN] Would update {$repoName}\n";
+            $updatedCount++;
+            continue;
         }
         
-        response = requests.patch(update_url, headers=headers, json=data)
+        // Update repository settings
+        $updateUrl = "https://api.github.com/repos/{$org}/{$repoName}";
+        $data = json_encode([
+            'has_issues' => true,
+            'has_wiki' => false,
+            'has_projects' => false
+        ]);
         
-        if response.status_code == 200:
-            print(f"  ✓ Updated {repo_name}")
-            updated_count += 1
-        else:
-            print(f"  ✗ Failed to update {repo_name}: {response.status_code}")
-            failed_count += 1
+        $ch = curl_init($updateUrl);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array_merge($headers, ['Content-Type: application/json']));
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_exec($ch);
+        $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
         
-        # Rate limiting (simple sleep)
-        time.sleep(1)
+        if ($statusCode === 200) {
+            echo "  ✓ Updated {$repoName}\n";
+            $updatedCount++;
+        } else {
+            echo "  ✗ Failed to update {$repoName}: {$statusCode}\n";
+            $failedCount++;
+        }
+        
+        // Rate limiting (simple sleep)
+        sleep(1);
+    }
     
-    # Print summary
-    print(f"\nSummary:")
-    print(f"  Total repositories: {len(repos)}")
-    print(f"  Updated: {updated_count}")
-    print(f"  Failed: {failed_count}")
+    // Print summary
+    echo "\nSummary:\n";
+    echo "  Total repositories: {$repoCount}\n";
+    echo "  Updated: {$updatedCount}\n";
+    echo "  Failed: {$failedCount}\n";
+}
 
-if __name__ == '__main__':
-    main()
+main();
 ```
 
 #### Your Task: Migrate to Enterprise Libraries
@@ -280,382 +364,492 @@ if __name__ == '__main__':
 
 **Step 1: Set up the CLI Framework structure**
 
-```python
-#!/usr/bin/env python3
-"""
-Enterprise script: manage_repositories.py
-Manages repository settings with enterprise libraries
-"""
+```php
+<?php
+declare(strict_types=1);
 
-from scripts.lib.cli_framework import CLIApp
-import argparse
+/**
+ * Enterprise script: manage_repositories.php
+ * Manages repository settings with enterprise libraries
+ */
 
-class RepositoryManager(CLIApp):
-    """Manages repository settings for a GitHub organization"""
+use MokoStandards\Enterprise\CliFramework;
+
+class RepositoryManager extends CliFramework
+{
+    /**
+     * Configure command-line arguments
+     */
+    protected function setupArguments(): array
+    {
+        return [
+            'org' => [
+                'required' => true,
+                'help' => 'GitHub organization name'
+            ],
+            // TODO: Add any additional arguments
+        ];
+    }
     
-    def setup_arguments(self, parser: argparse.ArgumentParser):
-        """Configure command-line arguments"""
-        parser.add_argument('--org', required=True, 
-                          help='GitHub organization name')
-        # TODO: Add any additional arguments
+    /**
+     * Initialize enterprise libraries
+     */
+    protected function initialize(): void
+    {
+        // TODO: Initialize libraries here
+    }
     
-    def initialize(self):
-        """Initialize enterprise libraries"""
-        # TODO: Initialize libraries here
-        pass
-    
-    def run(self):
-        """Main execution logic"""
-        org = self.args.org
+    /**
+     * Main execution logic
+     */
+    protected function run(): int
+    {
+        $org = $this->args->org;
         
-        # TODO: Implement main logic
+        // TODO: Implement main logic
         
-        return 0  # Success
+        return 0; // Success
+    }
+}
 
-if __name__ == '__main__':
-    app = RepositoryManager()
-    exit(app.execute())
+$app = new RepositoryManager();
+exit($app->execute());
 ```
 
 **Step 2: Add Enterprise Audit**
 
-```python
-from scripts.lib.enterprise_audit import AuditLogger
+```php
+<?php
+declare(strict_types=1);
 
-def initialize(self):
-    """Initialize enterprise libraries"""
-    super().initialize()
-    self.audit = AuditLogger(
-        service='repository_manager',
-        retention_days=90
-    )
+use MokoStandards\Enterprise\AuditLogger;
 
-def run(self):
-    org = self.args.org
+protected function initialize(): void
+{
+    parent::initialize();
+    $this->audit = new AuditLogger(
+        service: 'repository_manager',
+        retentionDays: 90
+    );
+}
+
+protected function run(): int
+{
+    $org = $this->args->org;
     
-    with self.audit.transaction('manage_repositories') as txn:
-        txn.log_event('start', {
-            'organization': org,
-            'dry_run': self.args.dry_run
-        })
-        
-        # TODO: Add main logic
-        
-        txn.log_event('complete', {
-            'organization': org,
-            'status': 'success'
-        })
+    try {
+        $txn = $this->audit->transaction('manage_repositories');
+        try {
+            $txn->logEvent('start', [
+                'organization' => $org,
+                'dry_run' => $this->args->dryRun
+            ]);
+            
+            // TODO: Add main logic
+            
+            $txn->logEvent('complete', [
+                'organization' => $org,
+                'status' => 'success'
+            ]);
+        } finally {
+            $txn->commit();
+        }
+    } finally {
+        // Transaction cleanup
+    }
     
-    return 0
+    return 0;
+}
 ```
 
 **Step 3: Add API Client**
 
-```python
-from scripts.lib.api_client import GitHubClient, RateLimitConfig
-import os
+```php
+<?php
+declare(strict_types=1);
 
-def initialize(self):
-    super().initialize()
-    self.audit = AuditLogger(service='repository_manager')
-    
-    # Initialize API client with rate limiting
-    rate_config = RateLimitConfig(
-        max_requests_per_hour=5000,
-        enable_caching=True,
-        cache_ttl=300
-    )
-    
-    self.api = GitHubClient(
-        token=os.getenv('GITHUB_TOKEN'),
-        rate_limit_config=rate_config
-    )
+use MokoStandards\Enterprise\GitHubClient;
+use MokoStandards\Enterprise\RateLimitConfig;
 
-def fetch_repositories(self, org):
-    """Fetch repositories using API client"""
-    try:
-        repos = self.api.list_repos(org=org)
-        self.logger.info(f"Fetched {len(repos)} repositories")
-        return repos
-    except Exception as e:
-        self.logger.error(f"Failed to fetch repositories: {e}")
-        raise
+protected function initialize(): void
+{
+    parent::initialize();
+    $this->audit = new AuditLogger(service: 'repository_manager');
+    
+    // Initialize API client with rate limiting
+    $rateConfig = new RateLimitConfig(
+        maxRequestsPerHour: 5000,
+        enableCaching: true,
+        cacheTtl: 300
+    );
+    
+    $this->api = new GitHubClient(
+        token: getenv('GITHUB_TOKEN') ?: '',
+        rateLimitConfig: $rateConfig
+    );
+}
+
+protected function fetchRepositories(string $org): array
+{
+    try {
+        $repos = $this->api->listRepos(org: $org);
+        $count = count($repos);
+        $this->logger->info("Fetched {$count} repositories");
+        return $repos;
+    } catch (\Exception $e) {
+        $this->logger->error("Failed to fetch repositories: {$e->getMessage()}");
+        throw $e;
+    }
+}
 ```
 
 **Step 4: Add Metrics Collection**
 
-```python
-from scripts.lib.metrics_collector import MetricsCollector
+```php
+<?php
+declare(strict_types=1);
 
-def initialize(self):
-    super().initialize()
-    self.audit = AuditLogger(service='repository_manager')
-    self.metrics = MetricsCollector(service='repository_manager')
-    self.api = GitHubClient(token=os.getenv('GITHUB_TOKEN'))
+use MokoStandards\Enterprise\MetricsCollector;
 
-def update_repository(self, org, repo_name, txn):
-    """Update a single repository"""
-    try:
-        with self.metrics.time_operation('repository_update'):
-            # Update repository settings
-            self.api.update_repo(
-                org=org,
-                repo=repo_name,
-                data={
-                    'has_issues': True,
-                    'has_wiki': False,
-                    'has_projects': False
-                }
-            )
+protected function initialize(): void
+{
+    parent::initialize();
+    $this->audit = new AuditLogger(service: 'repository_manager');
+    $this->metrics = new MetricsCollector(service: 'repository_manager');
+    $this->api = new GitHubClient(token: getenv('GITHUB_TOKEN') ?: '');
+}
+
+protected function updateRepository(string $org, string $repoName, object $txn): bool
+{
+    try {
+        $timer = $this->metrics->timeOperation('repository_update');
+        try {
+            // Update repository settings
+            $this->api->updateRepo(
+                org: $org,
+                repo: $repoName,
+                data: [
+                    'has_issues' => true,
+                    'has_wiki' => false,
+                    'has_projects' => false
+                ]
+            );
+        } finally {
+            $timer->stop();
+        }
         
-        # Track success
-        self.metrics.increment('repos_updated_success', 
-                              labels={'org': org})
-        txn.log_event('repository_updated', {
-            'repo': repo_name,
-            'status': 'success'
-        })
+        // Track success
+        $this->metrics->increment('repos_updated_success', 
+                                  labels: ['org' => $org]);
+        $txn->logEvent('repository_updated', [
+            'repo' => $repoName,
+            'status' => 'success'
+        ]);
         
-        return True
+        return true;
         
-    except Exception as e:
-        # Track failure
-        self.metrics.increment('repos_updated_failure',
-                              labels={'org': org})
-        txn.log_event('repository_failed', {
-            'repo': repo_name,
-            'error': str(e)
-        })
+    } catch (\Exception $e) {
+        // Track failure
+        $this->metrics->increment('repos_updated_failure',
+                                  labels: ['org' => $org]);
+        $txn->logEvent('repository_failed', [
+            'repo' => $repoName,
+            'error' => $e->getMessage()
+        ]);
         
-        return False
+        return false;
+    }
+}
 ```
 
 **Step 5: Add Error Recovery with Checkpointing**
 
-```python
-from scripts.lib.error_recovery import Checkpoint, retry_with_backoff
+```php
+<?php
+declare(strict_types=1);
 
-def initialize(self):
-    super().initialize()
-    self.audit = AuditLogger(service='repository_manager')
-    self.metrics = MetricsCollector(service='repository_manager')
-    self.api = GitHubClient(token=os.getenv('GITHUB_TOKEN'))
-    
-    # Initialize checkpoint
-    self.checkpoint = Checkpoint(
-        name='repository_updates',
-        checkpoint_dir='/tmp/checkpoints'
-    )
+use MokoStandards\Enterprise\Checkpoint;
+use MokoStandards\Enterprise\RetryWithBackoff;
 
-@retry_with_backoff(max_retries=3, base_delay=1.0)
-def update_repository(self, org, repo_name, txn):
-    """Update a single repository with retry logic"""
-    # Check if already processed
-    if self.checkpoint.is_completed(repo_name):
-        self.logger.info(f"Skipping {repo_name} (already processed)")
-        return True
+protected function initialize(): void
+{
+    parent::initialize();
+    $this->audit = new AuditLogger(service: 'repository_manager');
+    $this->metrics = new MetricsCollector(service: 'repository_manager');
+    $this->api = new GitHubClient(token: getenv('GITHUB_TOKEN') ?: '');
     
-    try:
-        with self.metrics.time_operation('repository_update'):
-            self.api.update_repo(
-                org=org,
-                repo=repo_name,
-                data={
-                    'has_issues': True,
-                    'has_wiki': False,
-                    'has_projects': False
-                }
-            )
+    // Initialize checkpoint
+    $this->checkpoint = new Checkpoint(
+        name: 'repository_updates',
+        checkpointDir: '/tmp/checkpoints'
+    );
+}
+
+#[RetryWithBackoff(maxRetries: 3, baseDelay: 1.0)]
+protected function updateRepository(string $org, string $repoName, object $txn): bool
+{
+    // Check if already processed
+    if ($this->checkpoint->isCompleted($repoName)) {
+        $this->logger->info("Skipping {$repoName} (already processed)");
+        return true;
+    }
+    
+    try {
+        $timer = $this->metrics->timeOperation('repository_update');
+        try {
+            $this->api->updateRepo(
+                org: $org,
+                repo: $repoName,
+                data: [
+                    'has_issues' => true,
+                    'has_wiki' => false,
+                    'has_projects' => false
+                ]
+            );
+        } finally {
+            $timer->stop();
+        }
         
-        # Mark as completed
-        self.checkpoint.mark_completed(repo_name, {'status': 'success'})
-        self.metrics.increment('repos_updated_success', labels={'org': org})
-        txn.log_event('repository_updated', {'repo': repo_name})
+        // Mark as completed
+        $this->checkpoint->markCompleted($repoName, ['status' => 'success']);
+        $this->metrics->increment('repos_updated_success', labels: ['org' => $org]);
+        $txn->logEvent('repository_updated', ['repo' => $repoName]);
         
-        return True
+        return true;
         
-    except Exception as e:
-        # Mark as failed
-        self.checkpoint.mark_failed(repo_name, str(e))
-        self.metrics.increment('repos_updated_failure', labels={'org': org})
-        txn.log_event('repository_failed', {'repo': repo_name, 'error': str(e)})
+    } catch (\Exception $e) {
+        // Mark as failed
+        $this->checkpoint->markFailed($repoName, $e->getMessage());
+        $this->metrics->increment('repos_updated_failure', labels: ['org' => $org]);
+        $txn->logEvent('repository_failed', ['repo' => $repoName, 'error' => $e->getMessage()]);
         
-        raise  # Re-raise for retry logic
+        throw $e; // Re-raise for retry logic
+    }
+}
 ```
 
 **Step 6: Add Security Validation**
 
-```python
-from scripts.lib.security_validator import SecurityValidator
+```php
+<?php
+declare(strict_types=1);
 
-def initialize(self):
-    super().initialize()
-    self.audit = AuditLogger(service='repository_manager')
-    self.metrics = MetricsCollector(service='repository_manager')
-    self.api = GitHubClient(token=os.getenv('GITHUB_TOKEN'))
-    self.checkpoint = Checkpoint(name='repository_updates')
-    self.security = SecurityValidator()
+use MokoStandards\Enterprise\SecurityValidator;
 
-def validate_inputs(self):
-    """Validate all user inputs"""
-    org = self.args.org
+protected function initialize(): void
+{
+    parent::initialize();
+    $this->audit = new AuditLogger(service: 'repository_manager');
+    $this->metrics = new MetricsCollector(service: 'repository_manager');
+    $this->api = new GitHubClient(token: getenv('GITHUB_TOKEN') ?: '');
+    $this->checkpoint = new Checkpoint(name: 'repository_updates');
+    $this->security = new SecurityValidator();
+}
+
+protected function validateInputs(): void
+{
+    $org = $this->args->org;
     
-    # Validate organization name
-    if not self.security.validate_input(org, input_type='identifier'):
-        raise ValueError(f"Invalid organization name: {org}")
+    // Validate organization name
+    if (!$this->security->validateInput($org, inputType: 'identifier')) {
+        throw new \ValueError("Invalid organization name: {$org}");
+    }
     
-    # Check for dangerous patterns
-    if self.security.detect_dangerous_patterns(org):
-        raise ValueError(f"Organization name contains dangerous patterns")
+    // Check for dangerous patterns
+    if ($this->security->detectDangerousPatterns($org)) {
+        throw new \ValueError("Organization name contains dangerous patterns");
+    }
     
-    self.logger.info(f"Input validation passed for org: {org}")
+    $this->logger->info("Input validation passed for org: {$org}");
+}
 ```
 
 **Step 7: Complete Integration**
 
-```python
-#!/usr/bin/env python3
-"""
-Enterprise script: manage_repositories.py
-Manages repository settings with enterprise libraries
+```php
+<?php
+declare(strict_types=1);
 
-Copyright (C) 2026 Moko Consulting
-SPDX-License-Identifier: GPL-3.0-or-later
-"""
+/**
+ * Enterprise script: manage_repositories.php
+ * Manages repository settings with enterprise libraries
+ *
+ * Copyright (C) 2026 Moko Consulting
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 
-from scripts.lib.cli_framework import CLIApp
-from scripts.lib.enterprise_audit import AuditLogger
-from scripts.lib.api_client import GitHubClient, RateLimitConfig
-from scripts.lib.metrics_collector import MetricsCollector
-from scripts.lib.error_recovery import Checkpoint, retry_with_backoff
-from scripts.lib.security_validator import SecurityValidator
-import argparse
-import os
+use MokoStandards\Enterprise\CliFramework;
+use MokoStandards\Enterprise\AuditLogger;
+use MokoStandards\Enterprise\GitHubClient;
+use MokoStandards\Enterprise\RateLimitConfig;
+use MokoStandards\Enterprise\MetricsCollector;
+use MokoStandards\Enterprise\Checkpoint;
+use MokoStandards\Enterprise\RetryWithBackoff;
+use MokoStandards\Enterprise\SecurityValidator;
 
-class RepositoryManager(CLIApp):
-    """Manages repository settings for a GitHub organization"""
+class RepositoryManager extends CliFramework
+{
+    private AuditLogger $audit;
+    private MetricsCollector $metrics;
+    private SecurityValidator $security;
+    private GitHubClient $api;
+    private Checkpoint $checkpoint;
     
-    def setup_arguments(self, parser: argparse.ArgumentParser):
-        parser.add_argument('--org', required=True, help='GitHub organization')
+    protected function setupArguments(): array
+    {
+        return [
+            'org' => [
+                'required' => true,
+                'help' => 'GitHub organization'
+            ]
+        ];
+    }
     
-    def initialize(self):
-        super().initialize()
+    protected function initialize(): void
+    {
+        parent::initialize();
         
-        # Initialize all enterprise libraries
-        self.audit = AuditLogger(service='repository_manager', retention_days=90)
-        self.metrics = MetricsCollector(service='repository_manager')
-        self.security = SecurityValidator()
+        // Initialize all enterprise libraries
+        $this->audit = new AuditLogger(service: 'repository_manager', retentionDays: 90);
+        $this->metrics = new MetricsCollector(service: 'repository_manager');
+        $this->security = new SecurityValidator();
         
-        # API client with rate limiting
-        rate_config = RateLimitConfig(
-            max_requests_per_hour=5000,
-            enable_caching=True
-        )
-        self.api = GitHubClient(
-            token=os.getenv('GITHUB_TOKEN'),
-            rate_limit_config=rate_config
-        )
+        // API client with rate limiting
+        $rateConfig = new RateLimitConfig(
+            maxRequestsPerHour: 5000,
+            enableCaching: true
+        );
+        $this->api = new GitHubClient(
+            token: getenv('GITHUB_TOKEN') ?: '',
+            rateLimitConfig: $rateConfig
+        );
         
-        # Checkpoint for recovery
-        self.checkpoint = Checkpoint(
-            name='repository_updates',
-            checkpoint_dir='/tmp/checkpoints'
-        )
+        // Checkpoint for recovery
+        $this->checkpoint = new Checkpoint(
+            name: 'repository_updates',
+            checkpointDir: '/tmp/checkpoints'
+        );
+    }
     
-    def validate_inputs(self):
-        """Validate all inputs"""
-        org = self.args.org
-        if not self.security.validate_input(org, input_type='identifier'):
-            raise ValueError(f"Invalid organization name: {org}")
+    protected function validateInputs(): void
+    {
+        $org = $this->args->org;
+        if (!$this->security->validateInput($org, inputType: 'identifier')) {
+            throw new \ValueError("Invalid organization name: {$org}");
+        }
+    }
     
-    @retry_with_backoff(max_retries=3, base_delay=1.0)
-    def update_repository(self, org, repo_name, txn):
-        """Update a single repository"""
-        if self.checkpoint.is_completed(repo_name):
-            self.logger.debug(f"Skipping {repo_name} (completed)")
-            return True
+    #[RetryWithBackoff(maxRetries: 3, baseDelay: 1.0)]
+    protected function updateRepository(string $org, string $repoName, object $txn): bool
+    {
+        if ($this->checkpoint->isCompleted($repoName)) {
+            $this->logger->debug("Skipping {$repoName} (completed)");
+            return true;
+        }
         
-        try:
-            if self.args.dry_run:
-                self.logger.info(f"[DRY RUN] Would update {repo_name}")
-            else:
-                with self.metrics.time_operation('repository_update'):
-                    self.api.update_repo(
-                        org=org,
-                        repo=repo_name,
-                        data={
-                            'has_issues': True,
-                            'has_wiki': False,
-                            'has_projects': False
-                        }
-                    )
+        try {
+            if ($this->args->dryRun) {
+                $this->logger->info("[DRY RUN] Would update {$repoName}");
+            } else {
+                $timer = $this->metrics->timeOperation('repository_update');
+                try {
+                    $this->api->updateRepo(
+                        org: $org,
+                        repo: $repoName,
+                        data: [
+                            'has_issues' => true,
+                            'has_wiki' => false,
+                            'has_projects' => false
+                        ]
+                    );
+                } finally {
+                    $timer->stop();
+                }
+            }
             
-            self.checkpoint.mark_completed(repo_name, {'status': 'success'})
-            self.metrics.increment('repos_updated_success', labels={'org': org})
-            txn.log_event('repository_updated', {'repo': repo_name})
+            $this->checkpoint->markCompleted($repoName, ['status' => 'success']);
+            $this->metrics->increment('repos_updated_success', labels: ['org' => $org]);
+            $txn->logEvent('repository_updated', ['repo' => $repoName]);
             
-            return True
+            return true;
             
-        except Exception as e:
-            self.checkpoint.mark_failed(repo_name, str(e))
-            self.metrics.increment('repos_updated_failure', labels={'org': org})
-            txn.log_event('repository_failed', {'repo': repo_name, 'error': str(e)})
-            raise
+        } catch (\Exception $e) {
+            $this->checkpoint->markFailed($repoName, $e->getMessage());
+            $this->metrics->increment('repos_updated_failure', labels: ['org' => $org]);
+            $txn->logEvent('repository_failed', ['repo' => $repoName, 'error' => $e->getMessage()]);
+            throw $e;
+        }
+    }
     
-    def run(self):
-        org = self.args.org
+    protected function run(): int
+    {
+        $org = $this->args->org;
         
-        # Validate inputs
-        self.validate_inputs()
+        // Validate inputs
+        $this->validateInputs();
         
-        # Main transaction
-        with self.audit.transaction('manage_repositories') as txn:
-            txn.log_event('start', {'organization': org, 'dry_run': self.args.dry_run})
-            
-            # Fetch repositories
-            repos = self.api.list_repos(org=org)
-            self.logger.info(f"Found {len(repos)} repositories")
-            self.metrics.set_gauge('repositories_total', len(repos))
-            
-            # Process each repository
-            success_count = 0
-            failure_count = 0
-            
-            for repo in repos:
-                repo_name = repo['name']
-                self.logger.info(f"Processing {repo_name}...")
+        // Main transaction
+        try {
+            $txn = $this->audit->transaction('manage_repositories');
+            try {
+                $txn->logEvent('start', ['organization' => $org, 'dry_run' => $this->args->dryRun]);
                 
-                try:
-                    if self.update_repository(org, repo_name, txn):
-                        success_count += 1
-                except Exception as e:
-                    self.logger.error(f"Failed to update {repo_name}: {e}")
-                    failure_count += 1
-            
-            # Log final results
-            txn.log_event('complete', {
-                'organization': org,
-                'total': len(repos),
-                'success': success_count,
-                'failure': failure_count
-            })
-            
-            # Print summary
-            self.logger.info(f"\nSummary:")
-            self.logger.info(f"  Total: {len(repos)}")
-            self.logger.info(f"  Success: {success_count}")
-            self.logger.info(f"  Failed: {failure_count}")
-            
-            # Export metrics
-            if self.args.verbose:
-                print("\nMetrics:")
-                print(self.metrics.export_prometheus())
-        
-        return 0 if failure_count == 0 else 1
+                // Fetch repositories
+                $repos = $this->api->listRepos(org: $org);
+                $repoCount = count($repos);
+                $this->logger->info("Found {$repoCount} repositories");
+                $this->metrics->setGauge('repositories_total', $repoCount);
+                
+                // Process each repository
+                $successCount = 0;
+                $failureCount = 0;
+                
+                foreach ($repos as $repo) {
+                    $repoName = $repo['name'];
+                    $this->logger->info("Processing {$repoName}...");
+                    
+                    try {
+                        if ($this->updateRepository($org, $repoName, $txn)) {
+                            $successCount++;
+                        }
+                    } catch (\Exception $e) {
+                        $this->logger->error("Failed to update {$repoName}: {$e->getMessage()}");
+                        $failureCount++;
+                    }
+                }
+                
+                // Log final results
+                $txn->logEvent('complete', [
+                    'organization' => $org,
+                    'total' => $repoCount,
+                    'success' => $successCount,
+                    'failure' => $failureCount
+                ]);
+                
+                // Print summary
+                $this->logger->info("\nSummary:");
+                $this->logger->info("  Total: {$repoCount}");
+                $this->logger->info("  Success: {$successCount}");
+                $this->logger->info("  Failed: {$failureCount}");
+                
+                // Export metrics
+                if ($this->args->verbose) {
+                    echo "\nMetrics:\n";
+                    echo $this->metrics->exportPrometheus();
+                }
+                
+                return $failureCount === 0 ? 0 : 1;
+            } finally {
+                $txn->commit();
+            }
+        } finally {
+            // Transaction cleanup
+        }
+    }
+}
 
-if __name__ == '__main__':
-    app = RepositoryManager()
-    exit(app.execute())
+$app = new RepositoryManager();
+exit($app->execute());
 ```
 
 #### Your Turn: Complete the Migration
@@ -680,46 +874,64 @@ if __name__ == '__main__':
 
 Build a script that loads configuration from YAML files.
 
-```python
-from scripts.lib.cli_framework import CLIApp
-from scripts.lib.config_manager import Config
-import argparse
+```php
+<?php
+declare(strict_types=1);
 
-class ConfigDrivenScript(CLIApp):
-    def setup_arguments(self, parser: argparse.ArgumentParser):
-        parser.add_argument('--env', default='development',
-                          choices=['development', 'staging', 'production'],
-                          help='Environment')
-        parser.add_argument('--config', help='Config file override')
+use MokoStandards\Enterprise\CliFramework;
+use MokoStandards\Enterprise\Config;
+
+class ConfigDrivenScript extends CliFramework
+{
+    private Config $config;
     
-    def initialize(self):
-        super().initialize()
+    protected function setupArguments(): array
+    {
+        return [
+            'env' => [
+                'default' => 'development',
+                'choices' => ['development', 'staging', 'production'],
+                'help' => 'Environment'
+            ],
+            'config' => [
+                'help' => 'Config file override'
+            ]
+        ];
+    }
+    
+    protected function initialize(): void
+    {
+        parent::initialize();
         
-        # Load environment-specific config
-        self.config = Config.load(
-            env=self.args.env,
-            config_file=self.args.config
-        )
+        // Load environment-specific config
+        $this->config = Config::load(
+            env: $this->args->env,
+            configFile: $this->args->config
+        );
         
-        # Validate required configuration
-        self.config.require([
+        // Validate required configuration
+        $this->config->require([
             'github.organization',
             'github.token',
             'settings.max_retries'
-        ])
+        ]);
+    }
     
-    def run(self):
-        org = self.config.get('github.organization')
-        max_retries = self.config.get_int('settings.max_retries', default=3)
-        enable_cache = self.config.get_bool('cache.enabled', default=True)
+    protected function run(): int
+    {
+        $org = $this->config->get('github.organization');
+        $maxRetries = $this->config->getInt('settings.max_retries', default: 3);
+        $enableCache = $this->config->getBool('cache.enabled', default: true);
         
-        self.logger.info(f"Organization: {org}")
-        self.logger.info(f"Max retries: {max_retries}")
-        self.logger.info(f"Cache enabled: {enable_cache}")
+        $this->logger->info("Organization: {$org}");
+        $this->logger->info("Max retries: {$maxRetries}");
+        $this->logger->info("Cache enabled: " . ($enableCache ? 'true' : 'false'));
         
-        # Your logic here
+        // Your logic here
         
-        return 0
+        return 0;
+    }
+}
 ```
 
 **Configuration File** (`config/development.yaml`):
@@ -752,68 +964,87 @@ logging:
 
 Implement atomic operations that rollback on failure.
 
-```python
-from scripts.lib.transaction_manager import TransactionManager
+```php
+<?php
+declare(strict_types=1);
 
-class AtomicUpdater(CLIApp):
-    def initialize(self):
-        super().initialize()
-        self.txn_manager = TransactionManager()
+use MokoStandards\Enterprise\TransactionManager;
+
+class AtomicUpdater extends CliFramework
+{
+    private TransactionManager $txnManager;
+    private array $stateCache = [];
     
-    def update_repository_atomically(self, org, repo):
-        """Perform atomic repository updates"""
+    protected function initialize(): void
+    {
+        parent::initialize();
+        $this->txnManager = new TransactionManager();
+    }
+    
+    protected function updateRepositoryAtomically(string $org, string $repo): bool
+    {
+        try {
+            $txn = $this->txnManager->beginTransaction("update_{$repo}");
+            try {
+                // Operation 1: Update settings
+                $txn->addOperation(
+                    name: 'update_settings',
+                    forward: fn() => $this->updateSettings($org, $repo),
+                    rollback: fn() => $this->restoreSettings($org, $repo)
+                );
+                
+                // Operation 2: Update branch protection
+                $txn->addOperation(
+                    name: 'update_protection',
+                    forward: fn() => $this->updateProtection($org, $repo, 'main'),
+                    rollback: fn() => $this->restoreProtection($org, $repo, 'main')
+                );
+                
+                // Operation 3: Update webhooks
+                $txn->addOperation(
+                    name: 'update_webhooks',
+                    forward: fn() => $this->updateWebhooks($org, $repo),
+                    rollback: fn() => $this->restoreWebhooks($org, $repo)
+                );
+                
+                // Commit all operations atomically
+                $txn->commit();
+                
+                $this->logger->info("Successfully updated {$repo}");
+                return true;
+                
+            } catch (\Exception $e) {
+                $txn->rollback();
+                throw $e;
+            }
+        } catch (\Exception $e) {
+            $this->logger->error("Failed to update {$repo}: {$e->getMessage()}");
+            $this->logger->info("All changes rolled back");
+            return false;
+        }
+    }
+    
+    protected function updateSettings(string $org, string $repo): void
+    {
+        // Save current state for rollback
+        $current = $this->api->getRepo($org, $repo);
+        $this->stateCache["{$repo}_settings"] = $current;
         
-        try:
-            with self.txn_manager.begin_transaction(f'update_{repo}') as txn:
-                # Operation 1: Update settings
-                txn.add_operation(
-                    name='update_settings',
-                    forward=lambda: self.update_settings(org, repo),
-                    rollback=lambda: self.restore_settings(org, repo)
-                )
-                
-                # Operation 2: Update branch protection
-                txn.add_operation(
-                    name='update_protection',
-                    forward=lambda: self.update_protection(org, repo, 'main'),
-                    rollback=lambda: self.restore_protection(org, repo, 'main')
-                )
-                
-                # Operation 3: Update webhooks
-                txn.add_operation(
-                    name='update_webhooks',
-                    forward=lambda: self.update_webhooks(org, repo),
-                    rollback=lambda: self.restore_webhooks(org, repo)
-                )
-                
-                # Commit all operations atomically
-                txn.commit()
-                
-                self.logger.info(f"Successfully updated {repo}")
-                return True
-                
-        except Exception as e:
-            self.logger.error(f"Failed to update {repo}: {e}")
-            self.logger.info(f"All changes rolled back")
-            return False
+        // Apply new settings
+        $this->api->updateRepo($org, $repo, [
+            'has_issues' => true,
+            'has_wiki' => false
+        ]);
+    }
     
-    def update_settings(self, org, repo):
-        """Update repository settings"""
-        # Save current state for rollback
-        current = self.api.get_repo(org, repo)
-        self.state_cache[f'{repo}_settings'] = current
-        
-        # Apply new settings
-        self.api.update_repo(org, repo, {
-            'has_issues': True,
-            'has_wiki': False
-        })
-    
-    def restore_settings(self, org, repo):
-        """Rollback settings"""
-        previous = self.state_cache.get(f'{repo}_settings')
-        if previous:
-            self.api.update_repo(org, repo, previous)
+    protected function restoreSettings(string $org, string $repo): void
+    {
+        $previous = $this->stateCache["{$repo}_settings"] ?? null;
+        if ($previous) {
+            $this->api->updateRepo($org, $repo, $previous);
+        }
+    }
+}
 ```
 
 **Exercise**: Implement a transaction-based script that:
@@ -828,71 +1059,89 @@ class AtomicUpdater(CLIApp):
 
 Process large datasets with recovery capabilities.
 
-```python
-from scripts.lib.error_recovery import Checkpoint
-from scripts.lib.metrics_collector import MetricsCollector
+```php
+<?php
+declare(strict_types=1);
 
-class BatchProcessor(CLIApp):
-    def initialize(self):
-        super().initialize()
-        self.checkpoint = Checkpoint(name='batch_process')
-        self.metrics = MetricsCollector(service='batch_processor')
+use MokoStandards\Enterprise\Checkpoint;
+use MokoStandards\Enterprise\MetricsCollector;
+
+class BatchProcessor extends CliFramework
+{
+    private Checkpoint $checkpoint;
+    private MetricsCollector $metrics;
     
-    def process_batch(self, items):
-        """Process items with checkpointing"""
+    protected function initialize(): void
+    {
+        parent::initialize();
+        $this->checkpoint = new Checkpoint(name: 'batch_process');
+        $this->metrics = new MetricsCollector(service: 'batch_processor');
+    }
+    
+    protected function processBatch(array $items): bool
+    {
+        $total = count($items);
+        $processed = 0;
+        $failed = 0;
         
-        total = len(items)
-        processed = 0
-        failed = 0
+        $this->logger->info("Processing {$total} items");
         
-        self.logger.info(f"Processing {total} items")
-        
-        for idx, item in enumerate(items, 1):
-            item_id = item['id']
+        foreach ($items as $idx => $item) {
+            $itemId = $item['id'];
+            $current = $idx + 1;
             
-            # Skip if already processed
-            if self.checkpoint.is_completed(item_id):
-                self.logger.debug(f"Skipping {item_id} (completed)")
-                processed += 1
-                continue
+            // Skip if already processed
+            if ($this->checkpoint->isCompleted($itemId)) {
+                $this->logger->debug("Skipping {$itemId} (completed)");
+                $processed++;
+                continue;
+            }
             
-            # Skip if previously failed and not retrying
-            if self.checkpoint.is_failed(item_id) and not self.args.retry_failed:
-                self.logger.debug(f"Skipping {item_id} (failed)")
-                failed += 1
-                continue
+            // Skip if previously failed and not retrying
+            if ($this->checkpoint->isFailed($itemId) && !$this->args->retryFailed) {
+                $this->logger->debug("Skipping {$itemId} (failed)");
+                $failed++;
+                continue;
+            }
             
-            # Process item
-            try:
-                self.logger.info(f"[{idx}/{total}] Processing {item_id}...")
-                result = self.process_item(item)
+            // Process item
+            try {
+                $this->logger->info("[{$current}/{$total}] Processing {$itemId}...");
+                $result = $this->processItem($item);
                 
-                # Mark as completed
-                self.checkpoint.mark_completed(item_id, result)
-                self.metrics.increment('items_processed_success')
-                processed += 1
+                // Mark as completed
+                $this->checkpoint->markCompleted($itemId, $result);
+                $this->metrics->increment('items_processed_success');
+                $processed++;
                 
-            except Exception as e:
-                self.logger.error(f"Failed to process {item_id}: {e}")
-                self.checkpoint.mark_failed(item_id, str(e))
-                self.metrics.increment('items_processed_failure')
-                failed += 1
+            } catch (\Exception $e) {
+                $this->logger->error("Failed to process {$itemId}: {$e->getMessage()}");
+                $this->checkpoint->markFailed($itemId, $e->getMessage());
+                $this->metrics->increment('items_processed_failure');
+                $failed++;
+            }
+        }
         
-        # Print summary
-        self.logger.info(f"\nBatch Summary:")
-        self.logger.info(f"  Total: {total}")
-        self.logger.info(f"  Processed: {processed}")
-        self.logger.info(f"  Failed: {failed}")
+        // Print summary
+        $this->logger->info("\nBatch Summary:");
+        $this->logger->info("  Total: {$total}");
+        $this->logger->info("  Processed: {$processed}");
+        $this->logger->info("  Failed: {$failed}");
         
-        # Check for failed items
-        if self.checkpoint.has_failures():
-            failed_items = self.checkpoint.get_failures()
-            self.logger.warning(f"\n{len(failed_items)} items failed:")
-            for item_id, error in failed_items.items():
-                self.logger.warning(f"  - {item_id}: {error}")
-            self.logger.info("\nRun with --retry-failed to retry failed items")
+        // Check for failed items
+        if ($this->checkpoint->hasFailures()) {
+            $failedItems = $this->checkpoint->getFailures();
+            $failedCount = count($failedItems);
+            $this->logger->warning("\n{$failedCount} items failed:");
+            foreach ($failedItems as $itemId => $error) {
+                $this->logger->warning("  - {$itemId}: {$error}");
+            }
+            $this->logger->info("\nRun with --retry-failed to retry failed items");
+        }
         
-        return failed == 0
+        return $failed === 0;
+    }
+}
 ```
 
 **Exercise**: Create a batch processing script that:
@@ -911,24 +1160,26 @@ class BatchProcessor(CLIApp):
 #### Issue 1: Import Errors
 
 **Problem**:
-```python
-ModuleNotFoundError: No module named 'scripts.lib.enterprise_audit'
+```php
+<?php
+// Fatal error: Class 'MokoStandards\Enterprise\AuditLogger' not found
 ```
 
 **Solution**:
-```python
-# Option 1: Add parent directory to path
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+```php
+<?php
+declare(strict_types=1);
 
-from scripts.lib.enterprise_audit import AuditLogger
+// Option 1: Ensure autoloader is configured properly
+require_once __DIR__ . '/../../vendor/autoload.php';
 
-# Option 2: Use relative imports (if in scripts directory)
-from lib.enterprise_audit import AuditLogger
+use MokoStandards\Enterprise\AuditLogger;
 
-# Option 3: Install as package
-# pip install -e .
+// Option 2: Use relative namespace imports (if in scripts directory)
+use Enterprise\AuditLogger;
+
+// Option 3: Install via Composer
+// composer install
 ```
 
 ---
@@ -938,31 +1189,39 @@ from lib.enterprise_audit import AuditLogger
 **Problem**: Script still hits rate limits despite using API Client.
 
 **Diagnosis**:
-```python
-# Check rate limit status
-status = client.get_rate_limit_status()
-print(f"Rate limit: {status['remaining']}/{status['limit']}")
-print(f"Reset time: {status['reset_time']}")
+```php
+<?php
+declare(strict_types=1);
+
+// Check rate limit status
+$status = $client->getRateLimitStatus();
+echo sprintf("Rate limit: %d/%d\n", $status['remaining'], $status['limit']);
+echo sprintf("Reset time: %s\n", $status['reset_time']);
 ```
 
 **Solution**:
-```python
-# Ensure proper configuration
-rate_config = RateLimitConfig(
-    max_requests_per_hour=5000,  # Match GitHub limits
-    burst_size=100,  # Allow bursts
-    enable_caching=True,  # Cache responses
-    cache_ttl=300  # 5-minute cache
-)
+```php
+<?php
+declare(strict_types=1);
 
-client = GitHubClient(
-    token=token,
-    rate_limit_config=rate_config
-)
+// Ensure proper configuration
+$rateConfig = new RateLimitConfig(
+    maxRequestsPerHour: 5000,  // Match GitHub limits
+    burstSize: 100,  // Allow bursts
+    enableCaching: true,  // Cache responses
+    cacheTtl: 300  // 5-minute cache
+);
 
-# Enable request logging
-import logging
-logging.getLogger('api_client').setLevel(logging.DEBUG)
+$client = new GitHubClient(
+    token: $token,
+    rateLimitConfig: $rateConfig
+);
+
+// Enable request logging
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+$logger = new Logger('api_client');
+$logger->pushHandler(new StreamHandler('php://stderr', Logger::DEBUG));
 ```
 
 ---
@@ -972,16 +1231,20 @@ logging.getLogger('api_client').setLevel(logging.DEBUG)
 **Problem**: Checkpoints reset after script restart.
 
 **Solution**:
-```python
-# Use persistent checkpoint directory
-checkpoint = Checkpoint(
-    name='my_operation',
-    checkpoint_dir='/var/lib/myapp/checkpoints'  # Persistent location
-)
+```php
+<?php
+declare(strict_types=1);
 
-# Ensure directory exists and has correct permissions
-import os
-os.makedirs('/var/lib/myapp/checkpoints', exist_ok=True)
+// Use persistent checkpoint directory
+$checkpoint = new Checkpoint(
+    name: 'my_operation',
+    checkpointDir: '/var/lib/myapp/checkpoints'  // Persistent location
+);
+
+// Ensure directory exists and has correct permissions
+if (!is_dir('/var/lib/myapp/checkpoints')) {
+    mkdir('/var/lib/myapp/checkpoints', 0755, true);
+}
 ```
 
 ---
@@ -991,24 +1254,29 @@ os.makedirs('/var/lib/myapp/checkpoints', exist_ok=True)
 **Problem**: Prometheus export returns empty results.
 
 **Diagnosis**:
-```python
-# Check if metrics are being recorded
-print(f"Counter value: {metrics.get_counter('my_counter')}")
-print(f"All metrics: {metrics.get_all_metrics()}")
+```php
+<?php
+declare(strict_types=1);
+
+// Check if metrics are being recorded
+echo sprintf("Counter value: %d\n", $metrics->getCounter('my_counter'));
+echo sprintf("All metrics: %s\n", json_encode($metrics->getAllMetrics()));
 ```
 
 **Solution**:
-```python
-# Ensure metrics are incremented with correct labels
-metrics.increment('operations_total', labels={'type': 'update'})
+```php
+<?php
+declare(strict_types=1);
 
-# Export with proper formatting
-prometheus_text = metrics.export_prometheus()
-print(prometheus_text)
+// Ensure metrics are incremented with correct labels
+$metrics->increment('operations_total', labels: ['type' => 'update']);
 
-# Write to file for Prometheus scraping
-with open('/var/lib/prometheus/metrics.prom', 'w') as f:
-    f.write(prometheus_text)
+// Export with proper formatting
+$prometheusText = $metrics->exportPrometheus();
+echo $prometheusText;
+
+// Write to file for Prometheus scraping
+file_put_contents('/var/lib/prometheus/metrics.prom', $prometheusText);
 ```
 
 ---
@@ -1018,22 +1286,33 @@ with open('/var/lib/prometheus/metrics.prom', 'w') as f:
 **Problem**: Audit transactions not appearing in logs.
 
 **Solution**:
-```python
-# Ensure transaction is completed
-with logger.transaction('operation') as txn:
-    txn.log_event('step1', {'status': 'complete'})
-    txn.log_event('step2', {'status': 'complete'})
-    # Transaction auto-completes on context exit
+```php
+<?php
+declare(strict_types=1);
 
-# Check log file location
-print(f"Log file: {logger.log_file}")
+// Ensure transaction is completed
+try {
+    $txn = $logger->transaction('operation');
+    try {
+        $txn->logEvent('step1', ['status' => 'complete']);
+        $txn->logEvent('step2', ['status' => 'complete']);
+        // Transaction auto-completes on finally block
+    } finally {
+        $txn->commit();
+    }
+} finally {
+    // Transaction cleanup
+}
 
-# Verify log rotation settings
-logger = AuditLogger(
-    service='my_script',
-    log_dir='/var/log/myapp',
-    retention_days=90
-)
+// Check log file location
+echo sprintf("Log file: %s\n", $logger->getLogFile());
+
+// Verify log rotation settings
+$logger = new AuditLogger(
+    service: 'my_script',
+    logDir: '/var/log/myapp',
+    retentionDays: 90
+);
 ```
 
 ---
@@ -1048,62 +1327,98 @@ logger = AuditLogger(
 
 **Your Task**: Debug and fix the script.
 
-```python
-# Buggy script
-class BuggyScript(CLIApp):
-    def run(self):
-        # BUG: Libraries not initialized
-        repos = self.api.list_repos(org='mokoconsulting-tech')
+```php
+<?php
+declare(strict_types=1);
+
+// Buggy script
+class BuggyScript extends CliFramework
+{
+    protected function run(): int
+    {
+        // BUG: Libraries not initialized
+        $repos = $this->api->listRepos(org: 'mokoconsulting-tech');
         
-        for repo in repos:
-            # BUG: No audit logging
-            # BUG: No checkpoint check
-            self.process_repo(repo)
+        foreach ($repos as $repo) {
+            // BUG: No audit logging
+            // BUG: No checkpoint check
+            $this->processRepo($repo);
             
-            # BUG: Metrics incremented incorrectly
-            self.metrics.increment('repos')
+            // BUG: Metrics incremented incorrectly
+            $this->metrics->increment('repos');
+        }
         
-        # BUG: Transaction never started
-        return 0
+        // BUG: Transaction never started
+        return 0;
+    }
+}
 ```
 
 **Solution**: <details><summary>Click to reveal</summary>
 
-```python
-class FixedScript(CLIApp):
-    def initialize(self):
-        """Initialize all libraries"""
-        super().initialize()
-        self.audit = AuditLogger(service='fixed_script')
-        self.metrics = MetricsCollector(service='fixed_script')
-        self.api = GitHubClient(token=os.getenv('GITHUB_TOKEN'))
-        self.checkpoint = Checkpoint(name='process_repos')
+```php
+<?php
+declare(strict_types=1);
+
+class FixedScript extends CliFramework
+{
+    private AuditLogger $audit;
+    private MetricsCollector $metrics;
+    private GitHubClient $api;
+    private Checkpoint $checkpoint;
     
-    def run(self):
-        with self.audit.transaction('process_repositories') as txn:
-            repos = self.api.list_repos(org='mokoconsulting-tech')
-            txn.log_event('repos_fetched', {'count': len(repos)})
-            
-            for repo in repos:
-                repo_name = repo['name']
+    /**
+     * Initialize all libraries
+     */
+    protected function initialize(): void
+    {
+        parent::initialize();
+        $this->audit = new AuditLogger(service: 'fixed_script');
+        $this->metrics = new MetricsCollector(service: 'fixed_script');
+        $this->api = new GitHubClient(token: getenv('GITHUB_TOKEN') ?: '');
+        $this->checkpoint = new Checkpoint(name: 'process_repos');
+    }
+    
+    protected function run(): int
+    {
+        try {
+            $txn = $this->audit->transaction('process_repositories');
+            try {
+                $repos = $this->api->listRepos(org: 'mokoconsulting-tech');
+                $repoCount = count($repos);
+                $txn->logEvent('repos_fetched', ['count' => $repoCount]);
                 
-                # Check checkpoint
-                if self.checkpoint.is_completed(repo_name):
-                    continue
+                foreach ($repos as $repo) {
+                    $repoName = $repo['name'];
+                    
+                    // Check checkpoint
+                    if ($this->checkpoint->isCompleted($repoName)) {
+                        continue;
+                    }
+                    
+                    try {
+                        $this->processRepo($repo);
+                        $this->checkpoint->markCompleted($repoName);
+                        $this->metrics->increment('repos_processed_success');
+                        $txn->logEvent('repo_processed', ['repo' => $repoName]);
+                    } catch (\Exception $e) {
+                        $this->checkpoint->markFailed($repoName, $e->getMessage());
+                        $this->metrics->increment('repos_processed_failure');
+                        $txn->logEvent('repo_failed', ['repo' => $repoName, 'error' => $e->getMessage()]);
+                    }
+                }
                 
-                try:
-                    self.process_repo(repo)
-                    self.checkpoint.mark_completed(repo_name)
-                    self.metrics.increment('repos_processed_success')
-                    txn.log_event('repo_processed', {'repo': repo_name})
-                except Exception as e:
-                    self.checkpoint.mark_failed(repo_name, str(e))
-                    self.metrics.increment('repos_processed_failure')
-                    txn.log_event('repo_failed', {'repo': repo_name, 'error': str(e)})
-            
-            txn.log_event('complete', {'total': len(repos)})
+                $txn->logEvent('complete', ['total' => $repoCount]);
+            } finally {
+                $txn->commit();
+            }
+        } finally {
+            // Transaction cleanup
+        }
         
-        return 0
+        return 0;
+    }
+}
 ```
 </details>
 

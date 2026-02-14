@@ -202,6 +202,8 @@ echo "Found " . count($report) . " audit events\n";
 declare(strict_types=1);
 
 use MokoStandards\Enterprise\ApiClient;
+use MokoStandards\Enterprise\RateLimitExceeded;
+use MokoStandards\Enterprise\CircuitBreakerOpen;
 
 // Initialize client with rate limiting
 $client = new ApiClient(
@@ -321,7 +323,7 @@ class MyAutomationScript extends CliFramework
 
 // Run the application
 $app = new MyAutomationScript();
-exit($app->run());
+exit($app->execute());
 ```
 
 **Usage**:
@@ -463,11 +465,15 @@ class ApiService
     public function fetchDataFromApi(string $url): array
     {
         // Automatically retries on failure with exponential backoff
-        $response = file_get_contents($url);
-        if ($response === false) {
+        // Uses the ApiClient internally which handles HTTP properly
+        $client = new \GuzzleHttp\Client();
+        $response = $client->get($url);
+        
+        if ($response->getStatusCode() !== 200) {
             throw new RuntimeException('Failed to fetch data');
         }
-        return json_decode($response, true);
+        
+        return json_decode($response->getBody()->getContents(), true);
     }
 }
 

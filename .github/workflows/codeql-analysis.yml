@@ -40,17 +40,13 @@ permissions:
 
 jobs:
   analyze:
-    name: Analyze (${{ matrix.language }})
+    name: Configuration Security Scan
     runs-on: ubuntu-latest
     timeout-minutes: 360
 
-    strategy:
-      fail-fast: false
-      matrix:
-        # MokoStandards is PHP-only (v04.00.00)
-        # JavaScript covers JSON/YAML/shell scripts
-        # Note: CodeQL doesn't support PHP directly, so we use JavaScript for general coverage
-        language: ['javascript']
+    # No language matrix - PHP-only repository
+    # CodeQL scans workflow files, configs, and scripts for security issues
+    # PHP security handled by SecurityValidator enterprise library
 
     steps:
       - name: Checkout repository
@@ -59,19 +55,18 @@ jobs:
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
-          languages: ${{ matrix.language }}
-          # Reference explicit config to prevent Python auto-detection
+          # No languages specified - scan configurations only
+          # Reference explicit config to scan YAML, JSON, shell scripts
           config-file: ./.github/codeql/codeql-config.yml
           # Use security-extended query suite for comprehensive coverage
           queries: security-extended,security-and-quality
 
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
+      # Skip autobuild - no code compilation needed for config scanning
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
-          category: "/language:${{ matrix.language }}"
+          category: "/language:config"
           upload: true
           output: sarif-results
           wait-for-processing: true
@@ -80,7 +75,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.5.0
         with:
-          name: codeql-results-${{ matrix.language }}
+          name: codeql-results-config
           path: sarif-results
           retention-days: 30
 
@@ -89,11 +84,11 @@ jobs:
         run: |
           echo "### 🔍 CodeQL Security Analysis Complete" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Language**: ${{ matrix.language }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Scan Type**: Configuration Security" >> $GITHUB_STEP_SUMMARY
           echo "**Query Suite**: security-extended, security-and-quality" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Note**: MokoStandards is PHP-only (v04.00.00)." >> $GITHUB_STEP_SUMMARY
-          echo "JavaScript scanning covers JSON, YAML, and shell scripts." >> $GITHUB_STEP_SUMMARY
+          echo "This scan analyzes workflow files, JSON configs, YAML, and shell scripts." >> $GITHUB_STEP_SUMMARY
           echo "For PHP-specific security: Use PHP SecurityValidator enterprise library." >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           URL="https://github.com/${{ github.repository }}/security/code-scanning"

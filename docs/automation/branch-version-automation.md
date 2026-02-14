@@ -1,3 +1,5 @@
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Branch and Version Automation - Comprehensive Guide
 
 **Document Version**: 1.0.0  

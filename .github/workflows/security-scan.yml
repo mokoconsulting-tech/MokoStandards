@@ -1,0 +1,310 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.SecurityScan
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/security-scan.yml
+# VERSION: 04.00.00
+# BRIEF: Daily security scanning and report generation
+# NOTE: Enhanced security scanning using PHP SecurityValidator
+
+name: Security Scan
+
+on:
+  schedule:
+    # Run daily at 02:00 UTC
+    - cron: '0 2 * * *'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'scripts/**'
+      - '.github/workflows/**'
+  workflow_dispatch:
+    inputs:
+      scan_type:
+        description: 'Type of security scan'
+        required: false
+        type: choice
+        options:
+          - all
+          - credentials
+          - vulnerabilities
+          - best-practices
+        default: 'all'
+      strict_mode:
+        description: 'Fail on any security issues'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@2cb9b829437ee246e9b3cac53555a39208ca6d28 # v2.31.0
+        with:
+          php-version: '8.1'
+          extensions: mbstring, curl, json
+          tools: composer
+
+      - name: Install Composer Dependencies
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: Create Reports Directory
+        run: |
+          mkdir -p logs/security
+          mkdir -p logs/reports
+
+      - name: Scan for Credentials
+        id: credentials
+        if: github.event.inputs.scan_type == 'all' || github.event.inputs.scan_type == 'credentials' || github.event.inputs.scan_type == ''
+        run: |
+          echo "## 🔐 Credential Scan" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          php << 'EOF'
+          <?php
+          require_once __DIR__ . '/vendor/autoload.php';
+
+          use MokoStandards\Enterprise\SecurityValidator;
+
+          try {
+              $validator = new SecurityValidator();
+              $allFindings = [];
+
+              // Scan PHP files
+              $phpFiles = new RecursiveIteratorIterator(
+                  new RecursiveCallbackFilterIterator(
+                      new RecursiveDirectoryIterator('src', RecursiveDirectoryIterator::SKIP_DOTS),
+                      function ($file, $key, $iterator) {
+                          return $file->isDir() || $file->getExtension() === 'php';
+                      }
+                  )
+              );
+
+              $phpFileCount = 0;
+              foreach ($phpFiles as $file) {
+                  if ($file->isFile()) {
+                      $phpFileCount++;
+                      $findings = $validator->scanFile($file->getPathname(), true, false);
+                      if (!empty($findings)) {
+                          $allFindings = array_merge($allFindings, $findings);
+                      }
+                  }
+              }
+
+              // Scan workflow files
+              $ymlFiles = glob('.github/workflows/*.yml');
+              foreach ($ymlFiles as $filePath) {
+                  $findings = $validator->scanFile($filePath, true, false);
+                  if (!empty($findings)) {
+                      $allFindings = array_merge($allFindings, $findings);
+                  }
+              }
+
+              $totalFiles = $phpFileCount + count($ymlFiles);
+              echo "Scanned {$phpFileCount} PHP files and " . count($ymlFiles) . " workflow files\n";
+              echo "Found " . count($allFindings) . " potential credential issues\n";
+
+              if (!empty($allFindings)) {
+                  echo "\n⚠️ Potential credential issues found:\n";
+                  foreach (array_slice($allFindings, 0, 10) as $finding) {
+                      echo "  - {$finding['file']}: {$finding['issue']}\n";
+                  }
+              } else {
+                  echo "✅ No credential issues found\n";
+              }
+
+              // Save findings
+              file_put_contents('logs/security/credentials-scan.json', json_encode($allFindings, JSON_PRETTY_PRINT));
+
+              $summary = [
+                  'files_scanned' => $totalFiles,
+                  'issues_found' => count($allFindings)
+              ];
+              file_put_contents('/tmp/credential_summary.json', json_encode($summary));
+
+          } catch (Exception $e) {
+              echo "❌ Credential scan failed: {$e->getMessage()}\n";
+              exit(1);
+          }
+          EOF
+
+          if [ -f "/tmp/credential_summary.json" ]; then
+            SUMMARY=$(cat /tmp/credential_summary.json)
+            FILES=$(echo $SUMMARY | php -r 'echo json_decode(file_get_contents("php://stdin"), true)["files_scanned"];')
+            ISSUES=$(echo $SUMMARY | php -r 'echo json_decode(file_get_contents("php://stdin"), true)["issues_found"];')
+
+            echo "files_scanned=$FILES" >> $GITHUB_OUTPUT
+            echo "issues_found=$ISSUES" >> $GITHUB_OUTPUT
+
+            echo "- Files scanned: **${FILES}**" >> $GITHUB_STEP_SUMMARY
+            echo "- Issues found: **${ISSUES}**" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Vulnerability Scan
+        id: vulnerabilities
+        if: github.event.inputs.scan_type == 'all' || github.event.inputs.scan_type == 'vulnerabilities' || github.event.inputs.scan_type == ''
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 🛡️ Vulnerability Scan" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          php << 'EOF'
+          <?php
+          require_once __DIR__ . '/vendor/autoload.php';
+
+          use MokoStandards\Enterprise\SecurityValidator;
+
+          try {
+              $validator = new SecurityValidator();
+              $vulnerabilities = [];
+
+              // Scan for dangerous functions
+              $phpFiles = new RecursiveIteratorIterator(
+                  new RecursiveCallbackFilterIterator(
+                      new RecursiveDirectoryIterator('src', RecursiveDirectoryIterator::SKIP_DOTS),
+                      function ($file, $key, $iterator) {
+                          return $file->isDir() || $file->getExtension() === 'php';
+                      }
+                  )
+              );
+
+              $phpFileCount = 0;
+              foreach ($phpFiles as $file) {
+                  if ($file->isFile()) {
+                      $phpFileCount++;
+                      $findings = $validator->scanFile($file->getPathname(), false, true);
+                      if (!empty($findings)) {
+                          $vulnerabilities = array_merge($vulnerabilities, $findings);
+                      }
+                  }
+              }
+
+              echo "Scanned {$phpFileCount} PHP files\n";
+              echo "Found " . count($vulnerabilities) . " potential vulnerabilities\n";
+
+              if (!empty($vulnerabilities)) {
+                  echo "\n⚠️ Potential vulnerabilities found:\n";
+                  foreach (array_slice($vulnerabilities, 0, 10) as $vuln) {
+                      echo "  - {$vuln['file']}: {$vuln['issue']}\n";
+                  }
+              } else {
+                  echo "✅ No vulnerabilities found\n";
+              }
+
+              // Save findings
+              file_put_contents('logs/security/vulnerabilities-scan.json', json_encode($vulnerabilities, JSON_PRETTY_PRINT));
+
+              $summary = ['vulnerabilities_found' => count($vulnerabilities)];
+              file_put_contents('/tmp/vuln_summary.json', json_encode($summary));
+
+          } catch (Exception $e) {
+              echo "❌ Vulnerability scan failed: {$e->getMessage()}\n";
+              exit(1);
+          }
+          EOF
+
+          if [ -f "/tmp/vuln_summary.json" ]; then
+            SUMMARY=$(cat /tmp/vuln_summary.json)
+            VULNS=$(echo $SUMMARY | php -r 'echo json_decode(file_get_contents("php://stdin"), true)["vulnerabilities_found"];')
+
+            echo "vulnerabilities_found=$VULNS" >> $GITHUB_OUTPUT
+            echo "- Vulnerabilities found: **${VULNS}**" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Generate Security Report
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📋 Security Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          php << 'EOF'
+          <?php
+          require_once __DIR__ . '/vendor/autoload.php';
+
+          try {
+              $report = [
+                  'scan_date' => date('c'),
+                  'scan_type' => '${{ github.event.inputs.scan_type }}' ?: 'all',
+                  'repository' => 'MokoStandards',
+                  'results' => []
+              ];
+
+              // Load credential scan results
+              $credFile = 'logs/security/credentials-scan.json';
+              if (file_exists($credFile)) {
+                  $report['results']['credentials'] = json_decode(file_get_contents($credFile), true);
+              }
+
+              // Load vulnerability scan results
+              $vulnFile = 'logs/security/vulnerabilities-scan.json';
+              if (file_exists($vulnFile)) {
+                  $report['results']['vulnerabilities'] = json_decode(file_get_contents($vulnFile), true);
+              }
+
+              // Calculate summary
+              $totalIssues = 0;
+              foreach ($report['results'] as $issues) {
+                  if (is_array($issues)) {
+                      $totalIssues += count($issues);
+                  }
+              }
+
+              $report['summary'] = [
+                  'total_issues' => $totalIssues,
+                  'credential_issues' => count($report['results']['credentials'] ?? []),
+                  'vulnerabilities' => count($report['results']['vulnerabilities'] ?? [])
+              ];
+
+              // Save report
+              file_put_contents('logs/reports/security-report.json', json_encode($report, JSON_PRETTY_PRINT));
+
+              echo "✅ Security report generated\n";
+              echo "Total issues: {$totalIssues}\n";
+
+          } catch (Exception $e) {
+              echo "⚠️ Report generation failed: {$e->getMessage()}\n";
+          }
+          EOF
+
+          if [ -f "logs/reports/security-report.json" ]; then
+            echo "✅ Security report generated" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload Security Report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: security-report-${{ github.run_number }}
+          path: |
+            logs/security/
+            logs/reports/security-report.json
+          retention-days: 90
+
+      - name: Check Strict Mode
+        if: github.event.inputs.strict_mode == 'true'
+        run: |
+          ISSUES=$(cat logs/reports/security-report.json | php -r 'echo json_decode(file_get_contents("php://stdin"), true)["summary"]["total_issues"];')
+          if [ "$ISSUES" -gt "0" ]; then
+            echo "❌ Security issues found in strict mode" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+      - name: Notify on Failure
+        if: failure()
+        run: |
+          echo "❌ Security scan failed or found critical issues" >> $GITHUB_STEP_SUMMARY
+          echo "Please review the security report" >> $GITHUB_STEP_SUMMARY

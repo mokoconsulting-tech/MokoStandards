@@ -27,6 +27,8 @@ VERSION: 03.01.03
 BRIEF: Standards for copyright headers, file information, and document metadata
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # File Header Standards Policy
 
 ## Purpose

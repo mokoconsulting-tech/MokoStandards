@@ -12,6 +12,8 @@ VERSION: 03.01.03
 BRIEF: Complete inventory of GitHub Actions workflows for migration planning
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # GitHub Actions Workflow Inventory
 
 ## Overview

@@ -27,6 +27,8 @@ VERSION: 03.01.03
 BRIEF: Complete inventory of all Moko Consulting organization repositories coupled to MokoStandards
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Repository Inventory
 
 ## Purpose

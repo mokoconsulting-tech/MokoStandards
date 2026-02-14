@@ -1,0 +1,123 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.Security
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/codeql-analysis.yml
+# VERSION: 04.00.00
+# BRIEF: CodeQL security scanning workflow for PHP codebase
+# NOTE: Repository is PHP-only (v04.00.00). Python was removed Feb 12, 2026.
+
+name: "CodeQL Security Scanning"
+
+on:
+  push:
+    branches:
+      - main
+      - dev/**
+      - rc/**
+      - version/**
+  pull_request:
+    branches:
+      - main
+      - dev/**
+      - rc/**
+  schedule:
+    # Run weekly on Monday at 6:00 AM UTC
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+  pull-requests: read
+
+jobs:
+  analyze:
+    name: Configuration Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+
+    # No language matrix - PHP-only repository
+    # CodeQL scans workflow files, configs, and scripts for security issues
+    # PHP security handled by SecurityValidator enterprise library
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          # No languages specified - scan configurations only
+          # Reference explicit config to scan YAML, JSON, shell scripts
+          config-file: ./.github/codeql/codeql-config.yml
+          # Use security-extended query suite for comprehensive coverage
+          queries: security-extended,security-and-quality
+
+      # Skip autobuild - no code compilation needed for config scanning
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:config"
+          upload: true
+          output: sarif-results
+          wait-for-processing: true
+
+      - name: Upload SARIF results (optional)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.5.0
+        with:
+          name: codeql-results-config
+          path: sarif-results
+          retention-days: 30
+
+      - name: Check for Critical/High Findings
+        if: always()
+        run: |
+          echo "### 🔍 CodeQL Security Analysis Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Scan Type**: Configuration Security" >> $GITHUB_STEP_SUMMARY
+          echo "**Query Suite**: security-extended, security-and-quality" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Note**: MokoStandards is PHP-only (v04.00.00)." >> $GITHUB_STEP_SUMMARY
+          echo "This scan analyzes workflow files, JSON configs, YAML, and shell scripts." >> $GITHUB_STEP_SUMMARY
+          echo "For PHP-specific security: Use PHP SecurityValidator enterprise library." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          URL="https://github.com/${{ github.repository }}/security/code-scanning"
+          echo "Check the [Security tab]($URL) for detailed findings." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Response Requirements**:" >> $GITHUB_STEP_SUMMARY
+          echo "- Critical: Fix within 7 days" >> $GITHUB_STEP_SUMMARY
+          echo "- High: Fix within 14 days" >> $GITHUB_STEP_SUMMARY
+          echo "- Medium: Fix within 30 days" >> $GITHUB_STEP_SUMMARY
+          echo "- Low: Fix within 60 days or next release" >> $GITHUB_STEP_SUMMARY
+
+  summary:
+    name: Security Scan Summary
+    runs-on: ubuntu-latest
+    needs: analyze
+    if: always()
+
+    steps:
+      - name: Generate Summary
+        run: |
+          echo "### 🛡️ Security Scanning Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "All CodeQL security scans have completed." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          SECURITY_URL="https://github.com/${{ github.repository }}/security"
+          echo "📊 [View all security alerts]($SECURITY_URL)" >> $GITHUB_STEP_SUMMARY
+          POLICY_URL="https://github.com/${{ github.repository }}"
+          POLICY_URL="${POLICY_URL}/blob/main/docs/policy/security-scanning.md"
+          echo "📋 [Security scanning policy]($POLICY_URL)" >> $GITHUB_STEP_SUMMARY

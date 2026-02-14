@@ -27,6 +27,8 @@ VERSION: 03.01.03
 BRIEF: Client deployment policy and procedures for MokoCRM
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # MokoCRM Client Deployment Policy
 
 ## Purpose

@@ -27,6 +27,8 @@ VERSION: 03.01.03
 BRIEF: Guide for automatic CHANGELOG synchronization in Dolibarr modules
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # CHANGELOG Synchronization for Dolibarr Modules
 
 ## Overview

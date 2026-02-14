@@ -4,6 +4,44 @@ This directory contains comprehensive validation and verification scripts for co
 
 ## Core Validation Scripts
 
+### check_enterprise_readiness.py
+**NEW in v04.00.00** - Enterprise readiness validator that checks if a repository meets all enterprise compliance requirements.
+
+**Features:**
+- Validates 10 enterprise libraries presence
+- Checks 5 enterprise workflows
+- Verifies Terraform installation scripts
+- Validates version badges in documentation
+- Checks MokoStandards.override.tf configuration
+- Validates enterprise metadata in configs
+- Checks monitoring directory structure
+- Returns 0-100% readiness score
+- Provides actionable recommendations
+
+**Usage:**
+```bash
+# Check current repository
+python scripts/validate/check_enterprise_readiness.py
+
+# Check specific repository
+python scripts/validate/check_enterprise_readiness.py --path /path/to/repo
+
+# Verbose output with details
+python scripts/validate/check_enterprise_readiness.py --verbose
+
+# JSON output for programmatic use
+python scripts/validate/check_enterprise_readiness.py --json
+
+# Check and get exit code
+python scripts/validate/check_enterprise_readiness.py
+echo $?  # 0 = ready (≥80%), 1 = not ready (<80%), 2 = error
+```
+
+**Exit Codes:**
+- `0` - Repository is enterprise-ready (≥80% score)
+- `1` - Repository is not enterprise-ready (<80% score)
+- `2` - Error during checking
+
 ### check_repo_health.py
 Comprehensive repository health check covering structure, documentation, workflows, and compliance.
 

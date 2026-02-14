@@ -1,3 +1,5 @@
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Public Architecture Guide
 
 This document describes the public-facing architecture patterns and best practices used in MokoStandards for building maintainable, scalable open-source projects.
@@ -551,7 +553,7 @@ Improvements to this architecture are welcome! Please:
 | Owner          | Moko Consulting                                          |
 | Repo           | https://github.com/mokoconsulting-tech/                                      |
 | Path           | /docs/guide/PUBLIC_ARCHITECTURE.md                                      |
-| Version        | 03.00.00                                 |
+| Version        | 04.00.00                                 |
 | Status         | Active                                         |
 | Last Reviewed  | 2026-01-28                                  |
 | Reviewed By    | Documentation Team                                    |
@@ -561,4 +563,4 @@ Improvements to this architecture are welcome! Please:
 
 | Date       | Author          | Change                                       | Notes                                              |
 | ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
-| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 03.00.00 with all required fields |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 04.00.00 with all required fields |

@@ -1,3 +1,5 @@
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Docs Index: /docs/schemas
 
 ## Purpose

@@ -27,6 +27,8 @@ VERSION: 03.01.03
 BRIEF: Standards and requirements for automation scripts and tooling
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Scripting Standards Policy
 
 ## Purpose

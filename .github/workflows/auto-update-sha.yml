@@ -5,7 +5,7 @@
 # INGROUP: MokoStandards.Automation
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/auto-update-sha.yml
-# VERSION: 03.01.03
+# VERSION: 04.00.00
 # BRIEF: Automatically update SHA-256 hashes after merge to main
 # NOTE: Ensures security verification hashes stay synchronized with file changes
 
@@ -78,7 +78,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
-        uses: actions/setup-python@v6
         with:
           python-version: '3.x'
 

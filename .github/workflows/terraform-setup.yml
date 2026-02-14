@@ -1,0 +1,75 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# FILE INFORMATION
+# DEFGROUP: MokoStandards.Workflows
+# INGROUP: MokoStandards.Automation
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/terraform-setup.yml
+# VERSION: 03.02.00
+# BRIEF: Reusable workflow for setting up Terraform in any repository
+
+name: Setup Terraform
+
+on:
+  workflow_call:
+    inputs:
+      terraform_version:
+        description: 'Terraform version to install'
+        required: false
+        type: string
+        default: '1.7.4'
+
+      working_directory:
+        description: 'Working directory for Terraform commands'
+        required: false
+        type: string
+        default: '.'
+
+jobs:
+  setup:
+    name: Setup Terraform
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+        with:
+          terraform_version: ${{ inputs.terraform_version }}
+
+      - name: Verify Terraform installation
+        env:
+          TERRAFORM_VERSION: ${{ inputs.terraform_version }}
+        run: |
+          terraform version
+          echo "✓ Terraform $TERRAFORM_VERSION is installed"
+
+      - name: Initialize Terraform
+        if: inputs.working_directory != '.'
+        working-directory: ${{ inputs.working_directory }}
+        run: |
+          if [ -f "main.tf" ] || [ -f "*.tf" ]; then
+            echo "Initializing Terraform..."
+            terraform init -backend=false
+            echo "✓ Terraform initialized"
+          else
+            echo "No Terraform files found, skipping initialization"
+          fi
+
+      - name: Validate Terraform configuration
+        if: inputs.working_directory != '.'
+        working-directory: ${{ inputs.working_directory }}
+        run: |
+          if [ -f "main.tf" ] || [ -f "*.tf" ]; then
+            echo "Validating Terraform configuration..."
+            terraform validate
+            echo "✓ Terraform configuration is valid"
+          else
+            echo "No Terraform files found, skipping validation"
+          fi

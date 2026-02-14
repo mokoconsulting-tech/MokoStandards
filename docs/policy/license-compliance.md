@@ -1,3 +1,5 @@
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # License Compliance
 
 **Status**: Active | **Version**: 01.00.00 | **Effective**: 2026-01-07

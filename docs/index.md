@@ -1,3 +1,5 @@
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # MokoStandards Documentation Catalog
 
 This is a comprehensive catalog of all documentation in the MokoStandards repository.

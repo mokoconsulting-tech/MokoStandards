@@ -1,0 +1,54 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.CodeQL
+# INGROUP: MokoStandards.Security
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/codeql/codeql-config.yml
+# VERSION: 04.00.00
+# BRIEF: CodeQL configuration for PHP-only repository
+# NOTE: Explicitly disables Python scanning. Repository is PHP-only (v04.00.00).
+
+# Explicitly configure languages to prevent auto-detection
+# MokoStandards is PHP-only - Python was removed Feb 12, 2026
+name: "CodeQL Config for MokoStandards"
+
+# Disable all languages except JavaScript
+# JavaScript is used to scan JSON, YAML, and shell scripts
+# Note: CodeQL doesn't support PHP directly
+disable-default-queries: false
+
+# Query selection
+queries:
+  - uses: security-extended
+  - uses: security-and-quality
+
+# Path filters - exclude files that don't need scanning
+paths-ignore:
+  - '**/vendor/**'
+  - '**/node_modules/**'
+  - '**/*.min.js'
+  - '**/*.min.css'
+  - '**/dist/**'
+  - '**/build/**'
+  - '**/logs/**'
+  - '**/.git/**'
+
+# Paths to scan
+paths:
+  - '.github/**'
+  - 'composer.json'
+  - 'package.json'
+  - '**/*.json'
+  - '**/*.yml'
+  - '**/*.yaml'
+  - '**/*.sh'
+  - '**/*.bash'
+
+# PHP-specific note:
+# For PHP security scanning, use the SecurityValidator enterprise library
+# located in src/Enterprise/SecurityValidator.php

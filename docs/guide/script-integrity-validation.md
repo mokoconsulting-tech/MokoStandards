@@ -1,3 +1,5 @@
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Comprehensive Script Integrity Validation System
 
 ## Overview
@@ -124,9 +126,9 @@ Automated validation on every PR and push.
 - `scripts/tests/` - Test scripts
 
 ### Low Priority
-**Generated wrappers and libraries:**
+**Generated wrappers and supporting libraries:**
 - `scripts/wrappers/` - Wrapper scripts (often generated)
-- `scripts/lib/` - Library modules
+- Supporting library modules
 
 ## Workflows
 

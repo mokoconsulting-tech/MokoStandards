@@ -3,16 +3,20 @@
 
 locals {
   # Metadata for this configuration
+  # Enterprise-ready: Includes audit logging, monitoring, and compliance features
   config_metadata = {
-    name           = "MokoStandards Repository Schemas"
-    description    = "Terraform configuration for repository structure schemas and type definitions"
-    version        = "2.0.0"
-    last_updated   = "2026-01-28"
-    maintainer     = "MokoStandards Team"
-    schema_version = "2.0"
-    repository_url = "https://github.com/mokoconsulting-tech/MokoStandards"
-    repository_type = "standards"
-    format          = "terraform"
+    name              = "MokoStandards Repository Schemas"
+    description       = "Terraform configuration for repository structure schemas and type definitions"
+    version           = "04.00.00"
+    last_updated      = "2026-02-11"
+    maintainer        = "MokoStandards Team"
+    schema_version    = "2.0"
+    repository_url    = "https://github.com/mokoconsulting-tech/MokoStandards"
+    repository_type   = "standards"
+    format            = "terraform"
+    enterprise_ready  = true
+    monitoring_enabled = true
+    audit_logging     = true
   }
 }
 

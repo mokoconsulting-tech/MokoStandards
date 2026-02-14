@@ -6,6 +6,8 @@ This file is part of MokoStandards.
 For full license text, see LICENSE file in repository root.
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # GitHub Copilot Usage Guide
 
 ## Metadata
@@ -19,7 +21,7 @@ For full license text, see LICENSE file in repository root.
 | **Owner** | Development Team |
 | **Repo** | MokoStandards |
 | **Path** | docs/guide/copilot-usage-guide.md |
-| **VERSION** | 03.00.00 |
+| **VERSION** | 04.00.00 |
 | **Status** | Active |
 | **Last Reviewed** | 2026-01-28 |
 | **Reviewed By** | Development Team |
@@ -28,7 +30,7 @@ For full license text, see LICENSE file in repository root.
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
-| 03.00.00 | 2026-01-28 | Development Team | Initial creation of Copilot usage guide |
+| 04.00.00 | 2026-01-28 | Development Team | Initial creation of Copilot usage guide |
 
 ---
 

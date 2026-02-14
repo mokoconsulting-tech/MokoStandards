@@ -5,9 +5,9 @@
 # INGROUP: MokoStandards.Automation
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/bulk-repo-sync.yml
-# VERSION: 03.01.03
+# VERSION: 04.00.00
 # BRIEF: Monthly automation to sync workflows, scripts, and configurations to organization repositories
-# NOTE: Runs bulk_update_repos.py (v2) script to deploy MokoStandards to all org repos
+# NOTE: Runs bulk_update_repos.php script to deploy MokoStandards to all org repos
 # NOTE: Now uses Terraform format (MokoStandards.override.tf) for override configuration
 
 name: Bulk Repository Sync
@@ -96,7 +96,7 @@ on:
 # mokoconsulting-tech organization.
 #
 # IMPORTANT: This workflow ALWAYS uses the mokoconsulting-tech organization.
-# It cannot sync to other organizations. The bulk_update_repos.py script
+# It cannot sync to other organizations. The bulk_update_repos.php script
 # defaults to mokoconsulting-tech and this workflow does not override it.
 #
 # MANUAL TRIGGER OPTIONS:
@@ -143,18 +143,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
-
-      - name: Setup Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.11'
-
-      - name: Install Python dependencies
-        run: |
-          set -x
-          python -m pip install --upgrade pip
-          echo "## 📦 Python Dependencies Installed" >> $GITHUB_STEP_SUMMARY
-          echo "- No additional dependencies required (Terraform override parsing uses built-in regex)" >> $GITHUB_STEP_SUMMARY
 
       - name: Setup GitHub CLI
         run: |
@@ -205,7 +193,7 @@ jobs:
             MISSING_FILES+=("scripts/validate/auto_detect_platform.py")
           fi
 
-          # Check for schema definition files required by bulk_update_repos.py
+          # Check for schema definition files required by bulk_update_repos.php
           if [ ! -f "scripts/definitions/crm-module.xml" ]; then
             MISSING_FILES+=("scripts/definitions/crm-module.xml")
           fi
@@ -263,7 +251,7 @@ jobs:
           echo "**Arguments:** \`$ARGS\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          if python3 scripts/automation/bulk_update_repos.py $ARGS 2>&1 | tee /tmp/bulk_update.log; then
+          if php scripts/automation/bulk_update_repos.php $ARGS 2>&1 | tee /tmp/bulk_update.log; then
             echo "### ✅ Dry Run Completed Successfully" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "Review the logs above to see what changes would be made." >> $GITHUB_STEP_SUMMARY
@@ -319,7 +307,7 @@ jobs:
           fi
 
           # Run the script with automatic confirmation via --yes flag
-          if python3 scripts/automation/bulk_update_repos.py $ARGS 2>&1 | tee /tmp/bulk_update.log; then
+          if php scripts/automation/bulk_update_repos.php $ARGS 2>&1 | tee /tmp/bulk_update.log; then
             echo "### ✅ Bulk Update Completed Successfully" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "All repositories have been updated with the latest standards." >> $GITHUB_STEP_SUMMARY
@@ -392,10 +380,10 @@ jobs:
             3. Verify repository accessibility
             4. Check GitHub API rate limit status
             5. Re-run the workflow manually if it was a transient issue
-            6. Update the bulk_update_repos.py script if there's a bug
+            6. Update the bulk_update_repos.php script if there's a bug
 
             ### 📚 Resources
-            - [Bulk Sync Script](scripts/automation/bulk_update_repos.py)
+            - [Bulk Sync Script](scripts/automation/bulk_update_repos.php)
             - [Workflow Configuration](.github/workflows/bulk-repo-sync.yml)
             - [MokoStandards Documentation](https://github.com/mokoconsulting-tech/MokoStandards)
 

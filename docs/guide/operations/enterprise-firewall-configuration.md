@@ -1,3 +1,5 @@
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Enterprise Firewall Configuration for License Sources
 
 ## Overview
@@ -438,7 +440,7 @@ curl -k https://www.gnu.org
 | Owner          | Moko Consulting                                          |
 | Repo           | https://github.com/mokoconsulting-tech/                                      |
 | Path           | /docs/guide/operations/enterprise-firewall-configuration.md                                      |
-| Version        | 03.00.00                                 |
+| Version        | 04.00.00                                 |
 | Status         | Active                                         |
 | Last Reviewed  | 2026-01-28                                  |
 | Reviewed By    | Documentation Team                                    |
@@ -448,4 +450,4 @@ curl -k https://www.gnu.org
 
 | Date       | Author          | Change                                       | Notes                                              |
 | ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
-| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 03.00.00 with all required fields |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 04.00.00 with all required fields |

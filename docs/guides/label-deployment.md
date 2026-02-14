@@ -1,3 +1,5 @@
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Label Deployment Guide
 
 This guide explains how to deploy standard labels to all repositories in the Moko Consulting organization.

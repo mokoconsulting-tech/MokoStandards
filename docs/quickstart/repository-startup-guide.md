@@ -403,6 +403,8 @@ cat > site/manifest.xml << 'EOF'
     <description>COM_YOURCOMPONENT_XML_DESCRIPTION</description>
 
     <!-- Site files -->
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
     <files folder="site">
         <filename>controller.php</filename>
         <folder>controllers</folder>

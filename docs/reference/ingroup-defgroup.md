@@ -1,3 +1,5 @@
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # InGroup and DefGroup Parameters
 
 **Purpose**: Standardized metadata system for categorizing and grouping scripts, workflows, and documentation in MokoStandards.

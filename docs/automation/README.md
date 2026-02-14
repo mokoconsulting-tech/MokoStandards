@@ -1,3 +1,5 @@
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Automation Documentation
 
 Documentation for all automation systems deployed across MokoStandards organization repositories.
@@ -35,8 +37,6 @@ Comprehensive guide covering all automation scripts, terraform distribution, and
 
 ### Technical Reference
 - [Terraform Distribution](../../terraform/repository-management/VERSION_BUMP_DISTRIBUTION.md)
-- [Common Utilities](../scripts/lib/common-py.md)
-- [Version Bump Detector API](../scripts/lib/version-bump-detector.md)
 
 ## Quick Start
 

@@ -12,6 +12,8 @@ VERSION: 03.01.03
 BRIEF: Guide for implementing security scanning in org repositories
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Security Scanning Implementation Guide
 
 **Version**: 01.00.00 | **Status**: Active | **Last Updated**: 2026-01-28

@@ -23,21 +23,24 @@ DEFGROUP: MokoStandards.Guide
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/guide/terraform-override-files.md
-VERSION: 03.01.03
+VERSION: 04.00.00
 BRIEF: Guide for using MokoStandards.override.tf files to control bulk sync behavior
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Terraform Override Files - Complete Guide
 
-**Version**: 1.0.0  
+**Version**: 2.0.0  
 **Status**: Active  
-**Last Updated**: 2026-02-08
+**Last Updated**: 2026-02-11
 
 ## Table of Contents
 
 - [Overview](#overview)
 - [What is MokoStandards.override.tf?](#what-is-mokostandardsoverridetf)
 - [Why Use Override Files?](#why-use-override-files)
+- [Enterprise Library Integration](#enterprise-library-integration)
 - [File Structure](#file-structure)
 - [Key Features](#key-features)
 - [Usage Examples](#usage-examples)
@@ -51,12 +54,15 @@ BRIEF: Guide for using MokoStandards.override.tf files to control bulk sync beha
 
 The `MokoStandards.override.tf` file is a **Terraform-based configuration file** that controls how the bulk repository sync tool synchronizes standards, workflows, and scripts from MokoStandards to your repository.
 
+**New in Version 2.0**: Support for enterprise library integration and new monitoring workflows (audit-log-archival, metrics-collection, health-check, security-scan, integration-tests).
+
 ### Key Benefits
 
 ✅ **Explicit Platform Control** - Specify your repository type to skip auto-detection  
 ✅ **File Exclusion** - Prevent specific files from being synced  
 ✅ **File Protection** - Protect files from being overwritten  
 ✅ **Cleanup Configuration** - Control how obsolete files are handled  
+✅ **Enterprise Library Support** - Control sync of enterprise audit, metrics, and monitoring features  
 ✅ **Self-Documenting** - Terraform format is readable and version-controlled
 
 ---
@@ -101,6 +107,66 @@ With an override file, you can:
 - **Exclude unwanted workflows** or scripts
 - **Protect custom files** from being overwritten
 - **Control cleanup behavior** (conservative, aggressive, none)
+- **Enable/disable enterprise features** (audit logging, metrics collection, monitoring)
+
+---
+
+## Enterprise Library Integration
+
+**New in Version 03.02.00**: MokoStandards now includes enterprise-grade libraries and monitoring workflows.
+
+### Available Enterprise Features
+
+#### 1. Enterprise Libraries (src/Enterprise/)
+- **EnterpriseAudit.php** - Transaction tracking and security event logging
+- **ApiClient.php** - Rate limiting, circuit breaker, and response caching
+- **ErrorRecovery.php** - Automatic retry, checkpointing, and state recovery
+- **MetricsCollector.php** - Prometheus-compatible metrics collection
+- **TransactionManager.php** - Atomic operations with rollback support
+- **CliFramework.php** - Standardized CLI with common arguments
+
+#### 2. Monitoring Workflows
+- **audit-log-archival.yml** - Weekly audit log archival and compliance reports
+- **metrics-collection.yml** - Daily metrics collection and trend analysis
+- **health-check.yml** - Hourly health monitoring and circuit breaker testing
+- **security-scan.yml** - Daily enhanced security scanning
+- **integration-tests.yml** - Enterprise library integration testing
+
+### Controlling Enterprise Features
+
+Use the override file to protect or exclude enterprise workflows:
+
+```hcl
+# Exclude enterprise workflows if not needed
+exclude_files = [
+  {
+    path   = ".github/workflows/audit-log-archival.yml"
+    reason = "Custom audit solution in place"
+  },
+  {
+    path   = ".github/workflows/metrics-collection.yml"
+    reason = "Using external monitoring service"
+  },
+]
+
+# Protect enterprise workflows from updates
+protected_files = [
+  {
+    path   = ".github/workflows/health-check.yml"
+    reason = "Customized health check configuration"
+  },
+]
+```
+
+### Integration Status
+
+The following critical operations have been enhanced with enterprise libraries:
+- ✅ Bulk repository updates - Audit, API client, error recovery, metrics
+- ✅ Organization project creation - Audit, API client, metrics
+- ✅ Branch maintenance - Audit, metrics
+- ✅ Release management - Transaction management, audit, error recovery
+
+See [docs/planning/README.md](../planning/README.md) for the complete enterprise transformation roadmap.
 
 ---
 
@@ -601,7 +667,7 @@ Before committing your override file:
 For questions or issues with override files:
 
 1. Review this documentation
-2. Check [bulk_update_repos.py](../../scripts/automation/bulk_update_repos.py) source code
+2. Check the bulk repository update documentation
 3. Open an issue in [MokoStandards](https://github.com/mokoconsulting-tech/MokoStandards/issues)
 4. Contact the MokoStandards team
 

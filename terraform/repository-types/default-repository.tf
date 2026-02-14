@@ -5,16 +5,20 @@
 
 locals {
   # Metadata for this configuration
+  # Enterprise-ready: Includes audit logging, monitoring, and compliance features
   config_metadata = {
-    name            = "Repository Type Default Repository"
-    description     = "Default repository structure and configuration schema definitions"
-    version         = "2.0.0"
-    last_updated    = "2026-01-28"
-    maintainer      = "MokoStandards Team"
-    schema_version  = "2.0"
-    repository_url  = "https://github.com/mokoconsulting-tech/MokoStandards"
-    repository_type = "standards"
-    format          = "terraform"
+    name              = "Repository Type Default Repository"
+    description       = "Default repository structure and configuration schema definitions"
+    version           = "04.00.00"
+    last_updated      = "2026-02-12"
+    maintainer        = "MokoStandards Team"
+    schema_version    = "2.0"
+    repository_url    = "https://github.com/mokoconsulting-tech/MokoStandards"
+    repository_type   = "standards"
+    format            = "terraform"
+    enterprise_ready  = true
+    monitoring_enabled = true
+    audit_logging     = true
   }
 }
 
@@ -339,6 +343,97 @@ locals {
           source_template    = "scripts/release/package_extension.py"
           always_overwrite   = true
           purpose            = "Packages extensions for distribution"
+        }
+        # Enterprise library definitions for audit, validation, metrics
+        enterprise_audit = {
+          name               = "enterprise_audit.py"
+          path               = "scripts/lib/enterprise_audit.py"
+          description        = "Enterprise audit logging and compliance tracking"
+          requirement_status = "required"
+          source_template    = "scripts/lib/enterprise_audit.py"
+          always_overwrite   = true
+          purpose            = "Provides audit trail for all operations"
+        }
+        api_client = {
+          name               = "api_client.py"
+          path               = "scripts/lib/api_client.py"
+          description        = "API client with retry and authentication"
+          requirement_status = "required"
+          source_template    = "scripts/lib/api_client.py"
+          always_overwrite   = true
+          purpose            = "Centralized API communication"
+        }
+        config_manager = {
+          name               = "config_manager.py"
+          path               = "scripts/lib/config_manager.py"
+          description        = "Configuration management and validation"
+          requirement_status = "required"
+          source_template    = "scripts/lib/config_manager.py"
+          always_overwrite   = true
+          purpose            = "Manages configuration files and settings"
+        }
+        error_recovery = {
+          name               = "error_recovery.py"
+          path               = "scripts/lib/error_recovery.py"
+          description        = "Error recovery and rollback mechanisms"
+          requirement_status = "required"
+          source_template    = "scripts/lib/error_recovery.py"
+          always_overwrite   = true
+          purpose            = "Handles failures with automatic recovery"
+        }
+        input_validator = {
+          name               = "input_validator.py"
+          path               = "scripts/lib/input_validator.py"
+          description        = "Input validation and sanitization"
+          requirement_status = "required"
+          source_template    = "scripts/lib/input_validator.py"
+          always_overwrite   = true
+          purpose            = "Validates and sanitizes all inputs"
+        }
+        metrics_collector = {
+          name               = "metrics_collector.py"
+          path               = "scripts/lib/metrics_collector.py"
+          description        = "Metrics collection and reporting"
+          requirement_status = "required"
+          source_template    = "scripts/lib/metrics_collector.py"
+          always_overwrite   = true
+          purpose            = "Collects performance and operational metrics"
+        }
+        transaction_manager = {
+          name               = "transaction_manager.py"
+          path               = "scripts/lib/transaction_manager.py"
+          description        = "Transaction management for atomic operations"
+          requirement_status = "required"
+          source_template    = "scripts/lib/transaction_manager.py"
+          always_overwrite   = true
+          purpose            = "Ensures atomic multi-step operations"
+        }
+        security_validator = {
+          name               = "security_validator.py"
+          path               = "scripts/lib/security_validator.py"
+          description        = "Security validation and vulnerability scanning"
+          requirement_status = "required"
+          source_template    = "scripts/lib/security_validator.py"
+          always_overwrite   = true
+          purpose            = "Validates security compliance"
+        }
+        unified_validation = {
+          name               = "unified_validation.py"
+          path               = "scripts/lib/unified_validation.py"
+          description        = "Unified validation framework"
+          requirement_status = "required"
+          source_template    = "scripts/lib/unified_validation.py"
+          always_overwrite   = true
+          purpose            = "Centralized validation for all scripts"
+        }
+        cli_framework = {
+          name               = "cli_framework.py"
+          path               = "scripts/lib/cli_framework.py"
+          description        = "CLI framework for standardized command interfaces"
+          requirement_status = "required"
+          source_template    = "scripts/lib/cli_framework.py"
+          always_overwrite   = true
+          purpose            = "Provides standardized CLI for all tools"
         }
       }
     }

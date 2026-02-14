@@ -2,7 +2,53 @@
 
 This directory contains scripts for automating repository management and bulk operations across the MokoStandards organization.
 
-## Scripts
+## Enterprise Setup and Management
+
+### setup_enterprise_repo.py
+**NEW in v04.00.00** - Automated enterprise repository setup and configuration.
+
+**Features:**
+- Checks for missing enterprise components
+- Installs missing enterprise libraries (10 files)
+- Installs missing enterprise workflows (5 files)
+- Creates required directory structure
+- Sets up monitoring directories (logs/audit/, logs/metrics/)
+- Initializes configuration files
+- Adds version badges to README.md
+- Creates MokoStandards.override.tf if missing
+- Interactive mode with confirmations
+- Dry-run mode for safe testing
+
+**Usage:**
+```bash
+# Full interactive setup
+python scripts/automation/setup_enterprise_repo.py
+
+# Non-interactive with dry-run
+python scripts/automation/setup_enterprise_repo.py --no-interactive --dry-run
+
+# Setup with verbose output
+python scripts/automation/setup_enterprise_repo.py --verbose
+
+# Setup with custom source path
+python scripts/automation/setup_enterprise_repo.py --source-path /path/to/MokoStandards
+
+# Install only specific components
+python scripts/automation/setup_enterprise_repo.py --install-libraries
+python scripts/automation/setup_enterprise_repo.py --install-workflows
+python scripts/automation/setup_enterprise_repo.py --create-dirs
+python scripts/automation/setup_enterprise_repo.py --create-override
+
+# Setup specific repository
+python scripts/automation/setup_enterprise_repo.py --path /path/to/target-repo
+```
+
+**Exit Codes:**
+- `0` - Setup completed successfully
+- `1` - Setup completed with errors
+- `130` - User cancelled (Ctrl+C)
+
+## Repository Management
 
 ### bulk_update_repos.py
 Bulk update organization repositories with workflows, scripts, and configurations.

@@ -32,14 +32,18 @@ The system consists of the following components:
   - `waas-component.xml` - MokoWaaS (Joomla) component structure
 
 ### 3. Validation Tool
-- **File**: `scripts/validate/validate_structure.py`
-- **Purpose**: Validates an existing repository against a structure definition
-- **Output**: List of errors, warnings, and info messages
+
+Repository structure validation is handled through:
+1. **Web Interface**: Material Design 3 dashboard at `public/index.php`
+2. **Manual Validation**: Using the XML/JSON schema definitions as reference
+3. **CI/CD Integration**: GitHub Actions workflows for automated checks
 
 ### 4. Stub Generation Tool
-- **File**: `scripts/validate/generate_stubs.py`
-- **Purpose**: Generates missing files and directories based on a structure definition
-- **Features**: Dry-run mode, force overwrite, template substitution
+
+**Current Approach**:
+- Use XML/JSON schema as structural reference
+- Manual file creation following schema guidelines
+- Web-based repository management tools
 
 ## XML Schema Definition
 
@@ -218,22 +222,32 @@ Defines the standard structure for MokoWaaS (Joomla) components.
 
 ## Validation Tool
 
-### Usage
+**Note**: Validation scripts are deprecated as of v04.00.00. This section is maintained for historical reference.
+
+### Historical Usage (v03.xx.xx and earlier)
 
 ```bash
+# These commands are no longer supported in v04.00.00+
 # Validate current directory
-python scripts/validate/validate_structure.py scripts/definitions/crm-module.xml
+# python scripts/validate/validate_structure.py scripts/definitions/crm-module.xml
 
 # Validate specific directory
-python scripts/validate/validate_structure.py scripts/definitions/crm-module.xml /path/to/repo
+# python scripts/validate/validate_structure.py scripts/definitions/crm-module.xml /path/to/repo
 
 # Use with make (from project root)
-make validate-structure
+# make validate-structure
 ```
+
+### Current Approach (v04.00.00+)
+
+Repository structure validation is now performed through:
+1. **Manual Review**: Compare your repository against XML schema definitions in `schemas/`
+2. **Web Interface**: Use Material Design 3 dashboard at `public/index.php` for repository management
+3. **CI/CD**: Implement custom validation in GitHub Actions workflows
 
 ### Output
 
-The validation tool provides:
+**Historical Reference**: The deprecated validation tool (v03.xx.xx) provided:
 
 1. **Metadata Display**: Shows structure being validated against
 2. **Validation Results**: Categorized by severity
@@ -293,26 +307,38 @@ Total issues: 6
 
 ## Stub Generation Tool
 
-### Usage
+**Note**: Stub generation scripts are deprecated as of v04.00.00. This section is maintained for historical reference.
+
+### Historical Usage (v03.xx.xx and earlier)
 
 ```bash
+# These commands are no longer supported in v04.00.00+
 # Dry run (preview)
-python scripts/validate/generate_stubs.py scripts/definitions/crm-module.xml --dry-run
+# python scripts/validate/generate_stubs.py scripts/definitions/crm-module.xml --dry-run
 
 # Generate stubs in current directory
-python scripts/validate/generate_stubs.py scripts/definitions/crm-module.xml
+# python scripts/validate/generate_stubs.py scripts/definitions/crm-module.xml
 
 # Generate stubs in specific directory
-python scripts/validate/generate_stubs.py scripts/definitions/crm-module.xml /path/to/repo
+# python scripts/validate/generate_stubs.py scripts/definitions/crm-module.xml /path/to/repo
 
 # Force overwrite existing files
-python scripts/validate/generate_stubs.py scripts/definitions/crm-module.xml --force
+# python scripts/validate/generate_stubs.py scripts/definitions/crm-module.xml --force
 
 # Use with make (from project root)
-make generate-stubs STRUCTURE=crm-module
+# make generate-stubs STRUCTURE=crm-module
 ```
 
-### Features
+### Current Approach (v04.00.00+)
+
+Repository structure setup is now performed through:
+1. **Manual Creation**: Create files/directories based on XML schema definitions
+2. **Template Copying**: Copy template files from `templates/` directory manually
+3. **Web Interface**: Use Material Design 3 dashboard for repository initialization
+
+### Features (Historical - v03.xx.xx)
+
+The deprecated stub generation tool offered:
 
 1. **Dry Run Mode**: Preview what would be created
 2. **Force Mode**: Overwrite existing files
@@ -369,67 +395,88 @@ Total actions: 12
 
 Next steps:
   1. Review generated files and update TODO sections
-  2. Run validation: python scripts/validate/validate_structure.py
+  2. Run validation: Manual review against XML schema (v04.00.00+)
   3. Commit changes to version control
 ```
 
 ## Usage Examples
 
-### Example 1: Create a New MokoCRM Module
+**Note**: Examples below reference deprecated Python scripts (v03.xx.xx). As of v04.00.00, use manual file creation or web interface.
+
+### Example 1: Create a New MokoCRM Module (Historical)
 
 ```bash
+# Historical commands (v03.xx.xx) - No longer supported in v04.00.00+
 # 1. Create new directory
-mkdir my-new-module
-cd my-new-module
+# mkdir my-new-module
+# cd my-new-module
 
 # 2. Generate structure stubs
-python ../MokoStandards/scripts/validate/generate_stubs.py \
-    ../MokoStandards/scripts/definitions/crm-module.xml
+# python ../MokoStandards/scripts/validate/generate_stubs.py \
+#     ../MokoStandards/scripts/definitions/crm-module.xml
 
 # 3. Review generated files
-ls -la
+# ls -la
 
 # 4. Update TODOs in generated files
 # Edit README.md, src/README.md, etc.
 
 # 5. Validate structure
-python ../MokoStandards/scripts/validate/validate_structure.py \
-    ../MokoStandards/scripts/definitions/crm-module.xml
+# python ../MokoStandards/scripts/validate/validate_structure.py \
+#     ../MokoStandards/scripts/definitions/crm-module.xml
 
 # 6. Initialize git and commit
-git init
-git add .
-git commit -m "Initial commit with standard structure"
+# git init
+# git add .
+# git commit -m "Initial commit with standard structure"
 ```
 
-### Example 2: Validate Existing Repository
+**Current Approach (v04.00.00+)**:
+1. Create directory structure manually based on XML schema
+2. Copy template files from `templates/` directory
+3. Initialize Git repository
+4. Use web interface for additional setup
+
+### Example 2: Validate Existing Repository (Historical)
 
 ```bash
+# Historical validation (v03.xx.xx) - No longer supported
 # Validate against CRM module structure
-cd existing-module
-python ../MokoStandards/scripts/validate/validate_structure.py \
-    ../MokoStandards/scripts/definitions/crm-module.xml
+# cd existing-module
+# python ../MokoStandards/scripts/validate/validate_structure.py \
+#     ../MokoStandards/scripts/definitions/crm-module.xml
 
 # Fix any errors reported
 
 # Validate again
-python ../MokoStandards/scripts/validate/validate_structure.py \
-    ../MokoStandards/scripts/definitions/crm-module.xml
+# python ../MokoStandards/scripts/validate/validate_structure.py \
+#     ../MokoStandards/scripts/definitions/crm-module.xml
 ```
 
-### Example 3: Generate Missing Files Only
+**Current Approach (v04.00.00+)**:
+1. Manually compare repository against XML schema in `schemas/`
+2. Use web interface for health checks
+3. Implement custom validation in CI/CD if needed
+
+### Example 3: Generate Missing Files Only (Historical)
 
 ```bash
+# Historical approach (v03.xx.xx) - No longer supported
 # Generate stubs without overwriting existing files
-cd partially-complete-module
-python ../MokoStandards/scripts/validate/generate_stubs.py \
-    ../MokoStandards/scripts/definitions/crm-module.xml
+# cd partially-complete-module
+# python ../MokoStandards/scripts/validate/generate_stubs.py \
+#     ../MokoStandards/scripts/definitions/crm-module.xml
 
 # This will create only missing files
 # Existing files will be skipped
 ```
 
-### Example 4: CI/CD Integration
+**Current Approach (v04.00.00+)**:
+1. Manually identify missing files from XML schema
+2. Create files using templates from `templates/` directory
+3. Follow structure guidelines from schema documentation
+
+### Example 4: CI/CD Integration (Updated for v04.00.00)
 
 ```yaml
 # .github/workflows/validate-structure.yml
@@ -441,23 +488,29 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Checkout MokoStandards
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: mokoconsulting-tech/MokoStandards
           path: MokoStandards
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.9'
-
-      - name: Validate Structure
+      # Note: Python validation scripts no longer available in v04.00.00+
+      # Implement custom validation logic here or use web interface
+      
+      - name: Check Required Files
         run: |
-          python MokoStandards/scripts/validate/validate_structure.py \
-            MokoStandards/scripts/definitions/crm-module.xml .
+          # Custom validation logic
+          if [ ! -f "README.md" ]; then
+            echo "ERROR: README.md is required"
+            exit 1
+          fi
+          if [ ! -f "LICENSE" ]; then
+            echo "ERROR: LICENSE is required"
+            exit 1
+          fi
+          echo "Basic structure validation passed"
 ```
 
 ## Best Practices
@@ -534,6 +587,8 @@ Create a new XML file in `scripts/definitions/`:
 
   <structure>
     <!-- Define your structure here -->
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
   </structure>
 </repository-structure>
 ```
@@ -601,16 +656,22 @@ TODO: Add getting started instructions
 xmllint --noout --schema schemas/repository-structure.xsd \
     scripts/definitions/your-structure.xml
 
-# Test stub generation
-python scripts/validate/generate_stubs.py \
-    scripts/definitions/your-structure.xml \
-    /tmp/test-repo --dry-run
+# Note: Stub generation and validation scripts deprecated in v04.00.00+
+# Test stub generation (Historical - v03.xx.xx)
+# python scripts/validate/generate_stubs.py \
+#     scripts/definitions/your-structure.xml \
+#     /tmp/test-repo --dry-run
 
-# Test validation
-python scripts/validate/validate_structure.py \
-    scripts/definitions/your-structure.xml \
-    /tmp/test-repo
+# Test validation (Historical - v03.xx.xx)
+# python scripts/validate/validate_structure.py \
+#     scripts/definitions/your-structure.xml \
+#     /tmp/test-repo
 ```
+
+**Current Approach (v04.00.00+)**:
+1. Validate XML syntax with xmllint
+2. Manually test structure creation
+3. Use web interface for validation
 
 ### Step 6: Document Your Structure
 
@@ -622,31 +683,35 @@ Add documentation to `docs/policy/` or `docs/guide/` explaining:
 
 ## Integration with MokoStandards
 
-### Makefile Integration
+### Makefile Integration (Historical - v03.xx.xx)
 
-Add to your project's Makefile:
+**Note**: These commands referenced deprecated Python scripts. Shown for historical reference only.
 
 ```makefile
-MOKOSTANDARDS_ROOT ?= ../MokoStandards
-STRUCTURE_TYPE ?= crm-module
+# Historical Makefile targets (v03.xx.xx) - No longer functional in v04.00.00+
+# MOKOSTANDARDS_ROOT ?= ../MokoStandards
+# STRUCTURE_TYPE ?= crm-module
 
-.PHONY: validate-structure
-validate-structure:
-	python $(MOKOSTANDARDS_ROOT)/scripts/validate/validate_structure.py \
-		$(MOKOSTANDARDS_ROOT)/scripts/definitions/$(STRUCTURE_TYPE).xml .
+# .PHONY: validate-structure
+# validate-structure:
+# 	python $(MOKOSTANDARDS_ROOT)/scripts/validate/validate_structure.py \
+# 		$(MOKOSTANDARDS_ROOT)/scripts/definitions/$(STRUCTURE_TYPE).xml .
 
-.PHONY: generate-stubs
-generate-stubs:
-	python $(MOKOSTANDARDS_ROOT)/scripts/validate/generate_stubs.py \
-		$(MOKOSTANDARDS_ROOT)/scripts/definitions/$(STRUCTURE_TYPE).xml .
+# .PHONY: generate-stubs
+# generate-stubs:
+# 	python $(MOKOSTANDARDS_ROOT)/scripts/validate/generate_stubs.py \
+# 		$(MOKOSTANDARDS_ROOT)/scripts/definitions/$(STRUCTURE_TYPE).xml .
 
-.PHONY: validate-structure-dry
-validate-structure-dry:
-	python $(MOKOSTANDARDS_ROOT)/scripts/validate/generate_stubs.py \
-		$(MOKOSTANDARDS_ROOT)/scripts/definitions/$(STRUCTURE_TYPE).xml . --dry-run
+# .PHONY: validate-structure-dry
+# validate-structure-dry:
+# 	python $(MOKOSTANDARDS_ROOT)/scripts/validate/generate_stubs.py \
+# 		$(MOKOSTANDARDS_ROOT)/scripts/definitions/$(STRUCTURE_TYPE).xml . --dry-run
 ```
 
-### GitHub Actions Workflow
+**Current Approach (v04.00.00+)**:
+Create custom Makefile targets for your specific validation needs or use web interface.
+
+### GitHub Actions Workflow (Updated for v04.00.00)
 
 `.github/workflows/validate.yml`:
 
@@ -673,15 +738,16 @@ jobs:
           path: .mokostandards
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
-
-      - name: Validate Repository Structure
+      # Note: Python validation scripts removed in v04.00.00+
+      # Implement custom validation or use web interface
+      
+      - name: Basic Structure Validation
         run: |
-          python .mokostandards/scripts/validate/validate_structure.py \
-            .mokostandards/scripts/definitions/crm-module.xml .
+          # Custom validation logic
+          echo "Checking required files..."
+          test -f README.md || (echo "ERROR: README.md missing" && exit 1)
+          test -f LICENSE || (echo "ERROR: LICENSE missing" && exit 1)
+          echo "Structure validation passed"
 ```
 
 ## Troubleshooting
@@ -712,16 +778,23 @@ Created file but it's empty
 ```
 **Solution**: Add `<stub-content>` with CDATA section or let tool generate defaults
 
-### Debug Mode
+### Debug Mode (Historical - v03.xx.xx)
 
-For detailed debugging, modify scripts to print additional information:
+**Note**: This section refers to deprecated Python scripts.
+
+For historical reference, debugging was done by modifying the Python scripts:
 
 ```python
+# Historical debugging approach (v03.xx.xx)
 # Add to validator script
-print(f"DEBUG: Checking file: {file_path}")
-print(f"DEBUG: Required: {is_required}")
-print(f"DEBUG: Exists: {file_path.exists()}")
+# print(f"DEBUG: Checking file: {file_path}")
+# print(f"DEBUG: Required: {is_required}")
+# print(f"DEBUG: Exists: {file_path.exists()}")
 ```
+
+**Current Approach (v04.00.00+)**:
+- Use browser developer tools with web interface
+- Implement custom debugging in CI/CD scripts
 
 ## Appendix
 
@@ -764,7 +837,7 @@ For issues or questions:
 | Owner          | Moko Consulting                                          |
 | Repo           | https://github.com/mokoconsulting-tech/                                      |
 | Path           | /docs/schemas/repohealth/repository-structure-schema.md                                      |
-| Version        | 03.00.00                                 |
+| Version        | 04.00.00                                 |
 | Status         | Active                                         |
 | Last Reviewed  | 2026-01-28                                  |
 | Reviewed By    | Documentation Team                                    |
@@ -774,4 +847,4 @@ For issues or questions:
 
 | Date       | Author          | Change                                       | Notes                                              |
 | ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
-| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 03.00.00 with all required fields |
+| 2026-02-14 | Moko Consulting | Updated for PHP-only architecture | Deprecated Python scripts, updated to v04.00.00 |

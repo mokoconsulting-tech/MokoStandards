@@ -192,12 +192,6 @@ Each training session includes:
 4. Attend Session 3 (Advanced Features)
 5. Create a production-ready script using enterprise libraries
 
-### For Python-to-PHP Migrators
-1. Review [PHP-Only Architecture Guide](../guide/php-only-architecture.md)
-2. Complete all three sessions (focus on PHP differences)
-3. Review Python vs PHP patterns documentation
-4. Practice with provided migration examples
-
 ### For Team Leads
 1. Complete all three sessions
 2. Review the [Implementation Roadmap](../planning/README.md)

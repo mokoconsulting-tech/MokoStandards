@@ -331,8 +331,7 @@ exit($script->execute());
 ## See Also
 
 - [Enterprise Libraries Overview](../training/session-1-libraries-overview.md)
-- [PHP Migration Complete Report](../reports/PHP_MIGRATION_COMPLETE.md)
-- [Python to PHP Recreation Guide](python-to-php-recreation.md) (Historical)
+- [Training Program](../training/README.md)
 - [Contributing Guide](../../CONTRIBUTING.md)
 
 ---

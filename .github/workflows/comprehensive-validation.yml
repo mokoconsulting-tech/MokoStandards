@@ -77,12 +77,12 @@ jobs:
         run: |
           echo "## 🐘 PHP Script Validation" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           # Find all PHP files
           PHP_FILES=$(find scripts/ src/ public/ -name "*.php" -type f 2>/dev/null | wc -l)
           echo "Found $PHP_FILES PHP files" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           # Validate syntax
           EXIT_CODE=0
           while IFS= read -r file; do
@@ -91,13 +91,13 @@ jobs:
               EXIT_CODE=1
             fi
           done < <(find scripts/ src/ public/ -name "*.php" -type f 2>/dev/null)
-          
+
           if [ $EXIT_CODE -eq 0 ]; then
             echo "✅ All PHP files have valid syntax" >> $GITHUB_STEP_SUMMARY
           else
             echo "❌ Some PHP files have syntax errors" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
 
       - name: Check Results
@@ -125,12 +125,12 @@ jobs:
         run: |
           echo "## 🐚 Shell Script Validation" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           # Find all shell scripts
           SHELL_FILES=$(find scripts/ templates/ -name "*.sh" -type f 2>/dev/null | wc -l)
           echo "Found $SHELL_FILES shell scripts" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           # Validate with shellcheck
           EXIT_CODE=0
           while IFS= read -r file; do
@@ -139,7 +139,7 @@ jobs:
               EXIT_CODE=1
             fi
           done < <(find scripts/ templates/ -name "*.sh" -type f 2>/dev/null)
-          
+
           if [ $EXIT_CODE -eq 0 ]; then
             echo "✅ All shell scripts passed shellcheck" >> $GITHUB_STEP_SUMMARY
           else
@@ -148,7 +148,7 @@ jobs:
             cat /tmp/shell-validation.log >> $GITHUB_STEP_SUMMARY
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
 
       - name: Upload Shell Validation Report
@@ -179,12 +179,12 @@ jobs:
         run: |
           echo "## ⚙️ Workflow Validation" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           # Find all workflow files
           WORKFLOW_FILES=$(find .github/workflows/ -name "*.yml" -type f 2>/dev/null | wc -l)
           echo "Found $WORKFLOW_FILES workflow files" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           # Validate YAML syntax
           EXIT_CODE=0
           while IFS= read -r file; do
@@ -193,7 +193,7 @@ jobs:
               EXIT_CODE=1
             fi
           done < <(find .github/workflows/ -name "*.yml" -type f 2>/dev/null)
-          
+
           if [ $EXIT_CODE -eq 0 ]; then
             echo "✅ All workflows have valid YAML syntax" >> $GITHUB_STEP_SUMMARY
           else
@@ -202,7 +202,7 @@ jobs:
             cat /tmp/workflow-validation.log >> $GITHUB_STEP_SUMMARY
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
 
       - name: Upload Workflow Validation Report
@@ -233,12 +233,12 @@ jobs:
         run: |
           echo "## 📝 Template Validation" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           # Find all template files
           TEMPLATE_FILES=$(find templates/ docs/templates/ .github/ISSUE_TEMPLATE/ -type f 2>/dev/null | wc -l)
           echo "Found $TEMPLATE_FILES template files" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           # Basic validation - check if files exist and are readable
           EXIT_CODE=0
           while IFS= read -r file; do
@@ -247,13 +247,13 @@ jobs:
               EXIT_CODE=1
             fi
           done < <(find templates/ docs/templates/ .github/ISSUE_TEMPLATE/ -type f 2>/dev/null)
-          
+
           if [ $EXIT_CODE -eq 0 ]; then
             echo "✅ All template files are readable" >> $GITHUB_STEP_SUMMARY
           else
             echo "❌ Some template files have issues" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
 
       - name: Check Results
@@ -278,11 +278,11 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Checking for TAB characters in YAML files (forbidden by YAML spec)..." >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           # Find YAML files with tabs
           EXIT_CODE=0
           FILES_WITH_TABS=$(find . -name "*.yml" -o -name "*.yaml" | xargs grep -l $'\t' 2>/dev/null || true)
-          
+
           if [ -z "$FILES_WITH_TABS" ]; then
             echo "exit_code=0" >> $GITHUB_OUTPUT
             echo "✅ No tabs found in YAML files" >> $GITHUB_STEP_SUMMARY

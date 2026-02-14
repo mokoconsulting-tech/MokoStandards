@@ -1,11 +1,11 @@
-# Copyright (C) 2025 Moko Consulting <hello@mokoconsulting.tech>
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
 # SPDX-License-Identifier: GPL-3.0-or-later
 # FILE INFORMATION
 # DEFGROUP: GitHub.Settings
 # INGROUP: MokoStandards.Configuration
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/settings.yml
-# VERSION: 03.01.03
+# VERSION: 04.00.00
 # BRIEF: GitHub repository settings configuration for merge strategy and PR behavior
 # NOTE: Configures squash merge as the only allowed merge method to maintain clean history
 

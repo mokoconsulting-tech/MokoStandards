@@ -172,7 +172,7 @@ jobs:
 
       - name: Create tracking issue
         if: steps.check_branch.outputs.exists == 'false'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v6
         with:
           script: |
             const nextVersion = '${{ steps.next_version.outputs.version }}';
@@ -291,7 +291,7 @@ jobs:
 
       - name: Comment on merged PR
         if: steps.check_branch.outputs.exists == 'false'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v6
         with:
           script: |
             const branchName = '${{ steps.check_branch.outputs.branch_name }}';
@@ -320,7 +320,7 @@ jobs:
 
       - name: Branch already exists notification
         if: steps.check_branch.outputs.exists == 'true'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v6
         with:
           script: |
             const branchName = '${{ steps.check_branch.outputs.branch_name }}';

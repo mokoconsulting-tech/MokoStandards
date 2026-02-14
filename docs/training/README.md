@@ -40,24 +40,26 @@ BRIEF: Training program index for MokoStandards enterprise libraries
 
 ## Overview
 
-This comprehensive training program introduces developers to the MokoStandards enterprise library ecosystem. Through a combination of presentations, live demonstrations, and hands-on exercises, participants will learn to integrate 10 powerful enterprise libraries into their automation scripts and workflows.
+This comprehensive training program introduces developers to the MokoStandards enterprise library ecosystem. Through a combination of presentations, live demonstrations, and hands-on exercises, participants will learn to integrate 13 powerful PHP enterprise libraries into their automation scripts, workflows, and web applications.
 
 **What You'll Learn**:
-- How to use all 10 enterprise libraries effectively
-- Best practices for enterprise-grade automation
+- How to use all 13 PHP enterprise libraries effectively
+- Best practices for enterprise-grade automation with PHP 8.1+
 - Error recovery and resilience patterns
 - Transaction management and audit logging
 - Security and performance optimization techniques
+- Web-based interface development with Material Design 3
 
 ---
 
 ## Prerequisites
 
 ### Required Knowledge
-- **Python**: Intermediate level (functions, classes, decorators, context managers)
+- **PHP**: Intermediate level (classes, namespaces, attributes, strict types)
 - **Git/GitHub**: Basic operations (clone, commit, push, pull requests)
 - **Command Line**: Comfortable with terminal/shell operations
 - **APIs**: Understanding of REST APIs and HTTP methods
+- **Web Development**: Basic HTML/CSS for web interface usage (helpful but not required)
 
 ### Required Setup
 1. **Development Environment**:
@@ -66,8 +68,8 @@ This comprehensive training program introduces developers to the MokoStandards e
    git clone https://github.com/mokoconsulting-tech/MokoStandards.git
    cd MokoStandards
    
-   # Install dependencies
-   pip install -r requirements.txt
+   # Install PHP dependencies
+   composer install
    ```
 
 2. **GitHub Access**:
@@ -76,14 +78,19 @@ This comprehensive training program introduces developers to the MokoStandards e
    - Set `GITHUB_TOKEN` environment variable
 
 3. **Tools**:
-   - Python 3.8 or higher
+   - PHP 8.1 or higher (PHP 8.2+ recommended)
+   - Composer 2.0 or higher
    - Git 2.30 or higher
-   - Text editor or IDE (VS Code recommended)
+   - Text editor or IDE (VS Code with PHP extensions recommended)
+   - Web browser (for Material Design 3 interface)
 
 ### Recommended (Optional)
 - Docker for containerized testing
 - Prometheus for metrics visualization
 - Basic understanding of design patterns
+- PHPUnit for testing (included via Composer)
+- Xdebug for debugging (optional)
+- Understanding of PSR-4 autoloading standards
 
 ---
 
@@ -95,17 +102,19 @@ This comprehensive training program introduces developers to the MokoStandards e
 **File**: [session-1-libraries-overview.md](session-1-libraries-overview.md)
 
 **Topics**:
-- Overview of all 10 enterprise libraries
+- Overview of all 13 PHP enterprise libraries
 - When and why to use each library
 - Live demonstrations for each library
+- PHP 8.1+ features (strict types, attributes, enums)
 - Quick hands-on exercises
 - Q&A session
 
 **Learning Objectives**:
-- ✅ Understand the purpose and capabilities of each library
+- ✅ Understand the purpose and capabilities of each PHP library
 - ✅ Identify which libraries to use for specific use cases
 - ✅ Perform basic operations with each library
-- ✅ Navigate library documentation effectively
+- ✅ Navigate library documentation and source code effectively
+- ✅ Understand PSR-4 autoloading and namespace conventions
 
 ---
 
@@ -115,17 +124,19 @@ This comprehensive training program introduces developers to the MokoStandards e
 **File**: [session-2-integration-workshop.md](session-2-integration-workshop.md)
 
 **Topics**:
-- Step-by-step migration of sample scripts
-- Common integration patterns
-- Hands-on exercises with real automation scripts
-- Troubleshooting common issues
-- Real-world examples from updated scripts
+- Step-by-step creation of PHP automation scripts
+- Common integration patterns with enterprise libraries
+- Hands-on exercises with real automation scenarios
+- Troubleshooting common PHP issues
+- Real-world examples from production scripts
+- Using the Material Design 3 web interface
 
 **Learning Objectives**:
-- ✅ Migrate an existing script to use enterprise libraries
+- ✅ Create production-ready PHP scripts using enterprise libraries
 - ✅ Implement common integration patterns
-- ✅ Debug and troubleshoot integration issues
+- ✅ Debug and troubleshoot PHP integration issues
 - ✅ Apply best practices in real scenarios
+- ✅ Utilize both CLI and web-based interfaces
 
 ---
 
@@ -135,18 +146,20 @@ This comprehensive training program introduces developers to the MokoStandards e
 **File**: [session-3-advanced-features.md](session-3-advanced-features.md)
 
 **Topics**:
-- Error recovery patterns and checkpointing
+- Error recovery patterns and checkpointing in PHP
 - Transaction management best practices
-- Performance optimization techniques
-- Advanced API client features (circuit breaker, caching)
+- Performance optimization techniques (PHP 8.1+ JIT, OPcache)
+- Advanced API client features (circuit breaker, caching, rate limiting)
 - Security best practices and compliance
+- PHP 8.1+ advanced features (attributes, fibers, readonly properties)
 
 **Learning Objectives**:
-- ✅ Implement robust error recovery mechanisms
+- ✅ Implement robust error recovery mechanisms in PHP
 - ✅ Design fault-tolerant automation workflows
-- ✅ Optimize script performance and resource usage
+- ✅ Optimize PHP script performance and resource usage
 - ✅ Apply enterprise security patterns
 - ✅ Meet audit and compliance requirements
+- ✅ Leverage modern PHP 8.1+ capabilities
 
 ---
 
@@ -163,21 +176,27 @@ Each training session includes:
 
 ## Recommended Learning Path
 
-### For New Developers
-1. Complete all prerequisites
-2. Attend Session 1 (Libraries Overview)
+### For New PHP Developers
+1. Complete all prerequisites (ensure PHP 8.1+ installed)
+2. Attend Session 1 (PHP Libraries Overview)
 3. Practice with provided exercises between sessions
 4. Attend Session 2 (Integration Workshop)
-5. Implement a simple script using 3+ libraries
+5. Implement a simple script using 3+ PHP libraries
 6. Attend Session 3 (Advanced Features)
 7. Review and refactor your script with advanced patterns
 
-### For Experienced Developers
-1. Review prerequisites (skip if proficient)
+### For Experienced PHP Developers
+1. Review prerequisites (skip if proficient in PHP 8.1+)
 2. Self-study Session 1 materials
 3. Attend Session 2 (Integration Workshop)
 4. Attend Session 3 (Advanced Features)
-5. Migrate an existing production script
+5. Create a production-ready script using enterprise libraries
+
+### For Python-to-PHP Migrators
+1. Review [PHP-Only Architecture Guide](../guide/php-only-architecture.md)
+2. Complete all three sessions (focus on PHP differences)
+3. Review Python vs PHP patterns documentation
+4. Practice with provided migration examples
 
 ### For Team Leads
 1. Complete all three sessions
@@ -190,15 +209,17 @@ Each training session includes:
 ## Additional Resources
 
 ### Documentation
+- **[PHP-Only Architecture](../guide/php-only-architecture.md)**: Complete architecture guide
 - **[Automation Guide](../automation/README.md)**: Complete automation documentation
 - **[Planning Roadmap](../planning/README.md)**: Implementation roadmap and future plans
-- **[Library Source Code](../../scripts/lib/)**: Full source code for all libraries
+- **[Library Source Code](../../src/Enterprise/)**: Full source code for all 13 PHP libraries
 - **[Integration Tests](../../.github/workflows/integration-tests.yml)**: Test examples
 
 ### Code Examples
-- **[Sample Scripts](../../scripts/)**: Production-ready automation scripts
-- **[Test Suite](../../tests/)**: Comprehensive test examples
-- **[Templates](../../templates/)**: Script templates using enterprise libraries
+- **[Sample PHP Scripts](../../scripts/)**: Production-ready PHP automation scripts
+- **[PHP Enterprise Libraries](../../src/Enterprise/)**: 13 enterprise-grade PHP classes
+- **[Web Interface](../../public/)**: Material Design 3 web dashboard
+- **[Composer Configuration](../../composer.json)**: Dependency management setup
 
 ### Community & Support
 - **GitHub Issues**: Report bugs or request features
@@ -212,22 +233,25 @@ Each training session includes:
 
 After completing this training program, you should be able to:
 
-✅ **Use Libraries Independently**
-- Import and initialize any of the 10 libraries
+✅ **Use PHP Libraries Independently**
+- Import and initialize any of the 13 PHP enterprise libraries
+- Use PSR-4 autoloading with Composer
 - Configure libraries for specific use cases
-- Debug common integration issues
+- Debug common PHP integration issues
 
-✅ **Build Enterprise-Grade Scripts**
+✅ **Build Enterprise-Grade PHP Scripts**
 - Create scripts with audit logging
 - Implement error recovery and resilience
 - Add metrics and monitoring
 - Apply security best practices
+- Use strict types and modern PHP 8.1+ features
 
 ✅ **Follow Best Practices**
-- Write maintainable, documented code
-- Handle errors gracefully
-- Optimize for performance
+- Write maintainable, well-documented PHP code
+- Handle errors gracefully with try-catch and custom exceptions
+- Optimize for performance using PHP 8.1+ features
 - Meet compliance requirements
+- Follow PSR standards (PSR-1, PSR-4, PSR-12)
 
 ---
 
@@ -237,12 +261,14 @@ After completing this training program, you should be able to:
 Each session includes quiz questions to validate understanding. Minimum passing score: 80%.
 
 ### Hands-On Project
-Final assessment: Migrate an existing automation script or create a new one using:
-- ✅ At least 5 enterprise libraries
+Final assessment: Create a production-ready PHP automation script using:
+- ✅ At least 5 PHP enterprise libraries
 - ✅ Error recovery with checkpointing
 - ✅ Audit logging
 - ✅ Metrics collection
 - ✅ Security validation
+- ✅ Strict types and proper PHP 8.1+ syntax
+- ✅ PSR-4 autoloading and namespace structure
 
 ### Certification
 Upon successful completion:
@@ -260,10 +286,12 @@ Upon successful completion:
 - **Best Practices**: Review updated documentation quarterly
 
 ### Advanced Topics (Future Sessions)
-- Distributed automation patterns
+- Distributed automation patterns with PHP
 - Multi-organization management
-- Custom library extensions
-- Performance tuning workshops
+- Custom library extensions and PSR-4 practices
+- PHP 8.1+ performance tuning (JIT, OPcache)
+- Web interface customization with Material Design 3
+- Testing with PHPUnit and integration tests
 
 ---
 
@@ -284,12 +312,13 @@ We continuously improve this training program based on participant feedback.
 
 | Resource | Link |
 |----------|------|
-| **Session 1** | [Libraries Overview](session-1-libraries-overview.md) |
+| **Session 1** | [PHP Libraries Overview](session-1-libraries-overview.md) |
 | **Session 2** | [Integration Workshop](session-2-integration-workshop.md) |
 | **Session 3** | [Advanced Features](session-3-advanced-features.md) |
-| **Library Documentation** | [scripts/lib/README.md](../../scripts/lib/README.md) |
+| **PHP Libraries** | [src/Enterprise/](../../src/Enterprise/) |
+| **PHP Architecture** | [docs/guide/php-only-architecture.md](../guide/php-only-architecture.md) |
 | **Automation Guide** | [docs/automation/README.md](../automation/README.md) |
-| **Source Code** | [scripts/lib/](../../scripts/lib/) |
+| **Web Interface** | [public/index.php](../../public/index.php) |
 
 ---
 

@@ -159,7 +159,7 @@ jobs:
                 title: `[Terraform Drift] ${env} environment has drifted`,
                 body: body,
                 labels: ['terraform-drift', `environment:${env}`, 'infrastructure'],
-                assignees: ['copilot', 'jmiller-moko']
+                assignees: ['jmiller-moko']
               });
             } else {
               // Update existing issue

@@ -74,12 +74,18 @@ jobs:
       - name: Terraform Plan (Drift Check)
         id: plan
         run: |
+          set +e
           terraform plan \
             -var-file="environments/${{ matrix.environment }}.tfvars" \
             -detailed-exitcode \
-            -no-color
+            -no-color > /tmp/tfplan.txt 2>&1
+          EXIT_CODE=$?
+          echo "exitcode=$EXIT_CODE" >> $GITHUB_OUTPUT
+          echo "stdout<<EOF" >> $GITHUB_OUTPUT
+          cat /tmp/tfplan.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          exit 0
         working-directory: ${{ env.TF_WORKING_DIR }}
-        continue-on-error: true
 
       - name: Analyze Drift
         id: analyze

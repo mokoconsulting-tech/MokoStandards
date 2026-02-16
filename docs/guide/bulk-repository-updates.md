@@ -133,6 +133,7 @@ For each repository, the script:
 | `--files-only` | Only sync workflow files | Off |
 | `--scripts-only` | Only sync scripts | Off |
 | `--dry-run` | Preview without changes | Off |
+| `--force-override` | Override protected files (emergency use only) | Off |
 | `--temp-dir` | Temporary clone directory | `/tmp/bulk-update-repos` |
 | `--yes`, `-y` | Skip confirmation prompt (for automation) | Off |
 
@@ -294,6 +295,101 @@ locals {
 }
 ```
 
+## Force Override Mode
+
+### Overview
+
+The `--force-override` flag allows the bulk sync to override protected files in repositories. This is a powerful feature that should be used only for emergency security updates or critical bug fixes.
+
+### When to Use Force Override
+
+✅ **DO use for:**
+- Emergency security patches that must be deployed immediately
+- Critical bug fixes in workflows that are protected
+- Organization-wide policy enforcement after major incidents
+- Fixing broken workflows that teams cannot fix themselves
+
+❌ **DON'T use for:**
+- Regular monthly syncs
+- Testing new features or workflows
+- Convenience or to save time
+- Non-critical updates
+
+### How to Use Force Override
+
+#### Command Line
+
+```bash
+# Preview what will be overridden (always do this first)
+php scripts/automation/bulk_update_repos.php \
+  --force-override \
+  --dry-run \
+  --repos target-repo
+
+# Apply the force override
+php scripts/automation/bulk_update_repos.php \
+  --force-override \
+  --yes \
+  --repos target-repo
+```
+
+#### GitHub Actions Workflow
+
+1. Go to **Actions** → **Bulk Repository Sync**
+2. Click **Run workflow**
+3. Configure inputs:
+   - `repos`: (specify repos or leave empty for all)
+   - `dry_run`: `true` (test first)
+   - `force_override`: `true` ✓ (check this box)
+4. Click **Run workflow** and review output
+5. If looks good, re-run with `dry_run`: `false`
+
+### Force Override Behavior
+
+When `--force-override` is enabled:
+
+- **Protected files** in `MokoStandards.override.tf` → WILL be overwritten
+- **Excluded files** in `exclude_files` → Still NOT synced (exclusions always respected)
+- **Cleanup mode** → Still applies as configured
+- **Pull request** → Still created for review (never direct push)
+
+### Safety Considerations
+
+⚠️ **Important:**
+
+1. **Always test with dry-run first** to see what will be overridden
+2. **Communicate with teams** before force-overriding their files
+3. **Document the reason** in the PR description
+4. **Review PRs carefully** before merging
+5. **Consider alternatives** - maybe the repository should update its override file instead
+
+### Example: Emergency Security Update
+
+**Scenario:** Critical security vulnerability found in a workflow file that needs immediate fix across all repositories.
+
+```bash
+# Step 1: Update the workflow in MokoStandards
+git add .github/workflows/security-critical.yml
+git commit -m "fix: Critical security vulnerability in workflow"
+git push
+
+# Step 2: Test force override on one repository
+php scripts/automation/bulk_update_repos.php \
+  --force-override \
+  --dry-run \
+  --repos test-repo
+
+# Step 3: Review output and verify it looks correct
+
+# Step 4: Apply to all repositories
+php scripts/automation/bulk_update_repos.php \
+  --force-override \
+  --yes \
+  --exclude archived-repo deprecated-repo
+
+# Step 5: Monitor PRs and communicate with teams to merge quickly
+```
+
 ## Best Practices
 
 1. **Always use `--dry-run` first** to preview changes
@@ -303,6 +399,7 @@ locals {
 5. **Monitor CI/CD** after merging to ensure workflows work correctly
 6. **Document changes** in each repository's changelog if applicable
 7. **Review deleted files** in PR to ensure no custom files were removed
+8. **Use force-override sparingly** and only for emergencies
 
 ## Troubleshooting
 

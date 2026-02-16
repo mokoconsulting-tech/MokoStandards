@@ -1,0 +1,245 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.MetricsCollection
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/metrics-collection.yml
+# VERSION: 04.00.00
+# BRIEF: Daily metrics collection and trend report generation
+# NOTE: Collects and exports metrics using PHP MetricsCollector
+
+name: Metrics Collection
+
+on:
+  schedule:
+    # Run daily at 06:00 UTC
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      export_format:
+        description: 'Export format for metrics'
+        required: false
+        type: choice
+        options:
+          - prometheus
+          - json
+          - both
+        default: 'both'
+      generate_trends:
+        description: 'Generate trend reports'
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  collect-metrics:
+    name: Collect Metrics
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.31.0
+        with:
+          php-version: '8.1'
+          extensions: mbstring, curl, json
+          tools: composer
+
+      - name: Install Composer Dependencies
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: Create Metrics Directory
+        run: |
+          mkdir -p logs/metrics
+          mkdir -p logs/reports
+
+      - name: Collect System Metrics
+        id: collect
+        run: |
+          echo "## 📊 Metrics Collection" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          php << 'EOF'
+          <?php
+          require_once __DIR__ . '/vendor/autoload.php';
+
+          use MokoStandards\Enterprise\MetricsCollector;
+
+          try {
+              // Initialize metrics collector
+              $metrics = new MetricsCollector('mokostandards');
+
+              // Collect repository metrics
+              $metrics->increment('workflow_runs_total');
+              $metrics->increment('metrics_collection_runs');
+
+              // Collect file counts
+              $phpFiles = count(iterator_to_array(
+                  new RecursiveIteratorIterator(
+                      new RecursiveCallbackFilterIterator(
+                          new RecursiveDirectoryIterator('.', RecursiveDirectoryIterator::SKIP_DOTS),
+                          function ($file, $key, $iterator) {
+                              return $file->isDir() || $file->getExtension() === 'php';
+                          }
+                      )
+                  )
+              ));
+
+              $ymlFiles = count(glob('.github/workflows/*.yml'));
+
+              $metrics->setGauge('php_files_total', $phpFiles);
+              $metrics->setGauge('workflow_files_total', $ymlFiles);
+
+              // Collect disk usage
+              $totalSize = 0;
+              $iterator = new RecursiveIteratorIterator(
+                  new RecursiveDirectoryIterator('.', RecursiveDirectoryIterator::SKIP_DOTS)
+              );
+              foreach ($iterator as $file) {
+                  if ($file->isFile()) {
+                      $totalSize += $file->getSize();
+                  }
+              }
+              $metrics->setGauge('repository_size_bytes', $totalSize);
+
+              echo "✅ Collected metrics:\n";
+              echo "  - PHP files: {$phpFiles}\n";
+              echo "  - Workflow files: {$ymlFiles}\n";
+              echo sprintf("  - Repository size: %.2f MB\n", $totalSize / (1024 * 1024));
+
+              // Export metrics
+              $exportFormat = '${{ github.event.inputs.export_format }}' ?: 'both';
+
+              if (in_array($exportFormat, ['json', 'both'])) {
+                  $metricsData = $metrics->exportJson();
+                  file_put_contents('logs/metrics/metrics.json', json_encode($metricsData, JSON_PRETTY_PRINT));
+                  echo "✅ Exported metrics to JSON\n";
+              }
+
+              if (in_array($exportFormat, ['prometheus', 'both'])) {
+                  $promData = $metrics->exportPrometheus();
+                  file_put_contents('logs/metrics/metrics.prom', $promData);
+                  echo "✅ Exported metrics to Prometheus format\n";
+              }
+
+              // Write summary data
+              $summary = [
+                  'php_files' => $phpFiles,
+                  'workflow_files' => $ymlFiles,
+                  'repo_size_mb' => round($totalSize / (1024 * 1024), 2)
+              ];
+              file_put_contents('/tmp/metrics_summary.json', json_encode($summary));
+
+          } catch (Exception $e) {
+              echo "❌ Metrics collection failed: {$e->getMessage()}\n";
+              exit(1);
+          }
+          EOF
+
+          # Read summary and output
+          SUMMARY=$(cat /tmp/metrics_summary.json)
+          PHP_FILES=$(echo $SUMMARY | php -r 'echo json_decode(file_get_contents("php://stdin"), true)["php_files"];')
+          WF_FILES=$(echo $SUMMARY | php -r 'echo json_decode(file_get_contents("php://stdin"), true)["workflow_files"];')
+          REPO_SIZE=$(echo $SUMMARY | php -r 'echo json_decode(file_get_contents("php://stdin"), true)["repo_size_mb"];')
+
+          echo "php_files=$PHP_FILES" >> $GITHUB_OUTPUT
+          echo "workflow_files=$WF_FILES" >> $GITHUB_OUTPUT
+          echo "repo_size_mb=$REPO_SIZE" >> $GITHUB_OUTPUT
+
+          echo "### Collected Metrics" >> $GITHUB_STEP_SUMMARY
+          echo "- PHP files: **${PHP_FILES}**" >> $GITHUB_STEP_SUMMARY
+          echo "- Workflow files: **${WF_FILES}**" >> $GITHUB_STEP_SUMMARY
+          echo "- Repository size: **${REPO_SIZE} MB**" >> $GITHUB_STEP_SUMMARY
+
+      - name: Generate Trend Report
+        if: github.event.inputs.generate_trends != 'false'
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📈 Trend Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          php << 'EOF'
+          <?php
+          require_once __DIR__ . '/vendor/autoload.php';
+
+          use MokoStandards\Enterprise\MetricsCollector;
+
+          try {
+              // Load current metrics
+              $current = json_decode(file_get_contents('logs/metrics/metrics.json'), true);
+
+              // Load historical metrics if available
+              $historyFile = 'logs/metrics/history.json';
+              if (file_exists($historyFile)) {
+                  $history = json_decode(file_get_contents($historyFile), true);
+              } else {
+                  $history = [];
+              }
+
+              // Add current to history
+              $current['timestamp'] = date('c');
+              $history[] = $current;
+
+              // Keep last 30 days
+              $cutoff = new DateTime('-30 days');
+              $history = array_filter($history, function($h) use ($cutoff) {
+                  return new DateTime($h['timestamp']) > $cutoff;
+              });
+
+              // Save updated history
+              file_put_contents('logs/metrics/history.json', json_encode(array_values($history), JSON_PRETTY_PRINT));
+
+              // Generate trend report
+              if (count($history) > 1) {
+                  $first = $history[0];
+                  $last = end($history);
+
+                  $trendReport = [
+                      'period_days' => count($history),
+                      'first_date' => $first['timestamp'],
+                      'last_date' => $last['timestamp'],
+                      'trends' => [
+                          'php_files' => [
+                              'start' => $first['gauges']['php_files_total'] ?? 0,
+                              'end' => $last['gauges']['php_files_total'] ?? 0
+                          ]
+                      ]
+                  ];
+
+                  file_put_contents('logs/reports/trends-report.json', json_encode($trendReport, JSON_PRETTY_PRINT));
+
+                  echo "✅ Trend report generated for " . count($history) . " data points\n";
+              } else {
+                  echo "⚠️ Insufficient data for trend analysis (need > 1 day)\n";
+              }
+
+          } catch (Exception $e) {
+              echo "⚠️ Trend generation failed: {$e->getMessage()}\n";
+          }
+          EOF
+
+          if [ -f "logs/reports/trends-report.json" ]; then
+            echo "✅ Trend report generated" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload Metrics Report
+        if: always()
+        uses: actions/upload-artifact@v6.0.0
+        with:
+          name: metrics-report-${{ github.run_number }}
+          path: |
+            logs/metrics/
+            logs/reports/trends-report.json
+          retention-days: 30
+
+      - name: Notify on Failure
+        if: failure()
+        run: |
+          echo "❌ Metrics collection failed" >> $GITHUB_STEP_SUMMARY
+          echo "Please check the logs for details" >> $GITHUB_STEP_SUMMARY

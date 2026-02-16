@@ -140,7 +140,7 @@ on:
 #      dry_run: false
 #      force_override: true
 #
-#   3. Sync to all except specific repos:
+#   4. Sync to all except specific repos:
 #      exclude: "archived-repo test-repo"
 #      dry_run: false
 #

@@ -51,6 +51,7 @@ class BulkUpdateRepos extends CliFramework
         $this->addArgument('--repo', 'Specific repository (default: all)', null);
         $this->addArgument('--skip-archived', 'Skip archived repositories', false);
         $this->addArgument('--force', 'Force update even if no changes', false);
+        $this->addArgument('--force-override', 'Override protected files (use for emergency updates)', false);
     }
     
     protected function initialize(): void

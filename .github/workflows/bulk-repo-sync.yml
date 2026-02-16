@@ -87,6 +87,11 @@ on:
         required: false
         type: boolean
         default: false
+      force_override:
+        description: 'Force override protected files (use only for emergency security updates)'
+        required: false
+        type: boolean
+        default: false
 
 # ┌─────────────────────────────────────────────────────────────────────────┐
 # │                         USAGE INSTRUCTIONS                               │
@@ -100,31 +105,40 @@ on:
 # defaults to mokoconsulting-tech and this workflow does not override it.
 #
 # MANUAL TRIGGER OPTIONS:
-#   repos:    Specific repositories to sync (e.g., "moko-cassiopeia moko-dolibarr")
-#             Leave empty to sync ALL non-archived repos in the organization
-#   exclude:  Repositories to skip (e.g., "MokoStandards test-repo")
-#             Scheduled runs automatically exclude MokoStandards and MokoStandards-Private
-#   dry_run:  Set to true to preview changes without creating PRs
+#   repos:          Specific repositories to sync (e.g., "moko-cassiopeia moko-dolibarr")
+#                   Leave empty to sync ALL non-archived repos in the organization
+#   exclude:        Repositories to skip (e.g., "MokoStandards test-repo")
+#                   Scheduled runs automatically exclude MokoStandards and MokoStandards-Private
+#   dry_run:        Set to true to preview changes without creating PRs
+#   force_override: Set to true to override protected files (use only for emergency security updates)
 #
 # SCHEDULED BEHAVIOR:
 #   - Runs monthly on the 1st at 00:00 UTC
 #   - Automatically excludes MokoStandards and MokoStandards-Private
 #   - Syncs to all other non-archived repositories
+#   - Never uses force_override mode (safety feature)
 #
 # SYNC BEHAVIOR:
 #   - Checks MokoStandards.override.tf in target repo for platform type
 #   - Falls back to auto-detection if override doesn't specify platform
-#   - Respects exclude_files and protected_files from override
+#   - Respects exclude_files and protected_files from override (unless force_override is true)
 #   - Creates PR with synced files (never pushes directly to main/master)
 #
 # EXAMPLES:
 #   1. Test sync to one repo (dry run):
 #      repos: "moko-cassiopeia"
 #      dry_run: true
+#      force_override: false
 #
 #   2. Sync to specific repos (live):
 #      repos: "moko-cassiopeia moko-dolibarr"
 #      dry_run: false
+#      force_override: false
+#
+#   3. Emergency security update (force override):
+#      repos: (leave empty for all)
+#      dry_run: false
+#      force_override: true
 #
 #   3. Sync to all except specific repos:
 #      exclude: "archived-repo test-repo"
@@ -244,6 +258,12 @@ jobs:
             ARGS="$ARGS --exclude ${{ inputs.exclude }}"
           fi
 
+          if [ "${{ inputs.force_override }}" == "true" ]; then
+            ARGS="$ARGS --force-override"
+            echo "⚠️  **Force Override Mode Enabled** - Protected files will be overridden" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+
           echo "## 🔍 Dry Run Mode" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Running bulk update in dry-run mode (no changes will be made)..." >> $GITHUB_STEP_SUMMARY
@@ -284,6 +304,15 @@ jobs:
 
           if [ -n "${{ inputs.exclude }}" ]; then
             ARGS="$ARGS --exclude ${{ inputs.exclude }}"
+          fi
+
+          # Add force-override flag if specified (only for manual runs)
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ "${{ inputs.force_override }}" == "true" ]; then
+            ARGS="$ARGS --force-override"
+            echo "## ⚠️  Force Override Mode Enabled" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**WARNING:** Protected files will be overridden. Use only for emergency security updates." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
           fi
 
           echo "## 🚀 Bulk Repository Sync" >> $GITHUB_STEP_SUMMARY

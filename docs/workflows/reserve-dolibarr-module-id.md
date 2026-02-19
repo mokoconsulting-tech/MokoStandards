@@ -251,8 +251,6 @@ DO NOT CHANGE THIS ID!
 This ID is registered in the MokoStandards module registry:
 https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/development/crm/module-registry.md
 ```
-https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/policy/crm/development-standards.md
-```
 
 ## Workflow Steps
 

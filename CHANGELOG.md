@@ -32,11 +32,62 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [04.00.01] - 2026-02-19
 
+### Added
+
+**Version Consistency Checker (`scripts/validate/check_version_consistency.php`)**:
+- New PHP script to validate version number consistency across repository
+- Reads expected version from `composer.json` as source of truth
+- Validates 39 files: critical documentation, 21 workflow files, 14 PHP source files
+- Checks:
+  - README.md (VERSION header and badge)
+  - CHANGELOG.md (VERSION header and title)
+  - CONTRIBUTING.md (VERSION header)
+  - All workflow files (VERSION comments in .github/workflows/*.yml)
+  - All PHP source files (VERSION headers in src/**/*.php)
+- Reports mismatches with file path, type, and line number
+- Color-coded output (green=pass, red=fail, yellow=warning)
+- Supports `--verbose` and `--help` flags
+- Exit codes: 0=consistent, 1=mismatches found, 2=error
+- Added to script registry (.script-registry.json)
+- Documentation added to scripts/validate/README.md
+- File: `scripts/validate/check_version_consistency.php` (10,522 bytes)
+
+**CRM Documentation Structure**:
+- Created comprehensive CRM documentation hierarchy in `docs/development/crm/`
+- New files:
+  - `docs/development/crm/index.md` - CRM development resources hub
+  - `docs/development/crm/module-registry.md` - Official Dolibarr module ID registry
+- Module registry contains 49 reserved module IDs (185051-185099) for Moko Consulting
+- Serves as single source of truth for module ID reservations
+- Cross-linked from:
+  - `docs/development/index.md` - Added CRM section
+  - `docs/guide/crm/index.md` - Added development resources links
+  - `docs/policy/crm/index.md` - Added module registry links
+- Three-tier documentation structure:
+  - `docs/development/crm/` - Development resources and references
+  - `docs/guide/crm/` - Tutorials and how-to guides
+  - `docs/policy/crm/` - Standards and requirements
+
+**Auto-Update SHA Workflow PHP Implementation**:
+- Replaced Python with PHP in auto-update-sha workflow
+- New script: `scripts/maintenance/update_sha_hashes.php`
+- Updates `scripts/.script-registry.json` with SHA-256 hashes
+- Requires PHP 8.1+ with json extension
+- Supports `--dry-run`, `--verbose`, and `--help` flags
+- No external dependencies (uses native PHP hash functions)
+- Workflow now uses `shivammathur/setup-php@v2` instead of `actions/setup-python@v6`
+- Updated trigger paths to match actual script files (*.php, *.sh, *.ps1)
+- Updated commit target from `.github/workflows/` to `scripts/.script-registry.json`
+- Protected in MokoStandards.override.tf
+- Documentation:
+  - Updated `docs/guide/sha-auto-update.md`
+  - Updated `docs/guide/script-integrity-validation.md`
+
 ### Changed
 
 **Version Bump - Patch Release**:
 - Bumped version from 04.00.00 to 04.00.01 across entire repository
-- Updated version references in all files:
+- Updated version references in 313 files:
   - composer.json
   - All documentation files (docs/**/*.md)
   - All workflow files (.github/workflows/*.yml)
@@ -47,7 +98,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - All Terraform files (terraform/**/*.tf)
   - MokoStandards.override.tf
   - README.md, CONTRIBUTING.md, ROADMAP.md
-- Total files updated: 260+ files
+
+**Dolibarr Module Registry Reorganization**:
+- Moved module registry from `docs/policy/crm/development-standards.md` to `docs/development/crm/module-registry.md`
+- Old location now contains reference link to new location
+- Updated `reserve-dolibarr-module-id.yml` workflow to reference new registry location
+- Updated all PR templates and commit messages in workflow
+- Updated DOLIBARR_MODULE_ID.txt template
+- All documentation links standardized to `https://github.com/mokoconsulting-tech/`
+
+**Reserve Dolibarr Module ID Workflow Simplification**:
+- Removed `developer` input field from workflow
+- Module reservations now automatically attributed to GitHub user who triggers workflow
+- Simplified from 6 inputs to 5 inputs:
+  - ❌ Removed: `developer` (name of developer)
+  - ✅ Kept: `description`, `repository`, `module_id`, `push_to_remote`, `remote_repository`
+- Updated workflow documentation at `docs/workflows/reserve-dolibarr-module-id.md`
+- Removed developer references from workflow templates and PR descriptions
+
+**Terraform Configuration Updates**:
+- Updated `MokoStandards.override.tf`:
+  - Added `auto-update-sha.yml` to protected files list
+  - Added `validate-script-integrity.yml` to protected files list
+  - Updated version to 04.00.01
+  - Updated timestamp to 2026-02-19
+
+**Documentation Cross-Linking**:
+- Updated `docs/development/index.md` - Added CRM section with links
+- Updated `docs/guide/crm/index.md` - Added development resources cross-links
+- Updated `docs/policy/crm/index.md` - Added module registry cross-links
+- Updated `docs/policy/crm/development-standards.md` - Replaced table with reference to registry
+
+### Fixed
+
+**Version Mismatches**:
+- `.github/workflows/dependency-review.yml` - Updated from 01.00.00 to 04.00.01
+- `.github/workflows/terraform-setup.yml` - Updated from 03.02.00 to 04.00.01
+- CHANGELOG.md - Fixed duplicate date entry for 04.00.00 release
+
+**Workflow Documentation**:
+- Removed duplicate URL reference in `docs/workflows/reserve-dolibarr-module-id.md`
+- Updated workflow trigger paths to match actual script types (*.php, *.sh, *.ps1)
+- Corrected commit paths to target script registry instead of workflow files
 
 ### Fixed - Previous Release (04.00.00)
 

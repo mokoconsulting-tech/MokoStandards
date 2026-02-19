@@ -153,7 +153,9 @@ class ScriptRegistryUpdater
         
         // Update metadata timestamp if there are changes
         if (!empty($this->changes)) {
-            $registry['metadata']['generated_at'] = gmdate('Y-m-d\TH:i:s.u\Z');
+            $microtime = microtime(true);
+            $timestamp = gmdate('Y-m-d\TH:i:s', (int)$microtime) . '.' . sprintf('%06d', ($microtime - floor($microtime)) * 1000000) . 'Z';
+            $registry['metadata']['generated_at'] = $timestamp;
         }
         
         $this->log("\nSummary:");

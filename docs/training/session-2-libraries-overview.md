@@ -185,9 +185,12 @@ echo "Found " . count($report) . " audit events\n";
 **Key Features**:
 - Configurable rate limiting (requests per hour)
 - Exponential backoff retry logic
-- Circuit breaker pattern for failing endpoints
+- Circuit breaker pattern for failing endpoints with health monitoring
+  - `getCircuitState()` - Returns current circuit state ('CLOSED', 'OPEN', 'HALF_OPEN')
+  - `simulateFailure()` - Test method for circuit breaker (test environments only)
 - Response caching with TTL
 - Request metrics tracking
+- Environment-aware testing capabilities
 
 **When to Use**:
 - ✅ Any GitHub API interactions

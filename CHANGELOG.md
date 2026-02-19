@@ -30,6 +30,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed - Health Check Workflow
+
+**Health Check Workflow Fix (`src/Enterprise/ApiClient.php`, `.github/workflows/health-check.yml`, `templates/workflows/health-check.yml`)**:
+- Fixed health check workflow that was failing with exit code 255
+- Added `getCircuitState()` method to ApiClient class - returns circuit breaker state as string ('CLOSED', 'OPEN', 'HALF_OPEN')
+- Added `simulateFailure()` method to ApiClient class for testing circuit breaker functionality
+  - Includes environment security checks - only runs in test/development environments
+  - Checks APP_ENV and ENVIRONMENT variables across getenv(), $_ENV, $_SERVER
+  - Prevents abuse in production by throwing RuntimeException if called outside test environments
+- Updated health-check.yml workflow to properly instantiate ApiClient with all required parameters
+- Added `APP_ENV: test` environment variable to circuit breaker test step
+- Removed invalid call to private `checkCircuitBreaker()` method
+- Fixed YAML linting issues in workflow files
+- Health reports now generate successfully to `logs/health/health-report.json`
+- Circuit breaker testing works properly with environment safeguards
+- Files affected:
+  - `src/Enterprise/ApiClient.php` (+30 lines)
+  - `.github/workflows/health-check.yml` (+12/-8 lines)
+  - `templates/workflows/health-check.yml` (+12/-8 lines)
+
 ### Added - Enterprise Readiness System
 
 **Enterprise Readiness Checker (`scripts/validate/check_enterprise_readiness.py`)**:

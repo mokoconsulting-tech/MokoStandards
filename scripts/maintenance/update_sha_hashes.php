@@ -154,8 +154,8 @@ class ScriptRegistryUpdater
         // Update metadata timestamp if there are changes
         if (!empty($this->changes)) {
             $microtime = microtime(true);
-            $timestamp = gmdate('Y-m-d\TH:i:s', (int)$microtime) . '.' . sprintf('%06d', ($microtime - floor($microtime)) * 1000000) . 'Z';
-            $registry['metadata']['generated_at'] = $timestamp;
+            $dt = DateTime::createFromFormat('U.u', sprintf('%.6f', $microtime), new DateTimeZone('UTC'));
+            $registry['metadata']['generated_at'] = $dt->format('Y-m-d\TH:i:s.u\Z');
         }
         
         $this->log("\nSummary:");

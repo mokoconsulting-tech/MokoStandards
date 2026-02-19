@@ -1131,7 +1131,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Moved Documentation links to `/docs/index.md`
 - Created `/templates/..`
 
-## [04.00.01] - 2025-12-18
+## [04.00.00] - 2025-12-18
 - `MokoDefaults` -> `MokoStandards`
 
 ## [03.00.00] - 2025-12-11

@@ -462,12 +462,12 @@ class ApiClient
     {
         // Only allow in test/development environments
         $allowedEnvs = ['test', 'testing', 'development', 'dev', 'ci'];
-        $currentEnv = getenv('APP_ENV') ?: getenv('ENVIRONMENT') ?: 'production';
-        
+        $currentEnv = getenv('APP_ENV') ?: $_ENV['APP_ENV'] ?? getenv('ENVIRONMENT') ?: $_ENV['ENVIRONMENT'] ?? $_SERVER['APP_ENV'] ?? 'production';
+
         if (!in_array(strtolower($currentEnv), $allowedEnvs, true)) {
             throw new RuntimeException('simulateFailure() can only be called in test environments');
         }
-        
+
         $this->recordFailure();
         throw new RuntimeException('Simulated failure for circuit breaker testing');
     }

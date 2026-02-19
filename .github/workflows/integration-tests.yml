@@ -142,7 +142,7 @@ jobs:
 
                       case 'SecurityValidator':
                           $validator = new SecurityValidator();
-                          $testDetails['patterns'] = $validator->getPatternCount();
+                          $testDetails['version'] = $validator->getVersion();
                           break;
 
                       case 'Config':
@@ -242,19 +242,20 @@ jobs:
           $benchmarks = [];
 
           try {
-              // Benchmark 1: API Client rate limiting
+              // Benchmark 1: API Client circuit breaker and metrics
               $client = new ApiClient('https://api.github.com');
               $start = microtime(true);
               for ($i = 0; $i < 100; $i++) {
-                  $client->checkRateLimit();
+                  // Get metrics to test circuit breaker monitoring
+                  $metrics = $client->getMetrics();
               }
               $elapsed = microtime(true) - $start;
-              $benchmarks['api_client_rate_limit'] = [
+              $benchmarks['api_client_metrics'] = [
                   'iterations' => 100,
                   'total_time_ms' => round($elapsed * 1000, 2),
                   'avg_time_ms' => round($elapsed * 1000 / 100, 4)
               ];
-              echo "✅ API Client rate limit: {$benchmarks['api_client_rate_limit']['avg_time_ms']}ms/op\n";
+              echo "✅ API Client metrics: {$benchmarks['api_client_metrics']['avg_time_ms']}ms/op\n";
 
               // Benchmark 2: Audit logging
               $logger = new AuditLogger('benchmark');

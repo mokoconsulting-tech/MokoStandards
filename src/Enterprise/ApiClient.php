@@ -362,7 +362,7 @@ class ApiClient
      *
      * @throws CircuitBreakerOpen
      */
-    private function checkCircuitBreaker(): void
+    public function checkCircuitBreaker(): void
     {
         if ($this->circuitState === CircuitState::CLOSED) {
             return;
@@ -440,6 +440,28 @@ class ApiClient
             'circuit_failure_count' => $this->circuitFailureCount,
             'rate_limit_remaining' => max(0, $this->maxRequestsPerHour - count($this->requestTimestamps)),
         ]);
+    }
+
+    /**
+     * Get current circuit breaker state.
+     *
+     * @return string Circuit state ('CLOSED', 'OPEN', or 'HALF_OPEN')
+     */
+    public function getCircuitState(): string
+    {
+        return strtoupper($this->circuitState->value);
+    }
+
+    /**
+     * Simulate a failure for testing circuit breaker functionality.
+     * This method is intended for testing only.
+     *
+     * @throws RuntimeException Always throws to simulate failure
+     */
+    public function simulateFailure(): void
+    {
+        $this->recordFailure();
+        throw new RuntimeException('Simulated failure for circuit breaker testing');
     }
 
     /**

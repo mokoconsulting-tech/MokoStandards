@@ -8,12 +8,19 @@
 
 The `reserve-dolibarr-module-id.yml` workflow automates the reservation of Dolibarr module IDs from the Moko Consulting reserved range (185064-185099). It simplifies the module ID reservation process by automatically updating the module registry table and creating a pull request for approval.
 
+## Quick Links
+
+- **[Module Registry](../development/crm/module-registry.md)** - Official Dolibarr module number registry
+- **[Run Workflow](../../.github/workflows/reserve-dolibarr-module-id.yml)** - Reserve a module ID now
+- **[Development Guide](../guide/crm/dolibarr-development-guide.md)** - CRM development guide
+- **[Development Standards](../policy/crm/development-standards.md)** - Coding standards
+
 ### Key Features
 
 - **Automatic Module Name Detection**: Extracts module name from repository name
 - **Auto-Assignment or Manual ID Selection**: Automatically assigns next available ID or accepts manual specification
 - **Conflict Detection**: Validates that the requested ID is not already in use
-- **Registry Update**: Updates the module registry table in MokoStandards
+- **Registry Update**: Updates the [module registry](../development/crm/module-registry.md) in MokoStandards
 - **Pull Request Creation**: Automatically creates PR with all changes
 - **Optional Remote Push**: Can push `DOLIBARR_MODULE_ID.txt` to target repository
 
@@ -21,7 +28,8 @@ The `reserve-dolibarr-module-id.yml` workflow automates the reservation of Dolib
 
 **File**: `.github/workflows/reserve-dolibarr-module-id.yml`  
 **Trigger**: Manual (workflow_dispatch)  
-**Permissions**: `contents: write`, `pull-requests: write`
+**Permissions**: `contents: write`, `pull-requests: write`  
+**Repository**: [https://github.com/mokoconsulting-tech/MokoStandards](https://github.com/mokoconsulting-tech/MokoStandards)
 
 ## Architecture
 
@@ -104,7 +112,6 @@ When you want to reserve the next available module ID:
 
 Inputs:
   description: "Advanced form builder and workflow module for Dolibarr"
-  developer: "John Doe"
   repository: (leave empty or provide URL)
   module_id: (leave empty for auto-assignment)
   push_to_remote: false
@@ -120,7 +127,6 @@ When you need a specific module ID:
 ```yaml
 Inputs:
   description: "Digital signature module for Dolibarr"
-  developer: "Jane Smith"
   repository: "https://github.com/mokoconsulting-tech/MokoDoliSign"
   module_id: 185070
   push_to_remote: false
@@ -136,7 +142,6 @@ When you want to push the module ID to the target repository:
 ```yaml
 Inputs:
   description: "Google Workspace integration for Dolibarr"
-  developer: "Dev Team"
   repository: "https://github.com/mokoconsulting-tech/MokoDoliG"
   module_id: (auto-assign)
   push_to_remote: true
@@ -155,7 +160,8 @@ Inputs:
 | Input | Type | Description | Example |
 |-------|------|-------------|---------|
 | `description` | string | Brief description of the module | "MailChimp integration for Dolibarr" |
-| `developer` | string | Name of the developer requesting reservation | "John Doe" |
+
+**Note**: The `developer` input was removed in version 04.00.00. Reservations are now attributed to the GitHub user who triggered the workflow.
 
 ### Optional Inputs
 
@@ -182,7 +188,7 @@ username/MyModule                   → MyModule
 ### 2. Module ID Determination
 
 **Auto-Assignment Mode** (default):
-- Scans registry table for used IDs in range 185064-185099
+- Scans [module registry](../development/crm/module-registry.md) for used IDs in range 185064-185099
 - Assigns first available ID sequentially
 - Fails if all IDs are reserved
 
@@ -193,12 +199,12 @@ username/MyModule                   → MyModule
 
 ### 3. Registry Table Update
 
-Updates `docs/policy/crm/development-standards.md`:
+Updates [`docs/development/crm/module-registry.md`](../development/crm/module-registry.md):
 
 ```markdown
 | Module Name | Module Number | Status | Description | Repository |
 |-------------|---------------|--------|-------------|------------|
-| MokoDoliExample | 185064 | Reserved | Example module | https://github.com/org/repo |
+| MokoDoliExample | 185064 | Reserved | Example module | https://github.com/mokoconsulting-tech/repo |
 ```
 
 **Insertion Point**: Before the "Available for Assignment" line.
@@ -243,6 +249,8 @@ Reserved: 2026-02-19 16:30:00 UTC
 DO NOT CHANGE THIS ID!
 
 This ID is registered in the MokoStandards module registry:
+https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/development/crm/module-registry.md
+```
 https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/policy/crm/development-standards.md
 ```
 

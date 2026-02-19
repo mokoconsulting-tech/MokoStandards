@@ -1,0 +1,28 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+# SPDX-License-Identifier: GPL-3.0-or-later
+name: Reserve Dolibarr Module ID
+on:
+  workflow_dispatch:
+    inputs:
+      module_name:
+        description: 'Module name'
+        required: true
+      developer:
+        description: 'Developer name'
+        required: true
+      repository:
+        description: 'Repository URL'
+        required: false
+      push_to_remote:
+        description: 'Push to remote src folder'
+        type: boolean
+        default: false
+permissions:
+  contents: write
+jobs:
+  reserve:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - name: Reserve ID
+        run: echo "Workflow created"

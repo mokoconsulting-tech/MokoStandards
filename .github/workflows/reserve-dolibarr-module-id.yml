@@ -6,8 +6,8 @@
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/reserve-dolibarr-module-id.yml
 # VERSION: 04.00.00
-# BRIEF: Automatically reserves a Dolibarr module ID and creates a pull request
-# NOTE: Reserves module IDs from the range 185064-185099 (Moko Consulting reserved range)
+# BRIEF: Reserves a Dolibarr module ID and updates registry table
+# NOTE: Module name defaults to repository name; supports manual ID assignment
 
 name: Reserve Dolibarr Module ID
 
@@ -15,55 +15,9 @@ env:
   ACTIONS_STEP_DEBUG: true
   ACTIONS_RUNNER_DEBUG: true
 
-# MokoStandards Policy Compliance:
-# - File formatting: Enforces organizational coding standards
-# - Reference: docs/policy/file-formatting.md
-# - Module ID Reservation: docs/policy/crm/development-standards.md
-
-# ┌─────────────────────────────────────────────────────────────────────────┐
-# │                         WORKFLOW FLOW DIAGRAM                            │
-# └─────────────────────────────────────────────────────────────────────────┘
-#
-#   TRIGGER: Manual Workflow Dispatch
-#        │
-#        ▼
-#   ┌──────────────────┐
-#   │ Find Next        │
-#   │ Available ID     │───┐ Scan 185064-185099 range
-#   └──────────────────┘   │ Parse existing table
-#        │                 │
-#        ▼                 │
-#   ┌──────────────────┐   │
-#   │ Update Module    │◀──┘
-#   │ Registry Table   │
-#   └──────────────────┘
-#        │
-#        ▼
-#   ┌──────────────────┐
-#   │ Create Branch    │───┐ reserve-module-id/<id>
-#   │ and Commit       │   │
-#   └──────────────────┘   │
-#        │                 │
-#        ▼                 │
-#   ┌──────────────────┐   │
-#   │ Create Pull      │◀──┘
-#   │ Request          │
-#   └──────────────────┘
-#        │
-#        ├────────────────┐
-#        ▼                ▼
-#   ┌─────────┐    ┌──────────┐
-#   │ PR Link │    │  Push to │
-#   │ Output  │    │  Remote  │ (Optional)
-#   └─────────┘    └──────────┘
-
 on:
   workflow_dispatch:
     inputs:
-      module_name:
-        description: 'Module name (e.g., MokoDoliExample)'
-        required: true
-        type: string
       description:
         description: 'Brief description of the module'
         required: true
@@ -73,12 +27,15 @@ on:
         required: true
         type: string
       repository:
-        description: 'Repository URL (use "TBD" if not yet created)'
+        description: 'Repository URL (defaults to github.repository if not provided)'
         required: false
         type: string
-        default: 'TBD'
+      module_id:
+        description: 'Specific module ID to assign (optional, auto-assigns if not provided)'
+        required: false
+        type: number
       push_to_remote:
-        description: 'Push to remote repository src folder'
+        description: 'Push DOLIBARR_MODULE_ID.txt to remote repository src folder'
         type: boolean
         default: false
       remote_repository:
@@ -105,38 +62,64 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Find next available module ID
+      - name: Extract module name from repository
+        id: extract_name
+        run: |
+          # Extract module name from repository name (assumes format: org/ModuleName)
+          REPO_NAME="${{ github.repository }}"
+          MODULE_NAME="${REPO_NAME#*/}"
+
+          echo "📦 Repository: $REPO_NAME"
+          echo "📝 Module name: $MODULE_NAME"
+          echo "module_name=$MODULE_NAME" >> $GITHUB_OUTPUT
+
+      - name: Determine module ID
         id: find_id
+        env:
+          MANUAL_ID: ${{ github.event.inputs.module_id }}
         run: |
           REGISTRY_FILE="docs/policy/crm/development-standards.md"
 
-          echo "📖 Reading module registry..."
+          if [ -n "$MANUAL_ID" ]; then
+            # Manual ID provided
+            MODULE_ID="$MANUAL_ID"
+            echo "🔢 Using manually specified module ID: $MODULE_ID"
 
-          # Extract module IDs from the table, only from the 185064-185099 range
-          USED_IDS=$(grep -oP '(?<=\| )1850(6[4-9]|[7-8][0-9]|9[0-9])(?= \|)' "$REGISTRY_FILE" | sort -n || true)
-
-          echo "Used IDs in range 185064-185099:"
-          echo "$USED_IDS"
-
-          # Find the first available ID in the range 185064-185099
-          NEXT_ID=""
-          for id in $(seq 185064 185099); do
-            if ! echo "$USED_IDS" | grep -q "^$id$"; then
-              NEXT_ID=$id
-              break
+            # Validate it's in the correct range
+            if [ "$MODULE_ID" -lt 185064 ] || [ "$MODULE_ID" -gt 185099 ]; then
+              echo "❌ Error: Module ID must be in range 185064-185099"
+              exit 1
             fi
-          done
+          else
+            # Auto-assign next available ID
+            echo "🔍 Scanning for next available module ID..."
 
-          if [ -z "$NEXT_ID" ]; then
-            echo "❌ Error: No available module IDs in range 185064-185099"
-            exit 1
+            # Extract module IDs from the table, only from the 185064-185099 range
+            USED_IDS=$(grep -oP '(?<=\| )1850(6[4-9]|[7-8][0-9]|9[0-9])(?= \|)' "$REGISTRY_FILE" | sort -n || true)
+
+            echo "Used IDs in range 185064-185099:"
+            echo "$USED_IDS"
+
+            # Find the first available ID
+            MODULE_ID=""
+            for id in $(seq 185064 185099); do
+              if ! echo "$USED_IDS" | grep -q "^$id$"; then
+                MODULE_ID=$id
+                break
+              fi
+            done
+
+            if [ -z "$MODULE_ID" ]; then
+              echo "❌ Error: No available module IDs in range 185064-185099"
+              exit 1
+            fi
+
+            echo "✅ Next available module ID: $MODULE_ID"
           fi
 
-          echo "✅ Next available module ID: $NEXT_ID"
-          echo "module_id=$NEXT_ID" >> $GITHUB_OUTPUT
+          echo "module_id=$MODULE_ID" >> $GITHUB_OUTPUT
 
-      - name: Detect ID conflicts
-        id: detect_conflicts
+      - name: Check for ID conflicts
         env:
           MODULE_ID: ${{ steps.find_id.outputs.module_id }}
         run: |
@@ -144,238 +127,31 @@ jobs:
 
           echo "🔍 Checking for ID conflicts..."
 
-          # Check if the ID already exists in the registry
           if grep -q "| $MODULE_ID |" "$REGISTRY_FILE"; then
             echo "❌ Error: Module ID $MODULE_ID is already in use!"
-            echo "conflict=true" >> $GITHUB_OUTPUT
             exit 1
           fi
 
           echo "✅ No conflicts detected for module ID $MODULE_ID"
-          echo "conflict=false" >> $GITHUB_OUTPUT
 
-      - name: Create module registry documentation
-        id: create_docs
-        env:
-          MODULE_NAME: ${{ github.event.inputs.module_name }}
-          MODULE_ID: ${{ steps.find_id.outputs.module_id }}
-          DESCRIPTION: ${{ github.event.inputs.description }}
-          REPOSITORY: ${{ github.event.inputs.repository }}
-          DEVELOPER: ${{ github.event.inputs.developer }}
-        run: |
-          DOC_FILE="docs/modules/${MODULE_NAME}.md"
-          mkdir -p docs/modules
-
-          echo "📚 Creating module registry documentation..."
-
-          cat > "$DOC_FILE" << EOF
-          # ${MODULE_NAME}
-
-          ## Module ID Assignment
-
-          **DOLIBARR_MODULE_ID: ${MODULE_ID}**
-
-          This is the official Dolibarr module ID reserved for ${MODULE_NAME}.
-
-          ## Basic Information
-
-          | Property | Value |
-          |----------|-------|
-          | Module ID | ${MODULE_ID} |
-          | Module Name | ${MODULE_NAME} |
-          | Status | Reserved |
-          | Developer | ${DEVELOPER} |
-          | Repository | ${REPOSITORY} |
-          | Reserved Date | $(date -u +"%Y-%m-%d") |
-          | Reserved Range | 185051-185099 (Moko Consulting) |
-
-          ## Description
-
-          ${DESCRIPTION}
-
-          ## Module Configuration
-
-          ### Module Descriptor
-
-          The module descriptor should use this ID:
-
-          \`\`\`php
-          <?php
-          class mod${MODULE_NAME} extends DolibarrModules
-          {
-              public function __construct(\$db)
-              {
-                  parent::__construct(\$db);
-
-                  // DO NOT CHANGE THIS ID!
-                  // This ID is officially reserved in MokoStandards
-                  \$this->numero = ${MODULE_ID};
-
-                  \$this->rights_class = '$(echo "${MODULE_NAME}" | tr '[:upper:]' '[:lower:]')';
-                  \$this->family = "mokoconsulting";
-                  \$this->name = preg_replace('/^mod/i', '', get_class(\$this));
-                  \$this->description = "${DESCRIPTION}";
-
-                  \$this->editor_name = 'Moko Consulting';
-                  \$this->editor_url = 'https://www.mokoconsulting.tech';
-
-                  \$this->version = '1.0.0';
-                  \$this->const_name = 'MAIN_MODULE_'.strtoupper(\$this->name);
-              }
-          }
-          \`\`\`
-
-          ## Technical Details
-
-          - **Module Number:** ${MODULE_ID}
-          - **Rights Class:** $(echo "${MODULE_NAME}" | tr '[:upper:]' '[:lower:]')
-          - **Family:** mokoconsulting
-          - **Position:** 90
-
-          ## Reservation Details
-
-          - **Reserved Date:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")
-          - **Reserved By:** ${DEVELOPER}
-          - **Reservation Method:** Automated via reserve-dolibarr-module-id workflow
-          - **Registry Entry:** docs/policy/crm/development-standards.md
-
-          ## Module ID File
-
-          A \`DOLIBARR_MODULE_ID.txt\` file should be placed in the repository's \`src/\` directory:
-
-          \`\`\`
-          DOLIBARR_MODULE_ID=${MODULE_ID}
-          \`\`\`
-
-          This file serves as a reference and prevents accidental ID changes.
-
-          ## Next Steps
-
-          1. Create the repository at ${REPOSITORY} (if not already created)
-          2. Add \`src/DOLIBARR_MODULE_ID.txt\` with the module ID
-          3. Create module descriptor: \`src/mod${MODULE_NAME}.class.php\`
-          4. Implement module functionality
-          5. Update status from "Reserved" to "Active" in the registry once deployed
-
-          ## Important Notes
-
-          ⚠️ **DO NOT CHANGE THE MODULE ID!**
-
-          This module ID (${MODULE_ID}) has been officially reserved in MokoStandards and registered in the Dolibarr module number registry. Changing this ID will cause conflicts and break compatibility.
-
-          ## References
-
-          - [CRM Development Standards](../policy/crm/development-standards.md)
-          - [Dolibarr Module Development Guide](../guide/crm/dolibarr-development-guide.md)
-          - [MokoStandards Module Registry](../policy/crm/development-standards.md#reserved-module-numbers)
-
-          ---
-
-          **Module ID:** ${MODULE_ID}
-          **Status:** Reserved
-          **Last Updated:** $(date -u +"%Y-%m-%d")
-
-          _Generated by reserve-dolibarr-module-id workflow v04.00.00_
-          EOF
-
-          echo "✅ Created module description documentation: $DOC_FILE"
-          echo "doc_file=$DOC_FILE" >> $GITHUB_OUTPUT
-
-          # Create README for the module documentation
-          README_FILE="docs/modules/${MODULE_NAME}_README.md"
-          cat > "$README_FILE" << EOF
-          # ${MODULE_NAME}
-
-          **Dolibarr Module ID: ${MODULE_ID}**
-
-          ${DESCRIPTION}
-
-          ## Module ID
-
-          This module has been assigned the official Dolibarr module ID: **${MODULE_ID}**
-
-          ⚠️ **DO NOT CHANGE THIS ID!** It is officially reserved in MokoStandards.
-
-          ## Quick Reference
-
-          - **Module ID:** ${MODULE_ID}
-          - **Module Name:** ${MODULE_NAME}
-          - **Status:** Reserved
-          - **Reserved Date:** $(date -u +"%Y-%m-%d")
-          - **Developer:** ${DEVELOPER}
-          - **Repository:** ${REPOSITORY}
-
-          ## Installation
-
-          1. Clone this repository
-          2. Copy to Dolibarr's \`htdocs/custom/\` directory
-          3. Enable the module in Dolibarr admin interface
-          4. Configure module settings as needed
-
-          ## Module Information
-
-          This module is part of the Moko Consulting Dolibarr extension suite.
-
-          - **Family:** mokoconsulting
-          - **Reserved Range:** 185051-185099 (Moko Consulting)
-          - **Rights Class:** $(echo "${MODULE_NAME}" | tr '[:upper:]' '[:lower:]')
-
-          ## Files
-
-          Key files in this module:
-
-          - \`src/DOLIBARR_MODULE_ID.txt\` - Module ID reference (DO NOT MODIFY)
-          - \`src/mod${MODULE_NAME}.class.php\` - Module descriptor class
-          - \`README.md\` - This file
-
-          ## Documentation
-
-          Full module documentation is available in MokoStandards:
-
-          - [Module Registry Entry](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/policy/crm/development-standards.md)
-          - [Module Documentation](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/modules/${MODULE_NAME}.md)
-          - [Dolibarr Development Guide](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/guide/crm/dolibarr-development-guide.md)
-
-          ## Support
-
-          For support, please contact ${DEVELOPER} or file an issue in the repository.
-
-          ## License
-
-          GPL-3.0-or-later
-
-          ---
-
-          **Module ID:** ${MODULE_ID} | **Reserved:** $(date -u +"%Y-%m-%d") | **Moko Consulting**
-          EOF
-
-          echo "✅ Created module README: $README_FILE"
-          echo "readme_file=$README_FILE" >> $GITHUB_OUTPUT
-
-          # Also create a simple MODULE_ID.txt file for easy reference
-          MODULE_ID_REF="docs/modules/${MODULE_NAME}_MODULE_ID.txt"
-          cat > "$MODULE_ID_REF" << EOF
-          DOLIBARR_MODULE_ID=${MODULE_ID}
-          MODULE_NAME=${MODULE_NAME}
-          RESERVED_DATE=$(date -u +"%Y-%m-%d")
-          DEVELOPER=${DEVELOPER}
-          REPOSITORY=${REPOSITORY}
-          EOF
-
-          echo "✅ Created module ID reference file: $MODULE_ID_REF"
-          echo "module_id_ref=$MODULE_ID_REF" >> $GITHUB_OUTPUT
-
-      - name: Update module registry
+      - name: Update module registry table
         id: update_registry
         env:
-          MODULE_NAME: ${{ github.event.inputs.module_name }}
+          MODULE_NAME: ${{ steps.extract_name.outputs.module_name }}
           MODULE_ID: ${{ steps.find_id.outputs.module_id }}
           DESCRIPTION: ${{ github.event.inputs.description }}
           REPOSITORY: ${{ github.event.inputs.repository }}
         run: |
           REGISTRY_FILE="docs/policy/crm/development-standards.md"
 
-          echo "📝 Updating module registry..."
+          # Use provided repository or default to current repository
+          if [ -z "$REPOSITORY" ]; then
+            REPO_URL="https://github.com/${{ github.repository }}"
+          else
+            REPO_URL="$REPOSITORY"
+          fi
+
+          echo "📝 Updating module registry table..."
 
           # Find the line with "Available for Assignment"
           LINE_NUM=$(grep -n "| Available for Assignment |" "$REGISTRY_FILE" | cut -d: -f1)
@@ -386,7 +162,7 @@ jobs:
           fi
 
           # Create new entry
-          NEW_ENTRY="| $MODULE_NAME | $MODULE_ID | Reserved | $DESCRIPTION | $REPOSITORY |"
+          NEW_ENTRY="| $MODULE_NAME | $MODULE_ID | Reserved | $DESCRIPTION | $REPO_URL |"
 
           # Insert the new entry before "Available for Assignment" line
           sed -i "${LINE_NUM}i\\${NEW_ENTRY}" "$REGISTRY_FILE"
@@ -394,48 +170,47 @@ jobs:
           echo "✅ Registry updated with:"
           echo "$NEW_ENTRY"
 
-      - name: Update MokoStandards.override.tf
-        id: update_override
-        env:
-          MODULE_NAME: ${{ github.event.inputs.module_name }}
+      - name: Update MokoStandards.override.tf to protect workflow
         run: |
           OVERRIDE_FILE="MokoStandards.override.tf"
-          DOC_FILE="docs/modules/${MODULE_NAME}.md"
+          WORKFLOW_FILE=".github/workflows/reserve-dolibarr-module-id.yml"
 
-          echo "🔧 Updating MokoStandards.override.tf to exclude module docs from distribution..."
+          echo "🔧 Updating MokoStandards.override.tf to protect workflow file..."
 
-          # Find the line number for the search pattern
-          LINE_NUM=$(grep -n "# Keep new Week 1 enterprise workflows (MokoStandards-specific)" "$OVERRIDE_FILE" | cut -d: -f1)
-
-          if [ -z "$LINE_NUM" ]; then
-            echo "⚠️ Could not find insertion point in $OVERRIDE_FILE"
-            echo "Skipping override file update"
+          # Check if workflow is already protected
+          if grep -q "$WORKFLOW_FILE" "$OVERRIDE_FILE"; then
+            echo "✅ Workflow file is already protected in override file"
           else
-            # Create the new entry lines
-            printf "    # Keep module registry documentation\n" > /tmp/module_entry.txt
-            printf "    {\n" >> /tmp/module_entry.txt
-            printf "      path   = \"%s\"\n" "$DOC_FILE" >> /tmp/module_entry.txt
-            printf "      reason = \"Module registry documentation - MokoStandards specific\"\n" >> /tmp/module_entry.txt
-            printf "    },\n" >> /tmp/module_entry.txt
+            # Find the line number for insertion point
+            LINE_NUM=$(grep -n "# Keep MokoStandards-specific workflows" "$OVERRIDE_FILE" | head -1 | cut -d: -f1)
 
-            # Insert the new entry before the found line
-            head -n $((LINE_NUM - 1)) "$OVERRIDE_FILE" > /tmp/override_new.tf
-            cat /tmp/module_entry.txt >> /tmp/override_new.tf
-            tail -n +$LINE_NUM "$OVERRIDE_FILE" >> /tmp/override_new.tf
+            if [ -z "$LINE_NUM" ]; then
+              echo "⚠️ Could not find insertion point in $OVERRIDE_FILE"
+              echo "Skipping override file update"
+            else
+              # Create the new entry lines
+              printf "    {\n" > /tmp/workflow_entry.txt
+              printf "      path   = \"%s\"\n" "$WORKFLOW_FILE" >> /tmp/workflow_entry.txt
+              printf "      reason = \"Dolibarr module ID reservation workflow\"\n" >> /tmp/workflow_entry.txt
+              printf "    },\n" >> /tmp/workflow_entry.txt
 
-            mv /tmp/override_new.tf "$OVERRIDE_FILE"
+              # Insert after the comment line
+              head -n $LINE_NUM "$OVERRIDE_FILE" > /tmp/override_new.tf
+              cat /tmp/workflow_entry.txt >> /tmp/override_new.tf
+              tail -n +$((LINE_NUM + 1)) "$OVERRIDE_FILE" >> /tmp/override_new.tf
 
-            echo "✅ Updated $OVERRIDE_FILE to protect module documentation"
+              mv /tmp/override_new.tf "$OVERRIDE_FILE"
+
+              echo "✅ Updated $OVERRIDE_FILE to protect workflow file"
+            fi
           fi
 
       - name: Create branch and commit changes
         id: commit
         env:
           MODULE_ID: ${{ steps.find_id.outputs.module_id }}
-          MODULE_NAME: ${{ github.event.inputs.module_name }}
+          MODULE_NAME: ${{ steps.extract_name.outputs.module_name }}
           DEVELOPER: ${{ github.event.inputs.developer }}
-          DOC_FILE: ${{ steps.create_docs.outputs.doc_file }}
-          README_FILE: ${{ steps.create_docs.outputs.readme_file }}
         run: |
           BRANCH_NAME="reserve-module-id/$MODULE_ID"
 
@@ -444,7 +219,6 @@ jobs:
 
           echo "📦 Committing changes..."
           git add docs/policy/crm/development-standards.md
-          git add docs/modules/
           git add MokoStandards.override.tf
 
           # Create commit message
@@ -455,10 +229,7 @@ jobs:
           printf "This PR reserves module ID %s from Moko Consulting range (185051-185099).\n\n" "$MODULE_ID" >> /tmp/commit_msg.txt
           printf "Updates in this PR\n" >> /tmp/commit_msg.txt
           printf -- "- Module registry in docs/policy/crm/development-standards.md\n" >> /tmp/commit_msg.txt
-          printf -- "- Module documentation in %s\n" "$DOC_FILE" >> /tmp/commit_msg.txt
-          printf -- "- Module README in %s\n" "$README_FILE" >> /tmp/commit_msg.txt
-          printf -- "- Module ID reference file\n" >> /tmp/commit_msg.txt
-          printf -- "- MokoStandards.override.tf protection\n\n" >> /tmp/commit_msg.txt
+          printf -- "- MokoStandards.override.tf protection for workflow\n\n" >> /tmp/commit_msg.txt
           printf "Automated via reserve-dolibarr-module-id workflow.\n" >> /tmp/commit_msg.txt
 
           git commit -F /tmp/commit_msg.txt
@@ -472,7 +243,7 @@ jobs:
         uses: actions/github-script@v8
         id: create_pr
         env:
-          MODULE_NAME: ${{ github.event.inputs.module_name }}
+          MODULE_NAME: ${{ steps.extract_name.outputs.module_name }}
           MODULE_ID: ${{ steps.find_id.outputs.module_id }}
           DESCRIPTION: ${{ github.event.inputs.description }}
           DEVELOPER: ${{ github.event.inputs.developer }}
@@ -484,7 +255,7 @@ jobs:
             const moduleName = process.env.MODULE_NAME;
             const description = process.env.DESCRIPTION;
             const developer = process.env.DEVELOPER;
-            const repository = process.env.REPOSITORY;
+            const repository = process.env.REPOSITORY || `https://github.com/${context.repo.owner}/${context.repo.repo}`;
             const branchName = process.env.BRANCH_NAME;
 
             const title = `Reserve Dolibarr Module ID ${moduleId} for ${moduleName}`;
@@ -498,15 +269,13 @@ jobs:
 
             ---
 
-            This PR reserves module ID **${moduleId}** from the Moko Consulting reserved range (185051-185099) for the **${moduleName}** module.
+            This PR reserves module ID **${moduleId}** from the Moko Consulting reserved range (185064-185099) for the **${moduleName}** module.
 
             ### Changes
             - ✅ Updated module registry table in \`docs/policy/crm/development-standards.md\`
-            - ✅ Created module documentation in \`docs/modules/${moduleName}.md\`
-            - ✅ Updated \`MokoStandards.override.tf\` to protect module docs from distribution
+            - ✅ Updated \`MokoStandards.override.tf\` to protect workflow file
             - ✅ Reserved ID: **${moduleId}**
             - ✅ Status: **Reserved**
-            - ✅ Conflict detection: Verified ID is available
 
             ### Next Steps
             1. Review this PR
@@ -517,7 +286,6 @@ jobs:
             ### Policy Compliance
             - Follows module ID reservation process per [CRM Development Standards](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/policy/crm/development-standards.md#module-id-reservation-process)
             - Module ID from reserved Moko Consulting range (185051-185099)
-            - Module registry documentation created for tracking
 
             ---
 
@@ -571,7 +339,7 @@ jobs:
         if: ${{ github.event.inputs.push_to_remote == 'true' && github.event.inputs.remote_repository != '' }}
         env:
           MODULE_ID: ${{ steps.find_id.outputs.module_id }}
-          MODULE_NAME: ${{ github.event.inputs.module_name }}
+          MODULE_NAME: ${{ steps.extract_name.outputs.module_name }}
           DESCRIPTION: ${{ github.event.inputs.description }}
           REMOTE_REPO: ${{ github.event.inputs.remote_repository }}
         run: |
@@ -612,208 +380,19 @@ jobs:
 
           This ID is registered in the MokoStandards module registry:
           https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/policy/crm/development-standards.md
-
-          For more information, see the module documentation:
-          https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/modules/$MODULE_NAME.md
           EOF
 
           echo "✅ Created $MODULE_ID_FILE"
 
-          # Also create a template module descriptor
-          MODULE_DESCRIPTOR="src/mod${MODULE_NAME}.class.php"
-
-          cat > "$MODULE_DESCRIPTOR" << 'PHPEOF'
-          <?php
-          /* Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
-           * SPDX-License-Identifier: GPL-3.0-or-later
-           */
-
-          /**
-           * \file       mod%%MODULE_NAME%%.class.php
-           * \ingroup    %%MODULE_NAME%%
-           * \brief      Module descriptor for %%MODULE_NAME%%
-           */
-
-          require_once DOL_DOCUMENT_ROOT.'/core/modules/DolibarrModules.class.php';
-
-          /**
-           * Class to describe and enable module %%MODULE_NAME%%
-           */
-          class mod%%MODULE_NAME%% extends DolibarrModules
-          {
-              /**
-               * Constructor
-               *
-               * @param DoliDB $db Database handler
-               */
-              public function __construct($db)
-              {
-                  global $langs, $conf;
-
-                  parent::__construct($db);
-
-                  // Module identification - RESERVED in MokoStandards
-                  // DO NOT CHANGE THIS ID!
-                  $this->numero = %%MODULE_ID%%;
-                  $this->rights_class = '%%MODULE_RIGHTS_CLASS%%';
-
-                  // Module family
-                  $this->family = "mokoconsulting";
-                  $this->familyinfo = array(
-                      'mokoconsulting' => array(
-                          'position' => '01',
-                          'label'    => $langs->trans("Moko Consulting")
-                      )
-                  );
-
-                  $this->module_position = '90';
-                  $this->name = preg_replace('/^mod/i', '', get_class($this));
-                  $this->description = "%%DESCRIPTION%%";
-
-                  // Author information
-                  $this->editor_name = 'Moko Consulting';
-                  $this->editor_url = 'https://www.mokoconsulting.tech';
-
-                  $this->version = '1.0.0';
-                  $this->const_name = 'MAIN_MODULE_'.strtoupper($this->name);
-
-                  // Dolibarr minimum version
-                  $this->need_dolibarr_version = array(15, 0);
-
-                  // Permissions
-                  $this->rights = array();
-              }
-          }
-          PHPEOF
-
-          # Replace placeholders in the PHP file
-          sed -i "s/%%MODULE_NAME%%/$MODULE_NAME/g" "$MODULE_DESCRIPTOR"
-          sed -i "s/%%MODULE_ID%%/$MODULE_ID/g" "$MODULE_DESCRIPTOR"
-          sed -i "s/%%MODULE_RIGHTS_CLASS%%/$(echo "$MODULE_NAME" | tr '[:upper:]' '[:lower:]')/g" "$MODULE_DESCRIPTOR"
-          sed -i "s/%%DESCRIPTION%%/$DESCRIPTION/g" "$MODULE_DESCRIPTOR"
-
-          echo "✅ Created template module descriptor: $MODULE_DESCRIPTOR"
-
-          # Create README.md for the remote repository
-          README_FILE="README.md"
-
-          cat > "$README_FILE" << 'READMEOF'
-          # %%MODULE_NAME%%
-
-          **Dolibarr Module ID: %%MODULE_ID%%**
-
-          %%DESCRIPTION%%
-
-          ## Module ID
-
-          This module has been assigned the official Dolibarr module ID: **%%MODULE_ID%%**
-
-          ⚠️ **DO NOT CHANGE THIS ID!** It is officially reserved in MokoStandards.
-
-          The module ID is stored in `src/DOLIBARR_MODULE_ID.txt` for reference.
-
-          ## Quick Reference
-
-          - **Module ID:** %%MODULE_ID%%
-          - **Module Name:** %%MODULE_NAME%%
-          - **Status:** Reserved
-          - **Reserved Date:** %%RESERVED_DATE%%
-          - **Reserved Range:** 185051-185099 (Moko Consulting)
-
-          ## Installation
-
-          1. Clone this repository
-          2. Copy to Dolibarr's `htdocs/custom/%%MODULE_NAME_LOWER%%/` directory
-          3. Enable the module in Dolibarr admin interface
-          4. Configure module settings as needed
-
-          ## Module Structure
-
-          ```
-          %%MODULE_NAME%%/
-          ├── src/
-          │   ├── DOLIBARR_MODULE_ID.txt      # Module ID reference (DO NOT MODIFY)
-          │   └── mod%%MODULE_NAME%%.class.php # Module descriptor
-          ├── class/                           # Business logic classes
-          ├── langs/                           # Translation files
-          │   ├── en_US/
-          │   └── fr_FR/
-          ├── sql/                            # Database scripts
-          ├── admin/                          # Admin pages
-          └── README.md                       # This file
-          ```
-
-          ## Module Information
-
-          This module is part of the Moko Consulting Dolibarr extension suite.
-
-          - **Family:** mokoconsulting
-          - **Rights Class:** %%MODULE_RIGHTS_CLASS%%
-          - **Module Position:** 90
-
-          ## Development
-
-          ### Module Descriptor
-
-          The module descriptor (`src/mod%%MODULE_NAME%%.class.php`) contains the module configuration with the reserved ID:
-
-          ```php
-          $this->numero = %%MODULE_ID%%; // DO NOT CHANGE!
-          ```
-
-          ### Important Notes
-
-          - **Never change the module ID!** It is officially registered in MokoStandards
-          - The ID is reserved in the range 185051-185099 (Moko Consulting)
-          - Changing the ID will cause conflicts and break compatibility
-
-          ## Documentation
-
-          Full module documentation is available in MokoStandards:
-
-          - [Module Registry Entry](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/policy/crm/development-standards.md)
-          - [Module Documentation](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/modules/%%MODULE_NAME%%.md)
-          - [Dolibarr Development Guide](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/guide/crm/dolibarr-development-guide.md)
-
-          ## Support
-
-          For support or questions:
-          - Open an issue in this repository
-          - Contact Moko Consulting: hello@mokoconsulting.tech
-          - Visit: https://www.mokoconsulting.tech
-
-          ## License
-
-          GPL-3.0-or-later
-
-          Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
-
-          ---
-
-          **Module ID:** %%MODULE_ID%% | **Reserved:** %%RESERVED_DATE%% | **Moko Consulting**
-          READMEOF
-
-          # Replace placeholders in README
-          sed -i "s/%%MODULE_NAME%%/$MODULE_NAME/g" "$README_FILE"
-          sed -i "s/%%MODULE_ID%%/$MODULE_ID/g" "$README_FILE"
-          sed -i "s/%%MODULE_NAME_LOWER%%/$(echo "$MODULE_NAME" | tr '[:upper:]' '[:lower:]')/g" "$README_FILE"
-          sed -i "s/%%MODULE_RIGHTS_CLASS%%/$(echo "$MODULE_NAME" | tr '[:upper:]' '[:lower:]')/g" "$README_FILE"
-          sed -i "s/%%DESCRIPTION%%/$DESCRIPTION/g" "$README_FILE"
-          sed -i "s/%%RESERVED_DATE%%/$(date -u +"%Y-%m-%d")/g" "$README_FILE"
-
-          echo "✅ Created README.md for remote repository"
-
-          # Commit and push all files
-          git add "$MODULE_ID_FILE" "$MODULE_DESCRIPTOR" "$README_FILE"
+          # Commit and push
+          git add "$MODULE_ID_FILE"
 
           # Create commit message for remote repo
           printf "Reserve Dolibarr module ID %s\n\n" "$MODULE_ID" > /tmp/remote_commit.txt
           printf "Module %s\n" "$MODULE_NAME" >> /tmp/remote_commit.txt
           printf "ID %s\n\n" "$MODULE_ID" >> /tmp/remote_commit.txt
           printf "Added files\n" >> /tmp/remote_commit.txt
-          printf -- "- src/DOLIBARR_MODULE_ID.txt with reserved module ID\n" >> /tmp/remote_commit.txt
-          printf -- "- src/mod%s.class.php template module descriptor\n" "$MODULE_NAME" >> /tmp/remote_commit.txt
-          printf -- "- README.md with module ID documentation\n\n" >> /tmp/remote_commit.txt
+          printf -- "- src/DOLIBARR_MODULE_ID.txt with reserved module ID\n\n" >> /tmp/remote_commit.txt
           printf "This ID has been officially reserved in MokoStandards.\n" >> /tmp/remote_commit.txt
           printf "See https://github.com/mokoconsulting-tech/MokoStandards\n\n" >> /tmp/remote_commit.txt
           printf "DO NOT change the module ID!\n" >> /tmp/remote_commit.txt
@@ -839,7 +418,7 @@ jobs:
             exit 1
           fi
 
-          echo "✅ Pushed module ID, template, and README to remote repository"
+          echo "✅ Pushed module ID to remote repository"
 
           # Cleanup
           cd /
@@ -847,7 +426,7 @@ jobs:
 
       - name: Output summary
         env:
-          MODULE_NAME: ${{ github.event.inputs.module_name }}
+          MODULE_NAME: ${{ steps.extract_name.outputs.module_name }}
           MODULE_ID: ${{ steps.find_id.outputs.module_id }}
           PR_URL: ${{ steps.create_pr.outputs.pr_url }}
         run: |

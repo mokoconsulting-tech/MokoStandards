@@ -112,10 +112,10 @@ jobs:
 
           echo "📖 Reading module registry..."
 
-          # Extract all module IDs from the table (185051-185099 range)
-          USED_IDS=$(grep -oP '(?<=\| )\d{6}(?= \|)' "$REGISTRY_FILE" | sort -n)
+          # Extract module IDs from the table, only from the 185064-185099 range
+          USED_IDS=$(grep -oP '(?<=\| )1850(6[4-9]|[7-8][0-9]|9[0-9])(?= \|)' "$REGISTRY_FILE" | sort -n || true)
 
-          echo "Used IDs:"
+          echo "Used IDs in range 185064-185099:"
           echo "$USED_IDS"
 
           # Find the first available ID in the range 185064-185099
@@ -404,17 +404,29 @@ jobs:
 
           echo "🔧 Updating MokoStandards.override.tf to exclude module docs from distribution..."
 
-          # Find the protected_files section and add the new entry
-          # Add before the closing bracket of protected_files array
-          SEARCH_LINE="    # Keep new Week 1 enterprise workflows (MokoStandards-specific)"
+          # Find the line number for the search pattern
+          LINE_NUM=$(grep -n "# Keep new Week 1 enterprise workflows (MokoStandards-specific)" "$OVERRIDE_FILE" | cut -d: -f1)
 
-          # Create new entry for the module documentation
-          NEW_ENTRY="    # Keep module registry documentation\n    {\n      path   = \"${DOC_FILE}\"\n      reason = \"Module registry documentation - MokoStandards specific\"\n    },"
+          if [ -z "$LINE_NUM" ]; then
+            echo "⚠️ Could not find insertion point in $OVERRIDE_FILE"
+            echo "Skipping override file update"
+          else
+            # Create the new entry lines
+            printf "    # Keep module registry documentation\n" > /tmp/module_entry.txt
+            printf "    {\n" >> /tmp/module_entry.txt
+            printf "      path   = \"%s\"\n" "$DOC_FILE" >> /tmp/module_entry.txt
+            printf "      reason = \"Module registry documentation - MokoStandards specific\"\n" >> /tmp/module_entry.txt
+            printf "    },\n" >> /tmp/module_entry.txt
 
-          # Insert before the search line
-          sed -i "/${SEARCH_LINE}/i\\${NEW_ENTRY}" "$OVERRIDE_FILE"
+            # Insert the new entry before the found line
+            head -n $((LINE_NUM - 1)) "$OVERRIDE_FILE" > /tmp/override_new.tf
+            cat /tmp/module_entry.txt >> /tmp/override_new.tf
+            tail -n +$LINE_NUM "$OVERRIDE_FILE" >> /tmp/override_new.tf
 
-          echo "✅ Updated $OVERRIDE_FILE to protect module documentation"
+            mv /tmp/override_new.tf "$OVERRIDE_FILE"
+
+            echo "✅ Updated $OVERRIDE_FILE to protect module documentation"
+          fi
 
       - name: Create branch and commit changes
         id: commit
@@ -542,6 +554,18 @@ jobs:
             });
 
             console.log('✅ Labels added to PR');
+
+      - name: Validate push_to_remote inputs
+        if: ${{ github.event.inputs.push_to_remote == 'true' }}
+        env:
+          REMOTE_REPO: ${{ github.event.inputs.remote_repository }}
+        run: |
+          if [ -z "$REMOTE_REPO" ]; then
+            echo "❌ Error: push_to_remote is enabled but remote_repository is not provided!"
+            echo "Please provide a valid repository URL in the remote_repository input."
+            exit 1
+          fi
+          echo "✅ Remote repository validation passed: $REMOTE_REPO"
 
       - name: Push to remote repository (optional)
         if: ${{ github.event.inputs.push_to_remote == 'true' && github.event.inputs.remote_repository != '' }}
@@ -796,7 +820,24 @@ jobs:
 
           git commit -F /tmp/remote_commit.txt
 
-          git push origin main || git push origin master
+          # Detect and push to the default branch
+          echo "📤 Detecting default branch..."
+          DEFAULT_BRANCH=$(git remote show origin | grep 'HEAD branch' | cut -d' ' -f5)
+
+          if [ -z "$DEFAULT_BRANCH" ]; then
+            echo "⚠️ Could not detect default branch, trying main then master..."
+            DEFAULT_BRANCH="main"
+          fi
+
+          echo "Default branch: $DEFAULT_BRANCH"
+
+          if git push origin "$DEFAULT_BRANCH"; then
+            echo "✅ Pushed to $DEFAULT_BRANCH successfully"
+          else
+            echo "❌ Failed to push to $DEFAULT_BRANCH"
+            echo "Please check if the branch exists and you have push permissions"
+            exit 1
+          fi
 
           echo "✅ Pushed module ID, template, and README to remote repository"
 

@@ -22,7 +22,7 @@
 # INGROUP: MokoStandards.Configuration
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /MokoStandards.override.tf
-# VERSION: 03.02.00
+# VERSION: 04.00.00
 # BRIEF: MokoStandards Sync Override Configuration for the Standards Repository
 
 # MokoStandards Repository Override Configuration
@@ -39,8 +39,8 @@ locals {
   override_metadata = {
     name           = "MokoStandards Repository Override"
     description    = "Override configuration preventing sync of template files in the standards repository"
-    version        = "03.02.00"
-    last_updated   = "2026-02-11T06:53:00Z"
+    version        = "04.00.00"
+    last_updated   = "2026-02-19T17:05:00Z"
     maintainer     = "MokoStandards Team"
     schema_version = "2.0"
     repository_url = "https://github.com/mokoconsulting-tech/MokoStandards"
@@ -250,6 +250,14 @@ locals {
     {
       path   = ".github/workflows/integration-tests.yml"
       reason = "MokoStandards-specific enterprise library integration tests"
+    },
+    {
+      path   = ".github/workflows/auto-update-sha.yml"
+      reason = "MokoStandards-specific workflow for updating script registry SHA hashes"
+    },
+    {
+      path   = ".github/workflows/validate-script-integrity.yml"
+      reason = "MokoStandards-specific workflow for validating script integrity"
     },
   ]
 

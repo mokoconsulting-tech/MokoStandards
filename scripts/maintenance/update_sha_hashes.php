@@ -155,6 +155,9 @@ class ScriptRegistryUpdater
         if (!empty($this->changes)) {
             $microtime = microtime(true);
             $dt = DateTime::createFromFormat('U.u', sprintf('%.6f', $microtime), new DateTimeZone('UTC'));
+            if ($dt === false) {
+                throw new Exception("Failed to create DateTime from microtime");
+            }
             $registry['metadata']['generated_at'] = $dt->format('Y-m-d\TH:i:s.u\Z');
         }
         

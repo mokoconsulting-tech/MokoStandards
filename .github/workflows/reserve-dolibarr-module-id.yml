@@ -226,7 +226,7 @@ jobs:
           printf "Requested by %s\n" "$DEVELOPER" >> /tmp/commit_msg.txt
           printf "Module name %s\n" "$MODULE_NAME" >> /tmp/commit_msg.txt
           printf "Module ID %s\n\n" "$MODULE_ID" >> /tmp/commit_msg.txt
-          printf "This PR reserves module ID %s from Moko Consulting range (185051-185099).\n\n" "$MODULE_ID" >> /tmp/commit_msg.txt
+          printf "This PR reserves module ID %s from Moko Consulting range (185064-185099).\n\n" "$MODULE_ID" >> /tmp/commit_msg.txt
           printf "Updates in this PR\n" >> /tmp/commit_msg.txt
           printf -- "- Module registry in docs/policy/crm/development-standards.md\n" >> /tmp/commit_msg.txt
           printf -- "- MokoStandards.override.tf protection for workflow\n\n" >> /tmp/commit_msg.txt
@@ -285,7 +285,7 @@ jobs:
 
             ### Policy Compliance
             - Follows module ID reservation process per [CRM Development Standards](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/policy/crm/development-standards.md#module-id-reservation-process)
-            - Module ID from reserved Moko Consulting range (185051-185099)
+            - Module ID from reserved Moko Consulting range (185064-185099)
 
             ---
 
@@ -371,7 +371,7 @@ jobs:
 
           Module Name: $MODULE_NAME
           Module ID: $MODULE_ID
-          Reserved Range: 185051-185099 (Moko Consulting)
+          Reserved Range: 185064-185099 (Moko Consulting)
           Description: $DESCRIPTION
 
           Reserved: $(date -u +"%Y-%m-%d %H:%M:%S UTC")

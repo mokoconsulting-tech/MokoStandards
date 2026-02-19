@@ -1,28 +1,445 @@
 # Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
 # SPDX-License-Identifier: GPL-3.0-or-later
+# FILE INFORMATION
+# DEFGROUP: MokoStandards.Workflows
+# INGROUP: MokoStandards.Automation
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/reserve-dolibarr-module-id.yml
+# VERSION: 04.00.00
+# BRIEF: Reserves a Dolibarr module ID and updates registry table
+# NOTE: Module name defaults to repository name; supports manual ID assignment
+
 name: Reserve Dolibarr Module ID
+
+env:
+  ACTIONS_STEP_DEBUG: true
+  ACTIONS_RUNNER_DEBUG: true
+
 on:
   workflow_dispatch:
     inputs:
-      module_name:
-        description: 'Module name'
+      description:
+        description: 'Brief description of the module'
         required: true
+        type: string
       developer:
         description: 'Developer name'
         required: true
+        type: string
       repository:
-        description: 'Repository URL'
+        description: 'Repository URL (defaults to github.repository if not provided)'
         required: false
+        type: string
+      module_id:
+        description: 'Specific module ID to assign (optional, auto-assigns if not provided)'
+        required: false
+        type: number
       push_to_remote:
-        description: 'Push to remote src folder'
+        description: 'Push DOLIBARR_MODULE_ID.txt to remote repository src folder'
         type: boolean
         default: false
+      remote_repository:
+        description: 'Remote repository URL (required if push_to_remote is true)'
+        required: false
+        type: string
+
 permissions:
   contents: write
+  pull-requests: write
+
 jobs:
   reserve:
+    name: Reserve Dolibarr Module ID
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-      - name: Reserve ID
-        run: echo "Workflow created"
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Extract module name from repository
+        id: extract_name
+        run: |
+          # Extract module name from repository name (assumes format: org/ModuleName)
+          REPO_NAME="${{ github.repository }}"
+          MODULE_NAME="${REPO_NAME#*/}"
+
+          echo "📦 Repository: $REPO_NAME"
+          echo "📝 Module name: $MODULE_NAME"
+          echo "module_name=$MODULE_NAME" >> $GITHUB_OUTPUT
+
+      - name: Determine module ID
+        id: find_id
+        env:
+          MANUAL_ID: ${{ github.event.inputs.module_id }}
+        run: |
+          REGISTRY_FILE="docs/policy/crm/development-standards.md"
+
+          if [ -n "$MANUAL_ID" ]; then
+            # Manual ID provided
+            MODULE_ID="$MANUAL_ID"
+            echo "🔢 Using manually specified module ID: $MODULE_ID"
+
+            # Validate it's in the correct range
+            if [ "$MODULE_ID" -lt 185064 ] || [ "$MODULE_ID" -gt 185099 ]; then
+              echo "❌ Error: Module ID must be in range 185064-185099"
+              exit 1
+            fi
+          else
+            # Auto-assign next available ID
+            echo "🔍 Scanning for next available module ID..."
+
+            # Extract module IDs from the table, only from the 185064-185099 range
+            USED_IDS=$(grep -oP '(?<=\| )1850(6[4-9]|[7-8][0-9]|9[0-9])(?= \|)' "$REGISTRY_FILE" | sort -n || true)
+
+            echo "Used IDs in range 185064-185099:"
+            echo "$USED_IDS"
+
+            # Find the first available ID
+            MODULE_ID=""
+            for id in $(seq 185064 185099); do
+              if ! echo "$USED_IDS" | grep -q "^$id$"; then
+                MODULE_ID=$id
+                break
+              fi
+            done
+
+            if [ -z "$MODULE_ID" ]; then
+              echo "❌ Error: No available module IDs in range 185064-185099"
+              exit 1
+            fi
+
+            echo "✅ Next available module ID: $MODULE_ID"
+          fi
+
+          echo "module_id=$MODULE_ID" >> $GITHUB_OUTPUT
+
+      - name: Check for ID conflicts
+        env:
+          MODULE_ID: ${{ steps.find_id.outputs.module_id }}
+        run: |
+          REGISTRY_FILE="docs/policy/crm/development-standards.md"
+
+          echo "🔍 Checking for ID conflicts..."
+
+          if grep -q "| $MODULE_ID |" "$REGISTRY_FILE"; then
+            echo "❌ Error: Module ID $MODULE_ID is already in use!"
+            exit 1
+          fi
+
+          echo "✅ No conflicts detected for module ID $MODULE_ID"
+
+      - name: Update module registry table
+        id: update_registry
+        env:
+          MODULE_NAME: ${{ steps.extract_name.outputs.module_name }}
+          MODULE_ID: ${{ steps.find_id.outputs.module_id }}
+          DESCRIPTION: ${{ github.event.inputs.description }}
+          REPOSITORY: ${{ github.event.inputs.repository }}
+        run: |
+          REGISTRY_FILE="docs/policy/crm/development-standards.md"
+
+          # Use provided repository or default to current repository
+          if [ -z "$REPOSITORY" ]; then
+            REPO_URL="https://github.com/${{ github.repository }}"
+          else
+            REPO_URL="$REPOSITORY"
+          fi
+
+          echo "📝 Updating module registry table..."
+
+          # Find the line with "Available for Assignment"
+          LINE_NUM=$(grep -n "| Available for Assignment |" "$REGISTRY_FILE" | cut -d: -f1)
+
+          if [ -z "$LINE_NUM" ]; then
+            echo "❌ Error: Could not find 'Available for Assignment' line in registry"
+            exit 1
+          fi
+
+          # Create new entry
+          NEW_ENTRY="| $MODULE_NAME | $MODULE_ID | Reserved | $DESCRIPTION | $REPO_URL |"
+
+          # Insert the new entry before "Available for Assignment" line
+          sed -i "${LINE_NUM}i\\${NEW_ENTRY}" "$REGISTRY_FILE"
+
+          echo "✅ Registry updated with:"
+          echo "$NEW_ENTRY"
+
+      - name: Update MokoStandards.override.tf to protect workflow
+        run: |
+          OVERRIDE_FILE="MokoStandards.override.tf"
+          WORKFLOW_FILE=".github/workflows/reserve-dolibarr-module-id.yml"
+
+          echo "🔧 Updating MokoStandards.override.tf to protect workflow file..."
+
+          # Check if workflow is already protected
+          if grep -q "$WORKFLOW_FILE" "$OVERRIDE_FILE"; then
+            echo "✅ Workflow file is already protected in override file"
+          else
+            # Find the line number for insertion point
+            LINE_NUM=$(grep -n "# Keep MokoStandards-specific workflows" "$OVERRIDE_FILE" | head -1 | cut -d: -f1)
+
+            if [ -z "$LINE_NUM" ]; then
+              echo "⚠️ Could not find insertion point in $OVERRIDE_FILE"
+              echo "Skipping override file update"
+            else
+              # Create the new entry lines
+              printf "    {\n" > /tmp/workflow_entry.txt
+              printf "      path   = \"%s\"\n" "$WORKFLOW_FILE" >> /tmp/workflow_entry.txt
+              printf "      reason = \"Dolibarr module ID reservation workflow\"\n" >> /tmp/workflow_entry.txt
+              printf "    },\n" >> /tmp/workflow_entry.txt
+
+              # Insert after the comment line
+              head -n $LINE_NUM "$OVERRIDE_FILE" > /tmp/override_new.tf
+              cat /tmp/workflow_entry.txt >> /tmp/override_new.tf
+              tail -n +$((LINE_NUM + 1)) "$OVERRIDE_FILE" >> /tmp/override_new.tf
+
+              mv /tmp/override_new.tf "$OVERRIDE_FILE"
+
+              echo "✅ Updated $OVERRIDE_FILE to protect workflow file"
+            fi
+          fi
+
+      - name: Create branch and commit changes
+        id: commit
+        env:
+          MODULE_ID: ${{ steps.find_id.outputs.module_id }}
+          MODULE_NAME: ${{ steps.extract_name.outputs.module_name }}
+          DEVELOPER: ${{ github.event.inputs.developer }}
+        run: |
+          BRANCH_NAME="reserve-module-id/$MODULE_ID"
+
+          echo "🔀 Creating branch: $BRANCH_NAME"
+          git checkout -b "$BRANCH_NAME"
+
+          echo "📦 Committing changes..."
+          git add docs/policy/crm/development-standards.md
+          git add MokoStandards.override.tf
+
+          # Create commit message
+          printf "Reserve Dolibarr module ID %s for %s\n\n" "$MODULE_ID" "$MODULE_NAME" > /tmp/commit_msg.txt
+          printf "Requested by %s\n" "$DEVELOPER" >> /tmp/commit_msg.txt
+          printf "Module name %s\n" "$MODULE_NAME" >> /tmp/commit_msg.txt
+          printf "Module ID %s\n\n" "$MODULE_ID" >> /tmp/commit_msg.txt
+          printf "This PR reserves module ID %s from Moko Consulting range (185064-185099).\n\n" "$MODULE_ID" >> /tmp/commit_msg.txt
+          printf "Updates in this PR\n" >> /tmp/commit_msg.txt
+          printf -- "- Module registry in docs/policy/crm/development-standards.md\n" >> /tmp/commit_msg.txt
+          printf -- "- MokoStandards.override.tf protection for workflow\n\n" >> /tmp/commit_msg.txt
+          printf "Automated via reserve-dolibarr-module-id workflow.\n" >> /tmp/commit_msg.txt
+
+          git commit -F /tmp/commit_msg.txt
+
+          echo "⬆️ Pushing branch..."
+          git push origin "$BRANCH_NAME"
+
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+
+      - name: Create Pull Request
+        uses: actions/github-script@v8
+        id: create_pr
+        env:
+          MODULE_NAME: ${{ steps.extract_name.outputs.module_name }}
+          MODULE_ID: ${{ steps.find_id.outputs.module_id }}
+          DESCRIPTION: ${{ github.event.inputs.description }}
+          DEVELOPER: ${{ github.event.inputs.developer }}
+          REPOSITORY: ${{ github.event.inputs.repository }}
+          BRANCH_NAME: ${{ steps.commit.outputs.branch_name }}
+        with:
+          script: |
+            const moduleId = process.env.MODULE_ID;
+            const moduleName = process.env.MODULE_NAME;
+            const description = process.env.DESCRIPTION;
+            const developer = process.env.DEVELOPER;
+            const repository = process.env.REPOSITORY || `https://github.com/${context.repo.owner}/${context.repo.repo}`;
+            const branchName = process.env.BRANCH_NAME;
+
+            const title = `Reserve Dolibarr Module ID ${moduleId} for ${moduleName}`;
+            const body = `## Module ID Reservation Request
+
+            **Module Name:** ${moduleName}
+            **Module ID:** ${moduleId}
+            **Description:** ${description}
+            **Requested by:** ${developer}
+            **Repository:** ${repository}
+
+            ---
+
+            This PR reserves module ID **${moduleId}** from the Moko Consulting reserved range (185064-185099) for the **${moduleName}** module.
+
+            ### Changes
+            - ✅ Updated module registry table in \`docs/policy/crm/development-standards.md\`
+            - ✅ Updated \`MokoStandards.override.tf\` to protect workflow file
+            - ✅ Reserved ID: **${moduleId}**
+            - ✅ Status: **Reserved**
+
+            ### Next Steps
+            1. Review this PR
+            2. Approve if the reservation is appropriate
+            3. Merge to officially reserve the module ID
+            4. If \`push_to_remote\` was enabled, verify \`DOLIBARR_MODULE_ID.txt\` in remote repo
+
+            ### Policy Compliance
+            - Follows module ID reservation process per [CRM Development Standards](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/policy/crm/development-standards.md#module-id-reservation-process)
+            - Module ID from reserved Moko Consulting range (185064-185099)
+
+            ---
+
+            🤖 _This PR was automatically created by the [reserve-dolibarr-module-id](.github/workflows/reserve-dolibarr-module-id.yml) workflow._`;
+
+            const pr = await github.rest.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              head: branchName,
+              base: 'main'
+            });
+
+            console.log(`✅ Pull request created: ${pr.data.html_url}`);
+            core.setOutput('pr_url', pr.data.html_url);
+            core.setOutput('pr_number', pr.data.number);
+
+            return pr.data.html_url;
+
+      - name: Add labels to PR
+        uses: actions/github-script@v8
+        env:
+          PR_NUMBER: ${{ steps.create_pr.outputs.pr_number }}
+        with:
+          script: |
+            const prNumber = parseInt(process.env.PR_NUMBER);
+
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              labels: ['dolibarr', 'module-id-reservation', 'automated']
+            });
+
+            console.log('✅ Labels added to PR');
+
+      - name: Validate push_to_remote inputs
+        if: ${{ github.event.inputs.push_to_remote == 'true' }}
+        env:
+          REMOTE_REPO: ${{ github.event.inputs.remote_repository }}
+        run: |
+          if [ -z "$REMOTE_REPO" ]; then
+            echo "❌ Error: push_to_remote is enabled but remote_repository is not provided!"
+            echo "Please provide a valid repository URL in the remote_repository input."
+            exit 1
+          fi
+          echo "✅ Remote repository validation passed: $REMOTE_REPO"
+
+      - name: Push to remote repository (optional)
+        if: ${{ github.event.inputs.push_to_remote == 'true' && github.event.inputs.remote_repository != '' }}
+        env:
+          MODULE_ID: ${{ steps.find_id.outputs.module_id }}
+          MODULE_NAME: ${{ steps.extract_name.outputs.module_name }}
+          DESCRIPTION: ${{ github.event.inputs.description }}
+          REMOTE_REPO: ${{ github.event.inputs.remote_repository }}
+        run: |
+          echo "🚀 Pushing module ID to remote repository..."
+
+          # Create a temporary directory for the remote repo
+          TEMP_DIR=$(mktemp -d)
+          cd "$TEMP_DIR"
+
+          # Clone the remote repository
+          echo "📥 Cloning remote repository..."
+          git clone "$REMOTE_REPO" repo
+          cd repo
+
+          # Configure Git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Create src directory if it doesn't exist
+          mkdir -p src
+
+          # Create DOLIBARR_MODULE_ID.txt file
+          MODULE_ID_FILE="src/DOLIBARR_MODULE_ID.txt"
+
+          cat > "$MODULE_ID_FILE" << EOF
+          DOLIBARR_MODULE_ID=$MODULE_ID
+
+          This module ID has been officially reserved in MokoStandards.
+
+          Module Name: $MODULE_NAME
+          Module ID: $MODULE_ID
+          Reserved Range: 185064-185099 (Moko Consulting)
+          Description: $DESCRIPTION
+
+          Reserved: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+
+          DO NOT CHANGE THIS ID!
+
+          This ID is registered in the MokoStandards module registry:
+          https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/policy/crm/development-standards.md
+          EOF
+
+          echo "✅ Created $MODULE_ID_FILE"
+
+          # Commit and push
+          git add "$MODULE_ID_FILE"
+
+          # Create commit message for remote repo
+          printf "Reserve Dolibarr module ID %s\n\n" "$MODULE_ID" > /tmp/remote_commit.txt
+          printf "Module %s\n" "$MODULE_NAME" >> /tmp/remote_commit.txt
+          printf "ID %s\n\n" "$MODULE_ID" >> /tmp/remote_commit.txt
+          printf "Added files\n" >> /tmp/remote_commit.txt
+          printf -- "- src/DOLIBARR_MODULE_ID.txt with reserved module ID\n\n" >> /tmp/remote_commit.txt
+          printf "This ID has been officially reserved in MokoStandards.\n" >> /tmp/remote_commit.txt
+          printf "See https://github.com/mokoconsulting-tech/MokoStandards\n\n" >> /tmp/remote_commit.txt
+          printf "DO NOT change the module ID!\n" >> /tmp/remote_commit.txt
+
+          git commit -F /tmp/remote_commit.txt
+
+          # Detect and push to the default branch
+          echo "📤 Detecting default branch..."
+          DEFAULT_BRANCH=$(git remote show origin | grep 'HEAD branch' | cut -d' ' -f5)
+
+          if [ -z "$DEFAULT_BRANCH" ]; then
+            echo "⚠️ Could not detect default branch, trying main then master..."
+            DEFAULT_BRANCH="main"
+          fi
+
+          echo "Default branch: $DEFAULT_BRANCH"
+
+          if git push origin "$DEFAULT_BRANCH"; then
+            echo "✅ Pushed to $DEFAULT_BRANCH successfully"
+          else
+            echo "❌ Failed to push to $DEFAULT_BRANCH"
+            echo "Please check if the branch exists and you have push permissions"
+            exit 1
+          fi
+
+          echo "✅ Pushed module ID to remote repository"
+
+          # Cleanup
+          cd /
+          rm -rf "$TEMP_DIR"
+
+      - name: Output summary
+        env:
+          MODULE_NAME: ${{ steps.extract_name.outputs.module_name }}
+          MODULE_ID: ${{ steps.find_id.outputs.module_id }}
+          PR_URL: ${{ steps.create_pr.outputs.pr_url }}
+        run: |
+          echo "## 🎉 Module ID Reservation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Module Name:** $MODULE_NAME" >> $GITHUB_STEP_SUMMARY
+          echo "**Reserved ID:** $MODULE_ID" >> $GITHUB_STEP_SUMMARY
+          echo "**Pull Request:** $PR_URL" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "1. Review the pull request" >> $GITHUB_STEP_SUMMARY
+          echo "2. Get approval from CRM Development Lead" >> $GITHUB_STEP_SUMMARY
+          echo "3. Merge the PR to officially reserve the module ID" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "_Generated by reserve-dolibarr-module-id workflow v04.00.00_" >> $GITHUB_STEP_SUMMARY

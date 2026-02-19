@@ -18,6 +18,7 @@ This document provides comprehensive documentation for MokoStandards workflow te
 - [Changelog Management](./changelog-management.md) - Changelog management workflows and scripts
 - [Dev Branch Tracking and Issue Coordination](./dev-branch-tracking.md) - Automated dev branch and PR tracking system
 - [Dev Deployment](./dev-deployment.md) - Development deployment workflows
+- [Reserve Dolibarr Module ID](./reserve-dolibarr-module-id.md) - Automated Dolibarr module ID reservation workflow
 
 ### Workflow Template Locations
 

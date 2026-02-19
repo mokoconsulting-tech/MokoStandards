@@ -5,7 +5,7 @@
 # INGROUP: MokoStandards.Security
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/dependabot.yml
-# VERSION: 04.00.00
+# VERSION: 04.00.01
 # BRIEF: Dependabot configuration for automated dependency updates and security patches
 # NOTE: Monitors GitHub Actions for vulnerabilities and keeps ecosystem secure
 

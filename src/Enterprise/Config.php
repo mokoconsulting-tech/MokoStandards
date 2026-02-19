@@ -19,7 +19,7 @@ declare(strict_types=1);
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
  * @package MokoStandards\Enterprise
- * @version 04.00.00
+ * @version 04.00.01
  * @author MokoStandards Team
  * @license GPL-3.0-or-later
  */
@@ -58,7 +58,7 @@ class Config
 {
     /** @var array<string, mixed> Default configuration values */
     private const DEFAULT_CONFIG = [
-        'version' => '04.00.00',
+        'version' => '04.00.01',
         'environment' => 'development',
         'github' => [
             'organization' => 'mokoconsulting-tech',
@@ -98,7 +98,7 @@ class Config
     /** @var array<string, mixed> Runtime override data */
     private array $overrideData = [];
 
-    public const VERSION = '04.00.00';
+    public const VERSION = '04.00.01';
 
     /**
      * Constructor.

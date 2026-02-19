@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Guide
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/guide/terraform-override-files.md
-VERSION: 04.00.00
+VERSION: 04.00.01
 BRIEF: Guide for using MokoStandards.override.tf files to control bulk sync behavior
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Terraform Override Files - Complete Guide
 

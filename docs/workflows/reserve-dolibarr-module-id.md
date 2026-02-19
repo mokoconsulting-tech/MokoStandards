@@ -1,8 +1,8 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Reserve Dolibarr Module ID Workflow
 
-**Status**: Active | **Version**: 04.00.00 | **Effective**: 2026-02-19
+**Status**: Active | **Version**: 04.00.01 | **Effective**: 2026-02-19
 
 ## Overview
 
@@ -161,7 +161,7 @@ Inputs:
 |-------|------|-------------|---------|
 | `description` | string | Brief description of the module | "MailChimp integration for Dolibarr" |
 
-**Note**: The `developer` input was removed in version 04.00.00. Reservations are now attributed to the GitHub user who triggered the workflow.
+**Note**: The `developer` input was removed in version 04.00.01. Reservations are now attributed to the GitHub user who triggered the workflow.
 
 ### Optional Inputs
 
@@ -570,7 +570,7 @@ The workflow file itself is protected via `MokoStandards.override.tf` to prevent
 
 ## Changelog
 
-### Version 04.00.00 (2026-02-19)
+### Version 04.00.01 (2026-02-19)
 
 **Changed**:
 - Simplified from 866 to 450 lines (48% reduction)
@@ -625,7 +625,7 @@ For issues or questions about this workflow:
 | Owner | Moko Consulting |
 | Repo | https://github.com/mokoconsulting-tech/MokoStandards |
 | Path | /docs/workflows/reserve-dolibarr-module-id.md |
-| Version | 04.00.00 |
+| Version | 04.00.01 |
 | Status | Active |
 | Last Reviewed | 2026-02-19 |
 | Reviewed By | Documentation Team |
@@ -634,4 +634,4 @@ For issues or questions about this workflow:
 
 | Date | Author | Change | Notes |
 |------|--------|--------|-------|
-| 2026-02-19 | GitHub Copilot | Initial documentation creation | Comprehensive workflow documentation for v04.00.00 |
+| 2026-02-19 | GitHub Copilot | Initial documentation creation | Comprehensive workflow documentation for v04.00.01 |

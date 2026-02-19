@@ -9,9 +9,9 @@
 # INGROUP: MokoStandards.Security
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/codeql/codeql-config.yml
-# VERSION: 04.00.00
+# VERSION: 04.00.01
 # BRIEF: CodeQL configuration for PHP-only repository
-# NOTE: Explicitly disables Python scanning. Repository is PHP-only (v04.00.00).
+# NOTE: Explicitly disables Python scanning. Repository is PHP-only (v04.00.01).
 
 # Explicitly configure languages to prevent auto-detection
 # MokoStandards is PHP-only - Python was removed Feb 12, 2026

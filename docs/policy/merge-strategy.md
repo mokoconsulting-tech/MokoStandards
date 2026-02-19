@@ -23,13 +23,13 @@
  INGROUP: MokoStandards.Policy
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  FILE: MERGE_STRATEGY.md
- VERSION: 03.01.03
+ VERSION: 04.00.01
  BRIEF: Merge strategy policy for pull requests to main branch
  PATH: /docs/policy/merge-strategy.md
  NOTE: Enforces squash merge for clean, linear git history
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Merge Strategy Policy
 

@@ -5,7 +5,7 @@ This directory contains comprehensive validation and verification scripts for co
 ## Core Validation Scripts
 
 ### check_enterprise_readiness.py
-**NEW in v04.00.00** - Enterprise readiness validator that checks if a repository meets all enterprise compliance requirements.
+**NEW in v04.00.01** - Enterprise readiness validator that checks if a repository meets all enterprise compliance requirements.
 
 **Features:**
 - Validates 10 enterprise libraries presence

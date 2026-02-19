@@ -7,7 +7,7 @@ locals {
   config_metadata = {
     name              = "MokoStandards Repository Schemas"
     description       = "Terraform configuration for repository structure schemas and type definitions"
-    version           = "04.00.00"
+    version           = "04.00.01"
     last_updated      = "2026-02-11"
     maintainer        = "MokoStandards Team"
     schema_version    = "2.0"

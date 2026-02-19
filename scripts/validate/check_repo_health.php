@@ -12,7 +12,7 @@
  * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: /scripts/validate/check_repo_health.php
- * VERSION: 04.00.00
+ * VERSION: 04.00.01
  * BRIEF: Repository health checker - PHP implementation
  */
 

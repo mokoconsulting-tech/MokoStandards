@@ -5,7 +5,7 @@
 # INGROUP: MokoStandards.Compliance
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/standards-compliance.yml
-# VERSION: 04.00.00
+# VERSION: 04.00.01
 # BRIEF: MokoStandards compliance validation workflow
 # NOTE: Validates repository structure, documentation, and coding standards
 
@@ -14,7 +14,7 @@ name: Standards Compliance
 env:
   ACTIONS_STEP_DEBUG: true
   ACTIONS_RUNNER_DEBUG: true
-  WORKFLOW_VERSION: "04.00.00"
+  WORKFLOW_VERSION: "04.00.01"
 
 # MokoStandards Policy Compliance:
 # - File formatting: Enforces organizational coding standards
@@ -758,7 +758,7 @@ jobs:
           for LANG in $LANGUAGES; do
             case "$LANG" in
               python)
-                # Check for Python files (should be none in v04.00.00)
+                # Check for Python files (should be none in v04.00.01)
                 if find . -name "*.py" -type f ! -path "./.git/*" | grep -q .; then
                   VALID_LANGS="$VALID_LANGS python"
                   echo "✅ Python: Found Python files" >> $GITHUB_STEP_SUMMARY
@@ -829,7 +829,7 @@ jobs:
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**Note:** This is informational. CodeQL will skip languages without source files." >> $GITHUB_STEP_SUMMARY
-            echo "For PHP repository (v04.00.00), JavaScript language covers JSON/YAML/shell scripts." >> $GITHUB_STEP_SUMMARY
+            echo "For PHP repository (v04.00.01), JavaScript language covers JSON/YAML/shell scripts." >> $GITHUB_STEP_SUMMARY
           else
             echo "✅ **All configured CodeQL languages have corresponding source files**" >> $GITHUB_STEP_SUMMARY
           fi

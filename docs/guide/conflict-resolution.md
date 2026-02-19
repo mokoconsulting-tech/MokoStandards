@@ -23,12 +23,12 @@
  INGROUP: MokoStandards
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  FILE: docs/guide/conflict-resolution.md
- VERSION: 03.01.03
+ VERSION: 04.00.01
  BRIEF: Guide for resolving merge conflicts in pull requests
  PATH: /docs/guide/conflict-resolution.md
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Conflict Resolution Guide
 

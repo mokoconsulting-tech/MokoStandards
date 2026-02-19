@@ -12,7 +12,7 @@
  * INGROUP: MokoStandards.Scripts
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: /scripts/automation/bulk_update_repos.php
- * VERSION: 04.00.00
+ * VERSION: 04.00.01
  * BRIEF: Schema-driven bulk repository sync - PHP implementation
  */
 

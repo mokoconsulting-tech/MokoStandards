@@ -33,7 +33,7 @@ declare(strict_types=1);
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
  * @package MokoStandards\Enterprise
- * @version 04.00.00
+ * @version 04.00.01
  * @author MokoStandards Team
  * @license GPL-3.0-or-later
  */
@@ -81,7 +81,7 @@ class MetricsTimer
  */
 class MetricsCollector
 {
-    private const VERSION = '04.00.00';
+    private const VERSION = '04.00.01';
 
     private string $serviceName;
     private array $counters = [];

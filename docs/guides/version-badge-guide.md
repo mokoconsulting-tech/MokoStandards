@@ -23,16 +23,16 @@ DEFGROUP: MokoStandards.Guides
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: docs/guides/version-badge-guide.md
-VERSION: 04.00.00
+VERSION: 04.00.01
 BRIEF: Comprehensive guide for MokoStandards version compliance badges
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Version Badge Documentation
 
 **Document Type**: Guide  
-**Version**: 04.00.00  
+**Version**: 04.00.01  
 **Last Updated**: 2026-02-11  
 **Status**: Active
 
@@ -55,18 +55,18 @@ Version badges serve to:
 ### Standard Badge
 
 ```markdown
-![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)
+![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)
 ```
 
-**Renders as**: ![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)
+**Renders as**: ![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)
 
 ### Badge with Link
 
 ```markdown
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 ```
 
-**Renders as**: [![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+**Renders as**: [![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 ### Badge Parameters
 
@@ -95,7 +95,7 @@ Version badges serve to:
 
 ![Build](https://img.shields.io/badge/build-passing-brightgreen)
 ![Tests](https://img.shields.io/badge/tests-100%25-brightgreen)
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 ## Description
 This project...
@@ -205,7 +205,7 @@ jobs:
 ### Current Compliance (Blue)
 
 ```markdown
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 ```
 Use when: Compliant with current MokoStandards version
 
@@ -254,7 +254,7 @@ Use when: Version unknown or not yet compliant
 ### Custom Style
 
 ```markdown
-![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue?style=flat-square)
+![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue?style=flat-square)
 ```
 
 Styles: `flat`, `flat-square`, `plastic`, `for-the-badge`, `social`
@@ -393,7 +393,7 @@ Track badge compliance across organization:
 ### MokoStandards (This Repository)
 
 ```markdown
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 ```
 
 ### Typical Repository
@@ -403,7 +403,7 @@ Track badge compliance across organization:
 
 ![Build](https://img.shields.io/github/workflow/status/mokoconsulting-tech/myproject/CI)
 ![License](https://img.shields.io/badge/license-GPL--3.0-blue)
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 Modern web application following MokoStandards...
 ```

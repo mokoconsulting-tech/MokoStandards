@@ -5,7 +5,7 @@
 # INGROUP: MokoStandards.Automation
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/auto-create-dev-branch.yml
-# VERSION: 03.01.03
+# VERSION: 04.00.01
 # BRIEF: Automatically creates dev/<version> branch and tracking issue assigned to copilot and jmiller-moko
 
 name: Auto-Create Dev Branch

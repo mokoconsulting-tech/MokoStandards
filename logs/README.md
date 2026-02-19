@@ -18,7 +18,7 @@ For full license text, see LICENSE file in repository root.
 | **Owner** | Development Team |
 | **Repo** | MokoStandards |
 | **Path** | logs/README.md |
-| **VERSION** | 04.00.00 |
+| **VERSION** | 04.00.01 |
 | **Status** | Active |
 | **Last Reviewed** | 2026-02-09 |
 | **Reviewed By** | Development Team |
@@ -325,4 +325,4 @@ For questions or issues with logging:
 
 **Last Updated**: 2026-02-13  
 **Maintained By**: Development Team  
-**Version**: 04.00.00
+**Version**: 04.00.01

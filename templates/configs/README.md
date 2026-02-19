@@ -10,7 +10,7 @@ DEFGROUP: MokoStandards.Templates
 INGROUP: MokoStandards
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /templates/configs/README.md
-VERSION: 03.01.03
+VERSION: 04.00.01
 BRIEF: Code quality and security tool configuration templates
 -->
 

@@ -15,13 +15,13 @@
  DEFGROUP: MokoStandards
  INGROUP: MokoStandards.Documentation
  REPO: https://github.com/mokoconsulting-tech/MokoStandards/
- VERSION: 03.02.00
+ VERSION: 04.00.01
  PATH: ./CHANGELOG.md
  BRIEF: Version history using Keep a Changelog
  NOTE: Adheres to SemVer when applicable
  -->
 
-# CHANGELOG - MokoStandards (VERSION: 04.00.00)
+# CHANGELOG - MokoStandards (VERSION: 04.00.01)
 
 All notable changes to this project will be documented in this file.
 
@@ -30,7 +30,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed - Health Check Workflow
+## [04.00.01] - 2026-02-19
+
+### Changed
+
+**Version Bump - Patch Release**:
+- Bumped version from 04.00.00 to 04.00.01 across entire repository
+- Updated version references in all files:
+  - composer.json
+  - All documentation files (docs/**/*.md)
+  - All workflow files (.github/workflows/*.yml)
+  - All configuration files (.github/*.yml)
+  - All PHP source files (src/**/*.php)
+  - All PHP scripts (scripts/**/*.php)
+  - All template files (templates/**/*.yml)
+  - All Terraform files (terraform/**/*.tf)
+  - MokoStandards.override.tf
+  - README.md, CONTRIBUTING.md, ROADMAP.md
+- Total files updated: 260+ files
+
+### Fixed - Previous Release (04.00.00)
+
+## [04.00.00] - 2025-12-18
 
 **Health Check Workflow Fix (`src/Enterprise/ApiClient.php`, `.github/workflows/health-check.yml`, `templates/workflows/health-check.yml`)**:
 - Fixed health check workflow that was failing with exit code 255
@@ -1110,7 +1131,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Moved Documentation links to `/docs/index.md`
 - Created `/templates/..`
 
-## [04.00.00] - 2025-12-18
+## [04.00.01] - 2025-12-18
 - `MokoDefaults` -> `MokoStandards`
 
 ## [03.00.00] - 2025-12-11

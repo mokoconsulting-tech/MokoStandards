@@ -5,11 +5,11 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 # FILE INFORMATION
 PATH: /docs/products/mokocrm/glossary.md
-VERSION: 04.00.00
+VERSION: 04.00.01
 BRIEF: MokoCRM terminology and definitions glossary
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # MokoCRM Glossary
 
@@ -162,7 +162,7 @@ This glossary defines terminology specific to MokoCRM, our Dolibarr-based CRM/ER
 | Owner          | Moko Consulting                                          |
 | Repo           | https://github.com/mokoconsulting-tech/                                      |
 | Path           | /docs/products/mokocrm/glossary.md                                      |
-| Version        | 04.00.00                                 |
+| Version        | 04.00.01                                 |
 | Status         | Active                                         |
 | Last Reviewed  | 2026-01-28                                  |
 | Reviewed By    | Documentation Team                                    |
@@ -172,4 +172,4 @@ This glossary defines terminology specific to MokoCRM, our Dolibarr-based CRM/ER
 
 | Date       | Author          | Change                                       | Notes                                              |
 | ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
-| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 04.00.00 with all required fields |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 04.00.01 with all required fields |

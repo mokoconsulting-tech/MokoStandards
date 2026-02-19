@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Templates
 INGROUP: MokoStandards.GitHub
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /templates/github/README.md
-VERSION: 03.01.03
+VERSION: 04.00.01
 BRIEF: GitHub-specific templates including issues, PRs, and CODEOWNERS
 -->
 

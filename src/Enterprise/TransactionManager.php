@@ -39,7 +39,7 @@ declare(strict_types=1);
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
  * @package MokoStandards\Enterprise
- * @version 04.00.00
+ * @version 04.00.01
  * @author MokoStandards Team
  * @license GPL-3.0-or-later
  */
@@ -82,7 +82,7 @@ class TransactionStep
  */
 class Transaction
 {
-    private const VERSION = '04.00.00';
+    private const VERSION = '04.00.01';
 
     private string $name;
     /** @var array<int, TransactionStep> */
@@ -244,7 +244,7 @@ class Transaction
  */
 class TransactionManager
 {
-    private const VERSION = '04.00.00';
+    private const VERSION = '04.00.01';
 
     /** @var array<int, Transaction> */
     private array $transactions = [];

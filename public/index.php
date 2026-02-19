@@ -13,7 +13,7 @@ declare(strict_types=1);
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
  * @package MokoStandards
- * @version 04.00.00
+ * @version 04.00.01
  */
 
 // Load Composer autoloader
@@ -177,7 +177,7 @@ function handleDashboard(): Response
 <body>
     <div class="container">
         <h1>🚀 MokoStandards</h1>
-        <p class="version">Web-Based Repository Management System v04.00.00</p>
+        <p class="version">Web-Based Repository Management System v04.00.01</p>
         
         <div class="status">
             <h2>✅ Dual-Language System</h2>
@@ -224,7 +224,7 @@ function handleApiStatus(): JsonResponse
 {
     return new JsonResponse([
         'status' => 'online',
-        'version' => '04.00.00',
+        'version' => '04.00.01',
         'timestamp' => (new DateTime('now', new DateTimeZone('UTC')))->format('c'),
         'languages' => [
             'python' => [

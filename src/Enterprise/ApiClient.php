@@ -362,7 +362,7 @@ class ApiClient
      *
      * @throws CircuitBreakerOpen
      */
-    public function checkCircuitBreaker(): void
+    private function checkCircuitBreaker(): void
     {
         if ($this->circuitState === CircuitState::CLOSED) {
             return;
@@ -454,12 +454,20 @@ class ApiClient
 
     /**
      * Simulate a failure for testing circuit breaker functionality.
-     * This method is intended for testing only.
+     * This method is intended for testing only and checks for test environment.
      *
-     * @throws RuntimeException Always throws to simulate failure
+     * @throws RuntimeException If not in test environment, or always to simulate failure
      */
     public function simulateFailure(): void
     {
+        // Only allow in test/development environments
+        $allowedEnvs = ['test', 'testing', 'development', 'dev', 'ci'];
+        $currentEnv = getenv('APP_ENV') ?: getenv('ENVIRONMENT') ?: 'production';
+        
+        if (!in_array(strtolower($currentEnv), $allowedEnvs, true)) {
+            throw new RuntimeException('simulateFailure() can only be called in test environments');
+        }
+        
         $this->recordFailure();
         throw new RuntimeException('Simulated failure for circuit breaker testing');
     }

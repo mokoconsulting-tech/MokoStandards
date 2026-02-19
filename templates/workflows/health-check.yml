@@ -172,6 +172,8 @@ jobs:
 
       - name: Test Circuit Breaker
         if: github.event.inputs.test_circuit_breaker != 'false'
+        env:
+          APP_ENV: test
         run: |
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "## 🔌 Circuit Breaker Test" >> $GITHUB_STEP_SUMMARY
@@ -184,10 +186,17 @@ jobs:
           use MokoStandards\Enterprise\ApiClient;
 
           try {
+              // Set test environment
+              putenv('APP_ENV=test');
+
               // Create test client with low threshold
               $client = new ApiClient(
                   'https://httpbin.org',
+                  null,
                   5000,
+                  3,
+                  2.0,
+                  300,
                   3,
                   5
               );
@@ -212,12 +221,11 @@ jobs:
                   echo "⚠️ Circuit breaker did not open as expected\n";
               }
 
-              // Wait for timeout
-              echo "Waiting for circuit timeout...\n";
+              // Wait for timeout to allow circuit to move to half-open
+              echo "Waiting for circuit timeout (6 seconds)...\n";
               sleep(6);
 
-              // Check if circuit moved to half-open
-              $client->checkCircuitBreaker();
+              // Get the current state after timeout
               echo "After timeout: " . $client->getCircuitState() . "\n";
 
               echo "✅ Circuit breaker test completed successfully\n";

@@ -443,6 +443,36 @@ class ApiClient
     }
 
     /**
+     * Get current circuit breaker state.
+     *
+     * @return string Circuit state ('CLOSED', 'OPEN', or 'HALF_OPEN')
+     */
+    public function getCircuitState(): string
+    {
+        return strtoupper($this->circuitState->value);
+    }
+
+    /**
+     * Simulate a failure for testing circuit breaker functionality.
+     * This method is intended for testing only and checks for test environment.
+     *
+     * @throws RuntimeException If not in test environment, or always to simulate failure
+     */
+    public function simulateFailure(): void
+    {
+        // Only allow in test/development environments
+        $allowedEnvs = ['test', 'testing', 'development', 'dev', 'ci'];
+        $currentEnv = getenv('APP_ENV') ?: $_ENV['APP_ENV'] ?? getenv('ENVIRONMENT') ?: $_ENV['ENVIRONMENT'] ?? $_SERVER['APP_ENV'] ?? 'production';
+
+        if (!in_array(strtolower($currentEnv), $allowedEnvs, true)) {
+            throw new RuntimeException('simulateFailure() can only be called in test environments');
+        }
+
+        $this->recordFailure();
+        throw new RuntimeException('Simulated failure for circuit breaker testing');
+    }
+
+    /**
      * Reset circuit breaker to closed state.
      */
     public function resetCircuitBreaker(): void

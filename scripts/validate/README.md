@@ -4,6 +4,35 @@ This directory contains comprehensive validation and verification scripts for co
 
 ## Core Validation Scripts
 
+### check_version_consistency.php
+**NEW in v04.00.01** - Version consistency checker that validates version numbers are consistent across all critical repository files.
+
+**Features:**
+- Checks composer.json version as source of truth
+- Validates README.md VERSION header and badge
+- Checks CHANGELOG.md version references
+- Validates all workflow VERSION comments
+- Checks PHP source file VERSION headers
+- Reports mismatches with file paths and line numbers
+- Exit codes for CI/CD integration
+
+**Usage:**
+```bash
+# Check version consistency
+php scripts/validate/check_version_consistency.php
+
+# Verbose output with details
+php scripts/validate/check_version_consistency.php --verbose
+
+# Display help
+php scripts/validate/check_version_consistency.php --help
+```
+
+**Exit Codes:**
+- `0` - All versions are consistent
+- `1` - Version mismatches found
+- `2` - Error reading files
+
 ### check_enterprise_readiness.py
 **NEW in v04.00.01** - Enterprise readiness validator that checks if a repository meets all enterprise compliance requirements.
 

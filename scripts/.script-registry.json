@@ -433,6 +433,13 @@
             "size_bytes": 12192
         },
         {
+            "path": "scripts/validate/check_version_consistency.php",
+            "sha256": "c33fc6823b92b26dd932f67d2c20817a9815ed3c993c0617b6a322548f6e8cd3",
+            "category": "validate",
+            "priority": "high",
+            "size_bytes": 10522
+        },
+        {
             "path": "scripts/validate/find_todos.py",
             "sha256": "9e064323374bce029466234433ec6eedaa46afe4027b8cdd90048ba972eb7274",
             "category": "validate",

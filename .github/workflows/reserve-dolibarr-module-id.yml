@@ -22,10 +22,6 @@ on:
         description: 'Brief description of the module'
         required: true
         type: string
-      developer:
-        description: 'Developer name'
-        required: true
-        type: string
       repository:
         description: 'Repository URL (defaults to github.repository if not provided)'
         required: false
@@ -78,7 +74,7 @@ jobs:
         env:
           MANUAL_ID: ${{ github.event.inputs.module_id }}
         run: |
-          REGISTRY_FILE="docs/policy/crm/development-standards.md"
+          REGISTRY_FILE="docs/development/crm/module-registry.md"
 
           if [ -n "$MANUAL_ID" ]; then
             # Manual ID provided
@@ -123,7 +119,7 @@ jobs:
         env:
           MODULE_ID: ${{ steps.find_id.outputs.module_id }}
         run: |
-          REGISTRY_FILE="docs/policy/crm/development-standards.md"
+          REGISTRY_FILE="docs/development/crm/module-registry.md"
 
           echo "🔍 Checking for ID conflicts..."
 
@@ -142,7 +138,7 @@ jobs:
           DESCRIPTION: ${{ github.event.inputs.description }}
           REPOSITORY: ${{ github.event.inputs.repository }}
         run: |
-          REGISTRY_FILE="docs/policy/crm/development-standards.md"
+          REGISTRY_FILE="docs/development/crm/module-registry.md"
 
           # Use provided repository or default to current repository
           if [ -z "$REPOSITORY" ]; then
@@ -210,7 +206,6 @@ jobs:
         env:
           MODULE_ID: ${{ steps.find_id.outputs.module_id }}
           MODULE_NAME: ${{ steps.extract_name.outputs.module_name }}
-          DEVELOPER: ${{ github.event.inputs.developer }}
         run: |
           BRANCH_NAME="reserve-module-id/$MODULE_ID"
 
@@ -218,17 +213,16 @@ jobs:
           git checkout -b "$BRANCH_NAME"
 
           echo "📦 Committing changes..."
-          git add docs/policy/crm/development-standards.md
+          git add docs/development/crm/module-registry.md
           git add MokoStandards.override.tf
 
           # Create commit message
           printf "Reserve Dolibarr module ID %s for %s\n\n" "$MODULE_ID" "$MODULE_NAME" > /tmp/commit_msg.txt
-          printf "Requested by %s\n" "$DEVELOPER" >> /tmp/commit_msg.txt
-          printf "Module name %s\n" "$MODULE_NAME" >> /tmp/commit_msg.txt
-          printf "Module ID %s\n\n" "$MODULE_ID" >> /tmp/commit_msg.txt
+          printf "Module name: %s\n" "$MODULE_NAME" >> /tmp/commit_msg.txt
+          printf "Module ID: %s\n\n" "$MODULE_ID" >> /tmp/commit_msg.txt
           printf "This PR reserves module ID %s from Moko Consulting range (185064-185099).\n\n" "$MODULE_ID" >> /tmp/commit_msg.txt
-          printf "Updates in this PR\n" >> /tmp/commit_msg.txt
-          printf -- "- Module registry in docs/policy/crm/development-standards.md\n" >> /tmp/commit_msg.txt
+          printf "Updates in this PR:\n" >> /tmp/commit_msg.txt
+          printf -- "- Module registry in docs/development/crm/module-registry.md\n" >> /tmp/commit_msg.txt
           printf -- "- MokoStandards.override.tf protection for workflow\n\n" >> /tmp/commit_msg.txt
           printf "Automated via reserve-dolibarr-module-id workflow.\n" >> /tmp/commit_msg.txt
 
@@ -246,7 +240,6 @@ jobs:
           MODULE_NAME: ${{ steps.extract_name.outputs.module_name }}
           MODULE_ID: ${{ steps.find_id.outputs.module_id }}
           DESCRIPTION: ${{ github.event.inputs.description }}
-          DEVELOPER: ${{ github.event.inputs.developer }}
           REPOSITORY: ${{ github.event.inputs.repository }}
           BRANCH_NAME: ${{ steps.commit.outputs.branch_name }}
         with:
@@ -254,7 +247,6 @@ jobs:
             const moduleId = process.env.MODULE_ID;
             const moduleName = process.env.MODULE_NAME;
             const description = process.env.DESCRIPTION;
-            const developer = process.env.DEVELOPER;
             const repository = process.env.REPOSITORY || `https://github.com/${context.repo.owner}/${context.repo.repo}`;
             const branchName = process.env.BRANCH_NAME;
 
@@ -264,7 +256,6 @@ jobs:
             **Module Name:** ${moduleName}
             **Module ID:** ${moduleId}
             **Description:** ${description}
-            **Requested by:** ${developer}
             **Repository:** ${repository}
 
             ---
@@ -272,7 +263,7 @@ jobs:
             This PR reserves module ID **${moduleId}** from the Moko Consulting reserved range (185064-185099) for the **${moduleName}** module.
 
             ### Changes
-            - ✅ Updated module registry table in \`docs/policy/crm/development-standards.md\`
+            - ✅ Updated module registry table in \`docs/development/crm/module-registry.md\`
             - ✅ Updated \`MokoStandards.override.tf\` to protect workflow file
             - ✅ Reserved ID: **${moduleId}**
             - ✅ Status: **Reserved**
@@ -284,8 +275,13 @@ jobs:
             4. If \`push_to_remote\` was enabled, verify \`DOLIBARR_MODULE_ID.txt\` in remote repo
 
             ### Policy Compliance
-            - Follows module ID reservation process per [CRM Development Standards](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/policy/crm/development-standards.md#module-id-reservation-process)
+            - Follows module ID reservation process per [Module Registry](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/development/crm/module-registry.md#module-id-reservation-process)
             - Module ID from reserved Moko Consulting range (185064-185099)
+
+            ### Documentation
+            - **[Module Registry](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/development/crm/module-registry.md)** - Official module number registry
+            - **[Development Guide](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/guide/crm/dolibarr-development-guide.md)** - CRM development guide
+            - **[Development Standards](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/policy/crm/development-standards.md)** - Coding standards
 
             ---
 
@@ -379,7 +375,7 @@ jobs:
           DO NOT CHANGE THIS ID!
 
           This ID is registered in the MokoStandards module registry:
-          https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/policy/crm/development-standards.md
+          https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/development/crm/module-registry.md
           EOF
 
           echo "✅ Created $MODULE_ID_FILE"

@@ -17,12 +17,13 @@ The `reserve-dolibarr-module-id.yml` workflow automates the reservation of Dolib
 
 ### Key Features
 
-- **Automatic Module Name Detection**: Extracts module name from repository name
+- **Automatic URL Construction**: Repository URL automatically constructed from repo name with `mokoconsulting-tech` organization
+- **Simple Input**: Only requires repository name - all other details are automatically handled
 - **Auto-Assignment or Manual ID Selection**: Automatically assigns next available ID or accepts manual specification
 - **Conflict Detection**: Validates that the requested ID is not already in use
 - **Registry Update**: Updates the [module registry](../development/crm/module-registry.md) in MokoStandards
 - **Pull Request Creation**: Automatically creates PR with all changes
-- **Optional Remote Push**: Can push `DOLIBARR_MODULE_ID.txt` to target repository
+- **Automatic Remote Push**: Always pushes `DOLIBARR_MODULE_ID.txt` to target repository
 
 ### Workflow Location
 
@@ -111,14 +112,14 @@ When you want to reserve the next available module ID:
 # Trigger: Actions → Reserve Dolibarr Module ID → Run workflow
 
 Inputs:
-  description: "Advanced form builder and workflow module for Dolibarr"
-  repository: (leave empty or provide URL)
+  repo_name: "MokoDoliExample"
   module_id: (leave empty for auto-assignment)
-  push_to_remote: false
-  remote_repository: (leave empty)
 ```
 
-**Result**: Workflow will auto-assign next available ID (e.g., 185064) and create PR.
+**Result**: 
+- Workflow will auto-assign next available ID (e.g., 185064) and create PR
+- Repository URL automatically constructed as `https://github.com/mokoconsulting-tech/MokoDoliExample`
+- Creates `src/DOLIBARR_MODULE_ID.txt` in the remote repository
 
 ### Manual ID Assignment
 
@@ -126,32 +127,14 @@ When you need a specific module ID:
 
 ```yaml
 Inputs:
-  description: "Digital signature module for Dolibarr"
-  repository: "https://github.com/mokoconsulting-tech/MokoDoliSign"
+  repo_name: "MokoDoliSign"
   module_id: 185070
-  push_to_remote: false
-  remote_repository: ""
-```
-
-**Result**: Workflow will validate and reserve ID 185070 (if available).
-
-### With Remote Push
-
-When you want to push the module ID to the target repository:
-
-```yaml
-Inputs:
-  description: "Google Workspace integration for Dolibarr"
-  repository: "https://github.com/mokoconsulting-tech/MokoDoliG"
-  module_id: (auto-assign)
-  push_to_remote: true
-  remote_repository: "https://github.com/mokoconsulting-tech/MokoDoliG"
 ```
 
 **Result**: 
-- Reserves module ID in MokoStandards
-- Creates `src/DOLIBARR_MODULE_ID.txt` in remote repository
-- Detects and pushes to default branch (main/master)
+- Workflow will validate and reserve ID 185070 (if available)
+- Repository URL automatically constructed as `https://github.com/mokoconsulting-tech/MokoDoliSign`
+- Creates `src/DOLIBARR_MODULE_ID.txt` in the remote repository
 
 ## Workflow Inputs
 
@@ -159,31 +142,30 @@ Inputs:
 
 | Input | Type | Description | Example |
 |-------|------|-------------|---------|
-| `description` | string | Brief description of the module | "MailChimp integration for Dolibarr" |
+| `repo_name` | string | Repository name (org automatically set to mokoconsulting-tech) | "MokoDoliExample" |
 
-**Note**: The `developer` input was removed in version 04.00.01. Reservations are now attributed to the GitHub user who triggered the workflow.
+**Note**: The repository URL is automatically constructed as `https://github.com/mokoconsulting-tech/{repo_name}`. The workflow will always push the module ID file to the remote repository.
 
 ### Optional Inputs
 
 | Input | Type | Default | Description |
 |-------|------|---------|-------------|
-| `repository` | string | (current repo) | Repository URL for the module |
 | `module_id` | number | (auto-assign) | Specific module ID to assign (185064-185099) |
-| `push_to_remote` | boolean | false | Push DOLIBARR_MODULE_ID.txt to remote repository |
-| `remote_repository` | string | "" | Remote repository URL (required if push_to_remote=true) |
 
 ## What the Workflow Does
 
-### 1. Module Name Extraction
+### 1. Module Name and URL Construction
 
-The workflow automatically extracts the module name from the repository name:
+The workflow uses the provided `repo_name` input and automatically constructs the full repository URL:
 
 ```bash
 # Example transformations:
-mokoconsulting-tech/MokoDoliExample → MokoDoliExample
-mokoconsulting-tech/MokoDoliSign   → MokoDoliSign
-username/MyModule                   → MyModule
+repo_name: "MokoDoliExample" → https://github.com/mokoconsulting-tech/MokoDoliExample
+repo_name: "MokoDoliSign"   → https://github.com/mokoconsulting-tech/MokoDoliSign
+repo_name: "MyModule"       → https://github.com/mokoconsulting-tech/MyModule
 ```
+
+**Note**: The organization is always `mokoconsulting-tech` and cannot be changed.
 
 ### 2. Module ID Determination
 
@@ -230,9 +212,9 @@ Creates a PR with:
 - **Labels**: `dolibarr`, `module-id-reservation`, `automated`
 - **Description**: Comprehensive details about the reservation
 
-### 6. Optional Remote Push
+### 6. Automatic Remote Push
 
-If `push_to_remote` is enabled, creates `src/DOLIBARR_MODULE_ID.txt` in the remote repository:
+The workflow always pushes to the remote repository, creating `src/DOLIBARR_MODULE_ID.txt`:
 
 ```
 DOLIBARR_MODULE_ID=185064
@@ -242,7 +224,7 @@ This module ID has been officially reserved in MokoStandards.
 Module Name: MokoDoliExample
 Module ID: 185064
 Reserved Range: 185064-185099 (Moko Consulting)
-Description: Example module for Dolibarr
+Description: Dolibarr module MokoDoliExample
 
 Reserved: 2026-02-19 16:30:00 UTC
 
@@ -258,17 +240,16 @@ https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/development/
 
 1. **Checkout repository** - Fetches MokoStandards repository
 2. **Configure Git** - Sets up git credentials for commits
-3. **Extract module name** - Parses repository name
+3. **Extract module name** - Uses provided repo_name and constructs full URL
 4. **Determine module ID** - Auto-assigns or validates manual ID
 5. **Check for conflicts** - Ensures ID is available
-6. **Update registry table** - Adds new entry to registry
+6. **Update registry table** - Adds new entry to registry with auto-generated description
 7. **Update override config** - Protects workflow file
 8. **Create branch and commit** - Commits changes to new branch
 9. **Create pull request** - Automated PR creation
 10. **Add labels** - Tags PR with relevant labels
-11. **Validate remote inputs** - (Optional) Validates remote push parameters
-12. **Push to remote** - (Optional) Creates DOLIBARR_MODULE_ID.txt in remote repo
-13. **Output summary** - Displays reservation summary
+11. **Push to remote** - Creates DOLIBARR_MODULE_ID.txt in remote repo
+12. **Output summary** - Displays reservation summary
 
 ## Output
 
@@ -281,22 +262,24 @@ The workflow generates a summary with:
 
 **Module Name:** MokoDoliExample
 **Reserved ID:** 185064
+**Repository:** https://github.com/mokoconsulting-tech/MokoDoliExample
 **Pull Request:** https://github.com/mokoconsulting-tech/MokoStandards/pull/123
 
 ### Next Steps
 1. Review the pull request
 2. Get approval from CRM Development Lead
 3. Merge the PR to officially reserve the module ID
+4. Verify DOLIBARR_MODULE_ID.txt was created in https://github.com/mokoconsulting-tech/MokoDoliExample
 ```
 
 ### Files Modified
 
 **In MokoStandards Repository**:
-- `docs/policy/crm/development-standards.md` - Registry table updated
+- `docs/development/crm/module-registry.md` - Registry table updated
 - `MokoStandards.override.tf` - Workflow protection added
 
-**In Remote Repository** (if push_to_remote=true):
-- `src/DOLIBARR_MODULE_ID.txt` - Module ID file created
+**In Remote Repository**:
+- `src/DOLIBARR_MODULE_ID.txt` - Module ID file created (always)
 
 ## Error Handling
 
@@ -329,9 +312,7 @@ grep -E "185064|185065|185066" docs/policy/crm/development-standards.md
 
 #### Error: "push_to_remote is enabled but remote_repository is not provided"
 
-**Cause**: Enabled remote push without providing repository URL.
-
-**Solution**: Either disable `push_to_remote` or provide `remote_repository` URL.
+**This error no longer applies** - The workflow now always pushes to the remote repository automatically constructed from the repo name.
 
 #### Error: "Could not find 'Available for Assignment' line in registry"
 
@@ -503,28 +484,27 @@ echo $((36 - $(grep -cE "185064|185065|..." docs/policy/crm/development-standard
 
 ```yaml
 # Input
-description: "WebAuthn authentication module"
-developer: "Security Team"
+repo_name: "MokoDoliPasskey"
 
 # Result
 Module ID: 185064 (auto-assigned)
-Module Name: MokoDoliPasskey (from repository name)
+Module Name: MokoDoliPasskey
+Repository URL: https://github.com/mokoconsulting-tech/MokoDoliPasskey
 PR Created: #123
+Remote File: src/DOLIBARR_MODULE_ID.txt created
 ```
 
-### Example 2: Specific ID with Remote Push
+### Example 2: Specific ID
 
 ```yaml
 # Input
-description: "Multi-entity management module"
-developer: "John Doe"
+repo_name: "MokoDoliMulti"
 module_id: 185070
-push_to_remote: true
-remote_repository: "https://github.com/mokoconsulting-tech/MokoDoliMulti"
 
 # Result
 Module ID: 185070 (manual)
 Module Name: MokoDoliMulti
+Repository URL: https://github.com/mokoconsulting-tech/MokoDoliMulti
 PR Created: #124
 Remote File: src/DOLIBARR_MODULE_ID.txt created
 ```
@@ -551,8 +531,9 @@ The workflow requires:
 
 ### Remote Repository Access
 
-When using `push_to_remote`:
-- Ensure GitHub token has push access to remote repository
+The workflow automatically pushes to remote repositories:
+- Repository URL is constructed as `https://github.com/mokoconsulting-tech/{repo_name}`
+- Ensure GitHub token has push access to the target repository
 - Remote repository must accept push from github-actions bot
 - Consider using deploy keys for production repositories
 
@@ -569,6 +550,25 @@ The workflow file itself is protected via `MokoStandards.override.tf` to prevent
 - [Workflow Architecture](./workflow-architecture.md) - Overall workflow design patterns
 
 ## Changelog
+
+### Version 04.00.02 (2026-02-20)
+
+**Changed**:
+- Simplified workflow inputs to only require `repo_name`
+- Repository URL now automatically constructed as `https://github.com/mokoconsulting-tech/{repo_name}`
+- Organization is always assumed to be `mokoconsulting-tech`
+- Description is automatically generated from module name
+- Remote push is now always enabled (no longer optional)
+
+**Removed**:
+- `description` input (auto-generated)
+- `repository` input (auto-constructed)
+- `push_to_remote` input (always true)
+- `remote_repository` input (auto-constructed)
+- `developer` input (removed in v04.00.01)
+
+**Added**:
+- `repo_name` required input - single field for repository name
 
 ### Version 04.00.01 (2026-02-19)
 

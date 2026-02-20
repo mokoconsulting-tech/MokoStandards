@@ -77,7 +77,7 @@ jobs:
           use MokoStandards\Enterprise\CliFramework;
           use MokoStandards\Enterprise\Config;
           use MokoStandards\Enterprise\EnterpriseReadinessValidator;
-          use MokoStandards\Enterprise\ErrorRecovery;
+          use MokoStandards\Enterprise\RecoveryManager;
           use MokoStandards\Enterprise\InputValidator;
           use MokoStandards\Enterprise\MetricsCollector;
           use MokoStandards\Enterprise\RepositoryHealthChecker;
@@ -96,7 +96,7 @@ jobs:
               'CliFramework' => CliFramework::class,
               'Config' => Config::class,
               'EnterpriseReadinessValidator' => EnterpriseReadinessValidator::class,
-              'ErrorRecovery' => ErrorRecovery::class,
+              'RecoveryManager' => RecoveryManager::class,
               'InputValidator' => InputValidator::class,
               'MetricsCollector' => MetricsCollector::class,
               'RepositoryHealthChecker' => RepositoryHealthChecker::class,
@@ -151,8 +151,8 @@ jobs:
                           $testDetails['environment'] = $config->get('environment');
                           break;
 
-                      case 'ErrorRecovery':
-                          $recovery = new ErrorRecovery();
+                      case 'RecoveryManager':
+                          $recovery = new RecoveryManager();
                           $testDetails['initialized'] = true;
                           break;
 

@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.ADR
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/adr/template.md
-VERSION: 03.01.03
+VERSION: 04.00.01
 BRIEF: Template for creating Architecture Decision Records
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # ADR-NNNN: [Short Title of Decision]
 

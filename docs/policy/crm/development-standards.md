@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.CRM
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/crm/development-standards.md
-VERSION: 03.01.03
+VERSION: 04.00.01
 BRIEF: Development standards for MokoCRM based on Dolibarr platform
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # MokoCRM Development Standards
 
@@ -269,44 +269,23 @@ class modMokoModule extends DolibarrModules
 
 ### Module Number Registry
 
-**Reserved Module Numbers**:
+**Official Module Registry**: [docs/development/crm/module-registry.md](../../development/crm/module-registry.md)
 
 Dolibarr module numbers **185051 to 185099** are reserved for Moko Consulting use.
 
-**Dolibarr Extensions Registry**:
+For the complete, up-to-date registry table and reservation process, see:
+**[Dolibarr Module Number Registry](../../development/crm/module-registry.md)**
 
-| Module Name | Module Number | Status | Description | Repository |
-|-------------|---------------|--------|-------------|------------|
-| MokoDoliTools | 185051 | Active | Core utilities and admin toolkit for Dolibarr with curated defaults, UI enhancements, and entity-aware operations | [mokoconsulting-tech/MokoDoliTools](https://github.com/mokoconsulting-tech/MokoDoliTools) |
-| MokoDoliSign | 185052 | Reserved | Digital signature and document signing module | TBD |
-| MokoCRMTheme | 185053 | Reserved | MokoCRM Theme | TBD |
-| MokoDoliChimp | 185054 | Reserved | MailChimp integration for Dolibarr | TBD |
-| MokoDoliPasskey | 185055 | Reserved | WebAuthn/Passkey authentication module for Dolibarr | TBD |
-| MokoDoliForm | 185056 | Reserved | Advanced form builder and workflow module for Dolibarr | TBD |
-| MokoDoliG | 185057 | Reserved | Google Workspace integration module for Dolibarr | TBD |
-| MokoDoliDeploy | 185058 | Reserved | Deployment automation and management module for Dolibarr | TBD |
-| MokoDoliMulti | 185059 | Reserved | Multi-entity management module for Dolibarr | TBD |
-| MokoDoliHRM | 185060 | Reserved | Human Resource Management module for Dolibarr | TBD |
-| MokoDoliAuth | 185061 | Reserved |  | TBD |
-| MokoDoliOffline | 185062 | Reserved |  | TBD |
-| MokoDoliReleaseHelper | 185063 | Reserved | Release management and version control helper module for Dolibarr | TBD |
-| Available for Assignment | 185064-185099 | Reserved | Reserved for future Moko Consulting modules | - |
+**Quick Links**:
+- **[Module Registry Table](../../development/crm/module-registry.md#dolibarr-extensions-registry)** - View all reserved module IDs
+- **[Reserve a Module ID](../../workflows/reserve-dolibarr-module-id.md)** - Automated reservation workflow
+- **[Reservation Process](../../development/crm/module-registry.md#module-id-reservation-process)** - Step-by-step guide
 
-**Module ID Reservation Process**:
+**Module ID Reservation**:
 
-To reserve a Dolibarr module ID from the Moko Consulting range (185051-185099):
+To reserve a Dolibarr module ID from the Moko Consulting range (185051-185099), use the **automated workflow** (recommended) or create a manual PR. See the [Module Registry](../../development/crm/module-registry.md#module-id-reservation-process) for complete instructions.
 
-1. **Create a Pull Request** to this repository
-2. **Update this table** with:
-   - Module name
-   - Next available module number from the reserved range
-   - Status: "Reserved"
-   - Brief description of the module's purpose
-   - Repository link (use "TBD" if not yet created)
-3. **Get approval** from the CRM Development Lead before merging
-4. **Merge the PR** to officially reserve the module ID
-
-**Important**: Module IDs MUST be reserved through a pull request. Direct commits to reserve module IDs are not permitted and are blocked on protected branches via branch protection rules (requiring PRs, code review, and automated checks) for the default and release branches.
+**Important**: Module IDs MUST be reserved through a pull request to [https://github.com/mokoconsulting-tech/MokoStandards](https://github.com/mokoconsulting-tech/MokoStandards). Direct commits are not permitted and are blocked on protected branches.
 
 ### Database Standards
 

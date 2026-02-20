@@ -9,12 +9,12 @@
  DEFGROUP: MokoStandards.Documentation
  INGROUP: MokoStandards.Workflows
  REPO: https://github.com/mokoconsulting-tech/MokoStandards/
- VERSION: 03.01.03
+ VERSION: 04.00.01
  PATH: /docs/workflows/reusable-workflows.md
  BRIEF: Documentation for reusable GitHub Actions workflows
  -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Reusable Workflows
 

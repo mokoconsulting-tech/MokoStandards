@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # InGroup and DefGroup Parameters
 
@@ -88,7 +88,7 @@ Add group metadata in the file header:
 FILE: scripts/validate/check_repo_health.py
 AUTHOR: MokoStandards Team
 DATE: 2026-01-30
-VERSION: 03.01.03
+VERSION: 04.00.01
 DESCRIPTION: Validate repository health and structure
 INGROUP: MokoStandards.Validation, MokoStandards.Analysis
 """
@@ -153,7 +153,7 @@ Add group metadata in the file header:
 # FILE: scripts/wrappers/bash/check_repo_health.sh
 # AUTHOR: MokoStandards Team
 # DATE: 2026-01-30
-# VERSION: 03.01.03
+# VERSION: 04.00.01
 # DESCRIPTION: Wrapper for repository health checker
 # INGROUP: MokoStandards.Validation, MokoStandards.Wrappers
 ```

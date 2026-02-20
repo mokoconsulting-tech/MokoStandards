@@ -38,7 +38,7 @@ declare(strict_types=1);
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
  * @package MokoStandards\Enterprise
- * @version 04.00.00
+ * @version 04.00.01
  * @author MokoStandards Team
  * @license GPL-3.0-or-later
  */
@@ -359,7 +359,7 @@ class SecurityValidatorPlugin extends ValidationPlugin
  */
 class UnifiedValidator
 {
-    private const VERSION = '04.00.00';
+    private const VERSION = '04.00.01';
 
     /** @var array<string, ValidationPlugin> */
     private array $plugins = [];

@@ -9,7 +9,7 @@
  * This file provides global helper functions for MokoStandards.
  * 
  * @package MokoStandards
- * @version 04.00.00
+ * @version 04.00.01
  */
 
 declare(strict_types=1);
@@ -22,7 +22,7 @@ if (!function_exists('mokostandards_version')) {
      */
     function mokostandards_version(): string
     {
-        return '04.00.00';
+        return '04.00.01';
     }
 }
 

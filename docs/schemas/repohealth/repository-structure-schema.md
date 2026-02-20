@@ -222,12 +222,12 @@ Defines the standard structure for MokoWaaS (Joomla) components.
 
 ## Validation Tool
 
-**Note**: Validation scripts are deprecated as of v04.00.00. This section is maintained for historical reference.
+**Note**: Validation scripts are deprecated as of v04.00.01. This section is maintained for historical reference.
 
 ### Historical Usage (v03.xx.xx and earlier)
 
 ```bash
-# These commands are no longer supported in v04.00.00+
+# These commands are no longer supported in v04.00.01+
 # Validate current directory
 # python scripts/validate/validate_structure.py scripts/definitions/crm-module.xml
 
@@ -238,7 +238,7 @@ Defines the standard structure for MokoWaaS (Joomla) components.
 # make validate-structure
 ```
 
-### Current Approach (v04.00.00+)
+### Current Approach (v04.00.01+)
 
 Repository structure validation is now performed through:
 1. **Manual Review**: Compare your repository against XML schema definitions in `schemas/`
@@ -307,12 +307,12 @@ Total issues: 6
 
 ## Stub Generation Tool
 
-**Note**: Stub generation scripts are deprecated as of v04.00.00. This section is maintained for historical reference.
+**Note**: Stub generation scripts are deprecated as of v04.00.01. This section is maintained for historical reference.
 
 ### Historical Usage (v03.xx.xx and earlier)
 
 ```bash
-# These commands are no longer supported in v04.00.00+
+# These commands are no longer supported in v04.00.01+
 # Dry run (preview)
 # python scripts/validate/generate_stubs.py scripts/definitions/crm-module.xml --dry-run
 
@@ -329,7 +329,7 @@ Total issues: 6
 # make generate-stubs STRUCTURE=crm-module
 ```
 
-### Current Approach (v04.00.00+)
+### Current Approach (v04.00.01+)
 
 Repository structure setup is now performed through:
 1. **Manual Creation**: Create files/directories based on XML schema definitions
@@ -395,18 +395,18 @@ Total actions: 12
 
 Next steps:
   1. Review generated files and update TODO sections
-  2. Run validation: Manual review against XML schema (v04.00.00+)
+  2. Run validation: Manual review against XML schema (v04.00.01+)
   3. Commit changes to version control
 ```
 
 ## Usage Examples
 
-**Note**: Examples below reference deprecated Python scripts (v03.xx.xx). As of v04.00.00, use manual file creation or web interface.
+**Note**: Examples below reference deprecated Python scripts (v03.xx.xx). As of v04.00.01, use manual file creation or web interface.
 
 ### Example 1: Create a New MokoCRM Module (Historical)
 
 ```bash
-# Historical commands (v03.xx.xx) - No longer supported in v04.00.00+
+# Historical commands (v03.xx.xx) - No longer supported in v04.00.01+
 # 1. Create new directory
 # mkdir my-new-module
 # cd my-new-module
@@ -431,7 +431,7 @@ Next steps:
 # git commit -m "Initial commit with standard structure"
 ```
 
-**Current Approach (v04.00.00+)**:
+**Current Approach (v04.00.01+)**:
 1. Create directory structure manually based on XML schema
 2. Copy template files from `templates/` directory
 3. Initialize Git repository
@@ -453,7 +453,7 @@ Next steps:
 #     ../MokoStandards/scripts/definitions/crm-module.xml
 ```
 
-**Current Approach (v04.00.00+)**:
+**Current Approach (v04.00.01+)**:
 1. Manually compare repository against XML schema in `schemas/`
 2. Use web interface for health checks
 3. Implement custom validation in CI/CD if needed
@@ -471,12 +471,12 @@ Next steps:
 # Existing files will be skipped
 ```
 
-**Current Approach (v04.00.00+)**:
+**Current Approach (v04.00.01+)**:
 1. Manually identify missing files from XML schema
 2. Create files using templates from `templates/` directory
 3. Follow structure guidelines from schema documentation
 
-### Example 4: CI/CD Integration (Updated for v04.00.00)
+### Example 4: CI/CD Integration (Updated for v04.00.01)
 
 ```yaml
 # .github/workflows/validate-structure.yml
@@ -496,7 +496,7 @@ jobs:
           repository: mokoconsulting-tech/MokoStandards
           path: MokoStandards
 
-      # Note: Python validation scripts no longer available in v04.00.00+
+      # Note: Python validation scripts no longer available in v04.00.01+
       # Implement custom validation logic here or use web interface
       
       - name: Check Required Files
@@ -587,7 +587,7 @@ Create a new XML file in `scripts/definitions/`:
 
   <structure>
     <!-- Define your structure here -->
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
   </structure>
 </repository-structure>
@@ -656,7 +656,7 @@ TODO: Add getting started instructions
 xmllint --noout --schema schemas/repository-structure.xsd \
     scripts/definitions/your-structure.xml
 
-# Note: Stub generation and validation scripts deprecated in v04.00.00+
+# Note: Stub generation and validation scripts deprecated in v04.00.01+
 # Test stub generation (Historical - v03.xx.xx)
 # python scripts/validate/generate_stubs.py \
 #     scripts/definitions/your-structure.xml \
@@ -668,7 +668,7 @@ xmllint --noout --schema schemas/repository-structure.xsd \
 #     /tmp/test-repo
 ```
 
-**Current Approach (v04.00.00+)**:
+**Current Approach (v04.00.01+)**:
 1. Validate XML syntax with xmllint
 2. Manually test structure creation
 3. Use web interface for validation
@@ -688,7 +688,7 @@ Add documentation to `docs/policy/` or `docs/guide/` explaining:
 **Note**: These commands referenced deprecated Python scripts. Shown for historical reference only.
 
 ```makefile
-# Historical Makefile targets (v03.xx.xx) - No longer functional in v04.00.00+
+# Historical Makefile targets (v03.xx.xx) - No longer functional in v04.00.01+
 # MOKOSTANDARDS_ROOT ?= ../MokoStandards
 # STRUCTURE_TYPE ?= crm-module
 
@@ -708,10 +708,10 @@ Add documentation to `docs/policy/` or `docs/guide/` explaining:
 # 		$(MOKOSTANDARDS_ROOT)/scripts/definitions/$(STRUCTURE_TYPE).xml . --dry-run
 ```
 
-**Current Approach (v04.00.00+)**:
+**Current Approach (v04.00.01+)**:
 Create custom Makefile targets for your specific validation needs or use web interface.
 
-### GitHub Actions Workflow (Updated for v04.00.00)
+### GitHub Actions Workflow (Updated for v04.00.01)
 
 `.github/workflows/validate.yml`:
 
@@ -738,7 +738,7 @@ jobs:
           path: .mokostandards
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      # Note: Python validation scripts removed in v04.00.00+
+      # Note: Python validation scripts removed in v04.00.01+
       # Implement custom validation or use web interface
       
       - name: Basic Structure Validation
@@ -792,7 +792,7 @@ For historical reference, debugging was done by modifying the Python scripts:
 # print(f"DEBUG: Exists: {file_path.exists()}")
 ```
 
-**Current Approach (v04.00.00+)**:
+**Current Approach (v04.00.01+)**:
 - Use browser developer tools with web interface
 - Implement custom debugging in CI/CD scripts
 
@@ -837,7 +837,7 @@ For issues or questions:
 | Owner          | Moko Consulting                                          |
 | Repo           | https://github.com/mokoconsulting-tech/                                      |
 | Path           | /docs/schemas/repohealth/repository-structure-schema.md                                      |
-| Version        | 04.00.00                                 |
+| Version        | 04.00.01                                 |
 | Status         | Active                                         |
 | Last Reviewed  | 2026-01-28                                  |
 | Reviewed By    | Documentation Team                                    |
@@ -847,4 +847,4 @@ For issues or questions:
 
 | Date       | Author          | Change                                       | Notes                                              |
 | ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
-| 2026-02-14 | Moko Consulting | Updated for PHP-only architecture | Deprecated Python scripts, updated to v04.00.00 |
+| 2026-02-14 | Moko Consulting | Updated for PHP-only architecture | Deprecated Python scripts, updated to v04.00.01 |

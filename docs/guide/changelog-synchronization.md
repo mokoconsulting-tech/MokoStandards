@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Guide
 INGROUP: MokoStandards.Automation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/guide/changelog-synchronization.md
-VERSION: 03.01.03
+VERSION: 04.00.01
 BRIEF: Guide for automatic CHANGELOG synchronization in Dolibarr modules
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # CHANGELOG Synchronization for Dolibarr Modules
 

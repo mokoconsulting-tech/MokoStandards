@@ -15,7 +15,7 @@
  DEFGROUP:
  INGROUP: Project.Documentation
  REPO:
- VERSION: 03.01.03
+ VERSION: 04.00.01
  PATH: ./CONTRIBUTING.md
  BRIEF: How to contribute; commit, PR, testing and security policies
  -->

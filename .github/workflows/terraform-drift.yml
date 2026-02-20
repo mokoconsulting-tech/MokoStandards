@@ -5,7 +5,7 @@
 # INGROUP: MokoStandards.Terraform
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/terraform-drift.yml
-# VERSION: 04.00.00
+# VERSION: 04.00.01
 # BRIEF: Terraform drift detection workflow to identify infrastructure changes
 # NOTE: Runs on schedule to detect configuration drift from desired state
 

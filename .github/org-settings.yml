@@ -5,7 +5,7 @@
 # INGROUP: MokoStandards.Configuration
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/org-settings.yml
-# VERSION: 04.00.00
+# VERSION: 04.00.01
 # BRIEF: GitHub organization-level settings configuration for branch protection
 # NOTE: Applied at organization level to protect main branch across all repositories
 

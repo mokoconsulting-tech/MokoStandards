@@ -83,7 +83,7 @@ Every file entry can now include explicit source and destination information:
   <requirement-status>suggested</requirement-status>
 
   <!-- SOURCE: Where to get the file -->
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
   <source>
     <path>templates/workflows/generic</path>
@@ -900,7 +900,7 @@ Source and destination extensions should match intent:
 | Owner          | Moko Consulting                                          |
 | Repo           | https://github.com/mokoconsulting-tech/                                      |
 | Path           | /docs/schemas/repohealth/schema-guide.md                                      |
-| Version        | 04.00.00                                 |
+| Version        | 04.00.01                                 |
 | Status         | Active                                         |
 | Last Reviewed  | 2026-01-28                                  |
 | Reviewed By    | Documentation Team                                    |
@@ -910,4 +910,4 @@ Source and destination extensions should match intent:
 
 | Date       | Author          | Change                                       | Notes                                              |
 | ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
-| 2026-02-14 | Moko Consulting | Updated for PHP-only architecture | Updated to version 04.00.00, PHP code examples |
+| 2026-02-14 | Moko Consulting | Updated for PHP-only architecture | Updated to version 04.00.01, PHP code examples |

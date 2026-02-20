@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # SHA-256 Auto-Update Automation
 
@@ -8,54 +8,44 @@ This automation ensures that SHA-256 verification hashes in workflow files stay 
 
 ## Components
 
-### 1. Update Script: `scripts/maintenance/update_sha_hashes.py`
+### 1. Update Script: `scripts/maintenance/update_sha_hashes.php`
 
-Python script that:
-- Calculates SHA-256 hashes of tracked files
-- Updates corresponding workflow files with new hashes
+PHP script that:
+- Calculates SHA-256 hashes of tracked files in the script registry
+- Updates `scripts/.script-registry.json` with new hashes
 - Supports dry-run mode for safety
 - Provides detailed logging
 
 **Usage:**
 ```bash
 # Check what would be updated (dry run)
-python3 scripts/maintenance/update_sha_hashes.py --dry-run --verbose
+php scripts/maintenance/update_sha_hashes.php --dry-run --verbose
 
 # Actually update the hashes
-python3 scripts/maintenance/update_sha_hashes.py
+php scripts/maintenance/update_sha_hashes.php
 
 # Show detailed output
-python3 scripts/maintenance/update_sha_hashes.py --verbose
+php scripts/maintenance/update_sha_hashes.php --verbose
+
+# Show help
+php scripts/maintenance/update_sha_hashes.php --help
 ```
 
-**Configuration:**
+**How It Works:**
 
-The script uses the `SHA_MAPPINGS` configuration at the top of the file:
-
-```python
-SHA_MAPPINGS = [
-    {
-        'source_file': 'scripts/validate/validate_codeql_config.py',
-        'workflow_file': '.github/workflows/standards-compliance.yml',
-        'pattern': r'EXPECTED_SHA256="([a-f0-9]{64})"',
-        'description': 'CodeQL configuration validator'
-    }
-]
-```
-
-To track additional files, add more entries to this list.
+The script reads the script registry at `scripts/.script-registry.json`, calculates the current SHA-256 hash for each tracked script file, and updates the registry if any hashes have changed. It automatically updates the generation timestamp when changes are made.
 
 ### 2. GitHub Workflow: `.github/workflows/auto-update-sha.yml`
 
 Automated workflow that:
 - Triggers on push to main (after merge)
-- Only runs when tracked files change
-- Calculates new SHA-256 hashes
+- Only runs when tracked script files change
+- Calculates new SHA-256 hashes using PHP
 - Commits and pushes updates automatically
 - Can be triggered manually
 
 **Trigger Conditions:**
-- Automatic: When `scripts/validate/validate_codeql_config.py` changes
+- Automatic: When any script file (*.py, *.sh, *.ps1) or the registry changes
 - Manual: Via workflow_dispatch with optional force flag
 
 **Permissions:**
@@ -89,20 +79,21 @@ Automated workflow that:
            │
            ▼
 ┌─────────────────────┐
-│ File changed?       │
-│ validate_codeql_*   │
+│ Script file changed?│
+│ *.py, *.sh, *.ps1   │
 └──────────┬──────────┘
            │ Yes
            ▼
 ┌─────────────────────┐
 │ Calculate SHA-256   │
-│ of current file     │
+│ using PHP           │
 └──────────┬──────────┘
            │
            ▼
 ┌─────────────────────┐
-│ Update workflow     │
-│ with new hash       │
+│ Update registry     │
+│ .script-registry.   │
+│ json                │
 └──────────┬──────────┘
            │
            ▼
@@ -114,35 +105,24 @@ Automated workflow that:
 
 ## Adding New Files to Track
 
-To track additional files for SHA verification:
+The script automatically tracks all files listed in `scripts/.script-registry.json`. To add new scripts to track:
 
-1. **Edit the script** (`scripts/maintenance/update_sha_hashes.py`):
-   ```python
-   SHA_MAPPINGS = [
-       # ... existing entries ...
-       {
-           'source_file': 'path/to/your/script.py',
-           'workflow_file': '.github/workflows/your-workflow.yml',
-           'pattern': r'EXPECTED_SHA256="([a-f0-9]{64})"',
-           'description': 'Your script description'
-       }
-   ]
+1. **Add the script to the repository** in the appropriate `scripts/` subdirectory
+
+2. **Regenerate the registry** (if a registry generator script exists), or manually add the entry:
+   ```json
+   {
+     "path": "scripts/your-category/your-script.sh",
+     "sha256": "calculated-hash-here",
+     "category": "your-category",
+     "priority": "medium",
+     "size_bytes": 12345
+   }
    ```
 
-2. **Update the workflow** (`.github/workflows/auto-update-sha.yml`):
-   ```yaml
-   on:
-     push:
-       branches:
-         - main
-       paths:
-         - 'scripts/validate/validate_codeql_config.py'
-         - 'path/to/your/script.py'  # Add here
-   ```
-
-3. **Test locally**:
+3. **Test the update script**:
    ```bash
-   python3 scripts/maintenance/update_sha_hashes.py --dry-run --verbose
+   php scripts/maintenance/update_sha_hashes.php --dry-run --verbose
    ```
 
 ## Manual Updates
@@ -151,13 +131,13 @@ If you need to update hashes manually:
 
 ```bash
 # Check current status
-python3 scripts/maintenance/update_sha_hashes.py --dry-run
+php scripts/maintenance/update_sha_hashes.php --dry-run
 
 # Update all hashes
-python3 scripts/maintenance/update_sha_hashes.py
+php scripts/maintenance/update_sha_hashes.php
 
 # Commit the changes
-git add .github/workflows/
+git add scripts/.script-registry.json
 git commit -m "chore: update SHA-256 hashes"
 git push
 ```
@@ -169,14 +149,14 @@ git push
 If the hash still doesn't match after the script runs:
 
 1. Check the file wasn't modified after the update
-2. Verify the pattern regex matches the workflow file format
+2. Verify the file path in the registry is correct
 3. Run with `--verbose` to see detailed output
 
 ### Workflow Not Triggering
 
 If the workflow doesn't run automatically:
 
-1. Check that the file path is listed in `on.push.paths`
+1. Check that the file path matches the patterns in `on.push.paths`
 2. Verify the branch is `main`
 3. Check workflow permissions are set correctly
 
@@ -185,17 +165,18 @@ If the workflow doesn't run automatically:
 Common issues:
 
 - **File not found**: Check paths are relative to repository root
-- **Pattern not matching**: Verify regex pattern matches workflow format
-- **Permission denied**: Ensure script is executable (`chmod +x`)
+- **Registry not found**: Ensure `scripts/.script-registry.json` exists
+- **JSON parse error**: Validate the registry JSON syntax
 
 ## Related Files
 
-- `scripts/maintenance/update_sha_hashes.py` - Main update script
+- `scripts/maintenance/update_sha_hashes.php` - Main update script
 - `.github/workflows/auto-update-sha.yml` - Automation workflow
-- `.github/workflows/standards-compliance.yml` - Uses SHA verification
+- `scripts/.script-registry.json` - Script registry with SHA-256 hashes
+- `.github/workflows/validate-script-integrity.yml` - Validates script hashes
 
 ## References
 
 - [GitHub Actions: Workflow syntax](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions)
 - [SHA-256 Hash Function](https://en.wikipedia.org/wiki/SHA-2)
-- [Python hashlib documentation](https://docs.python.org/3/library/hashlib.html)
+- [PHP hash_file documentation](https://www.php.net/manual/en/function.hash-file.php)

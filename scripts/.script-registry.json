@@ -1,568 +1,575 @@
 {
-  "metadata": {
-    "generated_at": "2026-02-02T09:57:29.043652Z",
-    "repository": "mokoconsulting-tech/MokoStandards",
-    "version": "1.0.0"
-  },
-  "scripts": [
-    {
-      "path": "scripts/analysis/analyze_dependencies.py",
-      "sha256": "7d282416b124d8cf908118e309667ace5e65d63202800df69f4f317208f42a52",
-      "category": "analysis",
-      "priority": "medium",
-      "size_bytes": 10186
-    },
-    {
-      "path": "scripts/analysis/analyze_pr_conflicts.py",
-      "sha256": "84a26f39470acd502e4288d24dfa17215ffbb90dfeb12e58a1cbb45fcdc72c48",
-      "category": "analysis",
-      "priority": "medium",
-      "size_bytes": 8678
-    },
-    {
-      "path": "scripts/analysis/code_metrics.py",
-      "sha256": "6f5008294b89ca2c393dd3dab7c6eb23808a3e078aede3ed48f8a0e4ffb55975",
-      "category": "analysis",
-      "priority": "medium",
-      "size_bytes": 8176
-    },
-    {
-      "path": "scripts/analysis/generate_canonical_config.py",
-      "sha256": "d7867a61200d904f08c7efa7e388734d7aa0c6d84aefb263facbc823ab14ab1c",
-      "category": "analysis",
-      "priority": "medium",
-      "size_bytes": 29163
-    },
-    {
-      "path": "scripts/automation/Invoke-BulkUpdateGUI.ps1",
-      "sha256": "95b506917ed12032c05bc76ae461a71882a1c2e52b64a0f5d48957ca9f33b841",
-      "category": "automation",
-      "priority": "high",
-      "size_bytes": 10464
-    },
-    {
-      "path": "scripts/automation/Update-BulkRepositories.ps1",
-      "sha256": "3171953a62329fc96ee83b90d1b4fe18ef05ee0bac312fa21a773480e0a75b3e",
-      "category": "automation",
-      "priority": "high",
-      "size_bytes": 29734
-    },
-    {
-      "path": "scripts/automation/auto_create_org_projects.py",
-      "sha256": "3055340618b7d1bd9d428a525c9273b0fec7e41aa42a82e5957ebf7aef2c20db",
-      "category": "automation",
-      "priority": "high",
-      "size_bytes": 23108
-    },
-    {
-      "path": "scripts/automation/bulk_deploy_labels.sh",
-      "sha256": "b39c435a99d8b40c2f85b27d68c1547cd9833436cef5b9ff4e3e2a19a6b154b9",
-      "category": "automation",
-      "priority": "high",
-      "size_bytes": 7181
-    },
-    {
-      "path": "scripts/automation/bulk_update_repos.py",
-      "sha256": "6e47cce8a5528db0081dc246367ef1b5da876f591d43b34664fbb608ef26cecd",
-      "category": "automation",
-      "priority": "high",
-      "size_bytes": 34399
-    },
-    {
-      "path": "scripts/automation/check_outdated_actions.py",
-      "sha256": "f2fefc08a679c477cf4b3e031a93cc45261fdff4fd0165196058400b35f21451",
-      "category": "automation",
-      "priority": "high",
-      "size_bytes": 8292
-    },
-    {
-      "path": "scripts/automation/create_repo_project.py",
-      "sha256": "718240fdb232a606142eca6a7fca774acae19400a5fce6f1fa42eb7567ae6d0a",
-      "category": "automation",
-      "priority": "high",
-      "size_bytes": 8295
-    },
-    {
-      "path": "scripts/automation/dev-workstation-provisioner.ps1",
-      "sha256": "567062f6f513ea49616fb098732f9aa934505983d789fd8b29f9c1c1d5356d08",
-      "category": "automation",
-      "priority": "high",
-      "size_bytes": 5747
-    },
-    {
-      "path": "scripts/automation/file-distributor.ps1",
-      "sha256": "afc991e0e1a48c032da31d863fd95e6ebcfffaac12ae8b5ce03455818602a8da",
-      "category": "automation",
-      "priority": "high",
-      "size_bytes": 43979
-    },
-    {
-      "path": "scripts/automation/file-distributor.py",
-      "sha256": "a844784832928b427c5e9cd2b30d2e7c5dfb08894f6b8fb46cc2244e5a180be1",
-      "category": "automation",
-      "priority": "high",
-      "size_bytes": 22203
-    },
-    {
-      "path": "scripts/automation/generate_wrappers.py",
-      "sha256": "0077ffb71062345da9e81757715699bfd4eb601cc750408957635e1c7747ef76",
-      "category": "automation",
-      "priority": "high",
-      "size_bytes": 6769
-    },
-    {
-      "path": "scripts/automation/setup_dev_environment.py",
-      "sha256": "f9ec448c809b83c1af1606044ea27786dd0a8abfdfb58f59b7a3d30bc570b54f",
-      "category": "automation",
-      "priority": "high",
-      "size_bytes": 9025
-    },
-    {
-      "path": "scripts/automation/sync_dolibarr_changelog.py",
-      "sha256": "98e935800ac8d4289b3fdd2d31fc12ea993f25cf78bc5ac84817233985e98a4d",
-      "category": "automation",
-      "priority": "high",
-      "size_bytes": 14336
-    },
-    {
-      "path": "scripts/automation/sync_file_to_project.py",
-      "sha256": "2c7b385500d0327fe41421e30d8a04b905b4141e58eb629908924242e4e911e2",
-      "category": "automation",
-      "priority": "high",
-      "size_bytes": 16352
-    },
-    {
-      "path": "scripts/automation/ubuntu-dev-workstation-provisioner.sh",
-      "sha256": "7be2264da6ae7ef94bf0536a29e768308ab4af91e6ed37ab2c4e329d9349cec5",
-      "category": "automation",
-      "priority": "high",
-      "size_bytes": 16825
-    },
-    {
-      "path": "scripts/build/resolve_makefile.py",
-      "sha256": "980dee07bbc9a0d53496aea33bd1711495f3f599ed742e3ec1565a5f132cf99a",
-      "category": "build",
-      "priority": "high",
-      "size_bytes": 5498
-    },
-    {
-      "path": "scripts/docs/check_doc_coverage.py",
-      "sha256": "a60e66f4b5878e6c70ebda8044b9573c0d457ae228da09b21b51fccdf1c0b3e4",
-      "category": "docs",
-      "priority": "medium",
-      "size_bytes": 8923
-    },
-    {
-      "path": "scripts/docs/generate_script_catalog.py",
-      "sha256": "c99c33f2fdc1c7d3c51d22bec0648555505f5caed7cec5fa4586622bde6e00f0",
-      "category": "docs",
-      "priority": "medium",
-      "size_bytes": 7974
-    },
-    {
-      "path": "scripts/docs/rebuild_indexes.py",
-      "sha256": "4e5331fa56105eca71c61f9d3aa74dd96de2b93f73d30aa8e502aec3b2bfa399",
-      "category": "docs",
-      "priority": "medium",
-      "size_bytes": 15022
-    },
-    {
-      "path": "scripts/docs/update_metadata.py",
-      "sha256": "9a868f856ee8beb5b28713c619476cab3ead6b460cb6013f736e6c1d668ced18",
-      "category": "docs",
-      "priority": "medium",
-      "size_bytes": 11038
-    },
-    {
-      "path": "scripts/fix/file_headers.py",
-      "sha256": "d7345296a0f51f9e2c5b8affd71955bb09f19a27ec4b65c975de52f7745fcfac",
-      "category": "fix",
-      "priority": "high",
-      "size_bytes": 10981
-    },
-    {
-      "path": "scripts/fix/tabs.py",
-      "sha256": "d5db5d2ca3ef74a7399e77ee6181eae0ad6d5ed52d2ee08b03a413ce75b38fd3",
-      "category": "fix",
-      "priority": "high",
-      "size_bytes": 10332
-    },
-    {
-      "path": "scripts/fix/trailing_spaces.py",
-      "sha256": "9812f026c6136e33c19216466bdc1f26a12c01b0564abc3413eed5909068f345",
-      "category": "fix",
-      "priority": "high",
-      "size_bytes": 8156
-    },
-    {
-      "path": "scripts/maintenance/add_dry_run_support.py",
-      "sha256": "d892d4bfc7dba2122c4ca2908f74fbc8f2f65f4131ad93a63af945f051d170ee",
-      "category": "maintenance",
-      "priority": "critical",
-      "size_bytes": 7731
-    },
-    {
-      "path": "scripts/maintenance/add_terraform_metadata.py",
-      "sha256": "e8a46c37c737ed92b05e8ce60fd9ecb2de4154ce0f75eab6d52ce5bc6863b222",
-      "category": "maintenance",
-      "priority": "critical",
-      "size_bytes": 6316
-    },
-    {
-      "path": "scripts/maintenance/clean_old_branches.py",
-      "sha256": "5d98e59d502162c451ed5b0a656b15155d7226889d5416a5fb82faa9b29b348f",
-      "category": "maintenance",
-      "priority": "critical",
-      "size_bytes": 9079
-    },
-    {
-      "path": "scripts/maintenance/flush_actions_cache.py",
-      "sha256": "d1acdbba58e5ec01965317e67010f16a36b52ca00f49ec6cf3a83359fbc15404",
-      "category": "maintenance",
-      "priority": "critical",
-      "size_bytes": 8640
-    },
-    {
-      "path": "scripts/maintenance/generate_script_registry.py",
-      "sha256": "1c385c746e9803098a5eb7b702ca16b2a281c5f362c1de726c8fedd782b52074",
-      "category": "maintenance",
-      "priority": "critical",
-      "size_bytes": 10109
-    },
-    {
-      "path": "scripts/maintenance/release_version.py",
-      "sha256": "1edc101727d0406c43d1fd6ebe70cac4970afc0c1f97aaaf92961236980f35b0",
-      "category": "maintenance",
-      "priority": "critical",
-      "size_bytes": 15463
-    },
-    {
-      "path": "scripts/maintenance/setup-labels.sh",
-      "sha256": "3a1996a3d2052b184e20cf9a729ff232249ad9f0796fd08b11febf983b9bdf29",
-      "category": "maintenance",
-      "priority": "critical",
-      "size_bytes": 7057
-    },
-    {
-      "path": "scripts/maintenance/update_changelog.py",
-      "sha256": "b928e3494d22222a771146b58e9a2988524e41067e83689f769011cb8cf3c98d",
-      "category": "maintenance",
-      "priority": "critical",
-      "size_bytes": 10653
-    },
-    {
-      "path": "scripts/maintenance/update_copyright_year.py",
-      "sha256": "f09e7790f9bd7d6ed94903891909feffb223a012abb3520768666e076c52570b",
-      "category": "maintenance",
-      "priority": "critical",
-      "size_bytes": 7062
-    },
-    {
-      "path": "scripts/maintenance/update_gitignore_patterns.sh",
-      "sha256": "ce33dbd74998bf9708eb41fee4999a8d233b8f4211e53b415b04d1d4c3077900",
-      "category": "maintenance",
-      "priority": "critical",
-      "size_bytes": 7192
-    },
-    {
-      "path": "scripts/maintenance/update_sha_hashes.py",
-      "sha256": "e917b438405d86c1cbeff7a3f265e0181e266935fd9aaa2e66c21b86a5e7b266",
-      "category": "maintenance",
-      "priority": "critical",
-      "size_bytes": 5462
-    },
-    {
-      "path": "scripts/maintenance/validate_file_headers.py",
-      "sha256": "842380f6bcfb2a61f0eb8360e0653cc21936ccaa26f5f466396a991a92300e1c",
-      "category": "maintenance",
-      "priority": "critical",
-      "size_bytes": 9058
-    },
-    {
-      "path": "scripts/maintenance/validate_script_registry.py",
-      "sha256": "8653a2fd2493a2b4659236d13b502a2630305c1832190ea97afcc879fd9b3455",
-      "category": "maintenance",
-      "priority": "critical",
-      "size_bytes": 7964
-    },
-    {
-      "path": "scripts/maintenance/validate_terraform_drift.py",
-      "sha256": "0397fd9d89b5d0bece9702c276644431f95a2ecbe4db91eb6bfd214d49eebd67",
-      "category": "maintenance",
-      "priority": "critical",
-      "size_bytes": 11484
-    },
-    {
-      "path": "scripts/release/detect_platform.py",
-      "sha256": "a27ed3d086aa9984b9d0a593705499e76fdb8b784c3ba4663989d312d5ab8745",
-      "category": "release",
-      "priority": "high",
-      "size_bytes": 2784
-    },
-    {
-      "path": "scripts/release/dolibarr_release.py",
-      "sha256": "4f966b4ad10e14dd65f85ab39ab4784bf3588620de2002c4c8c4d83c1d76d036",
-      "category": "release",
-      "priority": "high",
-      "size_bytes": 11637
-    },
-    {
-      "path": "scripts/release/package_extension.py",
-      "sha256": "d03fe260f21378ee6b2a92ff93bda4b34970908cf2d784aae50bf51ea706f847",
-      "category": "release",
-      "priority": "high",
-      "size_bytes": 9215
-    },
-    {
-      "path": "scripts/release/unified_release.py",
-      "sha256": "fa67e1e15b1570fd2c6d7a78b13050cbcc7aeb010bd612f738560fa6b7b9d9f9",
-      "category": "release",
-      "priority": "high",
-      "size_bytes": 17687
-    },
-    {
-      "path": "scripts/release/update_dates.sh",
-      "sha256": "476e8abb6b5f7f534ad072e4523e79feb29684e98f1192757323cd0d7a4ac4b6",
-      "category": "release",
-      "priority": "high",
-      "size_bytes": 3724
-    },
-    {
-      "path": "scripts/run/Invoke-DemoDataLoaderGUI.ps1",
-      "sha256": "6f5ade6e9e52771a6e43f37050a3c854510f8ed33295016083080e96dcb8a499",
-      "category": "run",
-      "priority": "medium",
-      "size_bytes": 12596
-    },
-    {
-      "path": "scripts/run/Load-DemoData.ps1",
-      "sha256": "faccb2413d3c1de5124f26ff2977769398a07c430386f4a3b38dba158fea11e7",
-      "category": "run",
-      "priority": "medium",
-      "size_bytes": 9835
-    },
-    {
-      "path": "scripts/run/git_helper.sh",
-      "sha256": "56c520472707a9406285e911876e90cf5c385624e135f730671ccb07400ddaeb",
-      "category": "run",
-      "priority": "medium",
-      "size_bytes": 7960
-    },
-    {
-      "path": "scripts/run/load_demo_data.py",
-      "sha256": "9e5ee55f8eec3b3015cafe502b1f2b5bc7f832870d2eda93bf8450cbfff5bbac",
-      "category": "run",
-      "priority": "medium",
-      "size_bytes": 11125
-    },
-    {
-      "path": "scripts/run/setup_github_project_v2.py",
-      "sha256": "a0f9cb4dad755baec4311fa6164053047f894337bd831bfc06fba92eff7d96bc",
-      "category": "run",
-      "priority": "medium",
-      "size_bytes": 29687
-    },
-    {
-      "path": "scripts/tests/test_bulk_update_repos.py",
-      "sha256": "0794f2d9bc2020c741b427f9a8fcbd767120d00c97a040ebbff13b2427cb6833",
-      "category": "tests",
-      "priority": "medium",
-      "size_bytes": 4506
-    },
-    {
-      "path": "scripts/tests/test_dry_run.py",
-      "sha256": "2e99f3ea896d98692bcdd4d8d6c6fa7e117fa96e2518cf3a1f173f11e721e76f",
-      "category": "tests",
-      "priority": "medium",
-      "size_bytes": 6327
-    },
-    {
-      "path": "scripts/validate/Invoke-PlatformDetection.ps1",
-      "sha256": "cd0f25245465849b21aec5a74366f756ef1de79185d822a0190441a5577100d3",
-      "category": "validate",
-      "priority": "critical",
-      "size_bytes": 19116
-    },
-    {
-      "path": "scripts/validate/Invoke-RepoHealthCheckGUI.ps1",
-      "sha256": "c952922e37e1e6f1448f7620b88b1ff896597be46a0205acf1de0b96299091d6",
-      "category": "validate",
-      "priority": "critical",
-      "size_bytes": 9455
-    },
-    {
-      "path": "scripts/validate/auto_detect_platform.py",
-      "sha256": "5cea4133ddb106604d6dc9a7b0dfd86f3a1d53ac11667c1996709df2ae448a85",
-      "category": "validate",
-      "priority": "critical",
-      "size_bytes": 18887
-    },
-    {
-      "path": "scripts/validate/check_all_files.py",
-      "sha256": "e708aae24271eb2d0457acb922809d5a51e4a7fb5f1fd4cd45783dea42a63cc6",
-      "category": "validate",
-      "priority": "critical",
-      "size_bytes": 32318
-    },
-    {
-      "path": "scripts/validate/check_license_headers.py",
-      "sha256": "cc5f4ba9539da8fbe0a397893571bfc9a18e46da1e2fb275389cc53737fdee89",
-      "category": "validate",
-      "priority": "critical",
-      "size_bytes": 9091
-    },
-    {
-      "path": "scripts/validate/check_markdown_links.py",
-      "sha256": "821277627cbaa681cff5aa0f668a738a3337f6e7227bf8bfd951442418407b24",
-      "category": "validate",
-      "priority": "critical",
-      "size_bytes": 6950
-    },
-    {
-      "path": "scripts/validate/check_repo_health.py",
-      "sha256": "d7b8aa256c2eb6f400b653d6b7a9d9bc51a31292bee822827d6aedb2ca690b88",
-      "category": "validate",
-      "priority": "critical",
-      "size_bytes": 23616
-    },
-    {
-      "path": "scripts/validate/check_script_security.py",
-      "sha256": "9e98e9fd750a4c0e4095b8c1951cfba3e2ceed004d056a53b58f21fd176f881b",
-      "category": "validate",
-      "priority": "critical",
-      "size_bytes": 12192
-    },
-    {
-      "path": "scripts/validate/find_todos.py",
-      "sha256": "9e064323374bce029466234433ec6eedaa46afe4027b8cdd90048ba972eb7274",
-      "category": "validate",
-      "priority": "critical",
-      "size_bytes": 8070
-    },
-    {
-      "path": "scripts/validate/generate_stubs.py",
-      "sha256": "e1c1bf1dd10449cfbef4678e1e09d12b7cc7e5e38f9c6fa3819d9c63600c597e",
-      "category": "validate",
-      "priority": "critical",
-      "size_bytes": 14350
-    },
-    {
-      "path": "scripts/validate/manifest.py",
-      "sha256": "a65779bcb4d184ef8583713f1b1f18399864bd2a8bf17a692ba2241566fc2b1d",
-      "category": "validate",
-      "priority": "critical",
-      "size_bytes": 5083
-    },
-    {
-      "path": "scripts/validate/no_secrets.py",
-      "sha256": "c514a64477c535dfd7c16b7a722253e601c51b3ec723efcb3ce933a169b427af",
-      "category": "validate",
-      "priority": "critical",
-      "size_bytes": 6784
-    },
-    {
-      "path": "scripts/validate/paths.py",
-      "sha256": "ae5500bb1d595af4a15e8c5e15e4d6ea500939f166dc6b14c4bcfc4d597dfe77",
-      "category": "validate",
-      "priority": "critical",
-      "size_bytes": 4792
-    },
-    {
-      "path": "scripts/validate/php_syntax.py",
-      "sha256": "9a99ce519688694fd0840d2515cc43b563be97382236750a72bef1c5364d16b7",
-      "category": "validate",
-      "priority": "critical",
-      "size_bytes": 6116
-    },
-    {
-      "path": "scripts/validate/schema_aware_health_check.py",
-      "sha256": "2e53e0ad48cb1303af08ca87256759369a625d52019b3d641bc24703f0a8559c",
-      "category": "validate",
-      "priority": "critical",
-      "size_bytes": 22482
-    },
-    {
-      "path": "scripts/validate/security_scan.py",
-      "sha256": "25ff80b8382546460b1c08fa05d4bf482de3f1a5c4afef4d568c25cd2a900077",
-      "category": "validate",
-      "priority": "critical",
-      "size_bytes": 17377
-    },
-    {
-      "path": "scripts/validate/tabs.py",
-      "sha256": "16ee38094e517642d76d2bd2de71b816bd24716e170cc70c6f9710e2231b6a52",
-      "category": "validate",
-      "priority": "critical",
-      "size_bytes": 10328
-    },
-    {
-      "path": "scripts/validate/validate_codeql_config.py",
-      "sha256": "b79bf71adc8968805fac1a36a764ffde543099d110a93593767bdc9fa890673d",
-      "category": "validate",
-      "priority": "critical",
-      "size_bytes": 8210
-    },
-    {
-      "path": "scripts/validate/validate_repo_health.py",
-      "sha256": "7908092192e4d09e18b424bae978c1c5fc84340413b1be9538bf1b11763ab3a0",
-      "category": "validate",
-      "priority": "critical",
-      "size_bytes": 12597
-    },
-    {
-      "path": "scripts/validate/validate_structure.py",
-      "sha256": "1de72b1b605fa60c138426fbdbae8fc15ec0320e999b02b54f30c5b185aa0e2b",
-      "category": "validate",
-      "priority": "critical",
-      "size_bytes": 15000
-    },
-    {
-      "path": "scripts/validate/validate_structure_terraform.py",
-      "sha256": "73d44fc2567c091c65b8fd8b2bfcf0c6f1925f2772420d6b1e8f71409820a40b",
-      "category": "validate",
-      "priority": "critical",
-      "size_bytes": 17188
-    },
-    {
-      "path": "scripts/validate/validate_structure_v2.py",
-      "sha256": "b0cdf73293b16777e0714eb978d3cd636655c9659903eed45cf8125706eaaf20",
-      "category": "validate",
-      "priority": "critical",
-      "size_bytes": 15938
-    },
-    {
-      "path": "scripts/validate/workflows.py",
-      "sha256": "31a4470ef5bfa7212c1ed1e0c707f840dfb9c06b2e199bac1a5fbab1b78dda1f",
-      "category": "validate",
-      "priority": "critical",
-      "size_bytes": 6571
-    },
-    {
-      "path": "scripts/validate/xml_wellformed.py",
-      "sha256": "8559a70cda76b08eddbe616256897a59ace643e274879c7ebd1998c8294868f8",
-      "category": "validate",
-      "priority": "critical",
-      "size_bytes": 5848
+    "metadata": {
+        "generated_at": "2026-02-19T17:09:04.000000Z",
+        "repository": "mokoconsulting-tech/MokoStandards",
+        "version": "1.0.0"
+    },
+    "scripts": [
+        {
+            "path": "scripts/analysis/analyze_dependencies.py",
+            "sha256": "7d282416b124d8cf908118e309667ace5e65d63202800df69f4f317208f42a52",
+            "category": "analysis",
+            "priority": "medium",
+            "size_bytes": 10186
+        },
+        {
+            "path": "scripts/analysis/analyze_pr_conflicts.py",
+            "sha256": "84a26f39470acd502e4288d24dfa17215ffbb90dfeb12e58a1cbb45fcdc72c48",
+            "category": "analysis",
+            "priority": "medium",
+            "size_bytes": 8678
+        },
+        {
+            "path": "scripts/analysis/code_metrics.py",
+            "sha256": "6f5008294b89ca2c393dd3dab7c6eb23808a3e078aede3ed48f8a0e4ffb55975",
+            "category": "analysis",
+            "priority": "medium",
+            "size_bytes": 8176
+        },
+        {
+            "path": "scripts/analysis/generate_canonical_config.py",
+            "sha256": "d7867a61200d904f08c7efa7e388734d7aa0c6d84aefb263facbc823ab14ab1c",
+            "category": "analysis",
+            "priority": "medium",
+            "size_bytes": 29163
+        },
+        {
+            "path": "scripts/automation/Invoke-BulkUpdateGUI.ps1",
+            "sha256": "95b506917ed12032c05bc76ae461a71882a1c2e52b64a0f5d48957ca9f33b841",
+            "category": "automation",
+            "priority": "high",
+            "size_bytes": 10464
+        },
+        {
+            "path": "scripts/automation/Update-BulkRepositories.ps1",
+            "sha256": "b7a67bead5cea84cc8826f6c02d7167d50797f1f08d5bf8dd8742cdbc697f874",
+            "category": "automation",
+            "priority": "high",
+            "size_bytes": 29695
+        },
+        {
+            "path": "scripts/automation/auto_create_org_projects.py",
+            "sha256": "3055340618b7d1bd9d428a525c9273b0fec7e41aa42a82e5957ebf7aef2c20db",
+            "category": "automation",
+            "priority": "high",
+            "size_bytes": 23108
+        },
+        {
+            "path": "scripts/automation/bulk_deploy_labels.sh",
+            "sha256": "b39c435a99d8b40c2f85b27d68c1547cd9833436cef5b9ff4e3e2a19a6b154b9",
+            "category": "automation",
+            "priority": "high",
+            "size_bytes": 7181
+        },
+        {
+            "path": "scripts/automation/bulk_update_repos.py",
+            "sha256": "6e47cce8a5528db0081dc246367ef1b5da876f591d43b34664fbb608ef26cecd",
+            "category": "automation",
+            "priority": "high",
+            "size_bytes": 34399
+        },
+        {
+            "path": "scripts/automation/check_outdated_actions.py",
+            "sha256": "f2fefc08a679c477cf4b3e031a93cc45261fdff4fd0165196058400b35f21451",
+            "category": "automation",
+            "priority": "high",
+            "size_bytes": 8292
+        },
+        {
+            "path": "scripts/automation/create_repo_project.py",
+            "sha256": "718240fdb232a606142eca6a7fca774acae19400a5fce6f1fa42eb7567ae6d0a",
+            "category": "automation",
+            "priority": "high",
+            "size_bytes": 8295
+        },
+        {
+            "path": "scripts/automation/dev-workstation-provisioner.ps1",
+            "sha256": "567062f6f513ea49616fb098732f9aa934505983d789fd8b29f9c1c1d5356d08",
+            "category": "automation",
+            "priority": "high",
+            "size_bytes": 5747
+        },
+        {
+            "path": "scripts/automation/file-distributor.ps1",
+            "sha256": "afc991e0e1a48c032da31d863fd95e6ebcfffaac12ae8b5ce03455818602a8da",
+            "category": "automation",
+            "priority": "high",
+            "size_bytes": 43979
+        },
+        {
+            "path": "scripts/automation/file-distributor.py",
+            "sha256": "a844784832928b427c5e9cd2b30d2e7c5dfb08894f6b8fb46cc2244e5a180be1",
+            "category": "automation",
+            "priority": "high",
+            "size_bytes": 22203
+        },
+        {
+            "path": "scripts/automation/generate_wrappers.py",
+            "sha256": "0077ffb71062345da9e81757715699bfd4eb601cc750408957635e1c7747ef76",
+            "category": "automation",
+            "priority": "high",
+            "size_bytes": 6769
+        },
+        {
+            "path": "scripts/automation/setup_dev_environment.py",
+            "sha256": "f9ec448c809b83c1af1606044ea27786dd0a8abfdfb58f59b7a3d30bc570b54f",
+            "category": "automation",
+            "priority": "high",
+            "size_bytes": 9025
+        },
+        {
+            "path": "scripts/automation/sync_dolibarr_changelog.py",
+            "sha256": "98e935800ac8d4289b3fdd2d31fc12ea993f25cf78bc5ac84817233985e98a4d",
+            "category": "automation",
+            "priority": "high",
+            "size_bytes": 14336
+        },
+        {
+            "path": "scripts/automation/sync_file_to_project.py",
+            "sha256": "2c7b385500d0327fe41421e30d8a04b905b4141e58eb629908924242e4e911e2",
+            "category": "automation",
+            "priority": "high",
+            "size_bytes": 16352
+        },
+        {
+            "path": "scripts/automation/ubuntu-dev-workstation-provisioner.sh",
+            "sha256": "7be2264da6ae7ef94bf0536a29e768308ab4af91e6ed37ab2c4e329d9349cec5",
+            "category": "automation",
+            "priority": "high",
+            "size_bytes": 16825
+        },
+        {
+            "path": "scripts/build/resolve_makefile.py",
+            "sha256": "980dee07bbc9a0d53496aea33bd1711495f3f599ed742e3ec1565a5f132cf99a",
+            "category": "build",
+            "priority": "high",
+            "size_bytes": 5498
+        },
+        {
+            "path": "scripts/docs/check_doc_coverage.py",
+            "sha256": "a60e66f4b5878e6c70ebda8044b9573c0d457ae228da09b21b51fccdf1c0b3e4",
+            "category": "docs",
+            "priority": "medium",
+            "size_bytes": 8923
+        },
+        {
+            "path": "scripts/docs/generate_script_catalog.py",
+            "sha256": "c99c33f2fdc1c7d3c51d22bec0648555505f5caed7cec5fa4586622bde6e00f0",
+            "category": "docs",
+            "priority": "medium",
+            "size_bytes": 7974
+        },
+        {
+            "path": "scripts/docs/rebuild_indexes.py",
+            "sha256": "4e5331fa56105eca71c61f9d3aa74dd96de2b93f73d30aa8e502aec3b2bfa399",
+            "category": "docs",
+            "priority": "medium",
+            "size_bytes": 15022
+        },
+        {
+            "path": "scripts/docs/update_metadata.py",
+            "sha256": "9a868f856ee8beb5b28713c619476cab3ead6b460cb6013f736e6c1d668ced18",
+            "category": "docs",
+            "priority": "medium",
+            "size_bytes": 11038
+        },
+        {
+            "path": "scripts/fix/file_headers.py",
+            "sha256": "d7345296a0f51f9e2c5b8affd71955bb09f19a27ec4b65c975de52f7745fcfac",
+            "category": "fix",
+            "priority": "high",
+            "size_bytes": 10981
+        },
+        {
+            "path": "scripts/fix/tabs.py",
+            "sha256": "d5db5d2ca3ef74a7399e77ee6181eae0ad6d5ed52d2ee08b03a413ce75b38fd3",
+            "category": "fix",
+            "priority": "high",
+            "size_bytes": 10332
+        },
+        {
+            "path": "scripts/fix/trailing_spaces.py",
+            "sha256": "9812f026c6136e33c19216466bdc1f26a12c01b0564abc3413eed5909068f345",
+            "category": "fix",
+            "priority": "high",
+            "size_bytes": 8156
+        },
+        {
+            "path": "scripts/maintenance/add_dry_run_support.py",
+            "sha256": "d892d4bfc7dba2122c4ca2908f74fbc8f2f65f4131ad93a63af945f051d170ee",
+            "category": "maintenance",
+            "priority": "critical",
+            "size_bytes": 7731
+        },
+        {
+            "path": "scripts/maintenance/add_terraform_metadata.py",
+            "sha256": "e8a46c37c737ed92b05e8ce60fd9ecb2de4154ce0f75eab6d52ce5bc6863b222",
+            "category": "maintenance",
+            "priority": "critical",
+            "size_bytes": 6316
+        },
+        {
+            "path": "scripts/maintenance/clean_old_branches.py",
+            "sha256": "5d98e59d502162c451ed5b0a656b15155d7226889d5416a5fb82faa9b29b348f",
+            "category": "maintenance",
+            "priority": "critical",
+            "size_bytes": 9079
+        },
+        {
+            "path": "scripts/maintenance/flush_actions_cache.py",
+            "sha256": "d1acdbba58e5ec01965317e67010f16a36b52ca00f49ec6cf3a83359fbc15404",
+            "category": "maintenance",
+            "priority": "critical",
+            "size_bytes": 8640
+        },
+        {
+            "path": "scripts/maintenance/generate_script_registry.py",
+            "sha256": "1c385c746e9803098a5eb7b702ca16b2a281c5f362c1de726c8fedd782b52074",
+            "category": "maintenance",
+            "priority": "critical",
+            "size_bytes": 10109
+        },
+        {
+            "path": "scripts/maintenance/release_version.py",
+            "sha256": "1edc101727d0406c43d1fd6ebe70cac4970afc0c1f97aaaf92961236980f35b0",
+            "category": "maintenance",
+            "priority": "critical",
+            "size_bytes": 15463
+        },
+        {
+            "path": "scripts/maintenance/setup-labels.sh",
+            "sha256": "3a1996a3d2052b184e20cf9a729ff232249ad9f0796fd08b11febf983b9bdf29",
+            "category": "maintenance",
+            "priority": "critical",
+            "size_bytes": 7057
+        },
+        {
+            "path": "scripts/maintenance/update_changelog.py",
+            "sha256": "b928e3494d22222a771146b58e9a2988524e41067e83689f769011cb8cf3c98d",
+            "category": "maintenance",
+            "priority": "critical",
+            "size_bytes": 10653
+        },
+        {
+            "path": "scripts/maintenance/update_copyright_year.py",
+            "sha256": "f09e7790f9bd7d6ed94903891909feffb223a012abb3520768666e076c52570b",
+            "category": "maintenance",
+            "priority": "critical",
+            "size_bytes": 7062
+        },
+        {
+            "path": "scripts/maintenance/update_gitignore_patterns.sh",
+            "sha256": "ce33dbd74998bf9708eb41fee4999a8d233b8f4211e53b415b04d1d4c3077900",
+            "category": "maintenance",
+            "priority": "critical",
+            "size_bytes": 7192
+        },
+        {
+            "path": "scripts/maintenance/update_sha_hashes.py",
+            "sha256": "e917b438405d86c1cbeff7a3f265e0181e266935fd9aaa2e66c21b86a5e7b266",
+            "category": "maintenance",
+            "priority": "critical",
+            "size_bytes": 5462
+        },
+        {
+            "path": "scripts/maintenance/validate_file_headers.py",
+            "sha256": "842380f6bcfb2a61f0eb8360e0653cc21936ccaa26f5f466396a991a92300e1c",
+            "category": "maintenance",
+            "priority": "critical",
+            "size_bytes": 9058
+        },
+        {
+            "path": "scripts/maintenance/validate_script_registry.py",
+            "sha256": "8653a2fd2493a2b4659236d13b502a2630305c1832190ea97afcc879fd9b3455",
+            "category": "maintenance",
+            "priority": "critical",
+            "size_bytes": 7964
+        },
+        {
+            "path": "scripts/maintenance/validate_terraform_drift.py",
+            "sha256": "0397fd9d89b5d0bece9702c276644431f95a2ecbe4db91eb6bfd214d49eebd67",
+            "category": "maintenance",
+            "priority": "critical",
+            "size_bytes": 11484
+        },
+        {
+            "path": "scripts/release/detect_platform.py",
+            "sha256": "a27ed3d086aa9984b9d0a593705499e76fdb8b784c3ba4663989d312d5ab8745",
+            "category": "release",
+            "priority": "high",
+            "size_bytes": 2784
+        },
+        {
+            "path": "scripts/release/dolibarr_release.py",
+            "sha256": "4f966b4ad10e14dd65f85ab39ab4784bf3588620de2002c4c8c4d83c1d76d036",
+            "category": "release",
+            "priority": "high",
+            "size_bytes": 11637
+        },
+        {
+            "path": "scripts/release/package_extension.py",
+            "sha256": "d03fe260f21378ee6b2a92ff93bda4b34970908cf2d784aae50bf51ea706f847",
+            "category": "release",
+            "priority": "high",
+            "size_bytes": 9215
+        },
+        {
+            "path": "scripts/release/unified_release.py",
+            "sha256": "fa67e1e15b1570fd2c6d7a78b13050cbcc7aeb010bd612f738560fa6b7b9d9f9",
+            "category": "release",
+            "priority": "high",
+            "size_bytes": 17687
+        },
+        {
+            "path": "scripts/release/update_dates.sh",
+            "sha256": "77a7cd946cecfcbd9a6fa2fd4f736b297c6953bd035aa652a8ea105f9bba0d00",
+            "category": "release",
+            "priority": "high",
+            "size_bytes": 3724
+        },
+        {
+            "path": "scripts/run/Invoke-DemoDataLoaderGUI.ps1",
+            "sha256": "6f5ade6e9e52771a6e43f37050a3c854510f8ed33295016083080e96dcb8a499",
+            "category": "run",
+            "priority": "medium",
+            "size_bytes": 12596
+        },
+        {
+            "path": "scripts/run/Load-DemoData.ps1",
+            "sha256": "faccb2413d3c1de5124f26ff2977769398a07c430386f4a3b38dba158fea11e7",
+            "category": "run",
+            "priority": "medium",
+            "size_bytes": 9835
+        },
+        {
+            "path": "scripts/run/git_helper.sh",
+            "sha256": "56c520472707a9406285e911876e90cf5c385624e135f730671ccb07400ddaeb",
+            "category": "run",
+            "priority": "medium",
+            "size_bytes": 7960
+        },
+        {
+            "path": "scripts/run/load_demo_data.py",
+            "sha256": "9e5ee55f8eec3b3015cafe502b1f2b5bc7f832870d2eda93bf8450cbfff5bbac",
+            "category": "run",
+            "priority": "medium",
+            "size_bytes": 11125
+        },
+        {
+            "path": "scripts/run/setup_github_project_v2.py",
+            "sha256": "a0f9cb4dad755baec4311fa6164053047f894337bd831bfc06fba92eff7d96bc",
+            "category": "run",
+            "priority": "medium",
+            "size_bytes": 29687
+        },
+        {
+            "path": "scripts/tests/test_bulk_update_repos.py",
+            "sha256": "0794f2d9bc2020c741b427f9a8fcbd767120d00c97a040ebbff13b2427cb6833",
+            "category": "tests",
+            "priority": "medium",
+            "size_bytes": 4506
+        },
+        {
+            "path": "scripts/tests/test_dry_run.py",
+            "sha256": "2e99f3ea896d98692bcdd4d8d6c6fa7e117fa96e2518cf3a1f173f11e721e76f",
+            "category": "tests",
+            "priority": "medium",
+            "size_bytes": 6327
+        },
+        {
+            "path": "scripts/validate/Invoke-PlatformDetection.ps1",
+            "sha256": "cd0f25245465849b21aec5a74366f756ef1de79185d822a0190441a5577100d3",
+            "category": "validate",
+            "priority": "critical",
+            "size_bytes": 19116
+        },
+        {
+            "path": "scripts/validate/Invoke-RepoHealthCheckGUI.ps1",
+            "sha256": "c952922e37e1e6f1448f7620b88b1ff896597be46a0205acf1de0b96299091d6",
+            "category": "validate",
+            "priority": "critical",
+            "size_bytes": 9455
+        },
+        {
+            "path": "scripts/validate/auto_detect_platform.py",
+            "sha256": "5cea4133ddb106604d6dc9a7b0dfd86f3a1d53ac11667c1996709df2ae448a85",
+            "category": "validate",
+            "priority": "critical",
+            "size_bytes": 18887
+        },
+        {
+            "path": "scripts/validate/check_all_files.py",
+            "sha256": "e708aae24271eb2d0457acb922809d5a51e4a7fb5f1fd4cd45783dea42a63cc6",
+            "category": "validate",
+            "priority": "critical",
+            "size_bytes": 32318
+        },
+        {
+            "path": "scripts/validate/check_license_headers.py",
+            "sha256": "cc5f4ba9539da8fbe0a397893571bfc9a18e46da1e2fb275389cc53737fdee89",
+            "category": "validate",
+            "priority": "critical",
+            "size_bytes": 9091
+        },
+        {
+            "path": "scripts/validate/check_markdown_links.py",
+            "sha256": "821277627cbaa681cff5aa0f668a738a3337f6e7227bf8bfd951442418407b24",
+            "category": "validate",
+            "priority": "critical",
+            "size_bytes": 6950
+        },
+        {
+            "path": "scripts/validate/check_repo_health.py",
+            "sha256": "d7b8aa256c2eb6f400b653d6b7a9d9bc51a31292bee822827d6aedb2ca690b88",
+            "category": "validate",
+            "priority": "critical",
+            "size_bytes": 23616
+        },
+        {
+            "path": "scripts/validate/check_script_security.py",
+            "sha256": "9e98e9fd750a4c0e4095b8c1951cfba3e2ceed004d056a53b58f21fd176f881b",
+            "category": "validate",
+            "priority": "critical",
+            "size_bytes": 12192
+        },
+        {
+            "path": "scripts/validate/check_version_consistency.php",
+            "sha256": "c33fc6823b92b26dd932f67d2c20817a9815ed3c993c0617b6a322548f6e8cd3",
+            "category": "validate",
+            "priority": "high",
+            "size_bytes": 10522
+        },
+        {
+            "path": "scripts/validate/find_todos.py",
+            "sha256": "9e064323374bce029466234433ec6eedaa46afe4027b8cdd90048ba972eb7274",
+            "category": "validate",
+            "priority": "critical",
+            "size_bytes": 8070
+        },
+        {
+            "path": "scripts/validate/generate_stubs.py",
+            "sha256": "e1c1bf1dd10449cfbef4678e1e09d12b7cc7e5e38f9c6fa3819d9c63600c597e",
+            "category": "validate",
+            "priority": "critical",
+            "size_bytes": 14350
+        },
+        {
+            "path": "scripts/validate/manifest.py",
+            "sha256": "a65779bcb4d184ef8583713f1b1f18399864bd2a8bf17a692ba2241566fc2b1d",
+            "category": "validate",
+            "priority": "critical",
+            "size_bytes": 5083
+        },
+        {
+            "path": "scripts/validate/no_secrets.py",
+            "sha256": "c514a64477c535dfd7c16b7a722253e601c51b3ec723efcb3ce933a169b427af",
+            "category": "validate",
+            "priority": "critical",
+            "size_bytes": 6784
+        },
+        {
+            "path": "scripts/validate/paths.py",
+            "sha256": "ae5500bb1d595af4a15e8c5e15e4d6ea500939f166dc6b14c4bcfc4d597dfe77",
+            "category": "validate",
+            "priority": "critical",
+            "size_bytes": 4792
+        },
+        {
+            "path": "scripts/validate/php_syntax.py",
+            "sha256": "9a99ce519688694fd0840d2515cc43b563be97382236750a72bef1c5364d16b7",
+            "category": "validate",
+            "priority": "critical",
+            "size_bytes": 6116
+        },
+        {
+            "path": "scripts/validate/schema_aware_health_check.py",
+            "sha256": "2e53e0ad48cb1303af08ca87256759369a625d52019b3d641bc24703f0a8559c",
+            "category": "validate",
+            "priority": "critical",
+            "size_bytes": 22482
+        },
+        {
+            "path": "scripts/validate/security_scan.py",
+            "sha256": "25ff80b8382546460b1c08fa05d4bf482de3f1a5c4afef4d568c25cd2a900077",
+            "category": "validate",
+            "priority": "critical",
+            "size_bytes": 17377
+        },
+        {
+            "path": "scripts/validate/tabs.py",
+            "sha256": "16ee38094e517642d76d2bd2de71b816bd24716e170cc70c6f9710e2231b6a52",
+            "category": "validate",
+            "priority": "critical",
+            "size_bytes": 10328
+        },
+        {
+            "path": "scripts/validate/validate_codeql_config.py",
+            "sha256": "b79bf71adc8968805fac1a36a764ffde543099d110a93593767bdc9fa890673d",
+            "category": "validate",
+            "priority": "critical",
+            "size_bytes": 8210
+        },
+        {
+            "path": "scripts/validate/validate_repo_health.py",
+            "sha256": "7908092192e4d09e18b424bae978c1c5fc84340413b1be9538bf1b11763ab3a0",
+            "category": "validate",
+            "priority": "critical",
+            "size_bytes": 12597
+        },
+        {
+            "path": "scripts/validate/validate_structure.py",
+            "sha256": "1de72b1b605fa60c138426fbdbae8fc15ec0320e999b02b54f30c5b185aa0e2b",
+            "category": "validate",
+            "priority": "critical",
+            "size_bytes": 15000
+        },
+        {
+            "path": "scripts/validate/validate_structure_terraform.py",
+            "sha256": "73d44fc2567c091c65b8fd8b2bfcf0c6f1925f2772420d6b1e8f71409820a40b",
+            "category": "validate",
+            "priority": "critical",
+            "size_bytes": 17188
+        },
+        {
+            "path": "scripts/validate/validate_structure_v2.py",
+            "sha256": "b0cdf73293b16777e0714eb978d3cd636655c9659903eed45cf8125706eaaf20",
+            "category": "validate",
+            "priority": "critical",
+            "size_bytes": 15938
+        },
+        {
+            "path": "scripts/validate/workflows.py",
+            "sha256": "31a4470ef5bfa7212c1ed1e0c707f840dfb9c06b2e199bac1a5fbab1b78dda1f",
+            "category": "validate",
+            "priority": "critical",
+            "size_bytes": 6571
+        },
+        {
+            "path": "scripts/validate/xml_wellformed.py",
+            "sha256": "8559a70cda76b08eddbe616256897a59ace643e274879c7ebd1998c8294868f8",
+            "category": "validate",
+            "priority": "critical",
+            "size_bytes": 5848
+        }
+    ],
+    "summary": {
+        "total_scripts": 77,
+        "by_priority": {
+            "medium": 15,
+            "high": 24,
+            "critical": 38
+        },
+        "by_category": {
+            "analysis": 4,
+            "automation": 15,
+            "build": 1,
+            "docs": 4,
+            "fix": 3,
+            "maintenance": 14,
+            "release": 5,
+            "run": 5,
+            "tests": 2,
+            "validate": 24
+        }
     }
-  ],
-  "summary": {
-    "total_scripts": 77,
-    "by_priority": {
-      "medium": 15,
-      "high": 24,
-      "critical": 38
-    },
-    "by_category": {
-      "analysis": 4,
-      "automation": 15,
-      "build": 1,
-      "docs": 4,
-      "fix": 3,
-      "maintenance": 14,
-      "release": 5,
-      "run": 5,
-      "tests": 2,
-      "validate": 24
-    }
-  }
 }

@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Comprehensive Script Integrity Validation System
 
@@ -263,20 +263,20 @@ CATEGORY_PRIORITIES = {
 
 ### Works With
 
-- ✅ `update_sha_hashes.py` - Complements workflow-specific hash tracking
-- ✅ `auto-update-sha.yml` - Workflow for single-file updates
+- ✅ `update_sha_hashes.php` - Automatically updates script registry hashes
+- ✅ `auto-update-sha.yml` - Workflow for automated hash updates
 - ✅ All existing validation scripts
 - ✅ Pre-commit hooks (can be added)
 
-### Differences from `update_sha_hashes.py`
+### Differences from `update_sha_hashes.php`
 
-| Feature | update_sha_hashes.py | Script Registry System |
+| Feature | update_sha_hashes.php | Script Registry System |
 |---------|---------------------|------------------------|
-| Scope | Single file (validate_codeql_config.py) | All 73+ scripts |
-| Storage | Embedded in workflow YAML | Centralized JSON registry |
-| Updates | Workflow-only | Registry + validation |
+| Scope | All scripts in registry | All 73+ scripts |
+| Storage | Updates JSON registry | Centralized JSON registry |
+| Updates | Updates on demand | Registry + validation |
 | Priority | N/A | 4 levels (critical/high/medium/low) |
-| Use Case | Auto-sync workflow hashes | Comprehensive integrity |
+| Use Case | Auto-update registry hashes | Comprehensive validation |
 
 ## Troubleshooting
 

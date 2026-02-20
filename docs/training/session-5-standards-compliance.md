@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Training
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: docs/training/session-4-standards-compliance.md
-VERSION: 04.00.00
+VERSION: 04.00.01
 BRIEF: Session 4 - Standards Compliance capstone training with certification
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.00-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Session 4: Standards Compliance & Certification (Capstone)
 
@@ -104,7 +104,7 @@ DEFGROUP: MokoStandards.Component
 INGROUP: MokoStandards.ParentComponent
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: src/path/to/file.php
-VERSION: 04.00.00
+VERSION: 04.00.01
 BRIEF: One-line description of file purpose
 -->
 ```
@@ -481,7 +481,7 @@ class AuthManager {
  * INGROUP: MokoStandards.Enterprise
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: src/Auth/AuthManager.php
- * VERSION: 04.00.00
+ * VERSION: 04.00.01
  * BRIEF: Secure authentication manager with audit logging
  *
  * @data-classification: HIGHLY_CONFIDENTIAL

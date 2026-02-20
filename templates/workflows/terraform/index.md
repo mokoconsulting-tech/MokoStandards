@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Terraform
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /templates/workflows/terraform/index.md
-VERSION: 03.01.03
+VERSION: 04.00.01
 BRIEF: Documentation index for Terraform workflow templates
 -->
 

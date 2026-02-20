@@ -23,7 +23,7 @@ DEFGROUP: GitHub.WorkflowTemplates
 INGROUP: MokoStandards.Templates
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /templates/workflows/README.md
-VERSION: 03.01.03
+VERSION: 04.00.01
 BRIEF: Documentation for consolidated GitHub workflow templates
 -->
 

@@ -9,9 +9,9 @@
 # INGROUP: MokoStandards.Security
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/codeql-analysis.yml
-# VERSION: 04.00.00
+# VERSION: 04.00.01
 # BRIEF: CodeQL security scanning workflow for PHP codebase
-# NOTE: Repository is PHP-only (v04.00.00). Python was removed Feb 12, 2026.
+# NOTE: Repository is PHP-only (v04.00.01). Python was removed Feb 12, 2026.
 
 name: "CodeQL Security Scanning"
 
@@ -87,7 +87,7 @@ jobs:
           echo "**Scan Type**: Configuration Security" >> $GITHUB_STEP_SUMMARY
           echo "**Query Suite**: security-extended, security-and-quality" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Note**: MokoStandards is PHP-only (v04.00.00)." >> $GITHUB_STEP_SUMMARY
+          echo "**Note**: MokoStandards is PHP-only (v04.00.01)." >> $GITHUB_STEP_SUMMARY
           echo "This scan analyzes workflow files, JSON configs, YAML, and shell scripts." >> $GITHUB_STEP_SUMMARY
           echo "For PHP-specific security: Use PHP SecurityValidator enterprise library." >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY

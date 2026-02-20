@@ -5,7 +5,7 @@ This directory contains scripts for automating repository management and bulk op
 ## Enterprise Setup and Management
 
 ### setup_enterprise_repo.py
-**NEW in v04.00.00** - Automated enterprise repository setup and configuration.
+**NEW in v04.00.01** - Automated enterprise repository setup and configuration.
 
 **Features:**
 - Checks for missing enterprise components

@@ -146,8 +146,9 @@ jobs:
                           break;
 
                       case 'Config':
-                          $config = new Config();
+                          $config = Config::load('test');
                           $testDetails['config_loaded'] = true;
+                          $testDetails['environment'] = $config->get('environment');
                           break;
 
                       case 'ErrorRecovery':

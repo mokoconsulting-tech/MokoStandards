@@ -7,7 +7,7 @@
 
 | Field | Value |
 |-------|-------|
-| **VERSION** | 04.00.03 |
+| **LAST UPDATED** | 2026-02-21 |
 | **LAST UPDATED** | 2026-02-21 |
 | **STATUS** | Active |
 | **APPLIES TO** | All Terraform files (*.tf) |

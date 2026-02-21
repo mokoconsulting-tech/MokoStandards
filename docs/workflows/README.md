@@ -13,6 +13,7 @@ This document provides comprehensive documentation for MokoStandards workflow te
 - [Workflow Architecture](./workflow-architecture.md) - Workflow hierarchy and design patterns
 - [Workflow Inventory](./workflow-inventory.md) - Complete inventory of workflows
 - [Reusable Workflows](./reusable-workflows.md) - Documentation for reusable GitHub Actions workflows
+- [Standards Compliance](./standards-compliance.md) - **NEW**: Comprehensive standards validation workflow
 - [Bulk Repository Sync](./bulk-repo-sync.md) - Automated standards deployment across organization repositories
 - [Release System](./release-system.md) - Unified release system documentation
 - [Changelog Management](./changelog-management.md) - Changelog management workflows and scripts

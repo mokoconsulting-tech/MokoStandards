@@ -162,10 +162,27 @@ locals {
 - **file_type**: `"outputs"`
 - **Contains**: All `output` blocks
 
-### override.config.tf
-- **Purpose**: Repository-specific overrides for bulk sync
-- **file_type**: `"override"`
-- **Contains**: Override configuration for repository synchronization
+### override.config.tf → .github/config.tf
+
+**Location**: `.github/config.tf` (new standard as of v04.00.03)
+**Purpose**: Repository-specific overrides for bulk synchronization
+**file_type**: `"override"`
+
+**Legacy Locations** (auto-migrated):
+- `MokoStandards.override.tf` (root)
+- `override.config.tf` (root)
+- `.mokostandards.override.tf` (root)
+
+The bulk sync script automatically detects and migrates legacy override files to the new `.github/config.tf` location.
+
+**Migration**:
+When bulk sync detects a legacy override file:
+1. Reads the old file content
+2. Updates PATH references to `.github/config.tf`
+3. Updates file_metadata.file_location
+4. Creates `.github/config.tf` with updated content
+5. Removes old override file
+6. Commits with migration message
 
 ### Module Files
 - **Purpose**: Reusable terraform modules

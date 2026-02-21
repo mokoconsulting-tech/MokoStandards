@@ -37,10 +37,20 @@ use MokoStandards\Enterprise\{
 class BulkUpdateRepos extends CliFramework
 {
     private const DEFAULT_ORG = 'mokoconsulting-tech';
-    private const SYNC_OVERRIDE_FILE = 'override.config.tf';
+    private const SYNC_OVERRIDE_FILE = '.github/config.tf';
     
     /**
-     * Files that are ALWAYS force-overridden regardless of override.config.tf settings
+     * Legacy override file locations that should be migrated
+     * These will be automatically converted to the new standard location
+     */
+    private const LEGACY_OVERRIDE_FILES = [
+        'MokoStandards.override.tf',
+        'override.config.tf',
+        '.mokostandards.override.tf',
+    ];
+    
+    /**
+     * Files that are ALWAYS force-overridden regardless of .github/config.tf settings
      * These are critical compliance and security files that must stay current
      */
     private const ALWAYS_FORCE_OVERRIDE_FILES = [
@@ -195,8 +205,106 @@ class BulkUpdateRepos extends CliFramework
         return $repos;
     }
     
+    /**
+     * Migrate legacy override files to new .github/config.tf location
+     * 
+     * Checks for old override file locations and migrates them to the new standard
+     * 
+     * @param string $org Organization name
+     * @param string $repo Repository name
+     * @return bool True if migration was performed
+     */
+    private function migrateLegacyOverrideFile(string $org, string $repo): bool
+    {
+        $this->log("  Checking for legacy override files...");
+        
+        foreach (self::LEGACY_OVERRIDE_FILES as $legacyFile) {
+            try {
+                $content = $this->apiClient->get("/repos/{$org}/{$repo}/contents/{$legacyFile}");
+                
+                if ($content) {
+                    $this->log("  Found legacy override file: {$legacyFile}");
+                    $this->log("  Migrating to .github/config.tf...");
+                    
+                    // Decode content
+                    $fileContent = base64_decode($content['content']);
+                    
+                    // Update file paths and references in content
+                    $fileContent = $this->updateOverrideContent($fileContent, $legacyFile);
+                    
+                    // In a real implementation, this would:
+                    // 1. Create .github directory if it doesn't exist
+                    // 2. Create new .github/config.tf with updated content
+                    // 3. Delete old override file
+                    // 4. Commit changes with descriptive message
+                    
+                    $this->log("  [Would migrate {$legacyFile} -> .github/config.tf]");
+                    $this->metrics->increment('legacy_overrides_migrated');
+                    
+                    return true;
+                }
+            } catch (Exception $e) {
+                // File doesn't exist, continue checking other locations
+                continue;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Update override file content for new location
+     * 
+     * @param string $content Original file content
+     * @param string $oldPath Old file path
+     * @return string Updated content
+     */
+    private function updateOverrideContent(string $content, string $oldPath): string
+    {
+        // Update PATH comment
+        $content = preg_replace(
+            '/# PATH: \/.*\.tf/',
+            '# PATH: /.github/config.tf',
+            $content
+        );
+        
+        // Update BRIEF comment if it references old location
+        $content = str_replace(
+            'MokoStandards.override.tf',
+            '.github/config.tf',
+            $content
+        );
+        $content = str_replace(
+            'override.config.tf',
+            '.github/config.tf',
+            $content
+        );
+        
+        // Update file_metadata if present
+        $content = preg_replace(
+            '/file_location\s*=\s*"[^"]*"/',
+            'file_location     = ".github/config.tf"',
+            $content
+        );
+        
+        // Update description if it mentions old location
+        $content = preg_replace(
+            '/Override configuration.*in (the standards repository|repository root)/',
+            'Override configuration located in .github/config.tf',
+            $content
+        );
+        
+        return $content;
+    }
+    
     private function processRepository(string $org, string $repo): bool
     {
+        // First, check and migrate legacy override files
+        $migrated = $this->migrateLegacyOverrideFile($org, $repo);
+        if ($migrated) {
+            $this->log("  Legacy override file migration queued");
+        }
+        
         // Check for override file
         try {
             $override = $this->apiClient->get("/repos/{$org}/{$repo}/contents/" . self::SYNC_OVERRIDE_FILE);

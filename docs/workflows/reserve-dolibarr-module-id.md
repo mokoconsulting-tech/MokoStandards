@@ -196,7 +196,7 @@ Updates [`docs/development/crm/module-registry.md`](../development/crm/module-re
 
 ### 4. Override Configuration Update
 
-Updates `MokoStandards.override.tf` to protect the workflow file:
+Updates `override.config.tf` to protect the workflow file:
 
 ```hcl
 {
@@ -281,7 +281,7 @@ The workflow generates a summary with:
 
 **In MokoStandards Repository**:
 - `docs/development/crm/module-registry.md` - Registry table updated
-- `MokoStandards.override.tf` - Workflow protection added
+- `override.config.tf` - Workflow protection added
 
 **In Remote Repository**:
 - `src/DOLIBARR_MODULE_ID.txt` - Module ID file created (always)
@@ -377,7 +377,7 @@ This registry is the single source of truth for all Moko Consulting Dolibarr mod
 
 ### Override Protection
 
-The workflow protects itself from being overwritten during bulk repository sync operations by adding an entry to `MokoStandards.override.tf`.
+The workflow protects itself from being overwritten during bulk repository sync operations by adding an entry to `override.config.tf`.
 
 ### Policy Compliance
 
@@ -546,7 +546,7 @@ The workflow automatically pushes to remote repositories:
 
 ### Protected Files
 
-The workflow file itself is protected via `MokoStandards.override.tf` to prevent accidental deletion or modification during bulk sync operations.
+The workflow file itself is protected via `override.config.tf` to prevent accidental deletion or modification during bulk sync operations.
 
 ## Related Documentation
 

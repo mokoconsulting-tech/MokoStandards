@@ -182,7 +182,7 @@ Terraform installation scripts are automatically distributed to all organization
    - Can be manually triggered for immediate deployment
 
 3. **Repository Control:**
-   - Repositories can opt-out via `MokoStandards.override.tf`
+   - Repositories can opt-out via `override.config.tf`
    - Custom Terraform versions supported
    - Local modifications preserved
 

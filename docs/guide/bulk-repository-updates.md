@@ -181,7 +181,7 @@ Starting in version 04.00.03, the bulk update script includes automatic cleanup 
 
 ### Cleanup Modes
 
-The script supports three cleanup modes, configured via the `MokoStandards.override.tf` file:
+The script supports three cleanup modes, configured via the `override.config.tf` file:
 
 1. **`none`** - No cleanup (backward compatible)
    - Only copies and updates files
@@ -212,7 +212,7 @@ The following directories are cleaned during sync (in conservative/aggressive mo
 
 ### Configuration
 
-Add cleanup configuration to `MokoStandards.override.tf` in target repositories:
+Add cleanup configuration to `override.config.tf` in target repositories:
 
 ```hcl
 locals {
@@ -348,7 +348,7 @@ php scripts/automation/bulk_update_repos.php \
 
 When `--force-override` is enabled:
 
-- **Protected files** in `MokoStandards.override.tf` → WILL be overwritten
+- **Protected files** in `override.config.tf` → WILL be overwritten
 - **Excluded files** in `exclude_files` → Still NOT synced (exclusions always respected)
 - **Cleanup mode** → Still applies as configured
 - **Pull request** → Still created for review (never direct push)

@@ -21,7 +21,7 @@
 # DEFGROUP: MokoStandards.Override
 # INGROUP: MokoStandards.Configuration
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
-# PATH: /MokoStandards.override.tf
+# PATH: /override.config.tf
 # VERSION: 04.00.01
 # BRIEF: MokoStandards Sync Override Configuration for the Standards Repository
 
@@ -168,7 +168,7 @@ locals {
       reason = "Repository-specific editor config"
     },
     {
-      path   = "MokoStandards.override.tf"
+      path   = "override.config.tf"
       reason = "This override file itself"
     },
     # Keep MokoStandards-specific workflows

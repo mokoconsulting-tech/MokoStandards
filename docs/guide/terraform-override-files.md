@@ -24,7 +24,7 @@ INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/guide/terraform-override-files.md
 VERSION: 04.00.03
-BRIEF: Guide for using MokoStandards.override.tf files to control bulk sync behavior
+BRIEF: Guide for using override.config.tf files to control bulk sync behavior
 -->
 
 [![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
@@ -38,7 +38,7 @@ BRIEF: Guide for using MokoStandards.override.tf files to control bulk sync beha
 ## Table of Contents
 
 - [Overview](#overview)
-- [What is MokoStandards.override.tf?](#what-is-mokostandardsoverridetf)
+- [What is override.config.tf?](#what-is-mokostandardsoverridetf)
 - [Why Use Override Files?](#why-use-override-files)
 - [Enterprise Library Integration](#enterprise-library-integration)
 - [File Structure](#file-structure)
@@ -52,7 +52,7 @@ BRIEF: Guide for using MokoStandards.override.tf files to control bulk sync beha
 
 ## Overview
 
-The `MokoStandards.override.tf` file is a **Terraform-based configuration file** that controls how the bulk repository sync tool synchronizes standards, workflows, and scripts from MokoStandards to your repository.
+The `override.config.tf` file is a **Terraform-based configuration file** that controls how the bulk repository sync tool synchronizes standards, workflows, and scripts from MokoStandards to your repository.
 
 **New in Version 2.0**: Support for enterprise library integration and new monitoring workflows (audit-log-archival, metrics-collection, health-check, security-scan, integration-tests).
 
@@ -67,7 +67,7 @@ The `MokoStandards.override.tf` file is a **Terraform-based configuration file**
 
 ---
 
-## What is MokoStandards.override.tf?
+## What is override.config.tf?
 
 The override file is placed in the **root directory** of your repository and uses Terraform's HCL (HashiCorp Configuration Language) syntax to define sync behavior.
 
@@ -77,7 +77,7 @@ The override file is placed in the **root directory** of your repository and use
 your-repository/
 ├── .github/
 ├── src/
-├── MokoStandards.override.tf  ← Place file here
+├── override.config.tf  ← Place file here
 └── README.md
 ```
 
@@ -175,7 +175,7 @@ See [docs/planning/README.md](../planning/README.md) for the complete enterprise
 ### Minimal Example
 
 ```hcl
-# MokoStandards.override.tf
+# override.config.tf
 locals {
   # Metadata
   override_metadata = {
@@ -311,7 +311,7 @@ sync_config = {
 ### Example 1: Terraform Project
 
 ```hcl
-# MokoStandards.override.tf for Terraform infrastructure repo
+# override.config.tf for Terraform infrastructure repo
 locals {
   override_metadata = {
     name             = "Infrastructure Repository Override"
@@ -352,7 +352,7 @@ locals {
 ### Example 2: Dolibarr Module
 
 ```hcl
-# MokoStandards.override.tf for Dolibarr module
+# override.config.tf for Dolibarr module
 locals {
   override_metadata = {
     name             = "Dolibarr Module Override"
@@ -380,7 +380,7 @@ locals {
 ### Example 3: Generic Application
 
 ```hcl
-# MokoStandards.override.tf for generic application
+# override.config.tf for generic application
 locals {
   override_metadata = {
     name             = "Application Repository Override"
@@ -507,7 +507,7 @@ repository_url = "https://example.com"
 ### Complete Override Example
 
 ```hcl
-# MokoStandards.override.tf - Complete Example
+# override.config.tf - Complete Example
 locals {
   # Metadata about this override configuration
   override_metadata = {
@@ -598,7 +598,7 @@ Before committing your override file:
 
 1. **Validate Terraform syntax:**
    ```bash
-   terraform fmt -check MokoStandards.override.tf
+   terraform fmt -check override.config.tf
    ```
 
 2. **Test with dry run:**
@@ -646,7 +646,7 @@ Before committing your override file:
 **Symptom:** Default behavior is used despite override file existing.
 
 **Solutions:**
-1. Verify file is named exactly `MokoStandards.override.tf`
+1. Verify file is named exactly `override.config.tf`
 2. Check file is in repository root (not subdirectory)
 3. Validate Terraform syntax
 4. Check file permissions (must be readable)

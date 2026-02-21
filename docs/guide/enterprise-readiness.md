@@ -97,7 +97,7 @@ Use this checklist to assess and track enterprise readiness:
 ### Configuration & Metadata (30 points)
 
 - [ ] **Override Configuration** (10 points)
-  - [ ] `MokoStandards.override.tf` exists
+  - [ ] `override.config.tf` exists
   - [ ] Contains `override_metadata` block
   - [ ] Contains `sync_config` block
   - [ ] Version is 04.00.03 or later
@@ -270,7 +270,7 @@ logs/
 
 ### 5. Configuration Files
 
-#### `MokoStandards.override.tf`
+#### `override.config.tf`
 Terraform configuration for sync behavior:
 
 ```hcl
@@ -429,7 +429,7 @@ chmod +x scripts/automation/install_terraform.*
 
 ### Step 5: Create Override Configuration
 
-Create `MokoStandards.override.tf`:
+Create `override.config.tf`:
 
 ```hcl
 # Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
@@ -462,7 +462,7 @@ locals {
       reason = "Repository-specific ignore patterns"
     },
     {
-      path   = "MokoStandards.override.tf"
+      path   = "override.config.tf"
       reason = "This override file itself"
     },
   ]
@@ -562,7 +562,7 @@ Detailed Checks:
 
   ✓ Override Configuration
     Score: 10/10
-    MokoStandards.override.tf: PRESENT and up-to-date
+    override.config.tf: PRESENT and up-to-date
 
   ✓ Enterprise Metadata
     Score: 10/10
@@ -802,7 +802,7 @@ Review logs in:
 
 When MokoStandards version changes:
 
-1. Update `MokoStandards.override.tf` version
+1. Update `override.config.tf` version
 2. Update version badges in documentation
 3. Update package metadata
 4. Run enterprise readiness checker

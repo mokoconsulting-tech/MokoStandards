@@ -37,7 +37,20 @@ use MokoStandards\Enterprise\{
 class BulkUpdateRepos extends CliFramework
 {
     private const DEFAULT_ORG = 'mokoconsulting-tech';
-    private const SYNC_OVERRIDE_FILE = 'MokoStandards.override.tf';
+    private const SYNC_OVERRIDE_FILE = 'override.config.tf';
+    
+    /**
+     * Files that are ALWAYS force-overridden regardless of override.config.tf settings
+     * These are critical compliance and security files that must stay current
+     */
+    private const ALWAYS_FORCE_OVERRIDE_FILES = [
+        '.github/workflows/standards-compliance.yml',
+        'scripts/validate/check_version_consistency.php',
+        'scripts/validate/check_enterprise_readiness.php',
+        'scripts/validate/check_repo_health.php',
+        'scripts/maintenance/validate_script_registry.py',
+        'scripts/.script-registry.json',
+    ];
     
     private ApiClient $apiClient;
     private AuditLogger $logger;

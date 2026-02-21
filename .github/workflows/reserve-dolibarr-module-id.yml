@@ -155,12 +155,12 @@ jobs:
           echo "✅ Registry updated with:"
           echo "$NEW_ENTRY"
 
-      - name: Update MokoStandards.override.tf to protect workflow
+      - name: Update override.config.tf to protect workflow
         run: |
-          OVERRIDE_FILE="MokoStandards.override.tf"
+          OVERRIDE_FILE="override.config.tf"
           WORKFLOW_FILE=".github/workflows/reserve-dolibarr-module-id.yml"
 
-          echo "🔧 Updating MokoStandards.override.tf to protect workflow file..."
+          echo "🔧 Updating override.config.tf to protect workflow file..."
 
           # Check if workflow is already protected
           if grep -q "$WORKFLOW_FILE" "$OVERRIDE_FILE"; then
@@ -203,7 +203,7 @@ jobs:
 
           echo "📦 Committing changes..."
           git add docs/development/crm/module-registry.md
-          git add MokoStandards.override.tf
+          git add override.config.tf
 
           # Create commit message
           printf "Reserve Dolibarr module ID %s for %s\n\n" "$MODULE_ID" "$MODULE_NAME" > /tmp/commit_msg.txt
@@ -212,7 +212,7 @@ jobs:
           printf "This PR reserves module ID %s from Moko Consulting range (185064-185099).\n\n" "$MODULE_ID" >> /tmp/commit_msg.txt
           printf "Updates in this PR:\n" >> /tmp/commit_msg.txt
           printf -- "- Module registry in docs/development/crm/module-registry.md\n" >> /tmp/commit_msg.txt
-          printf -- "- MokoStandards.override.tf protection for workflow\n\n" >> /tmp/commit_msg.txt
+          printf -- "- override.config.tf protection for workflow\n\n" >> /tmp/commit_msg.txt
           printf "Automated via reserve-dolibarr-module-id workflow.\n" >> /tmp/commit_msg.txt
 
           git commit -F /tmp/commit_msg.txt
@@ -267,7 +267,7 @@ jobs:
 
             ### Changes
             - ✅ Updated module registry table in \`docs/development/crm/module-registry.md\`
-            - ✅ Updated \`MokoStandards.override.tf\` to protect workflow file
+            - ✅ Updated \`override.config.tf\` to protect workflow file
             - ✅ Reserved ID: **${moduleId}**
             - ✅ Status: **Reserved**
 

@@ -8,7 +8,7 @@
 # VERSION: 04.00.03
 # BRIEF: Monthly automation to sync workflows, scripts, and configurations to organization repositories
 # NOTE: Runs bulk_update_repos.php script to deploy MokoStandards to all org repos
-# NOTE: Now uses Terraform format (MokoStandards.override.tf) for override configuration
+# NOTE: Now uses Terraform format (override.config.tf) for override configuration
 
 name: Bulk Repository Sync
 
@@ -29,7 +29,7 @@ env:
 #        ▼
 #   ┌──────────────────┐
 #   │  Parse Terraform │
-#   │  Override Config │───┐ Read MokoStandards.override.tf
+#   │  Override Config │───┐ Read override.config.tf
 #   └──────────────────┘   │ Extract exclusions & configs
 #        │                 │
 #        ▼                 │
@@ -119,7 +119,7 @@ on:
 #   - Never uses force_override mode (safety feature)
 #
 # SYNC BEHAVIOR:
-#   - Checks MokoStandards.override.tf in target repo for platform type
+#   - Checks override.config.tf in target repo for platform type
 #   - Falls back to auto-detection if override doesn't specify platform
 #   - Respects exclude_files and protected_files from override (unless force_override is true)
 #   - Creates PR with synced files (never pushes directly to main/master)

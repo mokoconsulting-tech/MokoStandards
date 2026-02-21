@@ -30,7 +30,7 @@ use RuntimeException;
  */
 class RepositorySynchronizer
 {
-    private const SYNC_OVERRIDE_FILE = 'MokoStandards.override.tf';
+    private const SYNC_OVERRIDE_FILE = 'override.config.tf';
     
     private ApiClient $apiClient;
     private AuditLogger $logger;

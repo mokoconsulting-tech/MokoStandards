@@ -129,7 +129,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Workflow now uses `shivammathur/setup-php@v2` instead of `actions/setup-python@v6`
 - Updated trigger paths to match actual script files (*.php, *.sh, *.ps1)
 - Updated commit target from `.github/workflows/` to `scripts/.script-registry.json`
-- Protected in MokoStandards.override.tf
+- Protected in override.config.tf
 - Documentation:
   - Updated `docs/guide/sha-auto-update.md`
   - Updated `docs/guide/script-integrity-validation.md`
@@ -147,7 +147,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - All PHP scripts (scripts/**/*.php)
   - All template files (templates/**/*.yml)
   - All Terraform files (terraform/**/*.tf)
-  - MokoStandards.override.tf
+  - override.config.tf
   - README.md, CONTRIBUTING.md, ROADMAP.md
 
 **Dolibarr Module Registry Reorganization**:
@@ -168,7 +168,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed developer references from workflow templates and PR descriptions
 
 **Terraform Configuration Updates**:
-- Updated `MokoStandards.override.tf`:
+- Updated `override.config.tf`:
   - Added `auto-update-sha.yml` to protected files list
   - Added `validate-script-integrity.yml` to protected files list
   - Updated version to 04.00.01
@@ -222,7 +222,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Validates all 5 enterprise workflows
 - Verifies Terraform installation scripts
 - Checks version badges in documentation (README.md, CHANGELOG.md, docs/README.md)
-- Validates MokoStandards.override.tf configuration
+- Validates override.config.tf configuration
 - Checks enterprise metadata in config files (pyproject.toml, package.json, composer.json)
 - Validates monitoring directory structure (logs/, logs/audit/, logs/metrics/)
 - Returns 0-100% enterprise readiness score
@@ -240,7 +240,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Sets up monitoring directories (logs/audit/, logs/metrics/, logs/validation/)
 - Initializes configuration files with enterprise metadata
 - Adds version badges to README.md
-- Creates MokoStandards.override.tf if missing
+- Creates override.config.tf if missing
 - Interactive mode with user confirmations
 - Non-interactive mode for CI/CD automation
 - Dry-run mode for safe preview of changes
@@ -645,7 +645,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Removed** `codeql-analysis.yml` - Redundant with GitHub default CodeQL setup
   - **Kept 9 workflows**: standards-compliance, comprehensive-validation, validate-script-integrity, security-comprehensive, confidentiality-scan, auto-update-sha, auto-create-dev-branch, bulk-repo-sync, terraform-drift-check
   - Rationale: Focus MokoStandards on standards enforcement and repository management only
-  - **Updated** `MokoStandards.override.tf` to version 2.3.0 with all excluded workflows documented
+  - **Updated** `override.config.tf` to version 2.3.0 with all excluded workflows documented
 - **Template Consolidation**: Merged duplicate and superseded workflow templates
   - **Removed** `build-universal.yml.template` - exact duplicate of `build.yml.template`
   - **Removed** `release-cycle-simple.yml.template` - superseded by `release-cycle.yml.template` v2.0
@@ -653,7 +653,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `docs/workflows/README.md` - Updated quick start and template references
     - `docs/build-system/README.md` - Updated build workflow references
     - `docs/release-management/README.md` - Updated release workflow references
-  - **Updated** `MokoStandards.override.tf` to version 2.2.0:
+  - **Updated** `override.config.tf` to version 2.2.0:
     - Added excluded reusable workflows to exclude_files list
     - Added removed templates to obsolete_files list for sync cleanup
 
@@ -927,7 +927,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added - Terraform Override Configuration
 - **Configuration Management**: Converted override file from XML to Terraform format
-  - Created `MokoStandards.override.tf` replacing `MokoStandards.override.xml`
+  - Created `override.config.tf` replacing `MokoStandards.override.xml`
   - Uses HCL locals blocks for metadata and configuration
   - Lists exclude_files and protected_files in type-safe format
   - Updated `scripts/automation/bulk_update_repos.py` to parse Terraform format using regex

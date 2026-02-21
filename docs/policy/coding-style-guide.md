@@ -330,6 +330,18 @@ function processOrder($order) {
   [Copilot Pre-Merge Checklist](https://github.com/org/repo/blob/main/docs/policy/checklist.md)
   ```
 
+**Markdown-Specific Exception**:
+- **Markdown files**: No line length limit
+- **Rationale**: Markdown is a document format where:
+  - Long sentences and paragraphs are common and natural
+  - URLs in inline links cannot be broken
+  - Code blocks may contain long lines
+  - Tables with many columns require wide formatting
+  - Breaking lines can affect rendering and readability
+- Markdown linters (markdownlint) have line length checks disabled (MD013: false)
+- `.editorconfig` specifies `max_line_length = off` for `*.md` files
+- Focus on content clarity rather than line length constraints
+
 ### Whitespace
 
 **Use blank lines to separate**:

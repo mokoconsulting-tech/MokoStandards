@@ -19,10 +19,12 @@ tab_width = 2
 end_of_line = crlf
 
 # Markdown files — keep trailing whitespace for line breaks, use tabs for indentation
+# No max_line_length specified - Markdown lines can be any length
 [*.md]
 trim_trailing_whitespace = false
 indent_style = tab
 tab_width = 2
+max_line_length = off
 
 # YAML files — spaces only (YAML spec forbids tabs)
 [*.{yml,yaml}]

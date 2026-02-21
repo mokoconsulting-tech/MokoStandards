@@ -488,6 +488,101 @@ jobs:
             echo "✅ Line endings are consistent (LF)" >> $GITHUB_STEP_SUMMARY
           fi
 
+  line-length-validation:
+    name: Line Length Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Check Line Lengths
+        run: |
+          set -x
+          echo "## 📏 Line Length Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Line length standards:
+          # - General source code: 120 characters (hard limit)
+          # - YAML workflows: 180 characters (exception for GitHub Actions)
+          # - Markdown files: No limit (content-focused)
+
+          echo "### Line Length Standards" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| File Type | Soft Limit | Hard Limit |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|------------|------------|" >> $GITHUB_STEP_SUMMARY
+          echo "| General source code | 80 chars | 120 chars |" >> $GITHUB_STEP_SUMMARY
+          echo "| YAML workflows | 80 chars | 180 chars |" >> $GITHUB_STEP_SUMMARY
+          echo "| Markdown files | N/A | No limit |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Check YAML files (using yamllint which is already configured)
+          echo "### YAML Files (180 char limit)" >> $GITHUB_STEP_SUMMARY
+
+          YAML_VIOLATIONS=0
+          if command -v yamllint >/dev/null 2>&1; then
+            # Install yamllint if not present
+            :
+          else
+            pip install yamllint >/dev/null 2>&1
+          fi
+
+          # Run yamllint and count line-length warnings
+          YAML_OUTPUT=$(yamllint .github/workflows/*.yml 2>&1 | grep "line too long" || true)
+          if [ -n "$YAML_OUTPUT" ]; then
+            YAML_VIOLATIONS=$(echo "$YAML_OUTPUT" | wc -l)
+            echo "⚠️ Found $YAML_VIOLATIONS lines exceeding 180 characters in YAML files" >> $GITHUB_STEP_SUMMARY
+            echo "<details><summary>View warnings (informational only)</summary>" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "$YAML_OUTPUT" | head -20 >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "</details>" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ All YAML files comply with 180 character limit" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Check source code files (PHP, Python, JavaScript, etc.) for 120 char limit
+          echo "### Source Code Files (120 char limit)" >> $GITHUB_STEP_SUMMARY
+
+          LONG_LINES=$(find . -type f \
+            \( -name "*.php" -o -name "*.py" -o -name "*.js" -o -name "*.ts" \
+            -o -name "*.go" -o -name "*.rs" -o -name "*.java" -o -name "*.c" \
+            -o -name "*.cpp" -o -name "*.h" -o -name "*.sh" \) \
+            ! -path "./vendor/*" \
+            ! -path "./node_modules/*" \
+            ! -path "./.git/*" \
+            ! -path "./build/*" \
+            ! -path "./dist/*" \
+            -exec awk 'length > 120 { print FILENAME ":" NR ": " length " chars" }' {} \; 2>/dev/null | head -20)
+
+          if [ -n "$LONG_LINES" ]; then
+            LINE_COUNT=$(echo "$LONG_LINES" | wc -l)
+            echo "⚠️ Found $LINE_COUNT source code lines exceeding 120 characters" >> $GITHUB_STEP_SUMMARY
+            echo "<details><summary>View violations (informational)</summary>" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "$LONG_LINES" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "</details>" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ All source code files comply with 120 character limit" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Confirm Markdown files are not checked
+          echo "### Markdown Files" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Markdown files have no line length limit per coding standards" >> $GITHUB_STEP_SUMMARY
+          echo "Rationale: Content-focused format, URLs, tables, and natural prose flow" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Summary
+          echo "### Summary" >> $GITHUB_STEP_SUMMARY
+          echo "This check is **informational only** and does not block merges." >> $GITHUB_STEP_SUMMARY
+          echo "Line length standards help maintain code readability." >> $GITHUB_STEP_SUMMARY
+          echo "Exceptions documented in: \`docs/policy/coding-style-guide.md\`" >> $GITHUB_STEP_SUMMARY
+
   license-compliance:
     name: License Header Validation
     runs-on: ubuntu-latest
@@ -1031,7 +1126,7 @@ jobs:
   summary:
     name: Compliance Summary
     runs-on: ubuntu-latest
-    needs: [repository-structure, documentation-quality, coding-standards, license-compliance, git-hygiene, workflow-validation, version-consistency, script-integrity, enterprise-readiness, repository-health]
+    needs: [repository-structure, documentation-quality, coding-standards, line-length-validation, license-compliance, git-hygiene, workflow-validation, version-consistency, script-integrity, enterprise-readiness, repository-health]
     if: always()
 
     steps:
@@ -1045,6 +1140,7 @@ jobs:
           REPO_STATUS="${{ needs.repository-structure.result }}"
           DOCS_STATUS="${{ needs.documentation-quality.result }}"
           CODE_STATUS="${{ needs.coding-standards.result }}"
+          LINE_LENGTH_STATUS="${{ needs.line-length-validation.result }}"
           LICENSE_STATUS="${{ needs.license-compliance.result }}"
           GIT_STATUS="${{ needs.git-hygiene.result }}"
           WORKFLOW_STATUS="${{ needs.workflow-validation.result }}"
@@ -1056,7 +1152,7 @@ jobs:
           PASSED=0
           FAILED=0
           WARNINGS=0
-          TOTAL=10
+          TOTAL=11
 
           # Critical checks (must pass)
           [ "$REPO_STATUS" = "success" ] && PASSED=$((PASSED + 1)) || FAILED=$((FAILED + 1))

@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Structure
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/core-structure.md
-VERSION: 04.00.01
+VERSION: 04.00.03
 BRIEF: Core organization structure for docs and scripts folders across all organization repositories
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Core Organization Structure
 
@@ -68,7 +68,7 @@ The README.md title **MUST** follow this format:
 
 **Example**:
 ```markdown
-# README - MokoStandards (VERSION: 04.00.01)
+# README - MokoStandards (VERSION: 04.00.03)
 ```
 
 **Purpose**: This format provides:
@@ -77,7 +77,7 @@ The README.md title **MUST** follow this format:
 - Current version in a machine-readable format
 - Single source of truth for repository version (used by build and release scripts)
 
-**Validation**: The `scripts/lib/common.py` and `scripts/lib/common.sh` libraries validate this format when extracting the version. Repositories that don't comply will fall back to a default version (04.00.01), which may cause version mismatches in releases and documentation.
+**Validation**: The `scripts/lib/common.py` and `scripts/lib/common.sh` libraries validate this format when extracting the version. Repositories that don't comply will fall back to a default version (04.00.03), which may cause version mismatches in releases and documentation.
 
 ### `/docs/` Folder Structure
 

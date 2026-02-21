@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Guide
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: docs/guide/terraform-installation.md
-VERSION: 04.00.01
+VERSION: 04.00.03
 BRIEF: Guide for installing and using Terraform across organization repositories
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Terraform Installation Guide
 
@@ -49,7 +49,7 @@ BRIEF: Guide for installing and using Terraform across organization repositories
 
 ## Overview
 
-As part of the enterprise transformation (version 04.00.01), Terraform is now distributed to all organization repositories to enable Infrastructure as Code (IaC) capabilities across the organization.
+As part of the enterprise transformation (version 04.00.03), Terraform is now distributed to all organization repositories to enable Infrastructure as Code (IaC) capabilities across the organization.
 
 ### Key Benefits
 

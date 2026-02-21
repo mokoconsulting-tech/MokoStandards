@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Visual Features Guide
 
@@ -48,14 +48,14 @@ $visual->printInfo('Processing 150 files...');
 ### Headers
 
 ```php
-$visual->printHeader('Repository Validator', 'Version 04.00.01');
+$visual->printHeader('Repository Validator', 'Version 04.00.03');
 ```
 
 Output:
 ```
 ╔══════════════════════════════════════════════════╗
 ║           Repository Validator                   ║
-║            Version 04.00.01                      ║
+║            Version 04.00.03                      ║
 ╚══════════════════════════════════════════════════╝
 ```
 

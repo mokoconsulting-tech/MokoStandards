@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Guide
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/guide/repository-organization.md
-VERSION: 04.00.01
+VERSION: 04.00.03
 BRIEF: Golden architecture pattern and repository organization guide
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Repository Organization Guide
 
@@ -565,7 +565,7 @@ Project-specific repository structure templates have been moved to individual sc
 | Owner          | Moko Consulting                                          |
 | Repo           | https://github.com/mokoconsulting-tech/                                      |
 | Path           | /docs/guide/repository-organization.md                                      |
-| Version        | 04.00.01                                 |
+| Version        | 04.00.03                                 |
 | Status         | Active                                         |
 | Last Reviewed  | 2026-01-28                                  |
 | Reviewed By    | Documentation Team                                    |
@@ -575,4 +575,4 @@ Project-specific repository structure templates have been moved to individual sc
 
 | Date       | Author          | Change                                       | Notes                                              |
 | ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
-| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 04.00.01 with all required fields |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 04.00.03 with all required fields |

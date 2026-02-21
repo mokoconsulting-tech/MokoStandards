@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 ---
 TITLE: Help Flag Implementation Pattern
@@ -6,7 +6,7 @@ DESCRIPTION: Standard pattern for adding --help documentation flags to all scrip
 AUTHOR: Moko Consulting LLC
 COPYRIGHT: 2025-2026 Moko Consulting LLC
 LICENSE: MIT
-VERSION: 04.00.01
+VERSION: 04.00.03
 CREATED: 2026-01-29
 UPDATED: 2026-01-29
 CATEGORY: Development
@@ -197,7 +197,7 @@ DESCRIPTION: Brief description
 AUTHOR: Moko Consulting LLC
 COPYRIGHT: 2025-2026 Moko Consulting LLC
 LICENSE: MIT
-VERSION: 04.00.01
+VERSION: 04.00.03
 CREATED: YYYY-MM-DD
 UPDATED: YYYY-MM-DD
 CATEGORY: Category

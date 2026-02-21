@@ -18,12 +18,12 @@ FILE INFORMATION
  DEFGROUP: MokoStandards
  INGROUP: MokoStandards.Documentation
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
- VERSION: 04.00.01
+ VERSION: 04.00.03
  PATH: docs/policy/GOVERNANCE.md
  BRIEF: Project governance rules and decision process, index policy, and standards documents
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 -->
 

@@ -5,7 +5,7 @@
 # INGROUP: MokoStandards.IntegrationTests
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/integration-tests.yml
-# VERSION: 04.00.01
+# VERSION: 04.00.03
 # BRIEF: Integration tests for all enterprise libraries with performance benchmarks
 # NOTE: Tests all 13 PHP enterprise libraries and measures performance
 
@@ -121,7 +121,7 @@ jobs:
 
                   // Library-specific tests
                   $testPassed = true;
-                  $testDetails = ['version' => '04.00.01'];
+                  $testDetails = ['version' => '04.00.03'];
 
                   switch ($libName) {
                       case 'ApiClient':

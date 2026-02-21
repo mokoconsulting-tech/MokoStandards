@@ -655,7 +655,7 @@ For issues or questions about this workflow:
 | Owner | Moko Consulting |
 | Repo | https://github.com/mokoconsulting-tech/MokoStandards |
 | Path | /docs/workflows/reserve-dolibarr-module-id.md |
-| Version | 04.00.01 |
+| Version        | 04.00.03 |
 | Status | Active |
 | Last Reviewed | 2026-02-19 |
 | Reviewed By | Documentation Team |

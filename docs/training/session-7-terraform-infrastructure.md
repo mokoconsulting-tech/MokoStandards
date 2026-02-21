@@ -40,11 +40,11 @@ BRIEF: Training Session 7 - Terraform Infrastructure and Configuration Managemen
 
 ## 📋 Session Overview
 
-This session introduces Terraform as used in MokoStandards for infrastructure as code, repository management, and bulk synchronization. You'll learn the four-tier enforcement level system, override configuration, and how to manage infrastructure declaratively.
+This session introduces Terraform as used in MokoStandards for infrastructure as code, repository management, and bulk synchronization. You'll learn the six-tier enforcement level system, override configuration, and how to manage infrastructure declaratively.
 
 **What You'll Learn**:
 - Terraform file structure standards
-- Four-tier enforcement levels (Optional, Suggested, Required, Forced)
+- six-tier enforcement levels (Optional, Suggested, Required, Forced)
 - **How terraform enforces organizational standards** ⭐ NEW
 - Standards-compliance integration and automation
 - Override configuration system (.github/config.tf)
@@ -66,7 +66,7 @@ This session introduces Terraform as used in MokoStandards for infrastructure as
 By the end of this session, you will be able to:
 
 1. ✅ Understand MokoStandards terraform file structure
-2. ✅ Apply the four enforcement levels correctly
+2. ✅ Apply the six enforcement levels correctly
 3. ✅ Create and configure .github/config.tf files
 4. ✅ Use bulk synchronization effectively
 5. ✅ Manage repository infrastructure with terraform
@@ -186,7 +186,7 @@ Success! The configuration is valid.
 
 ---
 
-## 🎚️ Part 2: Four-Tier Enforcement Level System (45 minutes)
+## 🎚️ Part 2: six-tier enforcement Level System (45 minutes)
 
 ### 2.1 Enforcement Levels Overview
 
@@ -509,7 +509,7 @@ graph TD
     K -->|Audit Trail| L[sync-YYYYMMDD-HHMMSS.log]
 ```
 
-### 2.5.4 Four-Tier Enforcement in Action
+### 2.5.4 six-tier enforcement in Action
 
 **Example 1: FORCED Files (Level 4)**
 
@@ -765,7 +765,7 @@ Validation: PASSED ✓
 - 🔒 **Security**: All repositories meet minimum security standards
 - 📊 **Consistency**: Same standards enforced everywhere
 - 📝 **Transparency**: Complete audit trail of all changes
-- 🎯 **Flexibility**: Four enforcement levels balance control vs autonomy
+- 🎯 **Flexibility**: six enforcement levels balance control vs autonomy
 - ⚡ **Automation**: Standards enforcement is automatic
 - 🛡️ **Compliance**: 27-point validation ensures quality
 
@@ -1482,7 +1482,7 @@ locals {
 ## ✅ Session Checklist
 
 - [ ] Understand terraform file structure
-- [ ] Know all four enforcement levels
+- [ ] Know all six enforcement levels
 - [ ] Can create override configuration
 - [ ] Can classify files by level
 - [ ] Can run bulk sync
@@ -1494,7 +1494,7 @@ locals {
 
 ## 🎓 Quiz
 
-1. **What are the four enforcement levels?**
+1. **What are the six enforcement levels?**
    - Answer: Optional, Suggested, Required, Forced
 
 2. **Which enforcement level can never be overridden?**
@@ -1529,7 +1529,7 @@ locals {
 **Session Rating**: ⭐⭐⭐⭐⭐
 
 **What Worked Well**:
-- Clear explanation of four-tier system
+- Clear explanation of six-tier system
 - Hands-on exercises
 - Real-world examples
 

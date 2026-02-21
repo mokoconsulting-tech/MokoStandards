@@ -288,7 +288,7 @@ Use the template at `templates/terraform/template.tf` as a starting point for ne
 
 ## Enforcement Levels
 
-MokoStandards uses a four-tier enforcement system for file synchronization. This system is configured in `.github/config.tf`:
+MokoStandards uses a six-tier enforcement system for file synchronization. This system is configured in `.github/config.tf`:
 
 ### Level 1: OPTIONAL (⭕)
 **Files that MAY be synced if repository opts in**

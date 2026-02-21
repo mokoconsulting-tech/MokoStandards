@@ -14,9 +14,9 @@
 
 ## Overview
 
-The MokoStandards terraform configuration system uses a **four-tier enforcement level system** to control file synchronization across repositories. This system balances organizational standards with repository-specific needs.
+The MokoStandards terraform configuration system uses a **six-tier enforcement level system** to control file synchronization across repositories. This system balances organizational standards with repository-specific needs.
 
-## The Four Enforcement Levels
+## The Six Enforcement Levels
 
 ### Level 1: OPTIONAL ⭕
 

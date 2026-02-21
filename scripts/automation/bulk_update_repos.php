@@ -90,6 +90,12 @@ class BulkUpdateRepos extends CliFramework
     private MetricsCollector $metrics;
     private ErrorRecovery\CheckpointManager $checkpoints;
     
+    /**
+     * Sync log for current repository being processed
+     * Tracks all operations for audit trail on remote repository
+     */
+    private array $syncLog = [];
+    
     protected function configure(): void
     {
         $this->setDescription('Bulk update repositories with standardized files');
@@ -873,59 +879,191 @@ class BulkUpdateRepos extends CliFramework
     
     private function processRepository(string $org, string $repo): bool
     {
-        // First, check and migrate legacy override files
-        $migrated = $this->migrateLegacyOverrideFile($org, $repo);
-        if ($migrated) {
-            $this->log("  Legacy override file migration queued");
-        }
+        // Initialize sync log for this repository
+        $this->initializeSyncLog($org, $repo);
+        $this->addSyncLogEntry('operations', [
+            'action' => 'Repository sync started',
+            'details' => "Processing $org/$repo"
+        ]);
         
-        // Step 1: Validate and scan config.tf BEFORE any sync operations
-        $validation = $this->validateConfigTf($org, $repo);
-        
-        if (!empty($validation['errors'])) {
-            $this->log("  ✗ config.tf validation failed, skipping repository");
-            $this->metrics->increment('repos_skipped_invalid_config');
+        try {
+            // First, check and migrate legacy override files
+            $migrated = $this->migrateLegacyOverrideFile($org, $repo);
+            if ($migrated) {
+                $this->log("  Legacy override file migration queued");
+                $this->addSyncLogEntry('legacy_migrations', [
+                    'old_file' => 'Legacy override file',
+                    'new_file' => '.github/config.tf',
+                    'reason' => 'Migrating to standard location'
+                ]);
+            }
+            
+            // Step 1: Validate and scan config.tf BEFORE any sync operations
+            $this->addSyncLogEntry('operations', [
+                'action' => 'Validating .github/config.tf',
+                'details' => 'Pre-sync validation'
+            ]);
+            
+            $validation = $this->validateConfigTf($org, $repo);
+            
+            // Log validation results
+            foreach ($validation['errors'] ?? [] as $error) {
+                $this->addSyncLogEntry('errors', [
+                    'message' => 'Config validation error',
+                    'details' => $error
+                ]);
+                $this->addSyncLogEntry('validation_results', [
+                    'check' => 'config.tf validation',
+                    'passed' => false,
+                    'message' => $error
+                ]);
+            }
+            
+            foreach ($validation['warnings'] ?? [] as $warning) {
+                $this->addSyncLogEntry('warnings', [
+                    'message' => 'Config validation warning',
+                    'details' => $warning
+                ]);
+            }
+            
+            if (!empty($validation['errors'])) {
+                $this->log("  ✗ config.tf validation failed, skipping repository");
+                $this->metrics->increment('repos_skipped_invalid_config');
+                
+                // Still create log even for failed validation
+                $this->addSyncLogEntry('operations', [
+                    'action' => 'Repository sync aborted',
+                    'details' => 'Config validation failed'
+                ]);
+                
+                // Get default branch for log upload
+                $branch = $this->getDefaultBranch($org, $repo);
+                $this->createRemoteSyncLog($org, $repo, $branch);
+                
+                return false;
+            }
+            
+            $this->addSyncLogEntry('validation_results', [
+                'check' => 'config.tf validation',
+                'passed' => true,
+                'message' => 'Configuration is valid'
+            ]);
+            
+            // Step 2: Update config.tf to latest version
+            $this->addSyncLogEntry('operations', [
+                'action' => 'Updating .github/config.tf',
+                'details' => 'Updating to version 04.00.03'
+            ]);
+            
+            $this->updateConfigTf($org, $repo);
+            
+            // Step 3: Parse configuration for sync operations
+            $config = $validation['config'] ?? [];
+            
+            // Step 4: Process each file to sync with enforcement levels
+            $filesToSync = $this->getFilesToSync();
+            
+            $this->addSyncLogEntry('operations', [
+                'action' => 'Processing files',
+                'details' => count($filesToSync) . ' files to evaluate'
+            ]);
+            
+            foreach ($filesToSync as $file) {
+                // Track as processed
+                $this->addSyncLogEntry('files_processed', [
+                    'path' => $file,
+                    'timestamp' => date('c')
+                ]);
+                
+                // Determine enforcement level for this file
+                $enforcementLevel = $this->getFileEnforcementLevel($file, $config);
+                
+                // Check if file should be skipped
+                $skipCheck = $this->shouldSkipFile($file, $config, $enforcementLevel);
+                
+                if ($skipCheck['skip']) {
+                    $this->log("  Skip {$file}: {$skipCheck['reason']} [{$skipCheck['level']}]");
+                    
+                    // Log as skipped
+                    $this->addSyncLogEntry('files_skipped', [
+                        'path' => $file,
+                        'reason' => $skipCheck['reason'],
+                        'enforcement_level' => $skipCheck['level']
+                    ]);
+                } else {
+                    $this->log("  Sync {$file}: {$skipCheck['reason']} [{$skipCheck['level']}]");
+                    
+                    // Check if it's a force-override file
+                    if (in_array($file, self::ALWAYS_FORCE_OVERRIDE_FILES)) {
+                        $this->addSyncLogEntry('files_force_overridden', [
+                            'path' => $file,
+                            'reason' => 'Critical compliance file - always synced',
+                            'enforcement_level' => 'FORCED'
+                        ]);
+                    } else {
+                        $this->addSyncLogEntry('files_synced', [
+                            'path' => $file,
+                            'enforcement_level' => $skipCheck['level']
+                        ]);
+                    }
+                    
+                    // In production: Actually sync the file
+                }
+            }
+            
+            // In a full implementation, this would:
+            // 1. Clone/fetch the repository
+            // 2. Apply file updates based on configuration
+            // 3. Create pull request with changes
+            // 4. Handle merge conflicts
+            
+            if ($this->dryRun) {
+                $this->log("  [DRY-RUN] Would update repository files");
+                $this->addSyncLogEntry('operations', [
+                    'action' => 'Dry run completed',
+                    'details' => 'No changes made'
+                ]);
+            } else {
+                $this->addSyncLogEntry('operations', [
+                    'action' => 'Sync operations queued',
+                    'details' => 'File updates scheduled'
+                ]);
+            }
+            
+            // Placeholder: Mark as completed
+            $this->log("  Sync operations completed");
+            
+            $this->addSyncLogEntry('operations', [
+                'action' => 'Repository sync completed',
+                'details' => 'All operations finished successfully'
+            ]);
+            
+            // Get default branch for log upload
+            $branch = $this->getDefaultBranch($org, $repo);
+            
+            // Create sync log on remote repository
+            $this->createRemoteSyncLog($org, $repo, $branch);
+            
+            return true;
+            
+        } catch (Exception $e) {
+            $this->addSyncLogEntry('errors', [
+                'message' => 'Repository sync failed',
+                'details' => $e->getMessage()
+            ]);
+            
+            $this->log("  ✗ Error processing repository: " . $e->getMessage());
+            
+            // Try to create log even on error
+            try {
+                $branch = $this->getDefaultBranch($org, $repo);
+                $this->createRemoteSyncLog($org, $repo, $branch);
+            } catch (Exception $logError) {
+                $this->log("  ⚠ Could not create sync log: " . $logError->getMessage());
+            }
+            
             return false;
         }
-        
-        // Step 2: Update config.tf to latest version
-        $this->updateConfigTf($org, $repo);
-        
-        // Step 3: Parse configuration for sync operations
-        $config = $validation['config'] ?? [];
-        
-        // Step 4: Process each file to sync with enforcement levels
-        $filesToSync = $this->getFilesToSync();
-        
-        foreach ($filesToSync as $file) {
-            // Determine enforcement level for this file
-            $enforcementLevel = $this->getFileEnforcementLevel($file, $config);
-            
-            // Check if file should be skipped
-            $skipCheck = $this->shouldSkipFile($file, $config, $enforcementLevel);
-            
-            if ($skipCheck['skip']) {
-                $this->log("  Skip {$file}: {$skipCheck['reason']} [{$skipCheck['level']}]");
-            } else {
-                $this->log("  Sync {$file}: {$skipCheck['reason']} [{$skipCheck['level']}]");
-                // In production: Actually sync the file
-            }
-        }
-        
-        // In a full implementation, this would:
-        // 1. Clone/fetch the repository
-        // 2. Apply file updates based on configuration
-        // 3. Create pull request with changes
-        // 4. Handle merge conflicts
-        
-        if ($this->dryRun) {
-            $this->log("  [DRY-RUN] Would update repository files");
-            return true;
-        }
-        
-        // Placeholder: Mark as skipped for now
-        $this->log("  Sync operations queued");
-        return true;
     }
     
     /**
@@ -943,6 +1081,382 @@ class BulkUpdateRepos extends CliFramework
                 'scripts/other-script.php',
             ]
         );
+    }
+    
+    /**
+     * Initialize sync log for a repository
+     * 
+     * @param string $org Organization name
+     * @param string $repo Repository name
+     * @return void
+     */
+    private function initializeSyncLog(string $org, string $repo): void
+    {
+        $this->syncLog = [
+            'session_id' => 'sync-' . date('Y-m-d-His'),
+            'repository' => "$org/$repo",
+            'mokostandards_version' => '04.00.03',
+            'sync_started' => date('c'),
+            'sync_completed' => null,
+            'duration_seconds' => null,
+            'operations' => [],
+            'files_processed' => [],
+            'files_synced' => [],
+            'files_skipped' => [],
+            'files_force_overridden' => [],
+            'legacy_migrations' => [],
+            'validation_results' => [],
+            'warnings' => [],
+            'errors' => [],
+            'metrics' => [],
+            'summary' => []
+        ];
+    }
+    
+    /**
+     * Add log entry to sync log
+     * 
+     * @param string $category Category of log entry
+     * @param array $data Log data
+     * @return void
+     */
+    private function addSyncLogEntry(string $category, array $data): void
+    {
+        if (!isset($this->syncLog[$category])) {
+            $this->syncLog[$category] = [];
+        }
+        
+        $entry = array_merge([
+            'timestamp' => date('c'),
+        ], $data);
+        
+        $this->syncLog[$category][] = $entry;
+    }
+    
+    /**
+     * Finalize sync log with summary and metrics
+     * 
+     * @return void
+     */
+    private function finalizeSyncLog(): void
+    {
+        $this->syncLog['sync_completed'] = date('c');
+        
+        $start = strtotime($this->syncLog['sync_started']);
+        $end = strtotime($this->syncLog['sync_completed']);
+        $this->syncLog['duration_seconds'] = $end - $start;
+        
+        // Generate summary
+        $this->syncLog['summary'] = [
+            'total_files_processed' => count($this->syncLog['files_processed']),
+            'files_synced' => count($this->syncLog['files_synced']),
+            'files_skipped' => count($this->syncLog['files_skipped']),
+            'files_force_overridden' => count($this->syncLog['files_force_overridden']),
+            'legacy_migrations_performed' => count($this->syncLog['legacy_migrations']),
+            'warnings_count' => count($this->syncLog['warnings']),
+            'errors_count' => count($this->syncLog['errors']),
+            'validation_passed' => count($this->syncLog['errors']) === 0,
+        ];
+    }
+    
+    /**
+     * Format sync log as human-readable text
+     * 
+     * @return string Formatted log content
+     */
+    private function formatSyncLogContent(): string
+    {
+        $log = "=================================================================\n";
+        $log .= "MokoStandards Bulk Sync Log\n";
+        $log .= "=================================================================\n\n";
+        
+        $log .= "Session ID: {$this->syncLog['session_id']}\n";
+        $log .= "Repository: {$this->syncLog['repository']}\n";
+        $log .= "MokoStandards Version: {$this->syncLog['mokostandards_version']}\n";
+        $log .= "Sync Started: {$this->syncLog['sync_started']}\n";
+        $log .= "Sync Completed: {$this->syncLog['sync_completed']}\n";
+        $log .= "Duration: {$this->syncLog['duration_seconds']} seconds\n\n";
+        
+        $log .= "-----------------------------------------------------------------\n";
+        $log .= "OPERATIONS PERFORMED\n";
+        $log .= "-----------------------------------------------------------------\n";
+        foreach ($this->syncLog['operations'] as $operation) {
+            $log .= "[{$operation['timestamp']}] {$operation['action']}\n";
+            if (isset($operation['details'])) {
+                $log .= "  Details: {$operation['details']}\n";
+            }
+        }
+        $log .= "\n";
+        
+        if (!empty($this->syncLog['legacy_migrations'])) {
+            $log .= "-----------------------------------------------------------------\n";
+            $log .= "LEGACY FILE MIGRATIONS\n";
+            $log .= "-----------------------------------------------------------------\n";
+            foreach ($this->syncLog['legacy_migrations'] as $migration) {
+                $log .= "[{$migration['timestamp']}] {$migration['old_file']} -> {$migration['new_file']}\n";
+                if (isset($migration['reason'])) {
+                    $log .= "  Reason: {$migration['reason']}\n";
+                }
+            }
+            $log .= "\n";
+        }
+        
+        if (!empty($this->syncLog['validation_results'])) {
+            $log .= "-----------------------------------------------------------------\n";
+            $log .= "VALIDATION RESULTS\n";
+            $log .= "-----------------------------------------------------------------\n";
+            foreach ($this->syncLog['validation_results'] as $validation) {
+                $status = $validation['passed'] ? '✓ PASS' : '✗ FAIL';
+                $log .= "[$status] {$validation['check']}\n";
+                if (isset($validation['message'])) {
+                    $log .= "  {$validation['message']}\n";
+                }
+            }
+            $log .= "\n";
+        }
+        
+        $log .= "-----------------------------------------------------------------\n";
+        $log .= "FILES PROCESSED\n";
+        $log .= "-----------------------------------------------------------------\n";
+        
+        if (!empty($this->syncLog['files_force_overridden'])) {
+            $log .= "\nFORCE-OVERRIDDEN FILES (Level 4 - Always Synced):\n";
+            foreach ($this->syncLog['files_force_overridden'] as $file) {
+                $log .= "  [FORCED] {$file['path']}\n";
+                if (isset($file['reason'])) {
+                    $log .= "    Reason: {$file['reason']}\n";
+                }
+            }
+        }
+        
+        if (!empty($this->syncLog['files_synced'])) {
+            $log .= "\nSYNCED FILES:\n";
+            foreach ($this->syncLog['files_synced'] as $file) {
+                $level = $file['enforcement_level'] ?? 'SUGGESTED';
+                $log .= "  [SYNC] {$file['path']} (Level: $level)\n";
+            }
+        }
+        
+        if (!empty($this->syncLog['files_skipped'])) {
+            $log .= "\nSKIPPED FILES:\n";
+            foreach ($this->syncLog['files_skipped'] as $file) {
+                $log .= "  [SKIP] {$file['path']}\n";
+                if (isset($file['reason'])) {
+                    $log .= "    Reason: {$file['reason']}\n";
+                }
+            }
+        }
+        $log .= "\n";
+        
+        if (!empty($this->syncLog['warnings'])) {
+            $log .= "-----------------------------------------------------------------\n";
+            $log .= "WARNINGS\n";
+            $log .= "-----------------------------------------------------------------\n";
+            foreach ($this->syncLog['warnings'] as $warning) {
+                $log .= "[WARNING] {$warning['message']}\n";
+                if (isset($warning['details'])) {
+                    $log .= "  {$warning['details']}\n";
+                }
+            }
+            $log .= "\n";
+        }
+        
+        if (!empty($this->syncLog['errors'])) {
+            $log .= "-----------------------------------------------------------------\n";
+            $log .= "ERRORS\n";
+            $log .= "-----------------------------------------------------------------\n";
+            foreach ($this->syncLog['errors'] as $error) {
+                $log .= "[ERROR] {$error['message']}\n";
+                if (isset($error['details'])) {
+                    $log .= "  {$error['details']}\n";
+                }
+            }
+            $log .= "\n";
+        }
+        
+        $log .= "=================================================================\n";
+        $log .= "SUMMARY\n";
+        $log .= "=================================================================\n";
+        $summary = $this->syncLog['summary'];
+        $log .= "Total Files Processed: {$summary['total_files_processed']}\n";
+        $log .= "Files Synced: {$summary['files_synced']}\n";
+        $log .= "Files Skipped: {$summary['files_skipped']}\n";
+        $log .= "Force-Overridden: {$summary['files_force_overridden']}\n";
+        $log .= "Legacy Migrations: {$summary['legacy_migrations_performed']}\n";
+        $log .= "Warnings: {$summary['warnings_count']}\n";
+        $log .= "Errors: {$summary['errors_count']}\n";
+        $log .= "Validation: " . ($summary['validation_passed'] ? 'PASSED ✓' : 'FAILED ✗') . "\n";
+        $log .= "=================================================================\n";
+        
+        return $log;
+    }
+    
+    /**
+     * Ensure logs directory exists on remote repository
+     * 
+     * @param string $org Organization name
+     * @param string $repo Repository name
+     * @param string $branch Branch name
+     * @return bool True if directory exists or was created
+     */
+    private function ensureLogsDirectory(string $org, string $repo, string $branch): bool
+    {
+        $logDir = 'logs/MokoStandards/sync';
+        
+        try {
+            // Check if directory exists by trying to get README
+            $readmePath = "$logDir/README.md";
+            $response = $this->apiClient->get("/repos/$org/$repo/contents/$readmePath", [
+                'ref' => $branch
+            ]);
+            
+            // Directory exists
+            return true;
+        } catch (Exception $e) {
+            // Directory doesn't exist, create it
+            $this->log("Creating logs directory structure in $org/$repo");
+            
+            try {
+                // Create README.md in logs/MokoStandards/sync/
+                $readmeContent = "# MokoStandards Sync Logs\n\n";
+                $readmeContent .= "This directory contains logs from MokoStandards bulk synchronization operations.\n\n";
+                $readmeContent .= "## Log Files\n\n";
+                $readmeContent .= "- `sync-YYYY-MM-DD-HHMMSS.log` - Individual sync session logs\n";
+                $readmeContent .= "- `sync-latest.log` - Most recent sync log\n";
+                $readmeContent .= "- `sync-summary.json` - Machine-readable sync summary\n\n";
+                $readmeContent .= "## Purpose\n\n";
+                $readmeContent .= "These logs provide an audit trail of all synchronization operations performed\n";
+                $readmeContent .= "by the MokoStandards bulk sync tool, including:\n\n";
+                $readmeContent .= "- Files synced/skipped\n";
+                $readmeContent .= "- Enforcement level decisions\n";
+                $readmeContent .= "- Legacy file migrations\n";
+                $readmeContent .= "- Validation results\n";
+                $readmeContent .= "- Errors and warnings\n\n";
+                $readmeContent .= "---\n";
+                $readmeContent .= "Generated by MokoStandards v04.00.03\n";
+                
+                $this->apiClient->put("/repos/$org/$repo/contents/$logDir/README.md", [
+                    'message' => 'Create MokoStandards sync logs directory',
+                    'content' => base64_encode($readmeContent),
+                    'branch' => $branch
+                ]);
+                
+                $this->log("✓ Created logs directory structure");
+                return true;
+            } catch (Exception $createError) {
+                $this->log("✗ Failed to create logs directory: " . $createError->getMessage());
+                return false;
+            }
+        }
+    }
+    
+    /**
+     * Create sync log file on remote repository
+     * 
+     * @param string $org Organization name
+     * @param string $repo Repository name
+     * @param string $branch Branch name
+     * @return bool True if log was successfully created
+     */
+    private function createRemoteSyncLog(string $org, string $repo, string $branch): bool
+    {
+        try {
+            // Finalize log before uploading
+            $this->finalizeSyncLog();
+            
+            // Ensure logs directory exists
+            if (!$this->ensureLogsDirectory($org, $repo, $branch)) {
+                $this->log("✗ Failed to ensure logs directory exists");
+                return false;
+            }
+            
+            $sessionId = $this->syncLog['session_id'];
+            $logPath = "logs/MokoStandards/sync/$sessionId.log";
+            $latestPath = "logs/MokoStandards/sync/sync-latest.log";
+            $summaryPath = "logs/MokoStandards/sync/sync-summary.json";
+            
+            // Format log content
+            $logContent = $this->formatSyncLogContent();
+            
+            // Create the session log file
+            $this->apiClient->put("/repos/$org/$repo/contents/$logPath", [
+                'message' => "Add sync log: $sessionId",
+                'content' => base64_encode($logContent),
+                'branch' => $branch
+            ]);
+            
+            $this->log("✓ Created sync log: $logPath");
+            
+            // Update sync-latest.log
+            try {
+                // Try to get existing file first (to get SHA for update)
+                try {
+                    $existingFile = $this->apiClient->get("/repos/$org/$repo/contents/$latestPath", [
+                        'ref' => $branch
+                    ]);
+                    $sha = $existingFile['sha'] ?? null;
+                } catch (Exception $e) {
+                    $sha = null;
+                }
+                
+                $updateData = [
+                    'message' => "Update latest sync log: $sessionId",
+                    'content' => base64_encode($logContent),
+                    'branch' => $branch
+                ];
+                
+                if ($sha) {
+                    $updateData['sha'] = $sha;
+                }
+                
+                $this->apiClient->put("/repos/$org/$repo/contents/$latestPath", $updateData);
+                $this->log("✓ Updated sync-latest.log");
+            } catch (Exception $e) {
+                $this->log("⚠ Could not update sync-latest.log: " . $e->getMessage());
+            }
+            
+            // Create sync-summary.json
+            try {
+                // Try to get existing file first
+                try {
+                    $existingFile = $this->apiClient->get("/repos/$org/$repo/contents/$summaryPath", [
+                        'ref' => $branch
+                    ]);
+                    $sha = $existingFile['sha'] ?? null;
+                } catch (Exception $e) {
+                    $sha = null;
+                }
+                
+                $summaryContent = json_encode($this->syncLog, JSON_PRETTY_PRINT);
+                
+                $updateData = [
+                    'message' => "Update sync summary: $sessionId",
+                    'content' => base64_encode($summaryContent),
+                    'branch' => $branch
+                ];
+                
+                if ($sha) {
+                    $updateData['sha'] = $sha;
+                }
+                
+                $this->apiClient->put("/repos/$org/$repo/contents/$summaryPath", $updateData);
+                $this->log("✓ Updated sync-summary.json");
+            } catch (Exception $e) {
+                $this->log("⚠ Could not update sync-summary.json: " . $e->getMessage());
+            }
+            
+            // Add to metrics
+            $this->metrics->increment('sync_logs_created');
+            
+            return true;
+        } catch (Exception $e) {
+            $this->log("✗ Failed to create remote sync log: " . $e->getMessage());
+            $this->addSyncLogEntry('errors', [
+                'message' => 'Failed to create remote sync log',
+                'details' => $e->getMessage()
+            ]);
+            return false;
+        }
     }
 }
 

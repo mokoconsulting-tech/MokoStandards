@@ -89,7 +89,7 @@ The workflow automatically:
 - Finds the next available module ID (or validates your specified ID)
 - Updates this registry table
 - Creates a pull request with all changes
-- Optionally pushes `DOLIBARR_MODULE_ID.txt` to your module repository
+- Pushes `DOLIBARR_MODULE_ID.txt` to your module repository
 
 ### Manual Reservation
 

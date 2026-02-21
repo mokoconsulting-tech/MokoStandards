@@ -89,7 +89,7 @@ The `reserve-dolibarr-module-id.yml` workflow automates the reservation of Dolib
        │
        ▼
   ┌──────────────────┐
-  │ Push to Remote   │ (Optional)
+  │ Push to Remote   │
   │ Repository       │
   └──────────────────┘
 ```
@@ -349,7 +349,7 @@ After reservation, structure your Dolibarr module repository:
 ```
 MokoDoliExample/
 ├── src/
-│   ├── DOLIBARR_MODULE_ID.txt       # Created by workflow (if push_to_remote)
+│   ├── DOLIBARR_MODULE_ID.txt       # Created by workflow
 │   └── modMokoDoliExample.class.php # Module descriptor
 ├── class/                            # Business logic
 ├── langs/                            # Translations

@@ -74,7 +74,8 @@ jobs:
         working-directory: ${{ env.TF_WORKING_DIR }}
 
       - name: Terraform Workspace
-        run: terraform workspace select ${{ matrix.environment }}
+        run: |
+          terraform workspace select ${{ matrix.environment }} || terraform workspace new ${{ matrix.environment }}
         working-directory: ${{ env.TF_WORKING_DIR }}
 
       - name: Terraform Plan (Drift Check)

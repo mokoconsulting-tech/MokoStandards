@@ -285,3 +285,333 @@ Use the template at `templates/terraform/template.tf` as a starting point for ne
 - **Added**: Required file_metadata locals block
 - **Added**: File type classification
 - **Added**: Validation requirements
+
+## Enforcement Levels
+
+MokoStandards uses a four-tier enforcement system for file synchronization. This system is configured in `.github/config.tf`:
+
+### Level 1: OPTIONAL (⭕)
+**Files that MAY be synced if repository opts in**
+- Not created by default
+- Repository explicitly chooses to include via `include = true`
+- No warnings if excluded
+- No compliance impact
+
+**Example**:
+```terraform
+optional_files = [{
+  path    = ".github/workflows/deploy-staging.yml"
+  reason  = "Only for repos with staging environment"
+  include = true  # Explicit opt-in
+}]
+```
+
+### Level 2: SUGGESTED (⚠️)
+**Files that SHOULD be synced (recommended)**
+- Created by default during sync
+- Generates warnings if excluded
+- Can be overridden with justification
+- Affects compliance scoring (warnings)
+
+**Example**:
+```terraform
+suggested_files = [{
+  path   = ".editorconfig"
+  reason = "Consistent code formatting across team"
+}]
+```
+
+### Level 3: REQUIRED (⛔)
+**Files that MUST be synced (mandatory)**
+- Always created during sync
+- Cannot be excluded via config.tf
+- Generates errors if missing
+- Must pass for compliance
+
+**Example**:
+```terraform
+required_files = [{
+  path   = "LICENSE"
+  reason = "GPL-3.0-or-later required for all repositories"
+}]
+```
+
+### Level 4: FORCED (🔒)
+**Files that are ALWAYS synced regardless of settings**
+- Critical compliance and security files
+- Cannot be excluded or protected
+- Overrides ALL config.tf settings
+- Ensures organizational standards compliance
+
+**Forced Files**:
+1. `.github/workflows/standards-compliance.yml`
+2. `scripts/validate/check_version_consistency.php`
+3. `scripts/validate/check_enterprise_readiness.php`
+4. `scripts/validate/check_repo_health.php`
+5. `scripts/maintenance/validate_script_registry.py`
+6. `scripts/.script-registry.json`
+
+**Rationale**: These files implement the 28-check validation system that ensures security, quality, and compliance across all repositories.
+
+## Standards-Compliance Integration
+
+Terraform files are validated as part of the standards-compliance workflow (Check #28).
+
+### Validation Checks
+
+The `terraform-validation` job performs 6 distinct checks:
+
+1. **Override Configuration Location**
+   - Verifies `.github/config.tf` exists (not root)
+   - Warns about legacy override files
+   - Ensures standard location compliance
+
+2. **Terraform Syntax Validation**
+   - Runs `terraform validate` on all directories
+   - Catches syntax errors before merge
+   - Reports per-directory status
+
+3. **Terraform Formatting**
+   - Runs `terraform fmt -check` on all files
+   - Identifies formatting inconsistencies
+   - Provides fix command: `terraform fmt -recursive`
+
+4. **File Metadata Presence**
+   - Checks for `file_metadata` locals block
+   - Required by this standard
+   - Warns if missing with reference to documentation
+
+5. **Version Consistency**
+   - Validates all files use current version (04.00.03)
+   - Identifies version mismatches
+   - Ensures consistency across repository
+
+6. **Copyright Header Compliance**
+   - Validates GPL-3.0-or-later headers present
+   - Required for all terraform files
+   - Warns if missing
+
+### Validation Output
+
+```
+## ��️ Terraform Configuration Validation
+
+**Terraform Files Found**: 13
+
+### Override Configuration Check
+✅ Override configuration in correct location (.github/config.tf)
+
+### Terraform Syntax Validation
+✅ All Terraform files have valid syntax
+
+### Terraform Formatting Check
+✅ All Terraform files properly formatted
+
+### File Metadata Validation
+✅ All Terraform files contain file_metadata block
+
+### Version Consistency Check
+✅ All Terraform file versions match 04.00.03
+
+### Copyright Header Check
+✅ All Terraform files have copyright headers
+
+---
+### Validation Summary
+**Total Files**: 13
+**Errors**: 0
+**Warnings**: 0
+
+✅ **Terraform Validation: PASSED**
+```
+
+## Bulk Sync Process
+
+The bulk sync operation (via `bulk_update_repos.php`) includes comprehensive Terraform handling:
+
+### Pre-Sync Operations
+
+1. **Legacy File Detection**
+   - Scans for old override files
+   - Automatically migrates to `.github/config.tf`
+
+2. **Config.tf Validation**
+   - Validates terraform syntax
+   - Checks for required metadata
+   - Validates version consistency
+   - Detects conflicts with force-override files
+
+3. **Config.tf Update**
+   - Updates to latest version (04.00.03)
+   - Updates `last_updated` timestamp
+   - Preserves repository-specific customizations
+   - Merges new standards with existing config
+
+### Sync Operations
+
+4. **File Processing**
+   - Evaluates each file by enforcement level
+   - Applies appropriate sync logic
+   - Logs all decisions with rationale
+
+5. **Force-Override Application**
+   - Always syncs 6 critical files
+   - Overrides any config.tf settings
+   - Logs override decisions
+
+### Post-Sync Operations
+
+6. **Audit Log Creation**
+   - Creates `logs/MokoStandards/sync/` directory
+   - Writes session log with all operations
+   - Updates `sync-latest.log`
+   - Creates `sync-summary.json`
+
+### Sync Logging
+
+**Location**: `logs/MokoStandards/sync/` on each repository
+
+**Files Created**:
+- `sync-YYYY-MM-DD-HHMMSS.log` - Individual session log
+- `sync-latest.log` - Most recent sync (always current)
+- `sync-summary.json` - Machine-readable summary
+
+**Log Content**:
+- Session metadata (ID, timestamps, duration)
+- Operations performed (chronological)
+- Legacy migrations
+- Validation results
+- Files processed (synced/skipped/force-overridden)
+- Enforcement level decisions
+- Warnings and errors
+- Summary statistics
+
+**Example Log Entry**:
+```
+[FORCED] .github/workflows/standards-compliance.yml
+  Reason: Critical compliance file - always synced
+  Level: 4 (FORCED)
+  Config Setting: Protected (overridden)
+```
+
+## Best Practices
+
+### Creating New Terraform Files
+
+1. **Start with Template**
+   - Copy structure from existing file
+   - Update all metadata fields
+   - Use proper file_type
+
+2. **Required Elements**
+   ```terraform
+   # 1. Copyright header (GPL-3.0-or-later)
+   # 2. FILE INFORMATION section
+   # 3. Detailed description
+   # 4. file_metadata locals block
+   # 5. Actual terraform configuration
+   ```
+
+3. **Validate Before Commit**
+   ```bash
+   terraform validate
+   terraform fmt -recursive
+   ```
+
+### Configuring Override Files
+
+1. **Location**: Always use `.github/config.tf`
+
+2. **Structure**:
+   ```terraform
+   locals {
+     file_metadata = { ... }
+     
+     enforcement_levels = {
+       optional_files   = [...]
+       suggested_files  = [...]
+       required_files   = [...]
+       # Don't configure forced_files - they're always synced
+     }
+     
+     exclude_files    = [...]
+     protected_files  = [...]
+   }
+   ```
+
+3. **Testing**:
+   ```bash
+   # Dry run to see what would be synced
+   php scripts/automation/bulk_update_repos.php --dry-run --repo myrepo
+   ```
+
+### Maintaining Terraform Files
+
+1. **Version Updates**
+   - Update version in file_metadata when repository version changes
+   - Update last_updated timestamp
+   - Run version consistency check
+
+2. **Format Regularly**
+   ```bash
+   terraform fmt -recursive
+   ```
+
+3. **Review Sync Logs**
+   - Check `logs/MokoStandards/sync/sync-latest.log`
+   - Verify enforcement decisions
+   - Review any warnings
+
+## Troubleshooting
+
+### Issue: Legacy Override File Detected
+
+**Symptom**: Warning in sync log about legacy file location
+
+**Solution**: 
+- Bulk sync will auto-migrate
+- Or manually: `mv [old-file] .github/config.tf`
+- Update PATH and file_location in metadata
+
+### Issue: Terraform Validation Failed
+
+**Symptom**: terraform-validation check shows errors
+
+**Solution**:
+```bash
+# 1. Check syntax
+terraform validate
+
+# 2. Fix formatting
+terraform fmt -recursive
+
+# 3. Add missing metadata
+# Check docs/policy/terraform-file-standards.md
+
+# 4. Update versions
+# Ensure all files use 04.00.03
+```
+
+### Issue: File Not Being Synced
+
+**Symptom**: Expected file not updated during sync
+
+**Solution**:
+1. Check enforcement level in `.github/config.tf`
+2. Verify not in `exclude_files` or `protected_files`
+3. Check if it's a FORCED file (always syncs)
+4. Review `logs/MokoStandards/sync/sync-latest.log`
+
+### Issue: Force-Override Conflict
+
+**Symptom**: Protected file still being updated
+
+**Solution**: This is expected for FORCED files (Level 4). These 6 critical compliance files MUST stay current for organizational security and cannot be protected.
+
+## Related Documentation
+
+- [Enforcement Levels Guide](../../terraform/enforcement-levels.md)
+- [Override Configuration](../../terraform/config-override.md)
+- [Bulk Sync Workflow](../../workflows/bulk-repo-sync.md)
+- [Training Session 7](../../training/session-7-terraform-infrastructure.md)
+- [Standards-Compliance Workflow](../../workflows/standards-compliance.md)

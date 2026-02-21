@@ -868,12 +868,12 @@ jobs:
           if [ -f "scripts/validate/check_version_consistency.php" ]; then
             php scripts/validate/check_version_consistency.php --verbose | tee /tmp/version-check.log
             EXIT_CODE=$?
-            
+
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
             cat /tmp/version-check.log >> $GITHUB_STEP_SUMMARY
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-            
+
             if [ "$EXIT_CODE" -eq 0 ]; then
               echo "" >> $GITHUB_STEP_SUMMARY
               echo "✅ All version numbers are consistent!" >> $GITHUB_STEP_SUMMARY
@@ -913,14 +913,14 @@ jobs:
             python3 scripts/maintenance/validate_script_registry.py \
               --priority critical \
               --verbose | tee /tmp/script-validation.log
-            
+
             EXIT_CODE=$?
-            
+
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
             cat /tmp/script-validation.log >> $GITHUB_STEP_SUMMARY
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-            
+
             if [ "$EXIT_CODE" -eq 0 ]; then
               echo "" >> $GITHUB_STEP_SUMMARY
               echo "✅ All critical scripts validated successfully!" >> $GITHUB_STEP_SUMMARY
@@ -961,12 +961,12 @@ jobs:
           if [ -f "scripts/validate/check_enterprise_readiness.php" ]; then
             php scripts/validate/check_enterprise_readiness.php --verbose | tee /tmp/enterprise-check.log
             EXIT_CODE=$?
-            
+
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
             cat /tmp/enterprise-check.log >> $GITHUB_STEP_SUMMARY
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-            
+
             if [ "$EXIT_CODE" -eq 0 ]; then
               echo "" >> $GITHUB_STEP_SUMMARY
               echo "✅ Repository meets enterprise readiness criteria!" >> $GITHUB_STEP_SUMMARY
@@ -1007,12 +1007,12 @@ jobs:
           if [ -f "scripts/validate/check_repo_health.php" ]; then
             php scripts/validate/check_repo_health.php --verbose | tee /tmp/health-check.log
             EXIT_CODE=$?
-            
+
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
             cat /tmp/health-check.log >> $GITHUB_STEP_SUMMARY
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-            
+
             if [ "$EXIT_CODE" -eq 0 ]; then
               echo "" >> $GITHUB_STEP_SUMMARY
               echo "✅ Repository health check passed!" >> $GITHUB_STEP_SUMMARY
@@ -1067,14 +1067,14 @@ jobs:
           [ "$WORKFLOW_STATUS" = "success" ] && PASSED=$((PASSED + 1)) || FAILED=$((FAILED + 1))
           [ "$VERSION_STATUS" = "success" ] && PASSED=$((PASSED + 1)) || FAILED=$((FAILED + 1))
           [ "$SCRIPT_STATUS" = "success" ] && PASSED=$((PASSED + 1)) || FAILED=$((FAILED + 1))
-          
+
           # Informational checks (don't fail build)
           if [ "$ENTERPRISE_STATUS" = "success" ]; then
             PASSED=$((PASSED + 1))
           else
             WARNINGS=$((WARNINGS + 1))
           fi
-          
+
           if [ "$HEALTH_STATUS" = "success" ]; then
             PASSED=$((PASSED + 1))
           else
@@ -1163,28 +1163,28 @@ jobs:
           else
             echo "| ⚙️ Workflow Configuration | ⚠️ Warning | Review Recommended | 🟡 Medium |" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           # Version Consistency
           if [ "$VERSION_STATUS" = "success" ]; then
             echo "| 🔢 Version Consistency | ✅ Pass | All versions match | - |" >> $GITHUB_STEP_SUMMARY
           else
             echo "| 🔢 Version Consistency | ❌ Fail | **Action Required** | 🔴 Critical |" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           # Script Integrity
           if [ "$SCRIPT_STATUS" = "success" ]; then
             echo "| 🔐 Script Integrity | ✅ Pass | SHA hashes validated | - |" >> $GITHUB_STEP_SUMMARY
           else
             echo "| 🔐 Script Integrity | ❌ Fail | **Action Required** | 🔴 Critical |" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           # Enterprise Readiness (Informational)
           if [ "$ENTERPRISE_STATUS" = "success" ]; then
             echo "| 🏢 Enterprise Readiness | ✅ Pass | Ready for enterprise | ℹ️ Info |" >> $GITHUB_STEP_SUMMARY
           else
             echo "| 🏢 Enterprise Readiness | ℹ️ Info | Review suggestions | ℹ️ Info |" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           # Repository Health (Informational)
           if [ "$HEALTH_STATUS" = "success" ]; then
             echo "| 🏥 Repository Health | ✅ Pass | Health check passed | ℹ️ Info |" >> $GITHUB_STEP_SUMMARY

@@ -843,10 +843,195 @@ jobs:
           echo "✅ SUCCESS: CodeQL validation complete"
           exit 0
 
+  version-consistency:
+    name: Version Consistency Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.31.0
+        with:
+          php-version: '8.1'
+          extensions: json
+          coverage: none
+
+      - name: Run Version Consistency Check
+        id: version_check
+        run: |
+          set -x
+          echo "## 🔢 Version Consistency Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f "scripts/validate/check_version_consistency.php" ]; then
+            php scripts/validate/check_version_consistency.php --verbose | tee /tmp/version-check.log
+            EXIT_CODE=$?
+            
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            cat /tmp/version-check.log >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            
+            if [ "$EXIT_CODE" -eq 0 ]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "✅ All version numbers are consistent!" >> $GITHUB_STEP_SUMMARY
+              exit 0
+            else
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "❌ Version mismatches detected - Please update all version references" >> $GITHUB_STEP_SUMMARY
+              exit 1
+            fi
+          else
+            echo "ℹ️ Version consistency check script not found - skipping" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+
+  script-integrity:
+    name: Script Integrity Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+
+      - name: Validate Script Integrity
+        id: script_check
+        run: |
+          set -x
+          echo "## 🔐 Script Integrity Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f "scripts/.script-registry.json" ]; then
+            echo "### Critical Scripts" >> $GITHUB_STEP_SUMMARY
+            python3 scripts/maintenance/validate_script_registry.py \
+              --priority critical \
+              --verbose | tee /tmp/script-validation.log
+            
+            EXIT_CODE=$?
+            
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            cat /tmp/script-validation.log >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            
+            if [ "$EXIT_CODE" -eq 0 ]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "✅ All critical scripts validated successfully!" >> $GITHUB_STEP_SUMMARY
+              exit 0
+            else
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "❌ Script integrity violations detected" >> $GITHUB_STEP_SUMMARY
+              echo "**Action Required:** Review validation report and update registry" >> $GITHUB_STEP_SUMMARY
+              exit 1
+            fi
+          else
+            echo "ℹ️ Script registry not found - skipping integrity check" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+
+  enterprise-readiness:
+    name: Enterprise Readiness Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.31.0
+        with:
+          php-version: '8.1'
+          extensions: json, mbstring
+          coverage: none
+
+      - name: Check Enterprise Readiness
+        id: enterprise_check
+        run: |
+          set -x
+          echo "## 🏢 Enterprise Readiness Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f "scripts/validate/check_enterprise_readiness.php" ]; then
+            php scripts/validate/check_enterprise_readiness.php --verbose | tee /tmp/enterprise-check.log
+            EXIT_CODE=$?
+            
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            cat /tmp/enterprise-check.log >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            
+            if [ "$EXIT_CODE" -eq 0 ]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "✅ Repository meets enterprise readiness criteria!" >> $GITHUB_STEP_SUMMARY
+              exit 0
+            else
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "⚠️ Enterprise readiness issues detected" >> $GITHUB_STEP_SUMMARY
+              echo "**Note:** This is informational - review recommendations to improve" >> $GITHUB_STEP_SUMMARY
+              exit 0  # Non-blocking
+            fi
+          else
+            echo "ℹ️ Enterprise readiness check script not found - skipping" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+
+  repository-health:
+    name: Repository Health Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.31.0
+        with:
+          php-version: '8.1'
+          extensions: json, mbstring
+          coverage: none
+
+      - name: Check Repository Health
+        id: health_check
+        run: |
+          set -x
+          echo "## 🏥 Repository Health Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f "scripts/validate/check_repo_health.php" ]; then
+            php scripts/validate/check_repo_health.php --verbose | tee /tmp/health-check.log
+            EXIT_CODE=$?
+            
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            cat /tmp/health-check.log >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            
+            if [ "$EXIT_CODE" -eq 0 ]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "✅ Repository health check passed!" >> $GITHUB_STEP_SUMMARY
+              exit 0
+            else
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "⚠️ Repository health issues detected" >> $GITHUB_STEP_SUMMARY
+              echo "**Note:** This is informational - review recommendations to improve" >> $GITHUB_STEP_SUMMARY
+              exit 0  # Non-blocking
+            fi
+          else
+            echo "ℹ️ Repository health check script not found - skipping" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+
   summary:
     name: Compliance Summary
     runs-on: ubuntu-latest
-    needs: [repository-structure, documentation-quality, coding-standards, license-compliance, git-hygiene, workflow-validation]
+    needs: [repository-structure, documentation-quality, coding-standards, license-compliance, git-hygiene, workflow-validation, version-consistency, script-integrity, enterprise-readiness, repository-health]
     if: always()
 
     steps:
@@ -863,19 +1048,43 @@ jobs:
           LICENSE_STATUS="${{ needs.license-compliance.result }}"
           GIT_STATUS="${{ needs.git-hygiene.result }}"
           WORKFLOW_STATUS="${{ needs.workflow-validation.result }}"
+          VERSION_STATUS="${{ needs.version-consistency.result }}"
+          SCRIPT_STATUS="${{ needs.script-integrity.result }}"
+          ENTERPRISE_STATUS="${{ needs.enterprise-readiness.result }}"
+          HEALTH_STATUS="${{ needs.repository-health.result }}"
 
           PASSED=0
           FAILED=0
-          TOTAL=6
+          WARNINGS=0
+          TOTAL=10
 
+          # Critical checks (must pass)
           [ "$REPO_STATUS" = "success" ] && PASSED=$((PASSED + 1)) || FAILED=$((FAILED + 1))
           [ "$DOCS_STATUS" = "success" ] && PASSED=$((PASSED + 1)) || FAILED=$((FAILED + 1))
           [ "$CODE_STATUS" = "success" ] && PASSED=$((PASSED + 1)) || FAILED=$((FAILED + 1))
           [ "$LICENSE_STATUS" = "success" ] && PASSED=$((PASSED + 1)) || FAILED=$((FAILED + 1))
           [ "$GIT_STATUS" = "success" ] && PASSED=$((PASSED + 1)) || FAILED=$((FAILED + 1))
           [ "$WORKFLOW_STATUS" = "success" ] && PASSED=$((PASSED + 1)) || FAILED=$((FAILED + 1))
+          [ "$VERSION_STATUS" = "success" ] && PASSED=$((PASSED + 1)) || FAILED=$((FAILED + 1))
+          [ "$SCRIPT_STATUS" = "success" ] && PASSED=$((PASSED + 1)) || FAILED=$((FAILED + 1))
+          
+          # Informational checks (don't fail build)
+          if [ "$ENTERPRISE_STATUS" = "success" ]; then
+            PASSED=$((PASSED + 1))
+          else
+            WARNINGS=$((WARNINGS + 1))
+          fi
+          
+          if [ "$HEALTH_STATUS" = "success" ]; then
+            PASSED=$((PASSED + 1))
+          else
+            WARNINGS=$((WARNINGS + 1))
+          fi
 
-          COMPLIANCE_PERCENT=$((PASSED * 100 / TOTAL))
+          # Adjust total to only count critical checks for compliance percentage
+          CRITICAL_TOTAL=8
+          CRITICAL_PASSED=$((PASSED - WARNINGS))
+          COMPLIANCE_PERCENT=$((CRITICAL_PASSED * 100 / CRITICAL_TOTAL))
 
           # Overall status badge
           if [ "$COMPLIANCE_PERCENT" -eq 100 ]; then
@@ -889,7 +1098,11 @@ jobs:
           fi
 
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Score:** $PASSED/$TOTAL validation areas passed" >> $GITHUB_STEP_SUMMARY
+          echo "**Critical Checks:** $CRITICAL_PASSED/$CRITICAL_TOTAL passed" >> $GITHUB_STEP_SUMMARY
+          echo "**Total Checks:** $PASSED/$TOTAL passed" >> $GITHUB_STEP_SUMMARY
+          if [ "$WARNINGS" -gt 0 ]; then
+            echo "**Informational:** $WARNINGS warning(s)" >> $GITHUB_STEP_SUMMARY
+          fi
           echo "" >> $GITHUB_STEP_SUMMARY
 
           # Progress bar
@@ -949,6 +1162,34 @@ jobs:
             echo "| ⚙️ Workflow Configuration | ✅ Pass | Compliant | - |" >> $GITHUB_STEP_SUMMARY
           else
             echo "| ⚙️ Workflow Configuration | ⚠️ Warning | Review Recommended | 🟡 Medium |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Version Consistency
+          if [ "$VERSION_STATUS" = "success" ]; then
+            echo "| 🔢 Version Consistency | ✅ Pass | All versions match | - |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| 🔢 Version Consistency | ❌ Fail | **Action Required** | 🔴 Critical |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Script Integrity
+          if [ "$SCRIPT_STATUS" = "success" ]; then
+            echo "| 🔐 Script Integrity | ✅ Pass | SHA hashes validated | - |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| 🔐 Script Integrity | ❌ Fail | **Action Required** | 🔴 Critical |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Enterprise Readiness (Informational)
+          if [ "$ENTERPRISE_STATUS" = "success" ]; then
+            echo "| 🏢 Enterprise Readiness | ✅ Pass | Ready for enterprise | ℹ️ Info |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| 🏢 Enterprise Readiness | ℹ️ Info | Review suggestions | ℹ️ Info |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Repository Health (Informational)
+          if [ "$HEALTH_STATUS" = "success" ]; then
+            echo "| 🏥 Repository Health | ✅ Pass | Health check passed | ℹ️ Info |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| 🏥 Repository Health | ℹ️ Info | Review recommendations | ℹ️ Info |" >> $GITHUB_STEP_SUMMARY
           fi
 
           echo "" >> $GITHUB_STEP_SUMMARY

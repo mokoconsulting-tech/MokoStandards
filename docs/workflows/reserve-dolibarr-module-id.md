@@ -1,8 +1,8 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.02-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Reserve Dolibarr Module ID Workflow
 
-**Status**: Active | **Version**: 04.00.02 | **Effective**: 2026-02-20
+**Status**: Active | **Version**: 04.00.03 | **Effective**: 2026-02-21
 
 ## Overview
 
@@ -23,7 +23,7 @@ The `reserve-dolibarr-module-id.yml` workflow automates the reservation of Dolib
 - **Conflict Detection**: Validates that the requested ID is not already in use
 - **Registry Update**: Updates the [module registry](../development/crm/module-registry.md) in MokoStandards
 - **Pull Request Creation**: Automatically creates PR with all changes
-- **Automatic Remote Push**: Always pushes `DOLIBARR_MODULE_ID.txt` to target repository
+- **Optional Remote Push**: Optionally pushes `DOLIBARR_MODULE_ID.txt` to target repository
 
 ### Workflow Location
 
@@ -89,7 +89,7 @@ The `reserve-dolibarr-module-id.yml` workflow automates the reservation of Dolib
        │
        ▼
   ┌──────────────────┐
-  │ Push to Remote   │
+  │ Push to Remote   │ (Optional)
   │ Repository       │
   └──────────────────┘
 ```
@@ -104,9 +104,9 @@ The workflow uses regex pattern `1850(6[4-9]|[7-8][0-9]|9[0-9])` to precisely ma
 
 ## Usage
 
-### Basic Usage (Auto-Assign)
+### Basic Usage (Auto-Assign, No Remote Push)
 
-When you want to reserve the next available module ID:
+When you want to reserve the next available module ID without pushing to remote:
 
 ```yaml
 # Trigger: Actions → Reserve Dolibarr Module ID → Run workflow
@@ -114,24 +114,26 @@ When you want to reserve the next available module ID:
 Inputs:
   repo_name: "MokoDoliExample"
   module_id: (leave empty for auto-assignment)
+  push_to_remote: false
 ```
 
-**Result**: 
+**Result**:
 - Workflow will auto-assign next available ID (e.g., 185064) and create PR
 - Repository URL automatically constructed as `https://github.com/mokoconsulting-tech/MokoDoliExample`
-- Creates `src/DOLIBARR_MODULE_ID.txt` in the remote repository
+- Module ID file NOT pushed to remote (you can create it manually later)
 
-### Manual ID Assignment
+### With Remote Push
 
-When you need a specific module ID:
+When you want to automatically push the module ID file to the remote repository:
 
 ```yaml
 Inputs:
   repo_name: "MokoDoliSign"
   module_id: 185070
+  push_to_remote: true
 ```
 
-**Result**: 
+**Result**:
 - Workflow will validate and reserve ID 185070 (if available)
 - Repository URL automatically constructed as `https://github.com/mokoconsulting-tech/MokoDoliSign`
 - Creates `src/DOLIBARR_MODULE_ID.txt` in the remote repository
@@ -144,13 +146,14 @@ Inputs:
 |-------|------|-------------|---------|
 | `repo_name` | string | Repository name (org automatically set to mokoconsulting-tech) | "MokoDoliExample" |
 
-**Note**: The repository URL is automatically constructed as `https://github.com/mokoconsulting-tech/{repo_name}`. The workflow will always push the module ID file to the remote repository.
+**Note**: The repository URL is automatically constructed as `https://github.com/mokoconsulting-tech/{repo_name}`.
 
 ### Optional Inputs
 
 | Input | Type | Default | Description |
 |-------|------|---------|-------------|
 | `module_id` | number | (auto-assign) | Specific module ID to assign (185064-185099) |
+| `push_to_remote` | boolean | false | Push DOLIBARR_MODULE_ID.txt to remote repository |
 
 ## What the Workflow Does
 
@@ -212,9 +215,9 @@ Creates a PR with:
 - **Labels**: `dolibarr`, `module-id-reservation`, `automated`
 - **Description**: Comprehensive details about the reservation
 
-### 6. Automatic Remote Push
+### 6. Optional Remote Push
 
-The workflow always pushes to the remote repository, creating `src/DOLIBARR_MODULE_ID.txt`:
+If `push_to_remote` is enabled, the workflow pushes to the remote repository, creating `src/DOLIBARR_MODULE_ID.txt`:
 
 ```
 DOLIBARR_MODULE_ID=185064
@@ -234,6 +237,8 @@ This ID is registered in the MokoStandards module registry:
 https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/development/crm/module-registry.md
 ```
 
+If `push_to_remote` is disabled (default), you can manually create this file later.
+
 ## Workflow Steps
 
 ### Detailed Step Breakdown
@@ -248,7 +253,7 @@ https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/development/
 8. **Create branch and commit** - Commits changes to new branch
 9. **Create pull request** - Automated PR creation
 10. **Add labels** - Tags PR with relevant labels
-11. **Push to remote** - Creates DOLIBARR_MODULE_ID.txt in remote repo
+11. **Push to remote** - (Optional) Creates DOLIBARR_MODULE_ID.txt in remote repo if enabled
 12. **Output summary** - Displays reservation summary
 
 ## Output
@@ -480,26 +485,28 @@ echo $((36 - $(grep -cE "185064|185065|..." docs/policy/crm/development-standard
 
 ## Examples
 
-### Example 1: Simple Reservation
+### Example 1: Simple Reservation (No Remote Push)
 
 ```yaml
 # Input
 repo_name: "MokoDoliPasskey"
+push_to_remote: false
 
 # Result
 Module ID: 185064 (auto-assigned)
 Module Name: MokoDoliPasskey
 Repository URL: https://github.com/mokoconsulting-tech/MokoDoliPasskey
 PR Created: #123
-Remote File: src/DOLIBARR_MODULE_ID.txt created
+Remote File: NOT created (manual creation required)
 ```
 
-### Example 2: Specific ID
+### Example 2: Specific ID with Remote Push
 
 ```yaml
 # Input
 repo_name: "MokoDoliMulti"
 module_id: 185070
+push_to_remote: true
 
 # Result
 Module ID: 185070 (manual)
@@ -550,6 +557,24 @@ The workflow file itself is protected via `MokoStandards.override.tf` to prevent
 - [Workflow Architecture](./workflow-architecture.md) - Overall workflow design patterns
 
 ## Changelog
+
+### Version 04.00.03 (2026-02-21)
+
+**Changed**:
+- Remote push is now **optional** with `push_to_remote` input parameter (default: false)
+- PR description now shows whether remote push was enabled
+- Output summary shows remote push status (Enabled/Skipped)
+- Next steps conditional based on push status
+
+**Added**:
+- `push_to_remote` boolean input parameter (optional, default: false)
+- Conditional execution of push step based on `push_to_remote` value
+- Status indicator in workflow outputs
+
+**Fixed**:
+- Push step now skips if `push_to_remote` is false
+- Documentation updated to reflect optional push behavior
+- Workflow diagram correctly shows push as "(Optional)"
 
 ### Version 04.00.02 (2026-02-20)
 

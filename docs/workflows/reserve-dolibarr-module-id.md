@@ -1,8 +1,8 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.02-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Reserve Dolibarr Module ID Workflow
 
-**Status**: Active | **Version**: 04.00.01 | **Effective**: 2026-02-19
+**Status**: Active | **Version**: 04.00.02 | **Effective**: 2026-02-20
 
 ## Overview
 
@@ -559,6 +559,11 @@ The workflow file itself is protected via `MokoStandards.override.tf` to prevent
 - Organization is always assumed to be `mokoconsulting-tech`
 - Description is automatically generated from module name
 - Remote push is now always enabled (no longer optional)
+
+**Fixed**:
+- Removed outdated "(Optional)" label from workflow diagram
+- Updated documentation to reflect that remote push is mandatory
+- Clarified that `DOLIBARR_MODULE_ID.txt` is always created in remote repository
 
 **Removed**:
 - `description` input (auto-generated)

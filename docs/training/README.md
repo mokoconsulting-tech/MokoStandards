@@ -32,7 +32,7 @@ BRIEF: Training program index for MokoStandards enterprise libraries
 # MokoStandards Enterprise Libraries Training Program
 
 **Version**: 04.00.03  
-**Duration**: 14.5 hours across 6 sessions  
+**Duration**: 17 hours across 7 sessions  
 **Format**: Instructor-led with hands-on exercises  
 **Level**: Intermediate to Advanced
 
@@ -243,6 +243,31 @@ This comprehensive training program introduces developers to the MokoStandards e
 - ✅ Use GitHub Projects to track and manage work
 - ✅ Integrate Git workflow with project management
 - ✅ Follow MokoStandards Git and GitHub policies
+
+---
+
+### Session 7: Terraform Infrastructure and Configuration Management
+**Duration**: 2.5 hours  
+**Format**: Lecture + Hands-on Lab  
+**File**: [session-7-terraform-infrastructure.md](session-7-terraform-infrastructure.md)
+
+**Topics**:
+- Terraform file structure standards
+- Four-tier enforcement level system (Optional, Suggested, Required, Forced)
+- Override configuration (.github/config.tf)
+- Bulk repository synchronization
+- Infrastructure management patterns
+- Repository automation with terraform
+- Configuration validation and testing
+
+**Learning Objectives**:
+- ✅ Understand MokoStandards terraform file structure
+- ✅ Apply the four enforcement levels correctly
+- ✅ Create and configure .github/config.tf files
+- ✅ Use bulk synchronization effectively
+- ✅ Manage repository infrastructure with terraform
+- ✅ Validate terraform configurations
+- ✅ Debug sync and enforcement issues
 
 ---
 

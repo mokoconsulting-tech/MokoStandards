@@ -16,9 +16,18 @@
 
 The MokoStandards terraform configuration system uses a **six-tier enforcement level system** to control file synchronization across repositories. This system balances organizational standards with repository-specific needs.
 
+## Badge Legend
+
+- ![Level 1 - OPTIONAL](https://img.shields.io/badge/Level_1-OPTIONAL-blue?style=flat-square) **OPTIONAL** - Opt-in only
+- ![Level 2 - SUGGESTED](https://img.shields.io/badge/Level_2-SUGGESTED-yellow?style=flat-square) **SUGGESTED** - Recommended
+- ![Level 3 - REQUIRED](https://img.shields.io/badge/Level_3-REQUIRED-orange?style=flat-square) **REQUIRED** - Mandatory
+- ![Level 4 - FORCED](https://img.shields.io/badge/Level_4-FORCED-red?style=flat-square) **FORCED** - Always synced
+- ![Level 5 - NOT SUGGESTED](https://img.shields.io/badge/Level_5-NOT__SUGGESTED-yellow?style=flat-square) **NOT_SUGGESTED** - Discouraged
+- ![Level 6 - NOT ALLOWED](https://img.shields.io/badge/Level_6-NOT__ALLOWED-critical?style=flat-square) **NOT_ALLOWED** - Prohibited
+
 ## The Six Enforcement Levels
 
-### Level 1: OPTIONAL ⭕
+### ![Level 1 - OPTIONAL](https://img.shields.io/badge/Level_1-OPTIONAL-blue?style=flat-square) Level 1: OPTIONAL
 
 **Definition**: Files that **MAY** be synced if repository explicitly opts in.
 
@@ -60,7 +69,7 @@ Processing optional file: .github/workflows/deploy-to-staging.yml
 
 ---
 
-### Level 2: SUGGESTED ⚠️
+### ![Level 2 - SUGGESTED](https://img.shields.io/badge/Level_2-SUGGESTED-yellow?style=flat-square) Level 2: SUGGESTED
 
 **Definition**: Files that **SHOULD** be synced (recommended best practices).
 
@@ -117,7 +126,7 @@ Processing suggested file: .github/workflows/codeql-analysis.yml
 
 ---
 
-### Level 3: REQUIRED ⛔
+### ![Level 3 - REQUIRED](https://img.shields.io/badge/Level_3-REQUIRED-orange?style=flat-square) Level 3: REQUIRED
 
 **Definition**: Files that **MUST** be synced (mandatory for compliance).
 
@@ -175,7 +184,7 @@ Processing required file: CONTRIBUTING.md
 
 ---
 
-### Level 4: FORCED 🔒
+### ![Level 4 - FORCED](https://img.shields.io/badge/Level_4-FORCED-red?style=flat-square) Level 4: FORCED
 
 **Definition**: Files that are **ALWAYS** synced regardless of any configuration.
 

@@ -132,7 +132,24 @@ Repository-specific customization without forking.
 
 - **config.tf**: Located in `.github/` directory of each repository
 - Controls which files are synced during bulk updates
+- Uses six-tier enforcement level system
 - See [Bulk Sync Documentation](../workflows/bulk-repo-sync.md)
+- See [Enforcement Levels](enforcement-levels.md) for complete details
+
+#### Enforcement Level Badges
+
+The system uses six enforcement levels with visual badges for easy identification:
+
+| Badge | Level | Description |
+|-------|-------|-------------|
+| ![Level 1](https://img.shields.io/badge/Level_1-OPTIONAL-blue?style=flat-square) | OPTIONAL | Opt-in only - repository must explicitly include |
+| ![Level 2](https://img.shields.io/badge/Level_2-SUGGESTED-yellow?style=flat-square) | SUGGESTED | Recommended - warnings if excluded |
+| ![Level 3](https://img.shields.io/badge/Level_3-REQUIRED-orange?style=flat-square) | REQUIRED | Mandatory - errors if excluded |
+| ![Level 4](https://img.shields.io/badge/Level_4-FORCED-red?style=flat-square) | FORCED | Always synced - cannot be overridden |
+| ![Level 5](https://img.shields.io/badge/Level_5-NOT__SUGGESTED-yellow?style=flat-square) | NOT_SUGGESTED | Discouraged - warnings if present |
+| ![Level 6](https://img.shields.io/badge/Level_6-NOT__ALLOWED-critical?style=flat-square) | NOT_ALLOWED | Prohibited - errors if present, cannot be overridden |
+
+See [enforcement-levels.md](enforcement-levels.md) for complete documentation of each level.
 
 ## Standards and Conventions
 

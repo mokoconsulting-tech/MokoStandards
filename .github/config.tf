@@ -34,19 +34,27 @@
 # 2. Update version and metadata during sync
 # 3. Preserve repository-specific customizations
 #
-# FILE AND STANDARDS ENFORCEMENT LEVELS:
+# FILE AND STANDARDS ENFORCEMENT LEVELS (with badges):
+#
+# Badge Reference:
+# ![Level 1](https://img.shields.io/badge/Level_1-OPTIONAL-blue?style=flat-square)
+# ![Level 2](https://img.shields.io/badge/Level_2-SUGGESTED-yellow?style=flat-square)
+# ![Level 3](https://img.shields.io/badge/Level_3-REQUIRED-orange?style=flat-square)
+# ![Level 4](https://img.shields.io/badge/Level_4-FORCED-red?style=flat-square)
+# ![Level 5](https://img.shields.io/badge/Level_5-NOT__SUGGESTED-yellow?style=flat-square)
+# ![Level 6](https://img.shields.io/badge/Level_6-NOT__ALLOWED-critical?style=flat-square)
 # 
-# 1. OPTIONAL - Files that MAY be synced if repository opts in
+# 1. OPTIONAL (Level 1) - Files that MAY be synced if repository opts in
 #    - Not created by default
 #    - Repository chooses to include
 #    - Can be excluded without warnings
 #
-# 2. SUGGESTED - Files that SHOULD be synced (recommended)
+# 2. SUGGESTED (Level 2) - Files that SHOULD be synced (recommended)
 #    - Created by default
 #    - Generates warnings if excluded
 #    - Can be overridden with justification
 #
-# 3. REQUIRED - Files that MUST be synced (mandatory)
+# 3. REQUIRED (Level 3) - Files that MUST be synced (mandatory)
 #    - Always created
 #    - Cannot be excluded via config.tf
 #    - Generates errors if missing

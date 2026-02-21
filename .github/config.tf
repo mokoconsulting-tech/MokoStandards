@@ -34,9 +34,31 @@
 # 2. Update version and metadata during sync
 # 3. Preserve repository-specific customizations
 #
-# FORCE-OVERRIDE BEHAVIOR:
-# Some files are marked as ALWAYS_FORCE_OVERRIDE and will be updated even if listed
-# as protected in this config. These critical compliance files MUST stay current:
+# FILE AND STANDARDS ENFORCEMENT LEVELS:
+# 
+# 1. OPTIONAL - Files that MAY be synced if repository opts in
+#    - Not created by default
+#    - Repository chooses to include
+#    - Can be excluded without warnings
+#
+# 2. SUGGESTED - Files that SHOULD be synced (recommended)
+#    - Created by default
+#    - Generates warnings if excluded
+#    - Can be overridden with justification
+#
+# 3. REQUIRED - Files that MUST be synced (mandatory)
+#    - Always created
+#    - Cannot be excluded via config.tf
+#    - Generates errors if missing
+#
+# 4. FORCED - Files that are ALWAYS synced regardless of settings
+#    - Critical compliance and security files
+#    - Cannot be excluded or protected
+#    - Overrides ALL config.tf settings
+#    - Ensures organizational standards compliance
+#
+# FORCED FILES (Level 4 - Always Overridden):
+# These critical compliance files MUST stay current across all repositories:
 # - .github/workflows/standards-compliance.yml
 # - scripts/validate/check_version_consistency.php
 # - scripts/validate/check_enterprise_readiness.php  
@@ -90,6 +112,84 @@ locals {
     #   - "conservative": Remove only obsolete .yml/.py files from managed directories
     #   - "aggressive": Remove all files in managed directories not in sync list
     cleanup_mode = "conservative"
+  }
+  
+  # File Enforcement Levels Configuration
+  # Define which files fall into each enforcement category
+  enforcement_levels = {
+    # OPTIONAL (Level 1): Files that may be synced if repository opts in
+    optional_files = [
+      {
+        path   = ".github/workflows/deploy-to-staging.yml"
+        reason = "Only needed for repositories with staging environment"
+      },
+      {
+        path   = ".github/workflows/performance-testing.yml"
+        reason = "Optional performance testing workflow"
+      },
+    ]
+    
+    # SUGGESTED (Level 2): Files that should be synced (generates warnings if excluded)
+    suggested_files = [
+      {
+        path   = ".github/workflows/dependency-review.yml"
+        reason = "Recommended security practice for dependency scanning"
+      },
+      {
+        path   = ".github/workflows/codeql-analysis.yml"
+        reason = "Recommended for code security scanning"
+      },
+      {
+        path   = ".editorconfig"
+        reason = "Recommended for consistent code formatting"
+      },
+    ]
+    
+    # REQUIRED (Level 3): Files that must be synced (cannot be excluded)
+    required_files = [
+      {
+        path   = ".github/workflows/ci.yml"
+        reason = "Continuous integration is mandatory"
+      },
+      {
+        path   = "LICENSE"
+        reason = "License file required for all repositories"
+      },
+      {
+        path   = "CONTRIBUTING.md"
+        reason = "Contributing guidelines required"
+      },
+    ]
+    
+    # FORCED (Level 4): Files always synced regardless of config
+    # These are defined in bulk_update_repos.php ALWAYS_FORCE_OVERRIDE_FILES
+    # and cannot be overridden here. Listed for documentation only:
+    forced_files = [
+      {
+        path   = ".github/workflows/standards-compliance.yml"
+        reason = "Critical: Organization-wide compliance checks"
+      },
+      {
+        path   = "scripts/validate/check_version_consistency.php"
+        reason = "Critical: Version consistency validation"
+      },
+      {
+        path   = "scripts/validate/check_enterprise_readiness.php"
+        reason = "Critical: Enterprise standards validation"
+      },
+      {
+        path   = "scripts/validate/check_repo_health.php"
+        reason = "Critical: Repository health monitoring"
+      },
+      {
+        path   = "scripts/maintenance/validate_script_registry.py"
+        reason = "Critical: Script integrity validation"
+      },
+      {
+        path   = "scripts/.script-registry.json"
+        reason = "Critical: Script registry database"
+      },
+    ]
   }
 
   # Files to exclude from sync

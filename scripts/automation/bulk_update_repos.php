@@ -53,9 +53,17 @@ class BulkUpdateRepos extends CliFramework
      * Files that are ALWAYS force-overridden regardless of .github/config.tf settings
      * These are critical compliance and security files that must stay current
      * 
+     * ENFORCEMENT LEVEL: FORCED (Level 4)
+     * 
      * IMPORTANT: Even if a repository's .github/config.tf marks these as protected,
      * they will STILL be overwritten during bulk sync. This ensures critical
      * security and compliance infrastructure stays current across all repositories.
+     * 
+     * These files represent the highest enforcement level in the four-tier system:
+     * 1. OPTIONAL - May be synced if repository opts in
+     * 2. SUGGESTED - Should be synced (warnings if excluded)
+     * 3. REQUIRED - Must be synced (errors if excluded)
+     * 4. FORCED - Always synced regardless of config (this list)
      */
     private const ALWAYS_FORCE_OVERRIDE_FILES = [
         '.github/workflows/standards-compliance.yml',
@@ -64,6 +72,17 @@ class BulkUpdateRepos extends CliFramework
         'scripts/validate/check_repo_health.php',
         'scripts/maintenance/validate_script_registry.py',
         'scripts/.script-registry.json',
+    ];
+    
+    /**
+     * File enforcement levels
+     * Defines the four-tier enforcement system for file synchronization
+     */
+    private const ENFORCEMENT_LEVELS = [
+        'OPTIONAL'   => 1,  // May be synced if opted in
+        'SUGGESTED'  => 2,  // Should be synced (warnings)
+        'REQUIRED'   => 3,  // Must be synced (errors)
+        'FORCED'     => 4,  // Always synced (cannot override)
     ];
     
     private ApiClient $apiClient;
@@ -675,25 +694,117 @@ class BulkUpdateRepos extends CliFramework
     /**
      * Check if a file should be skipped during sync
      * 
+     * Implements the four-tier enforcement system:
+     * 1. OPTIONAL - Only synced if repository explicitly includes
+     * 2. SUGGESTED - Synced by default, warnings if excluded
+     * 3. REQUIRED - Must be synced, errors if excluded
+     * 4. FORCED - Always synced, cannot be overridden
+     * 
      * @param string $filePath Path to file being synced
      * @param array $config Parsed config.tf configuration
-     * @return array [skip: bool, reason: string]
+     * @param int $enforcementLevel File enforcement level (1-4)
+     * @return array [skip: bool, reason: string, level: string]
      */
-    private function shouldSkipFile(string $filePath, array $config): array
+    private function shouldSkipFile(string $filePath, array $config, int $enforcementLevel = 2): array
     {
-        // CRITICAL: Force-override files ALWAYS override, even if protected in config.tf
+        // Level 4: FORCED - Always override, even if protected in config.tf
         if (in_array($filePath, self::ALWAYS_FORCE_OVERRIDE_FILES)) {
             return [
                 'skip' => false,
-                'reason' => 'FORCE_OVERRIDE (critical compliance file - always updated regardless of config.tf)',
+                'reason' => 'FORCED (Level 4 - critical compliance file - always updated regardless of config.tf)',
+                'level' => 'FORCED',
+                'enforcement' => 4,
             ];
         }
         
+        // Level 3: REQUIRED - Must be synced, cannot be excluded
+        if ($enforcementLevel === self::ENFORCEMENT_LEVELS['REQUIRED']) {
+            if (in_array($filePath, $config['exclude_files'] ?? [])) {
+                $this->log("  ⚠ WARNING: Required file '{$filePath}' is excluded - this violates compliance");
+                $this->metrics->increment('required_files_excluded_warnings');
+            }
+            
+            if (in_array($filePath, $config['protected_files'] ?? [])) {
+                $this->log("  ⚠ WARNING: Required file '{$filePath}' is protected - will be overridden");
+                $this->metrics->increment('required_files_protected_warnings');
+            }
+            
+            return [
+                'skip' => false,
+                'reason' => 'REQUIRED (Level 3 - mandatory file - must be synced)',
+                'level' => 'REQUIRED',
+                'enforcement' => 3,
+            ];
+        }
+        
+        // Level 2: SUGGESTED - Should be synced, warnings if excluded
+        if ($enforcementLevel === self::ENFORCEMENT_LEVELS['SUGGESTED']) {
+            if (in_array($filePath, $config['exclude_files'] ?? [])) {
+                $this->log("  ⚠ WARNING: Suggested file '{$filePath}' is excluded");
+                $this->metrics->increment('suggested_files_excluded');
+                return [
+                    'skip' => true,
+                    'reason' => 'SUGGESTED but excluded in config.tf (not recommended)',
+                    'level' => 'SUGGESTED',
+                    'enforcement' => 2,
+                ];
+            }
+            
+            if (in_array($filePath, $config['protected_files'] ?? [])) {
+                return [
+                    'skip' => true,
+                    'reason' => 'SUGGESTED but protected in config.tf',
+                    'level' => 'SUGGESTED',
+                    'enforcement' => 2,
+                ];
+            }
+            
+            return [
+                'skip' => false,
+                'reason' => 'SUGGESTED (Level 2 - recommended file)',
+                'level' => 'SUGGESTED',
+                'enforcement' => 2,
+            ];
+        }
+        
+        // Level 1: OPTIONAL - Only synced if explicitly included
+        if ($enforcementLevel === self::ENFORCEMENT_LEVELS['OPTIONAL']) {
+            // Check if file is explicitly included
+            $optionalFiles = $config['enforcement_levels']['optional_files'] ?? [];
+            $isIncluded = false;
+            
+            foreach ($optionalFiles as $optionalFile) {
+                if (isset($optionalFile['path']) && $optionalFile['path'] === $filePath) {
+                    $isIncluded = isset($optionalFile['include']) && $optionalFile['include'] === true;
+                    break;
+                }
+            }
+            
+            if (!$isIncluded) {
+                return [
+                    'skip' => true,
+                    'reason' => 'OPTIONAL (Level 1 - not opted in)',
+                    'level' => 'OPTIONAL',
+                    'enforcement' => 1,
+                ];
+            }
+            
+            return [
+                'skip' => false,
+                'reason' => 'OPTIONAL (Level 1 - explicitly included)',
+                'level' => 'OPTIONAL',
+                'enforcement' => 1,
+            ];
+        }
+        
+        // Default behavior for unclassified files
         // Check if file is in protected list
         if (in_array($filePath, $config['protected_files'] ?? [])) {
             return [
                 'skip' => true,
                 'reason' => 'protected in config.tf',
+                'level' => 'UNCLASSIFIED',
+                'enforcement' => 0,
             ];
         }
         
@@ -702,13 +813,62 @@ class BulkUpdateRepos extends CliFramework
             return [
                 'skip' => true,
                 'reason' => 'excluded in config.tf',
+                'level' => 'UNCLASSIFIED',
+                'enforcement' => 0,
             ];
         }
         
         return [
             'skip' => false,
-            'reason' => 'allowed',
+            'reason' => 'allowed (default behavior)',
+            'level' => 'UNCLASSIFIED',
+            'enforcement' => 0,
         ];
+    }
+    
+    /**
+     * Determine enforcement level for a file
+     * 
+     * @param string $filePath Path to file
+     * @param array $config Parsed configuration
+     * @return int Enforcement level (1-4)
+     */
+    private function getFileEnforcementLevel(string $filePath, array $config): int
+    {
+        // Check FORCED files
+        if (in_array($filePath, self::ALWAYS_FORCE_OVERRIDE_FILES)) {
+            return self::ENFORCEMENT_LEVELS['FORCED'];
+        }
+        
+        // Check REQUIRED files from config
+        if (isset($config['enforcement_levels']['required_files'])) {
+            foreach ($config['enforcement_levels']['required_files'] as $file) {
+                if (isset($file['path']) && $file['path'] === $filePath) {
+                    return self::ENFORCEMENT_LEVELS['REQUIRED'];
+                }
+            }
+        }
+        
+        // Check SUGGESTED files from config
+        if (isset($config['enforcement_levels']['suggested_files'])) {
+            foreach ($config['enforcement_levels']['suggested_files'] as $file) {
+                if (isset($file['path']) && $file['path'] === $filePath) {
+                    return self::ENFORCEMENT_LEVELS['SUGGESTED'];
+                }
+            }
+        }
+        
+        // Check OPTIONAL files from config
+        if (isset($config['enforcement_levels']['optional_files'])) {
+            foreach ($config['enforcement_levels']['optional_files'] as $file) {
+                if (isset($file['path']) && $file['path'] === $filePath) {
+                    return self::ENFORCEMENT_LEVELS['OPTIONAL'];
+                }
+            }
+        }
+        
+        // Default to SUGGESTED for unclassified files
+        return self::ENFORCEMENT_LEVELS['SUGGESTED'];
     }
     
     private function processRepository(string $org, string $repo): bool
@@ -734,16 +894,20 @@ class BulkUpdateRepos extends CliFramework
         // Step 3: Parse configuration for sync operations
         $config = $validation['config'] ?? [];
         
-        // Step 4: Process each file to sync
+        // Step 4: Process each file to sync with enforcement levels
         $filesToSync = $this->getFilesToSync();
         
         foreach ($filesToSync as $file) {
-            $skipCheck = $this->shouldSkipFile($file, $config);
+            // Determine enforcement level for this file
+            $enforcementLevel = $this->getFileEnforcementLevel($file, $config);
+            
+            // Check if file should be skipped
+            $skipCheck = $this->shouldSkipFile($file, $config, $enforcementLevel);
             
             if ($skipCheck['skip']) {
-                $this->log("  Skip {$file}: {$skipCheck['reason']}");
+                $this->log("  Skip {$file}: {$skipCheck['reason']} [{$skipCheck['level']}]");
             } else {
-                $this->log("  Sync {$file}: {$skipCheck['reason']}");
+                $this->log("  Sync {$file}: {$skipCheck['reason']} [{$skipCheck['level']}]");
                 // In production: Actually sync the file
             }
         }

@@ -79,10 +79,12 @@ class BulkUpdateRepos extends CliFramework
      * Defines the four-tier enforcement system for file synchronization
      */
     private const ENFORCEMENT_LEVELS = [
-        'OPTIONAL'   => 1,  // May be synced if opted in
-        'SUGGESTED'  => 2,  // Should be synced (warnings)
-        'REQUIRED'   => 3,  // Must be synced (errors)
-        'FORCED'     => 4,  // Always synced (cannot override)
+        'OPTIONAL'       => 1,  // May be synced if opted in
+        'SUGGESTED'      => 2,  // Should be synced (warnings)
+        'REQUIRED'       => 3,  // Must be synced (errors)
+        'FORCED'         => 4,  // Always synced (cannot override)
+        'NOT_SUGGESTED'  => 5,  // Discouraged, warnings if present
+        'NOT_ALLOWED'    => 6,  // Prohibited, errors if present (CANNOT BE OVERRIDDEN)
     ];
     
     private ApiClient $apiClient;
@@ -700,19 +702,46 @@ class BulkUpdateRepos extends CliFramework
     /**
      * Check if a file should be skipped during sync
      * 
-     * Implements the four-tier enforcement system:
+     * Implements the six-tier enforcement system:
      * 1. OPTIONAL - Only synced if repository explicitly includes
      * 2. SUGGESTED - Synced by default, warnings if excluded
      * 3. REQUIRED - Must be synced, errors if excluded
      * 4. FORCED - Always synced, cannot be overridden
+     * 5. NOT_SUGGESTED - Discouraged, warnings if present
+     * 6. NOT_ALLOWED - Prohibited, errors if present (CANNOT BE OVERRIDDEN)
      * 
      * @param string $filePath Path to file being synced
      * @param array $config Parsed config.tf configuration
-     * @param int $enforcementLevel File enforcement level (1-4)
+     * @param int $enforcementLevel File enforcement level (1-6)
      * @return array [skip: bool, reason: string, level: string]
      */
     private function shouldSkipFile(string $filePath, array $config, int $enforcementLevel = 2): array
     {
+        // Level 6: NOT_ALLOWED - HIGHEST PRIORITY - Absolutely prohibited, cannot be overridden
+        // This check happens FIRST to ensure no override can allow prohibited files
+        if ($enforcementLevel === self::ENFORCEMENT_LEVELS['NOT_ALLOWED']) {
+            // Check if file exists in not_allowed_files configuration
+            $notAllowedFiles = $config['enforcement_levels']['not_allowed_files'] ?? [];
+            
+            foreach ($notAllowedFiles as $notAllowedFile) {
+                if (isset($notAllowedFile['path']) && $notAllowedFile['path'] === $filePath) {
+                    $reason = $notAllowedFile['reason'] ?? 'Prohibited file';
+                    $this->log("  ❌ ERROR: NOT ALLOWED file '{$filePath}' detected - {$reason}");
+                    $this->metrics->increment('not_allowed_files_detected');
+                    
+                    // This file should be flagged as an error and cannot be overridden
+                    // Override configurations (protected_files, exclude_files) are IGNORED
+                    return [
+                        'skip' => true,  // Skip syncing this file
+                        'reason' => "NOT_ALLOWED (Level 6 - prohibited file - CANNOT BE OVERRIDDEN) - {$reason}",
+                        'level' => 'NOT_ALLOWED',
+                        'enforcement' => 6,
+                        'error' => true,  // Mark as error for compliance reporting
+                    ];
+                }
+            }
+        }
+        
         // Level 4: FORCED - Always override, even if protected in config.tf
         if (in_array($filePath, self::ALWAYS_FORCE_OVERRIDE_FILES)) {
             return [
@@ -801,6 +830,39 @@ class BulkUpdateRepos extends CliFramework
                 'level' => 'OPTIONAL',
                 'enforcement' => 1,
             ];
+        }
+        
+        // Level 5: NOT_SUGGESTED - File is discouraged, warnings if present
+        if ($enforcementLevel === self::ENFORCEMENT_LEVELS['NOT_SUGGESTED']) {
+            $notSuggestedFiles = $config['enforcement_levels']['not_suggested_files'] ?? [];
+            
+            foreach ($notSuggestedFiles as $notSuggestedFile) {
+                if (isset($notSuggestedFile['path']) && $notSuggestedFile['path'] === $filePath) {
+                    $reason = $notSuggestedFile['reason'] ?? 'Discouraged file';
+                    $this->log("  ⚠ WARNING: NOT SUGGESTED file '{$filePath}' detected - {$reason}");
+                    $this->metrics->increment('not_suggested_files_detected');
+                    
+                    // This file is discouraged but not prohibited
+                    // Unlike NOT_ALLOWED, config.tf CAN override this (if protected)
+                    if (in_array($filePath, $config['protected_files'] ?? [])) {
+                        return [
+                            'skip' => true,
+                            'reason' => "NOT_SUGGESTED but protected in config.tf (not recommended) - {$reason}",
+                            'level' => 'NOT_SUGGESTED',
+                            'enforcement' => 5,
+                            'warning' => true,
+                        ];
+                    }
+                    
+                    return [
+                        'skip' => true,
+                        'reason' => "NOT_SUGGESTED (Level 5 - discouraged file) - {$reason}",
+                        'level' => 'NOT_SUGGESTED',
+                        'enforcement' => 5,
+                        'warning' => true,
+                    ];
+                }
+            }
         }
         
         // Default behavior for unclassified files

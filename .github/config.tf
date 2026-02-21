@@ -57,6 +57,25 @@
 #    - Overrides ALL config.tf settings
 #    - Ensures organizational standards compliance
 #
+# 5. NOT_SUGGESTED - Files that SHOULD NOT exist (discouraged)
+#    - Warnings if present in repository
+#    - Can be overridden with strong justification (protected)
+#    - Examples: deprecated configs, legacy files
+#
+# 6. NOT_ALLOWED - Files that MUST NOT exist (prohibited)
+#    - Errors if present in repository
+#    - CANNOT BE OVERRIDDEN by config.tf (absolute prohibition)
+#    - Examples: secrets (.env), proprietary code, vulnerable dependencies
+#    - Highest enforcement priority
+#
+# ENFORCEMENT PRIORITY ORDER:
+# 1st: NOT_ALLOWED (Level 6) - Absolute prohibition, checked FIRST
+# 2nd: FORCED (Level 4) - Critical compliance
+# 3rd: REQUIRED (Level 3) - Mandatory
+# 4th: SUGGESTED (Level 2) - Recommended  
+# 5th: NOT_SUGGESTED (Level 5) - Discouraged
+# 6th: OPTIONAL (Level 1) - Opt-in
+#
 # FORCED FILES (Level 4 - Always Overridden):
 # These critical compliance files MUST stay current across all repositories:
 # - .github/workflows/standards-compliance.yml
@@ -188,6 +207,66 @@ locals {
       {
         path   = "scripts/.script-registry.json"
         reason = "Critical: Script registry database"
+      },
+    ]
+    
+    # NOT_SUGGESTED (Level 5): Files that should not exist (warnings if present)
+    # These files are discouraged but not prohibited
+    # Can be overridden with strong justification (protected_files)
+    not_suggested_files = [
+      {
+        path   = ".travis.yml"
+        reason = "Deprecated CI system - use GitHub Actions instead"
+      },
+      {
+        path   = "circle.yml"
+        reason = "Deprecated CI system - use GitHub Actions instead"
+      },
+      {
+        path   = "Jenkinsfile"
+        reason = "External CI not recommended - use GitHub Actions"
+      },
+      {
+        path   = "webpack.config.js"
+        reason = "Deprecated bundler - consider Vite or modern alternatives"
+      },
+    ]
+    
+    # NOT_ALLOWED (Level 6): Files that must not exist (errors if present)
+    # These files are absolutely prohibited and CANNOT BE OVERRIDDEN
+    # This is the highest enforcement level - checked FIRST, before any other level
+    not_allowed_files = [
+      {
+        path   = ".env"
+        reason = "Contains secrets - NEVER commit to repository"
+      },
+      {
+        path   = ".env.local"
+        reason = "Contains secrets - NEVER commit to repository"
+      },
+      {
+        path   = ".env.production"
+        reason = "Contains secrets - NEVER commit to repository"
+      },
+      {
+        path   = "secrets.json"
+        reason = "Contains secrets - NEVER commit to repository"
+      },
+      {
+        path   = "config/secrets.yml"
+        reason = "Contains secrets - NEVER commit to repository"
+      },
+      {
+        path   = "credentials.json"
+        reason = "Contains credentials - NEVER commit to repository"
+      },
+      {
+        path   = "private_key.pem"
+        reason = "Private key - NEVER commit to repository"
+      },
+      {
+        path   = "id_rsa"
+        reason = "SSH private key - NEVER commit to repository"
       },
     ]
   }

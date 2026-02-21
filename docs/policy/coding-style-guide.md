@@ -303,10 +303,32 @@ function processOrder($order) {
 
 ### Line Length
 
+**General Guidelines**:
 - **Soft limit**: 80 characters (aim for this)
-- **Hard limit**: 120 characters (never exceed)
+- **Hard limit**: 120 characters (standard maximum)
 - Break long lines at logical points
 - Indent continuation lines
+
+**YAML-Specific Exception**:
+- **YAML files**: 180 character limit (due to workflow constraints)
+- **Rationale**: GitHub Actions workflows often contain:
+  - Full commit hash references for security pinning (64+ characters)
+  - Complete URLs to documentation and templates
+  - Multi-file exclusion patterns (`:!file1 :!file2 ...`)
+  - Long action reference paths with version comments
+- These elements cannot be practically broken without affecting functionality
+- YAML linters configured to warning level, not error
+- Example acceptable long lines:
+  ```yaml
+  # Security pinning with hash + comment
+  uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
+  
+  # File exclusion patterns
+  EXCLUDED_FILES: ':!.github/workflows/file1.yml :!docs/file2.md :!terraform/*.tfstate*'
+  
+  # Documentation references
+  [Copilot Pre-Merge Checklist](https://github.com/org/repo/blob/main/docs/policy/checklist.md)
+  ```
 
 ### Whitespace
 

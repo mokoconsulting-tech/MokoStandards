@@ -22,11 +22,11 @@
 # INGROUP: MokoStandards.Configuration
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /override.config.tf
-# VERSION: 04.00.01
+# VERSION: 04.00.03
 # BRIEF: MokoStandards Sync Override Configuration for the Standards Repository
 
 # MokoStandards Repository Override Configuration
-# This file prevents the bulk_update_repos.py script from recreating
+# This file prevents the bulk_update_repos.php script from recreating
 # "live" workflow files in the MokoStandards repository itself.
 #
 # MokoStandards is a template/standards repository, so it should only
@@ -34,13 +34,26 @@
 # not the "live" versions of workflows that get synced TO other repos.
 
 locals {
+  # Standard metadata for this terraform file
+  file_metadata = {
+    name              = "MokoStandards Repository Override Configuration"
+    description       = "Override configuration for bulk repository synchronization in the standards repository"
+    version           = "04.00.03"
+    last_updated      = "2026-02-21T00:00:00Z"
+    maintainer        = "MokoStandards Team"
+    schema_version    = "2.0"
+    repository_url    = "https://github.com/mokoconsulting-tech/MokoStandards"
+    file_type         = "override"
+    terraform_version = ">= 1.0"
+  }
+  
   # Metadata about this override configuration
   # Standard metadata fields for all terraform configurations
   override_metadata = {
     name           = "MokoStandards Repository Override"
     description    = "Override configuration preventing sync of template files in the standards repository"
-    version        = "04.00.01"
-    last_updated   = "2026-02-19T17:05:00Z"
+    version        = "04.00.03"
+    last_updated   = "2026-02-21T00:00:00Z"
     maintainer     = "MokoStandards Team"
     schema_version = "2.0"
     repository_url = "https://github.com/mokoconsulting-tech/MokoStandards"

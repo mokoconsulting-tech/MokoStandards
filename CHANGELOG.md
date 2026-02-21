@@ -15,13 +15,13 @@
  DEFGROUP: MokoStandards
  INGROUP: MokoStandards.Documentation
  REPO: https://github.com/mokoconsulting-tech/MokoStandards/
- VERSION: 04.00.01
+ VERSION: 04.00.03
  PATH: ./CHANGELOG.md
  BRIEF: Version history using Keep a Changelog
  NOTE: Adheres to SemVer when applicable
  -->
 
-# CHANGELOG - MokoStandards (VERSION: 04.00.01)
+# CHANGELOG - MokoStandards (VERSION: 04.00.03)
 
 All notable changes to this project will be documented in this file.
 
@@ -29,6 +29,57 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [04.00.03] - 2026-02-21
+
+### Added
+
+**Reserve Dolibarr Module ID Workflow Enhancements**:
+- Added `push_to_remote` boolean input parameter (optional, default: false)
+- Push to remote repository is now optional and user-controlled
+- Conditional execution of push step based on `push_to_remote` value
+- Status indicator in workflow outputs showing push status (Enabled/Skipped)
+
+### Changed
+
+**Reserve Dolibarr Module ID Workflow**:
+- Remote push is now **optional** with `push_to_remote` input parameter (default: false)
+- PR description now shows whether remote push was enabled
+- Output summary shows remote push status (✅ Enabled or ⏭️ Skipped)
+- Next steps conditional based on push status
+- Workflow version updated to 04.00.03
+
+### Fixed
+
+**Reserve Dolibarr Module ID Workflow**:
+- Push step now skips if `push_to_remote` is false
+- Documentation updated to reflect optional push behavior
+- Workflow diagram correctly shows push as "(Optional)"
+- Examples demonstrate both scenarios (with and without push)
+
+## [04.00.02] - 2026-02-20
+
+### Changed
+
+**Reserve Dolibarr Module ID Workflow**:
+- Simplified workflow inputs to only require `repo_name`
+- Repository URL now automatically constructed as `https://github.com/mokoconsulting-tech/{repo_name}`
+- Organization is always assumed to be `mokoconsulting-tech`
+- Description is automatically generated from module name
+
+### Fixed
+
+**Reserve Dolibarr Module ID Workflow**:
+- Removed outdated "(Optional)" label from workflow diagram
+- Updated documentation to reflect workflow behavior
+- Clarified module ID file creation process
+
+### Removed
+
+**Reserve Dolibarr Module ID Workflow**:
+- `description` input (auto-generated)
+- `repository` input (auto-constructed)
+- `developer` input (removed in v04.00.01)
 
 ## [04.00.01] - 2026-02-19
 

@@ -22,7 +22,7 @@ declare(strict_types=1);
  * (at your option) any later version.
  *
  * @package MokoStandards\Enterprise
- * @version 04.00.01
+ * @version 04.00.03
  * @author MokoStandards Team
  * @license GPL-3.0-or-later
  */
@@ -82,7 +82,7 @@ class AuditLogger
     private array $transactionStack = [];
 
     /** @var string Version constant */
-    public const VERSION = '04.00.01';
+    public const VERSION = '04.00.03';
 
     /**
      * Initialize audit logger.

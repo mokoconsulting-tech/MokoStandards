@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Workflow
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/workflows/bulk-repo-sync.md
-VERSION: 04.00.01
+VERSION: 04.00.03
 BRIEF: Comprehensive documentation for the bulk repository sync workflow
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Bulk Repository Sync Workflow
 
@@ -161,7 +161,7 @@ TRIGGER: Monthly Schedule (1st @ 00:00 UTC) or Manual Dispatch
      ▼
 ┌──────────────────┐
 │  Parse Terraform │
-│  Override Config │───┐ Read MokoStandards.override.tf
+│  Override Config │───┐ Read override.config.tf
 └──────────────────┘   │ Extract exclusions & configs
      │                 │
      ▼                 │
@@ -202,7 +202,7 @@ TRIGGER: Monthly Schedule (1st @ 00:00 UTC) or Manual Dispatch
 ### Sync Process Steps
 
 1. **Clone Target Repository**: Clone each repository to temporary directory
-2. **Load Override Configuration**: Check for `MokoStandards.override.tf` in target repo
+2. **Load Override Configuration**: Check for `override.config.tf` in target repo
 3. **Determine Platform Type**: Use override or auto-detect (terraform/dolibarr/joomla/generic)
 4. **Select Files to Sync**: Based on platform type and override exclusions
 5. **Create Branch**: Create `chore/sync-mokostandards-updates` branch
@@ -278,12 +278,12 @@ The workflow requires the following GitHub secret:
 
 ### Repository Override Configuration
 
-Repositories can control sync behavior using `MokoStandards.override.tf` file.
+Repositories can control sync behavior using `override.config.tf` file.
 
 **Example Override File**:
 
 ```hcl
-# MokoStandards.override.tf
+# override.config.tf
 locals {
   override_metadata = {
     repository_type = "terraform"  # Skip auto-detection
@@ -386,7 +386,7 @@ locals {
 1. Check workflow logs for error messages
 2. Re-run with `dry_run`: `true` for that repository
 3. Review proposed changes
-4. Check if repository has `MokoStandards.override.tf` with conflicts
+4. Check if repository has `override.config.tf` with conflicts
 5. Verify `ORG_ADMIN_TOKEN` has correct permissions
 6. Check if repository is archived or private with restricted access
 
@@ -454,13 +454,13 @@ The following are never synced (always excluded):
 
 ❌ Files in override's `exclude_files` list
 
-❌ Repository-specific override file itself (`MokoStandards.override.tf`)
+❌ Repository-specific override file itself (`override.config.tf`)
 
 ### Platform Detection Logic
 
 The sync tool determines platform type in this order:
 
-1. **Check Override First**: If `MokoStandards.override.tf` specifies `repository_type`, use it
+1. **Check Override First**: If `override.config.tf` specifies `repository_type`, use it
 2. **Auto-Detection**: If no override, run `auto_detect_platform.py`:
    - Checks for Terraform files (`.tf`, `terraform/`)
    - Checks for Dolibarr structure (`htdocs/`, module XML)
@@ -538,7 +538,7 @@ The sync tool has three cleanup modes (configured in override):
 - Platform shows as "generic" when should be specific
 
 **Solutions**:
-1. Add `MokoStandards.override.tf` with explicit `repository_type`
+1. Add `override.config.tf` with explicit `repository_type`
 2. Verify repository structure matches expected patterns
 3. Check auto-detection script works: `python3 scripts/validate/auto_detect_platform.py`
 
@@ -559,7 +559,7 @@ The sync tool has three cleanup modes (configured in override):
 If issues persist:
 
 1. **Review Logs**: Check workflow run logs for detailed error messages
-2. **Check Override**: Verify `MokoStandards.override.tf` syntax
+2. **Check Override**: Verify `override.config.tf` syntax
 3. **Dry Run**: Test with single repository in dry-run mode
 4. **Open Issue**: Create issue in MokoStandards repository with:
    - Repository name
@@ -586,7 +586,7 @@ Before syncing to multiple repositories:
 For repositories with special requirements:
 
 ```
-✓ DO: Create MokoStandards.override.tf with exclusions
+✓ DO: Create override.config.tf with exclusions
 ✓ DO: Protect custom files in protected_files list
 ✓ DO: Document reasons for exclusions
 ✗ DON'T: Rely on manual PR rejection

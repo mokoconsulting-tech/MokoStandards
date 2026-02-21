@@ -1,6 +1,6 @@
 # Enterprise Readiness Guide
 
-![Version](https://img.shields.io/badge/version-04.00.01-blue) ![Enterprise Ready](https://img.shields.io/badge/enterprise-ready-green)
+![Version](https://img.shields.io/badge/version-04.00.03-blue) ![Enterprise Ready](https://img.shields.io/badge/enterprise-ready-green)
 
 **Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>**
 
@@ -90,17 +90,17 @@ Use this checklist to assess and track enterprise readiness:
   - [ ] `scripts/automation/install_terraform.py` - Terraform installer (Python)
 
 - [ ] **Version Documentation** (10 points)
-  - [ ] README.md has version badge (04.00.01)
+  - [ ] README.md has version badge (04.00.03)
   - [ ] CHANGELOG.md exists and is current
   - [ ] Version badges use correct format
 
 ### Configuration & Metadata (30 points)
 
 - [ ] **Override Configuration** (10 points)
-  - [ ] `MokoStandards.override.tf` exists
+  - [ ] `override.config.tf` exists
   - [ ] Contains `override_metadata` block
   - [ ] Contains `sync_config` block
-  - [ ] Version is 04.00.01 or later
+  - [ ] Version is 04.00.03 or later
 
 - [ ] **Enterprise Metadata** (10 points)
   - [ ] Configuration files contain enterprise flags
@@ -270,14 +270,14 @@ logs/
 
 ### 5. Configuration Files
 
-#### `MokoStandards.override.tf`
+#### `override.config.tf`
 Terraform configuration for sync behavior:
 
 ```hcl
 locals {
   override_metadata = {
     name           = "Repository Override"
-    version        = "04.00.01"
+    version        = "04.00.03"
     enterprise_ready = true
     monitoring_enabled = true
     audit_logging = true
@@ -429,7 +429,7 @@ chmod +x scripts/automation/install_terraform.*
 
 ### Step 5: Create Override Configuration
 
-Create `MokoStandards.override.tf`:
+Create `override.config.tf`:
 
 ```hcl
 # Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
@@ -439,7 +439,7 @@ locals {
   override_metadata = {
     name           = "Repository Override Configuration"
     description    = "Override configuration for repository"
-    version        = "04.00.01"
+    version        = "04.00.03"
     last_updated   = "2026-02-11T00:00:00Z"
     maintainer     = "MokoStandards Team"
     schema_version = "2.0"
@@ -462,7 +462,7 @@ locals {
       reason = "Repository-specific ignore patterns"
     },
     {
-      path   = "MokoStandards.override.tf"
+      path   = "override.config.tf"
       reason = "This override file itself"
     },
   ]
@@ -474,7 +474,7 @@ locals {
 Add to the top of `README.md` (after the first heading):
 
 ```markdown
-![Version](https://img.shields.io/badge/version-04.00.01-blue) ![Enterprise Ready](https://img.shields.io/badge/enterprise-ready-green)
+![Version](https://img.shields.io/badge/version-04.00.03-blue) ![Enterprise Ready](https://img.shields.io/badge/enterprise-ready-green)
 ```
 
 ### Step 7: Configure Package Metadata
@@ -486,7 +486,7 @@ Add to the top of `README.md` (after the first heading):
 enterprise_ready = true
 monitoring_enabled = true
 audit_logging = true
-version = "04.00.01"
+version = "04.00.03"
 ```
 
 #### For Node.js projects (`package.json`):
@@ -497,7 +497,7 @@ version = "04.00.01"
     "enterprise_ready": true,
     "monitoring_enabled": true,
     "audit_logging": true,
-    "version": "04.00.01"
+    "version": "04.00.03"
   }
 }
 ```
@@ -511,7 +511,7 @@ version = "04.00.01"
       "enterprise_ready": true,
       "monitoring_enabled": true,
       "audit_logging": true,
-      "version": "04.00.01"
+      "version": "04.00.03"
     }
   }
 }
@@ -562,7 +562,7 @@ Detailed Checks:
 
   ✓ Override Configuration
     Score: 10/10
-    MokoStandards.override.tf: PRESENT and up-to-date
+    override.config.tf: PRESENT and up-to-date
 
   ✓ Enterprise Metadata
     Score: 10/10
@@ -654,7 +654,7 @@ Review recommendations and address each issue:
 **Solution:** Ensure correct format:
 
 ```markdown
-![Version](https://img.shields.io/badge/version-04.00.01-blue)
+![Version](https://img.shields.io/badge/version-04.00.03-blue)
 ```
 
 Version **must** match pattern: `03.0[12].0[0-9]`
@@ -666,7 +666,7 @@ Version **must** match pattern: `03.0[12].0[0-9]`
 ```hcl
 locals {
   override_metadata = {
-    version = "04.00.01"  # Must be present
+    version = "04.00.03"  # Must be present
     enterprise_ready = true
     # ... other fields
   }
@@ -802,7 +802,7 @@ Review logs in:
 
 When MokoStandards version changes:
 
-1. Update `MokoStandards.override.tf` version
+1. Update `override.config.tf` version
 2. Update version badges in documentation
 3. Update package metadata
 4. Run enterprise readiness checker
@@ -810,8 +810,8 @@ When MokoStandards version changes:
 
 ```bash
 # Update version in all files
-find . -type f -name "*.md" -exec sed -i 's/03\.01\.00/04.00.01/g' {} +
-find . -type f -name "*.tf" -exec sed -i 's/03\.01\.00/04.00.01/g' {} +
+find . -type f -name "*.md" -exec sed -i 's/03\.01\.00/04.00.03/g' {} +
+find . -type f -name "*.tf" -exec sed -i 's/03\.01\.00/04.00.03/g' {} +
 
 # Verify
 python scripts/validate/check_enterprise_readiness.py
@@ -839,7 +839,7 @@ Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
 
 ## Revision History
 
-- **2026-02-11**: Initial version 04.00.01
+- **2026-02-11**: Initial version 04.00.03
 - Added comprehensive enterprise readiness documentation
 - Included automated and manual setup instructions
 - Added troubleshooting and examples

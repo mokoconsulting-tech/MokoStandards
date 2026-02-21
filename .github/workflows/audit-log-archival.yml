@@ -5,7 +5,7 @@
 # INGROUP: MokoStandards.AuditLogArchival
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/audit-log-archival.yml
-# VERSION: 04.00.01
+# VERSION: 04.00.03
 # BRIEF: Weekly audit log archival and compliance report generation
 # NOTE: Archives audit logs and generates compliance reports using PHP AuditLogger
 

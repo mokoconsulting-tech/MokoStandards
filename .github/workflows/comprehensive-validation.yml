@@ -5,9 +5,9 @@
 # INGROUP: MokoStandards.Validation
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/comprehensive-validation.yml
-# VERSION: 04.00.01
+# VERSION: 04.00.03
 # BRIEF: Comprehensive validation for all scripts, workflows, and templates
-# NOTE: PHP-only repository (v04.00.01). Python validation removed Feb 2026.
+# NOTE: PHP-only repository (v04.00.03). Python validation removed Feb 2026.
 
 name: Comprehensive File Validation
 
@@ -359,7 +359,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "---" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Repository:** MokoStandards v04.00.01 (PHP-only)" >> $GITHUB_STEP_SUMMARY
+          echo "**Repository:** MokoStandards v04.00.03 (PHP-only)" >> $GITHUB_STEP_SUMMARY
           echo "**Workflow:** Comprehensive File Validation" >> $GITHUB_STEP_SUMMARY
           echo "**Trigger:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
           echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY

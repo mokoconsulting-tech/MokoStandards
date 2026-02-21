@@ -23,16 +23,16 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: docs/policy/planning-guidance.md
-VERSION: 04.00.01
+VERSION: 04.00.03
 BRIEF: Enterprise guidance for implementation planning and sprint documentation
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Planning Guidance
 
 **Document Type**: Policy  
-**Version**: 04.00.01  
+**Version**: 04.00.03  
 **Last Updated**: 2026-02-11  
 **Status**: Active
 

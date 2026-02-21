@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Workflows
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/workflow-standards.md
-VERSION: 04.00.01
+VERSION: 04.00.03
 BRIEF: Workflow governance and standards for GitHub Actions
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Workflow Standards Policy
 
@@ -614,15 +614,45 @@ Workflows must support auditing:
 
 ### Compliance Checks
 
-Automated compliance checks for:
+The `standards-compliance.yml` workflow provides comprehensive validation across 10 areas:
 
-- Workflow file headers present
-- Permissions follow least privilege
-- Secrets not logged or exposed
-- Third-party actions pinned to SHA
-- Documentation complete
+**Critical Checks** (Must Pass):
+1. **Repository Structure** - Required directories and files
+2. **Documentation Quality** - README and documentation completeness
+3. **Coding Standards** - Language-specific linting (Python, PHP, YAML)
+4. **License Compliance** - License file and SPDX identifiers
+5. **Git Repository Hygiene** - Commit messages, branch naming, .gitignore
+6. **Workflow Configuration** - GitHub Actions validation
+7. **Version Consistency** - All version numbers match across repository
+8. **Script Integrity** - SHA-256 hash validation of critical scripts
 
-Use `standards-compliance.yml` workflow to validate.
+**Informational Checks** (Non-Blocking):
+9. **Enterprise Readiness** - Enterprise patterns and best practices
+10. **Repository Health** - Overall quality metrics and recommendations
+
+**Usage**:
+```yaml
+# Automatically runs on:
+# - Push to main, dev/*, rc/*
+# - Pull requests to main, dev/*, rc/*
+# - Manual trigger
+
+# Local validation before pushing:
+php scripts/validate/check_version_consistency.php --verbose
+python3 scripts/maintenance/validate_script_registry.py --priority critical
+php scripts/validate/check_enterprise_readiness.php --verbose
+php scripts/validate/check_repo_health.php --verbose
+```
+
+**Compliance Scoring**:
+- **100%** = ✅ COMPLIANT (all critical checks pass)
+- **80-99%** = ⚠️ MOSTLY COMPLIANT (minor issues)
+- **50-79%** = ⚠️ PARTIALLY COMPLIANT (significant issues)
+- **0-49%** = ❌ NON-COMPLIANT (major violations)
+
+Informational checks provide recommendations but do not affect compliance status.
+
+**Documentation**: See [Standards Compliance Workflow](../workflows/standards-compliance.md) for detailed information.
 
 ## Best Practices
 

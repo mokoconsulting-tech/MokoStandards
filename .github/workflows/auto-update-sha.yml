@@ -5,8 +5,8 @@
 # INGROUP: MokoStandards.Automation
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/auto-update-sha.yml
-# VERSION: 04.00.01
-# BRIEF: Automatically update SHA-256 hashes after merge to main
+# VERSION: 04.00.03
+# BRIEF: Automatically update SHA-256 hashes on PR and after merge to main
 # NOTE: Ensures security verification hashes stay synchronized with file changes
 
 name: Auto-Update SHA Hashes
@@ -19,7 +19,7 @@ name: Auto-Update SHA Hashes
 # │                         WORKFLOW FLOW DIAGRAM                            │
 # └─────────────────────────────────────────────────────────────────────────┘
 #
-#   TRIGGER: Push to main (after merge)
+#   TRIGGER: PR or Push to main
 #        │
 #        ▼
 #   ┌──────────────────┐
@@ -47,6 +47,15 @@ name: Auto-Update SHA Hashes
 #   └──────────────────┘
 
 on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      # Trigger when tracked script files change
+      - 'scripts/**/*.py'
+      - 'scripts/**/*.sh'
+      - 'scripts/**/*.ps1'
+      - 'scripts/.script-registry.json'
   push:
     branches:
       - main

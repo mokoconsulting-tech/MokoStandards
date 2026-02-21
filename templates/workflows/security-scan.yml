@@ -5,7 +5,7 @@
 # INGROUP: MokoStandards.SecurityScan
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/security-scan.yml
-# VERSION: 04.00.01
+# VERSION: 04.00.03
 # BRIEF: Daily security scanning and report generation
 # NOTE: Enhanced security scanning using PHP SecurityValidator
 

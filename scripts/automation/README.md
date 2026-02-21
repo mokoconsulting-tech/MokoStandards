@@ -15,7 +15,7 @@ This directory contains scripts for automating repository management and bulk op
 - Sets up monitoring directories (logs/audit/, logs/metrics/)
 - Initializes configuration files
 - Adds version badges to README.md
-- Creates MokoStandards.override.tf if missing
+- Creates override.config.tf if missing
 - Interactive mode with confirmations
 - Dry-run mode for safe testing
 

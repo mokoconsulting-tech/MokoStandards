@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Release Workflow
 
@@ -87,7 +87,7 @@ flowchart TD
     B -->|Pattern: 'feat:' or 'feature:'| D[MINOR Version]
     B -->|Pattern: 'fix:' or other| E[PATCH Version]
     
-    C --> F[Example: 03.01.00 → 04.00.01]
+    C --> F[Example: 03.01.00 → 04.00.03]
     D --> G[Example: 03.01.00 → 03.02.00]
     E --> H[Example: 03.01.00 → 03.01.02]
     

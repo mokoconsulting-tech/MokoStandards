@@ -5,13 +5,19 @@
 # INGROUP: MokoStandards.Terraform
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/terraform-drift.yml
-# VERSION: 04.00.01
+# VERSION: 04.00.03
 # BRIEF: Terraform drift detection workflow to identify infrastructure changes
-# NOTE: Runs on schedule to detect configuration drift from desired state
+# NOTE: Runs on PR, schedule, and manual dispatch to detect configuration drift
 
 name: Terraform Drift Detection
 
 on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'terraform/**'
+      - '.github/workflows/terraform-drift.yml'
   schedule:
     # Run daily at 2 AM UTC
     - cron: '0 2 * * *'
@@ -68,7 +74,8 @@ jobs:
         working-directory: ${{ env.TF_WORKING_DIR }}
 
       - name: Terraform Workspace
-        run: terraform workspace select ${{ matrix.environment }}
+        run: |
+          terraform workspace select ${{ matrix.environment }} || terraform workspace new ${{ matrix.environment }}
         working-directory: ${{ env.TF_WORKING_DIR }}
 
       - name: Terraform Plan (Drift Check)

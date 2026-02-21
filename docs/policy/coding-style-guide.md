@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Development
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/coding-style-guide.md
-VERSION: 04.00.01
+VERSION: 04.00.03
 BRIEF: Universal coding style standards across all programming languages
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Coding Style Guide
 
@@ -303,10 +303,44 @@ function processOrder($order) {
 
 ### Line Length
 
+**General Guidelines**:
 - **Soft limit**: 80 characters (aim for this)
-- **Hard limit**: 120 characters (never exceed)
+- **Hard limit**: 120 characters (standard maximum)
 - Break long lines at logical points
 - Indent continuation lines
+
+**YAML-Specific Exception**:
+- **YAML files**: 180 character limit (due to workflow constraints)
+- **Rationale**: GitHub Actions workflows often contain:
+  - Full commit hash references for security pinning (64+ characters)
+  - Complete URLs to documentation and templates
+  - Multi-file exclusion patterns (`:!file1 :!file2 ...`)
+  - Long action reference paths with version comments
+- These elements cannot be practically broken without affecting functionality
+- YAML linters configured to warning level, not error
+- Example acceptable long lines:
+  ```yaml
+  # Security pinning with hash + comment
+  uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
+  
+  # File exclusion patterns
+  EXCLUDED_FILES: ':!.github/workflows/file1.yml :!docs/file2.md :!terraform/*.tfstate*'
+  
+  # Documentation references
+  [Copilot Pre-Merge Checklist](https://github.com/org/repo/blob/main/docs/policy/checklist.md)
+  ```
+
+**Markdown-Specific Exception**:
+- **Markdown files**: No line length limit
+- **Rationale**: Markdown is a document format where:
+  - Long sentences and paragraphs are common and natural
+  - URLs in inline links cannot be broken
+  - Code blocks may contain long lines
+  - Tables with many columns require wide formatting
+  - Breaking lines can affect rendering and readability
+- Markdown linters (markdownlint) have line length checks disabled (MD013: false)
+- `.editorconfig` specifies `max_line_length = off` for `*.md` files
+- Focus on content clarity rather than line length constraints
 
 ### Whitespace
 

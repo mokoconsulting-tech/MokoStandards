@@ -21,26 +21,104 @@
 # DEFGROUP: MokoStandards.Override
 # INGROUP: MokoStandards.Configuration
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
-# PATH: /MokoStandards.override.tf
-# VERSION: 04.00.01
-# BRIEF: MokoStandards Sync Override Configuration for the Standards Repository
+# PATH: /.github/config.tf
+# VERSION: 04.00.03
+# BRIEF: Repository-specific override configuration for bulk synchronization
 
-# MokoStandards Repository Override Configuration
-# This file prevents the bulk_update_repos.py script from recreating
-# "live" workflow files in the MokoStandards repository itself.
+# Repository Override Configuration
+# This file (located at .github/config.tf) controls bulk synchronization behavior.
+#
+# IMPORTANT: This file itself is ALWAYS UPDATED during bulk sync to ensure it stays current.
+# The bulk_update_repos.php script will:
+# 1. Validate this file before any sync operations
+# 2. Update version and metadata during sync
+# 3. Preserve repository-specific customizations
+#
+# FILE AND STANDARDS ENFORCEMENT LEVELS (with badges):
+#
+# Badge Reference:
+# ![Level 1](https://img.shields.io/badge/Level_1-OPTIONAL-blue?style=flat-square)
+# ![Level 2](https://img.shields.io/badge/Level_2-SUGGESTED-yellow?style=flat-square)
+# ![Level 3](https://img.shields.io/badge/Level_3-REQUIRED-orange?style=flat-square)
+# ![Level 4](https://img.shields.io/badge/Level_4-FORCED-red?style=flat-square)
+# ![Level 5](https://img.shields.io/badge/Level_5-NOT__SUGGESTED-yellow?style=flat-square)
+# ![Level 6](https://img.shields.io/badge/Level_6-NOT__ALLOWED-critical?style=flat-square)
+# 
+# 1. OPTIONAL (Level 1) - Files that MAY be synced if repository opts in
+#    - Not created by default
+#    - Repository chooses to include
+#    - Can be excluded without warnings
+#
+# 2. SUGGESTED (Level 2) - Files that SHOULD be synced (recommended)
+#    - Created by default
+#    - Generates warnings if excluded
+#    - Can be overridden with justification
+#
+# 3. REQUIRED (Level 3) - Files that MUST be synced (mandatory)
+#    - Always created
+#    - Cannot be excluded via config.tf
+#    - Generates errors if missing
+#
+# 4. FORCED - Files that are ALWAYS synced regardless of settings
+#    - Critical compliance and security files
+#    - Cannot be excluded or protected
+#    - Overrides ALL config.tf settings
+#    - Ensures organizational standards compliance
+#
+# 5. NOT_SUGGESTED - Files that SHOULD NOT exist (discouraged)
+#    - Warnings if present in repository
+#    - Can be overridden with strong justification (protected)
+#    - Examples: deprecated configs, legacy files
+#
+# 6. NOT_ALLOWED - Files that MUST NOT exist (prohibited)
+#    - Errors if present in repository
+#    - CANNOT BE OVERRIDDEN by config.tf (absolute prohibition)
+#    - Examples: secrets (.env), proprietary code, vulnerable dependencies
+#    - Highest enforcement priority
+#
+# ENFORCEMENT PRIORITY ORDER:
+# 1st: NOT_ALLOWED (Level 6) - Absolute prohibition, checked FIRST
+# 2nd: FORCED (Level 4) - Critical compliance
+# 3rd: REQUIRED (Level 3) - Mandatory
+# 4th: SUGGESTED (Level 2) - Recommended  
+# 5th: NOT_SUGGESTED (Level 5) - Discouraged
+# 6th: OPTIONAL (Level 1) - Opt-in
+#
+# FORCED FILES (Level 4 - Always Overridden):
+# These critical compliance files MUST stay current across all repositories:
+# - .github/workflows/standards-compliance.yml
+# - scripts/validate/check_version_consistency.php
+# - scripts/validate/check_enterprise_readiness.php  
+# - scripts/validate/check_repo_health.php
+# - scripts/maintenance/validate_script_registry.py
+# - scripts/.script-registry.json
 #
 # MokoStandards is a template/standards repository, so it should only
 # contain workflow templates and MokoStandards-specific automation,
 # not the "live" versions of workflows that get synced TO other repos.
 
 locals {
+  # Standard metadata for this terraform file
+  file_metadata = {
+    name              = "Repository Override Configuration"
+    description       = "Override configuration for bulk repository synchronization - located in .github/config.tf"
+    version           = "04.00.03"
+    last_updated      = "2026-02-21T00:00:00Z"
+    maintainer        = "MokoStandards Team"
+    schema_version    = "2.0"
+    repository_url    = "https://github.com/mokoconsulting-tech/MokoStandards"
+    file_type         = "override"
+    terraform_version = ">= 1.0"
+    file_location     = ".github/config.tf"
+  }
+  
   # Metadata about this override configuration
   # Standard metadata fields for all terraform configurations
   override_metadata = {
     name           = "MokoStandards Repository Override"
     description    = "Override configuration preventing sync of template files in the standards repository"
-    version        = "04.00.01"
-    last_updated   = "2026-02-19T17:05:00Z"
+    version        = "04.00.03"
+    last_updated   = "2026-02-21T00:00:00Z"
     maintainer     = "MokoStandards Team"
     schema_version = "2.0"
     repository_url = "https://github.com/mokoconsulting-tech/MokoStandards"
@@ -61,6 +139,144 @@ locals {
     #   - "conservative": Remove only obsolete .yml/.py files from managed directories
     #   - "aggressive": Remove all files in managed directories not in sync list
     cleanup_mode = "conservative"
+  }
+  
+  # File Enforcement Levels Configuration
+  # Define which files fall into each enforcement category
+  enforcement_levels = {
+    # OPTIONAL (Level 1): Files that may be synced if repository opts in
+    optional_files = [
+      {
+        path   = ".github/workflows/deploy-to-staging.yml"
+        reason = "Only needed for repositories with staging environment"
+      },
+      {
+        path   = ".github/workflows/performance-testing.yml"
+        reason = "Optional performance testing workflow"
+      },
+    ]
+    
+    # SUGGESTED (Level 2): Files that should be synced (generates warnings if excluded)
+    suggested_files = [
+      {
+        path   = ".github/workflows/dependency-review.yml"
+        reason = "Recommended security practice for dependency scanning"
+      },
+      {
+        path   = ".github/workflows/codeql-analysis.yml"
+        reason = "Recommended for code security scanning"
+      },
+      {
+        path   = ".editorconfig"
+        reason = "Recommended for consistent code formatting"
+      },
+    ]
+    
+    # REQUIRED (Level 3): Files that must be synced (cannot be excluded)
+    required_files = [
+      {
+        path   = ".github/workflows/ci.yml"
+        reason = "Continuous integration is mandatory"
+      },
+      {
+        path   = "LICENSE"
+        reason = "License file required for all repositories"
+      },
+      {
+        path   = "CONTRIBUTING.md"
+        reason = "Contributing guidelines required"
+      },
+    ]
+    
+    # FORCED (Level 4): Files always synced regardless of config
+    # These are defined in bulk_update_repos.php ALWAYS_FORCE_OVERRIDE_FILES
+    # and cannot be overridden here. Listed for documentation only:
+    forced_files = [
+      {
+        path   = ".github/workflows/standards-compliance.yml"
+        reason = "Critical: Organization-wide compliance checks"
+      },
+      {
+        path   = "scripts/validate/check_version_consistency.php"
+        reason = "Critical: Version consistency validation"
+      },
+      {
+        path   = "scripts/validate/check_enterprise_readiness.php"
+        reason = "Critical: Enterprise standards validation"
+      },
+      {
+        path   = "scripts/validate/check_repo_health.php"
+        reason = "Critical: Repository health monitoring"
+      },
+      {
+        path   = "scripts/maintenance/validate_script_registry.py"
+        reason = "Critical: Script integrity validation"
+      },
+      {
+        path   = "scripts/.script-registry.json"
+        reason = "Critical: Script registry database"
+      },
+    ]
+    
+    # NOT_SUGGESTED (Level 5): Files that should not exist (warnings if present)
+    # These files are discouraged but not prohibited
+    # Can be overridden with strong justification (protected_files)
+    not_suggested_files = [
+      {
+        path   = ".travis.yml"
+        reason = "Deprecated CI system - use GitHub Actions instead"
+      },
+      {
+        path   = "circle.yml"
+        reason = "Deprecated CI system - use GitHub Actions instead"
+      },
+      {
+        path   = "Jenkinsfile"
+        reason = "External CI not recommended - use GitHub Actions"
+      },
+      {
+        path   = "webpack.config.js"
+        reason = "Deprecated bundler - consider Vite or modern alternatives"
+      },
+    ]
+    
+    # NOT_ALLOWED (Level 6): Files that must not exist (errors if present)
+    # These files are absolutely prohibited and CANNOT BE OVERRIDDEN
+    # This is the highest enforcement level - checked FIRST, before any other level
+    not_allowed_files = [
+      {
+        path   = ".env"
+        reason = "Contains secrets - NEVER commit to repository"
+      },
+      {
+        path   = ".env.local"
+        reason = "Contains secrets - NEVER commit to repository"
+      },
+      {
+        path   = ".env.production"
+        reason = "Contains secrets - NEVER commit to repository"
+      },
+      {
+        path   = "secrets.json"
+        reason = "Contains secrets - NEVER commit to repository"
+      },
+      {
+        path   = "config/secrets.yml"
+        reason = "Contains secrets - NEVER commit to repository"
+      },
+      {
+        path   = "credentials.json"
+        reason = "Contains credentials - NEVER commit to repository"
+      },
+      {
+        path   = "private_key.pem"
+        reason = "Private key - NEVER commit to repository"
+      },
+      {
+        path   = "id_rsa"
+        reason = "SSH private key - NEVER commit to repository"
+      },
+    ]
   }
 
   # Files to exclude from sync
@@ -168,7 +384,7 @@ locals {
       reason = "Repository-specific editor config"
     },
     {
-      path   = "MokoStandards.override.tf"
+      path   = "override.config.tf"
       reason = "This override file itself"
     },
     # Keep MokoStandards-specific workflows

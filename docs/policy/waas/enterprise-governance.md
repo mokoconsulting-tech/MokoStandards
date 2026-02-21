@@ -10,11 +10,11 @@
  INGROUP: Policy.EnterpriseGovernance
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  PATH: /docs/policy/waas/enterprise-governance.md
- VERSION: 04.00.01
+ VERSION: 04.00.03
  BRIEF: Enterprise governance policy defining mandatory controls for WaaS site creation, operation, and lifecycle management.
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # MokoStandard: Enterprise WaaS Governance Policy
 

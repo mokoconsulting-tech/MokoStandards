@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # common.py Library Guide
 
@@ -480,7 +480,7 @@ except Exception as e:
 | Version | Date | Changes |
 |---------|------|---------|
 | 04.01.00 | 2026-01-15 | Current version with full feature set |
-| 04.00.01 | 2025-12-01 | Added header generation functions |
+| 04.00.03 | 2025-12-01 | Added header generation functions |
 | 03.00.00 | 2025-11-01 | Added path utilities |
 | 02.00.00 | 2025-10-01 | Added repository utilities |
 | 01.00.00 | 2025-09-01 | Initial release with logging and error handling |

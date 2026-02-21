@@ -5,9 +5,9 @@
 # INGROUP: MokoStandards.Automation
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/reserve-dolibarr-module-id.yml
-# VERSION: 04.00.02
+# VERSION: 04.00.03
 # BRIEF: Reserves a Dolibarr module ID and updates registry table
-# NOTE: Repository URL automatically constructed from repo name with mokoconsulting-tech org
+# NOTE: Repository URL automatically constructed from repo name with mokoconsulting-tech org; push to remote is optional
 
 name: Reserve Dolibarr Module ID
 
@@ -26,6 +26,11 @@ on:
         description: 'Specific module ID to assign (optional, auto-assigns if not provided)'
         required: false
         type: number
+      push_to_remote:
+        description: 'Push DOLIBARR_MODULE_ID.txt to remote repository'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -225,21 +230,36 @@ jobs:
           MODULE_ID: ${{ steps.find_id.outputs.module_id }}
           REPO_URL: ${{ steps.extract_name.outputs.repo_url }}
           BRANCH_NAME: ${{ steps.commit.outputs.branch_name }}
+          PUSH_TO_REMOTE: ${{ github.event.inputs.push_to_remote }}
         with:
           script: |
             const moduleId = process.env.MODULE_ID;
             const moduleName = process.env.MODULE_NAME;
             const repoUrl = process.env.REPO_URL;
             const branchName = process.env.BRANCH_NAME;
+            const pushToRemote = process.env.PUSH_TO_REMOTE === 'true';
             const description = `Dolibarr module ${moduleName}`;
 
             const title = `Reserve Dolibarr Module ID ${moduleId} for ${moduleName}`;
+
+            let nextSteps = `### Next Steps
+            1. Review this PR
+            2. Approve if the reservation is appropriate
+            3. Merge to officially reserve the module ID`;
+
+            if (pushToRemote) {
+              nextSteps += `\n            4. Module ID file will be created in remote repository: ${repoUrl}`;
+            } else {
+              nextSteps += `\n            4. Manually create \`src/DOLIBARR_MODULE_ID.txt\` in ${repoUrl} if needed`;
+            }
+
             const body = `## Module ID Reservation Request
 
             **Module Name:** ${moduleName}
             **Module ID:** ${moduleId}
             **Description:** ${description}
             **Repository:** ${repoUrl}
+            **Push to Remote:** ${pushToRemote ? 'Yes' : 'No'}
 
             ---
 
@@ -251,11 +271,7 @@ jobs:
             - ✅ Reserved ID: **${moduleId}**
             - ✅ Status: **Reserved**
 
-            ### Next Steps
-            1. Review this PR
-            2. Approve if the reservation is appropriate
-            3. Merge to officially reserve the module ID
-            4. Module ID file will be created in remote repository: ${repoUrl}
+            ${nextSteps}
 
             ### Policy Compliance
             - Follows module ID reservation process per [Module Registry](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/development/crm/module-registry.md#module-id-reservation-process)
@@ -303,6 +319,7 @@ jobs:
             console.log('✅ Labels added to PR');
 
       - name: Push to remote repository
+        if: ${{ github.event.inputs.push_to_remote == 'true' }}
         env:
           MODULE_ID: ${{ steps.find_id.outputs.module_id }}
           MODULE_NAME: ${{ steps.extract_name.outputs.module_name }}
@@ -393,6 +410,7 @@ jobs:
           MODULE_ID: ${{ steps.find_id.outputs.module_id }}
           PR_URL: ${{ steps.create_pr.outputs.pr_url }}
           REPO_URL: ${{ steps.extract_name.outputs.repo_url }}
+          PUSH_TO_REMOTE: ${{ github.event.inputs.push_to_remote }}
         run: |
           echo "## 🎉 Module ID Reservation Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -400,12 +418,21 @@ jobs:
           echo "**Reserved ID:** $MODULE_ID" >> $GITHUB_STEP_SUMMARY
           echo "**Repository:** $REPO_URL" >> $GITHUB_STEP_SUMMARY
           echo "**Pull Request:** $PR_URL" >> $GITHUB_STEP_SUMMARY
+          if [ "$PUSH_TO_REMOTE" = "true" ]; then
+            echo "**Remote Push:** ✅ Enabled" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Remote Push:** ⏭️ Skipped" >> $GITHUB_STEP_SUMMARY
+          fi
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
           echo "1. Review the pull request" >> $GITHUB_STEP_SUMMARY
           echo "2. Get approval from CRM Development Lead" >> $GITHUB_STEP_SUMMARY
           echo "3. Merge the PR to officially reserve the module ID" >> $GITHUB_STEP_SUMMARY
-          echo "4. Verify DOLIBARR_MODULE_ID.txt was created in $REPO_URL" >> $GITHUB_STEP_SUMMARY
+          if [ "$PUSH_TO_REMOTE" = "true" ]; then
+            echo "4. Verify DOLIBARR_MODULE_ID.txt was created in $REPO_URL" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "4. Manually create src/DOLIBARR_MODULE_ID.txt in $REPO_URL if needed" >> $GITHUB_STEP_SUMMARY
+          fi
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "---" >> $GITHUB_STEP_SUMMARY
-          echo "_Generated by reserve-dolibarr-module-id workflow v04.00.02_" >> $GITHUB_STEP_SUMMARY
+          echo "_Generated by reserve-dolibarr-module-id workflow v04.00.03_" >> $GITHUB_STEP_SUMMARY

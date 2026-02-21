@@ -31,7 +31,7 @@ BRIEF: Training Session 7 - Terraform Infrastructure and Configuration Managemen
 
 # Session 7: Terraform Infrastructure and Configuration Management
 
-**Duration**: 2.5 hours  
+**Duration**: 3.0 hours  
 **Prerequisites**: Sessions 1-6  
 **Format**: Lecture + Hands-on Lab  
 **Difficulty**: Intermediate
@@ -45,6 +45,8 @@ This session introduces Terraform as used in MokoStandards for infrastructure as
 **What You'll Learn**:
 - Terraform file structure standards
 - Four-tier enforcement levels (Optional, Suggested, Required, Forced)
+- **How terraform enforces organizational standards** ⭐ NEW
+- Standards-compliance integration and automation
 - Override configuration system (.github/config.tf)
 - Bulk repository synchronization
 - Infrastructure management patterns
@@ -429,9 +431,351 @@ enforcement_levels = {
 
 ---
 
-## 🔧 Part 3: Override Configuration (.github/config.tf) (40 minutes)
+## 🛡️ Part 2.5: How Terraform Enforces Standards (25 minutes)
 
-### 3.1 Override File Location
+### 2.5.1 Standards Enforcement Overview
+
+**Key Concept**: Terraform configuration serves as the **enforcement mechanism** for organizational standards across all repositories.
+
+**How It Works**:
+1. **Define** standards in MokoStandards repository
+2. **Configure** enforcement levels in terraform
+3. **Sync** standards to all repositories via bulk sync
+4. **Validate** compliance with 27 automated checks
+5. **Audit** all operations via remote logging
+
+### 2.5.2 Integration with Standards-Compliance Workflow
+
+MokoStandards includes a comprehensive **standards-compliance.yml** workflow with **27 validation checks**:
+
+**Security Checks** (5):
+- Secret scanning (prevents credential leaks)
+- Dependency vulnerability scanning
+- Insecure code pattern detection
+- Script integrity validation (SHA-256 hashes)
+- Binary file detection
+
+**Quality Checks** (7):
+- Coding standards (linters for YAML, PHP, Python)
+- Line length validation
+- Code duplication detection
+- Code complexity analysis
+- Dead code detection
+- Unused dependencies check
+- File naming standards
+
+**Documentation Checks** (6):
+- Documentation quality validation
+- README completeness (required sections)
+- API documentation coverage (>80% target)
+- Broken link detection
+- TODO/FIXME tracking
+- Changelog format validation
+
+**Structure Checks** (5):
+- Repository structure validation
+- License compliance (GPL-3.0-or-later)
+- Git hygiene (commits, branches)
+- Workflow validation (actionlint)
+- File size limits (1MB warning, 10MB error)
+
+**Metrics Checks** (4):
+- Version consistency (04.00.03 everywhere)
+- Enterprise readiness assessment
+- Repository health scoring
+- Performance metrics
+
+**Total**: 10 critical (blocking) + 17 informational (guidance) = **27 checks**
+
+### 2.5.3 The Enforcement Mechanism
+
+**Bulk Sync Process**:
+
+```mermaid
+graph TD
+    A[MokoStandards Repository] -->|Defines Standards| B[Terraform Configuration]
+    B -->|27 Checks + Files| C[Bulk Sync Script]
+    C -->|Reads| D[.github/config.tf]
+    D -->|Enforcement Levels| E{Evaluate Each File}
+    E -->|FORCED Level 4| F[Always Sync - No Override]
+    E -->|REQUIRED Level 3| G[Must Sync - Errors if Excluded]
+    E -->|SUGGESTED Level 2| H[Should Sync - Warnings if Excluded]
+    E -->|OPTIONAL Level 1| I[Opt-in Only]
+    F --> J[Update Repository]
+    G --> J
+    H --> J
+    I --> J
+    J -->|Creates| K[logs/MokoStandards/sync/]
+    K -->|Audit Trail| L[sync-YYYYMMDD-HHMMSS.log]
+```
+
+### 2.5.4 Four-Tier Enforcement in Action
+
+**Example 1: FORCED Files (Level 4)**
+
+These 6 files are **ALWAYS** synced, regardless of config.tf:
+
+```terraform
+# These cannot be excluded or protected
+ALWAYS_FORCE_OVERRIDE_FILES = [
+  ".github/workflows/standards-compliance.yml",    # 27 validation checks
+  "scripts/validate/check_version_consistency.php", # Version validator
+  "scripts/validate/check_enterprise_readiness.php", # Enterprise patterns
+  "scripts/validate/check_repo_health.php",        # Health checker
+  "scripts/maintenance/validate_script_registry.py", # Script integrity
+  "scripts/.script-registry.json"                  # SHA-256 hashes
+]
+```
+
+**Why**: These files ensure every repository meets minimum security and compliance standards.
+
+**Example Sync Log**:
+```
+Processing: .github/workflows/standards-compliance.yml
+✓ Sync: FORCED (Level 4 - critical compliance - always updated)
+  Note: File is protected in config.tf but FORCE_OVERRIDE takes precedence
+```
+
+**Example 2: REQUIRED Files (Level 3)**
+
+```terraform
+required_files = [
+  {
+    path   = "LICENSE"
+    reason = "GPL-3.0-or-later required for all projects"
+  },
+  {
+    path   = ".github/workflows/ci.yml"
+    reason = "Continuous integration is mandatory"
+  },
+  {
+    path   = "CONTRIBUTING.md"
+    reason = "Contribution guidelines required"
+  }
+]
+```
+
+**Behavior**:
+- **Must be synced** to all repositories
+- **Cannot be excluded** in config.tf
+- **Errors generated** if missing
+- **Blocks compliance** if absent
+
+**Example 3: SUGGESTED Files (Level 2)**
+
+```terraform
+suggested_files = [
+  {
+    path   = ".github/workflows/dependency-review.yml"
+    reason = "Security best practice - strongly recommended"
+  },
+  {
+    path   = ".editorconfig"
+    reason = "Consistent code formatting across editors"
+  }
+]
+```
+
+**Behavior**:
+- **Synced by default**
+- **Can be excluded** with justification
+- **Warnings generated** if excluded
+- **No compliance impact**
+
+**Example 4: OPTIONAL Files (Level 1)**
+
+```terraform
+optional_files = [
+  {
+    path    = ".github/workflows/deploy-staging.yml"
+    reason  = "Only needed if repository has staging environment"
+    include = true  # Explicit opt-in
+  },
+  {
+    path    = ".github/workflows/performance-testing.yml"
+    reason  = "Only for performance-critical applications"
+    include = false  # Not needed
+  }
+]
+```
+
+**Behavior**:
+- **Not synced by default**
+- **Requires explicit opt-in** (include = true)
+- **No warnings** if excluded
+- **No compliance impact**
+
+### 2.5.5 Real-World Enforcement Example
+
+**Scenario**: API Service Repository
+
+**Config.tf**:
+```terraform
+enforcement_levels = {
+  optional_files = [
+    { path = ".github/workflows/deploy-staging.yml", include = true },
+    { path = ".github/workflows/load-testing.yml", include = false }
+  ]
+  
+  suggested_files = [
+    { path = ".github/workflows/security-scan.yml" },
+    { path = ".github/workflows/dependency-review.yml" }
+  ]
+  
+  required_files = [
+    { path = "LICENSE" },
+    { path = ".github/workflows/ci.yml" },
+    { path = "CONTRIBUTING.md" }
+  ]
+}
+
+protected_files = [
+  { path = "package.json", reason = "API-specific dependencies" },
+  { path = "src/config/database.php", reason = "Custom DB config" }
+]
+```
+
+**Sync Output**:
+```
+=================================================================
+Processing: mokoconsulting-tech/my-api-service
+=================================================================
+
+[FORCED] .github/workflows/standards-compliance.yml ✓ Sync
+  Level 4: Critical compliance file - always updated
+
+[REQUIRED] LICENSE ✓ Sync
+  Level 3: Mandatory file - cannot be excluded
+
+[REQUIRED] .github/workflows/ci.yml ✓ Sync
+  Level 3: Mandatory file - cannot be excluded
+
+[SUGGESTED] .github/workflows/security-scan.yml ✓ Sync
+  Level 2: Recommended best practice
+
+[OPTIONAL] .github/workflows/deploy-staging.yml ✓ Sync
+  Level 1: Explicitly opted in
+
+[OPTIONAL] .github/workflows/load-testing.yml ✗ Skip
+  Level 1: Not opted in (not needed for this repository)
+
+[PROTECTED] package.json ✗ Skip
+  Reason: API-specific dependencies - protected in config.tf
+
+Summary:
+- Files Synced: 5
+- Files Skipped: 2
+- Force-Overridden: 1 (standards-compliance.yml)
+- Required Enforced: 2 (LICENSE, ci.yml)
+```
+
+### 2.5.6 Compliance Validation Workflow
+
+**End-to-End Process**:
+
+1. **Pre-Sync Validation**
+   ```bash
+   # Validate config.tf before sync
+   terraform validate .github/config.tf
+   ```
+
+2. **Bulk Sync with Enforcement**
+   ```bash
+   php scripts/automation/bulk_update_repos.php \
+     --org mokoconsulting-tech \
+     --repo my-api-service
+   ```
+
+3. **Standards-Compliance Check** (Automatic on PR)
+   - 27 validation checks run
+   - Critical checks must pass
+   - Informational checks provide guidance
+
+4. **Audit Log Creation**
+   - Log created at `logs/MokoStandards/sync/sync-YYYYMMDD-HHMMSS.log`
+   - Complete audit trail
+   - All decisions documented
+
+5. **Compliance Scoring**
+   ```
+   Critical Checks: 10/10 passed ✓
+   Informational: 15/17 passed ⚠
+   
+   Compliance Score: 100% (all critical checks passed)
+   Status: ✅ COMPLIANT
+   ```
+
+### 2.5.7 Audit and Logging
+
+**Every sync operation creates detailed logs**:
+
+**Location**: `logs/MokoStandards/sync/` on remote repository
+
+**Files Created**:
+1. `sync-YYYYMMDD-HHMMSS.log` - Session log
+2. `sync-latest.log` - Most recent (symlink)
+3. `sync-summary.json` - Machine-readable
+
+**Log Content**:
+```
+=================================================================
+MokoStandards Bulk Sync Log
+=================================================================
+Session ID: sync-2026-02-21-073000
+Repository: mokoconsulting-tech/my-api-service
+MokoStandards Version: 04.00.03
+Sync Started: 2026-02-21T07:30:00Z
+Sync Completed: 2026-02-21T07:30:45Z
+Duration: 45 seconds
+
+OPERATIONS PERFORMED
+[07:30:01] Repository sync started
+[07:30:03] Validating .github/config.tf - PASSED ✓
+[07:30:05] Updating .github/config.tf to version 04.00.03
+[07:30:10] Processing 25 files
+
+FILES PROCESSED
+[FORCED] .github/workflows/standards-compliance.yml
+  Reason: Critical compliance file
+  Action: Synced
+
+SUMMARY
+Total Files Processed: 25
+Files Synced: 18
+Files Skipped: 7
+Force-Overridden: 6
+Validation: PASSED ✓
+=================================================================
+```
+
+### 2.5.8 Key Takeaways
+
+**Terraform Enforces Standards By**:
+
+1. ✅ **Defining** standards declaratively in terraform configuration
+2. ✅ **Classifying** files into 4 enforcement levels
+3. ✅ **Synchronizing** standards across all repositories
+4. ✅ **Validating** compliance with 27 automated checks
+5. ✅ **Force-Overriding** 6 critical compliance files
+6. ✅ **Logging** all operations for audit trail
+7. ✅ **Scoring** compliance (critical checks must pass)
+8. ✅ **Blocking** non-compliant merges (critical checks)
+
+**Benefits**:
+- 🔒 **Security**: All repositories meet minimum security standards
+- 📊 **Consistency**: Same standards enforced everywhere
+- 📝 **Transparency**: Complete audit trail of all changes
+- 🎯 **Flexibility**: Four enforcement levels balance control vs autonomy
+- ⚡ **Automation**: Standards enforcement is automatic
+- 🛡️ **Compliance**: 27-point validation ensures quality
+
+**Remember**: Terraform isn't just for infrastructure - it's our **standards enforcement engine**!
+
+---
+
+## 🔧 Part 4: Override Configuration (.github/config.tf) (40 minutes)
+
+### 8.1 Override File Location
 
 **STANDARD**: `.github/config.tf`
 
@@ -440,7 +784,7 @@ enforcement_levels = {
 - `override.config.tf`
 - `.mokostandards.override.tf`
 
-### 3.2 Complete Override Structure
+### 8.2 Complete Override Structure
 
 ```terraform
 # Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
@@ -519,7 +863,7 @@ locals {
 }
 ```
 
-### 3.3 Sync Behavior
+### 8.3 Sync Behavior
 
 **During Bulk Sync**:
 1. ✅ Validates config.tf syntax
@@ -652,9 +996,9 @@ php scripts/automation/bulk_update_repos.php \
 
 ---
 
-## 🔄 Part 4: Bulk Repository Synchronization (30 minutes)
+## 🔄 Part 5: Bulk Repository Synchronization (30 minutes)
 
-### 4.1 Sync Process Overview
+### 8.1 Sync Process Overview
 
 **bulk_update_repos.php** synchronizes files across multiple repositories:
 
@@ -666,7 +1010,7 @@ php scripts/automation/bulk_update_repos.php \
 6. **Cleanup**: Remove obsolete files
 7. **Commit**: Create PR with changes
 
-### 4.2 Command Line Usage
+### 8.2 Command Line Usage
 
 ```bash
 # Basic usage - sync all repos
@@ -694,7 +1038,7 @@ php scripts/automation/bulk_update_repos.php \
   --force-override
 ```
 
-### 4.3 Sync Output Interpretation
+### 8.3 Sync Output Interpretation
 
 ```
 Processing repository: mokoconsulting-tech/example
@@ -752,9 +1096,9 @@ cat .metrics/bulk_sync_$(date +%Y%m%d).json | jq .
 
 ---
 
-## 📊 Part 5: Validation and Testing (20 minutes)
+## 📊 Part 6: Validation and Testing (20 minutes)
 
-### 5.1 Terraform Validation
+### 8.1 Terraform Validation
 
 ```bash
 # Validate syntax
@@ -776,7 +1120,7 @@ terraform plan
 terraform apply
 ```
 
-### 5.2 Config.tf Validation
+### 8.2 Config.tf Validation
 
 ```bash
 # Validate override configuration
@@ -790,7 +1134,7 @@ terraform fmt -check config.tf
 yamllint config.tf 2>/dev/null || echo "YAML lint not applicable to .tf files"
 ```
 
-### 5.3 Testing Sync Logic
+### 8.3 Testing Sync Logic
 
 ```bash
 # Test sync with dry-run
@@ -858,9 +1202,9 @@ echo "✅ All validations passed!"
 
 ---
 
-## 🏗️ Part 6: Infrastructure Patterns (15 minutes)
+## 🏗️ Part 7: Infrastructure Patterns (15 minutes)
 
-### 6.1 Repository Management
+### 8.1 Repository Management
 
 ```terraform
 # terraform/repository-management/main.tf
@@ -902,7 +1246,7 @@ resource "github_branch_protection" "example_main" {
 }
 ```
 
-### 6.2 Webserver Configuration
+### 8.2 Webserver Configuration
 
 ```terraform
 # terraform/webserver/ubuntu-dev-webserver.tf
@@ -927,7 +1271,7 @@ resource "aws_instance" "ubuntu_dev_web" {
 }
 ```
 
-### 6.3 Workstation Configuration
+### 8.3 Workstation Configuration
 
 ```terraform
 # terraform/workstation/windows-dev-workstation.tf
@@ -952,7 +1296,7 @@ resource "aws_instance" "windows_dev_workstation" {
 
 ---
 
-## 🧪 Part 7: Hands-On Lab (30 minutes)
+## 🧪 Part 8: Hands-On Lab (30 minutes)
 
 ### Lab Objective
 

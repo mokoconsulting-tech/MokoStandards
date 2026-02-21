@@ -1499,7 +1499,7 @@ jobs:
 
           if [ "$PHP_COUNT" -gt 0 ]; then
             echo "### PHP Code Duplication" >> $GITHUB_STEP_SUMMARY
-            
+
             # Install phpcpd
             wget https://phar.phpunit.de/phpcpd.phar 2>/dev/null
             chmod +x phpcpd.phar
@@ -1555,7 +1555,7 @@ jobs:
 
           if [ -f "composer.json" ]; then
             echo "### PHP Dependencies" >> $GITHUB_STEP_SUMMARY
-            
+
             # Install composer-unused
             composer global require icanhazstring/composer-unused 2>/dev/null || true
 
@@ -1823,7 +1823,7 @@ jobs:
           if [ "$PY_COUNT" -gt 0 ]; then
             pip install vulture 2>/dev/null
             echo "### Python Dead Code" >> $GITHUB_STEP_SUMMARY
-            
+
             if vulture . --exclude vendor,venv,.git 2>&1 | tee /tmp/vulture.txt; then
               DEAD_COUNT=$(wc -l < /tmp/vulture.txt || echo 0)
               if [ "$DEAD_COUNT" -gt 0 ]; then
@@ -1862,7 +1862,7 @@ jobs:
 
           # Check PHP files (should be PascalCase for classes)
           INVALID_PHP=$(find . -name "*.php" ! -path "./vendor/*" ! -path "./.git/*" ! -regex ".*/[A-Z][a-zA-Z0-9]*\.php" ! -name "index.php" ! -name "functions.php" | wc -l || echo 0)
-          
+
           # Check config files (should be kebab-case)
           INVALID_CONFIG=$(find . -name "*.yml" -o -name "*.yaml" -o -name "*.json" ! -path "./vendor/*" ! -path "./.git/*" ! -path "./node_modules/*" | grep -E "[A-Z_]" | wc -l || echo 0)
 
@@ -1900,7 +1900,7 @@ jobs:
           if [ "$HTML_COUNT" -gt 0 ] || [ "$MD_IMG_COUNT" -gt 0 ]; then
             # Check for images without alt text
             MISSING_ALT=0
-            
+
             if [ "$HTML_COUNT" -gt 0 ]; then
               MISSING_ALT=$(grep -r "<img" . --include="*.html" | grep -v "alt=" | wc -l || echo 0)
             fi
@@ -1922,6 +1922,193 @@ jobs:
     name: Performance Metrics
     runs-on: ubuntu-latest
 
+    terraform-validation:
+      name: Terraform Configuration Validation
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Checkout Repository
+          uses: actions/checkout@v6
+
+        - name: Setup Terraform
+          uses: hashicorp/setup-terraform@v3
+          with:
+            terraform_version: "1.0"
+
+        - name: Validate Terraform Files
+          run: |
+            set -x
+            echo "## 🏗️ Terraform Configuration Validation" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            # Check if terraform files exist
+            TF_COUNT=$(find . -name "*.tf" -type f | wc -l || echo 0)
+
+            if [ "$TF_COUNT" -eq 0 ]; then
+              echo "ℹ️ No Terraform files found in repository" >> $GITHUB_STEP_SUMMARY
+              exit 0
+            fi
+
+            echo "**Terraform Files Found**: $TF_COUNT" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            # Validation Results
+            VALIDATION_PASSED=true
+            WARNINGS=0
+            ERRORS=0
+
+            # 1. Check .github/config.tf location (not root override files)
+            echo "### Override Configuration Check" >> $GITHUB_STEP_SUMMARY
+            LEGACY_OVERRIDES=$(find . -maxdepth 1 -name "*override*.tf" -o -name "MokoStandards.override.tf" 2>/dev/null | wc -l || echo 0)
+            if [ "$LEGACY_OVERRIDES" -gt 0 ]; then
+              echo "⚠️ Found legacy override files in root directory" >> $GITHUB_STEP_SUMMARY
+              echo "**Expected Location**: .github/config.tf" >> $GITHUB_STEP_SUMMARY
+              echo "**Legacy files found**: $LEGACY_OVERRIDES" >> $GITHUB_STEP_SUMMARY
+              WARNINGS=$((WARNINGS + 1))
+            else
+              if [ -f ".github/config.tf" ]; then
+                echo "✅ Override configuration in correct location (.github/config.tf)" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "ℹ️ No override configuration found" >> $GITHUB_STEP_SUMMARY
+              fi
+            fi
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            # 2. Terraform Syntax Validation
+            echo "### Terraform Syntax Validation" >> $GITHUB_STEP_SUMMARY
+            SYNTAX_ERRORS=0
+
+            # Find all directories with terraform files
+            for dir in $(find . -name "*.tf" -type f -exec dirname {} \; | sort -u); do
+              cd "$dir" || continue
+              echo "Validating: $dir" >> $GITHUB_STEP_SUMMARY
+
+              # Initialize without backend
+              terraform init -backend=false > /dev/null 2>&1 || true
+
+              # Validate
+              if terraform validate -no-color > /tmp/tf_validate.txt 2>&1; then
+                echo "  ✅ Syntax valid" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "  ❌ Syntax errors found" >> $GITHUB_STEP_SUMMARY
+                cat /tmp/tf_validate.txt >> $GITHUB_STEP_SUMMARY
+                SYNTAX_ERRORS=$((SYNTAX_ERRORS + 1))
+                VALIDATION_PASSED=false
+              fi
+              cd - > /dev/null
+            done
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            if [ "$SYNTAX_ERRORS" -eq 0 ]; then
+              echo "✅ All Terraform files have valid syntax" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ Found $SYNTAX_ERRORS directories with syntax errors" >> $GITHUB_STEP_SUMMARY
+              ERRORS=$((ERRORS + SYNTAX_ERRORS))
+            fi
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            # 3. Terraform Formatting Check
+            echo "### Terraform Formatting Check" >> $GITHUB_STEP_SUMMARY
+            FORMAT_ISSUES=0
+
+            for tf_file in $(find . -name "*.tf" -type f); do
+              if ! terraform fmt -check=true -no-color "$tf_file" > /dev/null 2>&1; then
+                FORMAT_ISSUES=$((FORMAT_ISSUES + 1))
+              fi
+            done
+
+            if [ "$FORMAT_ISSUES" -eq 0 ]; then
+              echo "✅ All Terraform files properly formatted" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "⚠️ Found $FORMAT_ISSUES files with formatting issues" >> $GITHUB_STEP_SUMMARY
+              echo "**Fix**: Run \`terraform fmt -recursive\`" >> $GITHUB_STEP_SUMMARY
+              WARNINGS=$((WARNINGS + 1))
+            fi
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            # 4. Check for file_metadata blocks
+            echo "### File Metadata Validation" >> $GITHUB_STEP_SUMMARY
+            MISSING_METADATA=0
+
+            for tf_file in $(find . -name "*.tf" -type f); do
+              if ! grep -q "file_metadata" "$tf_file"; then
+                MISSING_METADATA=$((MISSING_METADATA + 1))
+              fi
+            done
+
+            if [ "$MISSING_METADATA" -eq 0 ]; then
+              echo "✅ All Terraform files contain file_metadata block" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "⚠️ Found $MISSING_METADATA files missing file_metadata block" >> $GITHUB_STEP_SUMMARY
+              echo "**Reference**: docs/policy/terraform-file-standards.md" >> $GITHUB_STEP_SUMMARY
+              WARNINGS=$((WARNINGS + 1))
+            fi
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            # 5. Version Consistency Check
+            echo "### Version Consistency Check" >> $GITHUB_STEP_SUMMARY
+            VERSION_MISMATCHES=0
+            EXPECTED_VERSION="04.00.03"
+
+            for tf_file in $(find . -name "*.tf" -type f); do
+              if grep -q "version.*=" "$tf_file"; then
+                if ! grep -q "version.*=.*\"$EXPECTED_VERSION\"" "$tf_file"; then
+                  VERSION_MISMATCHES=$((VERSION_MISMATCHES + 1))
+                fi
+              fi
+            done
+
+            if [ "$VERSION_MISMATCHES" -eq 0 ]; then
+              echo "✅ All Terraform file versions match $EXPECTED_VERSION" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "⚠️ Found $VERSION_MISMATCHES files with version mismatches" >> $GITHUB_STEP_SUMMARY
+              echo "**Expected Version**: $EXPECTED_VERSION" >> $GITHUB_STEP_SUMMARY
+              WARNINGS=$((WARNINGS + 1))
+            fi
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            # 6. Copyright Header Check
+            echo "### Copyright Header Check" >> $GITHUB_STEP_SUMMARY
+            MISSING_COPYRIGHT=0
+
+            for tf_file in $(find . -name "*.tf" -type f); do
+              if ! grep -q "Copyright (C)" "$tf_file"; then
+                MISSING_COPYRIGHT=$((MISSING_COPYRIGHT + 1))
+              fi
+            done
+
+            if [ "$MISSING_COPYRIGHT" -eq 0 ]; then
+              echo "✅ All Terraform files have copyright headers" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "⚠️ Found $MISSING_COPYRIGHT files missing copyright headers" >> $GITHUB_STEP_SUMMARY
+              echo "**Reference**: docs/policy/terraform-file-standards.md" >> $GITHUB_STEP_SUMMARY
+              WARNINGS=$((WARNINGS + 1))
+            fi
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            # Summary
+            echo "---" >> $GITHUB_STEP_SUMMARY
+            echo "### Validation Summary" >> $GITHUB_STEP_SUMMARY
+            echo "**Total Files**: $TF_COUNT" >> $GITHUB_STEP_SUMMARY
+            echo "**Errors**: $ERRORS" >> $GITHUB_STEP_SUMMARY
+            echo "**Warnings**: $WARNINGS" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            if [ "$VALIDATION_PASSED" = true ] && [ "$ERRORS" -eq 0 ]; then
+              echo "✅ **Terraform Validation: PASSED**" >> $GITHUB_STEP_SUMMARY
+              exit 0
+            elif [ "$ERRORS" -gt 0 ]; then
+              echo "❌ **Terraform Validation: FAILED**" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "**Note**: This is an informational check and does not block merges" >> $GITHUB_STEP_SUMMARY
+              exit 0  # Informational only
+            else
+              echo "⚠️ **Terraform Validation: PASSED WITH WARNINGS**" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "**Note**: This is an informational check and does not block merges" >> $GITHUB_STEP_SUMMARY
+              exit 0  # Informational only
+            fi
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
@@ -1935,7 +2122,7 @@ jobs:
           # Check if JavaScript bundles exist
           if [ -f "package.json" ]; then
             echo "### Bundle Analysis" >> $GITHUB_STEP_SUMMARY
-            
+
             # Check for common bundle files
             BUNDLE_SIZE=0
             if [ -d "dist" ]; then
@@ -1970,7 +2157,7 @@ jobs:
       todo-fixme-tracking, file-size-limits, secret-scanning, broken-link-detection,
       dependency-vulnerabilities, code-duplication, unused-dependencies, readme-completeness,
       code-complexity, api-documentation, insecure-patterns, binary-file-detection,
-      dead-code-detection, file-naming-standards, accessibility-check, performance-metrics
+      dead-code-detection, file-naming-standards, accessibility-check, performance-metrics, terraform-validation
     ]
     if: always()
 
@@ -1993,11 +2180,12 @@ jobs:
           SCRIPT_STATUS="${{ needs.script-integrity.result }}"
           ENTERPRISE_STATUS="${{ needs.enterprise-readiness.result }}"
           HEALTH_STATUS="${{ needs.repository-health.result }}"
+          TERRAFORM_STATUS="${{ needs.terraform-validation.result }}"
 
           PASSED=0
           FAILED=0
           WARNINGS=0
-          TOTAL=11
+          TOTAL=28
 
           # Critical checks (must pass)
           [ "$REPO_STATUS" = "success" ] && PASSED=$((PASSED + 1)) || FAILED=$((FAILED + 1))
@@ -2017,6 +2205,12 @@ jobs:
           fi
 
           if [ "$HEALTH_STATUS" = "success" ]; then
+            PASSED=$((PASSED + 1))
+          else
+            WARNINGS=$((WARNINGS + 1))
+          fi
+
+          if [ "$TERRAFORM_STATUS" = "success" ]; then
             PASSED=$((PASSED + 1))
           else
             WARNINGS=$((WARNINGS + 1))

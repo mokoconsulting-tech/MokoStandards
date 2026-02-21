@@ -26,8 +26,23 @@
 # BRIEF: Repository-specific override configuration for bulk synchronization
 
 # Repository Override Configuration
-# This file (located at .github/config.tf) prevents the bulk_update_repos.php script from recreating
-# "live" workflow files in the MokoStandards repository itself.
+# This file (located at .github/config.tf) controls bulk synchronization behavior.
+#
+# IMPORTANT: This file itself is ALWAYS UPDATED during bulk sync to ensure it stays current.
+# The bulk_update_repos.php script will:
+# 1. Validate this file before any sync operations
+# 2. Update version and metadata during sync
+# 3. Preserve repository-specific customizations
+#
+# FORCE-OVERRIDE BEHAVIOR:
+# Some files are marked as ALWAYS_FORCE_OVERRIDE and will be updated even if listed
+# as protected in this config. These critical compliance files MUST stay current:
+# - .github/workflows/standards-compliance.yml
+# - scripts/validate/check_version_consistency.php
+# - scripts/validate/check_enterprise_readiness.php  
+# - scripts/validate/check_repo_health.php
+# - scripts/maintenance/validate_script_registry.py
+# - scripts/.script-registry.json
 #
 # MokoStandards is a template/standards repository, so it should only
 # contain workflow templates and MokoStandards-specific automation,

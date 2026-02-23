@@ -1250,7 +1250,7 @@ jobs:
           # Pattern 1: password/secret assignments
           if grep -r -n -E "(password|passwd|pwd|secret|api[_-]?key|token).*=.*['\"]" . \
             --include="*.php" --include="*.py" --include="*.js" --include="*.ts" \
-            --exclude-dir=".git" --exclude-dir="vendor" --exclude-dir="node_modules" 2>/dev/null | grep -v "test" | grep -v "example" | grep -v "sample" | grep -v "getenv" | grep -v "/.*/" | grep -v "^\s*//" | grep -v "CREDENTIAL_PATTERNS" | grep -v "SecurityValidator" > /tmp/secrets1.txt 2>/dev/null; then
+            --exclude-dir=".git" --exclude-dir="vendor" --exclude-dir="node_modules" 2>/dev/null | grep -v -E '(test|example|sample|getenv|/\.\*/|^\s*//|CREDENTIAL_PATTERNS|SecurityValidator)' > /tmp/secrets1.txt 2>/dev/null; then
             COUNT=$(wc -l < /tmp/secrets1.txt)
             if [ "$COUNT" -gt 0 ]; then
               echo "⚠️ Found $COUNT potential secret assignment(s)" >> $GITHUB_STEP_SUMMARY

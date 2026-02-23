@@ -309,6 +309,7 @@ For organization administrators, use bulk sync to update multiple repositories:
 # Configure credentials (one-time setup)
 cp config.json.example config.json
 # Edit config.json with your GitHub token
+# ⚠️ Important: Never commit config.json - ensure it's in .gitignore
 
 # Sync standards to all repositories
 php scripts/automation/bulk_update_repos.php

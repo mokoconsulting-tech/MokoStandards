@@ -1212,7 +1212,7 @@ jobs:
             echo "⚠️ **Warning**: Found $LARGE_FILES file(s) between 1MB and 10MB" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "<details>" >> $GITHUB_STEP_SUMMARY
-            echo "<summary">View files >1MB</summary>" >> $GITHUB_STEP_SUMMARY
+            echo "<summary>View files >1MB</summary>" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
             find . -type f -size +1M ! -path "./.git/*" ! -path "./vendor/*" ! -path "./node_modules/*" -exec ls -lh {} + 2>/dev/null | awk '{print $5, $9}' >> $GITHUB_STEP_SUMMARY

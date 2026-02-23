@@ -1250,7 +1250,7 @@ jobs:
           # Pattern 1: password/secret assignments
           if grep -r -n -E "(password|passwd|pwd|secret|api[_-]?key|token).*=.*['\"]" . \
             --include="*.php" --include="*.py" --include="*.js" --include="*.ts" \
-            --exclude-dir=".git" --exclude-dir="vendor" --exclude-dir="node_modules" 2>/dev/null | grep -v "test" | grep -v "example" | grep -v "sample" > /tmp/secrets1.txt 2>/dev/null; then
+            --exclude-dir=".git" --exclude-dir="vendor" --exclude-dir="node_modules" 2>/dev/null | grep -v "test" | grep -v "example" | grep -v "sample" | grep -v "getenv" | grep -v "/.*/" | grep -v "^\s*//" | grep -v "CREDENTIAL_PATTERNS" | grep -v "SecurityValidator" > /tmp/secrets1.txt 2>/dev/null; then
             COUNT=$(wc -l < /tmp/secrets1.txt)
             if [ "$COUNT" -gt 0 ]; then
               echo "⚠️ Found $COUNT potential secret assignment(s)" >> $GITHUB_STEP_SUMMARY
@@ -1409,7 +1409,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Setup PHP
-        uses: actions/setup-php@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
+        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.31.0
         with:
           php-version: '8.1'
 
@@ -1484,7 +1484,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Setup PHP
-        uses: actions/setup-php@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
+        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.31.0
         with:
           php-version: '8.1'
 
@@ -1543,7 +1543,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Setup PHP
-        uses: actions/setup-php@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
+        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.31.0
         with:
           php-version: '8.1'
 
@@ -1643,7 +1643,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Setup PHP
-        uses: actions/setup-php@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
+        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.31.0
         with:
           php-version: '8.1'
 

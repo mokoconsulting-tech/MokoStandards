@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Guides
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: docs/guides/version-branching-guide.md
-VERSION: 04.00.01
+VERSION: 04.00.03
 BRIEF: Guide for version branch management and old version preservation
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Version Branching Guide
 
@@ -689,6 +689,6 @@ git checkout version/03.02.00
 
 ---
 
-**Current Version**: 04.00.01  
+**Current Version**: 04.00.03  
 **Version Branch**: version/03.02.00 (to be created on next bump)  
 **Next Version**: 03.03.00 (planned Q1 2026)

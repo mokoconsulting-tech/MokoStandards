@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Architecture
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/guide/repository-split-plan.md
-VERSION: 04.00.01
+VERSION: 04.00.03
 BRIEF: Architecture plan for splitting public and private repository content
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Repository Split Plan: MokoStandards Public vs Private
 
@@ -652,7 +652,7 @@ https://github.com/mokoconsulting-tech/MokoStandards
 | Owner          | Moko Consulting                                          |
 | Repo           | https://github.com/mokoconsulting-tech/                                      |
 | Path           | /docs/guide/repository-split-plan.md                                      |
-| Version        | 04.00.01                                 |
+| Version        | 04.00.03                                 |
 | Status         | Active                                         |
 | Last Reviewed  | 2026-01-28                                  |
 | Reviewed By    | Documentation Team                                    |
@@ -662,4 +662,4 @@ https://github.com/mokoconsulting-tech/MokoStandards
 
 | Date       | Author          | Change                                       | Notes                                              |
 | ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
-| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 04.00.01 with all required fields |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 04.00.03 with all required fields |

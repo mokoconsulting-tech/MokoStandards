@@ -23,7 +23,7 @@
  INGROUP: MokoStandards
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  FILE: README.md
- VERSION: 04.00.01
+ VERSION: 04.00.03
  BRIEF: Authoritative coding standards, golden architecture, workflows, templates, and governance policies
  PATH: /README.md
  NOTE: Standards definition repository - not for duplication. Use templates to create projects.
@@ -34,10 +34,13 @@
 # README - MokoStandards
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![Documentation](https://img.shields.io/badge/Documentation-238_files-orange.svg)](./docs)
 [![Policy Documents](https://img.shields.io/badge/Policy_Documents-77-orange.svg)](./docs/policy)
+[![Validation Checks](https://img.shields.io/badge/Validation_Checks-28-brightgreen.svg)](./.github/workflows/standards-compliance.yml)
+[![Enforcement Levels](https://img.shields.io/badge/Enforcement_Levels-6-blue.svg)](./docs/enforcement-levels.md)
 [![PHP Libraries](https://img.shields.io/badge/PHP_Libraries-13-brightgreen.svg)](./src/Enterprise)
-[![Web Interface](https://img.shields.io/badge/Web_Interface-ACTIVE-brightgreen.svg)](./public)
+[![Training Hours](https://img.shields.io/badge/Training-17.5_hours-blue.svg)](./docs/training)
 
 > **⚠️ Important**: This repository defines organizational policies and standards. **Do not clone or duplicate** this repository to create new projects. Use our [repository templates](#templates) instead.
 
@@ -46,33 +49,78 @@
 **MokoStandards** is the authoritative source of coding standards, architectural patterns, workflow templates, governance policies, and automation tools for the Moko Consulting ecosystem. It serves as **Tier 2 (Public SOURCE OF TRUTH)** in our two-tier architecture.
 
 This repository provides:
-- **77 Policy Documents**: Comprehensive coding standards, security policies, and best practices
+- **238 Documentation Files**: Comprehensive guides, policies, and references (120KB+)
+- **6-Tier Enforcement System**: Graduated file enforcement (OPTIONAL → SUGGESTED → REQUIRED → FORCED → NOT_SUGGESTED → NOT_ALLOWED)
+- **28 Validation Checks**: Comprehensive standards compliance across security, quality, documentation, structure, and metrics
+- **77 Policy Documents**: Coding standards, security policies, and best practices
 - **PHP Enterprise Libraries**: 13 operational libraries for validation, automation, and operations
-- **CLI Scripts**: PHP scripts for repository management and validation
+- **CLI Scripts**: 187+ scripts for repository management and validation
 - **Templates**: Project templates for creating standards-compliant repositories
 - **Workflows**: Reusable GitHub Actions workflows (PHP-based)
-- **Visual Tools**: Documentation with Mermaid diagrams
+- **Training Program**: 17.5 hours across 7 comprehensive sessions
+- **Visual Tools**: Documentation with Mermaid diagrams and badge system
 
 ## Quick Reference
+
+### Six-Tier Enforcement System
+
+MokoStandards uses a graduated six-tier enforcement system for file synchronization:
+
+| Badge | Level | Behavior | Override |
+|-------|-------|----------|----------|
+| ![Level 1](https://img.shields.io/badge/Level_1-OPTIONAL-blue?style=flat-square) | **OPTIONAL** | Opt-in only | Yes |
+| ![Level 2](https://img.shields.io/badge/Level_2-SUGGESTED-yellow?style=flat-square) | **SUGGESTED** | Recommended, warnings if excluded | Yes |
+| ![Level 3](https://img.shields.io/badge/Level_3-REQUIRED-orange?style=flat-square) | **REQUIRED** | Mandatory, errors if excluded | No |
+| ![Level 4](https://img.shields.io/badge/Level_4-FORCED-red?style=flat-square) | **FORCED** | Always synced (6 critical files) | No |
+| ![Level 5](https://img.shields.io/badge/Level_5-NOT__SUGGESTED-yellow?style=flat-square) | **NOT_SUGGESTED** | Discouraged, warnings if present | Yes (with warning) |
+| ![Level 6](https://img.shields.io/badge/Level_6-NOT__ALLOWED-critical?style=flat-square) | **NOT_ALLOWED** | Prohibited, absolute priority | **NEVER** |
+
+**Processing Priority**: NOT_ALLOWED → FORCED → REQUIRED → SUGGESTED → NOT_SUGGESTED → OPTIONAL
+
+📖 **Complete Guide**: [docs/enforcement-levels.md](docs/enforcement-levels.md) - 45KB comprehensive reference with examples, decision trees, and troubleshooting
 
 ### Key Capabilities
 
 | Category | Description | Location |
 |----------|-------------|----------|
-| **Standards & Policies** | 77 policy documents covering all aspects | [`docs/policy/`](docs/policy/) |
+| **Enforcement System** | 6-tier graduated file enforcement system | [`docs/enforcement-levels.md`](docs/enforcement-levels.md) |
+| **Standards & Policies** | 77 policy documents + 238 total documentation files | [`docs/policy/`](docs/policy/) |
+| **Validation Checks** | 28 comprehensive checks (10 critical + 18 informational) | [`.github/workflows/standards-compliance.yml`](.github/workflows/standards-compliance.yml) |
 | **Automation Scripts** | 187+ scripts for validation and automation | [`scripts/`](scripts/) |
+| **Training Program** | 17.5 hours across 7 comprehensive sessions | [`docs/training/`](docs/training/) |
 | **GUI Applications** | 3 Windows PowerShell GUI tools | [`scripts/automation/`](scripts/automation/), [`scripts/validate/`](scripts/validate/), [`scripts/run/`](scripts/run/) |
 | **Templates** | Project templates and configurations | [`templates/`](templates/) |
 | **Workflows** | Reusable GitHub Actions workflows | [`.github/workflows/`](.github/workflows/) |
 | **Visual Docs** | Mermaid diagrams and flowcharts | [`docs/visual/`](docs/visual/) |
-| **Terraform** | Infrastructure configurations | [`terraform/`](terraform/) |
+| **Terraform** | Infrastructure configurations with standards | [`terraform/`](terraform/) |
 
 ### Repository Structure
 
 ```
 MokoStandards/
-├── docs/              # Documentation (policy, guides, references, visual)
+├── docs/              # Documentation (238 files, 120KB+)
+│   ├── enforcement-levels.md  # 45KB comprehensive enforcement guide
 │   ├── policy/        # 77 policy documents
+│   ├── training/      # 7 sessions, 17.5 hours total
+│   ├── terraform/     # Terraform documentation
+│   ├── guide/         # User guides and tutorials
+│   ├── reference/     # Technical references
+│   └── visual/        # Mermaid diagrams and flowcharts
+├── scripts/           # 187+ automation scripts
+│   ├── validate/      # Validation and checking scripts (20)
+│   ├── automation/    # Automation scripts (9)
+│   ├── maintenance/   # Maintenance scripts (8)
+│   ├── analysis/      # Analysis scripts (4)
+│   ├── lib/           # Shared libraries and utilities
+│   ├── wrappers/      # Cross-platform wrappers (106)
+│   └── [other dirs]/  # Additional script categories
+├── templates/         # Project templates and configurations
+├── terraform/         # Infrastructure as code (12 standardized files)
+├── .github/
+│   ├── config.tf      # Override configuration (standard location)
+│   └── workflows/     # 28 validation checks + reusable workflows
+└── schemas/           # JSON schemas for validation
+```
 │   ├── guide/         # User guides and tutorials
 │   ├── reference/     # Technical references
 │   └── visual/        # Mermaid diagrams and flowcharts

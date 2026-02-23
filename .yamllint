@@ -16,10 +16,16 @@ rules:
     present: false  # Not required for GitHub Actions
 
   # Line length limit
+  # Note: GitHub Actions workflows often have long lines due to:
+  # - Full commit hash references for security pinning (64+ characters)
+  # - URLs in documentation and references
+  # - File exclusion patterns
+  # General guideline remains 120 characters, but YAML workflows use 180 to accommodate these patterns
   line-length:
-    max: 120
+    max: 180
     level: warning
     allow-non-breakable-inline-mappings: true
+    allow-non-breakable-words: true
 
   # Indentation rules - allow tabs per .editorconfig
   indentation: disable

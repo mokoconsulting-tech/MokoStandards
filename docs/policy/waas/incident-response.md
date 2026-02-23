@@ -10,11 +10,11 @@
  INGROUP: Policy.IncidentResponse
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  PATH: /docs/policy/waas/incident-response.md
- VERSION: 04.00.01
+ VERSION: 04.00.03
  BRIEF: Policy defining incident classification, response, escalation, and client notification requirements for WaaS operations.
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # MokoStandard: WaaS Incident Response Policy
 

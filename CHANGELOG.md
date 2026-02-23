@@ -15,13 +15,13 @@
  DEFGROUP: MokoStandards
  INGROUP: MokoStandards.Documentation
  REPO: https://github.com/mokoconsulting-tech/MokoStandards/
- VERSION: 04.00.01
+ VERSION: 04.00.03
  PATH: ./CHANGELOG.md
  BRIEF: Version history using Keep a Changelog
  NOTE: Adheres to SemVer when applicable
  -->
 
-# CHANGELOG - MokoStandards (VERSION: 04.00.01)
+# CHANGELOG - MokoStandards (VERSION: 04.00.03)
 
 All notable changes to this project will be documented in this file.
 
@@ -29,6 +29,153 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [04.00.03] - 2026-02-21 to 2026-02-23
+
+### Added
+
+**Six-Tier Enforcement Level System** ⭐ MAJOR ENHANCEMENT:
+- ![Level 1](https://img.shields.io/badge/Level_1-OPTIONAL-blue?style=flat-square) **OPTIONAL** - Opt-in only files
+- ![Level 2](https://img.shields.io/badge/Level_2-SUGGESTED-yellow?style=flat-square) **SUGGESTED** - Recommended files with warnings if excluded
+- ![Level 3](https://img.shields.io/badge/Level_3-REQUIRED-orange?style=flat-square) **REQUIRED** - Mandatory files, errors if excluded
+- ![Level 4](https://img.shields.io/badge/Level_4-FORCED-red?style=flat-square) **FORCED** - Always synced, cannot be overridden (6 critical files)
+- ![Level 5](https://img.shields.io/badge/Level_5-NOT__SUGGESTED-yellow?style=flat-square) **NOT_SUGGESTED** - Discouraged files, warnings if present (NEW)
+- ![Level 6](https://img.shields.io/badge/Level_6-NOT__ALLOWED-critical?style=flat-square) **NOT_ALLOWED** - Prohibited files, absolute priority (NEW)
+- NOT_ALLOWED level checked FIRST in enforcement pipeline (cannot be overridden by any config.tf settings)
+- Complete configuration support in .github/config.tf with enforcement_levels section
+- Graduated enforcement provides flexibility while ensuring security and compliance
+
+**Standards-Compliance Expansion to 28 Checks**:
+- Check #28: **Terraform Validation** (informational) - NEW
+  - Override configuration location validation (.github/config.tf)
+  - Terraform syntax validation (terraform validate)
+  - Terraform formatting check (terraform fmt -check)
+  - file_metadata presence validation
+  - Version consistency check (04.00.03)
+  - Copyright header validation (GPL-3.0-or-later)
+- Total: 10 critical checks (blocking) + 18 informational checks (guidance)
+- Comprehensive validation across security, quality, documentation, structure, and metrics
+
+**Visual Badge System for Enforcement Levels**:
+- Professional shields.io badges for all 6 enforcement levels
+- Color-coded severity: blue → yellow → orange → red → critical
+- Consistent flat-square style throughout documentation
+- Badge legend in all major documentation files
+- Visual hierarchy makes enforcement levels immediately recognizable
+
+**Comprehensive Documentation (45KB)** ⭐:
+- New authoritative guide: `docs/enforcement-levels.md` (1,800+ lines)
+- 11 major sections: Quick Reference, Overview, Six Levels (detailed), Enforcement Priority, Comparison Matrix, Decision Tree, Practical Examples (3), Best Practices, Implementation Details, Troubleshooting, Related Documentation
+- 50+ code examples with complete terraform configurations
+- 5 comprehensive comparison tables
+- Visual diagrams: processing order, decision trees
+- Real-world scenarios: web application, API service, library project
+- Complete troubleshooting guide with debug commands
+
+**Training Materials Expansion**:
+- Session 7 extended from 2.5 to 3.0 hours
+- New Part 2.5: "How Terraform Enforces Standards" (~350 lines)
+- Explains 27-check validation system with enforcement levels
+- Mermaid diagrams showing enforcement mechanism
+- Real-world examples with complete sync output
+- Total training program now 17.5 hours (was 17 hours)
+
+**Terraform File Standardization**:
+- All 12 terraform files standardized with file_metadata blocks
+- Consistent GPL-3.0-or-later copyright headers
+- FILE INFORMATION sections with DEFGROUP, INGROUP, REPO, PATH, VERSION, BRIEF
+- Version 04.00.03 consistency across all .tf files
+- terraform/main.tf, variables.tf, outputs.tf, and 9 configuration files
+
+**Remote Sync Logging System**:
+- Comprehensive audit logs created on remote repositories at `logs/MokoStandards/sync/`
+- Three log files per sync: sync-YYYYMMDD-HHMMSS.log (session), sync-latest.log (current), sync-summary.json (machine-readable)
+- Logs include all operations, file decisions, enforcement levels, validations, warnings, errors, and summary statistics
+- Auto-creates logs directory with README.md
+- Complete audit trail for compliance and troubleshooting
+
+**Auto-Migration System**:
+- Automatic migration of legacy override files to .github/config.tf standard location
+- Detects and migrates: MokoStandards.override.tf, override.config.tf, .mokostandards.override.tf
+- Creates .github directory if needed
+- Updates file content to match current standards
+- Deletes old files after successful migration
+- Full audit logging of migration operations
+
+**Reserve Dolibarr Module ID Workflow Enhancements**:
+- Added `push_to_remote` boolean input parameter (optional, default: false)
+- Push to remote repository is now optional and user-controlled
+- Conditional execution of push step based on `push_to_remote` value
+- Status indicator in workflow outputs showing push status (Enabled/Skipped)
+
+### Changed
+
+**Enforcement System Architecture**:
+- Expanded from 4-tier to 6-tier system
+- NOT_ALLOWED enforcement now has absolute priority (checked FIRST)
+- Override behavior clearly documented for each level
+- Processing order: NOT_ALLOWED → FORCED → REQUIRED → SUGGESTED → NOT_SUGGESTED → OPTIONAL
+- Complete comparison matrix showing behavior for all 6 levels
+
+**Documentation Structure**:
+- All documentation updated from "four-tier" to "six-tier" terminology (24 occurrences updated)
+- docs/terraform/enforcement-levels.md updated with 6 levels
+- docs/training/session-7-terraform-infrastructure.md updated with 6-tier examples
+- docs/policy/terraform-file-standards.md updated with enforcement system details
+- Badge legend added to key documentation files
+
+**Override Configuration**:
+- Standard location: .github/config.tf (enforced)
+- Enhanced with enforcement_levels section for all 6 levels
+- not_suggested_files and not_allowed_files sections added
+- Clear documentation of override restrictions for each level
+- Badge reference URLs in configuration comments
+
+**Reserve Dolibarr Module ID Workflow**:
+- Remote push is now **optional** with `push_to_remote` input parameter (default: false)
+- PR description now shows whether remote push was enabled
+- Output summary shows remote push status (✅ Enabled or ⏭️ Skipped)
+- Next steps conditional based on push status
+- Workflow version updated to 04.00.03
+
+### Fixed
+
+**Reserve Dolibarr Module ID Workflow**:
+- Push step now skips if `push_to_remote` is false
+- Documentation updated to reflect optional push behavior
+- Workflow diagram correctly shows push as "(Optional)"
+- Examples demonstrate both scenarios (with and without push)
+
+**Documentation Consistency**:
+- Fixed version references throughout documentation (04.00.03)
+- Corrected ROADMAP.md timeline (04.00.03 is current, not future vision)
+- Updated "last updated" dates to 2026-02-23
+- Synchronized training duration across all references (17.5 hours)
+- Verified badge URL consistency (shields.io)
+
+## [04.00.02] - 2026-02-20
+
+### Changed
+
+**Reserve Dolibarr Module ID Workflow**:
+- Simplified workflow inputs to only require `repo_name`
+- Repository URL now automatically constructed as `https://github.com/mokoconsulting-tech/{repo_name}`
+- Organization is always assumed to be `mokoconsulting-tech`
+- Description is automatically generated from module name
+
+### Fixed
+
+**Reserve Dolibarr Module ID Workflow**:
+- Removed outdated "(Optional)" label from workflow diagram
+- Updated documentation to reflect workflow behavior
+- Clarified module ID file creation process
+
+### Removed
+
+**Reserve Dolibarr Module ID Workflow**:
+- `description` input (auto-generated)
+- `repository` input (auto-constructed)
+- `developer` input (removed in v04.00.01)
 
 ## [04.00.01] - 2026-02-19
 
@@ -78,7 +225,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Workflow now uses `shivammathur/setup-php@v2` instead of `actions/setup-python@v6`
 - Updated trigger paths to match actual script files (*.php, *.sh, *.ps1)
 - Updated commit target from `.github/workflows/` to `scripts/.script-registry.json`
-- Protected in MokoStandards.override.tf
+- Protected in override.config.tf
 - Documentation:
   - Updated `docs/guide/sha-auto-update.md`
   - Updated `docs/guide/script-integrity-validation.md`
@@ -96,7 +243,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - All PHP scripts (scripts/**/*.php)
   - All template files (templates/**/*.yml)
   - All Terraform files (terraform/**/*.tf)
-  - MokoStandards.override.tf
+  - override.config.tf
   - README.md, CONTRIBUTING.md, ROADMAP.md
 
 **Dolibarr Module Registry Reorganization**:
@@ -117,7 +264,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed developer references from workflow templates and PR descriptions
 
 **Terraform Configuration Updates**:
-- Updated `MokoStandards.override.tf`:
+- Updated `override.config.tf`:
   - Added `auto-update-sha.yml` to protected files list
   - Added `validate-script-integrity.yml` to protected files list
   - Updated version to 04.00.01
@@ -171,7 +318,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Validates all 5 enterprise workflows
 - Verifies Terraform installation scripts
 - Checks version badges in documentation (README.md, CHANGELOG.md, docs/README.md)
-- Validates MokoStandards.override.tf configuration
+- Validates override.config.tf configuration
 - Checks enterprise metadata in config files (pyproject.toml, package.json, composer.json)
 - Validates monitoring directory structure (logs/, logs/audit/, logs/metrics/)
 - Returns 0-100% enterprise readiness score
@@ -189,7 +336,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Sets up monitoring directories (logs/audit/, logs/metrics/, logs/validation/)
 - Initializes configuration files with enterprise metadata
 - Adds version badges to README.md
-- Creates MokoStandards.override.tf if missing
+- Creates override.config.tf if missing
 - Interactive mode with user confirmations
 - Non-interactive mode for CI/CD automation
 - Dry-run mode for safe preview of changes
@@ -594,7 +741,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Removed** `codeql-analysis.yml` - Redundant with GitHub default CodeQL setup
   - **Kept 9 workflows**: standards-compliance, comprehensive-validation, validate-script-integrity, security-comprehensive, confidentiality-scan, auto-update-sha, auto-create-dev-branch, bulk-repo-sync, terraform-drift-check
   - Rationale: Focus MokoStandards on standards enforcement and repository management only
-  - **Updated** `MokoStandards.override.tf` to version 2.3.0 with all excluded workflows documented
+  - **Updated** `override.config.tf` to version 2.3.0 with all excluded workflows documented
 - **Template Consolidation**: Merged duplicate and superseded workflow templates
   - **Removed** `build-universal.yml.template` - exact duplicate of `build.yml.template`
   - **Removed** `release-cycle-simple.yml.template` - superseded by `release-cycle.yml.template` v2.0
@@ -602,7 +749,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `docs/workflows/README.md` - Updated quick start and template references
     - `docs/build-system/README.md` - Updated build workflow references
     - `docs/release-management/README.md` - Updated release workflow references
-  - **Updated** `MokoStandards.override.tf` to version 2.2.0:
+  - **Updated** `override.config.tf` to version 2.2.0:
     - Added excluded reusable workflows to exclude_files list
     - Added removed templates to obsolete_files list for sync cleanup
 
@@ -876,7 +1023,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added - Terraform Override Configuration
 - **Configuration Management**: Converted override file from XML to Terraform format
-  - Created `MokoStandards.override.tf` replacing `MokoStandards.override.xml`
+  - Created `override.config.tf` replacing `MokoStandards.override.xml`
   - Uses HCL locals blocks for metadata and configuration
   - Lists exclude_files and protected_files in type-safe format
   - Updated `scripts/automation/bulk_update_repos.py` to parse Terraform format using regex

@@ -18,7 +18,7 @@ declare(strict_types=1);
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
  * @package MokoStandards\Enterprise
- * @version 04.00.01
+ * @version 04.00.03
  * @author MokoStandards Team
  * @license GPL-3.0-or-later
  */
@@ -119,7 +119,7 @@ class ApiClient
         'circuit_breaker_trips' => 0,
     ];
 
-    public const VERSION = '04.00.01';
+    public const VERSION = '04.00.03';
 
     /**
      * Initialize API client.

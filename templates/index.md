@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Templates
 INGROUP: MokoStandards
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /templates/index.md
-VERSION: 04.00.01
+VERSION: 04.00.03
 BRIEF: Comprehensive catalog of all templates in MokoStandards
 -->
 

@@ -22,7 +22,7 @@
  DEFGROUP: MokoStandards
  INGROUP: MokoStandards.Documentation
  REPO: https://github.com/mokoconsulting-tech/MokoStandards/
- VERSION: 04.00.01
+ VERSION: 04.00.03
  PATH: ./CONTRIBUTING.md
  BRIEF: v2.0 contribution guidelines with Python/PowerShell standards, Google docstrings, 100% type hints
  NOTE: Breaking changes from v1 - no backward compatibility
@@ -526,7 +526,7 @@ DEFGROUP: MokoStandards.Scripts
 INGROUP: MokoStandards.Automation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /scripts/category/script_name.py
-VERSION: 04.00.01
+VERSION: 04.00.03
 BRIEF: Brief description of purpose
 """
 ```
@@ -548,7 +548,7 @@ BRIEF: Brief description of purpose
  INGROUP: MokoStandards
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  PATH: /path/to/file.md
- VERSION: 04.00.01
+ VERSION: 04.00.03
  BRIEF: Brief description
 -->
 
@@ -918,11 +918,11 @@ v03.05.12
 
 ### File Version Headers
 
-In file headers, use format: `VERSION: 04.00.01` (no 'v' prefix)
+In file headers, use format: `VERSION: 04.00.03` (no 'v' prefix)
 
 ```python
 # FILE INFORMATION
-VERSION: 04.00.01
+VERSION: 04.00.03
 ```
 
 ### Changelog

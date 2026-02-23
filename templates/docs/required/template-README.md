@@ -14,7 +14,7 @@
 	DEFGROUP: MokoStandards-Docs
 	INGROUP: Project.Documentation
 	REPO: https://github.com/mokoconsulting-tech/MokoStandards-Docs
-	VERSION: 04.00.01
+	VERSION: 04.00.03
 	PATH: ./README.md
 	BRIEF: Reference + packaging repo for Moko Consulting Developer GPT Other Default
 -->

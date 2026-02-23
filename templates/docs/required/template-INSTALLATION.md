@@ -7,7 +7,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 # FILE INFORMATION
 PATH: /docs/INSTALLATION.md
-VERSION: 04.00.01
+VERSION: 04.00.03
 BRIEF: Installation and setup instructions for [PROJECT_NAME]
 -->
 

@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Training
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: docs/training/session-6-git-github-workflow.md
-VERSION: 04.00.01
+VERSION: 04.00.03
 BRIEF: Session 6 - Git, GitHub, and GitHub Projects workflow training
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Session 6: Git, GitHub & GitHub Projects Workflow
 

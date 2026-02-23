@@ -41,7 +41,7 @@ declare(strict_types=1);
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
  * @package MokoStandards\Enterprise
- * @version 04.00.01
+ * @version 04.00.03
  * @author MokoStandards Team
  * @license GPL-3.0-or-later
  */
@@ -57,7 +57,7 @@ use Exception;
  */
 abstract class CLIApp
 {
-    private const VERSION = '04.00.01';
+    private const VERSION = '04.00.03';
 
     protected string $name;
     protected string $description;

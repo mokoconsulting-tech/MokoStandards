@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Guide
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/bulk-repo-sync-override-files.md
-VERSION: 04.00.01
+VERSION: 04.00.03
 BRIEF: Complete guide to terraform override files for bulk repository synchronization
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Terraform Override Files for Bulk Repository Sync
 
@@ -52,12 +52,12 @@ BRIEF: Complete guide to terraform override files for bulk repository synchroniz
 
 ## Overview
 
-The **MokoStandards.override.tf** file is a Terraform-based configuration file that controls how the bulk repository sync workflow synchronizes standards, workflows, scripts, and configurations from MokoStandards to your repository.
+The **override.config.tf** file is a Terraform-based configuration file that controls how the bulk repository sync workflow synchronizes standards, workflows, scripts, and configurations from MokoStandards to your repository.
 
 ### Purpose
 
 When the bulk repository sync workflow runs (monthly or manually), it:
-1. Checks for a `MokoStandards.override.tf` file in your repository root
+1. Checks for a `override.config.tf` file in your repository root
 2. Reads the configuration to determine sync behavior
 3. Applies your custom exclusions and protections
 4. Syncs only the files you've allowed
@@ -85,7 +85,7 @@ The override file uses **Terraform's HCL (HashiCorp Configuration Language)** sy
 
 The file **must** be named exactly:
 ```
-MokoStandards.override.tf
+override.config.tf
 ```
 
 Case-sensitive, no variations allowed.
@@ -103,14 +103,14 @@ your-repository/
 ├── .github/
 │   └── workflows/
 ├── src/
-├── MokoStandards.override.tf  ← Place file here
+├── override.config.tf  ← Place file here
 └── README.md
 ```
 
 ### Basic Structure
 
 ```hcl
-# MokoStandards.override.tf
+# override.config.tf
 locals {
   # Metadata about this configuration
   override_metadata = {
@@ -150,7 +150,7 @@ locals {
 ### Sync Process Flow
 
 1. **Clone Repository**: Bulk sync clones your repository to a temporary directory
-2. **Check for Override**: Looks for `MokoStandards.override.tf` in repository root
+2. **Check for Override**: Looks for `override.config.tf` in repository root
 3. **Parse Configuration**: If found, reads and validates the configuration
 4. **Apply Settings**: Uses your settings to control sync behavior
 5. **Sync Files**: Only syncs files that aren't excluded or protected
@@ -523,7 +523,7 @@ locals {
 ### Minimal Override (Platform Only)
 
 ```hcl
-# MokoStandards.override.tf - Minimal configuration
+# override.config.tf - Minimal configuration
 locals {
   override_metadata = {
     name             = "Simple Override"
@@ -551,7 +551,7 @@ locals {
 ### Complete Override (All Options)
 
 ```hcl
-# MokoStandards.override.tf - Complete configuration
+# override.config.tf - Complete configuration
 locals {
   override_metadata = {
     name             = "Advanced Repository Override"
@@ -739,9 +739,9 @@ Or trigger workflow with `dry_run: true` in GitHub Actions.
 - Excluded files still being synced
 
 **Solutions:**
-1. Verify file name is exactly `MokoStandards.override.tf` (case-sensitive)
+1. Verify file name is exactly `override.config.tf` (case-sensitive)
 2. Confirm file is in repository root directory (not subdirectory)
-3. Check Terraform syntax: `terraform fmt -check MokoStandards.override.tf`
+3. Check Terraform syntax: `terraform fmt -check override.config.tf`
 4. Ensure file has proper read permissions
 5. Review bulk sync workflow logs for parse errors
 
@@ -798,7 +798,7 @@ Or trigger workflow with `dry_run: true` in GitHub Actions.
 
 Before committing your override file:
 
-- [ ] File named exactly `MokoStandards.override.tf`
+- [ ] File named exactly `override.config.tf`
 - [ ] Located in repository root directory
 - [ ] Terraform syntax valid (`terraform fmt -check`)
 - [ ] `repository_type` specified and valid
@@ -836,7 +836,7 @@ Before committing your override file:
 
 ### Key Takeaways
 
-1. **Override files control sync behavior** - Use `MokoStandards.override.tf` to customize
+1. **Override files control sync behavior** - Use `override.config.tf` to customize
 2. **Always specify repository type** - Faster and more accurate than auto-detection
 3. **Protect your custom files** - Add to `protected_files` list
 4. **Document your choices** - Include clear reasons for exclusions and protections
@@ -847,7 +847,7 @@ Before committing your override file:
 ### Quick Reference
 
 ```hcl
-# MokoStandards.override.tf - Template
+# override.config.tf - Template
 locals {
   override_metadata = {
     repository_type = "terraform"  # REQUIRED: terraform|dolibarr|joomla|generic

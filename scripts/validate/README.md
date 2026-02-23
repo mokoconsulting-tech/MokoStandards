@@ -41,7 +41,7 @@ php scripts/validate/check_version_consistency.php --help
 - Checks 5 enterprise workflows
 - Verifies Terraform installation scripts
 - Validates version badges in documentation
-- Checks MokoStandards.override.tf configuration
+- Checks override.config.tf configuration
 - Validates enterprise metadata in configs
 - Checks monitoring directory structure
 - Returns 0-100% readiness score

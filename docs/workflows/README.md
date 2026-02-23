@@ -1,8 +1,8 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # GitHub Workflow Templates Documentation
 
-**Status**: Active | **Version**: 04.00.01 | **Effective**: 2026-01-07
+**Status**: Active | **Version**: 04.00.03 | **Effective**: 2026-01-07
 
 ## Overview
 
@@ -13,6 +13,7 @@ This document provides comprehensive documentation for MokoStandards workflow te
 - [Workflow Architecture](./workflow-architecture.md) - Workflow hierarchy and design patterns
 - [Workflow Inventory](./workflow-inventory.md) - Complete inventory of workflows
 - [Reusable Workflows](./reusable-workflows.md) - Documentation for reusable GitHub Actions workflows
+- [Standards Compliance](./standards-compliance.md) - **NEW**: Comprehensive standards validation workflow
 - [Bulk Repository Sync](./bulk-repo-sync.md) - Automated standards deployment across organization repositories
 - [Release System](./release-system.md) - Unified release system documentation
 - [Changelog Management](./changelog-management.md) - Changelog management workflows and scripts
@@ -574,15 +575,15 @@ For issues with templates:
 | Repository | https://github.com/mokoconsulting-tech/MokoStandards |
 | Owner | Moko Consulting |
 | Status | Active |
-| Version | 04.00.01 |
+| Version        | 04.00.03 |
 | Effective | 2026-01-07 |
 
 ## Version History
 
 | Version | Date | Changes |
 |---|---|---|
-| 04.00.01 | 2026-02-08 | Consolidated workflow templates: removed duplicate build-universal (use build.yml.template), removed superseded release-cycle-simple (use release-cycle v2.0) |
-| 04.00.01 | 2026-01-07 | Added public workflow templates documentation (build-universal, release-cycle, dependency-review, standards-compliance) |
+| 04.00.03 | 2026-02-08 | Consolidated workflow templates: removed duplicate build-universal (use build.yml.template), removed superseded release-cycle-simple (use release-cycle v2.0) |
+| 04.00.03 | 2026-01-07 | Added public workflow templates documentation (build-universal, release-cycle, dependency-review, standards-compliance) |
 | 01.00.00 | 2026-01-07 | Initial comprehensive workflow documentation |
 
 ## See Also

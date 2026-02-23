@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 ---
 TITLE: Demo Data Loader
@@ -6,7 +6,7 @@ DESCRIPTION: Comprehensive guide for loading SQL demo data into Joomla/Dolibarr 
 AUTHOR: Moko Consulting LLC
 COPYRIGHT: 2025-2026 Moko Consulting LLC
 LICENSE: MIT
-VERSION: 04.00.01
+VERSION: 04.00.03
 CREATED: 2026-01-29
 UPDATED: 2026-01-29
 CATEGORY: Demo

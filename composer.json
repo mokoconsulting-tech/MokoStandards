@@ -2,7 +2,7 @@
     "name": "mokoconsulting/mokostandards",
     "description": "MokoStandards - Enterprise standards and automation framework (PHP implementation)",
     "type": "library",
-    "version": "04.00.01",
+    "version": "04.00.03",
     "license": "GPL-3.0-or-later",
     "authors": [
         {

@@ -5,7 +5,7 @@
 # INGROUP: MokoStandards.HealthCheck
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/health-check.yml
-# VERSION: 04.00.01
+# VERSION: 04.00.03
 # BRIEF: Hourly library health check and circuit breaker testing
 # NOTE: Monitors library health and tests circuit breakers using PHP ApiClient
 
@@ -85,7 +85,7 @@ jobs:
               $healthStatus['ApiClient'] = [
                   'status' => 'healthy',
                   'circuit_state' => $client->getCircuitState(),
-                  'version' => '04.00.01'
+                  'version' => '04.00.03'
               ];
               echo "✅ ApiClient: healthy\n";
           } catch (Exception $e) {
@@ -99,7 +99,7 @@ jobs:
               $logger = new AuditLogger('health_check');
               $healthStatus['AuditLogger'] = [
                   'status' => 'healthy',
-                  'version' => '04.00.01'
+                  'version' => '04.00.03'
               ];
               echo "✅ AuditLogger: healthy\n";
           } catch (Exception $e) {
@@ -114,7 +114,7 @@ jobs:
               $metrics->increment('health_check_test');
               $healthStatus['MetricsCollector'] = [
                   'status' => 'healthy',
-                  'version' => '04.00.01'
+                  'version' => '04.00.03'
               ];
               echo "✅ MetricsCollector: healthy\n";
           } catch (Exception $e) {
@@ -128,7 +128,7 @@ jobs:
               $validator = new SecurityValidator();
               $healthStatus['SecurityValidator'] = [
                   'status' => 'healthy',
-                  'version' => '04.00.01'
+                  'version' => '04.00.03'
               ];
               echo "✅ SecurityValidator: healthy\n";
           } catch (Exception $e) {

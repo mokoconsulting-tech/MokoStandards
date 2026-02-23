@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Bulk Repository Update Script
 
@@ -177,11 +177,11 @@ To sync only the Dependabot configuration, you can customize the script or manua
 
 ### Overview
 
-Starting in version 04.00.01, the bulk update script includes automatic cleanup of obsolete files during sync. This ensures target repositories stay clean and don't accumulate outdated workflows or scripts.
+Starting in version 04.00.03, the bulk update script includes automatic cleanup of obsolete files during sync. This ensures target repositories stay clean and don't accumulate outdated workflows or scripts.
 
 ### Cleanup Modes
 
-The script supports three cleanup modes, configured via the `MokoStandards.override.tf` file:
+The script supports three cleanup modes, configured via the `override.config.tf` file:
 
 1. **`none`** - No cleanup (backward compatible)
    - Only copies and updates files
@@ -212,7 +212,7 @@ The following directories are cleaned during sync (in conservative/aggressive mo
 
 ### Configuration
 
-Add cleanup configuration to `MokoStandards.override.tf` in target repositories:
+Add cleanup configuration to `override.config.tf` in target repositories:
 
 ```hcl
 locals {
@@ -348,7 +348,7 @@ php scripts/automation/bulk_update_repos.php \
 
 When `--force-override` is enabled:
 
-- **Protected files** in `MokoStandards.override.tf` → WILL be overwritten
+- **Protected files** in `override.config.tf` → WILL be overwritten
 - **Excluded files** in `exclude_files` → Still NOT synced (exclusions always respected)
 - **Cleanup mode** → Still applies as configured
 - **Pull request** → Still created for review (never direct push)
@@ -556,7 +556,7 @@ For issues or questions, contact the MokoStandards maintainers or open an issue 
 | Owner          | Moko Consulting                                          |
 | Repo           | https://github.com/mokoconsulting-tech/                                      |
 | Path           | /docs/guide/bulk-repository-updates.md                                      |
-| Version        | 04.00.01                                 |
+| Version        | 04.00.03                                 |
 | Status         | Active                                         |
 | Last Reviewed  | 2026-01-28                                  |
 | Reviewed By    | Documentation Team                                    |
@@ -566,5 +566,5 @@ For issues or questions, contact the MokoStandards maintainers or open an issue 
 
 | Date       | Author          | Change                                       | Notes                                              |
 | ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
-| 2026-01-30 | Moko Consulting | Added file cleanup functionality | Version 04.00.01 - automatic cleanup of obsolete files |
-| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 04.00.01 with all required fields |
+| 2026-01-30 | Moko Consulting | Added file cleanup functionality | Version 04.00.03 - automatic cleanup of obsolete files |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 04.00.03 with all required fields |

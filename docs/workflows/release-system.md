@@ -8,11 +8,11 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Workflows
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/workflows/release-system.md
-VERSION: 04.00.01
+VERSION: 04.00.03
 BRIEF: Documentation for the unified release system
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Unified Release System
 
@@ -83,17 +83,17 @@ These workflows had overlapping triggers that caused duplicate releases.
 
 1. Update the version number in `CITATION.cff`:
    ```yaml
-   version: "04.00.01"
+   version: "04.00.03"
    ```
 
 2. Update the version in `pyproject.toml`:
    ```toml
-   version = "04.00.01"
+   version = "04.00.03"
    ```
 
 3. Add a new version section to `CHANGELOG.md`:
    ```markdown
-   ## [04.00.01] - 2026-02-02
+   ## [04.00.03] - 2026-02-02
    
    ### Added
    - New feature X
@@ -105,14 +105,14 @@ These workflows had overlapping triggers that caused duplicate releases.
 4. Commit and push to main:
    ```bash
    git add CITATION.cff pyproject.toml CHANGELOG.md
-   git commit -m "chore: bump version to 04.00.01"
+   git commit -m "chore: bump version to 04.00.03"
    git push origin main
    ```
 
 5. The `unified-release.yml` workflow will automatically:
    - Detect the version change
    - Extract release notes from CHANGELOG.md
-   - Create a git tag (v04.00.01)
+   - Create a git tag (v04.00.03)
    - Create a GitHub release
 
 ### Method 2: Manual Release
@@ -120,7 +120,7 @@ These workflows had overlapping triggers that caused duplicate releases.
 1. Go to **Actions** → **Unified Release Pipeline**
 2. Click **Run workflow**
 3. Select action: `simple-release`
-4. Enter version: `04.00.01`
+4. Enter version: `04.00.03`
 5. Optionally configure:
    - Version bump type (if version not specified)
    - Pre-release flag
@@ -133,18 +133,18 @@ For releases requiring thorough testing in stages:
 
 1. **Start Development**:
    - Go to **Actions** → **Release Management**
-   - Run workflow with action: `start-release`, version: `04.00.01`
-   - This creates `dev/04.00.01` branch
+   - Run workflow with action: `start-release`, version: `04.00.03`
+   - This creates `dev/04.00.03` branch
 
 2. **Create Release Candidate**:
-   - Make and test changes in `dev/04.00.01`
-   - Run workflow with action: `create-rc`, version: `04.00.01`
-   - This creates `rc/04.00.01` branch and `v04.00.01-rc` tag
+   - Make and test changes in `dev/04.00.03`
+   - Run workflow with action: `create-rc`, version: `04.00.03`
+   - This creates `rc/04.00.03` branch and `v04.00.03-rc` tag
 
 3. **Finalize Release**:
    - Test RC thoroughly
-   - Run workflow with action: `finalize-release`, version: `04.00.01`
-   - This creates `version/04.00.01` branch, merges to main, and creates final release
+   - Run workflow with action: `finalize-release`, version: `04.00.03`
+   - This creates `version/04.00.03` branch, merges to main, and creates final release
 
 ### Method 4: Hotfix Release
 
@@ -174,10 +174,10 @@ All versions must follow **Semantic Versioning** (SemVer):
 
 - Format: `MAJOR.MINOR.PATCH[-PRERELEASE]`
 - Examples:
-  - `04.00.01` - Stable release
-  - `04.00.01-rc1` - Release candidate
-  - `04.00.01-beta.1` - Beta release
-  - `04.00.01-alpha` - Alpha release
+  - `04.00.03` - Stable release
+  - `04.00.03-rc1` - Release candidate
+  - `04.00.03-beta.1` - Beta release
+  - `04.00.03-alpha` - Alpha release
 
 ## Skipping Releases
 

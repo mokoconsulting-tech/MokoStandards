@@ -6,7 +6,7 @@ This file is part of MokoStandards.
 For full license text, see LICENSE file in repository root.
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.01-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # GitHub Copilot Usage Policy
 

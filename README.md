@@ -224,6 +224,122 @@ MokoStandards operates in a two-tier system:
 
 See [Two-Tier Architecture Documentation](docs/policy/two-tier-architecture.md) for details.
 
+## Installation
+
+MokoStandards is a **standards repository**, not a traditional software package. Installation depends on your use case:
+
+### For Project Validation
+
+Clone MokoStandards to a tools directory for validating your repositories:
+
+```bash
+# Clone to a centralized tools location
+git clone https://github.com/mokoconsulting-tech/MokoStandards.git ~/tools/MokoStandards
+cd ~/tools/MokoStandards
+```
+
+### For Using PHP Libraries
+
+If you need the PHP enterprise libraries in your project:
+
+```bash
+# Add as a Composer dependency
+composer require mokoconsulting/moko-standards
+
+# Or for development only
+composer require --dev mokoconsulting/moko-standards
+```
+
+### For Creating New Projects
+
+**Do not clone this repository directly.** Instead, use our templates:
+- Browse [mokoconsulting-tech templates](https://github.com/mokoconsulting-tech?q=template)
+- Click "Use this template" on the appropriate template repository
+- See the [Templates](#templates) section below for more information
+
+## Usage
+
+MokoStandards can be used in several ways depending on your needs:
+
+### Validating Repositories
+
+Use the validation scripts to check your project's compliance:
+
+```bash
+# Check repository health
+php ~/tools/MokoStandards/scripts/validate/check_repo_health.php --path /path/to/your/project
+
+# Check version consistency
+php ~/tools/MokoStandards/scripts/validate/check_version_consistency.php --path /path/to/your/project
+
+# Check enterprise readiness
+php ~/tools/MokoStandards/scripts/validate/check_enterprise_readiness.php --path /path/to/your/project
+```
+
+### Using PHP Libraries
+
+Integrate validation and automation into your PHP projects:
+
+```php
+<?php
+require_once 'vendor/autoload.php';
+
+use MokoStandards\Enterprise\RepositoryHealthChecker;
+use MokoStandards\Enterprise\SecurityValidator;
+use MokoStandards\Enterprise\VersionValidator;
+
+// Check repository health
+$healthChecker = new RepositoryHealthChecker();
+$result = $healthChecker->checkRepository('/path/to/project');
+
+// Validate security
+$securityValidator = new SecurityValidator();
+$securityResult = $securityValidator->validate('/path/to/project');
+
+// Check version consistency
+$versionValidator = new VersionValidator();
+$versionResult = $versionValidator->checkVersions('/path/to/project');
+```
+
+### Syncing Standards to Repositories
+
+For organization administrators, use bulk sync to update multiple repositories:
+
+```bash
+# Configure credentials (one-time setup)
+cp config.json.example config.json
+# Edit config.json with your GitHub token
+# ⚠️ Important: Never commit config.json - ensure it's in .gitignore
+
+# Sync standards to all repositories
+php scripts/automation/bulk_update_repos.php
+```
+
+### Using Workflows
+
+Reference reusable workflows in your repository's GitHub Actions:
+
+```yaml
+# .github/workflows/standards-compliance.yml
+name: Standards Compliance
+
+on: [push, pull_request]
+
+jobs:
+  compliance:
+    uses: mokoconsulting-tech/MokoStandards/.github/workflows/standards-compliance.yml@main
+```
+
+### Referencing Documentation
+
+Browse comprehensive documentation for guidance:
+- **Policies**: See [`docs/policy/`](docs/policy/) for coding standards and best practices
+- **Training**: Follow [`docs/training/`](docs/training/) for structured learning (17.5 hours)
+- **Guides**: Check [`docs/guide/`](docs/guide/) for implementation guides
+- **Enforcement**: Read [`docs/enforcement-levels.md`](docs/enforcement-levels.md) for the 6-tier system
+
+For complete usage examples and detailed guides, see the [Getting Started](#getting-started) section.
+
 ## Templates
 
 Browse available templates for creating new projects:

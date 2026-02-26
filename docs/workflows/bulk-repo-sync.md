@@ -85,8 +85,8 @@ The **Bulk Repository Sync** workflow is MokoStandards' automated system for dep
 ### Workflow Location
 
 - **File**: `.github/workflows/bulk-repo-sync.yml`
-- **Script**: `scripts/automation/bulk_update_repos.php`
-- **Version**: 2.0 (schema-driven architecture with enterprise libraries)
+- **Script**: `scripts/automation/bulk_sync.php`
+- **Version**: 5.0 (Rebuilt using Enterprise library)
 - **Status**: ✅ **ENTERPRISE READY** - Fully integrated with enterprise security, audit logging, and metrics
 
 ---
@@ -95,41 +95,42 @@ The **Bulk Repository Sync** workflow is MokoStandards' automated system for dep
 
 ### Integrated Enterprise Libraries
 
-The bulk_update_repos.php script is now **ENTERPRISE READY** with full integration of:
+The bulk_sync.php script is **ENTERPRISE READY** with full integration of:
 
-1. **Security Validation** (`SecurityValidator`)
-   - Pre-sync vulnerability scanning of target repositories
-   - Detection of hardcoded credentials, API keys, and private keys
-   - Insecure pattern detection in code files
-   - Security issues logged in sync audit trail
+1. **RepositorySynchronizer** (Primary Component)
+   - Core synchronization logic
+   - Repository listing and filtering
+   - Per-repository processing with checkpoints
+   - Progress tracking and reporting
 
-2. **Audit Logging** (`AuditLogger`)
+2. **ApiClient**
+   - Rate limiting (5000 requests/hour default)
+   - Exponential backoff retry logic
+   - Circuit breaker protection
+   - Response caching for performance
+
+3. **AuditLogger**
    - Transaction tracking for each repository sync
    - Per-file operation logging with timestamps
    - Security event logging
-   - Compliance reports in `logs/audit/` on remote repositories
+   - Compliance reports for audit trails
 
-3. **Metrics Collection** (`MetricsCollector`)
+4. **MetricsCollector**
    - Success/failure rate tracking
    - Sync duration measurements
-   - File count metrics (processed, synced, skipped, force-overridden)
-   - Performance indicators for monitoring dashboards
+   - File count metrics (processed, synced, skipped)
+   - Performance indicators for monitoring
 
-4. **API Client** (`ApiClient`)
-   - Rate limiting (5000 requests/hour default)
-   - Exponential backoff retry
-   - Circuit breaker protection
-   - Response caching
+5. **CheckpointManager**
+   - Automatic checkpoint saving during sync
+   - Resume capability after failures
+   - State persistence for long-running operations
 
-3. **Error Recovery** (`error_recovery.py`)
-   - Checkpoint management for batch operations
-   - Automatic state recovery
-   - Transaction rollback on failure
-
-4. **Metrics Collection** (`metrics_collector.py`)
-   - Operation counters and timers
-   - Success/failure rates
-   - Prometheus-compatible export
+6. **SecurityValidator**
+   - Pre-sync vulnerability scanning
+   - Detection of hardcoded credentials and API keys
+   - Insecure pattern detection
+   - Security issues logged in audit trail
 
 ### Monitoring Workflows
 
@@ -148,18 +149,18 @@ New enterprise monitoring workflows are available:
 
 1. Go to **Actions** → **Bulk Repository Sync** in GitHub
 2. Click **Run workflow**
-3. Enter repository name: `moko-cassiopeia`
-4. Set **dry_run** to `true`
+3. Check **Dry run** box
+4. Leave **Repositories** blank (tests all repos)
 5. Click **Run workflow**
 
-This previews changes without creating PRs.
+This previews changes without applying them.
 
 ### Syncing Specific Repositories
 
 1. Go to **Actions** → **Bulk Repository Sync**
 2. Click **Run workflow**
-3. Enter repository names: `moko-cassiopeia moko-dolibarr`
-4. Leave **dry_run** as `false`
+3. Enter repository names: `MokoApp MokoWeb` (space-separated)
+4. Leave **Dry run** unchecked
 5. Click **Run workflow**
 
 This creates PRs in the specified repositories.

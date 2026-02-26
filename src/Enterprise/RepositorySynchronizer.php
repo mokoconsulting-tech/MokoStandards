@@ -153,11 +153,7 @@ class RepositorySynchronizer
             $this->logger->logError("CRITICAL: Repository synchronization logic not implemented");
             $this->logger->rollbackTransaction($txn);
             
-            throw new RuntimeException(
-                "Repository synchronization logic is not implemented. " .
-                "The processRepository() method contains only placeholder code. " .
-                "Actual file synchronization, PR creation, and merge handling must be implemented."
-            );
+            throw SynchronizationNotImplementedException::create();
             
         } catch (Exception $e) {
             $this->logger->rollbackTransaction($txn);

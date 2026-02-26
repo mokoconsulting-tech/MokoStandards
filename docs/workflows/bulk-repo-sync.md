@@ -540,7 +540,7 @@ The sync tool has three cleanup modes (configured in override):
 **Solutions**:
 1. Add `override.config.tf` with explicit `repository_type`
 2. Verify repository structure matches expected patterns
-3. Check auto-detection script works: `python3 scripts/validate/auto_detect_platform.php`
+3. Check auto-detection script works: `php scripts/validate/auto_detect_platform.php`
 
 #### Issue 5: Dry Run Shows No Changes
 

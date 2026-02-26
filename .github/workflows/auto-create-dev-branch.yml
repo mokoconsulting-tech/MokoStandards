@@ -280,13 +280,31 @@ jobs:
 
             *This issue was automatically created by the auto-create-dev-branch workflow.*`;
 
+            // Validate assignees before creating issue
+            async function validateAssignees(assignees) {
+              const validAssignees = [];
+              for (const assignee of assignees) {
+                try {
+                  await github.rest.users.getByUsername({ username: assignee });
+                  validAssignees.push(assignee);
+                  console.log(`✓ Validated assignee: ${assignee}`);
+                } catch (error) {
+                  console.log(`✗ Invalid assignee (skipping): ${assignee} - ${error.message}`);
+                }
+              }
+              return validAssignees;
+            }
+
+            const requestedAssignees = ['jmiller-moko'];
+            const validAssignees = await validateAssignees(requestedAssignees);
+
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: `Development Branch: ${branchName}`,
               body: issueBody,
               labels: ['automation', 'version-management', 'dev-branch'],
-              assignees: ['copilot', 'jmiller-moko']
+              assignees: validAssignees
             });
 
       - name: Comment on merged PR

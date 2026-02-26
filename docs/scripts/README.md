@@ -63,7 +63,7 @@ Automation scripts for bulk repository operations and GitHub integrations.
 | Script | Purpose | Guide |
 |--------|---------|-------|
 | `auto_create_org_projects.py` | Automatically create GitHub Projects for all org repos | [Guide](automation/auto-create-org-projects-py.md) |
-| `bulk_update_repos.py` | Bulk update workflows and configs across repositories | [Guide](automation/bulk-update-repos-py.md) |
+| `bulk_update_repos.php` | Bulk update workflows and configs across repositories | [Guide](automation/bulk-update-repos-py.md) |
 | `create_repo_project.py` | Create a GitHub Project for a specific repository | [Guide](automation/create-repo-project-py.md) |
 | `sync_file_to_project.py` | Sync documentation files to GitHub Project tasks | [Guide](automation/sync-file-to-project-py.md) |
 
@@ -151,7 +151,7 @@ Test scripts for validating script functionality.
 
 | Script | Purpose | Guide |
 |--------|---------|-------|
-| `test_bulk_update_repos.py` | Test bulk repository update functionality | [Guide](tests/test-bulk-update-repos-py.md) |
+| `test_bulk_update_repos.php` | Test bulk repository update functionality | [Guide](tests/test-bulk-update-repos-py.md) |
 | `test_dry_run.py` | Test dry-run mode across scripts | [Guide](tests/test-dry-run-py.md) |
 
 [📂 View all test documentation](tests/)
@@ -196,7 +196,7 @@ Many automation scripts require GitHub authentication:
 Most automation scripts support `--dry-run` flag:
 ```bash
 # Preview changes without making them
-python3 scripts/automation/bulk_update_repos.py --dry-run
+php scripts/automation/bulk_update_repos.php --dry-run
 ```
 
 ### Verbose Output

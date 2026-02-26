@@ -35,7 +35,7 @@ This script helps maintain consistency across all organization repositories by:
 Update all non-archived repositories in the organization that begin with "Moko":
 
 ```bash
-./scripts/automation/bulk_update_repos.py
+./scripts/automation/bulk_update_repos.php
 ```
 
 Note: Only repositories with names starting with "Moko" (e.g., MokoStandards, MokoCRM, MokoDoliTools) will be processed. Other repositories are automatically excluded.
@@ -45,43 +45,43 @@ Note: Only repositories with names starting with "Moko" (e.g., MokoStandards, Mo
 Preview what would be updated without making changes:
 
 ```bash
-./scripts/automation/bulk_update_repos.py --dry-run
+./scripts/automation/bulk_update_repos.php --dry-run
 ```
 
 ### Update Specific Repositories
 
 ```bash
-./scripts/automation/bulk_update_repos.py --repos repo1 repo2 repo3
+./scripts/automation/bulk_update_repos.php --repos repo1 repo2 repo3
 ```
 
 ### Exclude Specific Repositories
 
 ```bash
-./scripts/automation/bulk_update_repos.py --exclude MokoStandards legacy-repo
+./scripts/automation/bulk_update_repos.php --exclude MokoStandards legacy-repo
 ```
 
 ### Sync Only Workflows (No Scripts)
 
 ```bash
-./scripts/automation/bulk_update_repos.py --files-only
+./scripts/automation/bulk_update_repos.php --files-only
 ```
 
 ### Sync Only Scripts (No Workflows)
 
 ```bash
-./scripts/automation/bulk_update_repos.py --scripts-only
+./scripts/automation/bulk_update_repos.php --scripts-only
 ```
 
 ### Custom Branch Name
 
 ```bash
-./scripts/automation/bulk_update_repos.py --branch feature/update-workflows
+./scripts/automation/bulk_update_repos.php --branch feature/update-workflows
 ```
 
 ### Different Organization
 
 ```bash
-./scripts/automation/bulk_update_repos.py --org my-other-org
+./scripts/automation/bulk_update_repos.php --org my-other-org
 ```
 
 ## What Gets Synced
@@ -143,7 +143,7 @@ For each repository, the script:
 
 ```bash
 # Preview changes for specific repositories
-./scripts/automation/bulk_update_repos.py \
+./scripts/automation/bulk_update_repos.php \
   --repos MyJoomlaExtension MyDolibarrModule \
   --dry-run
 ```
@@ -154,21 +154,21 @@ To sync only the Dependabot configuration, you can customize the script or manua
 
 ```bash
 # Sync all files including Dependabot config
-./scripts/automation/bulk_update_repos.py --files-only
+./scripts/automation/bulk_update_repos.php --files-only
 ```
 
 ### Example 3: Update All Except Archived
 
 ```bash
 # Update all active repositories
-./scripts/automation/bulk_update_repos.py \
+./scripts/automation/bulk_update_repos.php \
   --exclude MokoStandards-archive old-project deprecated-repo
 ```
 
 ### Example 4: Custom PR Message
 
 ```bash
-./scripts/automation/bulk_update_repos.py \
+./scripts/automation/bulk_update_repos.php \
   --pr-title "feat: Add monthly Dependabot updates" \
   --pr-body "This PR adds monthly Dependabot configuration and updated CI workflows."
 ```
@@ -523,7 +523,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Sync to org repos
         run: |
-          ./scripts/automation/bulk_update_repos.py --yes
+          ./scripts/automation/bulk_update_repos.php --yes
         env:
           GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
 ```

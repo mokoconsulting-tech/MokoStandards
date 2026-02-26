@@ -300,7 +300,7 @@ if __name__ == '__main__':
 
 Integrate enterprise libraries into most-used scripts:
 
-1. **bulk_update_repos.py**
+1. **bulk_update_repos.php**
    - Add audit logging
    - Use APIClient with rate limiting
    - Add error recovery

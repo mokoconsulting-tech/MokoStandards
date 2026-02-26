@@ -69,7 +69,7 @@ def main():
 Place documentation in `docs/{category}/{script-name}.md`:
 
 - `scripts/validate/check_repo_health.py` → `docs/validate/check-repo-health.md`
-- `scripts/automation/bulk_update_repos.py` → `docs/automation/bulk-update-repos.md`
+- `scripts/automation/bulk_update_repos.php` → `docs/automation/bulk-update-repos.md`
 - `scripts/run/load_demo_data.py` → `docs/demo/demo-data-loader.md`
 
 ## PowerShell Scripts

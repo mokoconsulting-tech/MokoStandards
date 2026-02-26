@@ -132,7 +132,7 @@ docs/planning/
 
 **Good Examples**:
 ```markdown
-- Update bulk_update_repos.py with enterprise audit logging (4 hours)
+- Update bulk_update_repos.php with enterprise audit logging (4 hours)
 - Deploy Grafana dashboard for metrics collection (3 hours)
 - Conduct training session on API client usage (2 hours)
 ```
@@ -345,7 +345,7 @@ Planning documentation quality checklist:
 
 ### Priority 1: Critical Script Updates (13 hours)
 
-1. **bulk_update_repos.py** (4 hours) - @dev1
+1. **bulk_update_repos.php** (4 hours) - @dev1
    - Add AuditLogger integration
    - Use APIClient with rate limiting
    - Add error recovery with checkpointing

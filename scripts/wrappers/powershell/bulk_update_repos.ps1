@@ -30,7 +30,7 @@ $ErrorActionPreference = 'Stop'
 
 # Script Configuration - UPDATE THESE FOR EACH WRAPPER
 $ScriptName = "bulk_update_repos"
-$ScriptPath = "scripts/automation/bulk_update_repos.py"
+$ScriptPath = "scripts/automation/bulk_update_repos.php"
 $ScriptCategory = "automation"  # automation, validation, maintenance, etc.
 
 #region Helper Functions

@@ -1016,7 +1016,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Created `terraform/repository-management/main.tf` - Declarative repository file management
   - Created `terraform/repository-management/terraform.tfvars.example` - Configuration examples
   - Enables bulk repository updates using infrastructure-as-code principles
-- **Script Enhancement**: Updated `scripts/automation/bulk_update_repos.py` to recognize Terraform repositories
+- **Script Enhancement**: Updated `scripts/automation/bulk_update_repos.php` to recognize Terraform repositories
   - Added Terraform platform detection (checks for terraform/ directory and .tf files)
   - Added Terraform workflow template mappings (ci, deploy, drift-detection)
   - Platform detection now prioritizes Terraform before falling back to auto-detection
@@ -1026,7 +1026,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Created `override.config.tf` replacing `MokoStandards.override.xml`
   - Uses HCL locals blocks for metadata and configuration
   - Lists exclude_files and protected_files in type-safe format
-  - Updated `scripts/automation/bulk_update_repos.py` to parse Terraform format using regex
+  - Updated `scripts/automation/bulk_update_repos.php` to parse Terraform format using regex
   - Updated `.github/workflows/bulk-repo-sync.yml` to reflect new format
 
 ### Added - Comprehensive Roadmap and Planning Standards

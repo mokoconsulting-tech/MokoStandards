@@ -184,7 +184,7 @@ Options:
 
 **Automatic:**
 ```bash
-./scripts/automation/bulk_update_repos.py --yes --set-standards
+./scripts/automation/bulk_update_repos.php --yes --set-standards
 ```
 
 **Manual:**

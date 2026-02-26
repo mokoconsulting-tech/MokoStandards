@@ -24,7 +24,7 @@ The scripts are organized into functional categories (with Python, Shell, and Po
   - `analyze_pr_conflicts.py` - Analyze PR conflicts
   - `generate_canonical_config.py` - Generate canonical configs
 - **[`tests/`](tests/)** - Test scripts
-  - `test_bulk_update_repos.py` - Test bulk update automation
+  - `test_bulk_update_repos.php` - Test bulk update automation
   - `test_dry_run.py` - Test dry-run functionality
 - **[`docs/`](docs/)** - Documentation generation and maintenance scripts
   - `rebuild_indexes.py` - Generate documentation indexes

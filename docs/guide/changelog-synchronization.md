@@ -210,10 +210,10 @@ This workflow is included in the bulk repository update system and will be deplo
 
 ```bash
 # Deploy to all Dolibarr repos
-./scripts/automation/bulk_update_repos.py --repos dolibarr-* --yes
+./scripts/automation/bulk_update_repos.php --repos dolibarr-* --yes
 
 # Preview first
-./scripts/automation/bulk_update_repos.py --repos dolibarr-* --dry-run
+./scripts/automation/bulk_update_repos.php --repos dolibarr-* --dry-run
 ```
 
 ## Related Documentation

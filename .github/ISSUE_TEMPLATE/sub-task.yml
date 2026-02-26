@@ -1,0 +1,116 @@
+name: Sub-Task
+description: Create a sub-task or sub-issue to track a specific piece of work related to a parent issue
+title: "[Task] "
+labels: ["sub-task"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Sub-Task Issue
+        
+        This template is for creating sub-tasks that are part of a larger parent issue. Sub-tasks help break down complex work into manageable pieces.
+
+  - type: input
+    id: parent_issue
+    attributes:
+      label: Parent Issue
+      description: The issue number this sub-task belongs to (e.g., #193)
+      placeholder: "#193"
+    validations:
+      required: true
+
+  - type: input
+    id: task_title
+    attributes:
+      label: Task Title
+      description: A brief, descriptive title for this sub-task
+      placeholder: "Investigate token permissions issue"
+    validations:
+      required: true
+
+  - type: textarea
+    id: task_description
+    attributes:
+      label: Task Description
+      description: Detailed description of what needs to be done
+      placeholder: "Describe the specific work to be completed..."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: task_type
+    attributes:
+      label: Task Type
+      description: What type of work is this?
+      options:
+        - Investigation
+        - Bug Fix
+        - Feature Implementation
+        - Documentation
+        - Testing
+        - Refactoring
+        - Configuration
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How urgent is this sub-task?
+      options:
+        - Low
+        - Medium
+        - High
+        - Critical
+      default: 1
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance Criteria
+      description: What conditions must be met for this sub-task to be considered complete?
+      placeholder: |
+        - [ ] Criterion 1
+        - [ ] Criterion 2
+        - [ ] Criterion 3
+      value: |
+        - [ ] 
+    validations:
+      required: false
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: Does this sub-task depend on other issues or sub-tasks?
+      placeholder: "List any blocking issues or required prerequisites..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional Notes
+      description: Any other relevant information
+      placeholder: "Additional context, links, or references..."
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm before creating this sub-task
+      options:
+        - label: This sub-task is linked to a parent issue
+          required: true
+        - label: The task description is clear and actionable
+          required: true
+        - label: I have assigned appropriate labels and priority
+          required: false

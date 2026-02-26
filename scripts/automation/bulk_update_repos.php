@@ -119,7 +119,7 @@ class BulkUpdateRepos extends CLIApp
     protected function setupArguments(): array
     {
         return [
-            'org:' => 'GitHub organization name',
+            'org:' => 'GitHub organization name (default: mokoconsulting-tech)',
             'repo:' => 'Specific repository (default: all)',
             'skip-archived' => 'Skip archived repositories',
             'force' => 'Force update even if no changes',
@@ -152,9 +152,9 @@ class BulkUpdateRepos extends CLIApp
         $txn = $this->logger->startTransaction('bulk_update_repos');
         
         try {
-            $org = $this->getOption('--org');
-            $specificRepo = $this->getOption('--repo');
-            $skipArchived = $this->getOption('--skip-archived');
+            $org = $this->getOption('org', self::DEFAULT_ORG);
+            $specificRepo = $this->getOption('repo');
+            $skipArchived = $this->hasOption('skip-archived');
             
             $this->log("Fetching repositories for organization: {$org}");
             
@@ -173,6 +173,7 @@ class BulkUpdateRepos extends CLIApp
                 'success' => 0,
                 'skipped' => 0,
                 'failed' => 0,
+                'details' => [],
             ];
             
             foreach ($repos as $index => $repo) {
@@ -180,17 +181,36 @@ class BulkUpdateRepos extends CLIApp
                 $progress = $index + 1;
                 
                 $this->log("[{$progress}/{$total}] Processing: {$repoName}");
+                $repoStartTime = microtime(true);
                 
                 try {
                     if ($this->processRepository($org, $repoName)) {
                         $results['success']++;
+                        $results['details'][] = [
+                            'repo' => $repoName,
+                            'status' => 'success',
+                            'duration' => microtime(true) - $repoStartTime,
+                            'message' => 'Successfully synced',
+                        ];
                         $this->metrics->incrementCounter('repos_updated_total', ['status' => 'success']);
                     } else {
                         $results['skipped']++;
+                        $results['details'][] = [
+                            'repo' => $repoName,
+                            'status' => 'skipped',
+                            'duration' => microtime(true) - $repoStartTime,
+                            'message' => 'No changes needed or config validation failed',
+                        ];
                         $this->metrics->incrementCounter('repos_updated_total', ['status' => 'skipped']);
                     }
                 } catch (Exception $e) {
                     $results['failed']++;
+                    $results['details'][] = [
+                        'repo' => $repoName,
+                        'status' => 'failed',
+                        'duration' => microtime(true) - $repoStartTime,
+                        'message' => $e->getMessage(),
+                    ];
                     $this->error("Failed to process {$repoName}: " . $e->getMessage());
                     $this->metrics->incrementCounter('repos_updated_total', ['status' => 'failed']);
                 }
@@ -203,25 +223,89 @@ class BulkUpdateRepos extends CLIApp
                 ]);
             }
             
-            // Summary
-            $this->log("\n=== Summary ===");
-            $this->log("Total:    {$results['total']}");
-            $this->log("Success:  {$results['success']}");
-            $this->log("Skipped:  {$results['skipped']}");
-            $this->log("Failed:   {$results['failed']}");
+            // Record sync duration using actual start time
+            $syncEndTime = microtime(true);
+            $syncDuration = $syncEndTime - $this->syncStartTime;
+            
+            // Verbose Summary
+            $this->log("\n" . str_repeat("=", 80));
+            $this->log("=== BULK REPOSITORY SYNC SUMMARY ===");
+            $this->log(str_repeat("=", 80));
+            $this->log("Organization: {$org}");
+            $this->log("Duration:     " . sprintf("%.2f seconds", $syncDuration));
+            $this->log("");
+            $this->log("Results:");
+            $this->log("  Total:      {$results['total']}");
+            $this->log("  Success:    {$results['success']}");
+            $this->log("  Skipped:    {$results['skipped']}");
+            $this->log("  Failed:     {$results['failed']}");
+            $successRate = $results['total'] > 0 ? ($results['success'] / $results['total']) * 100 : 0;
+            $this->log("  Success Rate: " . sprintf("%.1f%%", $successRate));
+            $this->log("");
+            
+            // Detailed repository results
+            if (!empty($results['details'])) {
+                $this->log(str_repeat("-", 80));
+                $this->log("Repository Details:");
+                $this->log(str_repeat("-", 80));
+                
+                // Group by status
+                $byStatus = [
+                    'success' => [],
+                    'skipped' => [],
+                    'failed' => [],
+                ];
+                
+                foreach ($results['details'] as $detail) {
+                    $status = $detail['status'] ?? 'unknown';
+                    if (isset($byStatus[$status])) {
+                        $byStatus[$status][] = $detail;
+                    }
+                }
+                
+                // Display successes
+                if (!empty($byStatus['success'])) {
+                    $this->log("\n✅ Successfully Synced ({$results['success']}):");
+                    foreach ($byStatus['success'] as $detail) {
+                        $duration = sprintf("%.2fs", $detail['duration']);
+                        $this->log("   • {$detail['repo']} ({$duration})");
+                    }
+                }
+                
+                // Display skipped
+                if (!empty($byStatus['skipped'])) {
+                    $this->log("\n⏭️  Skipped ({$results['skipped']}):");
+                    foreach ($byStatus['skipped'] as $detail) {
+                        $duration = sprintf("%.2fs", $detail['duration']);
+                        $message = $detail['message'] ?? 'No reason provided';
+                        $this->log("   • {$detail['repo']} ({$duration})");
+                        if ($this->verbose) {
+                            $this->log("     Reason: {$message}");
+                        }
+                    }
+                }
+                
+                // Display failures
+                if (!empty($byStatus['failed'])) {
+                    $this->log("\n❌ Failed ({$results['failed']}):");
+                    foreach ($byStatus['failed'] as $detail) {
+                        $duration = sprintf("%.2fs", $detail['duration']);
+                        $message = $detail['message'] ?? 'No error message';
+                        $this->log("   • {$detail['repo']} ({$duration})");
+                        $this->log("     Error: {$message}");
+                    }
+                }
+            }
+            
+            $this->log("\n" . str_repeat("=", 80));
             
             // Collect comprehensive metrics
             $this->metrics->recordGauge('repos_total', $results['total']);
             $this->metrics->recordGauge('repos_success', $results['success']);
             $this->metrics->recordGauge('repos_skipped', $results['skipped']);
             $this->metrics->recordGauge('repos_failed', $results['failed']);
-            $this->metrics->recordGauge('repos_success_rate', 
-                $results['total'] > 0 ? ($results['success'] / $results['total']) * 100 : 0
-            );
+            $this->metrics->recordGauge('repos_success_rate', $successRate);
             
-            // Record sync duration using actual start time
-            $syncEndTime = microtime(true);
-            $syncDuration = $syncEndTime - $this->syncStartTime;
             $this->metrics->recordTiming('bulk_sync_duration_seconds', $syncDuration);
             
             $this->logger->commitTransaction($txn);

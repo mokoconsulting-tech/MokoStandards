@@ -300,79 +300,21 @@ locals {
 
 ---
 
-## Automated Setup
+## Automated Bulk Updates
 
-The **fastest and recommended** way to achieve enterprise readiness is using the automated setup script.
+The MokoStandards bulk update system can help distribute enterprise components across multiple repositories.
 
-### Prerequisites
-
-- Python 3.8 or later
-- Access to MokoStandards repository
-- Write permissions to target repository
-
-### Quick Start
+### Using Bulk Update Script
 
 ```bash
-# Clone or access MokoStandards
-cd /path/to/MokoStandards
+# Dry run to preview changes
+./scripts/automation/bulk_update_repos.php --dry-run
 
-# Run automated setup on target repository
-python scripts/automation/setup_enterprise_repo.py --path /path/to/target-repo
+# Update specific repositories
+./scripts/automation/bulk_update_repos.php --repos your-repo --yes
 ```
 
-### Interactive Setup
-
-The script will guide you through:
-
-1. Creating required directories
-2. Installing enterprise libraries
-3. Installing enterprise workflows
-4. Installing Terraform scripts
-5. Creating override configuration
-6. Adding version badges
-7. Setting up monitoring
-
-**Respond to prompts with `y` (yes) or `n` (no).**
-
-### Non-Interactive Setup
-
-For CI/CD or automation:
-
-```bash
-python scripts/automation/setup_enterprise_repo.py \
-  --path /path/to/repo \
-  --no-interactive \
-  --source-path /path/to/MokoStandards
-```
-
-### Dry Run Mode
-
-Preview changes without applying them:
-
-```bash
-python scripts/automation/setup_enterprise_repo.py \
-  --path /path/to/repo \
-  --dry-run \
-  --verbose
-```
-
-### Selective Installation
-
-Install only specific components:
-
-```bash
-# Install only libraries
-python scripts/automation/setup_enterprise_repo.py --install-libraries
-
-# Install only workflows
-python scripts/automation/setup_enterprise_repo.py --install-workflows
-
-# Create only directories
-python scripts/automation/setup_enterprise_repo.py --create-dirs
-
-# Create only override config
-python scripts/automation/setup_enterprise_repo.py --create-override
-```
+For full bulk update documentation, see [Bulk Repository Updates Guide](bulk-repository-updates.md).
 
 ---
 

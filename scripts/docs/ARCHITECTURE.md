@@ -34,7 +34,7 @@ scripts/
 │   └── gui_utils.py       # GUI utilities (optional)
 │
 ├── validate/              # Validation scripts (depend on lib/)
-│   ├── auto_detect_platform.py  # Platform detection (core)
+│   ├── auto_detect_platform.php  # Platform detection (core)
 │   ├── validate_structure_v2.py # Structure validation
 │   ├── validate_repo_health.py  # Repository health
 │   ├── schema_aware_health_check.py # Schema-based validation
@@ -139,7 +139,7 @@ All validation modules follow the pattern:
 4. Return `ValidationResult` objects
 5. Provide CLI interface
 
-### auto_detect_platform.py
+### auto_detect_platform.php
 **Critical Module**: Platform detection for all automation
 **Dependencies**: `lib/common`, `lib/validation_framework`
 **Exports**: `detect_platform()`, `PlatformType` enum

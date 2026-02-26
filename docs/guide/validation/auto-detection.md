@@ -4,7 +4,7 @@
 
 ## Overview
 
-The `auto_detect_platform.py` script automatically detects whether a repository is a Joomla/WaaS component, Dolibarr/CRM module, or generic repository, then validates it against the appropriate schema and generates comprehensive documentation files.
+The `auto_detect_platform.php` script automatically detects whether a repository is a Joomla/WaaS component, Dolibarr/CRM module, or generic repository, then validates it against the appropriate schema and generates comprehensive documentation files.
 
 ## Features
 
@@ -45,23 +45,23 @@ If neither Joomla nor Dolibarr patterns are detected, the repository is classifi
 
 ```bash
 # Auto-detect and validate current repository
-python3 scripts/validate/auto_detect_platform.py
+php scripts/validate/auto_detect_platform.php
 
 # Validate specific repository
-python3 scripts/validate/auto_detect_platform.py --repo-path /path/to/repo
+php scripts/validate/auto_detect_platform.php --repo-path /path/to/repo
 ```
 
 ### Advanced Usage
 
 ```bash
 # Verbose output with detection details
-python3 scripts/validate/auto_detect_platform.py --verbose
+php scripts/validate/auto_detect_platform.php --verbose
 
 # Custom output directory for reports
-python3 scripts/validate/auto_detect_platform.py --output-dir ./my-reports
+php scripts/validate/auto_detect_platform.php --output-dir ./my-reports
 
 # Specify schema directory location
-python3 scripts/validate/auto_detect_platform.py --schema-dir /path/to/schemas/structures
+php scripts/validate/auto_detect_platform.php --schema-dir /path/to/schemas/structures
 ```
 
 ## Generated Documentation Files

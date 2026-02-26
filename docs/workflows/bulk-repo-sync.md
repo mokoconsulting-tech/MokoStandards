@@ -437,7 +437,7 @@ The bulk sync workflow synchronizes the following file types:
 
 #### 5. **Validation Scripts** (All Repositories)
 
-- `scripts/validate/auto_detect_platform.py` - Platform detection
+- `scripts/validate/auto_detect_platform.php` - Platform detection
 - Schema definition files (required by validators)
 
 ### What DOESN'T Get Synced
@@ -461,7 +461,7 @@ The following are never synced (always excluded):
 The sync tool determines platform type in this order:
 
 1. **Check Override First**: If `override.config.tf` specifies `repository_type`, use it
-2. **Auto-Detection**: If no override, run `auto_detect_platform.py`:
+2. **Auto-Detection**: If no override, run `auto_detect_platform.php`:
    - Checks for Terraform files (`.tf`, `terraform/`)
    - Checks for Dolibarr structure (`htdocs/`, module XML)
    - Checks for Joomla structure (`manifest.xml`, Joomla patterns)
@@ -540,7 +540,7 @@ The sync tool has three cleanup modes (configured in override):
 **Solutions**:
 1. Add `override.config.tf` with explicit `repository_type`
 2. Verify repository structure matches expected patterns
-3. Check auto-detection script works: `python3 scripts/validate/auto_detect_platform.py`
+3. Check auto-detection script works: `php scripts/validate/auto_detect_platform.php`
 
 #### Issue 5: Dry Run Shows No Changes
 
@@ -695,7 +695,7 @@ Sync PRs respect branch protection:
 ### Script Documentation
 
 - **Script Source**: `scripts/automation/bulk_update_repos.py`
-- **Platform Detection**: `scripts/validate/auto_detect_platform.py`
+- **Platform Detection**: `scripts/validate/auto_detect_platform.php`
 - **Run Help**: `python3 scripts/automation/bulk_update_repos.py --help`
 
 ---

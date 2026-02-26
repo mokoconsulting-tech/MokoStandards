@@ -391,11 +391,11 @@
             "size_bytes": 9455
         },
         {
-            "path": "scripts/validate/auto_detect_platform.py",
-            "sha256": "5cea4133ddb106604d6dc9a7b0dfd86f3a1d53ac11667c1996709df2ae448a85",
+            "path": "scripts/validate/auto_detect_platform.php",
+            "sha256": "82c6b47117cadecfcdee8c63f9c9566a7c27db34c19456ce49297e666840aa3b",
             "category": "validate",
             "priority": "critical",
-            "size_bytes": 18887
+            "size_bytes": 13466
         },
         {
             "path": "scripts/validate/check_all_files.py",

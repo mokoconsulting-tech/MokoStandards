@@ -121,7 +121,7 @@ Enhanced structure validation with improved reporting.
 ### validate_structure_terraform.py
 Terraform-specific structure validation and best practices checking.
 
-### auto_detect_platform.py
+### auto_detect_platform.php
 Automatically detect and validate platform-specific requirements (Joomla, Dolibarr, etc.).
 
 ## Code Quality
@@ -244,7 +244,7 @@ These scripts ensure:
 ./scripts/validate/check_markdown_links.py
 
 # 5. Platform-specific validation
-./scripts/validate/auto_detect_platform.py
+./scripts/validate/auto_detect_platform.php
 ```
 
 ## Integration

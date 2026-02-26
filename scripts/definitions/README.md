@@ -55,7 +55,7 @@ python3 scripts/validate/validate_structure_v2.py \
 
 ```bash
 # Auto-detect platform and validate
-python3 scripts/validate/auto_detect_platform.py \
+php scripts/validate/auto_detect_platform.php \
   --repo-path /path/to/repository
 ```
 

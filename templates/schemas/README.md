@@ -68,5 +68,5 @@ Use `<always-overwrite>false</always-overwrite>` to protect files from being ove
 ## Related Documentation
 
 - Schema validation: `/scripts/validate/validate_structure_v2.py`
-- Auto-detection: `/scripts/validate/auto_detect_platform.py`
+- Auto-detection: `/scripts/validate/auto_detect_platform.php`
 - Main schemas: `/schemas/structures/`

@@ -263,11 +263,11 @@ jobs:
           ARGS="--dry-run --verbose"
 
           if [ -n "${{ inputs.repos }}" ]; then
-            ARGS="$ARGS --repos '${{ inputs.repos }}'"
+            ARGS="$ARGS --repos ${{ inputs.repos }}"
           fi
 
           if [ -n "${{ inputs.exclude }}" ]; then
-            ARGS="$ARGS --exclude '${{ inputs.exclude }}'"
+            ARGS="$ARGS --exclude ${{ inputs.exclude }}"
           fi
 
           echo "## 🔍 Dry Run Mode" >> $GITHUB_STEP_SUMMARY
@@ -300,16 +300,16 @@ jobs:
 
           # Default exclusions for scheduled runs
           if [ "${{ github.event_name }}" == "schedule" ]; then
-            ARGS="$ARGS --exclude 'MokoStandards MokoStandards-Private'"
+            ARGS="$ARGS --exclude MokoStandards MokoStandards-Private"
           fi
 
           # Add user-specified repos/exclusions for manual runs
           if [ -n "${{ inputs.repos }}" ]; then
-            ARGS="$ARGS --repos '${{ inputs.repos }}'"
+            ARGS="$ARGS --repos ${{ inputs.repos }}"
           fi
 
           if [ -n "${{ inputs.exclude }}" ]; then
-            ARGS="$ARGS --exclude '${{ inputs.exclude }}'"
+            ARGS="$ARGS --exclude ${{ inputs.exclude }}"
           fi
 
           echo "## 🚀 Bulk Repository Sync" >> $GITHUB_STEP_SUMMARY

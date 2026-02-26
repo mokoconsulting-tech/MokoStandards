@@ -241,11 +241,12 @@ class BulkSync extends CLIApp
             $this->log("[{$progress}/{$total}] Processing {$repoName}...", 'INFO');
             
             try {
+                // Process repository with dry-run mode and no force override
                 $updated = $this->synchronizer->processRepository(
                     $org,
                     $repoName,
                     $this->dryRun,
-                    false
+                    false  // force = false (do not override protected files)
                 );
                 
                 if ($updated) {
@@ -330,6 +331,10 @@ class BulkSync extends CLIApp
 
 // Execute if run directly
 if (php_sapi_name() === 'cli' && isset($argv[0]) && realpath($argv[0]) === __FILE__) {
-    $app = new BulkSync();
+    $app = new BulkSync(
+        'bulk-sync',
+        'Enterprise-grade bulk repository synchronization',
+        self::VERSION
+    );
     exit($app->execute($argv));
 }

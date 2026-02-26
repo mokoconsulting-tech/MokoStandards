@@ -1,0 +1,186 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+name: Create Sub-Issue
+
+on:
+  workflow_dispatch:
+    inputs:
+      parent_issue:
+        description: 'Parent issue number (e.g., 193)'
+        required: true
+        type: number
+      title:
+        description: 'Sub-issue title'
+        required: true
+        type: string
+      description:
+        description: 'Sub-issue description'
+        required: true
+        type: string
+      task_type:
+        description: 'Type of task'
+        required: false
+        type: choice
+        default: 'Investigation'
+        options:
+          - Investigation
+          - Bug Fix
+          - Feature Implementation
+          - Documentation
+          - Testing
+          - Refactoring
+          - Configuration
+          - Other
+      priority:
+        description: 'Priority level'
+        required: false
+        type: choice
+        default: 'Medium'
+        options:
+          - Low
+          - Medium
+          - High
+          - Critical
+      assignees:
+        description: 'Assignees (comma-separated usernames)'
+        required: false
+        type: string
+      labels:
+        description: 'Additional labels (comma-separated)'
+        required: false
+        type: string
+
+jobs:
+  create-sub-issue:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+
+    steps:
+      - name: Validate parent issue exists
+        uses: actions/github-script@v8
+        with:
+          script: |
+            try {
+              const parent = await github.rest.issues.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: ${{ inputs.parent_issue }}
+              });
+              console.log(`✓ Parent issue #${{ inputs.parent_issue }} exists: ${parent.data.title}`);
+              core.setOutput('parent_title', parent.data.title);
+              core.setOutput('parent_url', parent.data.html_url);
+            } catch (error) {
+              core.setFailed(`Parent issue #${{ inputs.parent_issue }} not found: ${error.message}`);
+            }
+        id: validate_parent
+
+      - name: Create sub-issue
+        uses: actions/github-script@v8
+        with:
+          script: |
+            // Build the issue body
+            const parentIssue = ${{ inputs.parent_issue }};
+            const parentTitle = '${{ steps.validate_parent.outputs.parent_title }}';
+            const parentUrl = '${{ steps.validate_parent.outputs.parent_url }}';
+            
+            const body = `## Sub-Task for #${parentIssue}
+
+            **Parent Issue**: [#${parentIssue} - ${parentTitle}](${parentUrl})
+
+            ### Task Description
+            ${{ inputs.description }}
+
+            ### Task Details
+            - **Type**: ${{ inputs.task_type }}
+            - **Priority**: ${{ inputs.priority }}
+
+            ---
+
+            ### Progress Tracking
+            Use the checklist below to track progress:
+
+            - [ ] Task started
+            - [ ] Implementation complete
+            - [ ] Tests passing
+            - [ ] Documentation updated
+            - [ ] Code review complete
+            - [ ] Ready to close
+
+            ---
+
+            *This sub-issue was automatically created by the Create Sub-Issue workflow.*
+            *Parent: #${parentIssue}*
+            `;
+
+            // Parse assignees
+            const assigneesInput = '${{ inputs.assignees }}';
+            let assignees = [];
+            if (assigneesInput) {
+              assignees = assigneesInput.split(',').map(a => a.trim()).filter(a => a);
+            }
+
+            // Validate assignees
+            const validAssignees = [];
+            for (const assignee of assignees) {
+              try {
+                await github.rest.users.getByUsername({ username: assignee });
+                validAssignees.push(assignee);
+                console.log(`✓ Validated assignee: ${assignee}`);
+              } catch (error) {
+                console.log(`✗ Invalid assignee (skipping): ${assignee} - ${error.message}`);
+              }
+            }
+
+            // Parse labels
+            const labelsInput = '${{ inputs.labels }}';
+            let labels = ['sub-task'];
+            if (labelsInput) {
+              const additionalLabels = labelsInput.split(',').map(l => l.trim()).filter(l => l);
+              labels = [...labels, ...additionalLabels];
+            }
+
+            // Add priority label
+            const priority = '${{ inputs.priority }}';
+            if (priority && priority !== 'Medium') {
+              labels.push(`priority/${priority.toLowerCase()}`);
+            }
+
+            // Create the sub-issue
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '${{ inputs.title }}',
+              body: body,
+              labels: labels,
+              assignees: validAssignees
+            });
+
+            console.log(`✓ Created sub-issue #${issue.data.number}`);
+            core.setOutput('issue_number', issue.data.number);
+            core.setOutput('issue_url', issue.data.html_url);
+
+            // Comment on parent issue
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: parentIssue,
+              body: `### 📋 Sub-Issue Created\n\nA sub-issue has been created to track specific work:\n\n**Sub-Issue**: #${issue.data.number} - ${{ inputs.title }}\n**Type**: ${{ inputs.task_type }}\n**Priority**: ${{ inputs.priority }}\n\nSee: ${issue.data.html_url}`
+            });
+
+            console.log(`✓ Added comment to parent issue #${parentIssue}`);
+        id: create_issue
+
+      - name: Summary
+        run: |
+          echo "## ✅ Sub-Issue Created Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Parent Issue**: #${{ inputs.parent_issue }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Sub-Issue**: [#${{ steps.create_issue.outputs.issue_number }}](${{ steps.create_issue.outputs.issue_url }})" >> $GITHUB_STEP_SUMMARY
+          echo "**Title**: ${{ inputs.title }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Type**: ${{ inputs.task_type }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Priority**: ${{ inputs.priority }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The sub-issue has been created and linked to the parent issue." >> $GITHUB_STEP_SUMMARY

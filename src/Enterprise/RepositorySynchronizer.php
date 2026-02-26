@@ -139,7 +139,7 @@ class RepositorySynchronizer
             
             if ($dryRun) {
                 $this->logger->logInfo("DRY-RUN: Would update repository {$repo}");
-                $this->logger->commitTransaction($txn);
+                $txn->end('success');
                 return true;
             }
             
@@ -151,12 +151,12 @@ class RepositorySynchronizer
             // 4. Handle merge conflicts
             
             $this->logger->logError("CRITICAL: Repository synchronization logic not implemented");
-            $this->logger->rollbackTransaction($txn);
+            $txn->end('failure');
             
             throw SynchronizationNotImplementedException::create();
             
         } catch (Exception $e) {
-            $this->logger->rollbackTransaction($txn);
+            $txn->end('failure');
             $this->logger->logError("Failed to process repository {$repo}: " . $e->getMessage());
             throw $e;
         }
@@ -225,12 +225,12 @@ class RepositorySynchronizer
                 ]);
             }
             
-            $this->logger->commitTransaction($txn);
+            $txn->end('success');
             
             return $results;
             
         } catch (Exception $e) {
-            $this->logger->rollbackTransaction($txn);
+            $txn->end('failure');
             throw $e;
         }
     }

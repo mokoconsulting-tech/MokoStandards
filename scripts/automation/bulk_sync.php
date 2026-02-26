@@ -283,12 +283,6 @@ class BulkSync extends CLIApp
                 $this->log("", 'ERROR');
                 throw $e;
                 
-            } catch (\RuntimeException $e) {
-                // Other RuntimeException errors
-                $results['failed']++;
-                $results['repositories'][$repoName] = 'failed';
-                $this->log("  ✗ {$repoName} failed: " . $e->getMessage(), 'ERROR');
-                
             } catch (\Exception $e) {
                 $results['failed']++;
                 $results['repositories'][$repoName] = 'failed';

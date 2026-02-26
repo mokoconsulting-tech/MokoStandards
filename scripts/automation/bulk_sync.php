@@ -41,7 +41,16 @@ use MokoStandards\Enterprise\{
  */
 class BulkSync extends CLIApp
 {
+    /**
+     * Default organization for bulk sync operations
+     * Public to allow script instantiation with class constants
+     */
     public const DEFAULT_ORG = 'mokoconsulting-tech';
+    
+    /**
+     * Script version number
+     * Public to allow script instantiation with class constants
+     */
     public const VERSION = '05.00.00';
     
     private ApiClient $api;

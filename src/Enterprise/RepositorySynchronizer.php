@@ -121,7 +121,7 @@ class RepositorySynchronizer
      * @param bool $dryRun Whether to perform a dry run
      * @param bool $force Force update even if no changes
      * @return bool True if repository was updated, false if skipped
-     * @throws RuntimeException When synchronization logic is not implemented
+     * @throws SynchronizationNotImplementedException When synchronization logic is not implemented
      */
     public function processRepository(string $org, string $repo, bool $dryRun = false, bool $force = false): bool
     {

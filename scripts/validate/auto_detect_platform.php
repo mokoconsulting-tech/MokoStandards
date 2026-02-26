@@ -360,7 +360,7 @@ class AutoDetectPlatform extends CLIApp
     
     private function getAbsolutePath(string $path): string
     {
-        if (!empty($path) && $path[0] === '/') {
+        if (strlen($path) > 0 && $path[0] === '/') {
             return $path;
         }
         

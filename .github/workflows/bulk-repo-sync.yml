@@ -429,6 +429,24 @@ jobs:
             *This issue was automatically created by the Bulk Repository Sync workflow.*
             `;
 
+            // Validate assignees before creating issue
+            async function validateAssignees(assignees) {
+              const validAssignees = [];
+              for (const assignee of assignees) {
+                try {
+                  await github.rest.users.getByUsername({ username: assignee });
+                  validAssignees.push(assignee);
+                  console.log(`✓ Validated assignee: ${assignee}`);
+                } catch (error) {
+                  console.log(`✗ Invalid assignee (skipping): ${assignee} - ${error.message}`);
+                }
+              }
+              return validAssignees;
+            }
+
+            const requestedAssignees = ['jmiller-moko'];
+            const validAssignees = await validateAssignees(requestedAssignees);
+
             // Check for existing open issue
             const issues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
@@ -448,14 +466,14 @@ jobs:
               });
               console.log(`Updated existing issue #${issues.data[0].number}`);
             } else {
-              // Create new issue
+              // Create new issue with validated assignees
               const issue = await github.rest.issues.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 title: `[Infrastructure] Bulk Repository Sync Failed - ${new Date().toISOString().split('T')[0]}`,
                 body: body,
                 labels: ['infrastructure', 'bulk-sync-failure', 'automation'],
-                assignees: ['copilot', 'jmiller-moko']
+                assignees: validAssignees
               });
               console.log(`Created new issue #${issue.data.number}`);
             }

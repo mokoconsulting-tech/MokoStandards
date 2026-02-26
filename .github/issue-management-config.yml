@@ -10,7 +10,6 @@ enterprise:
   organization:
     name: "mokoconsulting-tech"
     default_assignees:
-      - "copilot"
       - "jmiller-moko"
 
   # GitHub Projects integration

@@ -158,15 +158,33 @@ jobs:
             This issue was automatically created by the drift detection workflow.
             `;
 
+            // Validate assignees before creating issue
+            async function validateAssignees(assignees) {
+              const validAssignees = [];
+              for (const assignee of assignees) {
+                try {
+                  await github.rest.users.getByUsername({ username: assignee });
+                  validAssignees.push(assignee);
+                  console.log(`✓ Validated assignee: ${assignee}`);
+                } catch (error) {
+                  console.log(`✗ Invalid assignee (skipping): ${assignee} - ${error.message}`);
+                }
+              }
+              return validAssignees;
+            }
+
+            const requestedAssignees = ['jmiller-moko'];
+            const validAssignees = await validateAssignees(requestedAssignees);
+
             if (issues.data.length === 0) {
-              // Create new issue
+              // Create new issue with validated assignees
               await github.rest.issues.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 title: `[Terraform Drift] ${env} environment has drifted`,
                 body: body,
                 labels: ['terraform-drift', `environment:${env}`, 'infrastructure'],
-                assignees: ['jmiller-moko']
+                assignees: validAssignees
               });
             } else {
               // Update existing issue

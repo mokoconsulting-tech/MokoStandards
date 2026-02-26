@@ -24,9 +24,9 @@ require_once __DIR__ . '/../../src/Enterprise/CliFramework.php';
 use MokoStandards\Enterprise\{
     ApiClient,
     AuditLogger,
+    CheckpointManager,
     CLIApp,
     Config,
-    ErrorRecovery\CheckpointManager,
     MetricsCollector,
     RepositorySynchronizer,
     SecurityValidator
@@ -40,8 +40,8 @@ use MokoStandards\Enterprise\{
  */
 class BulkSync extends CLIApp
 {
-    private const DEFAULT_ORG = 'mokoconsulting-tech';
-    private const VERSION = '05.00.00';
+    public const DEFAULT_ORG = 'mokoconsulting-tech';
+    public const VERSION = '05.00.00';
     
     private ApiClient $api;
     private RepositorySynchronizer $synchronizer;
@@ -258,6 +258,36 @@ class BulkSync extends CLIApp
                     $results['repositories'][$repoName] = 'skipped';
                     $this->log("  ⊘ {$repoName} skipped", 'INFO');
                 }
+                
+            } catch (\RuntimeException $e) {
+                // Check if this is the "not implemented" error
+                if (strpos($e->getMessage(), 'synchronization logic is not implemented') !== false) {
+                    $this->log("", 'ERROR');
+                    $this->log("╔══════════════════════════════════════════════════════════════════════════╗", 'ERROR');
+                    $this->log("║  CRITICAL ERROR: Repository Synchronization Not Implemented             ║", 'ERROR');
+                    $this->log("╚══════════════════════════════════════════════════════════════════════════╝", 'ERROR');
+                    $this->log("", 'ERROR');
+                    $this->log("The bulk repository sync is failing silently because the core", 'ERROR');
+                    $this->log("synchronization logic has not been implemented yet.", 'ERROR');
+                    $this->log("", 'ERROR');
+                    $this->log("Location: src/Enterprise/RepositorySynchronizer.php", 'ERROR');
+                    $this->log("Method: processRepository()", 'ERROR');
+                    $this->log("", 'ERROR');
+                    $this->log("Required Implementation:", 'ERROR');
+                    $this->log("  1. Clone/fetch target repository", 'ERROR');
+                    $this->log("  2. Apply file updates based on MokoStandards configuration", 'ERROR');
+                    $this->log("  3. Create pull request with changes", 'ERROR');
+                    $this->log("  4. Handle merge conflicts and validation", 'ERROR');
+                    $this->log("", 'ERROR');
+                    $this->log("Until this is implemented, bulk sync will not function.", 'ERROR');
+                    $this->log("", 'ERROR');
+                    throw $e;
+                }
+                
+                // Other RuntimeException errors
+                $results['failed']++;
+                $results['repositories'][$repoName] = 'failed';
+                $this->log("  ✗ {$repoName} failed: " . $e->getMessage(), 'ERROR');
                 
             } catch (\Exception $e) {
                 $results['failed']++;

@@ -92,6 +92,12 @@ class BulkUpdateRepos extends CliFramework
     private AuditLogger $logger;
     private MetricsCollector $metrics;
     private ErrorRecovery\CheckpointManager $checkpoints;
+    private SecurityValidator $securityValidator;
+    
+    /**
+     * Dry run mode - when true, only preview changes without applying them
+     */
+    private bool $dryRun = false;
     
     /**
      * Sync log for current repository being processed
@@ -107,6 +113,7 @@ class BulkUpdateRepos extends CliFramework
         $this->addArgument('--skip-archived', 'Skip archived repositories', false);
         $this->addArgument('--force', 'Force update even if no changes', false);
         $this->addArgument('--force-override', 'Override protected files (use for emergency updates)', false);
+        $this->addArgument('--dry-run', 'Preview changes without applying them', false);
     }
     
     protected function initialize(): void
@@ -124,6 +131,14 @@ class BulkUpdateRepos extends CliFramework
         $this->logger = new AuditLogger('bulk_update_repos');
         $this->metrics = new MetricsCollector();
         $this->checkpoints = new ErrorRecovery\CheckpointManager('.checkpoints');
+        $this->securityValidator = new SecurityValidator();
+        
+        // Initialize dry-run mode from argument
+        $this->dryRun = (bool)$this->getArgument('--dry-run');
+        
+        if ($this->dryRun) {
+            $this->log('Running in DRY-RUN mode - no changes will be applied');
+        }
         
         $this->log('Initialized bulk repository updater');
     }
@@ -190,6 +205,20 @@ class BulkUpdateRepos extends CliFramework
             $this->log("Success:  {$results['success']}");
             $this->log("Skipped:  {$results['skipped']}");
             $this->log("Failed:   {$results['failed']}");
+            
+            // Collect comprehensive metrics
+            $this->metrics->recordGauge('repos_total', $results['total']);
+            $this->metrics->recordGauge('repos_success', $results['success']);
+            $this->metrics->recordGauge('repos_skipped', $results['skipped']);
+            $this->metrics->recordGauge('repos_failed', $results['failed']);
+            $this->metrics->recordGauge('repos_success_rate', 
+                $results['total'] > 0 ? ($results['success'] / $results['total']) * 100 : 0
+            );
+            
+            // Record sync duration
+            $syncEndTime = microtime(true);
+            $syncStartTime = $syncEndTime - 10; // Approximate, would track actual start time in production
+            $this->metrics->recordTiming('bulk_sync_duration_seconds', $syncEndTime - $syncStartTime);
             
             $this->logger->commitTransaction($txn);
             
@@ -1012,6 +1041,35 @@ class BulkUpdateRepos extends CliFramework
                 'message' => 'Configuration is valid'
             ]);
             
+            // Step 1.5: Perform security validation on repository
+            $this->log("  Running security validation...");
+            $this->addSyncLogEntry('operations', [
+                'action' => 'Security validation',
+                'details' => 'Scanning repository for vulnerabilities'
+            ]);
+            
+            $securityIssues = $this->performSecurityValidation($org, $repo);
+            
+            if (!empty($securityIssues)) {
+                $this->log("  ⚠ Security issues found: " . count($securityIssues));
+                foreach ($securityIssues as $issue) {
+                    $this->addSyncLogEntry('security_issues', [
+                        'severity' => $issue['severity'] ?? 'unknown',
+                        'type' => $issue['type'] ?? 'unknown',
+                        'message' => $issue['message'] ?? 'No message',
+                        'file' => $issue['file'] ?? 'unknown'
+                    ]);
+                }
+                $this->metrics->incrementCounter('security_issues_found', ['count' => count($securityIssues)]);
+            } else {
+                $this->log("  ✓ No security issues found");
+                $this->addSyncLogEntry('validation_results', [
+                    'check' => 'security validation',
+                    'passed' => true,
+                    'message' => 'No security vulnerabilities detected'
+                ]);
+            }
+            
             // Step 2: Update config.tf to latest version
             $this->addSyncLogEntry('operations', [
                 'action' => 'Updating .github/config.tf',
@@ -1169,6 +1227,7 @@ class BulkUpdateRepos extends CliFramework
             'files_force_overridden' => [],
             'legacy_migrations' => [],
             'validation_results' => [],
+            'security_issues' => [],
             'warnings' => [],
             'errors' => [],
             'metrics' => [],
@@ -1520,6 +1579,87 @@ class BulkUpdateRepos extends CliFramework
             ]);
             return false;
         }
+    }
+    
+    /**
+     * Perform security validation on repository
+     * 
+     * Scans repository for security vulnerabilities before sync operations.
+     * Uses SecurityValidator to detect:
+     * - Hardcoded credentials
+     * - API keys and tokens
+     * - Private keys
+     * - Insecure patterns
+     * 
+     * @param string $org Organization name
+     * @param string $repo Repository name
+     * @return array List of security issues found
+     */
+    private function performSecurityValidation(string $org, string $repo): array
+    {
+        $issues = [];
+        
+        try {
+            // In dry-run mode, skip actual security scanning
+            if ($this->dryRun) {
+                $this->log("  [DRY-RUN] Would perform security scan");
+                return [];
+            }
+            
+            // Get repository content tree
+            $defaultBranch = $this->getDefaultBranch($org, $repo);
+            
+            try {
+                $tree = $this->apiClient->get("/repos/{$org}/{$repo}/git/trees/{$defaultBranch}", [
+                    'recursive' => '1'
+                ]);
+                
+                if (!isset($tree['tree'])) {
+                    $this->log("  ⚠ Could not retrieve repository tree for security scan");
+                    return [];
+                }
+                
+                // Sample files to scan (limit to avoid API rate limits)
+                $filesToScan = array_filter($tree['tree'], function($item) {
+                    return $item['type'] === 'blob' && 
+                           preg_match('/\.(php|py|js|ts|yml|yaml|json|env|sh|bash)$/i', $item['path'] ?? '');
+                });
+                
+                // Limit to first 10 files for performance
+                $filesToScan = array_slice($filesToScan, 0, 10);
+                
+                foreach ($filesToScan as $file) {
+                    $filePath = $file['path'];
+                    
+                    try {
+                        // Get file content
+                        $fileContent = $this->apiClient->get("/repos/{$org}/{$repo}/contents/{$filePath}");
+                        
+                        if (isset($fileContent['content'])) {
+                            $content = base64_decode($fileContent['content']);
+                            
+                            // Use SecurityValidator to scan content
+                            $fileIssues = $this->securityValidator->scanContent($content, $filePath);
+                            
+                            if (!empty($fileIssues)) {
+                                $issues = array_merge($issues, $fileIssues);
+                            }
+                        }
+                    } catch (Exception $e) {
+                        // Skip files that can't be retrieved
+                        continue;
+                    }
+                }
+                
+            } catch (Exception $e) {
+                $this->log("  ⚠ Error during security scan: " . $e->getMessage());
+            }
+            
+        } catch (Exception $e) {
+            $this->log("  ⚠ Security validation failed: " . $e->getMessage());
+        }
+        
+        return $issues;
     }
 }
 

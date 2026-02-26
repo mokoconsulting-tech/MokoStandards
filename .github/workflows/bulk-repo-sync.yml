@@ -252,7 +252,7 @@ jobs:
           echo "- Platform detection script" >> $GITHUB_STEP_SUMMARY
           echo "- Schema definition files (crm-module, default-repository, waas-component)" >> $GITHUB_STEP_SUMMARY
 
-      - name: Run bulk update script (dry-run)
+      - name: Run bulk sync (dry-run)
         if: github.event_name == 'workflow_dispatch' && inputs.dry_run == true
         env:
           GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
@@ -260,30 +260,24 @@ jobs:
           set -x
           set -e
 
-          ARGS="--dry-run"
+          ARGS="--dry-run --verbose"
 
           if [ -n "${{ inputs.repos }}" ]; then
-            ARGS="$ARGS --repos ${{ inputs.repos }}"
+            ARGS="$ARGS --repos '${{ inputs.repos }}'"
           fi
 
           if [ -n "${{ inputs.exclude }}" ]; then
-            ARGS="$ARGS --exclude ${{ inputs.exclude }}"
-          fi
-
-          if [ "${{ inputs.force_override }}" == "true" ]; then
-            ARGS="$ARGS --force-override"
-            echo "⚠️  **Force Override Mode Enabled** - Protected files will be overridden" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
+            ARGS="$ARGS --exclude '${{ inputs.exclude }}'"
           fi
 
           echo "## 🔍 Dry Run Mode" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Running bulk update in dry-run mode (no changes will be made)..." >> $GITHUB_STEP_SUMMARY
+          echo "Running bulk sync in dry-run mode (no changes will be made)..." >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Arguments:** \`$ARGS\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          if php scripts/automation/bulk_update_repos.php $ARGS 2>&1 | tee /tmp/bulk_update.log; then
+          if php scripts/automation/bulk_sync.php $ARGS 2>&1 | tee /tmp/bulk_sync.log; then
             echo "### ✅ Dry Run Completed Successfully" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "Review the logs above to see what changes would be made." >> $GITHUB_STEP_SUMMARY
@@ -294,7 +288,7 @@ jobs:
             exit 1
           fi
 
-      - name: Run bulk update script
+      - name: Run bulk sync
         if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.dry_run != true)
         env:
           GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
@@ -302,44 +296,26 @@ jobs:
           set -x
           set -e
 
-          ARGS="--yes"
+          ARGS="--yes --verbose"
 
           # Default exclusions for scheduled runs
           if [ "${{ github.event_name }}" == "schedule" ]; then
-            ARGS="$ARGS --exclude MokoStandards MokoStandards-Private"
+            ARGS="$ARGS --exclude 'MokoStandards MokoStandards-Private'"
           fi
 
           # Add user-specified repos/exclusions for manual runs
           if [ -n "${{ inputs.repos }}" ]; then
-            ARGS="$ARGS --repos ${{ inputs.repos }}"
+            ARGS="$ARGS --repos '${{ inputs.repos }}'"
           fi
 
           if [ -n "${{ inputs.exclude }}" ]; then
-            ARGS="$ARGS --exclude ${{ inputs.exclude }}"
-          fi
-
-          # Add force-override flag if specified (only for manual runs)
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && \
-             [ "${{ inputs.force_override }}" == "true" ]; then
-            ARGS="$ARGS --force-override"
-            echo "## ⚠️  Force Override Mode Enabled" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "**WARNING:** Protected files will be overridden." \
-              >> $GITHUB_STEP_SUMMARY
-            echo "Use only for emergency security updates." >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
+            ARGS="$ARGS --exclude '${{ inputs.exclude }}'"
           fi
 
           echo "## 🚀 Bulk Repository Sync" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Mode:** Live (changes will be applied)" >> $GITHUB_STEP_SUMMARY
           echo "**Arguments:** \`$ARGS\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 📋 Sync Features" >> $GITHUB_STEP_SUMMARY
-          echo "- Schema-based file synchronization" >> $GITHUB_STEP_SUMMARY
-          echo "- Respects \`always-overwrite\` flags" >> $GITHUB_STEP_SUMMARY
-          echo "- Supports \`scripts/.mokostandards-sync.yml\` overrides" >> $GITHUB_STEP_SUMMARY
-          echo "- Protected files: .gitignore, .editorconfig (and more)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
           # Verify GH_TOKEN is available for git operations
@@ -351,22 +327,17 @@ jobs:
           fi
 
           # Run the script with automatic confirmation via --yes flag
-          if php scripts/automation/bulk_update_repos.php $ARGS 2>&1 | tee /tmp/bulk_update.log; then
-            echo "### ✅ Bulk Update Completed Successfully" >> $GITHUB_STEP_SUMMARY
+          if php scripts/automation/bulk_sync.php $ARGS 2>&1 | tee /tmp/bulk_sync.log; then
+            echo "### ✅ Bulk Sync Completed Successfully" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "All repositories have been updated with the latest standards." >> $GITHUB_STEP_SUMMARY
           else
             EXIT_CODE=$?
-            echo "### ❌ Bulk Update Failed" >> $GITHUB_STEP_SUMMARY
+            echo "### ❌ Bulk Sync Failed" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**Exit Code:** $EXIT_CODE" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "Check the error messages in the workflow logs for details." >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### Common Issues" >> $GITHUB_STEP_SUMMARY
-            echo "- Token permissions insufficient" >> $GITHUB_STEP_SUMMARY
-            echo "- Repository access denied" >> $GITHUB_STEP_SUMMARY
-            echo "- Network or API rate limit issues" >> $GITHUB_STEP_SUMMARY
             exit $EXIT_CODE
           fi
 
@@ -378,7 +349,7 @@ jobs:
             const fs = require('fs');
             let logContent = '';
             try {
-              logContent = fs.readFileSync('/tmp/bulk_update.log', 'utf8');
+              logContent = fs.readFileSync('/tmp/bulk_sync.log', 'utf8');
               // Limit log size to prevent API issues
               if (logContent.length > 50000) {
                 logContent = logContent.substring(0, 50000) + '\n\n... (log truncated)';
@@ -420,7 +391,7 @@ jobs:
             - **Repository access**: Unable to access one or more org repositories
             - **API rate limits**: GitHub API rate limit exceeded
             - **Network issues**: Temporary connectivity problems
-            - **Script errors**: Python script encountered an unexpected error
+            - **Script errors**: PHP script encountered an unexpected error
 
             ### ✅ Resolution Steps
             1. Review the workflow run logs for detailed error messages
@@ -428,10 +399,10 @@ jobs:
             3. Verify repository accessibility
             4. Check GitHub API rate limit status
             5. Re-run the workflow manually if it was a transient issue
-            6. Update the bulk_update_repos.php script if there's a bug
+            6. Update the bulk_sync.php script if there's a bug
 
             ### 📚 Resources
-            - [Bulk Sync Script](scripts/automation/bulk_update_repos.php)
+            - [Bulk Sync Script](scripts/automation/bulk_sync.php)
             - [Workflow Configuration](.github/workflows/bulk-repo-sync.yml)
             - [MokoStandards Documentation](https://github.com/mokoconsulting-tech/MokoStandards)
 

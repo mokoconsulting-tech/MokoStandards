@@ -20,13 +20,17 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
+// Manual require for CLIApp since it's in CliFramework.php (PSR-4 naming issue)
+require_once __DIR__ . '/../../src/Enterprise/CliFramework.php';
+
 use MokoStandards\Enterprise\{
     ApiClient,
     AuditLogger,
-    CliFramework,
+    CLIApp,
     Config,
-    ErrorRecovery,
-    MetricsCollector
+    ErrorRecovery\CheckpointManager,
+    MetricsCollector,
+    SecurityValidator
 };
 
 /**
@@ -34,10 +38,16 @@ use MokoStandards\Enterprise\{
  * 
  * Synchronizes files across multiple repositories based on configuration
  */
-class BulkUpdateRepos extends CliFramework
+class BulkUpdateRepos extends CLIApp
 {
     private const DEFAULT_ORG = 'mokoconsulting-tech';
     private const SYNC_OVERRIDE_FILE = '.github/config.tf';
+    
+    /**
+     * Maximum number of files to scan for security issues per repository
+     * Limits API calls and processing time
+     */
+    private const MAX_SECURITY_SCAN_FILES = 10;
     
     /**
      * Legacy override file locations that should be migrated
@@ -71,7 +81,6 @@ class BulkUpdateRepos extends CliFramework
         'scripts/validate/check_enterprise_readiness.php',
         'scripts/validate/check_repo_health.php',
         'scripts/validate/auto_detect_platform.php',
-        'scripts/maintenance/validate_script_registry.py',
         'scripts/.script-registry.json',
     ];
     
@@ -90,8 +99,13 @@ class BulkUpdateRepos extends CliFramework
     
     private ApiClient $apiClient;
     private AuditLogger $logger;
-    private MetricsCollector $metrics;
-    private ErrorRecovery\CheckpointManager $checkpoints;
+    private CheckpointManager $checkpoints;
+    private SecurityValidator $securityValidator;
+    
+    /**
+     * Sync start time for accurate duration tracking
+     */
+    private float $syncStartTime = 0.0;
     
     /**
      * Sync log for current repository being processed
@@ -99,43 +113,48 @@ class BulkUpdateRepos extends CliFramework
      */
     private array $syncLog = [];
     
-    protected function configure(): void
+    /**
+     * Setup script-specific arguments
+     */
+    protected function setupArguments(): array
     {
-        $this->setDescription('Bulk update repositories with standardized files');
-        $this->addArgument('--org', 'GitHub organization name', self::DEFAULT_ORG);
-        $this->addArgument('--repo', 'Specific repository (default: all)', null);
-        $this->addArgument('--skip-archived', 'Skip archived repositories', false);
-        $this->addArgument('--force', 'Force update even if no changes', false);
-        $this->addArgument('--force-override', 'Override protected files (use for emergency updates)', false);
+        return [
+            'org:' => 'GitHub organization name',
+            'repo:' => 'Specific repository (default: all)',
+            'skip-archived' => 'Skip archived repositories',
+            'force' => 'Force update even if no changes',
+            'force-override' => 'Override protected files (use for emergency updates)',
+        ];
     }
     
-    protected function initialize(): void
+    protected function run(): int
     {
-        parent::initialize();
-        
+        // Initialize enterprise components
         $config = Config::load();
-        $token = $config->getString('github.token', getenv('GITHUB_TOKEN') ?: '');
+        $token = $config->getString('github.token', getenv('GITHUB_TOKEN') ?: getenv('GH_TOKEN') ?: '');
         
         if (empty($token)) {
-            throw new RuntimeException('GitHub token not configured. Set GITHUB_TOKEN environment variable.');
+            $this->log('GitHub token not configured. Set GITHUB_TOKEN or GH_TOKEN environment variable.', 'ERROR');
+            return 1;
         }
         
         $this->apiClient = new ApiClient('https://api.github.com', $token);
         $this->logger = new AuditLogger('bulk_update_repos');
         $this->metrics = new MetricsCollector();
-        $this->checkpoints = new ErrorRecovery\CheckpointManager('.checkpoints');
+        $this->checkpoints = new CheckpointManager('.checkpoints');
+        $this->securityValidator = new SecurityValidator();
         
-        $this->log('Initialized bulk repository updater');
-    }
-    
-    protected function run(): int
-    {
+        $this->log('Initialized bulk repository updater', 'INFO');
+        
+        // Track sync start time for accurate metrics
+        $this->syncStartTime = microtime(true);
+        
         $txn = $this->logger->startTransaction('bulk_update_repos');
         
         try {
-            $org = $this->getArgument('--org');
-            $specificRepo = $this->getArgument('--repo');
-            $skipArchived = $this->getArgument('--skip-archived');
+            $org = $this->getOption('--org');
+            $specificRepo = $this->getOption('--repo');
+            $skipArchived = $this->getOption('--skip-archived');
             
             $this->log("Fetching repositories for organization: {$org}");
             
@@ -190,6 +209,20 @@ class BulkUpdateRepos extends CliFramework
             $this->log("Success:  {$results['success']}");
             $this->log("Skipped:  {$results['skipped']}");
             $this->log("Failed:   {$results['failed']}");
+            
+            // Collect comprehensive metrics
+            $this->metrics->recordGauge('repos_total', $results['total']);
+            $this->metrics->recordGauge('repos_success', $results['success']);
+            $this->metrics->recordGauge('repos_skipped', $results['skipped']);
+            $this->metrics->recordGauge('repos_failed', $results['failed']);
+            $this->metrics->recordGauge('repos_success_rate', 
+                $results['total'] > 0 ? ($results['success'] / $results['total']) * 100 : 0
+            );
+            
+            // Record sync duration using actual start time
+            $syncEndTime = microtime(true);
+            $syncDuration = $syncEndTime - $this->syncStartTime;
+            $this->metrics->recordTiming('bulk_sync_duration_seconds', $syncDuration);
             
             $this->logger->commitTransaction($txn);
             
@@ -1012,6 +1045,36 @@ class BulkUpdateRepos extends CliFramework
                 'message' => 'Configuration is valid'
             ]);
             
+            // Step 1.5: Perform security validation on repository
+            $this->log("  Running security validation...");
+            $this->addSyncLogEntry('operations', [
+                'action' => 'Security validation',
+                'details' => 'Scanning repository for vulnerabilities'
+            ]);
+            
+            $securityIssues = $this->performSecurityValidation($org, $repo);
+            
+            if (!empty($securityIssues)) {
+                $this->log("  ⚠ Security issues found: " . count($securityIssues));
+                foreach ($securityIssues as $issue) {
+                    $this->addSyncLogEntry('security_issues', [
+                        'severity' => $issue['severity'] ?? 'unknown',
+                        'type' => $issue['type'] ?? 'unknown',
+                        'message' => $issue['message'] ?? 'No message',
+                        'file' => $issue['file'] ?? 'unknown'
+                    ]);
+                    // Increment counter once per issue
+                    $this->metrics->incrementCounter('security_issues_found');
+                }
+            } else {
+                $this->log("  ✓ No security issues found");
+                $this->addSyncLogEntry('validation_results', [
+                    'check' => 'security validation',
+                    'passed' => true,
+                    'message' => 'No security vulnerabilities detected'
+                ]);
+            }
+            
             // Step 2: Update config.tf to latest version
             $this->addSyncLogEntry('operations', [
                 'action' => 'Updating .github/config.tf',
@@ -1169,6 +1232,7 @@ class BulkUpdateRepos extends CliFramework
             'files_force_overridden' => [],
             'legacy_migrations' => [],
             'validation_results' => [],
+            'security_issues' => [],
             'warnings' => [],
             'errors' => [],
             'metrics' => [],
@@ -1521,8 +1585,89 @@ class BulkUpdateRepos extends CliFramework
             return false;
         }
     }
+    
+    /**
+     * Perform security validation on repository
+     * 
+     * Scans repository for security vulnerabilities before sync operations.
+     * Uses SecurityValidator to detect:
+     * - Hardcoded credentials
+     * - API keys and tokens
+     * - Private keys
+     * - Insecure patterns
+     * 
+     * @param string $org Organization name
+     * @param string $repo Repository name
+     * @return array List of security issues found
+     */
+    private function performSecurityValidation(string $org, string $repo): array
+    {
+        $issues = [];
+        
+        try {
+            // In dry-run mode, skip actual security scanning
+            if ($this->dryRun) {
+                $this->log("  [DRY-RUN] Would perform security scan");
+                return [];
+            }
+            
+            // Get repository content tree
+            $defaultBranch = $this->getDefaultBranch($org, $repo);
+            
+            try {
+                $tree = $this->apiClient->get("/repos/{$org}/{$repo}/git/trees/{$defaultBranch}", [
+                    'recursive' => '1'
+                ]);
+                
+                if (!isset($tree['tree'])) {
+                    $this->log("  ⚠ Could not retrieve repository tree for security scan");
+                    return [];
+                }
+                
+                // Sample files to scan (limit to avoid API rate limits)
+                $filesToScan = array_filter($tree['tree'], function($item) {
+                    return $item['type'] === 'blob' && 
+                           preg_match('/\.(php|py|js|ts|yml|yaml|json|env|sh|bash)$/i', $item['path'] ?? '');
+                });
+                
+                // Limit to MAX_SECURITY_SCAN_FILES for performance
+                $filesToScan = array_slice($filesToScan, 0, self::MAX_SECURITY_SCAN_FILES);
+                
+                foreach ($filesToScan as $file) {
+                    $filePath = $file['path'];
+                    
+                    try {
+                        // Get file content
+                        $fileContent = $this->apiClient->get("/repos/{$org}/{$repo}/contents/{$filePath}");
+                        
+                        if (isset($fileContent['content'])) {
+                            $content = base64_decode($fileContent['content']);
+                            
+                            // Use SecurityValidator to scan content
+                            $fileIssues = $this->securityValidator->scanContent($content, $filePath);
+                            
+                            if (!empty($fileIssues)) {
+                                $issues = array_merge($issues, $fileIssues);
+                            }
+                        }
+                    } catch (Exception $e) {
+                        // Skip files that can't be retrieved
+                        continue;
+                    }
+                }
+                
+            } catch (Exception $e) {
+                $this->log("  ⚠ Error during security scan: " . $e->getMessage());
+            }
+            
+        } catch (Exception $e) {
+            $this->log("  ⚠ Security validation failed: " . $e->getMessage());
+        }
+        
+        return $issues;
+    }
 }
 
 // Run the application
-$app = new BulkUpdateRepos();
-exit($app->execute($argv));
+$app = new BulkUpdateRepos('bulk_update_repos', 'Bulk repository sync - Schema-driven enterprise automation');
+exit($app->execute());

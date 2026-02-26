@@ -48,13 +48,13 @@ This document outlines the enterprise readiness assessment and consolidation str
    - GitHub API calls lack backoff/retry
    - Risk of 403 errors on large organizations
    - No request tracking or throttling
-   - **Impact:** `bulk_update_repos.py`, `auto_create_org_projects.py` will fail on 100+ repos
+   - **Impact:** `bulk_update_repos.php`, `auto_create_org_projects.py` will fail on 100+ repos
 
 3. **Error Recovery** (Priority: HIGH)
    - No automatic retry for network failures
    - No transaction rollback on partial failures
    - No checkpoint/resume for long-running operations
-   - **Impact:** `bulk_update_repos.py` fails on repo 50/100, no recovery
+   - **Impact:** `bulk_update_repos.php` fails on repo 50/100, no recovery
 
 4. **Configuration Management** (Priority: HIGH)
    - Hard-coded defaults (org names, project IDs, paths)
@@ -160,7 +160,7 @@ class Validator(ABC):
 ```
 automation/
 ├── auto_create_org_projects.py    (GraphQL queries, no retry)
-├── bulk_update_repos.py           (gh CLI wrapper, no rate limit)
+├── bulk_update_repos.php           (gh CLI wrapper, no rate limit)
 └── create_repo_project.py         (Imports GitHubProjectV2Setup)
 ```
 
@@ -209,7 +209,7 @@ class GitHubClient:
 
 **Migration Path:**
 1. Create base GitHub client (Week 1)
-2. Refactor `bulk_update_repos.py` to use client (Week 2)
+2. Refactor `bulk_update_repos.php` to use client (Week 2)
 3. Migrate `auto_create_org_projects.py` (Week 3)
 4. Update `create_repo_project.py` integration (Week 4)
 
@@ -224,7 +224,7 @@ DEFAULT_ORG = "mokoconsulting-tech"
 # In sync_file_to_project.py
 DEFAULT_PROJECT_NUMBER = 7
 
-# In bulk_update_repos.py
+# In bulk_update_repos.php
 DEFAULT_BRANCH = "chore/sync-mokostandards-updates"
 ```
 
@@ -355,7 +355,7 @@ class AuditLogger:
 **Usage in Scripts:**
 
 ```python
-# In bulk_update_repos.py
+# In bulk_update_repos.php
 audit = AuditLogger("bulk_update_repos")
 
 operation_id = audit.log_operation(

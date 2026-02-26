@@ -371,7 +371,7 @@ Key scripts to deploy:
 
 2. **Automation Scripts**:
    - setup-labels.sh (label deployment)
-   - bulk_update_repos.py (if managing multiple repos)
+   - bulk_update_repos.php (if managing multiple repos)
 
 3. **Maintenance Scripts**:
    - update_changelog.py
@@ -536,8 +536,8 @@ Steps to execute:
 
 Reference: https://github.com/mokoconsulting-tech/MokoStandards
 
-Use the bulk_update_repos.py script for multiple repositories:
-https://github.com/mokoconsulting-tech/MokoStandards/blob/main/scripts/automation/bulk_update_repos.py
+Use the bulk_update_repos.php script for multiple repositories:
+https://github.com/mokoconsulting-tech/MokoStandards/blob/main/scripts/automation/bulk_update_repos.php
 
 Create a summary report including:
 - Files created

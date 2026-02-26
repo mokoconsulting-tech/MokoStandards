@@ -308,7 +308,7 @@ No external packages required. ✅
 - All other validation scripts
 
 **Automation Scripts:**
-- `automation/bulk_update_repos.py`
+- `automation/bulk_update_repos.php`
 - `automation/sync_file_to_project.py`
 - `automation/auto_create_org_projects.py`
 

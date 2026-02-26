@@ -7,7 +7,7 @@ This directory contains automation scripts for MokoStandards repository manageme
 The scripts are organized into functional categories (with Python, Shell, and PowerShell scripts side-by-side):
 
 - **[`automation/`](automation/)** - Repository automation and bulk operations
-  - `bulk_update_repos.py` - Bulk update organization repositories (Python)
+  - `bulk_update_repos.php` - Bulk update organization repositories (Python)
   - `Invoke-BulkUpdateGUI.ps1` - Bulk update GUI for Windows (PowerShell)
   - `Update-BulkRepositories.ps1` - Bulk update command-line (PowerShell)
   - `sync_file_to_project.py` - Sync files to target repositories
@@ -24,7 +24,7 @@ The scripts are organized into functional categories (with Python, Shell, and Po
   - `analyze_pr_conflicts.py` - Analyze PR conflicts
   - `generate_canonical_config.py` - Generate canonical configs
 - **[`tests/`](tests/)** - Test scripts
-  - `test_bulk_update_repos.py` - Test bulk update automation
+  - `test_bulk_update_repos.php` - Test bulk update automation
   - `test_dry_run.py` - Test dry-run functionality
 - **[`docs/`](docs/)** - Documentation generation and maintenance scripts
   - `rebuild_indexes.py` - Generate documentation indexes
@@ -86,8 +86,8 @@ The scripts are organized into functional categories (with Python, Shell, and Po
 ### Automation Scripts
 ```bash
 # Bulk update all organization repositories
-./scripts/automation/bulk_update_repos.py --dry-run
-./scripts/automation/bulk_update_repos.py --yes
+./scripts/automation/bulk_update_repos.php --dry-run
+./scripts/automation/bulk_update_repos.php --yes
 
 # Sync specific file to repositories
 ./scripts/automation/sync_file_to_project.py
@@ -154,7 +154,7 @@ python3 scripts/automation/auto_create_org_projects.py --org your-org-name
 
 See [AUTO_CREATE_ORG_PROJECTS.md](./AUTO_CREATE_ORG_PROJECTS.md) for detailed documentation.
 
-#### bulk_update_repos.py
+#### bulk_update_repos.php
 
 Bulk update script to push workflows, scripts, and configurations to multiple organization repositories.
 
@@ -163,28 +163,28 @@ Bulk update script to push workflows, scripts, and configurations to multiple or
 **Usage:**
 ```bash
 # Dry run (preview changes)
-./scripts/automation/bulk_update_repos.py --dry-run
+./scripts/automation/bulk_update_repos.php --dry-run
 
 # Update all non-archived repos beginning with "Moko"
-./scripts/automation/bulk_update_repos.py
+./scripts/automation/bulk_update_repos.php
 
 # Update specific repos
-./scripts/automation/bulk_update_repos.py --repos repo1 repo2
+./scripts/automation/bulk_update_repos.php --repos repo1 repo2
 
 # Exclude specific repos
-./scripts/automation/bulk_update_repos.py --exclude legacy-repo archived-repo
+./scripts/automation/bulk_update_repos.php --exclude legacy-repo archived-repo
 
 # Automated execution (skip confirmation)
-./scripts/automation/bulk_update_repos.py --yes
+./scripts/automation/bulk_update_repos.php --yes
 
 # Only sync workflows (not scripts)
-./scripts/automation/bulk_update_repos.py --files-only
+./scripts/automation/bulk_update_repos.php --files-only
 
 # Only sync scripts (not workflows)
-./scripts/automation/bulk_update_repos.py --scripts-only
+./scripts/automation/bulk_update_repos.php --scripts-only
 
 # Set missing standards options (repository variables)
-./scripts/automation/bulk_update_repos.py --set-standards --yes
+./scripts/automation/bulk_update_repos.php --set-standards --yes
 ```
 
 **Automated Monthly Sync:**

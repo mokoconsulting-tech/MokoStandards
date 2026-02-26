@@ -46,7 +46,7 @@ The `InGroup` and `DefGroup` parameters provide a standardized way to categorize
 |------------|---------|----------|
 | `MokoStandards.Documentation` | Documentation generation, management, and updates | generate_docs.py, update_readme.py |
 | `MokoStandards.Validation` | Validation, checking, and verification | validate_structure.py, check_repo_health.py |
-| `MokoStandards.Automation` | Automation workflows and bulk operations | bulk_update_repos.py, file-distributor.py |
+| `MokoStandards.Automation` | Automation workflows and bulk operations | bulk_update_repos.php, file-distributor.py |
 | `MokoStandards.Maintenance` | Maintenance, updates, and housekeeping | update_changelog.py, clean_old_branches.py |
 | `MokoStandards.Analysis` | Analysis, metrics, and reporting | code_metrics.py, analyze_dependencies.py |
 | `MokoStandards.Build` | Build systems and compilation | Makefiles, build scripts |

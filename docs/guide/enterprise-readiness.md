@@ -300,79 +300,21 @@ locals {
 
 ---
 
-## Automated Setup
+## Automated Bulk Updates
 
-The **fastest and recommended** way to achieve enterprise readiness is using the automated setup script.
+The MokoStandards bulk update system can help distribute enterprise components across multiple repositories.
 
-### Prerequisites
-
-- Python 3.8 or later
-- Access to MokoStandards repository
-- Write permissions to target repository
-
-### Quick Start
+### Using Bulk Update Script
 
 ```bash
-# Clone or access MokoStandards
-cd /path/to/MokoStandards
+# Dry run to preview changes
+./scripts/automation/bulk_update_repos.php --dry-run
 
-# Run automated setup on target repository
-python scripts/automation/setup_enterprise_repo.py --path /path/to/target-repo
+# Update specific repositories
+./scripts/automation/bulk_update_repos.php --repos your-repo --yes
 ```
 
-### Interactive Setup
-
-The script will guide you through:
-
-1. Creating required directories
-2. Installing enterprise libraries
-3. Installing enterprise workflows
-4. Installing Terraform scripts
-5. Creating override configuration
-6. Adding version badges
-7. Setting up monitoring
-
-**Respond to prompts with `y` (yes) or `n` (no).**
-
-### Non-Interactive Setup
-
-For CI/CD or automation:
-
-```bash
-python scripts/automation/setup_enterprise_repo.py \
-  --path /path/to/repo \
-  --no-interactive \
-  --source-path /path/to/MokoStandards
-```
-
-### Dry Run Mode
-
-Preview changes without applying them:
-
-```bash
-python scripts/automation/setup_enterprise_repo.py \
-  --path /path/to/repo \
-  --dry-run \
-  --verbose
-```
-
-### Selective Installation
-
-Install only specific components:
-
-```bash
-# Install only libraries
-python scripts/automation/setup_enterprise_repo.py --install-libraries
-
-# Install only workflows
-python scripts/automation/setup_enterprise_repo.py --install-workflows
-
-# Create only directories
-python scripts/automation/setup_enterprise_repo.py --create-dirs
-
-# Create only override config
-python scripts/automation/setup_enterprise_repo.py --create-override
-```
+For full bulk update documentation, see [Bulk Repository Updates Guide](bulk-repository-updates.md).
 
 ---
 
@@ -601,53 +543,15 @@ python scripts/validate/check_enterprise_readiness.py --json
 
 ## Troubleshooting
 
-### Issue: "MokoStandards source not found"
-
-**Solution 1:** Specify source path explicitly:
-
-```bash
-python scripts/automation/setup_enterprise_repo.py \
-  --source-path /path/to/MokoStandards
-```
-
-**Solution 2:** Clone MokoStandards to parent directory:
-
-```bash
-cd /path/to/parent
-git clone https://github.com/mokoconsulting-tech/MokoStandards.git
-cd target-repo
-python ../MokoStandards/scripts/automation/setup_enterprise_repo.py
-```
-
-### Issue: "Permission denied" errors
-
-**Solution:** Ensure you have write permissions:
-
-```bash
-# Check permissions
-ls -la
-
-# Fix ownership (if needed)
-sudo chown -R $USER:$USER .
-
-# Try again
-python scripts/automation/setup_enterprise_repo.py
-```
-
 ### Issue: Low enterprise readiness score
 
 **Solution:** Run checker with verbose output:
 
 ```bash
-python scripts/validate/check_enterprise_readiness.py --verbose
+php scripts/validate/check_enterprise_readiness.php --verbose
 ```
 
-Review recommendations and address each issue:
-
-1. Missing libraries → Run `--install-libraries`
-2. Missing workflows → Run `--install-workflows`
-3. Missing directories → Run `--create-dirs`
-4. Missing override config → Run `--create-override`
+Review recommendations and address each missing component manually or use the bulk update system.
 
 ### Issue: Version badges not recognized
 
@@ -657,80 +561,13 @@ Review recommendations and address each issue:
 ![Version](https://img.shields.io/badge/version-04.00.03-blue)
 ```
 
-Version **must** match pattern: `03.0[12].0[0-9]`
-
-### Issue: Override config validation fails
-
-**Solution:** Verify required sections:
-
-```hcl
-locals {
-  override_metadata = {
-    version = "04.00.03"  # Must be present
-    enterprise_ready = true
-    # ... other fields
-  }
-  
-  sync_config = {
-    enabled = true
-    cleanup_mode = "conservative"
-  }
-}
-```
+Version **must** match current MokoStandards version pattern.
 
 ---
 
 ## Examples
 
-### Example 1: New Repository Setup
-
-Setting up a brand new repository:
-
-```bash
-# Create repository structure
-mkdir my-new-repo
-cd my-new-repo
-git init
-
-# Create basic files
-echo "# My New Repository" > README.md
-echo "Initial version" > CHANGELOG.md
-git add .
-git commit -m "Initial commit"
-
-# Run enterprise setup
-python /path/to/MokoStandards/scripts/automation/setup_enterprise_repo.py
-
-# Verify
-python scripts/validate/check_enterprise_readiness.py
-```
-
-### Example 2: Upgrading Existing Repository
-
-Upgrading an existing repository to enterprise-ready:
-
-```bash
-cd existing-repo
-
-# Backup current state
-git checkout -b enterprise-upgrade
-
-# Run setup (dry-run first)
-python /path/to/MokoStandards/scripts/automation/setup_enterprise_repo.py --dry-run
-
-# Apply changes
-python /path/to/MokoStandards/scripts/automation/setup_enterprise_repo.py
-
-# Verify
-python scripts/validate/check_enterprise_readiness.py
-
-# Commit changes
-git add .
-git commit -m "chore: Upgrade to enterprise-ready status"
-git push origin enterprise-upgrade
-```
-
-### Example 3: CI/CD Integration
+### Example: CI/CD Integration
 
 Integrating checks into CI/CD pipeline (`.github/workflows/enterprise-check.yml`):
 
@@ -748,14 +585,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
         with:
-          python-version: '3.11'
+          php-version: '8.1'
       
       - name: Run enterprise readiness check
         run: |
-          python scripts/validate/check_enterprise_readiness.py --json > report.json
+          php scripts/validate/check_enterprise_readiness.php --json > report.json
           cat report.json
       
       - name: Verify minimum score
@@ -773,17 +610,7 @@ jobs:
 
 ### Regular Updates
 
-Enterprise components should be updated regularly:
-
-```bash
-# Check for updates (from MokoStandards)
-cd /path/to/MokoStandards
-git pull
-
-# Re-run setup to update components
-cd /path/to/target-repo
-python /path/to/MokoStandards/scripts/automation/setup_enterprise_repo.py
-```
+Enterprise components can be updated using the bulk update system. See [Bulk Repository Updates](bulk-repository-updates.md) for details.
 
 ### Monitoring Health
 
@@ -802,7 +629,7 @@ Review logs in:
 
 When MokoStandards version changes:
 
-1. Update `override.config.tf` version
+1. Update `.github/config.tf` version
 2. Update version badges in documentation
 3. Update package metadata
 4. Run enterprise readiness checker

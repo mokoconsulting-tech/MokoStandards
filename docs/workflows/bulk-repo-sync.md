@@ -80,7 +80,7 @@ The **Bulk Repository Sync** workflow is MokoStandards' automated system for dep
 ### Workflow Location
 
 - **File**: `.github/workflows/bulk-repo-sync.yml`
-- **Script**: `scripts/automation/bulk_update_repos.py`
+- **Script**: `scripts/automation/bulk_update_repos.php`
 - **Version**: 2.0 (schema-driven architecture with enterprise libraries)
 
 ---
@@ -89,7 +89,7 @@ The **Bulk Repository Sync** workflow is MokoStandards' automated system for dep
 
 ### Integrated Enterprise Libraries
 
-The bulk_update_repos.py script now integrates:
+The bulk_update_repos.php script now integrates:
 
 1. **Audit Logging** (`enterprise_audit.py`)
    - Transaction tracking for each repository sync
@@ -694,9 +694,9 @@ Sync PRs respect branch protection:
 
 ### Script Documentation
 
-- **Script Source**: `scripts/automation/bulk_update_repos.py`
+- **Script Source**: `scripts/automation/bulk_update_repos.php`
 - **Platform Detection**: `scripts/validate/auto_detect_platform.php`
-- **Run Help**: `python3 scripts/automation/bulk_update_repos.py --help`
+- **Run Help**: `php scripts/automation/bulk_update_repos.php --help`
 
 ---
 
@@ -713,8 +713,8 @@ Sync PRs respect branch protection:
 
 **Updating the Script**:
 
-1. Modify `scripts/automation/bulk_update_repos.py`
-2. Test locally: `python3 scripts/automation/bulk_update_repos.py --dry-run --repos test-repo`
+1. Modify `scripts/automation/bulk_update_repos.php`
+2. Test locally: `php scripts/automation/bulk_update_repos.php --dry-run --repos test-repo`
 3. Verify changes work as expected
 4. Commit and push to MokoStandards
 5. Next sync uses updated script

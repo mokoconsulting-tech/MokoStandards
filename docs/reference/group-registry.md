@@ -122,7 +122,7 @@ MokoStandards
 - Batch processes items
 
 **Typical Scripts**:
-- `bulk_update_repos.py`
+- `bulk_update_repos.php`
 - `file-distributor.py`
 - `auto_create_org_projects.py`
 - `setup_dev_environment.py`
@@ -268,7 +268,7 @@ MokoStandards
 - Supports testing activities
 
 **Typical Scripts**:
-- `test_bulk_update_repos.py`
+- `test_bulk_update_repos.php`
 - `test_dry_run.py`
 - `load_demo_data.py`
 - `Load-DemoData.ps1`

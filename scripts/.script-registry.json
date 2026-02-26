@@ -62,11 +62,11 @@
             "size_bytes": 7181
         },
         {
-            "path": "scripts/automation/bulk_update_repos.py",
+            "path": "scripts/automation/bulk_update_repos.php",
             "sha256": "6e47cce8a5528db0081dc246367ef1b5da876f591d43b34664fbb608ef26cecd",
             "category": "automation",
             "priority": "high",
-            "size_bytes": 34399
+            "size_bytes": 61417
         },
         {
             "path": "scripts/automation/check_outdated_actions.py",
@@ -363,7 +363,7 @@
             "size_bytes": 29687
         },
         {
-            "path": "scripts/tests/test_bulk_update_repos.py",
+            "path": "scripts/tests/test_bulk_update_repos.php",
             "sha256": "0794f2d9bc2020c741b427f9a8fcbd767120d00c97a040ebbff13b2427cb6833",
             "category": "tests",
             "priority": "medium",

@@ -12,7 +12,7 @@ set -euo pipefail
 
 # Script Configuration - UPDATE THESE FOR EACH WRAPPER
 SCRIPT_NAME="test_bulk_update_repos"
-SCRIPT_PATH="scripts/tests/test_bulk_update_repos.py"
+SCRIPT_PATH="scripts/tests/test_bulk_update_repos.php"
 SCRIPT_CATEGORY="tests"  # automation, validation, maintenance, etc.
 
 # Colors for output

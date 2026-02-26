@@ -1,5 +1,10 @@
 # Branch and Version Automation Distribution via Terraform
 
+> **⚠️ DEPRECATED DOCUMENTATION**  
+> **Status**: This document describes Python scripts that are not currently implemented.  
+> **Current Status**: MokoStandards uses PHP-based automation scripts (see [Automation Scripts](../../scripts/automation/README.md))  
+> **Note**: This documentation is retained for historical reference only.
+
 This document explains how branch management and version automation scripts are automatically distributed to all organization repositories using Terraform.
 
 ## Overview
@@ -223,10 +228,10 @@ When using the bulk update script:
 
 ```bash
 # Deploy version bump scripts to all repositories
-./scripts/automation/bulk_update_repos.py --yes --set-standards
+./scripts/automation/bulk_update_repos.php --yes --set-standards
 
 # Dry run to preview changes
-./scripts/automation/bulk_update_repos.py --dry-run
+./scripts/automation/bulk_update_repos.php --dry-run
 ```
 
 ### Terraform Deployment
@@ -421,7 +426,7 @@ When updating the core scripts in MokoStandards:
 2. Test changes locally
 3. Run bulk update to sync to all repos:
    ```bash
-   ./scripts/automation/bulk_update_repos.py --yes --scripts-only
+   ./scripts/automation/bulk_update_repos.php --yes --scripts-only
    ```
 
 ### Adding New Scripts
@@ -460,7 +465,7 @@ The bulk update script checks for script presence:
 
 ```bash
 # Check all repos for required scripts
-./scripts/automation/bulk_update_repos.py --check-only
+./scripts/automation/bulk_update_repos.php --check-only
 ```
 
 ### Manual Audit

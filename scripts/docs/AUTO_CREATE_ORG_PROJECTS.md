@@ -365,7 +365,7 @@ jobs:
 - [setup_github_project_v2.py](./run/setup_github_project_v2.py) - Single project setup
 - [sync_file_to_project.py](./automation/sync_file_to_project.py) - Sync documentation files to Project #7
 - [templates/projects/README.md](../templates/projects/README.md) - Project templates documentation
-- [bulk_update_repos.py](./bulk_update_repos.py) - Bulk repository updates
+- [bulk_update_repos.php](./bulk_update_repos.php) - Bulk repository updates
 
 ## Support
 

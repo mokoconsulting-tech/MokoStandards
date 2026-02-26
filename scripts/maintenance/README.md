@@ -111,7 +111,7 @@ Required scripts are automatically deployed via:
 **Deployment:**
 ```bash
 # Deploy to all repositories
-./scripts/automation/bulk_update_repos.py --yes --set-standards
+./scripts/automation/bulk_update_repos.php --yes --set-standards
 ```
 
 ## Related Documentation

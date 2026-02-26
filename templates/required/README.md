@@ -91,7 +91,7 @@ Use the MokoStandards validation scripts:
 python3 scripts/validate/validate_repo_health.py --check-required-files
 
 # Or use bulk validation
-php scripts/automation/bulk_update_repos.py --validate-only
+php scripts/automation/bulk_update_repos.php --validate-only
 ```
 
 ## Syncing Updates

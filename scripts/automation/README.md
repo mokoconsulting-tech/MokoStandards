@@ -50,34 +50,34 @@ python scripts/automation/setup_enterprise_repo.py --path /path/to/target-repo
 
 ## Repository Management
 
-### bulk_update_repos.py
+### bulk_update_repos.php
 Bulk update organization repositories with workflows, scripts, and configurations.
 
 **Usage:**
 ```bash
 # Dry run to preview changes
-./scripts/automation/bulk_update_repos.py --dry-run
+./scripts/automation/bulk_update_repos.php --dry-run
 
 # Update all repositories
-./scripts/automation/bulk_update_repos.py --yes
+./scripts/automation/bulk_update_repos.php --yes
 
 # Update specific repositories
-./scripts/automation/bulk_update_repos.py --repos repo1 repo2
+./scripts/automation/bulk_update_repos.php --repos repo1 repo2
 
 # Exclude specific repositories
-./scripts/automation/bulk_update_repos.py --exclude legacy-repo
+./scripts/automation/bulk_update_repos.php --exclude legacy-repo
 
 # Update only workflow files
-./scripts/automation/bulk_update_repos.py --files-only
+./scripts/automation/bulk_update_repos.php --files-only
 
 # Update only scripts
-./scripts/automation/bulk_update_repos.py --scripts-only
+./scripts/automation/bulk_update_repos.php --scripts-only
 
 # Set missing standards options (repository variables)
-./scripts/automation/bulk_update_repos.py --set-standards
+./scripts/automation/bulk_update_repos.php --set-standards
 
 # Combine options: update files and set standards
-./scripts/automation/bulk_update_repos.py --yes --set-standards
+./scripts/automation/bulk_update_repos.php --yes --set-standards
 ```
 
 **Standards Options:**

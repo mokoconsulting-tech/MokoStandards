@@ -4,7 +4,7 @@
 
 ## Overview
 
-The `bulk_update_repos.py` script automates the process of pushing workflows, scripts, and configurations from the MokoStandards repository to multiple organization repositories.
+The `bulk_update_repos.php` script automates the process of pushing workflows, scripts, and configurations from the MokoStandards repository to multiple organization repositories.
 
 **Important**: This script only processes repositories whose names begin with "Moko" (e.g., MokoStandards, MokoCRM, MokoDoliTools). Other repositories in the organization are automatically excluded.
 
@@ -532,7 +532,7 @@ jobs:
 
 ## Maintenance
 
-To modify which files are synced, edit the constants in `bulk_update_repos.py`:
+To modify which files are synced, edit the constants in `bulk_update_repos.php`:
 
 - `DEFAULT_FILES_TO_SYNC`: Dictionary of source → destination paths
 - `DEFAULT_SCRIPTS_TO_SYNC`: List of script paths

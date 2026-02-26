@@ -19,11 +19,9 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/../../src/Enterprise/CliFramework.php';
 
-use MokoStandards\Enterprise\{
-    AuditLogger,
-    CliFramework
-};
+use MokoStandards\Enterprise\CLIApp;
 
 /**
  * Automatic Platform Detection and Validation
@@ -31,11 +29,9 @@ use MokoStandards\Enterprise\{
  * Detects whether a repository is a Joomla/WaaS component, Dolibarr/CRM module,
  * or generic repository, then validates against appropriate schema
  */
-class AutoDetectPlatform extends CliFramework
+class AutoDetectPlatform extends CLIApp
 {
     private const DETECTION_THRESHOLD = 0.5; // 50% confidence required
-    
-    private AuditLogger $logger;
     
     private array $detectionResults = [
         'joomla' => ['score' => 0, 'indicators' => []],
@@ -46,30 +42,20 @@ class AutoDetectPlatform extends CliFramework
     private string $detectedPlatform = 'generic';
     private string $schemaFile = '';
     
-    protected function configure(): void
+    protected function setupArguments(): array
     {
-        $this->setDescription('Automatically detect platform type and validate repository');
-        $this->addArgument('--repo-path', 'Path to repository to analyze', '.');
-        $this->addArgument('--schema-dir', 'Path to schema definitions directory', 'scripts/definitions');
-        $this->addArgument('--output-dir', 'Directory for output reports', 'logs/validation');
-        $this->addArgument('--json', 'Output results as JSON', false);
-    }
-    
-    protected function initialize(): void
-    {
-        parent::initialize();
-        
-        $this->logger = new AuditLogger('auto_detect_platform');
-        
-        $this->log('Platform auto-detection initialized');
+        return [
+            'repo-path:' => 'Path to repository to analyze (default: current directory)',
+            'schema-dir:' => 'Path to schema definitions directory (default: scripts/definitions)',
+            'output-dir:' => 'Directory for output reports (default: logs/validation)',
+        ];
     }
     
     protected function run(): int
     {
-        $repoPath = $this->getArgument('--repo-path');
-        $schemaDir = $this->getArgument('--schema-dir');
-        $outputDir = $this->getArgument('--output-dir');
-        $jsonOutput = $this->getArgument('--json');
+        $repoPath = $this->getOption('repo-path', '.');
+        $schemaDir = $this->getOption('schema-dir', 'scripts/definitions');
+        $outputDir = $this->getOption('output-dir', 'logs/validation');
         
         // Make paths absolute
         $repoPath = $this->getAbsolutePath($repoPath);
@@ -77,16 +63,16 @@ class AutoDetectPlatform extends CliFramework
         $outputDir = $this->getAbsolutePath($outputDir);
         
         if (!is_dir($repoPath)) {
-            $this->error("Repository path not found: {$repoPath}");
+            $this->log("Repository path not found: {$repoPath}", 'ERROR');
             return 3;
         }
         
         if (!is_dir($schemaDir)) {
-            $this->error("Schema directory not found: {$schemaDir}");
+            $this->log("Schema directory not found: {$schemaDir}", 'ERROR');
             return 3;
         }
         
-        $this->log("Analyzing repository: {$repoPath}");
+        $this->log("Analyzing repository: {$repoPath}", 'INFO');
         
         // Run platform detection
         $this->detectJoomla($repoPath);
@@ -99,12 +85,12 @@ class AutoDetectPlatform extends CliFramework
         $this->schemaFile = $this->mapPlatformToSchema($schemaDir);
         
         if (!file_exists($this->schemaFile)) {
-            $this->error("Schema file not found: {$this->schemaFile}");
+            $this->log("Schema file not found: {$this->schemaFile}", 'ERROR');
             return 3;
         }
         
         // Output results
-        if ($jsonOutput) {
+        if ($this->jsonOutput) {
             $this->outputJson();
         } else {
             $this->displayResults();
@@ -113,8 +99,8 @@ class AutoDetectPlatform extends CliFramework
         // Generate reports
         $this->generateReports($outputDir, $repoPath);
         
-        $this->log("✅ Platform detection completed: {$this->detectedPlatform}");
-        $this->log("Schema file: {$this->schemaFile}");
+        $this->log("Platform detection completed: {$this->detectedPlatform}", 'INFO');
+        $this->log("Schema file: {$this->schemaFile}", 'INFO');
         
         return 0;
     }
@@ -300,7 +286,7 @@ class AutoDetectPlatform extends CliFramework
         $summaryReport = $outputDir . "/SUMMARY_{$timestamp}.md";
         $this->writeSummaryReport($summaryReport, $repoPath);
         
-        $this->log("Reports generated in: {$outputDir}");
+        $this->log("Reports generated in: {$outputDir}", 'INFO');
     }
     
     private function writeDetectionReport(string $file, string $repoPath): void
@@ -383,5 +369,5 @@ class AutoDetectPlatform extends CliFramework
 }
 
 // Run the application
-$app = new AutoDetectPlatform();
-exit($app->execute($argv));
+$app = new AutoDetectPlatform('auto_detect_platform', 'Automatically detect platform type and validate repository');
+exit($app->execute());

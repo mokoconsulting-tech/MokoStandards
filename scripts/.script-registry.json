@@ -392,10 +392,10 @@
         },
         {
             "path": "scripts/validate/auto_detect_platform.php",
-            "sha256": "0a3d363471fd71cc5e78bc8fa2e518415a44345e9073f1bdcffb1693c073c5a4",
+            "sha256": "82c6b47117cadecfcdee8c63f9c9566a7c27db34c19456ce49297e666840aa3b",
             "category": "validate",
             "priority": "critical",
-            "size_bytes": 13725
+            "size_bytes": 13466
         },
         {
             "path": "scripts/validate/check_all_files.py",

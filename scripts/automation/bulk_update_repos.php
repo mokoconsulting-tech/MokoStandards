@@ -20,13 +20,17 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
+// Manual require for CLIApp since it's in CliFramework.php (PSR-4 naming issue)
+require_once __DIR__ . '/../../src/Enterprise/CliFramework.php';
+
 use MokoStandards\Enterprise\{
     ApiClient,
     AuditLogger,
-    CliFramework,
+    CLIApp,
     Config,
     ErrorRecovery,
-    MetricsCollector
+    MetricsCollector,
+    SecurityValidator
 };
 
 /**
@@ -34,7 +38,7 @@ use MokoStandards\Enterprise\{
  * 
  * Synchronizes files across multiple repositories based on configuration
  */
-class BulkUpdateRepos extends CliFramework
+class BulkUpdateRepos extends CLIApp
 {
     private const DEFAULT_ORG = 'mokoconsulting-tech';
     private const SYNC_OVERRIDE_FILE = '.github/config.tf';
@@ -90,14 +94,8 @@ class BulkUpdateRepos extends CliFramework
     
     private ApiClient $apiClient;
     private AuditLogger $logger;
-    private MetricsCollector $metrics;
     private ErrorRecovery\CheckpointManager $checkpoints;
     private SecurityValidator $securityValidator;
-    
-    /**
-     * Dry run mode - when true, only preview changes without applying them
-     */
-    private bool $dryRun = false;
     
     /**
      * Sync log for current repository being processed
@@ -105,26 +103,29 @@ class BulkUpdateRepos extends CliFramework
      */
     private array $syncLog = [];
     
-    protected function configure(): void
+    /**
+     * Setup script-specific arguments
+     */
+    protected function setupArguments(): array
     {
-        $this->setDescription('Bulk update repositories with standardized files');
-        $this->addArgument('--org', 'GitHub organization name', self::DEFAULT_ORG);
-        $this->addArgument('--repo', 'Specific repository (default: all)', null);
-        $this->addArgument('--skip-archived', 'Skip archived repositories', false);
-        $this->addArgument('--force', 'Force update even if no changes', false);
-        $this->addArgument('--force-override', 'Override protected files (use for emergency updates)', false);
-        $this->addArgument('--dry-run', 'Preview changes without applying them', false);
+        return [
+            'org:' => 'GitHub organization name',
+            'repo:' => 'Specific repository (default: all)',
+            'skip-archived' => 'Skip archived repositories',
+            'force' => 'Force update even if no changes',
+            'force-override' => 'Override protected files (use for emergency updates)',
+        ];
     }
     
-    protected function initialize(): void
+    protected function run(): int
     {
-        parent::initialize();
-        
+        // Initialize enterprise components
         $config = Config::load();
-        $token = $config->getString('github.token', getenv('GITHUB_TOKEN') ?: '');
+        $token = $config->getString('github.token', getenv('GITHUB_TOKEN') ?: getenv('GH_TOKEN') ?: '');
         
         if (empty($token)) {
-            throw new RuntimeException('GitHub token not configured. Set GITHUB_TOKEN environment variable.');
+            $this->log('GitHub token not configured. Set GITHUB_TOKEN or GH_TOKEN environment variable.', 'ERROR');
+            return 1;
         }
         
         $this->apiClient = new ApiClient('https://api.github.com', $token);
@@ -133,24 +134,14 @@ class BulkUpdateRepos extends CliFramework
         $this->checkpoints = new ErrorRecovery\CheckpointManager('.checkpoints');
         $this->securityValidator = new SecurityValidator();
         
-        // Initialize dry-run mode from argument
-        $this->dryRun = (bool)$this->getArgument('--dry-run');
+        $this->log('Initialized bulk repository updater', 'INFO');
         
-        if ($this->dryRun) {
-            $this->log('Running in DRY-RUN mode - no changes will be applied');
-        }
-        
-        $this->log('Initialized bulk repository updater');
-    }
-    
-    protected function run(): int
-    {
         $txn = $this->logger->startTransaction('bulk_update_repos');
         
         try {
-            $org = $this->getArgument('--org');
-            $specificRepo = $this->getArgument('--repo');
-            $skipArchived = $this->getArgument('--skip-archived');
+            $org = $this->getOption('--org');
+            $specificRepo = $this->getOption('--repo');
+            $skipArchived = $this->getOption('--skip-archived');
             
             $this->log("Fetching repositories for organization: {$org}");
             
@@ -1664,5 +1655,5 @@ class BulkUpdateRepos extends CliFramework
 }
 
 // Run the application
-$app = new BulkUpdateRepos();
-exit($app->execute($argv));
+$app = new BulkUpdateRepos('bulk_update_repos', 'Bulk repository sync - Schema-driven enterprise automation');
+exit($app->execute());

@@ -177,7 +177,7 @@ $script:DefaultScriptsToSync = @(
     "scripts/maintenance/update_changelog.py"
     "scripts/maintenance/release_version.py"
     "scripts/validate/validate_codeql_config.py"
-    "scripts/validate/auto_detect_platform.py"
+    "scripts/validate/auto_detect_platform.php"
     "scripts/validate/validate_structure_v2.py"
     "scripts/definitions/crm-module.xml"
     "scripts/definitions/default-repository.xml"
@@ -309,7 +309,7 @@ function Invoke-PlatformDetection {
         [string]$SourceDir
     )
     
-    $scriptPath = Join-Path $SourceDir "scripts/validate/auto_detect_platform.py"
+    $scriptPath = Join-Path $SourceDir "scripts/validate/auto_detect_platform.php"
     
     if (-not (Test-Path $scriptPath)) {
         Write-Warning "Platform detection script not found at $scriptPath"
@@ -317,7 +317,7 @@ function Invoke-PlatformDetection {
     }
     
     try {
-        $result = Invoke-CommandSafe -Command "python3" -Arguments @(
+        $result = Invoke-CommandSafe -Command "php" -Arguments @(
             $scriptPath,
             "--repo-path", $RepositoryPath,
             "--json"
@@ -326,7 +326,7 @@ function Invoke-PlatformDetection {
         if ($result.Success -and $result.StdOut) {
             try {
                 $detection = $result.StdOut | ConvertFrom-Json
-                return $detection.platform_type ?? "generic"
+                return $detection.platform ?? "generic"
             }
             catch {
                 Write-Warning "Failed to parse platform detection output"

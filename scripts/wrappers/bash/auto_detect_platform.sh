@@ -12,7 +12,7 @@ set -euo pipefail
 
 # Script Configuration - UPDATE THESE FOR EACH WRAPPER
 SCRIPT_NAME="auto_detect_platform"
-SCRIPT_PATH="scripts/validate/auto_detect_platform.py"
+SCRIPT_PATH="scripts/validate/auto_detect_platform.php"
 SCRIPT_CATEGORY="validation"  # automation, validation, maintenance, etc.
 
 # Colors for output
@@ -44,15 +44,13 @@ get_repo_root() {
     git rev-parse --show-toplevel 2>/dev/null || pwd
 }
 
-# Check if Python is available
-check_python() {
-    if command -v python3 &> /dev/null; then
-        echo "python3"
-    elif command -v python &> /dev/null; then
-        echo "python"
+# Check if PHP is available
+check_php() {
+    if command -v php &> /dev/null; then
+        echo "php"
     else
-        log_error "Python is not installed or not in PATH"
-        echo "Please install Python 3.7 or later"
+        log_error "PHP is not installed or not in PATH"
+        echo "Please install PHP 7.4 or later"
         exit 1
     fi
 }
@@ -62,14 +60,14 @@ main() {
     local repo_root
     repo_root=$(get_repo_root)
     
-    local python_cmd
-    python_cmd=$(check_python)
+    local php_cmd
+    php_cmd=$(check_php)
     
     local full_script_path="$repo_root/$SCRIPT_PATH"
     
     # Check if script exists
     if [ ! -f "$full_script_path" ]; then
-        log_error "Python script not found: $full_script_path"
+        log_error "PHP script not found: $full_script_path"
         exit 1
     fi
     
@@ -81,11 +79,11 @@ main() {
     timestamp=$(date +"%Y%m%d_%H%M%S")
     local log_file="$log_dir/${SCRIPT_NAME}_${timestamp}.log"
     
-    # Execute Python script with all arguments
+    # Execute PHP script with all arguments
     log_info "Running $SCRIPT_NAME..."
     log_info "Log file: $log_file"
     
-    if "$python_cmd" "$full_script_path" "$@" 2>&1 | tee "$log_file"; then
+    if "$php_cmd" "$full_script_path" "$@" 2>&1 | tee "$log_file"; then
         log_success "$SCRIPT_NAME completed successfully"
         exit 0
     else

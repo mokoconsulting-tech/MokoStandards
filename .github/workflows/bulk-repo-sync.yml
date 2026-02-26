@@ -203,8 +203,8 @@ jobs:
           MISSING_FILES=()
 
           # Check for platform detection script
-          if [ ! -f "scripts/validate/auto_detect_platform.py" ]; then
-            MISSING_FILES+=("scripts/validate/auto_detect_platform.py")
+          if [ ! -f "scripts/validate/auto_detect_platform.php" ]; then
+            MISSING_FILES+=("scripts/validate/auto_detect_platform.php")
           fi
 
           # Check for schema definition files required by bulk_update_repos.php

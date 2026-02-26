@@ -30,7 +30,7 @@ $ErrorActionPreference = 'Stop'
 
 # Script Configuration - UPDATE THESE FOR EACH WRAPPER
 $ScriptName = "auto_detect_platform"
-$ScriptPath = "scripts/validate/auto_detect_platform.py"
+$ScriptPath = "scripts/validate/auto_detect_platform.php"
 $ScriptCategory = "validation"  # automation, validation, maintenance, etc.
 
 #region Helper Functions
@@ -68,25 +68,21 @@ function Get-RepoRoot {
     return $PWD.Path
 }
 
-function Get-PythonCommand {
-    $pythonCommands = @('python3', 'python', 'py')
-    
-    foreach ($cmd in $pythonCommands) {
-        try {
-            $null = Get-Command $cmd -ErrorAction Stop
-            # Verify it's Python 3
-            $version = & $cmd --version 2>&1
-            if ($version -match 'Python 3') {
-                return $cmd
-            }
-        }
-        catch {
-            continue
+function Get-PhpCommand {
+    try {
+        $null = Get-Command php -ErrorAction Stop
+        # Verify PHP version
+        $version = & php --version 2>&1
+        if ($version -match 'PHP') {
+            return 'php'
         }
     }
+    catch {
+        # PHP not found
+    }
     
-    Write-ErrorLog "Python 3 is not installed or not in PATH"
-    Write-Host "Please install Python 3.7 or later from https://www.python.org/"
+    Write-ErrorLog "PHP is not installed or not in PATH"
+    Write-Host "Please install PHP 7.4 or later from https://www.php.net/"
     exit 1
 }
 
@@ -98,15 +94,15 @@ try {
     # Get repository root
     $repoRoot = Get-RepoRoot
     
-    # Get Python command
-    $pythonCmd = Get-PythonCommand
+    # Get PHP command
+    $phpCmd = Get-PhpCommand
     
     # Build full script path
     $fullScriptPath = Join-Path $repoRoot $ScriptPath
     
     # Check if script exists
     if (-not (Test-Path $fullScriptPath)) {
-        Write-ErrorLog "Python script not found: $fullScriptPath"
+        Write-ErrorLog "PHP script not found: $fullScriptPath"
         exit 1
     }
     
@@ -124,10 +120,10 @@ try {
     Write-InfoLog "Log file: $logFile"
     
     # Build argument list
-    $pythonArgs = @($fullScriptPath) + $Arguments
+    $phpArgs = @($fullScriptPath) + $Arguments
     
     # Execute and capture output
-    $output = & $pythonCmd @pythonArgs 2>&1 | Tee-Object -FilePath $logFile
+    $output = & $phpCmd @phpArgs 2>&1 | Tee-Object -FilePath $logFile
     $exitCode = $LASTEXITCODE
     
     if ($exitCode -eq 0) {

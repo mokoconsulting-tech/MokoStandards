@@ -81,7 +81,6 @@ class BulkUpdateRepos extends CLIApp
         'scripts/validate/check_enterprise_readiness.php',
         'scripts/validate/check_repo_health.php',
         'scripts/validate/auto_detect_platform.php',
-        'scripts/maintenance/validate_script_registry.py',
         'scripts/.script-registry.json',
     ];
     

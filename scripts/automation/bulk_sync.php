@@ -334,7 +334,7 @@ if (php_sapi_name() === 'cli' && isset($argv[0]) && realpath($argv[0]) === __FIL
     $app = new BulkSync(
         'bulk-sync',
         'Enterprise-grade bulk repository synchronization',
-        self::VERSION
+        BulkSync::VERSION
     );
-    exit($app->execute($argv));
+    exit($app->execute());
 }

@@ -28,7 +28,7 @@ use MokoStandards\Enterprise\{
     AuditLogger,
     CLIApp,
     Config,
-    ErrorRecovery,
+    ErrorRecovery\CheckpointManager,
     MetricsCollector,
     SecurityValidator
 };
@@ -42,6 +42,12 @@ class BulkUpdateRepos extends CLIApp
 {
     private const DEFAULT_ORG = 'mokoconsulting-tech';
     private const SYNC_OVERRIDE_FILE = '.github/config.tf';
+    
+    /**
+     * Maximum number of files to scan for security issues per repository
+     * Limits API calls and processing time
+     */
+    private const MAX_SECURITY_SCAN_FILES = 10;
     
     /**
      * Legacy override file locations that should be migrated
@@ -94,8 +100,13 @@ class BulkUpdateRepos extends CLIApp
     
     private ApiClient $apiClient;
     private AuditLogger $logger;
-    private ErrorRecovery\CheckpointManager $checkpoints;
+    private CheckpointManager $checkpoints;
     private SecurityValidator $securityValidator;
+    
+    /**
+     * Sync start time for accurate duration tracking
+     */
+    private float $syncStartTime = 0.0;
     
     /**
      * Sync log for current repository being processed
@@ -131,10 +142,13 @@ class BulkUpdateRepos extends CLIApp
         $this->apiClient = new ApiClient('https://api.github.com', $token);
         $this->logger = new AuditLogger('bulk_update_repos');
         $this->metrics = new MetricsCollector();
-        $this->checkpoints = new ErrorRecovery\CheckpointManager('.checkpoints');
+        $this->checkpoints = new CheckpointManager('.checkpoints');
         $this->securityValidator = new SecurityValidator();
         
         $this->log('Initialized bulk repository updater', 'INFO');
+        
+        // Track sync start time for accurate metrics
+        $this->syncStartTime = microtime(true);
         
         $txn = $this->logger->startTransaction('bulk_update_repos');
         
@@ -206,10 +220,10 @@ class BulkUpdateRepos extends CLIApp
                 $results['total'] > 0 ? ($results['success'] / $results['total']) * 100 : 0
             );
             
-            // Record sync duration
+            // Record sync duration using actual start time
             $syncEndTime = microtime(true);
-            $syncStartTime = $syncEndTime - 10; // Approximate, would track actual start time in production
-            $this->metrics->recordTiming('bulk_sync_duration_seconds', $syncEndTime - $syncStartTime);
+            $syncDuration = $syncEndTime - $this->syncStartTime;
+            $this->metrics->recordTiming('bulk_sync_duration_seconds', $syncDuration);
             
             $this->logger->commitTransaction($txn);
             
@@ -1050,8 +1064,9 @@ class BulkUpdateRepos extends CLIApp
                         'message' => $issue['message'] ?? 'No message',
                         'file' => $issue['file'] ?? 'unknown'
                     ]);
+                    // Increment counter once per issue
+                    $this->metrics->incrementCounter('security_issues_found');
                 }
-                $this->metrics->incrementCounter('security_issues_found', ['count' => count($securityIssues)]);
             } else {
                 $this->log("  ✓ No security issues found");
                 $this->addSyncLogEntry('validation_results', [
@@ -1616,8 +1631,8 @@ class BulkUpdateRepos extends CLIApp
                            preg_match('/\.(php|py|js|ts|yml|yaml|json|env|sh|bash)$/i', $item['path'] ?? '');
                 });
                 
-                // Limit to first 10 files for performance
-                $filesToScan = array_slice($filesToScan, 0, 10);
+                // Limit to MAX_SECURITY_SCAN_FILES for performance
+                $filesToScan = array_slice($filesToScan, 0, self::MAX_SECURITY_SCAN_FILES);
                 
                 foreach ($filesToScan as $file) {
                     $filePath = $file['path'];

@@ -1,5 +1,10 @@
 # Branch and Version Automation Distribution via Terraform
 
+> **⚠️ DEPRECATED DOCUMENTATION**  
+> **Status**: This document describes Python scripts that are not currently implemented.  
+> **Current Status**: MokoStandards uses PHP-based automation scripts (see [Automation Scripts](../../scripts/automation/README.md))  
+> **Note**: This documentation is retained for historical reference only.
+
 This document explains how branch management and version automation scripts are automatically distributed to all organization repositories using Terraform.
 
 ## Overview

@@ -1,5 +1,10 @@
 [![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
+> **⚠️ DEPRECATED DOCUMENTATION**  
+> **Status**: This document describes a Python-based automation system that is not currently implemented.  
+> **Last Updated**: 2026-02-10  
+> **Current Status**: MokoStandards uses PHP-based automation (see [Automation Scripts](../../scripts/automation/README.md))
+
 # Branch and Version Automation - Comprehensive Guide
 
 **Document Version**: 1.0.0  

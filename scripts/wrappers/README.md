@@ -11,7 +11,7 @@ Wrappers provide a convenient way to run Python scripts from different environme
 ## Benefits
 
 1. **Simplified execution**: No need to remember Python interpreter commands
-2. **Automatic logging**: All output is captured to `logs/` directory
+2. **Automatic logging**: All output is captured to `var/logs/` directory
 3. **Error handling**: Proper exit codes and error messages
 4. **Path resolution**: Automatically finds script locations relative to repository root
 5. **Cross-platform**: Works on any platform with appropriate shell
@@ -54,14 +54,14 @@ scripts\wrappers\powershell\validate_repo_health.ps1
 
 ### Automatic Logging
 
-All wrapper executions are logged to the `logs/` directory:
+All wrapper executions are logged to the `var/logs/` directory:
 - Logs are organized by category (automation, validation, maintenance, etc.)
 - Log files include timestamps: `{script_name}_{timestamp}.log`
 - Both stdout and stderr are captured
 
 Example log location:
 ```
-logs/automation/bulk_update_repos_20260128_110830.log
+var/logs/automation/bulk_update_repos_20260128_110830.log
 ```
 
 ### Error Handling
@@ -176,4 +176,4 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 - [Scripts README](../README.md) - Overview of all scripts
 - [Python Scripts Documentation](../../docs/scripts/)
-- [Logs Directory](../../logs/README.md) - Log file structure and retention
+- [Logs Directory](../../var/logs/README.md) - Log file structure and retention

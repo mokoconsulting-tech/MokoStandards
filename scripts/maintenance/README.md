@@ -104,8 +104,8 @@ Setup standard GitHub labels for a repository.
 ## Terraform Distribution
 
 Required scripts are automatically deployed via:
-- **Configuration**: `terraform/repository-types/default-repository.tf`
-- **Distribution**: `terraform/repository-management/main.tf`
+- **Configuration**: `infrastructure/terraform/repository-types/default-repository.tf`
+- **Distribution**: `infrastructure/terraform/repository-management/main.tf`
 - **Always Overwrite**: `true` (ensures latest version)
 
 **Deployment:**
@@ -116,7 +116,7 @@ Required scripts are automatically deployed via:
 
 ## Related Documentation
 
-- [Branch & Version Automation Distribution](../../terraform/repository-management/VERSION_BUMP_DISTRIBUTION.md)
+- [Branch & Version Automation Distribution](../../infrastructure/terraform/repository-management/VERSION_BUMP_DISTRIBUTION.md)
 - [Branching Strategy Policy](../../docs/policy/branching-strategy.md)
 - [Release Management](../../docs/policy/governance/release-management.md)
 
@@ -125,5 +125,5 @@ Required scripts are automatically deployed via:
 For issues with these scripts:
 1. Check this documentation
 2. Review terraform logs
-3. Check audit logs in `logs/automation/`
+3. Check audit logs in `var/logs/automation/`
 4. Contact MokoStandards maintainers

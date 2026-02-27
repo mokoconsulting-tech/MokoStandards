@@ -6,7 +6,7 @@
 # DEFGROUP: Terraform.WebServer
 # INGROUP: MokoStandards.Infrastructure
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
-# PATH: terraform/webserver/ubuntu-dev-webserver.tf
+# PATH: infrastructure/terraform/webserver/ubuntu-dev-webserver.tf
 # VERSION: 04.00.03
 # BRIEF: Terraform definition for Ubuntu development web server configuration
 # ENTERPRISE: Includes audit logging, monitoring, and compliance features

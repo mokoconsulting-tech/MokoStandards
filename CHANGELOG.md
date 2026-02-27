@@ -38,7 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - repository_settings_checks (10 points): branch protection, required status checks, PR reviews
   - deployment_secrets_checks (20 points): GITHUB_TOKEN, ORG_ADMIN_TOKEN, deployment secrets, documentation
   - Total health checks now: 103 points across 8 categories (was 56 points in 4 categories)
-  - Removed TODO comments from terraform/repository-types/repo-health-defaults.tf
+  - Removed TODO comments from infrastructure/terraform/repository-types/repo-health-defaults.tf
   - Created comprehensive check definitions with remediation guidance for all categories
 
 - **Version Synchronization Script**:
@@ -51,9 +51,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - **Universal Version Sync to 04.00.03** (2026-02-27):
   - Synchronized 24 files from versions 04.00.01 and 04.00.02 to 04.00.03
-  - Updated terraform/repository-types/repo-health-defaults.tf metadata (version and last_updated)
-  - Updated all Terraform files in terraform/ directory
-  - Updated documentation in docs/terraform/, docs/workflows/, docs/schemas/
+  - Updated infrastructure/terraform/repository-types/repo-health-defaults.tf metadata (version and last_updated)
+  - Updated all Terraform files in infrastructure/terraform/ directory
+  - Updated documentation in docs/infrastructure/terraform/, docs/workflows/, docs/schemas/
   - Updated configuration files (.github/codeql/codeql-config.yml)
   - Updated validation scripts (scripts/validate/README.md)
   - Preserved historical version references in CHANGELOG.md
@@ -138,10 +138,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Consistent GPL-3.0-or-later copyright headers
 - FILE INFORMATION sections with DEFGROUP, INGROUP, REPO, PATH, VERSION, BRIEF
 - Version 04.00.03 consistency across all .tf files
-- terraform/main.tf, variables.tf, outputs.tf, and 9 configuration files
+- infrastructure/terraform/main.tf, variables.tf, outputs.tf, and 9 configuration files
 
 **Remote Sync Logging System**:
-- Comprehensive audit logs created on remote repositories at `logs/MokoStandards/sync/`
+- Comprehensive audit logs created on remote repositories at `var/logs/MokoStandards/sync/`
 - Three log files per sync: sync-YYYYMMDD-HHMMSS.log (session), sync-latest.log (current), sync-summary.json (machine-readable)
 - Logs include all operations, file decisions, enforcement levels, validations, warnings, errors, and summary statistics
 - Auto-creates logs directory with README.md
@@ -172,7 +172,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Documentation Structure**:
 - All documentation updated from "four-tier" to "six-tier" terminology (24 occurrences updated)
-- docs/terraform/enforcement-levels.md updated with 6 levels
+- docs/infrastructure/terraform/enforcement-levels.md updated with 6 levels
 - docs/training/session-7-terraform-infrastructure.md updated with 6-tier examples
 - docs/policy/terraform-file-standards.md updated with enforcement system details
 - Badge legend added to key documentation files
@@ -295,7 +295,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - All PHP source files (src/**/*.php)
   - All PHP scripts (scripts/**/*.php)
   - All template files (templates/**/*.yml)
-  - All Terraform files (terraform/**/*.tf)
+  - All Terraform files (infrastructure/terraform/**/*.tf)
   - override.config.tf
   - README.md, CONTRIBUTING.md, ROADMAP.md
 
@@ -356,7 +356,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `APP_ENV: test` environment variable to circuit breaker test step
 - Removed invalid call to private `checkCircuitBreaker()` method
 - Fixed YAML linting issues in workflow files
-- Health reports now generate successfully to `logs/health/health-report.json`
+- Health reports now generate successfully to `var/logs/health/health-report.json`
 - Circuit breaker testing works properly with environment safeguards
 - Files affected:
   - `scripts/lib/Enterprise/ApiClient.php` (+30 lines)
@@ -373,7 +373,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Checks version badges in documentation (README.md, CHANGELOG.md, docs/README.md)
 - Validates override.config.tf configuration
 - Checks enterprise metadata in config files (pyproject.toml, package.json, composer.json)
-- Validates monitoring directory structure (logs/, logs/audit/, logs/metrics/)
+- Validates monitoring directory structure (var/logs/, var/logs/audit/, var/logs/metrics/)
 - Returns 0-100% enterprise readiness score
 - Provides actionable recommendations for improvements
 - Supports verbose and JSON output modes
@@ -386,7 +386,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Installs missing enterprise libraries (10 files)
 - Installs missing enterprise workflows (5 files)  
 - Creates required directory structure
-- Sets up monitoring directories (logs/audit/, logs/metrics/, logs/validation/)
+- Sets up monitoring directories (var/logs/audit/, var/logs/metrics/, var/logs/validation/)
 - Initializes configuration files with enterprise metadata
 - Adds version badges to README.md
 - Creates override.config.tf if missing
@@ -415,7 +415,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - File: `docs/guide/enterprise-readiness.md` (21 KB)
 
 **Terraform Distribution Updates**:
-- Updated `terraform/repository-management/main.tf` to distribute all enterprise files
+- Updated `infrastructure/terraform/repository-management/main.tf` to distribute all enterprise files
 - Added all 10 enterprise library files to base_templates
 - Added enterprise readiness checker to distribution
 - Added enterprise setup script to distribution
@@ -424,7 +424,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Configuration Updates**:
 - Added enterprise metadata to `pyproject.toml`
-- Created `logs/metrics/` directory with .gitkeep
+- Created `var/logs/metrics/` directory with .gitkeep
 - Updated scripts/validate/README.md with enterprise checker documentation
 - Updated scripts/automation/README.md with setup script documentation
 - All scripts include GPL-3.0-or-later headers
@@ -444,7 +444,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Security event logging (who, what, when, where)
   - Audit report generation with date/event filtering
   - Automatic log rotation based on file size
-  - JSON structured logging to `logs/audit/`
+  - JSON structured logging to `var/logs/audit/`
   - Context manager support for transaction tracking
   - Session and transaction hierarchy
   - File: `scripts/lib/enterprise_audit.py`
@@ -571,7 +571,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Updated 64 files across repository
   - Applied using enterprise version bump tool
   - Justification: Major new functionality (8 enterprise libraries + 2 frameworks)
-  - Audit log: `logs/automation/version_bump_20260211_000024.json`
+  - Audit log: `var/logs/automation/version_bump_20260211_000024.json`
 
 ### Enterprise Features Delivered (8/8) ✅
 - ✅ Audit Trail Infrastructure (CRITICAL priority) - `enterprise_audit.py`
@@ -642,7 +642,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Analyzes PR descriptions, checkboxes, and text to determine version bump type
   - Updates version numbers across all repository files (.md, .py, .sh, .tf, .yml, .json, etc.)
   - Enterprise features:
-    * Comprehensive audit logging with JSON output (logs/automation/)
+    * Comprehensive audit logging with JSON output (var/logs/automation/)
     * Backup and rollback capabilities with transaction-like operations
     * Configuration file support
     * Validation and sanity checks (version format, progression)
@@ -676,18 +676,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Terraform Distribution - All Automation Scripts Required**: Expanded terraform to require all automation
   - Branch management scripts now REQUIRED in all repositories
   - Release automation scripts now REQUIRED in all repositories
-  - Updated `terraform/repository-types/default-repository.tf` with:
+  - Updated `infrastructure/terraform/repository-types/default-repository.tf` with:
     * Added `maintenance` subdirectory as required
     * Added `release` subdirectory as required
     * Added 5 new required scripts to required_files configuration
-  - Updated `terraform/repository-management/main.tf` base_templates with:
+  - Updated `infrastructure/terraform/repository-management/main.tf` base_templates with:
     * `scripts/maintenance/clean_old_branches.py` (type: all)
     * `scripts/maintenance/release_version.py` (type: all)
     * `scripts/release/unified_release.py` (type: all)
     * `scripts/release/detect_platform.py` (type: all)
     * `scripts/release/package_extension.py` (type: all)
   - Total: 9 scripts now required and auto-distributed
-  - Files: `terraform/repository-types/default-repository.tf`, `terraform/repository-management/main.tf`
+  - Files: `infrastructure/terraform/repository-types/default-repository.tf`, `infrastructure/terraform/repository-management/main.tf`
 
 ### Changed
 - **Version Bump Documentation**: Enhanced automation documentation
@@ -697,7 +697,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added usage examples for release automation scripts
   - Updated terraform configuration examples
   - Updated repository structure diagram with maintenance/ and release/ directories
-  - Files: `terraform/repository-management/VERSION_BUMP_DISTRIBUTION.md`
+  - Files: `infrastructure/terraform/repository-management/VERSION_BUMP_DISTRIBUTION.md`
 
 - **Scripts Documentation**: Updated maintenance and release script README files
   - Marked all required scripts with REQUIRED status
@@ -758,7 +758,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added `.github/workflows/codeql-analysis.yml` to base template mappings
   - Maps to `codeql-analysis.yml.template` with `all` repository type
   - Enables automatic deployment of CodeQL workflow to all managed repositories
-  - Files: `terraform/repository-management/main.tf`
+  - Files: `infrastructure/terraform/repository-management/main.tf`
 
 ### Security
 - **Code Injection Fixes**: Fixed code injection vulnerabilities in reusable workflow files
@@ -905,7 +905,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Comprehensive help and installation instructions
   - Integration with GitHub CLI for automated deployment
 - **Infrastructure Enhancements**: Multiple improvements to developer experience
-  - Hierarchical logs/ directory structure (8 categories: automation, validation, maintenance, analysis, build, release, tests, archive)
+  - Hierarchical var/logs/ directory structure (8 categories: automation, validation, maintenance, analysis, build, release, tests, archive)
   - PowerShell GUI components (GuiUtils.psm1 module with reusable dialogs and forms)
   - PowerShell GUI scripts (Invoke-RepoHealthCheckGUI.ps1, Invoke-BulkUpdateGUI.ps1)
   - Script wrappers: 108 wrappers generated (54 bash + 54 PowerShell) for all Python scripts
@@ -1059,18 +1059,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added - Terraform Workflow Templates and Infrastructure Management
 - **Terraform Support**: Added comprehensive Terraform workflow templates
-  - Created `templates/workflows/terraform/ci.yml` - Terraform validation, formatting, planning, and security scanning
-  - Created `templates/workflows/terraform/deploy.yml.template` - Multi-cloud deployment workflows (AWS/Azure/GCP)
-  - Created `templates/workflows/terraform/drift-detection.yml.template` - Scheduled infrastructure drift monitoring
-  - Created `templates/workflows/terraform/manage-repo-templates.yml.template` - Use Terraform to manage repository templates
-  - Created `templates/workflows/terraform/index.md` - Complete documentation for Terraform workflows
+  - Created `templates/workflows/infrastructure/terraform/ci.yml` - Terraform validation, formatting, planning, and security scanning
+  - Created `templates/workflows/infrastructure/terraform/deploy.yml.template` - Multi-cloud deployment workflows (AWS/Azure/GCP)
+  - Created `templates/workflows/infrastructure/terraform/drift-detection.yml.template` - Scheduled infrastructure drift monitoring
+  - Created `templates/workflows/infrastructure/terraform/manage-repo-templates.yml.template` - Use Terraform to manage repository templates
+  - Created `templates/workflows/infrastructure/terraform/index.md` - Complete documentation for Terraform workflows
   - All workflows support OIDC authentication, security scanning (tfsec/Checkov), and automated issue creation
 - **Terraform Infrastructure Configuration**: Created repository management via Terraform
-  - Created `terraform/repository-management/main.tf` - Declarative repository file management
-  - Created `terraform/repository-management/terraform.tfvars.example` - Configuration examples
+  - Created `infrastructure/terraform/repository-management/main.tf` - Declarative repository file management
+  - Created `infrastructure/terraform/repository-management/terraform.tfvars.example` - Configuration examples
   - Enables bulk repository updates using infrastructure-as-code principles
 - **Script Enhancement**: Updated `scripts/automation/bulk_update_repos.php` to recognize Terraform repositories
-  - Added Terraform platform detection (checks for terraform/ directory and .tf files)
+  - Added Terraform platform detection (checks for infrastructure/terraform/ directory and .tf files)
   - Added Terraform workflow template mappings (ci, deploy, drift-detection)
   - Platform detection now prioritizes Terraform before falling back to auto-detection
 
@@ -1244,11 +1244,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed - Schema Migration to Terraform
 - **BREAKING CHANGE**: Migrated schema system from XML/JSON to Terraform
   - Removed `schemas/*.xml`, `schemas/*.xsd`, `schemas/*.json` (legacy schema files)
-  - Added `terraform/` directory with Terraform-based schema definitions
-  - Added `terraform/repository-types/repo-health-defaults.tf` - Health check configuration
-  - Added `terraform/repository-types/default-repository.tf` - Repository structure definitions
-  - Added `terraform/workstation/` - Windows and Ubuntu dev workstation definitions
-  - Added `terraform/webserver/` - Dev and production web server definitions (4 configurations)
+  - Added `infrastructure/terraform/` directory with Terraform-based schema definitions
+  - Added `infrastructure/terraform/repository-types/repo-health-defaults.tf` - Health check configuration
+  - Added `infrastructure/terraform/repository-types/default-repository.tf` - Repository structure definitions
+  - Added `infrastructure/terraform/workstation/` - Windows and Ubuntu dev workstation definitions
+  - Added `infrastructure/terraform/webserver/` - Dev and production web server definitions (4 configurations)
   - Added `scripts/lib/terraform_schema_reader.py` - Python module to read Terraform schemas
   - Updated `scripts/validate/check_repo_health.py` to use Terraform instead of XML
   - Created `scripts/validate/validate_structure_terraform.py` - New Terraform-based validator
@@ -1261,15 +1261,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added - Workstation and Web Server Infrastructure
 - **Workstation Provisioning**
-  - `terraform/workstation/windows-dev-workstation.tf` - Windows development workstation
-  - `terraform/workstation/ubuntu-dev-workstation.tf` - Ubuntu development workstation
+  - `infrastructure/terraform/workstation/windows-dev-workstation.tf` - Windows development workstation
+  - `infrastructure/terraform/workstation/ubuntu-dev-workstation.tf` - Ubuntu development workstation
   - `scripts/automation/ubuntu-dev-workstation-provisioner.sh` - Ubuntu provisioner script
   - Comprehensive workstation documentation
 - **Web Server Infrastructure** (4 configurations)
-  - `terraform/webserver/windows-dev-webserver.tf` - Windows development web server (IIS, PHP 8.3)
-  - `terraform/webserver/windows-prod-webserver.tf` - Windows production web server (IIS, ARR, SSL)
-  - `terraform/webserver/ubuntu-dev-webserver.tf` - Ubuntu development web server (Apache, PHP 8.3)
-  - `terraform/webserver/ubuntu-prod-webserver.tf` - Ubuntu production web server (Nginx, WAF, monitoring)
+  - `infrastructure/terraform/webserver/windows-dev-webserver.tf` - Windows development web server (IIS, PHP 8.3)
+  - `infrastructure/terraform/webserver/windows-prod-webserver.tf` - Windows production web server (IIS, ARR, SSL)
+  - `infrastructure/terraform/webserver/ubuntu-dev-webserver.tf` - Ubuntu development web server (Apache, PHP 8.3)
+  - `infrastructure/terraform/webserver/ubuntu-prod-webserver.tf` - Ubuntu production web server (Nginx, WAF, monitoring)
   - Production-ready configurations with security hardening, monitoring, and backups
 
 ### Added - Enhanced GitHub Actions Integration

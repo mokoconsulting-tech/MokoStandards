@@ -88,7 +88,7 @@ class AuditLogger
      * Initialize audit logger.
      *
      * @param string $service Service name (e.g., 'version_bump', 'branch_cleanup')
-     * @param string|null $logDir Directory for audit logs (default: logs/audit/)
+     * @param string|null $logDir Directory for audit logs (default: var/logs/audit/)
      * @param string|null $user Username for audit trail (default: from environment)
      * @param bool $enableConsole Output to console (default: true)
      * @param bool $enableFile Write to file (default: true)
@@ -115,9 +115,9 @@ class AuditLogger
 
         // Set up log directory
         if ($logDir === null) {
-            // Default to logs/audit/ in repository root
+            // Default to var/logs/audit/ in repository root
             $repoRoot = dirname(__DIR__, 3);
-            $this->logDir = $repoRoot . '/logs/audit';
+            $this->logDir = $repoRoot . '/var/logs/audit';
         } else {
             $this->logDir = $logDir;
         }

@@ -132,8 +132,8 @@ Standard release workflow using the unified tool:
 ## Terraform Distribution
 
 Required scripts are automatically deployed via:
-- **Configuration**: `terraform/repository-types/default-repository.tf`
-- **Distribution**: `terraform/repository-management/main.tf`
+- **Configuration**: `infrastructure/terraform/repository-types/default-repository.tf`
+- **Distribution**: `infrastructure/terraform/repository-management/main.tf`
 - **Always Overwrite**: `true` (ensures latest version)
 
 **Deployment:**
@@ -159,7 +159,7 @@ All releases follow semantic versioning (semver.org):
 
 ## Related Documentation
 
-- [Branch & Version Automation Distribution](../../terraform/repository-management/VERSION_BUMP_DISTRIBUTION.md)
+- [Branch & Version Automation Distribution](../../infrastructure/terraform/repository-management/VERSION_BUMP_DISTRIBUTION.md)
 - [Release Management Policy](../../docs/policy/governance/release-management.md)
 - [Release Workflow](../../docs/workflows/release-system.md)
 - [Version Bump Detection](../automation/README.md)
@@ -168,7 +168,7 @@ All releases follow semantic versioning (semver.org):
 
 For issues with release scripts:
 1. Check this documentation
-2. Review release logs in `logs/release/`
+2. Review release logs in `var/logs/release/`
 3. Verify platform detection
 4. Contact MokoStandards maintainers
 

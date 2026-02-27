@@ -7,7 +7,7 @@
 
 | Field | Value |
 |-------|-------|
-| **File** | `terraform/main.tf` |
+| **File** | `infrastructure/terraform/main.tf` |
 | **Version** | 04.00.03 |
 | **Last Updated** | 2026-02-21 |
 | **Type** | main |
@@ -20,7 +20,7 @@ The `main.tf` file is the primary terraform configuration file that orchestrates
 ## File Location
 
 ```
-terraform/main.tf
+infrastructure/terraform/main.tf
 ```
 
 ## Purpose

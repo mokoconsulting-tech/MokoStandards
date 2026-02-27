@@ -20,14 +20,14 @@ on:
     branches:
       - main
     paths:
-      - 'terraform/**'
+      - 'infrastructure/terraform/**'
       - 'scripts/validate/**'
       - 'scripts/maintenance/**'
   push:
     branches:
       - main
     paths:
-      - 'terraform/**'
+      - 'infrastructure/terraform/**'
       - 'scripts/validate/**'
       - 'scripts/maintenance/**'
   workflow_dispatch:

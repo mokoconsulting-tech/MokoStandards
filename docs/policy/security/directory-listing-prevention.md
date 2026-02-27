@@ -107,7 +107,7 @@ This policy applies to:
 
 Required in:
 - `src/` and all subdirectories
-- `public/` and all subdirectories (if present)
+- `web/` and all subdirectories (if present)
 - `dist/` and all subdirectories (if present)
 - Any directory served by a web server
 

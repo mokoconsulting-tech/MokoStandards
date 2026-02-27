@@ -74,7 +74,7 @@ main() {
     fi
     
     # Setup logging directory
-    local log_dir="$repo_root/logs/$SCRIPT_CATEGORY"
+    local log_dir="$repo_root/var/logs/$SCRIPT_CATEGORY"
     mkdir -p "$log_dir"
     
     local timestamp

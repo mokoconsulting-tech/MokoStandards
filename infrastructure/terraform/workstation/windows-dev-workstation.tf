@@ -6,7 +6,7 @@
 # DEFGROUP: Terraform.DevWorkstation
 # INGROUP: MokoStandards.Infrastructure
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
-# PATH: terraform/workstation/dev-workstation.tf
+# PATH: infrastructure/terraform/workstation/dev-workstation.tf
 # VERSION: 04.00.03
 # BRIEF: Terraform definition for Windows development workstation provisioning configuration
 # ENTERPRISE: Includes audit logging, monitoring, and compliance features

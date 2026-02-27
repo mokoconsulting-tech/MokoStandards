@@ -74,7 +74,7 @@ class Config
         ],
         'audit' => [
             'enabled' => true,
-            'directory' => 'logs/audit',
+            'directory' => 'var/logs/audit',
             'max_file_size_mb' => 10,
             'retention_days' => 90,
         ],

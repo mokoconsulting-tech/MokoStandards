@@ -1452,7 +1452,7 @@ Reference: Production script from the repository.
 - Transaction Manager for atomic project creation
 - Security Validator for input validation
 
-**Code Walkthrough**: See PHP web interface at `public/index.php` (Organization Management section)
+**Code Walkthrough**: See PHP web interface at `web/index.php` (Organization Management section)
 
 ---
 
@@ -1467,7 +1467,7 @@ Reference: Production script from the repository.
 - Error Recovery with checkpoint-based recovery
 - Metrics for cleanup statistics
 
-**Code Walkthrough**: See PHP web interface at `public/index.php` (Branch Management section)
+**Code Walkthrough**: See PHP web interface at `web/index.php` (Branch Management section)
 
 ---
 
@@ -1482,7 +1482,7 @@ Reference: Production script from the repository.
 - Transaction Manager for atomic multi-repo releases
 - Error Recovery for release rollback
 
-**Code Walkthrough**: See PHP web interface at `public/index.php` (Release Management section)
+**Code Walkthrough**: See PHP web interface at `web/index.php` (Release Management section)
 
 ---
 

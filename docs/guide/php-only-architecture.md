@@ -189,7 +189,7 @@ MokoStandards/
 ├── scripts/
 │   ├── automation/          # PHP CLI scripts
 │   └── validate/            # PHP validation scripts
-├── public/
+├── web/
 │   └── index.php            # Web dashboard entry point
 ├── .github/
 │   ├── workflows/           # 17 PHP/bash workflows

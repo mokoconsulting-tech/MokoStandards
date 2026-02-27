@@ -13,9 +13,9 @@ The schema system has been migrated from XML/JSON to Terraform for better infras
 
 The following legacy schema files have been **removed**:
 
-- ~~`repo-health-default.xml`~~ → Migrated to `terraform/repository-types/repo-health-defaults.tf`
+- ~~`repo-health-default.xml`~~ → Migrated to `infrastructure/terraform/repository-types/repo-health-defaults.tf`
 - ~~`repo-health.xsd`~~ → No longer needed (Terraform provides type safety)
-- ~~`repository-structure.schema.json`~~ → Migrated to `terraform/repository-types/default-repository.tf`
+- ~~`repository-structure.schema.json`~~ → Migrated to `infrastructure/terraform/repository-types/default-repository.tf`
 - ~~`repository-structure.xsd`~~ → No longer needed (Terraform provides validation)
 - ~~`unified-repository-schema.json`~~ → Migrated to Terraform configuration
 
@@ -24,7 +24,7 @@ The following legacy schema files have been **removed**:
 All schema definitions have been moved to **Terraform configuration**:
 
 ```
-terraform/
+infrastructure/terraform/
 ├── repository-types/
 │   ├── repo-health-defaults.tf      # Health check configuration
 │   └── default-repository.tf        # Repository structure definitions
@@ -72,7 +72,7 @@ The following scripts have been updated to use PHP with Terraform:
 
 For complete documentation on the new Terraform-based schema system, see:
 
-- [Terraform README](../terraform/README.md)
+- [Terraform README](../infrastructure/terraform/README.md)
 - [Migration Guide](../docs/migration/xml-to-terraform.md)
 - [Schema Guide](../docs/schemas/terraform-schemas.md)
 
@@ -91,7 +91,7 @@ The migration to Terraform provides:
 
 If you have questions about the migration or need help updating your scripts, please:
 
-1. Read the [Terraform README](../terraform/README.md)
+1. Read the [Terraform README](../infrastructure/terraform/README.md)
 2. Check the [migration documentation](../docs/migration/)
 3. Open an issue in the repository
 

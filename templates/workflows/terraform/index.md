@@ -22,7 +22,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Terraform
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
-PATH: /templates/workflows/terraform/index.md
+PATH: /templates/workflows/infrastructure/terraform/index.md
 VERSION: 04.00.03
 BRIEF: Documentation index for Terraform workflow templates
 -->
@@ -106,7 +106,7 @@ This directory contains GitHub Actions workflow templates specifically designed 
 Terraform workflows expect the following directory structure:
 
 ```
-├── terraform/
+├── infrastructure/terraform/
 │   ├── main.tf
 │   ├── variables.tf
 │   ├── outputs.tf
@@ -277,7 +277,7 @@ Modify the `terraform init` step:
 | Jurisdiction   | Tennessee, USA                                                        |
 | Owner          | Moko Consulting                                                       |
 | Repo           | https://github.com/mokoconsulting-tech/MokoStandards                  |
-| Path           | /templates/workflows/terraform/index.md                               |
+| Path           | /templates/workflows/infrastructure/terraform/index.md                               |
 | Version        | 01.00.00                                                              |
 | Status         | Active                                                                |
 | Last Reviewed  | 2026-01-28                                                            |

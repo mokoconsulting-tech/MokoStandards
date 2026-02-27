@@ -107,7 +107,7 @@ class EnterpriseReadinessValidator
     private function checkMonitoring(string $path): void
     {
         // Check for metrics collection
-        $metricsDir = "{$path}/logs/metrics";
+        $metricsDir = "{$path}/var/logs/metrics";
         $hasMetricsDir = is_dir($metricsDir);
         $hasComposer = file_exists($path . '/composer.json');
         
@@ -133,7 +133,7 @@ class EnterpriseReadinessValidator
      */
     private function checkAuditLogging(string $path): void
     {
-        $auditDir = "{$path}/logs/audit";
+        $auditDir = "{$path}/var/logs/audit";
         $hasAuditDir = is_dir($auditDir);
         $hasComposer = file_exists($path . '/composer.json');
         

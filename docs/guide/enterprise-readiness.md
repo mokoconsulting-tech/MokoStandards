@@ -109,9 +109,9 @@ Use this checklist to assess and track enterprise readiness:
   - [ ] `audit_logging = true` in configs
 
 - [ ] **Monitoring Setup** (10 points)
-  - [ ] `logs/` directory exists
-  - [ ] `logs/audit/` directory exists
-  - [ ] `logs/metrics/` directory exists
+  - [ ] `var/logs/` directory exists
+  - [ ] `var/logs/audit/` directory exists
+  - [ ] `var/logs/metrics/` directory exists
   - [ ] Monitoring documentation present
 
 ### Documentation & Standards (30 points)
@@ -255,7 +255,7 @@ Python script for Terraform installation:
 Required directory structure:
 
 ```
-logs/
+var/logs/
 ├── README.md              # Logging documentation
 ├── audit/                 # Audit logs
 │   ├── .gitkeep
@@ -327,15 +327,15 @@ For fine-grained control or learning purposes, you can set up components manuall
 ```bash
 mkdir -p scripts/lib/Enterprise
 mkdir -p .github/workflows
-mkdir -p logs/audit
-mkdir -p logs/metrics
-mkdir -p logs/validation
+mkdir -p var/logs/audit
+mkdir -p var/logs/metrics
+mkdir -p var/logs/validation
 mkdir -p docs/guide
 
 # Create .gitkeep files
-touch logs/audit/.gitkeep
-touch logs/metrics/.gitkeep
-touch logs/validation/.gitkeep
+touch var/logs/audit/.gitkeep
+touch var/logs/metrics/.gitkeep
+touch var/logs/validation/.gitkeep
 ```
 
 ### Step 2: Copy Enterprise Libraries
@@ -621,9 +621,9 @@ Use enterprise workflows to monitor ongoing health:
 - **Continuous**: Health checks run on every push
 
 Review logs in:
-- `logs/audit/` - Audit events
-- `logs/metrics/` - Performance metrics
-- `logs/validation/` - Validation results
+- `var/logs/audit/` - Audit events
+- `var/logs/metrics/` - Performance metrics
+- `var/logs/validation/` - Validation results
 
 ### Updating Version
 

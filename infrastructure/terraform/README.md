@@ -13,7 +13,7 @@ The schema system has been migrated from XML/JSON to Terraform for better:
 ## Structure
 
 ```
-terraform/
+infrastructure/terraform/
 ├── main.tf                          # Main configuration
 ├── variables.tf                     # Input variables
 ├── outputs.tf                       # Output definitions

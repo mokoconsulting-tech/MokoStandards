@@ -128,7 +128,7 @@ These Terraform files define configuration-as-code for standardized web server s
 ### View Configuration
 
 ```bash
-cd terraform/webserver
+cd infrastructure/terraform/webserver
 terraform init
 ```
 
@@ -413,9 +413,9 @@ These Terraform configurations replace the previous XML/JSON-based schemas, prov
 
 ## Related Files
 
-- Web server configurations: `terraform/webserver/*.tf`
-- Workstation configurations: `terraform/workstation/*.tf`
-- Repository schemas: `terraform/repository-types/*.tf`
+- Web server configurations: `infrastructure/terraform/webserver/*.tf`
+- Workstation configurations: `infrastructure/terraform/workstation/*.tf`
+- Repository schemas: `infrastructure/terraform/repository-types/*.tf`
 - Python integration: `scripts/lib/terraform_schema_reader.py`
 - Documentation: `docs/reference/terraform-schemas.md`
 

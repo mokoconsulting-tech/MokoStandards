@@ -345,7 +345,7 @@ Each training session includes:
 ### Code Examples
 - **[Sample PHP Scripts](../../scripts/)**: Production-ready PHP automation scripts
 - **[PHP Enterprise Libraries](../../scripts/lib/Enterprise/)**: 13 enterprise-grade PHP classes
-- **[Web Interface](../../public/)**: Material Design 3 web dashboard
+- **[Web Interface](../../web/)**: Material Design 3 web dashboard
 - **[Composer Configuration](../../composer.json)**: Dependency management setup
 
 ### Community & Support
@@ -483,7 +483,7 @@ We continuously improve this training program based on participant feedback.
 | **PHP Libraries** | [scripts/lib/Enterprise/](../../scripts/lib/Enterprise/) |
 | **PHP Architecture** | [docs/guide/php-only-architecture.md](../guide/php-only-architecture.md) |
 | **Automation Guide** | [docs/automation/README.md](../automation/README.md) |
-| **Web Interface** | [public/index.php](../../public/index.php) |
+| **Web Interface** | [web/index.php](../../web/index.php) |
 
 ---
 

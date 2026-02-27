@@ -7,7 +7,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # This script provisions a standardized Ubuntu development workstation
-# based on Terraform configuration at terraform/workstation/ubuntu-dev-workstation.tf
+# based on Terraform configuration at infrastructure/terraform/workstation/ubuntu-dev-workstation.tf
 
 set -euo pipefail
 
@@ -21,7 +21,7 @@ NC='\033[0m' # No Color
 # Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-TERRAFORM_DIR="$REPO_ROOT/terraform/workstation"
+TERRAFORM_DIR="$REPO_ROOT/infrastructure/terraform/workstation"
 LOG_FILE="/tmp/ubuntu-dev-provisioner-$(date +%Y%m%d-%H%M%S).log"
 VERBOSE=false
 DRY_RUN=false

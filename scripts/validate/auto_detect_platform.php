@@ -47,7 +47,7 @@ class AutoDetectPlatform extends CLIApp
         return [
             'repo-path:' => 'Path to repository to analyze (default: current directory)',
             'schema-dir:' => 'Path to schema definitions directory (default: scripts/definitions)',
-            'output-dir:' => 'Directory for output reports (default: logs/validation)',
+            'output-dir:' => 'Directory for output reports (default: var/logs/validation)',
         ];
     }
     
@@ -55,7 +55,7 @@ class AutoDetectPlatform extends CLIApp
     {
         $repoPath = $this->getOption('repo-path', '.');
         $schemaDir = $this->getOption('schema-dir', 'scripts/definitions');
-        $outputDir = $this->getOption('output-dir', 'logs/validation');
+        $outputDir = $this->getOption('output-dir', 'var/logs/validation');
         
         // Make paths absolute
         $repoPath = $this->getAbsolutePath($repoPath);

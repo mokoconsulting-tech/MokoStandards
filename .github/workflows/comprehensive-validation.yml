@@ -79,7 +79,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
 
           # Find all PHP files
-          PHP_FILES=$(find scripts/ src/ public/ -name "*.php" -type f 2>/dev/null | wc -l)
+          PHP_FILES=$(find scripts/ src/ web/ -name "*.php" -type f 2>/dev/null | wc -l)
           echo "Found $PHP_FILES PHP files" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
@@ -90,7 +90,7 @@ jobs:
               echo "❌ Syntax error in $file" >> $GITHUB_STEP_SUMMARY
               EXIT_CODE=1
             fi
-          done < <(find scripts/ src/ public/ -name "*.php" -type f 2>/dev/null)
+          done < <(find scripts/ src/ web/ -name "*.php" -type f 2>/dev/null)
 
           if [ $EXIT_CODE -eq 0 ]; then
             echo "✅ All PHP files have valid syntax" >> $GITHUB_STEP_SUMMARY

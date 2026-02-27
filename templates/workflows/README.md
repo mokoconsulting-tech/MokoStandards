@@ -67,7 +67,7 @@ The workflows are organized by platform and purpose:
 - `repo-health.yml` - Repository health checks
 - `test.yml.template` - Generic testing workflow
 
-**terraform/** - Terraform infrastructure-as-code workflows
+**infrastructure/terraform/** - Terraform infrastructure-as-code workflows
 - `ci.yml` - Terraform validation, formatting, and planning
 - `deploy.yml.template` - Infrastructure deployment workflow
 - `drift-detection.yml.template` - Automated drift detection

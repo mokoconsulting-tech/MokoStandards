@@ -54,7 +54,7 @@ The Terraform configuration defines:
 ### View Configuration
 
 ```bash
-cd terraform/workstation
+cd infrastructure/terraform/workstation
 terraform init
 terraform output dev_workstation_config
 ```
@@ -103,7 +103,7 @@ To modify workstation configuration:
 
 - Source PowerShell script: `scripts/automation/dev-workstation-provisioner.ps1`
 - Documentation: `docs/scripts/automation/dev-workstation-provisioner.md`
-- Parent Terraform: `terraform/main.tf`
+- Parent Terraform: `infrastructure/terraform/main.tf`
 
 ## Example Output
 

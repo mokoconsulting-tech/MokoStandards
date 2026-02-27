@@ -7,7 +7,7 @@
 
 | Field | Value |
 |-------|-------|
-| **File** | `terraform/variables.tf` |
+| **File** | `infrastructure/terraform/variables.tf` |
 | **Version** | 04.00.03 |
 | **Last Updated** | 2026-02-21 |
 | **Type** | variables |
@@ -20,7 +20,7 @@ The `variables.tf` file defines all input variables used across the terraform co
 ## File Location
 
 ```
-terraform/variables.tf
+infrastructure/terraform/variables.tf
 ```
 
 ## Variable Categories

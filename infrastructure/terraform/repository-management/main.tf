@@ -88,15 +88,15 @@ locals {
   base_templates = {
     ".github/workflows/ci.yml" = {
       generic   = "../../templates/workflows/generic/ci.yml"
-      terraform = "../../templates/workflows/terraform/ci.yml"
+      terraform = "../../templates/workflows/infrastructure/terraform/ci.yml"
       joomla    = "../../templates/workflows/joomla/ci-joomla.yml.template"
       dolibarr  = "../../templates/workflows/dolibarr/ci-dolibarr.yml.template"
     }
     ".github/workflows/terraform-deploy.yml" = {
-      terraform = "../../templates/workflows/terraform/deploy.yml.template"
+      terraform = "../../templates/workflows/infrastructure/terraform/deploy.yml.template"
     }
     ".github/workflows/terraform-drift.yml" = {
-      terraform = "../../templates/workflows/terraform/drift-detection.yml.template"
+      terraform = "../../templates/workflows/infrastructure/terraform/drift-detection.yml.template"
     }
     ".github/workflows/code-quality.yml" = {
       generic   = "../../templates/workflows/generic/code-quality.yml"

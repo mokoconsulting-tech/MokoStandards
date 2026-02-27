@@ -34,7 +34,7 @@ The system consists of the following components:
 ### 3. Validation Tool
 
 Repository structure validation is handled through:
-1. **Web Interface**: Material Design 3 dashboard at `public/index.php`
+1. **Web Interface**: Material Design 3 dashboard at `web/index.php`
 2. **Manual Validation**: Using the XML/JSON schema definitions as reference
 3. **CI/CD Integration**: GitHub Actions workflows for automated checks
 
@@ -242,7 +242,7 @@ Defines the standard structure for MokoWaaS (Joomla) components.
 
 Repository structure validation is now performed through:
 1. **Manual Review**: Compare your repository against XML schema definitions in `schemas/`
-2. **Web Interface**: Use Material Design 3 dashboard at `public/index.php` for repository management
+2. **Web Interface**: Use Material Design 3 dashboard at `web/index.php` for repository management
 3. **CI/CD**: Implement custom validation in GitHub Actions workflows
 
 ### Output

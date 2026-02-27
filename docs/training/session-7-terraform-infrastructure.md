@@ -89,7 +89,7 @@ All terraform files in MokoStandards follow a consistent structure:
 # DEFGROUP: MokoStandards.Infrastructure
 # INGROUP: MokoStandards.Terraform
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
-# PATH: /terraform/main.tf
+# PATH: /infrastructure/terraform/main.tf
 # VERSION: 04.00.03
 # BRIEF: Main terraform configuration
 
@@ -114,11 +114,11 @@ locals {
 
 | Type | Purpose | file_type | Location |
 |------|---------|-----------|----------|
-| **Main** | Primary configuration | `"main"` | `terraform/main.tf` |
-| **Variables** | Input definitions | `"variables"` | `terraform/variables.tf` |
-| **Outputs** | Output definitions | `"outputs"` | `terraform/outputs.tf` |
+| **Main** | Primary configuration | `"main"` | `infrastructure/terraform/main.tf` |
+| **Variables** | Input definitions | `"variables"` | `infrastructure/terraform/variables.tf` |
+| **Outputs** | Output definitions | `"outputs"` | `infrastructure/terraform/outputs.tf` |
 | **Override** | Sync overrides | `"override"` | `.github/config.tf` |
-| **Module** | Reusable modules | `"module"` | `terraform/modules/` |
+| **Module** | Reusable modules | `"module"` | `infrastructure/terraform/modules/` |
 
 ### 1.3 Required Elements
 
@@ -135,10 +135,10 @@ Create a new terraform module following standards:
 
 ```bash
 # Create module directory
-mkdir -p terraform/modules/example-module
+mkdir -p infrastructure/terraform/modules/example-module
 
 # Create module file
-cat > terraform/modules/example-module/main.tf << 'EOF'
+cat > infrastructure/terraform/modules/example-module/main.tf << 'EOF'
 # Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
 # [Add full header...]
 
@@ -146,7 +146,7 @@ cat > terraform/modules/example-module/main.tf << 'EOF'
 # DEFGROUP: MokoStandards.Modules.Example
 # INGROUP: MokoStandards.Terraform
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
-# PATH: /terraform/modules/example-module/main.tf
+# PATH: /infrastructure/terraform/modules/example-module/main.tf
 # VERSION: 04.00.03
 # BRIEF: Example terraform module
 
@@ -505,7 +505,7 @@ graph TD
     G --> J
     H --> J
     I --> J
-    J -->|Creates| K[logs/MokoStandards/sync/]
+    J -->|Creates| K[var/logs/MokoStandards/sync/]
     K -->|Audit Trail| L[sync-YYYYMMDD-HHMMSS.log]
 ```
 
@@ -692,7 +692,7 @@ Summary:
    - Informational checks provide guidance
 
 4. **Audit Log Creation**
-   - Log created at `logs/MokoStandards/sync/sync-YYYYMMDD-HHMMSS.log`
+   - Log created at `var/logs/MokoStandards/sync/sync-YYYYMMDD-HHMMSS.log`
    - Complete audit trail
    - All decisions documented
 
@@ -709,7 +709,7 @@ Summary:
 
 **Every sync operation creates detailed logs**:
 
-**Location**: `logs/MokoStandards/sync/` on remote repository
+**Location**: `var/logs/MokoStandards/sync/` on remote repository
 
 **Files Created**:
 1. `sync-YYYYMMDD-HHMMSS.log` - Session log
@@ -1148,7 +1148,7 @@ php scripts/automation/bulk_update_repos.php \
 git status
 
 # Check logs
-tail -f logs/bulk_sync.log
+tail -f var/logs/bulk_sync.log
 ```
 
 ### 📝 Exercise 5.1: Validation Workflow (10 minutes)
@@ -1207,7 +1207,7 @@ echo "✅ All validations passed!"
 ### 8.1 Repository Management
 
 ```terraform
-# terraform/repository-management/main.tf
+# infrastructure/terraform/repository-management/main.tf
 
 resource "github_repository" "example" {
   name        = "example-repo"
@@ -1249,7 +1249,7 @@ resource "github_branch_protection" "example_main" {
 ### 8.2 Webserver Configuration
 
 ```terraform
-# terraform/webserver/ubuntu-dev-webserver.tf
+# infrastructure/terraform/webserver/ubuntu-dev-webserver.tf
 
 resource "aws_instance" "ubuntu_dev_web" {
   ami           = data.aws_ami.ubuntu.id
@@ -1274,7 +1274,7 @@ resource "aws_instance" "ubuntu_dev_web" {
 ### 8.3 Workstation Configuration
 
 ```terraform
-# terraform/workstation/windows-dev-workstation.tf
+# infrastructure/terraform/workstation/windows-dev-workstation.tf
 
 resource "aws_instance" "windows_dev_workstation" {
   ami           = data.aws_ami.windows.id
@@ -1315,7 +1315,7 @@ cd ~/terraform-lab/my-api-project
 git init
 
 # Create directory structure
-mkdir -p .github terraform/{modules,environments}
+mkdir -p .github infrastructure/terraform/{modules,environments}
 ```
 
 #### Step 2: Create Override Configuration (10 minutes)
@@ -1338,7 +1338,7 @@ Create `.github/config.tf`:
 
 #### Step 3: Create Terraform Module (10 minutes)
 
-Create `terraform/modules/api-service/main.tf`:
+Create `infrastructure/terraform/modules/api-service/main.tf`:
 
 **Requirements**:
 - Define API service resource
@@ -1360,7 +1360,7 @@ cd .github
 terraform validate
 
 # Validate module
-cd ../terraform/modules/api-service
+cd ../infrastructure/terraform/modules/api-service
 terraform validate
 
 # Test bulk sync (dry-run)
@@ -1459,9 +1459,9 @@ locals {
 ## 📖 Additional Resources
 
 ### Documentation
-- [Terraform File Standards](../terraform/README.md)
-- [Enforcement Levels Guide](../terraform/enforcement-levels.md)
-- [Override Configuration](../terraform/config-override.md)
+- [Terraform File Standards](../infrastructure/terraform/README.md)
+- [Enforcement Levels Guide](../infrastructure/terraform/enforcement-levels.md)
+- [Override Configuration](../infrastructure/terraform/config-override.md)
 - [Bulk Repo Sync](../workflows/bulk-repo-sync.md)
 
 ### Tools

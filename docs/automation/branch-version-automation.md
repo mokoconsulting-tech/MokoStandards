@@ -78,7 +78,7 @@ Security fix            → PATCH (x.y.Z)
 - ✅ **Performance Metrics**: Detailed statistics
 - ✅ **Dry-Run Mode**: Preview changes safely
 
-**Audit Log Location**: `logs/automation/version_bump_*.json`
+**Audit Log Location**: `var/logs/automation/version_bump_*.json`
 
 ### CLI Reference
 
@@ -194,14 +194,14 @@ Options:
 
 **Manual:**
 ```bash
-cd terraform/repository-management
+cd infrastructure/terraform/repository-management
 terraform apply -var="github_token=$GITHUB_TOKEN"
 ```
 
 ### Configuration Files
 
-- `terraform/repository-types/default-repository.tf` - Structure definition
-- `terraform/repository-management/main.tf` - Distribution config
+- `infrastructure/terraform/repository-types/default-repository.tf` - Structure definition
+- `infrastructure/terraform/repository-management/main.tf` - Distribution config
 
 ## Troubleshooting
 
@@ -238,7 +238,7 @@ cp -r .version_bump_backup/* ./
 ./scripts/automation/detect_version_bump.py --verbose --text "..."
 
 # Check logs
-cat logs/automation/version_bump_*.json | jq '.'
+cat var/logs/automation/version_bump_*.json | jq '.'
 ```
 
 ## Integration Patterns
@@ -308,7 +308,7 @@ fi
 
 ### Related Documentation
 
-- [Terraform Distribution Guide](../../terraform/repository-management/VERSION_BUMP_DISTRIBUTION.md)
+- [Terraform Distribution Guide](../../infrastructure/terraform/repository-management/VERSION_BUMP_DISTRIBUTION.md)
 - [Maintenance Scripts](../../scripts/maintenance/README.md)
 - [Release Scripts](../../scripts/release/README.md)
 - [Branching Strategy](../policy/branching-strategy.md)
@@ -324,7 +324,7 @@ fi
 **Getting Help:**
 1. Check this documentation
 2. Review troubleshooting section
-3. Check audit logs: `logs/automation/*.json`
+3. Check audit logs: `var/logs/automation/*.json`
 4. Contact MokoStandards maintainers
 
 **Reporting Issues:**

@@ -177,7 +177,7 @@ Terraform installation scripts are automatically distributed to all organization
    - `.github/workflows/terraform-setup.yml` - Reusable workflow
 
 2. **Distribution Mechanism:**
-   - Defined in `terraform/repository-management/main.tf`
+   - Defined in `infrastructure/terraform/repository-management/main.tf`
    - Synced monthly via `bulk-repo-sync.yml` workflow
    - Can be manually triggered for immediate deployment
 
@@ -274,10 +274,10 @@ name: Infrastructure Check
 on:
   push:
     paths:
-      - 'terraform/**'
+      - 'infrastructure/terraform/**'
   pull_request:
     paths:
-      - 'terraform/**'
+      - 'infrastructure/terraform/**'
 
 jobs:
   terraform:
@@ -365,7 +365,7 @@ export TERRAFORM_VERSION=1.7.4
 ping releases.hashicorp.com
 
 # Try with curl manually
-curl -L https://releases.hashicorp.com/terraform/1.7.4/terraform_1.7.4_linux_amd64.zip -o terraform.zip
+curl -L https://releases.hashicorp.com/infrastructure/terraform/1.7.4/terraform_1.7.4_linux_amd64.zip -o terraform.zip
 
 # Check firewall/proxy settings
 # You may need to configure HTTP_PROXY environment variables
@@ -423,7 +423,7 @@ terraform {
 # Use .gitignore
 cat >> .gitignore <<'EOF'
 # Terraform
-.terraform/
+.infrastructure/terraform/
 *.tfstate
 *.tfstate.*
 .terraform.lock.hcl
@@ -439,7 +439,7 @@ terraform apply
 
 ```
 repository/
-├── terraform/
+├── infrastructure/terraform/
 │   ├── modules/           # Reusable modules
 │   │   ├── network/
 │   │   └── compute/
@@ -488,8 +488,8 @@ repository/
 - [MokoStandards Terraform Guide](./terraform-override-files.md)
 
 ### Internal Resources
-- [Terraform Repository Management](../../terraform/repository-management/)
-- [Terraform Repository Types](../../terraform/repository-types/)
+- [Terraform Repository Management](../../infrastructure/terraform/repository-management/)
+- [Terraform Repository Types](../../infrastructure/terraform/repository-types/)
 - [Enterprise Transformation Guide](../planning/README.md)
 
 ### Support

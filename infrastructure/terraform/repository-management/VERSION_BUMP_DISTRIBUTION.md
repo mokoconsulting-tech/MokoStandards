@@ -92,7 +92,7 @@ The following scripts are automatically deployed to all repositories:
 
 ### Default Repository Structure
 
-File: `terraform/repository-types/default-repository.tf`
+File: `infrastructure/terraform/repository-types/default-repository.tf`
 
 ```hcl
 scripts = {
@@ -183,7 +183,7 @@ scripts = {
 
 ### Repository Management
 
-File: `terraform/repository-management/main.tf`
+File: `infrastructure/terraform/repository-management/main.tf`
 
 ```hcl
 base_templates = {
@@ -239,7 +239,7 @@ When using the bulk update script:
 Using Terraform directly:
 
 ```bash
-cd terraform/repository-management
+cd infrastructure/terraform/repository-management
 
 # Initialize Terraform
 terraform init
@@ -272,7 +272,7 @@ repository/
 │   │   └── package_extension.py      (required, auto-sync)
 │   └── tests/
 │       └── test_version_bump_detector.py  (suggested, auto-sync)
-├── logs/
+├── var/logs/
 │   └── automation/                   (created on first use)
 │       └── version_bump_*.json       (audit logs)
 └── README.md                         (must contain VERSION: XX.YY.ZZ)
@@ -433,7 +433,7 @@ When updating the core scripts in MokoStandards:
 
 To add new required scripts:
 
-1. Add to `terraform/repository-types/default-repository.tf`:
+1. Add to `infrastructure/terraform/repository-types/default-repository.tf`:
    ```hcl
    required_files = {
      new_script = {
@@ -445,7 +445,7 @@ To add new required scripts:
    }
    ```
 
-2. Add to `terraform/repository-management/main.tf`:
+2. Add to `infrastructure/terraform/repository-management/main.tf`:
    ```hcl
    "scripts/automation/new_script.py" = {
      all = "../../scripts/automation/new_script.py"
@@ -485,7 +485,7 @@ gh repo list mokoconsulting-tech --limit 1000 --json name | \
 ### Audit Logging
 
 All version bump operations are logged:
-- Location: `logs/automation/version_bump_*.json`
+- Location: `var/logs/automation/version_bump_*.json`
 - Contains: timestamps, file hashes, changes made
 - Retention: Managed by repository cleanup workflows
 
@@ -514,5 +514,5 @@ Required GitHub permissions for deployment:
 For issues with version bump script distribution:
 1. Check this documentation
 2. Review terraform logs
-3. Check audit logs in `logs/automation/`
+3. Check audit logs in `var/logs/automation/`
 4. Contact MokoStandards maintainers

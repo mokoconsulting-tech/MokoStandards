@@ -16,7 +16,7 @@ on:
     branches:
       - main
     paths:
-      - 'terraform/**'
+      - 'infrastructure/terraform/**'
       - '.github/workflows/terraform-drift.yml'
   schedule:
     # Run daily at 2 AM UTC

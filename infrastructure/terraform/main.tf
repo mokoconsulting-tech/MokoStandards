@@ -21,7 +21,7 @@
 # DEFGROUP: MokoStandards.Terraform.Main
 # INGROUP: MokoStandards.Configuration
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
-# PATH: /terraform/main.tf
+# PATH: /infrastructure/terraform/main.tf
 # VERSION: 04.00.03
 # BRIEF: Main Terraform configuration for MokoStandards repository schemas
 

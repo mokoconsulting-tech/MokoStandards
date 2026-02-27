@@ -105,7 +105,7 @@ class EnterpriseReadinessChecker extends CliFramework
     private function checkMonitoring(string $path): void
     {
         // Check for metrics collection
-        $metricsDir = "{$path}/logs/metrics";
+        $metricsDir = "{$path}/var/logs/metrics";
         $this->addResult(
             'Metrics directory configured',
             is_dir($metricsDir) || !file_exists($path . '/composer.json'),
@@ -123,7 +123,7 @@ class EnterpriseReadinessChecker extends CliFramework
     
     private function checkAuditLogging(string $path): void
     {
-        $auditDir = "{$path}/logs/audit";
+        $auditDir = "{$path}/var/logs/audit";
         $this->addResult(
             'Audit logging directory configured',
             is_dir($auditDir) || !file_exists($path . '/composer.json'),

@@ -27,7 +27,7 @@ This document tracks all TODO items found in the MokoStandards repository. TODOs
 
 ### ✅ Terraform Health Checks Implementation
 **Status**: ✅ COMPLETED (2026-02-27)
-- **Location**: `terraform/repository-types/repo-health-defaults.tf`
+- **Location**: `infrastructure/terraform/repository-types/repo-health-defaults.tf`
 - **Lines**: 386, 402 (previously TODO, now implemented)
 - **Implemented Checks**: ALL 103 points
   - `ci_cd_checks` (15 points) ✅

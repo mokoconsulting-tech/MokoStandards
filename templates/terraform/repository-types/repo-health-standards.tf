@@ -322,15 +322,43 @@ locals {
 
     tests_directory = {
       id          = "tests-directory"
-      name        = "tests/ or test/ directory present"
+      name        = "api/tests/ or tests/ directory present"
       description = "Repository has test directory"
       points      = 3
       check_type  = "directory-exists-any"
       category    = "required-folders"
       required    = false
-      remediation = "Create tests/ directory"
+      remediation = "Create api/tests/ directory"
       parameters = {
-        directory_paths = ["tests", "test", "__tests__", "spec"]
+        directory_paths = ["api/tests", "tests", "test", "__tests__", "spec"]
+      }
+    }
+
+    api_directory = {
+      id          = "api-directory"
+      name        = "api/ directory present"
+      description = "Repository has API directory for PHP code"
+      points      = 3
+      check_type  = "directory-exists"
+      category    = "required-folders"
+      required    = true
+      remediation = "Create api/ directory"
+      parameters = {
+        directory_path = "api"
+      }
+    }
+
+    logs_directory = {
+      id          = "logs-directory"
+      name        = "logs/ directory present"
+      description = "Repository has centralized logs directory"
+      points      = 3
+      check_type  = "directory-exists"
+      category    = "required-folders"
+      required    = true
+      remediation = "Create logs/ directory with subdirectories (automation, validation, release, copilot, maintenance, audit, metrics)"
+      parameters = {
+        directory_path = "logs"
       }
     }
 

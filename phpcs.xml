@@ -10,8 +10,8 @@ SPDX-License-Identifier: GPL-3.0-or-later
     <description>PHP_CodeSniffer configuration for MokoStandards projects</description>
 
     <!-- Files to check -->
-    <file>src</file>
-    <file>tests</file>
+    <file>api/src</file>
+    <file>api/tests</file>
 
     <!-- Exclude vendor and other dependencies -->
     <exclude-pattern>*/vendor/*</exclude-pattern>

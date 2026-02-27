@@ -505,7 +505,7 @@ graph TD
     G --> J
     H --> J
     I --> J
-    J -->|Creates| K[var/logs/MokoStandards/sync/]
+    J -->|Creates| K[logs/MokoStandards/sync/]
     K -->|Audit Trail| L[sync-YYYYMMDD-HHMMSS.log]
 ```
 
@@ -692,7 +692,7 @@ Summary:
    - Informational checks provide guidance
 
 4. **Audit Log Creation**
-   - Log created at `var/logs/MokoStandards/sync/sync-YYYYMMDD-HHMMSS.log`
+   - Log created at `logs/MokoStandards/sync/sync-YYYYMMDD-HHMMSS.log`
    - Complete audit trail
    - All decisions documented
 
@@ -709,7 +709,7 @@ Summary:
 
 **Every sync operation creates detailed logs**:
 
-**Location**: `var/logs/MokoStandards/sync/` on remote repository
+**Location**: `logs/MokoStandards/sync/` on remote repository
 
 **Files Created**:
 1. `sync-YYYYMMDD-HHMMSS.log` - Session log
@@ -1148,7 +1148,7 @@ php scripts/automation/bulk_update_repos.php \
 git status
 
 # Check logs
-tail -f var/logs/bulk_sync.log
+tail -f logs/bulk_sync.log
 ```
 
 ### 📝 Exercise 5.1: Validation Workflow (10 minutes)

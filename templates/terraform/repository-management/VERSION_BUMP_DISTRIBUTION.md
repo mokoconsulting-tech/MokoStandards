@@ -272,7 +272,7 @@ repository/
 │   │   └── package_extension.py      (required, auto-sync)
 │   └── tests/
 │       └── test_version_bump_detector.py  (suggested, auto-sync)
-├── var/logs/
+├── logs/
 │   └── automation/                   (created on first use)
 │       └── version_bump_*.json       (audit logs)
 └── README.md                         (must contain VERSION: XX.YY.ZZ)
@@ -485,7 +485,7 @@ gh repo list mokoconsulting-tech --limit 1000 --json name | \
 ### Audit Logging
 
 All version bump operations are logged:
-- Location: `var/logs/automation/version_bump_*.json`
+- Location: `logs/automation/version_bump_*.json`
 - Contains: timestamps, file hashes, changes made
 - Retention: Managed by repository cleanup workflows
 
@@ -514,5 +514,5 @@ Required GitHub permissions for deployment:
 For issues with version bump script distribution:
 1. Check this documentation
 2. Review terraform logs
-3. Check audit logs in `var/logs/automation/`
+3. Check audit logs in `logs/automation/`
 4. Contact MokoStandards maintainers

@@ -283,9 +283,9 @@ locals {
       check_type  = "directory-exists-any"
       category    = "required-folders"
       required    = true
-      remediation = "Create tests/ directory"
+      remediation = "Create tests/ or api/tests/ directory"
       parameters = {
-        directory_paths = ["tests", "test", "__tests__", "spec"]
+        directory_paths = ["tests", "test", "__tests__", "spec", "api/tests"]
       }
     }
 
@@ -297,9 +297,23 @@ locals {
       check_type  = "directory-exists-any"
       category    = "required-folders"
       required    = false
-      remediation = "Organize code in src/ or lib/"
+      remediation = "Organize code in src/, api/src/, or lib/"
       parameters = {
-        directory_paths = ["src", "lib", "app"]
+        directory_paths = ["src", "lib", "app", "api/src"]
+      }
+    }
+
+    logs_directory = {
+      id          = "logs-directory"
+      name        = "logs/ directory"
+      description = "Centralized logs directory"
+      points      = 2
+      check_type  = "directory-exists"
+      category    = "optional-folders"
+      required    = false
+      remediation = "Create logs/ directory for centralized logging"
+      parameters = {
+        directory_path = "logs"
       }
     }
 

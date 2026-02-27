@@ -207,6 +207,47 @@ locals {
           requirement_status = "required"
           purpose            = "Maintenance script execution logs"
         }
+
+        audit = {
+          name               = "audit"
+          path               = "logs/audit"
+          description        = "Logs from audit operations"
+          requirement_status = "required"
+          purpose            = "Audit trail logs"
+        }
+
+        metrics = {
+          name               = "metrics"
+          path               = "logs/metrics"
+          description        = "Logs from metrics collection"
+          requirement_status = "required"
+          purpose            = "Performance and operational metrics"
+        }
+      }
+    }
+
+    api = {
+      name               = "api"
+      path               = "api"
+      description        = "API source code and tests"
+      requirement_status = "required"
+      purpose            = "Main API implementation directory"
+      subdirectories = {
+        src = {
+          name               = "src"
+          path               = "api/src"
+          description        = "API source code"
+          requirement_status = "required"
+          purpose            = "PHP API source files"
+        }
+
+        tests = {
+          name               = "tests"
+          path               = "api/tests"
+          description        = "API test files"
+          requirement_status = "required"
+          purpose            = "PHP API tests"
+        }
       }
     }
 
@@ -216,15 +257,6 @@ locals {
       description        = "Documentation files"
       requirement_status = "suggested"
       purpose            = "Project documentation"
-      subdirectories     = {}
-    }
-
-    tests = {
-      name               = "tests"
-      path               = "tests"
-      description        = "Test files"
-      requirement_status = "suggested"
-      purpose            = "Automated testing"
       subdirectories     = {}
     }
 
@@ -438,12 +470,12 @@ locals {
       }
     }
 
-    src = {
-      name               = "src"
-      path               = "src"
-      description        = "Source code"
+    templates = {
+      name               = "templates"
+      path               = "templates"
+      description        = "Template files"
       requirement_status = "optional"
-      purpose            = "Main source code directory"
+      purpose            = "File templates and examples"
       subdirectories     = {}
     }
   }

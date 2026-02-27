@@ -78,7 +78,7 @@ Security fix            → PATCH (x.y.Z)
 - ✅ **Performance Metrics**: Detailed statistics
 - ✅ **Dry-Run Mode**: Preview changes safely
 
-**Audit Log Location**: `var/logs/automation/version_bump_*.json`
+**Audit Log Location**: `logs/automation/version_bump_*.json`
 
 ### CLI Reference
 
@@ -238,7 +238,7 @@ cp -r .version_bump_backup/* ./
 ./scripts/automation/detect_version_bump.py --verbose --text "..."
 
 # Check logs
-cat var/logs/automation/version_bump_*.json | jq '.'
+cat logs/automation/version_bump_*.json | jq '.'
 ```
 
 ## Integration Patterns
@@ -324,7 +324,7 @@ fi
 **Getting Help:**
 1. Check this documentation
 2. Review troubleshooting section
-3. Check audit logs: `var/logs/automation/*.json`
+3. Check audit logs: `logs/automation/*.json`
 4. Contact MokoStandards maintainers
 
 **Reporting Issues:**

@@ -380,7 +380,7 @@ If you encounter issues not covered here:
 
 1. **Check Logs:**
    ```bash
-   tail -f var/logs/application.log
+   tail -f logs/application.log
    tail -f /var/log/apache2/error.log
    ```
 

@@ -41,27 +41,27 @@
     },
     "autoload": {
         "psr-4": {
-            "MokoStandards\\": "src/",
+            "MokoStandards\\": "api/src/",
             "MokoStandards\\Enterprise\\": "scripts/lib/Enterprise/",
             "MokoStandards\\Plugins\\Joomla\\": "scripts/lib/plugins/Joomla/",
             "MokoStandards\\Plugins\\Dolibarr\\": "scripts/lib/plugins/Dolibarr/",
-            "MokoStandards\\Automation\\": "src/Automation/",
-            "MokoStandards\\Validation\\": "src/Validation/",
-            "MokoStandards\\Web\\": "src/Web/"
+            "MokoStandards\\Automation\\": "api/src/Automation/",
+            "MokoStandards\\Validation\\": "api/src/Validation/",
+            "MokoStandards\\Web\\": "api/src/Web/"
         },
         "files": [
-            "src/functions.php"
+            "api/src/functions.php"
         ]
     },
     "autoload-dev": {
         "psr-4": {
-            "MokoStandards\\Tests\\": "tests/"
+            "MokoStandards\\Tests\\": "api/tests/"
         }
     },
     "scripts": {
         "test": "phpunit",
-        "phpcs": "phpcs --standard=PSR12 src/",
-        "phpstan": "phpstan analyse src/ --level=max",
+        "phpcs": "phpcs --standard=PSR12 api/src/",
+        "phpstan": "phpstan analyse api/src/ --level=max",
         "psalm": "psalm",
         "check": [
             "@phpcs",

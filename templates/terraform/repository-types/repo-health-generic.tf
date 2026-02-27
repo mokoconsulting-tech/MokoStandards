@@ -318,9 +318,23 @@ locals {
       check_type  = "directory-exists-any"
       category    = "required-folders"
       required    = false
-      remediation = "Create tests/ directory"
+      remediation = "Create tests/ or api/tests/ directory"
       parameters = {
-        directory_paths = ["tests", "test", "__tests__", "spec"]
+        directory_paths = ["tests", "test", "__tests__", "spec", "api/tests"]
+      }
+    }
+
+    logs_directory = {
+      id          = "logs-directory"
+      name        = "logs/ directory present"
+      description = "Repository has centralized logs directory"
+      points      = 2
+      check_type  = "directory-exists"
+      category    = "optional-folders"
+      required    = false
+      remediation = "Create logs/ directory for centralized logging"
+      parameters = {
+        directory_path = "logs"
       }
     }
 

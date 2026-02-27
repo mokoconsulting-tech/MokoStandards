@@ -280,7 +280,7 @@ Trigger manually from GitHub Actions UI.
 
 The workflow requires the following GitHub secret:
 
-#### `ORG_ADMIN_TOKEN`
+#### `GH_TOKEN`
 
 **Type**: Personal Access Token (PAT) or GitHub App token
 
@@ -291,7 +291,7 @@ The workflow requires the following GitHub secret:
 
 **Setup**:
 1. Generate PAT with required permissions
-2. Add to repository secrets as `ORG_ADMIN_TOKEN`
+2. Add to repository secrets as `GH_TOKEN`
 3. Workflow will automatically use it
 
 **Security Note**: Token is only accessible to workflow runs in MokoStandards repository.
@@ -407,7 +407,7 @@ locals {
 2. Re-run with `dry_run`: `true` for that repository
 3. Review proposed changes
 4. Check if repository has `override.config.tf` with conflicts
-5. Verify `ORG_ADMIN_TOKEN` has correct permissions
+5. Verify `GH_TOKEN` has correct permissions
 6. Check if repository is archived or private with restricted access
 
 ---
@@ -522,7 +522,7 @@ The sync tool has three cleanup modes (configured in override):
 - Error mentions authentication or permissions
 
 **Solutions**:
-1. Verify `ORG_ADMIN_TOKEN` secret exists
+1. Verify `GH_TOKEN` secret exists
 2. Check token hasn't expired
 3. Verify token has `repo`, `workflow`, and `admin:org` permissions
 4. Re-generate token if needed
@@ -651,7 +651,7 @@ For excluded workflows:
 
 ### Token Security
 
-**ORG_ADMIN_TOKEN Management**:
+**GH_TOKEN Management**:
 
 ✅ **DO**:
 - Use fine-grained PAT with minimal required permissions

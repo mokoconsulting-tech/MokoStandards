@@ -466,7 +466,7 @@ The repository includes a GitHub Actions workflow (`.github/workflows/bulk-repo-
 - Repositories to exclude
 - Dry-run mode
 
-**Configuration**: Requires `ORG_ADMIN_TOKEN` secret with permissions:
+**Configuration**: Requires `GH_TOKEN` secret with permissions:
 - `repo` - Full repository access
 - `workflow` - Workflow management
 - `admin:org` - Organization administration (for listing repos)
@@ -480,7 +480,7 @@ The repository includes a GitHub Actions workflow (`.github/workflows/bulk-repo-
 
 2. **Add Token as Secret**:
    - Go to repository Settings → Secrets and variables → Actions
-   - Create new repository secret named `ORG_ADMIN_TOKEN`
+   - Create new repository secret named `GH_TOKEN`
    - Paste the token value
 
 3. **Configure Git Identity**:
@@ -525,7 +525,7 @@ jobs:
         run: |
           ./scripts/automation/bulk_update_repos.php --yes
         env:
-          GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
 ```
 
 **Note**: Use `--yes` flag to skip interactive confirmation in automated workflows.

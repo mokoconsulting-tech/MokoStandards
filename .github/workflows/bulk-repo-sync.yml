@@ -176,15 +176,15 @@ jobs:
 
       - name: Verify GitHub token availability
         env:
-          GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           set -x
           # Verify token is available before attempting authentication
           if [ -z "$GH_TOKEN" ]; then
-            echo "## ❌ Error: ORG_ADMIN_TOKEN Not Set" >> $GITHUB_STEP_SUMMARY
+            echo "## ❌ Error: GH_TOKEN Not Set" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "The ORG_ADMIN_TOKEN secret is not set or is empty." >> $GITHUB_STEP_SUMMARY
-            echo "Please configure the ORG_ADMIN_TOKEN secret in repository settings." >> $GITHUB_STEP_SUMMARY
+            echo "The GH_TOKEN secret is not set or is empty." >> $GITHUB_STEP_SUMMARY
+            echo "Please configure the GH_TOKEN secret in repository settings." >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "### Required Permissions" >> $GITHUB_STEP_SUMMARY
             echo "- repo (full control)" >> $GITHUB_STEP_SUMMARY
@@ -198,7 +198,7 @@ jobs:
           if gh auth status 2>&1 || true; then
             echo "## ✅ GitHub CLI Authentication Verified" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "Successfully verified authentication with ORG_ADMIN_TOKEN." >> $GITHUB_STEP_SUMMARY
+            echo "Successfully verified authentication with GH_TOKEN." >> $GITHUB_STEP_SUMMARY
           fi
 
       - name: Configure Git
@@ -255,7 +255,7 @@ jobs:
       - name: Run bulk sync (dry-run)
         if: github.event_name == 'workflow_dispatch' && inputs.dry_run == true
         env:
-          GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           set -x
           set -e
@@ -291,7 +291,7 @@ jobs:
       - name: Run bulk sync
         if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.dry_run != true)
         env:
-          GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           set -x
           set -e
@@ -487,7 +487,7 @@ jobs:
             </details>
 
             ### 🔍 Common Causes
-            - **Token permissions**: ORG_ADMIN_TOKEN may lack required permissions
+            - **Token permissions**: GH_TOKEN may lack required permissions
             - **Repository access**: Unable to access one or more org repositories
             - **API rate limits**: GitHub API rate limit exceeded
             - **Network issues**: Temporary connectivity problems
@@ -495,7 +495,7 @@ jobs:
 
             ### ✅ Resolution Steps
             1. Review the workflow run logs for detailed error messages
-            2. Check ORG_ADMIN_TOKEN permissions (requires: repo, workflow, admin:org read)
+            2. Check GH_TOKEN permissions (requires: repo, workflow, admin:org read)
             3. Verify repository accessibility
             4. Check GitHub API rate limit status
             5. Re-run the workflow manually if it was a transient issue

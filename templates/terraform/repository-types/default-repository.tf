@@ -25,11 +25,11 @@ locals {
 locals {
   default_repo_metadata = {
     name            = "Default Repository Structure"
-    description     = "Standard structure for generic repositories in MokoStandards"
+    description     = "Default repository structure applicable to all repository types with minimal requirements"
     repository_type = "library"
     platform        = "multi-platform"
     last_updated    = "2026-01-16T00:00:00Z"
-    maintainer      = "MokoStandards Team"
+    maintainer      = "Moko Consulting"
     schema_version  = "1.0"
   }
 

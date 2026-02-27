@@ -51,4 +51,4 @@ paths:
 
 # PHP-specific note:
 # For PHP security scanning, use the SecurityValidator enterprise library
-# located in src/Enterprise/SecurityValidator.php
+# located in scripts/lib/Enterprise/SecurityValidator.php

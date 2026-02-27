@@ -19,8 +19,8 @@ on:
     branches:
       - main
     paths:
-      - 'src/Enterprise/**'
-      - 'src/**/*.php'
+      - 'scripts/lib/Enterprise/**'
+      - 'scripts/lib/**/*.php'
   workflow_dispatch:
     inputs:
       library_filter:

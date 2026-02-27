@@ -36,6 +36,12 @@ class AutoDetectPlatform extends CLIApp
     private array $detectionResults = [
         'joomla' => ['score' => 0, 'indicators' => []],
         'dolibarr' => ['score' => 0, 'indicators' => []],
+        'nodejs' => ['score' => 0, 'indicators' => []],
+        'python' => ['score' => 0, 'indicators' => []],
+        'terraform' => ['score' => 0, 'indicators' => []],
+        'wordpress' => ['score' => 0, 'indicators' => []],
+        'mobile' => ['score' => 0, 'indicators' => []],
+        'api' => ['score' => 0, 'indicators' => []],
         'generic' => ['score' => 0, 'indicators' => []],
     ];
     
@@ -77,6 +83,12 @@ class AutoDetectPlatform extends CLIApp
         // Run platform detection
         $this->detectJoomla($repoPath);
         $this->detectDolibarr($repoPath);
+        $this->detectNodeJS($repoPath);
+        $this->detectPython($repoPath);
+        $this->detectTerraform($repoPath);
+        $this->detectWordPress($repoPath);
+        $this->detectMobile($repoPath);
+        $this->detectAPI($repoPath);
         
         // Determine platform
         $this->determinePlatform();
@@ -203,19 +215,342 @@ class AutoDetectPlatform extends CLIApp
         ];
     }
     
+    private function detectNodeJS(string $repoPath): void
+    {
+        $score = 0;
+        $indicators = [];
+        
+        // Check for package.json
+        if (file_exists("{$repoPath}/package.json")) {
+            $score += 0.5;
+            $indicators[] = "Found package.json";
+            
+            $content = @file_get_contents("{$repoPath}/package.json");
+            if ($content) {
+                if (strpos($content, '"typescript"') !== false || strpos($content, '"@types/') !== false) {
+                    $score += 0.1;
+                    $indicators[] = "TypeScript dependencies detected";
+                }
+                if (strpos($content, '"react"') !== false || strpos($content, '"vue"') !== false || 
+                    strpos($content, '"angular"') !== false || strpos($content, '"express"') !== false) {
+                    $score += 0.1;
+                    $indicators[] = "Node.js framework detected";
+                }
+            }
+        }
+        
+        // Check for node_modules and lock files
+        if (is_dir("{$repoPath}/node_modules")) {
+            $score += 0.1;
+            $indicators[] = "Found node_modules directory";
+        }
+        
+        if (file_exists("{$repoPath}/package-lock.json") || file_exists("{$repoPath}/yarn.lock") || 
+            file_exists("{$repoPath}/pnpm-lock.yaml") || file_exists("{$repoPath}/bun.lockb")) {
+            $score += 0.1;
+            $indicators[] = "Found package lock file";
+        }
+        
+        // Check for TypeScript config
+        if (file_exists("{$repoPath}/tsconfig.json")) {
+            $score += 0.2;
+            $indicators[] = "Found tsconfig.json";
+        }
+        
+        $this->detectionResults['nodejs'] = [
+            'score' => min(1.0, $score),
+            'indicators' => $indicators,
+        ];
+    }
+    
+    private function detectPython(string $repoPath): void
+    {
+        $score = 0;
+        $indicators = [];
+        
+        // Check for Python package files
+        if (file_exists("{$repoPath}/setup.py") || file_exists("{$repoPath}/pyproject.toml")) {
+            $score += 0.5;
+            $indicators[] = "Found Python package configuration";
+        }
+        
+        if (file_exists("{$repoPath}/requirements.txt")) {
+            $score += 0.2;
+            $indicators[] = "Found requirements.txt";
+        }
+        
+        if (file_exists("{$repoPath}/Pipfile") || file_exists("{$repoPath}/poetry.lock")) {
+            $score += 0.2;
+            $indicators[] = "Found Python dependency manager config";
+        }
+        
+        // Check for Python files
+        $pyFiles = $this->findFiles($repoPath, '*.py', 2);
+        if (count($pyFiles) > 0) {
+            $score += 0.2;
+            $indicators[] = "Found " . count($pyFiles) . " Python files";
+        }
+        
+        // Check for virtual environment directories
+        $venvDirs = ['venv', '.venv', 'env', '.env'];
+        foreach ($venvDirs as $dir) {
+            if (is_dir("{$repoPath}/{$dir}")) {
+                $score += 0.05;
+                $indicators[] = "Found virtual environment: {$dir}/";
+                break;
+            }
+        }
+        
+        $this->detectionResults['python'] = [
+            'score' => min(1.0, $score),
+            'indicators' => $indicators,
+        ];
+    }
+    
+    private function detectTerraform(string $repoPath): void
+    {
+        $score = 0;
+        $indicators = [];
+        
+        // Check for Terraform files
+        $tfFiles = $this->findFiles($repoPath, '*.tf', 3);
+        if (count($tfFiles) > 0) {
+            $score += 0.5;
+            $indicators[] = "Found " . count($tfFiles) . " Terraform files";
+        }
+        
+        // Check for terraform.tfvars or *.tfvars
+        $tfvarsFiles = $this->findFiles($repoPath, '*.tfvars', 2);
+        if (count($tfvarsFiles) > 0) {
+            $score += 0.2;
+            $indicators[] = "Found Terraform variables files";
+        }
+        
+        // Check for .terraform directory
+        if (is_dir("{$repoPath}/.terraform")) {
+            $score += 0.1;
+            $indicators[] = "Found .terraform directory";
+        }
+        
+        // Check for terraform.lock.hcl
+        if (file_exists("{$repoPath}/.terraform.lock.hcl")) {
+            $score += 0.1;
+            $indicators[] = "Found Terraform lock file";
+        }
+        
+        // Check for main.tf, variables.tf, outputs.tf (common pattern)
+        $commonFiles = ['main.tf', 'variables.tf', 'outputs.tf'];
+        $foundCommon = 0;
+        foreach ($commonFiles as $file) {
+            if (file_exists("{$repoPath}/{$file}")) {
+                $foundCommon++;
+            }
+        }
+        if ($foundCommon >= 2) {
+            $score += 0.2;
+            $indicators[] = "Found standard Terraform structure";
+        }
+        
+        $this->detectionResults['terraform'] = [
+            'score' => min(1.0, $score),
+            'indicators' => $indicators,
+        ];
+    }
+    
+    private function detectWordPress(string $repoPath): void
+    {
+        $score = 0;
+        $indicators = [];
+        
+        // Check for plugin header
+        $phpFiles = $this->findFiles($repoPath, '*.php', 2);
+        foreach ($phpFiles as $file) {
+            $content = @file_get_contents($file);
+            if ($content && (strpos($content, 'Plugin Name:') !== false || 
+                             strpos($content, 'Theme Name:') !== false)) {
+                $score += 0.5;
+                $indicators[] = "Found WordPress plugin/theme header in " . basename($file);
+                break;
+            }
+        }
+        
+        // Check for WordPress functions
+        $wpFunctions = ['add_action', 'add_filter', 'wp_enqueue_script', 'register_activation_hook'];
+        foreach ($phpFiles as $file) {
+            $content = @file_get_contents($file);
+            if (!$content) continue;
+            
+            foreach ($wpFunctions as $func) {
+                if (strpos($content, $func) !== false) {
+                    $score += 0.1;
+                    $indicators[] = "Found WordPress function '{$func}'";
+                    break 2;
+                }
+            }
+        }
+        
+        // Check for WordPress directory structure
+        $wpDirs = ['includes', 'templates', 'assets'];
+        foreach ($wpDirs as $dir) {
+            if (is_dir("{$repoPath}/{$dir}")) {
+                $score += 0.05;
+                $indicators[] = "Found WordPress directory: {$dir}/";
+            }
+        }
+        
+        $this->detectionResults['wordpress'] = [
+            'score' => min(1.0, $score),
+            'indicators' => $indicators,
+        ];
+    }
+    
+    private function detectMobile(string $repoPath): void
+    {
+        $score = 0;
+        $indicators = [];
+        
+        // Check for React Native
+        if (file_exists("{$repoPath}/package.json")) {
+            $content = @file_get_contents("{$repoPath}/package.json");
+            if ($content && strpos($content, '"react-native"') !== false) {
+                $score += 0.5;
+                $indicators[] = "Found React Native in package.json";
+            }
+        }
+        
+        // Check for Flutter
+        if (file_exists("{$repoPath}/pubspec.yaml")) {
+            $content = @file_get_contents("{$repoPath}/pubspec.yaml");
+            if ($content && strpos($content, 'flutter:') !== false) {
+                $score += 0.5;
+                $indicators[] = "Found Flutter in pubspec.yaml";
+            }
+        }
+        
+        // Check for iOS project
+        $xcodeFiles = $this->findFiles($repoPath, '*.xcodeproj', 2);
+        if (count($xcodeFiles) > 0) {
+            $score += 0.3;
+            $indicators[] = "Found Xcode project";
+        }
+        
+        // Check for Android project
+        if (file_exists("{$repoPath}/build.gradle") || file_exists("{$repoPath}/app/build.gradle")) {
+            $content = @file_get_contents("{$repoPath}/build.gradle") ?: @file_get_contents("{$repoPath}/app/build.gradle");
+            if ($content && strpos($content, 'com.android.application') !== false) {
+                $score += 0.3;
+                $indicators[] = "Found Android application gradle";
+            }
+        }
+        
+        // Check for mobile directories
+        $mobileDirs = ['ios', 'android', 'lib'];
+        $foundCount = 0;
+        foreach ($mobileDirs as $dir) {
+            if (is_dir("{$repoPath}/{$dir}")) {
+                $foundCount++;
+            }
+        }
+        if ($foundCount >= 2) {
+            $score += 0.2;
+            $indicators[] = "Found mobile platform directories";
+        }
+        
+        $this->detectionResults['mobile'] = [
+            'score' => min(1.0, $score),
+            'indicators' => $indicators,
+        ];
+    }
+    
+    private function detectAPI(string $repoPath): void
+    {
+        $score = 0;
+        $indicators = [];
+        
+        // Check for API documentation files
+        $apiDocs = ['openapi.yaml', 'openapi.json', 'swagger.yaml', 'swagger.json', 'api.yaml'];
+        foreach ($apiDocs as $doc) {
+            if (file_exists("{$repoPath}/{$doc}")) {
+                $score += 0.3;
+                $indicators[] = "Found API documentation: {$doc}";
+                break;
+            }
+        }
+        
+        // Check for GraphQL schema
+        $graphqlFiles = $this->findFiles($repoPath, '*.graphql', 2);
+        if (count($graphqlFiles) > 0 || file_exists("{$repoPath}/schema.graphql")) {
+            $score += 0.3;
+            $indicators[] = "Found GraphQL schema";
+        }
+        
+        // Check for gRPC proto files
+        $protoFiles = $this->findFiles($repoPath, '*.proto', 2);
+        if (count($protoFiles) > 0) {
+            $score += 0.3;
+            $indicators[] = "Found Protocol Buffer definitions";
+        }
+        
+        // Check for Dockerfile (common in microservices)
+        if (file_exists("{$repoPath}/Dockerfile")) {
+            $score += 0.1;
+            $indicators[] = "Found Dockerfile";
+        }
+        
+        // Check for docker-compose.yml
+        if (file_exists("{$repoPath}/docker-compose.yml") || file_exists("{$repoPath}/docker-compose.yaml")) {
+            $score += 0.1;
+            $indicators[] = "Found docker-compose configuration";
+        }
+        
+        // Check for API patterns in code
+        $apiFiles = array_merge(
+            $this->findFiles($repoPath, '*.js', 2),
+            $this->findFiles($repoPath, '*.ts', 2),
+            $this->findFiles($repoPath, '*.py', 2)
+        );
+        
+        $apiPatterns = [
+            '@app.route' => 'Flask route',
+            '@api_view' => 'Django REST framework',
+            'express()' => 'Express.js',
+            'fastapi' => 'FastAPI',
+            '@Controller' => 'NestJS controller',
+        ];
+        
+        foreach ($apiFiles as $file) {
+            $content = @file_get_contents($file);
+            if (!$content) continue;
+            
+            foreach ($apiPatterns as $pattern => $name) {
+                if (stripos($content, $pattern) !== false) {
+                    $score += 0.2;
+                    $indicators[] = "Found {$name} pattern";
+                    break 2;
+                }
+            }
+        }
+        
+        $this->detectionResults['api'] = [
+            'score' => min(1.0, $score),
+            'indicators' => $indicators,
+        ];
+    }
+    
     private function determinePlatform(): void
     {
-        $joomlaScore = $this->detectionResults['joomla']['score'];
-        $dolibarrScore = $this->detectionResults['dolibarr']['score'];
+        // Find platform with highest score above threshold
+        $maxScore = 0;
+        $selectedPlatform = 'generic';
         
-        // Require minimum threshold
-        if ($joomlaScore >= self::DETECTION_THRESHOLD && $joomlaScore > $dolibarrScore) {
-            $this->detectedPlatform = 'joomla';
-        } elseif ($dolibarrScore >= self::DETECTION_THRESHOLD && $dolibarrScore > $joomlaScore) {
-            $this->detectedPlatform = 'dolibarr';
-        } else {
-            $this->detectedPlatform = 'generic';
+        foreach ($this->detectionResults as $platform => $data) {
+            if ($data['score'] >= self::DETECTION_THRESHOLD && $data['score'] > $maxScore) {
+                $maxScore = $data['score'];
+                $selectedPlatform = $platform;
+            }
         }
+        
+        $this->detectedPlatform = $selectedPlatform;
     }
     
     private function mapPlatformToSchema(string $schemaDir): string
@@ -223,6 +558,12 @@ class AutoDetectPlatform extends CLIApp
         $mapping = [
             'joomla' => 'waas-component.xml',
             'dolibarr' => 'crm-module.xml',
+            'nodejs' => 'nodejs-repository.xml',
+            'python' => 'python-repository.xml',
+            'terraform' => 'terraform-repository.xml',
+            'wordpress' => 'wordpress-repository.xml',
+            'mobile' => 'mobile-app-repository.xml',
+            'api' => 'api-repository.xml',
             'generic' => 'default-repository.xml',
         ];
         

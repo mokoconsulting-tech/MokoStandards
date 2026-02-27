@@ -182,23 +182,10 @@ class RepositorySynchronizer
             'branch-cleanup.yml.template' => 'branch-cleanup.yml',
         ];
         
-        // For now, we'll just log what would be done
-        // Full implementation would:
-        // 1. Clone repo to temp directory
-        // 2. Create branch
-        // 3. Copy files
-        // 4. Commit and push
-        // 5. Create PR
-        
-        $this->logger->logInfo("Would sync " . count($workflows) . " workflows to {$repo}");
-        foreach ($workflows as $source => $target) {
-            $this->logger->logInfo("  - {$source} → .github/workflows/{$target}");
-        }
-        
         // Check if there's already a PR open for this repo
         $existingPR = $this->checkForExistingPR($org, $repo);
         if ($existingPR) {
-            $this->logger->logInfo("PR already exists for {$repo}: #{$existingPR}");
+            $this->logger->logInfo("PR #{$existingPR} already exists for {$repo}, skipping");
             return false;
         }
         
@@ -252,25 +239,38 @@ class RepositorySynchronizer
             $refData = $this->apiClient->get("/repos/{$org}/{$repo}/git/ref/heads/{$defaultBranch}");
             $baseSha = $refData['object']['sha'];
             
-            // Check if branch already exists, delete it if it does
+            // Check if branch already exists
+            $branchExists = false;
             try {
-                $this->apiClient->delete("/repos/{$org}/{$repo}/git/refs/heads/{$branchName}");
-                $this->logger->logInfo("Deleted existing branch {$branchName}");
+                $this->apiClient->get("/repos/{$org}/{$repo}/git/ref/heads/{$branchName}");
+                $branchExists = true;
+                $this->logger->logInfo("Branch {$branchName} already exists, will update it");
             } catch (Exception $e) {
-                // Branch doesn't exist, that's fine
-                $this->logger->logInfo("Branch {$branchName} doesn't exist yet");
+                // Branch doesn't exist, we'll create it
+                $this->logger->logInfo("Branch {$branchName} doesn't exist yet, will create");
             }
             
-            // Create new branch
-            $this->apiClient->post("/repos/{$org}/{$repo}/git/refs", [
-                'ref' => "refs/heads/{$branchName}",
-                'sha' => $baseSha,
-            ]);
-            $this->logger->logInfo("Created branch {$branchName}");
+            // Create or update branch
+            if ($branchExists) {
+                // Update existing branch to point to latest default branch
+                $this->apiClient->patch("/repos/{$org}/{$repo}/git/refs/heads/{$branchName}", [
+                    'sha' => $baseSha,
+                    'force' => true,
+                ]);
+                $this->logger->logInfo("Updated branch {$branchName} to latest {$defaultBranch}");
+            } else {
+                // Create new branch
+                $this->apiClient->post("/repos/{$org}/{$repo}/git/refs", [
+                    'ref' => "refs/heads/{$branchName}",
+                    'sha' => $baseSha,
+                ]);
+                $this->logger->logInfo("Created branch {$branchName}");
+            }
             
             // Read and create files
             $filesCreated = 0;
-            $baseDir = dirname(dirname(__DIR__)); // Go up to repository root
+            // Use __DIR__ to get the directory of this file, then navigate to repository root
+            $baseDir = dirname(dirname(__DIR__));
             
             foreach ($workflows as $sourceFile => $targetFile) {
                 $sourcePath = "{$baseDir}/templates/workflows/{$sourceFile}";
@@ -286,8 +286,7 @@ class RepositorySynchronizer
                     continue;
                 }
                 
-                // Remove .template extension from content if needed
-                // and update any repository-specific placeholders
+                // Process template content
                 $content = $this->processTemplateContent($content, $repo);
                 
                 // Create or update file

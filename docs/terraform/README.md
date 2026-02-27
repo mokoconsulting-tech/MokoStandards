@@ -174,8 +174,8 @@ All terraform files in this repository follow [Terraform File Standards](../poli
 | Version | Date | Changes |
 |---------|------|---------|
 | 04.00.03 | 2026-02-21 | Comprehensive terraform documentation added |
-| 04.00.02 | 2026-02-20 | Override system standardized |
-| 04.00.01 | 2026-02-19 | Initial terraform structure |
+| 04.00.03 | 2026-02-20 | Override system standardized |
+| 04.00.03 | 2026-02-19 | Initial terraform structure |
 
 ## Contributing
 

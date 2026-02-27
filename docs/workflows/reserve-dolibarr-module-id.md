@@ -576,7 +576,7 @@ The workflow file itself is protected via `override.config.tf` to prevent accide
 - Documentation updated to reflect optional push behavior
 - Workflow diagram correctly shows push as "(Optional)"
 
-### Version 04.00.02 (2026-02-20)
+### Version 04.00.03 (2026-02-20)
 
 **Changed**:
 - Simplified workflow inputs to only require `repo_name`
@@ -595,12 +595,12 @@ The workflow file itself is protected via `override.config.tf` to prevent accide
 - `repository` input (auto-constructed)
 - `push_to_remote` input (always true)
 - `remote_repository` input (auto-constructed)
-- `developer` input (removed in v04.00.01)
+- `developer` input (removed in v04.00.03)
 
 **Added**:
 - `repo_name` required input - single field for repository name
 
-### Version 04.00.01 (2026-02-19)
+### Version 04.00.03 (2026-02-19)
 
 **Changed**:
 - Simplified from 866 to 450 lines (48% reduction)
@@ -664,4 +664,4 @@ For issues or questions about this workflow:
 
 | Date | Author | Change | Notes |
 |------|--------|--------|-------|
-| 2026-02-19 | GitHub Copilot | Initial documentation creation | Comprehensive workflow documentation for v04.00.01 |
+| 2026-02-19 | GitHub Copilot | Initial documentation creation | Comprehensive workflow documentation for v04.00.03 |

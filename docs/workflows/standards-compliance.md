@@ -570,7 +570,7 @@ git checkout HEAD -- scripts/
 **Fixed**:
 - 🐛 Compliance percentage now correctly calculates based on critical checks only
 
-### v04.00.01 (2026-01-07)
+### v04.00.03 (2026-01-07)
 
 **Added**:
 - Initial comprehensive standards compliance workflow

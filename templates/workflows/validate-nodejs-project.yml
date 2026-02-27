@@ -1,0 +1,147 @@
+name: Validate Node.js Project
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * *'
+
+jobs:
+  validate:
+    name: Validate Node.js Project
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Checkout MokoStandards
+        uses: actions/checkout@v4
+        with:
+          repository: mokoshalb/MokoStandards
+          path: .moko-standards
+          ref: main
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mbstring, json, fileinfo
+
+      - name: Install MokoStandards dependencies
+        working-directory: .moko-standards
+        run: composer install --prefer-dist --no-progress
+
+      - name: Run Node.js validation
+        id: validate
+        run: |
+          php .moko-standards/api/plugin_validate.php \
+            --project-path . \
+            --project-type nodejs \
+            --json > validation-results.json
+          
+          cat validation-results.json
+          
+          if jq -e '.valid == false' validation-results.json > /dev/null; then
+            echo "::error::Project validation failed"
+            exit 1
+          fi
+
+      - name: Run health check
+        id: health
+        run: |
+          php .moko-standards/api/plugin_health_check.php \
+            --project-path . \
+            --project-type nodejs \
+            --json > health-results.json
+          
+          cat health-results.json
+          
+          SCORE=$(jq -r '.score' health-results.json)
+          echo "Health Score: $SCORE/100"
+          
+          if [ "$SCORE" -lt 70 ]; then
+            echo "::warning::Health score is below 70"
+          fi
+
+      - name: Collect metrics
+        id: metrics
+        run: |
+          php .moko-standards/api/plugin_metrics.php \
+            --project-path . \
+            --project-type nodejs \
+            --json > metrics-results.json
+          
+          cat metrics-results.json
+          
+          # Extract and display key metrics
+          echo "### Key Metrics"
+          jq -r '.metrics | to_entries[] | "\(.key): \(.value)"' metrics-results.json || true
+
+      - name: Check release readiness
+        id: readiness
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+        run: |
+          php .moko-standards/api/plugin_readiness.php \
+            --project-path . \
+            --project-type nodejs \
+            --json > readiness-results.json
+          
+          cat readiness-results.json
+          
+          if jq -e '.ready == false' readiness-results.json > /dev/null; then
+            echo "::warning::Project is not ready for release"
+            jq -r '.blockers[]' readiness-results.json | while read blocker; do
+              echo "::warning::Blocker: $blocker"
+            done
+          fi
+
+      - name: Check for security vulnerabilities
+        continue-on-error: true
+        run: |
+          if [ -f package-lock.json ]; then
+            npm audit --json > npm-audit.json || true
+            cat npm-audit.json
+          fi
+
+      - name: Upload validation artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nodejs-validation-results
+          path: |
+            validation-results.json
+            health-results.json
+            metrics-results.json
+            readiness-results.json
+            npm-audit.json
+          retention-days: 30
+
+      - name: Create validation summary
+        if: always()
+        run: |
+          echo "## Node.js Project Validation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -f validation-results.json ]; then
+            VALID=$(jq -r '.valid' validation-results.json)
+            SCORE=$(jq -r '.score' validation-results.json)
+            echo "**Validation:** $([[ $VALID == true ]] && echo '✅ VALID' || echo '❌ INVALID')" >> $GITHUB_STEP_SUMMARY
+            echo "**Score:** $SCORE/100" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ -f health-results.json ]; then
+            HEALTHY=$(jq -r '.healthy' health-results.json)
+            HEALTH_SCORE=$(jq -r '.score' health-results.json)
+            echo "**Health:** $([[ $HEALTHY == true ]] && echo '✅ HEALTHY' || echo '⚠️ UNHEALTHY')" >> $GITHUB_STEP_SUMMARY
+            echo "**Health Score:** $HEALTH_SCORE/100" >> $GITHUB_STEP_SUMMARY
+          fi

@@ -364,6 +364,116 @@ Comprehensive code quality analysis workflow.
 **Usage:**
 Copy to your repository as `.github/workflows/code-quality.yml`.
 
+### Plugin Validation Workflows
+
+Project-specific validation workflows using the MokoStandards plugin system. Each workflow validates projects using the appropriate plugin for automated quality assurance.
+
+#### validate-joomla-project.yml
+**Features:**
+- Validates Joomla CMS projects and extensions
+- Runs health checks specific to Joomla standards
+- Collects Joomla-specific metrics
+- Checks release readiness for Joomla extensions
+- Comments validation results on pull requests
+
+**Usage:** Copy to `.github/workflows/validate.yml` in Joomla projects.
+
+#### validate-nodejs-project.yml
+**Features:**
+- Validates Node.js applications and packages
+- Checks package.json structure and scripts
+- Runs npm audit for security vulnerabilities
+- Collects Node.js project metrics
+- Creates validation summary in workflow run
+
+**Usage:** Copy to `.github/workflows/validate.yml` in Node.js projects.
+
+#### validate-python-project.yml
+**Features:**
+- Validates Python applications and packages
+- Checks pyproject.toml, setup.py, requirements.txt
+- Runs safety checks for Python dependencies
+- Collects Python-specific metrics
+- Validates project structure and best practices
+
+**Usage:** Copy to `.github/workflows/validate.yml` in Python projects.
+
+#### validate-terraform-project.yml
+**Features:**
+- Validates Terraform Infrastructure as Code projects
+- Checks Terraform file formatting
+- Runs terraform validate
+- Validates module structure
+- Collects infrastructure metrics
+
+**Usage:** Copy to `.github/workflows/validate.yml` in Terraform projects.
+
+#### validate-wordpress-project.yml
+**Features:**
+- Validates WordPress themes and plugins
+- Checks WordPress coding standards
+- Validates plugin/theme structure
+- Collects WordPress-specific metrics
+- Checks for common WordPress security issues
+
+**Usage:** Copy to `.github/workflows/validate.yml` in WordPress projects.
+
+#### validate-mobile-project.yml
+**Features:**
+- Validates mobile applications (iOS/Android)
+- Checks mobile app structure
+- Validates configuration files
+- Collects mobile app metrics
+
+**Usage:** Copy to `.github/workflows/validate.yml` in mobile projects.
+
+#### validate-api-project.yml
+**Features:**
+- Validates REST API and GraphQL services
+- Checks OpenAPI/Swagger specifications
+- Validates API structure and documentation
+- Collects API-specific metrics
+- Checks API security best practices
+
+**Usage:** Copy to `.github/workflows/validate.yml` in API projects.
+
+#### validate-dolibarr-project.yml
+**Features:**
+- Validates Dolibarr ERP/CRM modules
+- Checks Dolibarr module structure
+- Validates module descriptors
+- Collects Dolibarr-specific metrics
+
+**Usage:** Copy to `.github/workflows/validate.yml` in Dolibarr projects.
+
+#### validate-generic-project.yml
+**Features:**
+- Validates generic project types
+- Checks common best practices
+- Validates basic project structure
+- Collects general metrics
+
+**Usage:** Copy to `.github/workflows/validate.yml` in projects that don't fit other categories.
+
+#### validate-documentation-project.yml
+**Features:**
+- Validates documentation projects
+- Checks for broken links with markdown-link-check
+- Lints Markdown files with markdownlint
+- Validates documentation structure
+- Collects documentation metrics
+
+**Usage:** Copy to `.github/workflows/validate.yml` in documentation projects.
+
+**All Plugin Validation Workflows Include:**
+- Automated project type detection (or explicit type specification)
+- Validation checks with JSON output
+- Health checks with scoring
+- Metrics collection
+- Release readiness checks (on main branch)
+- Artifact upload for validation results
+- Proper exit codes (0=success, 1=failure, 2=error)
+
 ## Usage
 
 ### For New Projects

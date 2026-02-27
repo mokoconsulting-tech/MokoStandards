@@ -421,6 +421,10 @@ class RepositorySynchronizer
             case 'workflows':
                 return "{$baseDir}/templates/workflows/{$sourceFile}";
             case 'github':
+                // Special handling for PR template which is in templates/github
+                if ($sourceFile === 'PULL_REQUEST_TEMPLATE.md') {
+                    return "{$baseDir}/templates/github/{$sourceFile}";
+                }
                 return "{$baseDir}/.github/{$sourceFile}";
             case 'issue_templates':
                 return "{$baseDir}/templates/github/ISSUE_TEMPLATE/{$sourceFile}";

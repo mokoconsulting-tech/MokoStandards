@@ -43,8 +43,8 @@
         "psr-4": {
             "MokoStandards\\": "src/",
             "MokoStandards\\Enterprise\\": "scripts/lib/Enterprise/",
-            "MokoStandards\\Joomla\\": "scripts/lib/Joomla/",
-            "MokoStandards\\Dolibarr\\": "scripts/lib/Dolibarr/",
+            "MokoStandards\\Plugins\\Joomla\\": "scripts/lib/plugins/Joomla/",
+            "MokoStandards\\Plugins\\Dolibarr\\": "scripts/lib/plugins/Dolibarr/",
             "MokoStandards\\Automation\\": "src/Automation/",
             "MokoStandards\\Validation\\": "src/Validation/",
             "MokoStandards\\Web\\": "src/Web/"

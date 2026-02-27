@@ -10,14 +10,14 @@
  * DEFGROUP: MokoStandards.Joomla
  * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
- * PATH: /src/Joomla/UpdateXmlGenerator.php
+ * PATH: /scripts/lib/plugins/Joomla/UpdateXmlGenerator.php
  * VERSION: 04.00.03
  * BRIEF: Generates and updates Joomla extension update.xml files
  */
 
 declare(strict_types=1);
 
-namespace MokoStandards\Joomla;
+namespace MokoStandards\Plugins\Joomla;
 
 use DOMDocument;
 use DOMElement;

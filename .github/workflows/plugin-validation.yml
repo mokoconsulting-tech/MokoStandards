@@ -20,10 +20,16 @@ on:
       - 'composer.json'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   validate-plugin-system:
     name: Validate Plugin System
     runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
     
     strategy:
       matrix:
@@ -277,6 +283,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: validate-plugin-system
     
+    permissions:
+      contents: read
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -314,6 +323,9 @@ jobs:
   lint-and-syntax-check:
     name: Lint and Syntax Check
     runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
     
     steps:
       - name: Checkout code

@@ -766,7 +766,7 @@ Or trigger workflow with `dry_run: true` in GitHub Actions.
 
 **Solutions:**
 1. Confirm `repository_type` is set in `override_metadata`
-2. Verify `repository_type` is valid value (terraform/dolibarr/joomla/generic)
+2. Verify `repository_type` is valid value (infrastructure/terraform/dolibarr/joomla/generic)
 3. Check that `repository_type` is not set to "standards" (which is ignored for target repos)
 4. Ensure override file syntax is correct
 

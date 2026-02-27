@@ -223,7 +223,7 @@ TRIGGER: Monthly Schedule (1st @ 00:00 UTC) or Manual Dispatch
 
 1. **Clone Target Repository**: Clone each repository to temporary directory
 2. **Load Override Configuration**: Check for `override.config.tf` in target repo
-3. **Determine Platform Type**: Use override or auto-detect (terraform/dolibarr/joomla/generic)
+3. **Determine Platform Type**: Use override or auto-detect (infrastructure/terraform/dolibarr/joomla/generic)
 4. **Select Files to Sync**: Based on platform type and override exclusions
 5. **Create Branch**: Create `chore/sync-mokostandards-updates` branch
 6. **Sync Files**: Copy workflows, scripts, and configurations
@@ -280,7 +280,7 @@ Trigger manually from GitHub Actions UI.
 
 The workflow requires the following GitHub secret:
 
-#### `ORG_ADMIN_TOKEN`
+#### `GH_TOKEN`
 
 **Type**: Personal Access Token (PAT) or GitHub App token
 
@@ -291,7 +291,7 @@ The workflow requires the following GitHub secret:
 
 **Setup**:
 1. Generate PAT with required permissions
-2. Add to repository secrets as `ORG_ADMIN_TOKEN`
+2. Add to repository secrets as `GH_TOKEN`
 3. Workflow will automatically use it
 
 **Security Note**: Token is only accessible to workflow runs in MokoStandards repository.
@@ -407,7 +407,7 @@ locals {
 2. Re-run with `dry_run`: `true` for that repository
 3. Review proposed changes
 4. Check if repository has `override.config.tf` with conflicts
-5. Verify `ORG_ADMIN_TOKEN` has correct permissions
+5. Verify `GH_TOKEN` has correct permissions
 6. Check if repository is archived or private with restricted access
 
 ---
@@ -482,7 +482,7 @@ The sync tool determines platform type in this order:
 
 1. **Check Override First**: If `override.config.tf` specifies `repository_type`, use it
 2. **Auto-Detection**: If no override, run `auto_detect_platform.php`:
-   - Checks for Terraform files (`.tf`, `terraform/`)
+   - Checks for Terraform files (`.tf`, `infrastructure/terraform/`)
    - Checks for Dolibarr structure (`htdocs/`, module XML)
    - Checks for Joomla structure (`manifest.xml`, Joomla patterns)
    - Falls back to "generic" if none detected
@@ -522,7 +522,7 @@ The sync tool has three cleanup modes (configured in override):
 - Error mentions authentication or permissions
 
 **Solutions**:
-1. Verify `ORG_ADMIN_TOKEN` secret exists
+1. Verify `GH_TOKEN` secret exists
 2. Check token hasn't expired
 3. Verify token has `repo`, `workflow`, and `admin:org` permissions
 4. Re-generate token if needed
@@ -651,7 +651,7 @@ For excluded workflows:
 
 ### Token Security
 
-**ORG_ADMIN_TOKEN Management**:
+**GH_TOKEN Management**:
 
 ✅ **DO**:
 - Use fine-grained PAT with minimal required permissions

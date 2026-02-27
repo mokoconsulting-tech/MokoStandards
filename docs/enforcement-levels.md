@@ -1430,7 +1430,7 @@ required_files = [
 **Solution**:
 ```bash
 # Check enforcement level
-grep -r "filename" .github/config.tf docs/terraform/
+grep -r "filename" .github/config.tf docs/infrastructure/terraform/
 # If REQUIRED or FORCED, cannot be excluded
 ```
 
@@ -1488,7 +1488,7 @@ locals {
 
 ### Logging
 
-**Remote Sync Logs**: `logs/MokoStandards/sync/`
+**Remote Sync Logs**: `var/logs/MokoStandards/sync/`
 - `sync-YYYYMMDD-HHMMSS.log` - Session log
 - `sync-latest.log` - Most recent sync
 - `sync-summary.json` - Machine-readable summary
@@ -1519,7 +1519,7 @@ locals {
 **Diagnosis**:
 ```bash
 # Check sync logs
-cat logs/MokoStandards/sync/sync-latest.log | grep filename
+cat var/logs/MokoStandards/sync/sync-latest.log | grep filename
 
 # Check config.tf
 cat .github/config.tf | grep filename
@@ -1604,10 +1604,10 @@ head -5 .env  # View first 5 lines
 **Diagnosis**:
 ```bash
 # Count warnings
-cat logs/MokoStandards/sync/sync-latest.log | grep WARNING | wc -l
+cat var/logs/MokoStandards/sync/sync-latest.log | grep WARNING | wc -l
 
 # List warnings
-cat logs/MokoStandards/sync/sync-latest.log | grep WARNING
+cat var/logs/MokoStandards/sync/sync-latest.log | grep WARNING
 ```
 
 **Solutions**:
@@ -1623,13 +1623,13 @@ cat logs/MokoStandards/sync/sync-latest.log | grep WARNING
 grep -A 3 "filename" .github/config.tf
 
 # Check recent sync log
-tail -100 logs/MokoStandards/sync/sync-latest.log
+tail -100 var/logs/MokoStandards/sync/sync-latest.log
 
 # Count files by enforcement level
-cat logs/MokoStandards/sync/sync-summary.json | jq '.files_by_level'
+cat var/logs/MokoStandards/sync/sync-summary.json | jq '.files_by_level'
 
 # Find all NOT_ALLOWED files
-cat logs/MokoStandards/sync/sync-latest.log | grep "NOT_ALLOWED"
+cat var/logs/MokoStandards/sync/sync-latest.log | grep "NOT_ALLOWED"
 
 # Check if file is FORCED
 # (check source code)
@@ -1643,8 +1643,8 @@ grep -n "ALWAYS_FORCE_OVERRIDE_FILES" scripts/automation/bulk_update_repos.php
 ### Primary References
 
 - **Terraform File Standards**: [docs/policy/terraform-file-standards.md](../policy/terraform-file-standards.md)
-- **Terraform Enforcement Levels** (terraform-specific): [docs/terraform/enforcement-levels.md](terraform/enforcement-levels.md)
-- **Override Configuration**: [docs/terraform/config-override.md](terraform/config-override.md)
+- **Terraform Enforcement Levels** (terraform-specific): [docs/infrastructure/terraform/enforcement-levels.md](infrastructure/terraform/enforcement-levels.md)
+- **Override Configuration**: [docs/infrastructure/terraform/config-override.md](infrastructure/terraform/config-override.md)
 - **Bulk Sync Documentation**: [docs/workflows/bulk-repo-sync.md](workflows/bulk-repo-sync.md)
 
 ### Training Materials
@@ -1663,7 +1663,7 @@ grep -n "ALWAYS_FORCE_OVERRIDE_FILES" scripts/automation/bulk_update_repos.php
 
 ### Quick References
 
-- **Terraform README**: [docs/terraform/README.md](terraform/README.md)
+- **Terraform README**: [docs/infrastructure/terraform/README.md](infrastructure/terraform/README.md)
 - **Config Template**: [.github/config.tf](../.github/config.tf)
 
 ---
@@ -1691,8 +1691,8 @@ grep -n "ALWAYS_FORCE_OVERRIDE_FILES" scripts/automation/bulk_update_repos.php
 | Version | Date | Changes |
 |---------|------|---------|
 | 04.00.03 | 2026-02-21 | Added comprehensive enforcement levels documentation |
-| 04.00.02 | 2026-02-21 | Implemented six-tier system with NOT_SUGGESTED and NOT_ALLOWED |
-| 04.00.01 | 2026-02-21 | Four-tier system (OPTIONAL, SUGGESTED, REQUIRED, FORCED) |
+| 04.00.03 | 2026-02-21 | Implemented six-tier system with NOT_SUGGESTED and NOT_ALLOWED |
+| 04.00.03 | 2026-02-21 | Four-tier system (OPTIONAL, SUGGESTED, REQUIRED, FORCED) |
 
 ### Contributing
 

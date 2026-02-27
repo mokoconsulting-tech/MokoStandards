@@ -413,5 +413,5 @@ main();
 
 ## See Also
 
-- `src/Enterprise/VisualHelper.php` - PHP implementation
+- `scripts/lib/Enterprise/VisualHelper.php` - PHP implementation
 - Web-based interfaces for GUI operations

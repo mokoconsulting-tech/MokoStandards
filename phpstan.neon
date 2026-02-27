@@ -8,8 +8,8 @@
 parameters:
     level: 5
     paths:
-        - src
-        - tests
+        - api/src
+        - api/tests
     excludePaths:
         - vendor
         - node_modules

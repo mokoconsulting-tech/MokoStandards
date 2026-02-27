@@ -67,16 +67,16 @@ Use this checklist to assess and track enterprise readiness:
 ### Core Infrastructure (40 points)
 
 - [ ] **Enterprise Libraries** (10 points)
-  - [ ] `src/Enterprise/EnterpriseAudit.php` - Audit logging framework
-  - [ ] `src/Enterprise/AuditLogger.php` - Structured audit logs
-  - [ ] `src/Enterprise/ValidationFramework.php` - Validation infrastructure
-  - [ ] `src/Enterprise/UnifiedValidation.php` - Unified validation APIs
-  - [ ] `src/Enterprise/ConfigManager.php` - Configuration management
-  - [ ] `src/Enterprise/SecurityValidator.php` - Security validation
-  - [ ] `src/Enterprise/ErrorRecovery.php` - Error handling and recovery
-  - [ ] `src/Enterprise/TransactionManager.php` - Transaction management
-  - [ ] `src/Enterprise/CliFramework.php` - CLI framework
-  - [ ] `src/Enterprise/Common.php` - Common utilities
+  - [ ] `scripts/lib/Enterprise/EnterpriseAudit.php` - Audit logging framework
+  - [ ] `scripts/lib/Enterprise/AuditLogger.php` - Structured audit logs
+  - [ ] `scripts/lib/Enterprise/ValidationFramework.php` - Validation infrastructure
+  - [ ] `scripts/lib/Enterprise/UnifiedValidation.php` - Unified validation APIs
+  - [ ] `scripts/lib/Enterprise/ConfigManager.php` - Configuration management
+  - [ ] `scripts/lib/Enterprise/SecurityValidator.php` - Security validation
+  - [ ] `scripts/lib/Enterprise/ErrorRecovery.php` - Error handling and recovery
+  - [ ] `scripts/lib/Enterprise/TransactionManager.php` - Transaction management
+  - [ ] `scripts/lib/Enterprise/CliFramework.php` - CLI framework
+  - [ ] `scripts/lib/Enterprise/Common.php` - Common utilities
 
 - [ ] **Enterprise Workflows** (10 points)
   - [ ] `.github/workflows/audit-log-archival.yml` - Audit log management
@@ -109,9 +109,9 @@ Use this checklist to assess and track enterprise readiness:
   - [ ] `audit_logging = true` in configs
 
 - [ ] **Monitoring Setup** (10 points)
-  - [ ] `logs/` directory exists
-  - [ ] `logs/audit/` directory exists
-  - [ ] `logs/metrics/` directory exists
+  - [ ] `var/logs/` directory exists
+  - [ ] `var/logs/audit/` directory exists
+  - [ ] `var/logs/metrics/` directory exists
   - [ ] Monitoring documentation present
 
 ### Documentation & Standards (30 points)
@@ -134,7 +134,7 @@ Use this checklist to assess and track enterprise readiness:
 
 ### 1. Enterprise Libraries (10 Required)
 
-Located in `src/Enterprise/`, these provide core enterprise functionality:
+Located in `scripts/lib/Enterprise/`, these provide core enterprise functionality:
 
 #### `EnterpriseAudit.php`
 Comprehensive audit logging with:
@@ -255,7 +255,7 @@ Python script for Terraform installation:
 Required directory structure:
 
 ```
-logs/
+var/logs/
 ├── README.md              # Logging documentation
 ├── audit/                 # Audit logs
 │   ├── .gitkeep
@@ -325,17 +325,17 @@ For fine-grained control or learning purposes, you can set up components manuall
 ### Step 1: Create Directory Structure
 
 ```bash
-mkdir -p src/Enterprise
+mkdir -p scripts/lib/Enterprise
 mkdir -p .github/workflows
-mkdir -p logs/audit
-mkdir -p logs/metrics
-mkdir -p logs/validation
+mkdir -p var/logs/audit
+mkdir -p var/logs/metrics
+mkdir -p var/logs/validation
 mkdir -p docs/guide
 
 # Create .gitkeep files
-touch logs/audit/.gitkeep
-touch logs/metrics/.gitkeep
-touch logs/validation/.gitkeep
+touch var/logs/audit/.gitkeep
+touch var/logs/metrics/.gitkeep
+touch var/logs/validation/.gitkeep
 ```
 
 ### Step 2: Copy Enterprise Libraries
@@ -344,10 +344,10 @@ From MokoStandards repository:
 
 ```bash
 # Copy all enterprise libraries
-cp -r MokoStandards/src/Enterprise src/
+cp -r MokoStandards/scripts/lib/Enterprise src/
 
 # Set appropriate permissions
-chmod -R 755 src/Enterprise/
+chmod -R 755 scripts/lib/Enterprise/
 ```
 
 ### Step 3: Copy Enterprise Workflows
@@ -621,9 +621,9 @@ Use enterprise workflows to monitor ongoing health:
 - **Continuous**: Health checks run on every push
 
 Review logs in:
-- `logs/audit/` - Audit events
-- `logs/metrics/` - Performance metrics
-- `logs/validation/` - Validation results
+- `var/logs/audit/` - Audit events
+- `var/logs/metrics/` - Performance metrics
+- `var/logs/validation/` - Validation results
 
 ### Updating Version
 

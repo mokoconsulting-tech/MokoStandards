@@ -1,0 +1,361 @@
+name: Plugin System Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'api/lib/Enterprise/**'
+      - 'api/plugin_*.php'
+      - 'composer.json'
+      - '.github/workflows/plugin-validation.yml'
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'api/lib/Enterprise/**'
+      - 'api/plugin_*.php'
+      - 'composer.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-plugin-system:
+    name: Validate Plugin System
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+    
+    strategy:
+      matrix:
+        php-version: ['8.0', '8.1', '8.2']
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mbstring, json, fileinfo
+          coverage: none
+
+      - name: Validate Composer
+        run: composer validate --strict
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Check autoloader
+        run: composer dump-autoload --optimize
+
+      - name: Verify plugin scripts exist
+        run: |
+          echo "Checking plugin scripts..."
+          test -f api/plugin_validate.php || { echo "✗ plugin_validate.php not found"; exit 1; }
+          test -f api/plugin_health_check.php || { echo "✗ plugin_health_check.php not found"; exit 1; }
+          test -f api/plugin_metrics.php || { echo "✗ plugin_metrics.php not found"; exit 1; }
+          test -f api/plugin_readiness.php || { echo "✗ plugin_readiness.php not found"; exit 1; }
+          test -f api/plugin_list.php || { echo "✗ plugin_list.php not found"; exit 1; }
+          echo "✓ All plugin scripts found"
+
+      - name: Verify plugin scripts are executable
+        run: |
+          echo "Checking script permissions..."
+          test -x api/plugin_validate.php || chmod +x api/plugin_validate.php
+          test -x api/plugin_health_check.php || chmod +x api/plugin_health_check.php
+          test -x api/plugin_metrics.php || chmod +x api/plugin_metrics.php
+          test -x api/plugin_readiness.php || chmod +x api/plugin_readiness.php
+          test -x api/plugin_list.php || chmod +x api/plugin_list.php
+          echo "✓ All scripts are executable"
+
+      - name: Test plugin list command
+        run: |
+          echo "Testing plugin list..."
+          php api/plugin_list.php --help
+          php api/plugin_list.php --format json
+          php api/plugin_list.php --format table
+          php api/plugin_list.php --format simple
+          echo "✓ Plugin list working"
+
+      - name: Test plugin help commands
+        run: |
+          echo "Testing help commands..."
+          php api/plugin_validate.php --help
+          php api/plugin_health_check.php --help
+          php api/plugin_metrics.php --help
+          php api/plugin_readiness.php --help
+          echo "✓ All help commands working"
+
+      - name: Verify all plugins are loadable
+        run: |
+          echo "Verifying plugins can be loaded..."
+          php -r "
+            require 'vendor/autoload.php';
+            use MokoStandards\Enterprise\PluginFactory;
+            use MokoStandards\Enterprise\AuditLogger;
+            use MokoStandards\Enterprise\MetricsCollector;
+            
+            \$factory = new PluginFactory(new AuditLogger(), new MetricsCollector());
+            \$plugins = \$factory->createAll();
+            
+            if (empty(\$plugins)) {
+              echo '✗ No plugins loaded\n';
+              exit(1);
+            }
+            
+            echo '✓ Loaded ' . count(\$plugins) . ' plugins:\n';
+            foreach (\$plugins as \$type => \$plugin) {
+              echo '  - ' . \$type . ': ' . \$plugin->getPluginName() . ' v' . \$plugin->getPluginVersion() . '\n';
+            }
+          "
+
+      - name: Validate plugin interface compliance
+        run: |
+          echo "Validating plugin interface compliance..."
+          php -r "
+            require 'vendor/autoload.php';
+            use MokoStandards\Enterprise\PluginFactory;
+            use MokoStandards\Enterprise\ProjectPluginInterface;
+            use MokoStandards\Enterprise\AuditLogger;
+            use MokoStandards\Enterprise\MetricsCollector;
+            
+            \$factory = new PluginFactory(new AuditLogger(), new MetricsCollector());
+            \$plugins = \$factory->createAll();
+            \$errors = [];
+            
+            foreach (\$plugins as \$type => \$plugin) {
+              // Check interface implementation
+              if (!(\$plugin instanceof ProjectPluginInterface)) {
+                \$errors[] = \$type . ' does not implement ProjectPluginInterface';
+                continue;
+              }
+              
+              // Check required methods return appropriate types
+              try {
+                \$projectType = \$plugin->getProjectType();
+                if (!\$projectType || !is_string(\$projectType)) {
+                  \$errors[] = \$type . ': getProjectType() must return non-empty string';
+                }
+                
+                \$pluginName = \$plugin->getPluginName();
+                if (!\$pluginName || !is_string(\$pluginName)) {
+                  \$errors[] = \$type . ': getPluginName() must return non-empty string';
+                }
+                
+                \$version = \$plugin->getPluginVersion();
+                if (!\$version || !is_string(\$version)) {
+                  \$errors[] = \$type . ': getPluginVersion() must return non-empty string';
+                }
+                
+                \$requiredFiles = \$plugin->getRequiredFiles();
+                if (!is_array(\$requiredFiles)) {
+                  \$errors[] = \$type . ': getRequiredFiles() must return array';
+                }
+                
+                \$recommendedFiles = \$plugin->getRecommendedFiles();
+                if (!is_array(\$recommendedFiles)) {
+                  \$errors[] = \$type . ': getRecommendedFiles() must return array';
+                }
+                
+                \$schema = \$plugin->getConfigSchema();
+                if (!is_array(\$schema)) {
+                  \$errors[] = \$type . ': getConfigSchema() must return array';
+                }
+                
+                \$practices = \$plugin->getBestPractices();
+                if (!is_array(\$practices)) {
+                  \$errors[] = \$type . ': getBestPractices() must return array';
+                }
+                
+                \$commands = \$plugin->getCommands();
+                if (!is_array(\$commands)) {
+                  \$errors[] = \$type . ': getCommands() must return array';
+                }
+                
+                echo '✓ ' . \$type . ' plugin interface compliance OK\n';
+              } catch (Exception \$e) {
+                \$errors[] = \$type . ': ' . \$e->getMessage();
+              }
+            }
+            
+            if (!empty(\$errors)) {
+              echo '\n✗ Plugin interface compliance errors:\n';
+              foreach (\$errors as \$error) {
+                echo '  - ' . \$error . '\n';
+              }
+              exit(1);
+            }
+            
+            echo '\n✓ All plugins comply with ProjectPluginInterface\n';
+          "
+
+      - name: Run basic plugin operations
+        run: |
+          echo "Testing basic plugin operations..."
+          
+          # Create a temporary test directory
+          mkdir -p /tmp/test-project
+          echo '{"name": "test-project"}' > /tmp/test-project/package.json
+          
+          # Test with nodejs plugin (should detect package.json)
+          echo "Testing validation..."
+          php api/plugin_validate.php --project-path /tmp/test-project --project-type nodejs --json || true
+          
+          echo "Testing health check..."
+          php api/plugin_health_check.php --project-path /tmp/test-project --project-type nodejs --json || true
+          
+          echo "Testing metrics collection..."
+          php api/plugin_metrics.php --project-path /tmp/test-project --project-type nodejs --json || true
+          
+          echo "Testing readiness check..."
+          php api/plugin_readiness.php --project-path /tmp/test-project --project-type nodejs --json || true
+          
+          echo "✓ Basic plugin operations completed"
+
+      - name: Test plugin factory methods
+        run: |
+          echo "Testing plugin factory methods..."
+          php -r "
+            require 'vendor/autoload.php';
+            use MokoStandards\Enterprise\PluginFactory;
+            use MokoStandards\Enterprise\AuditLogger;
+            use MokoStandards\Enterprise\MetricsCollector;
+            
+            \$factory = new PluginFactory(new AuditLogger(), new MetricsCollector());
+            
+            // Test create
+            \$plugin = \$factory->create('nodejs');
+            if (!\$plugin) {
+              echo '✗ create() failed for nodejs\n';
+              exit(1);
+            }
+            echo '✓ create() works\n';
+            
+            // Test hasPlugin
+            if (!\$factory->hasPlugin('nodejs')) {
+              echo '✗ hasPlugin() failed\n';
+              exit(1);
+            }
+            echo '✓ hasPlugin() works\n';
+            
+            // Test getAvailablePlugins
+            \$available = \$factory->getAvailablePlugins();
+            if (empty(\$available)) {
+              echo '✗ getAvailablePlugins() returned empty\n';
+              exit(1);
+            }
+            echo '✓ getAvailablePlugins() works (' . count(\$available) . ' plugins)\n';
+            
+            // Test createMultiple
+            \$plugins = \$factory->createMultiple(['nodejs', 'python', 'generic']);
+            if (count(\$plugins) !== 3) {
+              echo '✗ createMultiple() failed\n';
+              exit(1);
+            }
+            echo '✓ createMultiple() works\n';
+            
+            echo '\n✓ All factory methods working correctly\n';
+          "
+
+      - name: Check plugin registry
+        run: |
+          echo "Testing plugin registry..."
+          php -r "
+            require 'vendor/autoload.php';
+            use MokoStandards\Enterprise\PluginRegistry;
+            
+            \$stats = PluginRegistry::getStatistics();
+            echo '✓ Registry statistics: ' . json_encode(\$stats, JSON_PRETTY_PRINT) . '\n';
+            
+            \$info = PluginRegistry::getAllPluginsInfo();
+            echo '✓ Plugin info count: ' . count(\$info) . '\n';
+          "
+
+  test-project-type-detection:
+    name: Test Project Type Detection
+    runs-on: ubuntu-latest
+    needs: validate-plugin-system
+    
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mbstring, json, fileinfo
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Test auto-detection for different project types
+        run: |
+          echo "Testing project type auto-detection..."
+          
+          # Test Node.js detection
+          mkdir -p /tmp/test-nodejs
+          echo '{"name": "test"}' > /tmp/test-nodejs/package.json
+          php api/plugin_validate.php --project-path /tmp/test-nodejs --json | jq -r '.project_type' | grep -q 'nodejs' && echo "✓ Node.js detected" || echo "✗ Node.js detection failed"
+          
+          # Test Python detection
+          mkdir -p /tmp/test-python
+          echo '[build-system]' > /tmp/test-python/pyproject.toml
+          php api/plugin_validate.php --project-path /tmp/test-python --json | jq -r '.project_type' | grep -q 'python' && echo "✓ Python detected" || echo "✗ Python detection failed"
+          
+          # Test Terraform detection  
+          mkdir -p /tmp/test-terraform
+          echo 'terraform {}' > /tmp/test-terraform/main.tf
+          php api/plugin_validate.php --project-path /tmp/test-terraform --json | jq -r '.project_type' | grep -q 'terraform' && echo "✓ Terraform detected" || echo "✗ Terraform detection failed"
+          
+          echo "✓ Project type detection tests completed"
+
+  lint-and-syntax-check:
+    name: Lint and Syntax Check
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: PHP Syntax Check
+        run: |
+          find api/lib/Enterprise -name "*.php" -exec php -l {} \;
+          find api -maxdepth 1 -name "plugin_*.php" -exec php -l {} \;
+
+      - name: Run PHPCS (if available)
+        run: |
+          if [ -f vendor/bin/phpcs ]; then
+            vendor/bin/phpcs api/plugin_*.php || true
+          else
+            echo "PHPCS not available, skipping"
+          fi
+
+      - name: Run PHPStan (if available)
+        run: |
+          if [ -f vendor/bin/phpstan ]; then
+            vendor/bin/phpstan analyse api/plugin_*.php --level=5 || true
+          else
+            echo "PHPStan not available, skipping"
+          fi

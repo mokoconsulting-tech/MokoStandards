@@ -60,7 +60,7 @@ The workflow will:
 
 Use clear, action-oriented titles:
 
-- ✅ Good: `[Task] Investigate ORG_ADMIN_TOKEN permissions`
+- ✅ Good: `[Task] Investigate GH_TOKEN permissions`
 - ✅ Good: `[Task] Update documentation for bulk sync process`
 - ❌ Bad: `Token stuff`
 - ❌ Bad: `Fix #193`
@@ -124,7 +124,7 @@ Add a section to the parent issue to track all sub-issues:
 ```markdown
 ## Sub-Issues
 
-- [ ] #194 - Investigate ORG_ADMIN_TOKEN permissions
+- [ ] #194 - Investigate GH_TOKEN permissions
 - [x] #195 - Update bulk sync documentation
 - [ ] #196 - Add retry logic to sync script
 ```
@@ -135,7 +135,7 @@ Update this as sub-issues are completed.
 
 For issue #193 (Bulk Repository Sync Failed), you might create these sub-issues:
 
-1. **Investigation**: `[Task] Investigate ORG_ADMIN_TOKEN permissions and scopes`
+1. **Investigation**: `[Task] Investigate GH_TOKEN permissions and scopes`
 2. **Bug Fix**: `[Task] Add retry logic for transient network failures`
 3. **Documentation**: `[Task] Document troubleshooting steps for sync failures`
 4. **Testing**: `[Task] Test bulk sync with different repository configurations`

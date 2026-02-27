@@ -201,7 +201,7 @@ When bulk sync detects a legacy override file:
 # DEFGROUP: MokoStandards.Terraform.Main
 # INGROUP: MokoStandards.Configuration
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
-# PATH: /terraform/main.tf
+# PATH: /infrastructure/terraform/main.tf
 # VERSION: 04.00.03
 # BRIEF: Main Terraform configuration for MokoStandards
 
@@ -270,7 +270,7 @@ During code review, verify:
 
 ### Template
 
-Use the template at `templates/terraform/template.tf` as a starting point for new files.
+Use the template at `templates/infrastructure/terraform/template.tf` as a starting point for new files.
 
 ## References
 
@@ -462,14 +462,14 @@ The bulk sync operation (via `bulk_update_repos.php`) includes comprehensive Ter
 ### Post-Sync Operations
 
 6. **Audit Log Creation**
-   - Creates `logs/MokoStandards/sync/` directory
+   - Creates `var/logs/MokoStandards/sync/` directory
    - Writes session log with all operations
    - Updates `sync-latest.log`
    - Creates `sync-summary.json`
 
 ### Sync Logging
 
-**Location**: `logs/MokoStandards/sync/` on each repository
+**Location**: `var/logs/MokoStandards/sync/` on each repository
 
 **Files Created**:
 - `sync-YYYY-MM-DD-HHMMSS.log` - Individual session log
@@ -558,7 +558,7 @@ The bulk sync operation (via `bulk_update_repos.php`) includes comprehensive Ter
    ```
 
 3. **Review Sync Logs**
-   - Check `logs/MokoStandards/sync/sync-latest.log`
+   - Check `var/logs/MokoStandards/sync/sync-latest.log`
    - Verify enforcement decisions
    - Review any warnings
 
@@ -600,7 +600,7 @@ terraform fmt -recursive
 1. Check enforcement level in `.github/config.tf`
 2. Verify not in `exclude_files` or `protected_files`
 3. Check if it's a FORCED file (always syncs)
-4. Review `logs/MokoStandards/sync/sync-latest.log`
+4. Review `var/logs/MokoStandards/sync/sync-latest.log`
 
 ### Issue: Force-Override Conflict
 
@@ -610,8 +610,8 @@ terraform fmt -recursive
 
 ## Related Documentation
 
-- [Enforcement Levels Guide](../../terraform/enforcement-levels.md)
-- [Override Configuration](../../terraform/config-override.md)
+- [Enforcement Levels Guide](../../infrastructure/terraform/enforcement-levels.md)
+- [Override Configuration](../../infrastructure/terraform/config-override.md)
 - [Bulk Sync Workflow](../../workflows/bulk-repo-sync.md)
 - [Training Session 7](../../training/session-7-terraform-infrastructure.md)
 - [Standards-Compliance Workflow](../../workflows/standards-compliance.md)

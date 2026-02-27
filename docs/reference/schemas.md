@@ -7,11 +7,11 @@
 **The schema system has been migrated from XML/JSON to Terraform.**
 
 - **Old location**: `schemas/` directory (XML/XSD/JSON files) - **REMOVED**
-- **New location**: `terraform/` directory (Terraform configuration)
+- **New location**: `infrastructure/terraform/` directory (Terraform configuration)
 - **Migration date**: January 2026
 - **Schema version**: 2.0
 
-For new projects, use the Terraform-based configuration. See [Terraform Schema Documentation](../../terraform/README.md).
+For new projects, use the Terraform-based configuration. See [Terraform Schema Documentation](../../infrastructure/terraform/README.md).
 
 ## Overview
 
@@ -21,11 +21,11 @@ This document provides reference for the legacy XML-based schemas (now deprecate
 
 The repository structure and health check configurations are now defined in Terraform:
 
-- **Location**: `terraform/repository-types/`
-- **Health Defaults**: `terraform/repository-types/repo-health-defaults.tf`
-- **Repository Structure**: `terraform/repository-types/default-repository.tf`
+- **Location**: `infrastructure/terraform/repository-types/`
+- **Health Defaults**: `infrastructure/terraform/repository-types/repo-health-defaults.tf`
+- **Repository Structure**: `infrastructure/terraform/repository-types/default-repository.tf`
 
-See the [Terraform README](../../terraform/README.md) for complete documentation.
+See the [Terraform README](../../infrastructure/terraform/README.md) for complete documentation.
 
 ## Quick Start
 
@@ -66,7 +66,7 @@ The Terraform configuration defines the following repository types:
 2. **Library** - Structure for reusable libraries
 3. **Application** - Structure for standalone applications
 
-See `terraform/repository-types/` for complete definitions.
+See `infrastructure/terraform/repository-types/` for complete definitions.
 
 ## Repository Health Configuration
 
@@ -97,7 +97,7 @@ The repository health system provides automated scoring and validation of reposi
 Health check configuration is now stored in Terraform:
 
 ```
-terraform/repository-types/repo-health-defaults.tf
+infrastructure/terraform/repository-types/repo-health-defaults.tf
 ```
 
 The configuration is loaded automatically by validation scripts using the `TerraformSchemaReader` module.
@@ -105,12 +105,12 @@ The configuration is loaded automatically by validation scripts using the `Terra
 ### Customizing Health Checks
 
 Organizations can customize health configurations by:
-1. Modifying `terraform/repository-types/repo-health-defaults.tf`
+1. Modifying `infrastructure/terraform/repository-types/repo-health-defaults.tf`
 2. Creating custom repository type definitions
 3. Using Terraform variables to override defaults
 4. Running `terraform fmt` and `terraform validate` to verify changes
 
-See the [Terraform README](../../terraform/README.md) for detailed customization guidance.
+See the [Terraform README](../../infrastructure/terraform/README.md) for detailed customization guidance.
 
 ## Python API
 

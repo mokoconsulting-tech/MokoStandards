@@ -194,14 +194,14 @@ Options:
 
 **Manual:**
 ```bash
-cd terraform/repository-management
+cd infrastructure/terraform/repository-management
 terraform apply -var="github_token=$GITHUB_TOKEN"
 ```
 
 ### Configuration Files
 
-- `terraform/repository-types/default-repository.tf` - Structure definition
-- `terraform/repository-management/main.tf` - Distribution config
+- `infrastructure/terraform/repository-types/default-repository.tf` - Structure definition
+- `infrastructure/terraform/repository-management/main.tf` - Distribution config
 
 ## Troubleshooting
 
@@ -308,7 +308,7 @@ fi
 
 ### Related Documentation
 
-- [Terraform Distribution Guide](../../terraform/repository-management/VERSION_BUMP_DISTRIBUTION.md)
+- [Terraform Distribution Guide](../../infrastructure/terraform/repository-management/VERSION_BUMP_DISTRIBUTION.md)
 - [Maintenance Scripts](../../scripts/maintenance/README.md)
 - [Release Scripts](../../scripts/release/README.md)
 - [Branching Strategy](../policy/branching-strategy.md)

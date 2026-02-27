@@ -54,7 +54,7 @@ This document outlines version planning, release strategy, and high-level milest
 - 🎯 **Comprehensive Documentation** - 45KB enforcement levels guide (docs/enforcement-levels.md)
 - 🎯 **Training Expansion** - Session 7 extended to 3.0 hours, total 17.5 hours
 - 🎯 **Terraform Standardization** - All 12 terraform files with file_metadata blocks
-- 🎯 **Remote Sync Logging** - Complete audit trail at logs/MokoStandards/sync/
+- 🎯 **Remote Sync Logging** - Complete audit trail at var/logs/MokoStandards/sync/
 - 🎯 **Auto-Migration System** - Legacy override files automatically migrated
 
 **Enforcement System Details**:

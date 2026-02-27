@@ -92,10 +92,6 @@ on:
         required: false
         type: boolean
         default: false
-      branch:
-        description: 'Branch to use for sync (defaults to current branch)'
-        required: false
-        type: string
 
 # ┌─────────────────────────────────────────────────────────────────────────┐
 # │                         USAGE INSTRUCTIONS                               │
@@ -115,7 +111,6 @@ on:
 #                   Scheduled runs automatically exclude MokoStandards and MokoStandards-Private
 #   dry_run:        Set to true to preview changes without creating PRs
 #   force_override: Set to true to override protected files (use only for emergency security updates)
-#   branch:         Branch to use for templates (defaults to current branch, useful for testing)
 #
 # SCHEDULED BEHAVIOR:
 #   - Runs monthly on the 1st at 00:00 UTC
@@ -149,11 +144,6 @@ on:
 #      exclude: "archived-repo test-repo"
 #      dry_run: false
 #
-#   5. Test sync from feature branch:
-#      branch: "feature/new-templates"
-#      repos: "moko-cassiopeia"
-#      dry_run: true
-#
 
 jobs:
   sync-repos:
@@ -167,8 +157,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
-        with:
-          ref: ${{ inputs.branch || github.ref }}
 
       - name: Setup PHP
         uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.31.0
@@ -188,15 +176,15 @@ jobs:
 
       - name: Verify GitHub token availability
         env:
-          GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           set -x
           # Verify token is available before attempting authentication
           if [ -z "$GH_TOKEN" ]; then
-            echo "## ❌ Error: ORG_ADMIN_TOKEN Not Set" >> $GITHUB_STEP_SUMMARY
+            echo "## ❌ Error: GH_TOKEN Not Set" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "The ORG_ADMIN_TOKEN secret is not set or is empty." >> $GITHUB_STEP_SUMMARY
-            echo "Please configure the ORG_ADMIN_TOKEN secret in repository settings." >> $GITHUB_STEP_SUMMARY
+            echo "The GH_TOKEN secret is not set or is empty." >> $GITHUB_STEP_SUMMARY
+            echo "Please configure the GH_TOKEN secret in repository settings." >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "### Required Permissions" >> $GITHUB_STEP_SUMMARY
             echo "- repo (full control)" >> $GITHUB_STEP_SUMMARY
@@ -210,7 +198,7 @@ jobs:
           if gh auth status 2>&1 || true; then
             echo "## ✅ GitHub CLI Authentication Verified" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "Successfully verified authentication with ORG_ADMIN_TOKEN." >> $GITHUB_STEP_SUMMARY
+            echo "Successfully verified authentication with GH_TOKEN." >> $GITHUB_STEP_SUMMARY
           fi
 
       - name: Configure Git
@@ -225,8 +213,8 @@ jobs:
           MISSING_FILES=()
 
           # Check for platform detection script
-          if [ ! -f "scripts/validate/auto_detect_platform.php" ]; then
-            MISSING_FILES+=("scripts/validate/auto_detect_platform.php")
+          if [ ! -f "api/validate/auto_detect_platform.php" ]; then
+            MISSING_FILES+=("api/validate/auto_detect_platform.php")
           fi
 
           # Check for schema definition files required by bulk_update_repos.php
@@ -267,7 +255,7 @@ jobs:
       - name: Run bulk sync (dry-run)
         if: github.event_name == 'workflow_dispatch' && inputs.dry_run == true
         env:
-          GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           set -x
           set -e
@@ -289,7 +277,7 @@ jobs:
           echo "**Arguments:** \`$ARGS\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          if php scripts/automation/bulk_sync.php $ARGS 2>&1 | tee /tmp/bulk_sync.log; then
+          if php api/automation/bulk_sync.php $ARGS 2>&1 | tee /tmp/bulk_sync.log; then
             echo "### ✅ Dry Run Completed Successfully" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "Review the logs above to see what changes would be made." >> $GITHUB_STEP_SUMMARY
@@ -303,7 +291,7 @@ jobs:
       - name: Run bulk sync
         if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.dry_run != true)
         env:
-          GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           set -x
           set -e
@@ -339,7 +327,7 @@ jobs:
           fi
 
           # Run the script with automatic confirmation via --yes flag
-          if php scripts/automation/bulk_sync.php $ARGS 2>&1 | tee /tmp/bulk_sync.log; then
+          if php api/automation/bulk_sync.php $ARGS 2>&1 | tee /tmp/bulk_sync.log; then
             echo "### ✅ Bulk Sync Completed Successfully" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "All repositories have been updated with the latest standards." >> $GITHUB_STEP_SUMMARY
@@ -414,7 +402,7 @@ jobs:
             4. Monitor for any issues in target repositories
 
             ### 📚 Resources
-            - [Bulk Sync Script](scripts/automation/bulk_sync.php)
+            - [Bulk Sync Script](api/automation/bulk_sync.php)
             - [Workflow Configuration](.github/workflows/bulk-repo-sync.yml)
             - [MokoStandards Documentation](https://github.com/mokoconsulting-tech/MokoStandards)
 
@@ -499,7 +487,7 @@ jobs:
             </details>
 
             ### 🔍 Common Causes
-            - **Token permissions**: ORG_ADMIN_TOKEN may lack required permissions
+            - **Token permissions**: GH_TOKEN may lack required permissions
             - **Repository access**: Unable to access one or more org repositories
             - **API rate limits**: GitHub API rate limit exceeded
             - **Network issues**: Temporary connectivity problems
@@ -507,14 +495,14 @@ jobs:
 
             ### ✅ Resolution Steps
             1. Review the workflow run logs for detailed error messages
-            2. Check ORG_ADMIN_TOKEN permissions (requires: repo, workflow, admin:org read)
+            2. Check GH_TOKEN permissions (requires: repo, workflow, admin:org read)
             3. Verify repository accessibility
             4. Check GitHub API rate limit status
             5. Re-run the workflow manually if it was a transient issue
             6. Update the bulk_sync.php script if there's a bug
 
             ### 📚 Resources
-            - [Bulk Sync Script](scripts/automation/bulk_sync.php)
+            - [Bulk Sync Script](api/automation/bulk_sync.php)
             - [Workflow Configuration](.github/workflows/bulk-repo-sync.yml)
             - [MokoStandards Documentation](https://github.com/mokoconsulting-tech/MokoStandards)
 

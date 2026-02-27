@@ -5,58 +5,138 @@
       "name": "Joomla Extension Project",
       "description": "Standard project for Joomla extension development (components, modules, plugins, libraries, packages, templates)",
       "version": "1.0.0",
-      "url": "https://github.com/mokoconsulting-tech/MokoStandards/raw/main/templates/projects/joomla-project-config.json",
+      "url": "https://github.com/mokoconsulting-tech/MokoStandards/raw/main/templates/projects/joomla-project-definition.tf",
       "type": "joomla",
       "tags": ["joomla", "extension", "development", "cms"],
       "author": "Moko Consulting",
       "license": "GPL-3.0-or-later",
       "created": "2026-01-04",
-      "updated": "2026-01-04"
+      "updated": "2026-02-27"
     },
     {
       "id": "moko-dolibarr-v1",
       "name": "Dolibarr Module Project",
       "description": "Standard project for Dolibarr ERP/CRM module development",
       "version": "1.0.0",
-      "url": "https://github.com/mokoconsulting-tech/MokoStandards/raw/main/templates/projects/dolibarr-project-config.json",
+      "url": "https://github.com/mokoconsulting-tech/MokoStandards/raw/main/templates/projects/dolibarr-project-definition.tf",
       "type": "dolibarr",
       "tags": ["dolibarr", "module", "erp", "crm", "mokocrm"],
       "author": "Moko Consulting",
       "license": "GPL-3.0-or-later",
       "created": "2026-01-04",
-      "updated": "2026-01-04"
+      "updated": "2026-02-27"
     },
     {
       "id": "moko-generic-v1",
       "name": "Generic Development Project",
       "description": "General-purpose project for multi-language software development",
       "version": "1.0.0",
-      "url": "https://github.com/mokoconsulting-tech/MokoStandards/raw/main/templates/projects/generic-project-config.json",
+      "url": "https://github.com/mokoconsulting-tech/MokoStandards/raw/main/templates/projects/generic-project-definition.tf",
       "type": "generic",
       "tags": ["generic", "development", "multi-language", "agnostic"],
       "author": "Moko Consulting",
       "license": "GPL-3.0-or-later",
       "created": "2026-01-04",
-      "updated": "2026-01-04"
+      "updated": "2026-02-27"
+    },
+    {
+      "id": "moko-nodejs-v1",
+      "name": "Node.js/TypeScript Project",
+      "description": "Standard project for Node.js and TypeScript application development",
+      "version": "1.0.0",
+      "url": "https://github.com/mokoconsulting-tech/MokoStandards/raw/main/templates/projects/nodejs-project-definition.tf",
+      "type": "nodejs",
+      "tags": ["nodejs", "typescript", "javascript", "npm", "web"],
+      "author": "Moko Consulting",
+      "license": "GPL-3.0-or-later",
+      "created": "2026-02-27",
+      "updated": "2026-02-27"
+    },
+    {
+      "id": "moko-python-v1",
+      "name": "Python Project",
+      "description": "Standard project for Python application and library development",
+      "version": "1.0.0",
+      "url": "https://github.com/mokoconsulting-tech/MokoStandards/raw/main/templates/projects/python-project-definition.tf",
+      "type": "python",
+      "tags": ["python", "pypi", "django", "flask", "fastapi"],
+      "author": "Moko Consulting",
+      "license": "GPL-3.0-or-later",
+      "created": "2026-02-27",
+      "updated": "2026-02-27"
+    },
+    {
+      "id": "moko-terraform-v1",
+      "name": "Terraform/Infrastructure Project",
+      "description": "Standard project for Infrastructure as Code using Terraform",
+      "version": "1.0.0",
+      "url": "https://github.com/mokoconsulting-tech/MokoStandards/raw/main/templates/projects/terraform-project-definition.tf",
+      "type": "terraform",
+      "tags": ["terraform", "infrastructure", "iac", "cloud", "devops"],
+      "author": "Moko Consulting",
+      "license": "GPL-3.0-or-later",
+      "created": "2026-02-27",
+      "updated": "2026-02-27"
+    },
+    {
+      "id": "moko-wordpress-v1",
+      "name": "WordPress Plugin/Theme Project",
+      "description": "Standard project for WordPress plugin and theme development",
+      "version": "1.0.0",
+      "url": "https://github.com/mokoconsulting-tech/MokoStandards/raw/main/templates/projects/wordpress-project-definition.tf",
+      "type": "wordpress",
+      "tags": ["wordpress", "plugin", "theme", "cms", "php"],
+      "author": "Moko Consulting",
+      "license": "GPL-3.0-or-later",
+      "created": "2026-02-27",
+      "updated": "2026-02-27"
+    },
+    {
+      "id": "moko-mobile-v1",
+      "name": "Mobile App Project",
+      "description": "Standard project for mobile application development (React Native, Flutter, Native)",
+      "version": "1.0.0",
+      "url": "https://github.com/mokoconsulting-tech/MokoStandards/raw/main/templates/projects/mobile-app-project-definition.tf",
+      "type": "mobile",
+      "tags": ["mobile", "ios", "android", "react-native", "flutter", "app"],
+      "author": "Moko Consulting",
+      "license": "GPL-3.0-or-later",
+      "created": "2026-02-27",
+      "updated": "2026-02-27"
+    },
+    {
+      "id": "moko-api-v1",
+      "name": "API/Microservices Project",
+      "description": "Standard project for API and microservices development",
+      "version": "1.0.0",
+      "url": "https://github.com/mokoconsulting-tech/MokoStandards/raw/main/templates/projects/api-project-definition.tf",
+      "type": "api",
+      "tags": ["api", "microservices", "rest", "graphql", "grpc", "backend"],
+      "author": "Moko Consulting",
+      "license": "GPL-3.0-or-later",
+      "created": "2026-02-27",
+      "updated": "2026-02-27"
     },
     {
       "id": "moko-documentation-v1",
       "name": "Documentation Governance Project",
       "description": "Control register for documentation artifacts, policies, and compliance tracking",
       "version": "1.0.0",
-      "url": "https://github.com/mokoconsulting-tech/MokoStandards/raw/main/templates/projects/documentation-project-config.json",
+      "url": "https://github.com/mokoconsulting-tech/MokoStandards/raw/main/templates/projects/documentation-project-definition.tf",
       "type": "documentation",
       "tags": ["documentation", "governance", "compliance", "policy"],
       "author": "Moko Consulting",
       "license": "GPL-3.0-or-later",
       "created": "2026-01-04",
-      "updated": "2026-01-04"
+      "updated": "2026-02-27"
     }
   ],
   "metadata": {
-    "registry_version": "1.0.0",
-    "last_updated": "2026-01-04",
+    "registry_version": "2.0.0",
+    "last_updated": "2026-02-27",
     "maintainer": "Moko Consulting",
-    "repository": "https://github.com/mokoconsulting-tech/MokoStandards"
+    "repository": "https://github.com/mokoconsulting-tech/MokoStandards",
+    "template_count": 10,
+    "supported_types": ["joomla", "dolibarr", "generic", "nodejs", "python", "terraform", "wordpress", "mobile", "api", "documentation"]
   }
 }

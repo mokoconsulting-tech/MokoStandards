@@ -491,8 +491,8 @@ protected_files = [...]
 | Version | Date | Changes |
 |---------|------|---------|
 | 04.00.03 | 2026-02-21 | Four-tier enforcement level system introduced |
-| 04.00.02 | 2026-02-20 | Force-override system added |
-| 04.00.01 | 2026-02-19 | Basic override system |
+| 04.00.03 | 2026-02-20 | Force-override system added |
+| 04.00.03 | 2026-02-19 | Basic override system |
 
 ## Support
 

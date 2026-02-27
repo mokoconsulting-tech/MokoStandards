@@ -1197,7 +1197,7 @@ As a certified MokoStandards developer:
 ### Additional Resources
 
 - **[Policy Index](../policy/index.md)**: Quick reference to all policies
-- **[Enterprise Libraries](../../src/Enterprise/)**: Implementation examples
+- **[Enterprise Libraries](../../scripts/lib/Enterprise/)**: Implementation examples
 - **[Automation Scripts](../../scripts/)**: Compliance tools
 - **[GitHub Workflows](../../.github/workflows/)**: CI/CD examples
 

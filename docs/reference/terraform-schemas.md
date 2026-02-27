@@ -26,7 +26,7 @@ The Terraform schema definitions serve as:
 ### Directory Structure
 
 ```
-terraform/
+infrastructure/terraform/
 ├── main.tf                          # Main Terraform configuration
 ├── variables.tf                     # Input variables
 ├── outputs.tf                       # Output definitions
@@ -43,7 +43,7 @@ terraform/
 
 ### 1. Repository Health Configuration
 
-**File**: `terraform/repository-types/repo-health-defaults.tf`
+**File**: `infrastructure/terraform/repository-types/repo-health-defaults.tf`
 
 Defines the repository health scoring system with categories, checks, and thresholds.
 
@@ -153,7 +153,7 @@ readme_present = {
 
 ### 2. Repository Structure Definitions
 
-**File**: `terraform/repository-types/default-repository.tf`
+**File**: `infrastructure/terraform/repository-types/default-repository.tf`
 
 Defines the expected structure for a default repository.
 
@@ -208,7 +208,7 @@ Required and suggested files at repository root:
 
 ### 3. Dev Workstation Configuration
 
-**File**: `terraform/workstation/dev-workstation.tf`
+**File**: `infrastructure/terraform/workstation/dev-workstation.tf`
 
 Defines Windows developer workstation provisioning configuration.
 
@@ -311,7 +311,7 @@ thresholds = reader.get_thresholds()
 
 ### How It Works
 
-1. Reader runs `terraform output -json` in terraform/ directory
+1. Reader runs `terraform output -json` in infrastructure/terraform/ directory
 2. Parses JSON output to extract configuration
 3. Provides dictionary access to configuration
 4. Caches results for performance
@@ -405,7 +405,7 @@ terraform apply tfplan
 ### Making Changes
 
 1. **Edit Terraform Files**
-   - Modify `.tf` files in `terraform/` directory
+   - Modify `.tf` files in `infrastructure/terraform/` directory
    - Update locals blocks with new values
 
 2. **Format and Validate**
@@ -433,7 +433,7 @@ terraform apply tfplan
 
 5. **Commit Changes**
    ```bash
-   git add terraform/
+   git add infrastructure/terraform/
    git commit -m "Update Terraform schema definitions"
    ```
 
@@ -448,9 +448,9 @@ terraform apply tfplan
 ### Excluded from Scans
 
 The confidentiality scan excludes:
-- `terraform/*.tfplan` - Binary plan files
-- `terraform/*.tfstate*` - State files with computed values
-- `terraform/.terraform/*` - Terraform cache
+- `infrastructure/terraform/*.tfplan` - Binary plan files
+- `infrastructure/terraform/*.tfstate*` - State files with computed values
+- `infrastructure/terraform/.terraform/*` - Terraform cache
 
 Terraform definition files (*.tf) ARE scanned for secrets.
 
@@ -584,8 +584,8 @@ Planned additions:
 
 ### Internal Documentation
 
-- [Terraform README](../terraform/README.md) - Overview of Terraform setup
-- [Workstation README](../terraform/workstation/README.md) - Workstation config details
+- [Terraform README](../infrastructure/terraform/README.md) - Overview of Terraform setup
+- [Workstation README](../infrastructure/terraform/workstation/README.md) - Workstation config details
 - [Schema Reference](../docs/reference/schemas.md) - Legacy and current schema info
 - [CHANGELOG](../CHANGELOG.md) - Version history
 

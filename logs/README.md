@@ -310,7 +310,7 @@ In GitHub Actions workflows, logs are automatically captured. For local log stor
 
 - [Scripts README](../scripts/README.md)
 - [Copilot Usage Guide](../docs/guide/copilot-usage-guide.md)
-- [PHP Enterprise Libraries](../src/Enterprise/README.md)
+- [PHP Enterprise Libraries](../scripts/lib/Enterprise/README.md)
 - [PHP-Only Architecture](../docs/guide/php-only-architecture.md)
 
 ## Support

@@ -127,9 +127,9 @@ The following files are excluded from confidentiality scans:
 - `docs/guide/PRIVATE_REPOSITORY_REFERENCE.md` - Documentation about private repository
 - `STANDARDS_COORDINATION.md` - Standards coordination documentation
 - `.github/PRIVATE_TEMPLATES.md` - Private templates reference
-- `terraform/*.tfplan` - Terraform plan files (may contain computed values)
-- `terraform/*.tfstate*` - Terraform state files
-- `terraform/.terraform/*` - Terraform cache directory
+- `infrastructure/terraform/*.tfplan` - Terraform plan files (may contain computed values)
+- `infrastructure/terraform/*.tfstate*` - Terraform state files
+- `infrastructure/terraform/.terraform/*` - Terraform cache directory
 
 **Note:** Terraform `*.tf` files ARE scanned for secrets (as they should be). Only Terraform state/plan/cache files are excluded.
 

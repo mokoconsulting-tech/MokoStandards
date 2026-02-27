@@ -127,7 +127,7 @@ The following languages are prohibited for new automation scripts:
 
 ### Exceptions for Existing Scripts
 
-**Legacy Validation Scripts** in `templates/scripts/validate/`:
+**Legacy Validation Scripts** in `scripts/lib/validate/`:
 - Existing bash scripts (`.sh`) are **grandfathered**
 - May remain as bash for backward compatibility
 - Should not be rewritten unless functional changes needed

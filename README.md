@@ -39,7 +39,7 @@
 [![Policy Documents](https://img.shields.io/badge/Policy_Documents-77-orange.svg)](./docs/policy)
 [![Validation Checks](https://img.shields.io/badge/Validation_Checks-28-brightgreen.svg)](./.github/workflows/standards-compliance.yml)
 [![Enforcement Levels](https://img.shields.io/badge/Enforcement_Levels-6-blue.svg)](./docs/enforcement-levels.md)
-[![PHP Libraries](https://img.shields.io/badge/PHP_Libraries-13-brightgreen.svg)](./src/Enterprise)
+[![PHP Libraries](https://img.shields.io/badge/PHP_Libraries-13-brightgreen.svg)](./scripts/lib/Enterprise)
 [![Training Hours](https://img.shields.io/badge/Training-17.5_hours-blue.svg)](./docs/training)
 
 > **⚠️ Important**: This repository defines organizational policies and standards. **Do not clone or duplicate** this repository to create new projects. Use our [repository templates](#templates) instead.
@@ -92,7 +92,7 @@ MokoStandards uses a graduated six-tier enforcement system for file synchronizat
 | **Templates** | Project templates and configurations | [`templates/`](templates/) |
 | **Workflows** | Reusable GitHub Actions workflows | [`.github/workflows/`](.github/workflows/) |
 | **Visual Docs** | Mermaid diagrams and flowcharts | [`docs/visual/`](docs/visual/) |
-| **Terraform** | Infrastructure configurations with standards | [`terraform/`](terraform/) |
+| **Terraform** | Infrastructure configurations with standards | [`infrastructure/terraform/`](infrastructure/terraform/) |
 
 ### Repository Structure
 
@@ -102,7 +102,7 @@ MokoStandards/
 │   ├── enforcement-levels.md  # 45KB comprehensive enforcement guide
 │   ├── policy/        # 77 policy documents
 │   ├── training/      # 7 sessions, 17.5 hours total
-│   ├── terraform/     # Terraform documentation
+│   ├── infrastructure/terraform/     # Terraform documentation
 │   ├── guide/         # User guides and tutorials
 │   ├── reference/     # Technical references
 │   └── visual/        # Mermaid diagrams and flowcharts
@@ -115,7 +115,7 @@ MokoStandards/
 │   ├── wrappers/      # Cross-platform wrappers (106)
 │   └── [other dirs]/  # Additional script categories
 ├── templates/         # Project templates and configurations
-├── terraform/         # Infrastructure as code (12 standardized files)
+├── infrastructure/terraform/         # Infrastructure as code (12 standardized files)
 ├── .github/
 │   ├── config.tf      # Override configuration (standard location)
 │   └── workflows/     # 28 validation checks + reusable workflows
@@ -133,7 +133,7 @@ MokoStandards/
 │   ├── wrappers/      # Cross-platform wrappers (106)
 │   └── [other dirs]/  # Additional script categories
 ├── templates/         # Project templates and configurations
-├── terraform/         # Infrastructure as code
+├── infrastructure/terraform/         # Infrastructure as code
 ├── .github/
 │   └── workflows/     # Reusable GitHub Actions workflows
 └── schemas/           # JSON schemas for validation

@@ -358,7 +358,7 @@ Requirements:
    - maintenance/ - Changelog, versioning, cleanup
    - release/ - Packaging, deployment
 3. Include wrapper scripts (bash and PowerShell)
-4. Setup logs/ directory structure
+4. Setup var/logs/ directory structure
 
 Key scripts to deploy:
 1. **Validation Scripts**:
@@ -380,14 +380,14 @@ Key scripts to deploy:
 
 4. **Support Infrastructure**:
    - lib/common.py (shared utilities)
-   - logs/ directory structure
+   - var/logs/ directory structure
    - wrappers/ (bash and PowerShell wrappers)
 
 Process:
 1. Create scripts/ directory structure
 2. Copy relevant scripts based on repository type
 3. Copy lib/ directory with shared utilities
-4. Create logs/ directory with subdirectories
+4. Create var/logs/ directory with subdirectories
 5. Copy wrapper scripts for cross-platform support
 6. Make scripts executable
 7. Test key scripts
@@ -413,7 +413,7 @@ scripts/
 │   └── powershell/
 └── README.md
 
-logs/
+var/logs/
 ├── automation/
 ├── validation/
 ├── maintenance/
@@ -429,7 +429,7 @@ logs/
 
 1. **Check directory structure**:
    ```bash
-   tree scripts/ logs/ -L 2
+   tree scripts/ var/logs/ -L 2
    ```
 
 2. **Verify executability**:
@@ -504,7 +504,7 @@ Steps to execute:
 **Phase 5: Scripts Deployment**
 1. Create scripts/ directory structure
 2. Copy validation, automation, and maintenance scripts
-3. Setup logs/ directory
+3. Setup var/logs/ directory
 4. Create wrappers for cross-platform support
 5. Make scripts executable
 

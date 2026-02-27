@@ -1,0 +1,91 @@
+name: Validate Generic Project
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: Validate Generic Project
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Checkout MokoStandards
+        uses: actions/checkout@v4
+        with:
+          repository: mokoshalb/MokoStandards
+          path: .moko-standards
+          ref: main
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mbstring, json, fileinfo
+
+      - name: Install MokoStandards dependencies
+        working-directory: .moko-standards
+        run: composer install --prefer-dist --no-progress
+
+      - name: Run Generic validation
+        id: validate
+        run: |
+          php .moko-standards/api/plugin_validate.php \
+            --project-path . \
+            --project-type generic \
+            --json > validation-results.json
+          
+          cat validation-results.json
+          
+          if jq -e '.valid == false' validation-results.json > /dev/null; then
+            echo "::error::Project validation failed"
+            exit 1
+          fi
+
+      - name: Run health check
+        id: health
+        run: |
+          php .moko-standards/api/plugin_health_check.php \
+            --project-path . \
+            --project-type generic \
+            --json > health-results.json
+          
+          cat health-results.json
+
+      - name: Collect metrics
+        id: metrics
+        run: |
+          php .moko-standards/api/plugin_metrics.php \
+            --project-path . \
+            --project-type generic \
+            --json > metrics-results.json
+          
+          cat metrics-results.json
+
+      - name: Check release readiness
+        id: readiness
+        run: |
+          php .moko-standards/api/plugin_readiness.php \
+            --project-path . \
+            --project-type generic \
+            --json > readiness-results.json
+          
+          cat readiness-results.json
+
+      - name: Upload validation artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: generic-validation-results
+          path: |
+            validation-results.json
+            health-results.json
+            metrics-results.json
+            readiness-results.json
+          retention-days: 30

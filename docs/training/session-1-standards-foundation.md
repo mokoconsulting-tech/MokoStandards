@@ -87,7 +87,7 @@ MokoStandards/
 │   ├── training/                  # Training materials (this file!)
 │   ├── automation/                # Automation documentation
 │   └── workflows/                 # Workflow documentation
-├── src/Enterprise/                # 13 PHP enterprise libraries
+├── scripts/lib/Enterprise/                # 13 PHP enterprise libraries
 ├── templates/                     # Standard templates
 │   ├── github/                    # GitHub templates (issues, PRs)
 │   ├── docs/                      # Documentation templates
@@ -593,7 +593,7 @@ After completing Session 0, you're ready for:
 ### Tools
 - **[Automation Scripts](../../scripts/)**: Compliance automation tools
 - **[Templates](../../templates/)**: Standard templates
-- **[Enterprise Libraries](../../src/Enterprise/)**: PHP libraries implementing standards
+- **[Enterprise Libraries](../../scripts/lib/Enterprise/)**: PHP libraries implementing standards
 
 ### Support
 - **GitHub Issues**: Report standards questions or issues

@@ -419,8 +419,8 @@ terraform validate
 | Version | Date | Changes |
 |---------|------|---------|
 | 04.00.03 | 2026-02-21 | Enhanced validation and force-override documentation |
-| 04.00.02 | 2026-02-20 | Moved to .github/config.tf standard location |
-| 04.00.01 | 2026-02-19 | Initial override system |
+| 04.00.03 | 2026-02-20 | Moved to .github/config.tf standard location |
+| 04.00.03 | 2026-02-19 | Initial override system |
 
 ## Support
 

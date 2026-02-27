@@ -95,7 +95,7 @@ Enterprise libraries are production-ready, reusable code modules that provide:
 
 ### 1. AuditLogger Library ⭐ CRITICAL
 
-**File**: `src/Enterprise/AuditLogger.php` (470 lines)
+**File**: `scripts/lib/Enterprise/AuditLogger.php` (470 lines)
 
 **Purpose**: Structured audit logging with transaction tracking for compliance and debugging.
 
@@ -178,7 +178,7 @@ echo "Found " . count($report) . " audit events\n";
 
 ### 2. ApiClient Library ⭐ CRITICAL
 
-**File**: `src/Enterprise/ApiClient.php` (580 lines)
+**File**: `scripts/lib/Enterprise/ApiClient.php` (580 lines)
 
 **Purpose**: Rate-limited, resilient API interactions with automatic retry and circuit breaker.
 
@@ -252,7 +252,7 @@ echo "Remaining requests: {$status['remaining']}/{$status['limit']}\n";
 
 ### 3. CliFramework Library
 
-**File**: `src/Enterprise/CliFramework.php` (470 lines)
+**File**: `scripts/lib/Enterprise/CliFramework.php` (470 lines)
 
 **Purpose**: Standardized command-line interface for all automation scripts.
 
@@ -356,7 +356,7 @@ php my_script.php --org mokoconsulting-tech --json
 
 ### 4. Config Library
 
-**File**: `src/Enterprise/Config.php` (320 lines)
+**File**: `scripts/lib/Enterprise/Config.php` (320 lines)
 
 **Purpose**: Environment-aware configuration management with validation.
 
@@ -435,7 +435,7 @@ logging:
 
 ### 5. ErrorRecovery Library ⭐ HIGH PRIORITY
 
-**File**: `src/Enterprise/ErrorRecovery.php` (390 lines)
+**File**: `scripts/lib/Enterprise/ErrorRecovery.php` (390 lines)
 
 **Purpose**: Automatic error recovery with retry logic and checkpointing.
 
@@ -528,7 +528,7 @@ if ($checkpoint->hasFailures()) {
 
 ### 6. InputValidator Library
 
-**File**: `src/Enterprise/InputValidator.php` (450 lines)
+**File**: `scripts/lib/Enterprise/InputValidator.php` (450 lines)
 
 **Purpose**: Comprehensive input sanitization and validation.
 
@@ -588,7 +588,7 @@ $username = $validator->validate('john_doe123', 'username');
 
 ### 7. MetricsCollector Library
 
-**File**: `src/Enterprise/MetricsCollector.php` (340 lines)
+**File**: `scripts/lib/Enterprise/MetricsCollector.php` (340 lines)
 
 **Purpose**: Collect, track, and export metrics for observability.
 
@@ -655,7 +655,7 @@ echo "Total processed: {$totalProcessed}\n";
 
 ### 8. SecurityValidator Library ⭐ HIGH PRIORITY
 
-**File**: `src/Enterprise/SecurityValidator.php` (430 lines)
+**File**: `scripts/lib/Enterprise/SecurityValidator.php` (430 lines)
 
 **Purpose**: Security scanning and validation for scripts and code.
 
@@ -703,7 +703,7 @@ $safePath = $validator->validatePath($userInput);
 **Exercise 1.8**: Security scanning
 ```php
 <?php
-// TODO: Scan the src/Enterprise directory for security issues
+// TODO: Scan the scripts/lib/Enterprise directory for security issues
 // Print a summary of findings by severity
 ```
 
@@ -711,7 +711,7 @@ $safePath = $validator->validatePath($userInput);
 
 ### 9. TransactionManager Library
 
-**File**: `src/Enterprise/TransactionManager.php` (300 lines)
+**File**: `scripts/lib/Enterprise/TransactionManager.php` (300 lines)
 
 **Purpose**: Atomic operations with automatic rollback on failure.
 
@@ -787,7 +787,7 @@ echo "Completed " . count($history) . " transactions\n";
 
 ### 10. UnifiedValidation Library
 
-**File**: `src/Enterprise/UnifiedValidation.php` (450 lines)
+**File**: `scripts/lib/Enterprise/UnifiedValidation.php` (450 lines)
 
 **Purpose**: Multi-source validation framework with pluggable validators.
 
@@ -841,7 +841,7 @@ if ($result->isValid()) {
 
 ### 11. RepositorySynchronizer Library
 
-**File**: `src/Enterprise/RepositorySynchronizer.php` (280 lines)
+**File**: `scripts/lib/Enterprise/RepositorySynchronizer.php` (280 lines)
 
 **Purpose**: Automated repository synchronization and configuration management.
 
@@ -898,7 +898,7 @@ $synchronizer->syncBranchProtection(
 
 ### 12. RepositoryHealthChecker Library
 
-**File**: `src/Enterprise/RepositoryHealthChecker.php` (320 lines)
+**File**: `scripts/lib/Enterprise/RepositoryHealthChecker.php` (320 lines)
 
 **Purpose**: Comprehensive repository health monitoring and reporting.
 
@@ -950,7 +950,7 @@ foreach ($health['checks'] as $check) {
 
 ### 13. EnterpriseReadinessValidator Library
 
-**File**: `src/Enterprise/EnterpriseReadinessValidator.php` (280 lines)
+**File**: `scripts/lib/Enterprise/EnterpriseReadinessValidator.php` (280 lines)
 
 **Purpose**: Validate enterprise compliance and readiness standards.
 
@@ -1043,7 +1043,7 @@ A: Yes! All libraries support extension via inheritance and composition. See sou
 
 ### Resources for Further Learning
 
-1. **Source Code**: `/src/Enterprise/` - Read the actual implementation
+1. **Source Code**: `/scripts/lib/Enterprise/` - Read the actual implementation
 2. **Tests**: `/tests/` - See usage examples in unit tests
 3. **Documentation**: `/docs/automation/README.md` - Complete automation guide
 4. **Planning**: `/docs/planning/README.md` - Implementation roadmap
@@ -1104,7 +1104,7 @@ A: Yes! All libraries support extension via inheritance and composition. See sou
 
 ### Next Steps
 1. ✅ Complete all hands-on exercises
-2. 📝 Review library source code in `src/Enterprise/`
+2. 📝 Review library source code in `scripts/lib/Enterprise/`
 3. 🔨 Migrate a simple script to use 2-3 libraries
 4. 📚 Read Session 2 materials before next session
 5. ❓ Prepare questions for Session 2

@@ -18,7 +18,7 @@ This directory contains documentation for all Terraform configurations in the Mo
 ## Directory Structure
 
 ```
-docs/terraform/
+docs/infrastructure/terraform/
 ├── README.md                           # This file
 ├── main.md                             # Main terraform configuration
 ├── variables.md                        # Variable definitions
@@ -43,19 +43,19 @@ docs/terraform/
 
 | Category | File | Documentation | Purpose |
 |----------|------|---------------|---------|
-| **Core** | `terraform/main.tf` | [main.md](main.md) | Main terraform configuration |
-| **Core** | `terraform/variables.tf` | [variables.md](variables.md) | Input variable definitions |
-| **Core** | `terraform/outputs.tf` | [outputs.md](outputs.md) | Output value definitions |
+| **Core** | `infrastructure/terraform/main.tf` | [main.md](main.md) | Main terraform configuration |
+| **Core** | `infrastructure/terraform/variables.tf` | [variables.md](variables.md) | Input variable definitions |
+| **Core** | `infrastructure/terraform/outputs.tf` | [outputs.md](outputs.md) | Output value definitions |
 | **Override** | `.github/config.tf` | [config-override.md](config-override.md) | Repository-specific overrides |
-| **Management** | `terraform/repository-management/main.tf` | [repository-management/main.md](repository-management/main.md) | GitHub repository management |
-| **Types** | `terraform/repository-types/default-repository.tf` | [repository-types/default-repository.md](repository-types/default-repository.md) | Default repo settings |
-| **Types** | `terraform/repository-types/repo-health-defaults.tf` | [repository-types/repo-health-defaults.md](repository-types/repo-health-defaults.md) | Health check defaults |
-| **Webserver** | `terraform/webserver/ubuntu-dev-webserver.tf` | [webserver/ubuntu-dev-webserver.md](webserver/ubuntu-dev-webserver.md) | Ubuntu dev server |
-| **Webserver** | `terraform/webserver/ubuntu-prod-webserver.tf` | [webserver/ubuntu-prod-webserver.md](webserver/ubuntu-prod-webserver.md) | Ubuntu prod server |
-| **Webserver** | `terraform/webserver/windows-dev-webserver.tf` | [webserver/windows-dev-webserver.md](webserver/windows-dev-webserver.md) | Windows dev server |
-| **Webserver** | `terraform/webserver/windows-prod-webserver.tf` | [webserver/windows-prod-webserver.md](webserver/windows-prod-webserver.md) | Windows prod server |
-| **Workstation** | `terraform/workstation/ubuntu-dev-workstation.tf` | [workstation/ubuntu-dev-workstation.md](workstation/ubuntu-dev-workstation.md) | Ubuntu workstation |
-| **Workstation** | `terraform/workstation/windows-dev-workstation.tf` | [workstation/windows-dev-workstation.md](workstation/windows-dev-workstation.md) | Windows workstation |
+| **Management** | `infrastructure/terraform/repository-management/main.tf` | [repository-management/main.md](repository-management/main.md) | GitHub repository management |
+| **Types** | `infrastructure/terraform/repository-types/default-repository.tf` | [repository-types/default-repository.md](repository-types/default-repository.md) | Default repo settings |
+| **Types** | `infrastructure/terraform/repository-types/repo-health-defaults.tf` | [repository-types/repo-health-defaults.md](repository-types/repo-health-defaults.md) | Health check defaults |
+| **Webserver** | `infrastructure/terraform/webserver/ubuntu-dev-webserver.tf` | [webserver/ubuntu-dev-webserver.md](webserver/ubuntu-dev-webserver.md) | Ubuntu dev server |
+| **Webserver** | `infrastructure/terraform/webserver/ubuntu-prod-webserver.tf` | [webserver/ubuntu-prod-webserver.md](webserver/ubuntu-prod-webserver.md) | Ubuntu prod server |
+| **Webserver** | `infrastructure/terraform/webserver/windows-dev-webserver.tf` | [webserver/windows-dev-webserver.md](webserver/windows-dev-webserver.md) | Windows dev server |
+| **Webserver** | `infrastructure/terraform/webserver/windows-prod-webserver.tf` | [webserver/windows-prod-webserver.md](webserver/windows-prod-webserver.md) | Windows prod server |
+| **Workstation** | `infrastructure/terraform/workstation/ubuntu-dev-workstation.tf` | [workstation/ubuntu-dev-workstation.md](workstation/ubuntu-dev-workstation.md) | Ubuntu workstation |
+| **Workstation** | `infrastructure/terraform/workstation/windows-dev-workstation.tf` | [workstation/windows-dev-workstation.md](workstation/windows-dev-workstation.md) | Windows workstation |
 
 ## Quick Start
 
@@ -174,8 +174,8 @@ All terraform files in this repository follow [Terraform File Standards](../poli
 | Version | Date | Changes |
 |---------|------|---------|
 | 04.00.03 | 2026-02-21 | Comprehensive terraform documentation added |
-| 04.00.02 | 2026-02-20 | Override system standardized |
-| 04.00.01 | 2026-02-19 | Initial terraform structure |
+| 04.00.03 | 2026-02-20 | Override system standardized |
+| 04.00.03 | 2026-02-19 | Initial terraform structure |
 
 ## Contributing
 

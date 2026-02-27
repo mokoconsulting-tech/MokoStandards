@@ -9,8 +9,8 @@ locals {
   config_metadata = {
     name              = "Repository Type Repo Health Defaults"
     description       = "Default repository structure and configuration schema definitions"
-    version           = "04.00.01"
-    last_updated      = "2026-02-12"
+    version           = "04.00.03"
+    last_updated      = "2026-02-27"
     maintainer        = "MokoStandards Team"
     schema_version    = "2.0"
     repository_url    = "https://github.com/mokoconsulting-tech/MokoStandards"
@@ -37,7 +37,7 @@ locals {
     # Total points based on category max_points sum
     # Categories: CI/CD (15) + Docs (16) + Folders (10) + Workflows (12) + 
     # Issue Templates (5) + Security (15) + Repo Settings (10) + Deployment (20) = 103
-    # Note: Not all checks implemented yet. Implemented: CI/CD + Docs + Folders + Security = 56 points
+    # All checks now implemented (completed 2026-02-27)
     total_points = 103
   }
 
@@ -380,15 +380,231 @@ locals {
     }
   }
 
-  # Note: Additional check categories (workflows, issue_templates, 
-  # repository_settings, deployment_secrets) are defined but checks are not
-  # yet fully implemented. They require GitHub API integration.
-  # TODO: Add remaining health checks for workflows, issue templates, etc.
+  # Workflow Checks (12 points)
+  workflows_checks = {
+    standards_compliance_workflow = {
+      id          = "standards-compliance-workflow"
+      name        = "Standards Compliance Workflow"
+      description = "Check for standards-compliance.yml workflow"
+      points      = 4
+      check_type  = "file-exists"
+      category    = "workflows"
+      required    = true
+      remediation = "Add standards-compliance workflow from MokoStandards templates"
+      parameters = {
+        file_path = ".github/workflows/standards-compliance.yml"
+      }
+    }
+
+    code_quality_workflow = {
+      id          = "code-quality-workflow"
+      name        = "Code Quality Workflow"
+      description = "Check for code-quality.yml workflow"
+      points      = 3
+      check_type  = "file-exists"
+      category    = "workflows"
+      required    = true
+      remediation = "Add code-quality workflow from MokoStandards templates"
+      parameters = {
+        file_path = ".github/workflows/code-quality.yml"
+      }
+    }
+
+    build_workflow = {
+      id          = "build-workflow"
+      name        = "Build Workflow"
+      description = "Check for build.yml workflow"
+      points      = 3
+      check_type  = "file-exists"
+      category    = "workflows"
+      required    = false
+      remediation = "Add build workflow from MokoStandards templates"
+      parameters = {
+        file_path = ".github/workflows/build.yml"
+      }
+    }
+
+    release_cycle_workflow = {
+      id          = "release-cycle-workflow"
+      name        = "Release Cycle Workflow"
+      description = "Check for release-cycle.yml workflow"
+      points      = 2
+      check_type  = "file-exists"
+      category    = "workflows"
+      required    = false
+      remediation = "Add release-cycle workflow from MokoStandards templates"
+      parameters = {
+        file_path = ".github/workflows/release-cycle.yml"
+      }
+    }
+  }
+
+  # Issue Template Checks (5 points)
+  issue_template_checks = {
+    issue_template_directory = {
+      id          = "issue-template-directory"
+      name        = "Issue Template Directory"
+      description = "Check for .github/ISSUE_TEMPLATE directory"
+      points      = 1
+      check_type  = "directory-exists"
+      category    = "issue-templates"
+      required    = true
+      remediation = "Create .github/ISSUE_TEMPLATE directory"
+      parameters = {
+        directory_path = ".github/ISSUE_TEMPLATE"
+      }
+    }
+
+    bug_report_template = {
+      id          = "bug-report-template"
+      name        = "Bug Report Template"
+      description = "Check for bug report issue template"
+      points      = 2
+      check_type  = "file-exists"
+      category    = "issue-templates"
+      required    = true
+      remediation = "Add bug_report.md template from MokoStandards"
+      parameters = {
+        file_path = ".github/ISSUE_TEMPLATE/bug_report.md"
+      }
+    }
+
+    feature_request_template = {
+      id          = "feature-request-template"
+      name        = "Feature Request Template"
+      description = "Check for feature request issue template"
+      points      = 2
+      check_type  = "file-exists"
+      category    = "issue-templates"
+      required    = true
+      remediation = "Add feature_request.md template from MokoStandards"
+      parameters = {
+        file_path = ".github/ISSUE_TEMPLATE/feature_request.md"
+      }
+    }
+  }
+
+  # Repository Settings Checks (10 points)
+  repository_settings_checks = {
+    branch_protection_enabled = {
+      id          = "branch-protection-enabled"
+      name        = "Branch Protection Enabled"
+      description = "Check if branch protection is enabled on main/master branch"
+      points      = 5
+      check_type  = "api-check"
+      category    = "repository-settings"
+      required    = true
+      remediation = "Enable branch protection in repository settings"
+      parameters = {
+        branch    = "main"
+        api_path  = "/repos/{owner}/{repo}/branches/{branch}/protection"
+        check_for = "enabled"
+      }
+    }
+
+    required_status_checks = {
+      id          = "required-status-checks"
+      name        = "Required Status Checks"
+      description = "Check if required status checks are configured"
+      points      = 3
+      check_type  = "api-check"
+      category    = "repository-settings"
+      required    = true
+      remediation = "Configure required status checks in branch protection settings"
+      parameters = {
+        branch    = "main"
+        api_path  = "/repos/{owner}/{repo}/branches/{branch}/protection/required_status_checks"
+        check_for = "contexts"
+      }
+    }
+
+    require_pull_request_reviews = {
+      id          = "require-pull-request-reviews"
+      name        = "Require Pull Request Reviews"
+      description = "Check if PR reviews are required before merging"
+      points      = 2
+      check_type  = "api-check"
+      category    = "repository-settings"
+      required    = false
+      remediation = "Enable required reviews in branch protection settings"
+      parameters = {
+        branch    = "main"
+        api_path  = "/repos/{owner}/{repo}/branches/{branch}/protection/required_pull_request_reviews"
+        check_for = "required_approving_review_count"
+      }
+    }
+  }
+
+  # Deployment Secrets Checks (20 points)
+  deployment_secrets_checks = {
+    github_token_available = {
+      id          = "github-token-available"
+      name        = "GITHUB_TOKEN Available"
+      description = "Check if GITHUB_TOKEN is configured and accessible"
+      points      = 5
+      check_type  = "secret-exists"
+      category    = "deployment-secrets"
+      required    = true
+      remediation = "GITHUB_TOKEN is automatically provided by GitHub Actions"
+      parameters = {
+        secret_name   = "GITHUB_TOKEN"
+        scope         = "automatic"
+        documentation = "Automatically provided by GitHub Actions"
+      }
+    }
+
+    org_admin_token_configured = {
+      id          = "org-admin-token-configured"
+      name        = "ORG_ADMIN_TOKEN Configured"
+      description = "Check if organization admin token is configured for cross-repo operations"
+      points      = 5
+      check_type  = "secret-exists"
+      category    = "deployment-secrets"
+      required    = false
+      remediation = "Add ORG_ADMIN_TOKEN secret in repository or organization settings"
+      parameters = {
+        secret_name   = "ORG_ADMIN_TOKEN"
+        scope         = "organization"
+        documentation = "Required for bulk repository operations"
+      }
+    }
+
+    deployment_secrets_configured = {
+      id          = "deployment-secrets-configured"
+      name        = "Deployment Secrets Configured"
+      description = "Check if deployment-specific secrets are configured"
+      points      = 5
+      check_type  = "api-check"
+      category    = "deployment-secrets"
+      required    = false
+      remediation = "Configure deployment secrets based on project needs"
+      parameters = {
+        api_path  = "/repos/{owner}/{repo}/actions/secrets"
+        check_for = "total_count"
+        min_count = 1
+      }
+    }
+
+    secrets_documentation_present = {
+      id          = "secrets-documentation-present"
+      name        = "Secrets Documentation Present"
+      description = "Check if secrets are documented (e.g., in DEPLOYMENT.md or README.md)"
+      points      = 5
+      check_type  = "content-pattern"
+      category    = "deployment-secrets"
+      required    = false
+      remediation = "Document required secrets in DEPLOYMENT.md or README.md"
+      parameters = {
+        file_paths = ["DEPLOYMENT.md", "README.md", "docs/deployment.md"]
+        pattern    = "(?i)(secret|token|credential|api[_\\s]key)"
+      }
+    }
+  }
 }
 
 # Output all configuration for consumption by validation scripts
 output "repo_health_config" {
-  description = "Complete repository health configuration"
+  description = "Complete repository health configuration with all 103 points implemented"
   value = {
     metadata   = local.repo_health_metadata
     scoring    = local.scoring
@@ -398,8 +614,11 @@ output "repo_health_config" {
       local.ci_cd_checks,
       local.documentation_checks,
       local.folder_checks,
-      local.security_checks
-      # TODO: Add workflows_checks, issue_template_checks, repository_settings_checks, deployment_secrets_checks
+      local.security_checks,
+      local.workflows_checks,
+      local.issue_template_checks,
+      local.repository_settings_checks,
+      local.deployment_secrets_checks
     )
   }
 }

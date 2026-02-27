@@ -451,7 +451,6 @@ jobs:
             });
             console.log(`Created tracking issue #${issue.data.number}`);
 
-
       - name: Create tracking issue on failure
         if: failure()
         uses: actions/github-script@v8

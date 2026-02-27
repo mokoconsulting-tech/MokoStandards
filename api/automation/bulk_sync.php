@@ -29,6 +29,8 @@ use MokoStandards\Enterprise\{
     CLIApp,
     Config,
     MetricsCollector,
+    PluginFactory,
+    ProjectTypeDetector,
     RateLimitExceeded,
     RepositorySynchronizer,
     SecurityValidator,
@@ -60,6 +62,8 @@ class BulkSync extends CLIApp
     private AuditLogger $logger;
     private CheckpointManager $checkpoints;
     private SecurityValidator $security;
+    private PluginFactory $pluginFactory;
+    private ProjectTypeDetector $typeDetector;
     
     /**
      * Setup command-line arguments
@@ -162,7 +166,11 @@ class BulkSync extends CLIApp
                 $this->checkpoints
             );
             
-            $this->log("✓ Enterprise components initialized", 'INFO');
+            // Initialize plugin system
+            $this->pluginFactory = new PluginFactory($this->logger, $this->metrics);
+            $this->typeDetector = new ProjectTypeDetector($this->logger);
+            
+            $this->log("✓ Enterprise components initialized with plugin system", 'INFO');
             return true;
             
         } catch (\Exception $e) {

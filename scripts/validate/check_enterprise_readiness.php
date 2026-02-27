@@ -93,7 +93,7 @@ class EnterpriseReadinessChecker extends CliFramework
         $required = ['ApiClient', 'AuditLogger', 'Config', 'ErrorRecovery', 'MetricsCollector'];
         
         foreach ($required as $library) {
-            $phpFile = "{$path}/src/Enterprise/{$library}.php";
+            $phpFile = "{$path}/scripts/lib/Enterprise/{$library}.php";
             $this->addResult(
                 "Enterprise library: {$library}",
                 file_exists($phpFile),

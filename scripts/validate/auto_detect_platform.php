@@ -19,7 +19,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../../src/Enterprise/CliFramework.php';
+require_once __DIR__ . '/../lib/Enterprise/CliFramework.php';
 
 use MokoStandards\Enterprise\CLIApp;
 

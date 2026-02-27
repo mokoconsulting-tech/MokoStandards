@@ -10,7 +10,7 @@
  * DEFGROUP: MokoStandards.Enterprise
  * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
- * PATH: /src/Enterprise/RepositorySynchronizer.php
+ * PATH: /scripts/lib/Enterprise/RepositorySynchronizer.php
  * VERSION: 04.00.03
  * BRIEF: Repository synchronization enterprise library
  */

@@ -10,7 +10,7 @@
  * DEFGROUP: MokoStandards.Enterprise
  * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
- * PATH: /src/Enterprise/EnterpriseReadinessValidator.php
+ * PATH: /scripts/lib/Enterprise/EnterpriseReadinessValidator.php
  * VERSION: 04.00.03
  * BRIEF: Enterprise readiness validation library
  */
@@ -92,7 +92,7 @@ class EnterpriseReadinessValidator
         ];
         
         foreach ($required as $library) {
-            $phpFile = "{$path}/src/Enterprise/{$library}.php";
+            $phpFile = "{$path}/scripts/lib/Enterprise/{$library}.php";
             $this->addResult(
                 "Enterprise library: {$library}",
                 file_exists($phpFile),

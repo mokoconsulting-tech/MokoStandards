@@ -285,7 +285,7 @@ class BulkSync extends CLIApp
                 $this->log("The bulk repository sync is failing silently because the core", 'ERROR');
                 $this->log("synchronization logic has not been implemented yet.", 'ERROR');
                 $this->log("", 'ERROR');
-                $this->log("Location: src/Enterprise/RepositorySynchronizer.php", 'ERROR');
+                $this->log("Location: scripts/lib/Enterprise/RepositorySynchronizer.php", 'ERROR');
                 $this->log("Method: processRepository()", 'ERROR');
                 $this->log("", 'ERROR');
                 $this->log("Required Implementation:", 'ERROR');

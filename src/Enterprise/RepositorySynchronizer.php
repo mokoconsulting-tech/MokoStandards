@@ -350,7 +350,7 @@ class RepositorySynchronizer
                         
                         // Update existing file
                         $this->apiClient->put("/repos/{$org}/{$repo}/contents/{$targetPath}", [
-                            'message' => "chore: update " . basename($targetPath) . " from MokoStandards",
+                            'message' => "chore: update {$targetPath} from MokoStandards",
                             'content' => base64_encode($content),
                             'sha' => $existingSha,
                             'branch' => $branchName,
@@ -365,7 +365,7 @@ class RepositorySynchronizer
                         // File doesn't exist, create it
                         try {
                             $this->apiClient->put("/repos/{$org}/{$repo}/contents/{$targetPath}", [
-                                'message' => "chore: add " . basename($targetPath) . " from MokoStandards",
+                                'message' => "chore: add {$targetPath} from MokoStandards",
                                 'content' => base64_encode($content),
                                 'branch' => $branchName,
                             ]);
@@ -460,8 +460,9 @@ class RepositorySynchronizer
         
         // Summary statistics
         $body .= "### Summary\n";
-        $body .= "- ✅ **Copied**: " . count($summary['copied']) . " files\n";
-        $body .= "- ⏭️ **Skipped**: " . count($summary['skipped']) . " files\n";
+        $body .= "- 🆕 **Created**: " . count(array_filter($summary['copied'], fn($i) => $i['action'] === 'created')) . " files\n";
+        $body .= "- 🔄 **Updated**: " . count(array_filter($summary['copied'], fn($i) => $i['action'] === 'updated')) . " files\n";
+        $body .= "- ⚠️ **Skipped**: " . count($summary['skipped']) . " files\n";
         $body .= "- 📊 **Total**: " . $summary['total'] . " files processed\n\n";
         
         // List copied files

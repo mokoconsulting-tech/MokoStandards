@@ -55,6 +55,8 @@ class RepoHealthChecker extends CliFramework
         $this->addArgument('--path', 'Repository path to check', '.');
         $this->addArgument('--threshold', 'Minimum health threshold (%)', '70');
         $this->addArgument('--json', 'Output results as JSON', false);
+        $this->addArgument('--create-issue', 'Create GitHub issue with results', false);
+        $this->addArgument('--repo', 'Repository name (owner/repo)', '');
     }
     
     protected function initialize(): void
@@ -73,6 +75,8 @@ class RepoHealthChecker extends CliFramework
         $path = $this->getArgument('--path');
         $threshold = (float)$this->getArgument('--threshold');
         $jsonOutput = $this->getArgument('--json');
+        $createIssue = $this->getArgument('--create-issue');
+        $repo = $this->getArgument('--repo');
         
         $this->log("Checking repository health: {$path}");
         
@@ -90,6 +94,13 @@ class RepoHealthChecker extends CliFramework
             echo json_encode($this->results, JSON_PRETTY_PRINT) . PHP_EOL;
         } else {
             $this->displayResults();
+        }
+        
+        // Create GitHub issue if requested
+        if ($createIssue && !empty($repo)) {
+            $this->createHealthIssue($repo);
+        } elseif ($createIssue && empty($repo)) {
+            $this->warn("--create-issue requires --repo parameter (format: owner/repo)");
         }
         
         // Record metrics
@@ -310,7 +321,151 @@ class RepoHealthChecker extends CliFramework
             }
         }
     }
-}
+    
+    private function createHealthIssue(string $repo): void
+    {
+        $this->log("Creating health check issue for {$repo}");
+        
+        $token = getenv('GITHUB_TOKEN') ?: getenv('GH_TOKEN');
+        if (empty($token)) {
+            $this->error("GITHUB_TOKEN or GH_TOKEN environment variable required");
+            return;
+        }
+        
+        // Prepare issue body
+        $body = $this->generateIssueBody();
+        
+        // Determine issue title and labels based on health level
+        $labels = ['health-check'];
+        if ($this->results['percentage'] >= 90) {
+            $title = "✅ Repository Health Check: Excellent ({$this->results['percentage']}%)";
+            $labels[] = 'health-excellent';
+        } elseif ($this->results['percentage'] >= 70) {
+            $title = "⚠️ Repository Health Check: Good ({$this->results['percentage']}%)";
+            $labels[] = 'health-good';
+        } elseif ($this->results['percentage'] >= 50) {
+            $title = "🟡 Repository Health Check: Fair ({$this->results['percentage']}%)";
+            $labels[] = 'health-fair';
+        } else {
+            $title = "❌ Repository Health Check: Critical ({$this->results['percentage']}%)";
+            $labels[] = 'health-critical';
+        }
+        
+        // Create issue via GitHub API
+        $url = "https://api.github.com/repos/{$repo}/issues";
+        $data = [
+            'title' => $title,
+            'body' => $body,
+            'labels' => $labels,
+        ];
+        
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => json_encode($data),
+            CURLOPT_HTTPHEADER => [
+                'Authorization: token ' . $token,
+                'Content-Type: application/json',
+                'User-Agent: MokoStandards-HealthCheck',
+                'Accept: application/vnd.github.v3+json',
+            ],
+        ]);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        
+        if ($httpCode >= 200 && $httpCode < 300) {
+            $result = json_decode($response, true);
+            $issueNumber = $result['number'] ?? 'unknown';
+            $this->log("✅ Created issue #{$issueNumber} in {$repo}");
+        } else {
+            $this->error("Failed to create issue (HTTP {$httpCode})");
+            if ($response) {
+                $error = json_decode($response, true);
+                $this->error("Error: " . ($error['message'] ?? $response));
+            }
+        }
+    }
+    
+    private function generateIssueBody(): string
+    {
+        $body = "## Repository Health Check Results\n\n";
+        $body .= "**Generated**: " . date('Y-m-d H:i:s T') . "\n";
+        $body .= "**Overall Score**: {$this->results['score']}/{$this->results['max_score']} points ({$this->results['percentage']}%)\n";
+        $body .= "**Health Level**: " . strtoupper($this->results['level']) . "\n\n";
+        
+        // Category breakdown
+        $body .= "### Category Breakdown\n\n";
+        $body .= "| Category | Score | Percentage | Passed | Failed |\n";
+        $body .= "|----------|-------|------------|--------|--------|\n";
+        
+        foreach ($this->results['categories'] as $category) {
+            $pct = $category['max_points'] > 0 
+                ? ($category['earned_points'] / $category['max_points'] * 100) 
+                : 0;
+            
+            $body .= sprintf(
+                "| %s | %d/%d | %.1f%% | %d | %d |\n",
+                $category['name'],
+                $category['earned_points'],
+                $category['max_points'],
+                $pct,
+                $category['checks_passed'],
+                $category['checks_failed']
+            );
+        }
+        
+        // Failed checks details
+        $failedChecks = array_filter($this->results['checks'], fn($c) => !$c['passed']);
+        if (!empty($failedChecks)) {
+            $body .= "\n### ❌ Failed Checks\n\n";
+            
+            $byCategory = [];
+            foreach ($failedChecks as $check) {
+                $cat = $this->results['categories'][$check['category']]['name'];
+                if (!isset($byCategory[$cat])) {
+                    $byCategory[$cat] = [];
+                }
+                $byCategory[$cat][] = $check;
+            }
+            
+            foreach ($byCategory as $catName => $checks) {
+                $body .= "**{$catName}**\n";
+                foreach ($checks as $check) {
+                    $body .= "- ❌ {$check['name']} ({$check['points']} points)\n";
+                }
+                $body .= "\n";
+            }
+        } else {
+            $body .= "\n### ✅ All Checks Passed!\n\n";
+            $body .= "This repository has passed all health checks. Excellent work! 🎉\n\n";
+        }
+        
+        // Recommendations
+        if (!empty($failedChecks)) {
+            $body .= "### 📋 Recommendations\n\n";
+            $body .= "To improve repository health:\n\n";
+            foreach ($failedChecks as $check) {
+                $body .= "1. **{$check['name']}**: Address this check to gain {$check['points']} points\n";
+            }
+            $body .= "\n";
+        }
+        
+        // Health thresholds
+        $body .= "### 📊 Health Thresholds\n\n";
+        $body .= "- ✅ **Excellent**: ≥90%\n";
+        $body .= "- ⚠️ **Good**: 70-89%\n";
+        $body .= "- 🟡 **Fair**: 50-69%\n";
+        $body .= "- ❌ **Critical**: <50%\n\n";
+        
+        $body .= "---\n";
+        $body .= "*This issue was automatically created by the MokoStandards repository health checker.*\n";
+        $body .= "*To customize health checks, edit `.github/override.tf` in your repository.*\n";
+        
+        return $body;
+    }
 
 // Run the application
 $app = new RepoHealthChecker();

@@ -1,0 +1,114 @@
+# Repository Health Check Override Configuration
+# Location: .github/override.tf
+# 
+# This file allows repository-specific customization of health checks.
+# It overrides the default configuration from MokoStandards.
+# 
+# AUTO-GENERATED: This file is automatically synced from MokoStandards
+# To customize: Edit this file and it will be preserved on future syncs
+
+locals {
+  # Repository-specific metadata
+  override_metadata = {
+    repository_name = "REPOSITORY_NAME_PLACEHOLDER"
+    repository_type = "REPOSITORY_TYPE_PLACEHOLDER" # Options: generic, nodejs, terraform, joomla, dolibarr, standards
+    override_reason = "Repository-specific health check customization"
+    last_updated    = "AUTO_UPDATED"
+    auto_synced     = true
+  }
+  
+  # Disable specific checks (by check ID)
+  # Uncomment and add check IDs to disable them
+  disabled_checks = [
+    # Example: "npm-publish-workflow",
+    # Example: "deployment-secrets-documented",
+    # Example: "terraform-docs-generation",
+  ]
+  
+  # Adjust point values for specific checks
+  # Uncomment and modify to change point values
+  custom_point_values = {
+    # Example: "ci-workflow-present" = 10  # Increase from default
+    # Example: "security-scan" = 15
+    # Example: "branch-protection-enabled" = 8
+  }
+  
+  # Custom category point adjustments
+  # Uncomment to override entire category point totals
+  custom_category_points = {
+    # Example: ci_cd_status = 20
+    # Example: security = 25
+    # Example: workflows = 15
+  }
+  
+  # Custom threshold percentages
+  # Uncomment to adjust pass/fail thresholds
+  custom_thresholds = {
+    # excellent = 95  # Default: 90
+    # good      = 80  # Default: 70
+    # fair      = 60  # Default: 50
+    # poor      = 0   # Default: 0
+  }
+  
+  # Additional repository-specific checks
+  # Add custom checks unique to this repository
+  additional_checks = {
+    # Example custom check:
+    # custom_database_migration = {
+    #   id          = "custom-database-migration"
+    #   name        = "Database Migration Scripts"
+    #   description = "Check for database migration scripts"
+    #   points      = 5
+    #   check_type  = "directory-exists"
+    #   category    = "required-folders"
+    #   required    = false
+    #   remediation = "Add database migration scripts"
+    #   parameters  = {
+    #     directory_path = "db/migrations"
+    #   }
+    # }
+  }
+  
+  # File sync exclusions
+  # Files to exclude from automatic sync
+  sync_exclusions = [
+    # Example: ".github/workflows/custom-workflow.yml",
+    # Example: ".github/ISSUE_TEMPLATE/custom-template.md",
+  ]
+  
+  # Protected files
+  # Files that should never be overwritten by sync
+  protected_files = [
+    # Example: ".github/workflows/deployment.yml",
+    # Example: "scripts/release/custom-release.sh",
+  ]
+}
+
+# Export overrides for consumption by health check validation
+output "health_check_overrides" {
+  description = "Repository-specific health check overrides"
+  value = {
+    metadata          = local.override_metadata
+    disabled_checks   = local.disabled_checks
+    custom_points     = local.custom_point_values
+    custom_categories = local.custom_category_points
+    custom_thresholds = local.custom_thresholds
+    additional_checks = local.additional_checks
+    sync_exclusions   = local.sync_exclusions
+    protected_files   = local.protected_files
+  }
+}
+
+# Override configuration summary
+output "override_summary" {
+  description = "Summary of active overrides"
+  value = {
+    total_disabled_checks    = length(local.disabled_checks)
+    total_custom_points      = length(local.custom_point_values)
+    total_custom_categories  = length(local.custom_category_points)
+    total_additional_checks  = length(local.additional_checks)
+    total_sync_exclusions    = length(local.sync_exclusions)
+    total_protected_files    = length(local.protected_files)
+    has_custom_thresholds    = length(local.custom_thresholds) > 0
+  }
+}

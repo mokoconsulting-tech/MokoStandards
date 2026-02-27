@@ -213,8 +213,8 @@ jobs:
           MISSING_FILES=()
 
           # Check for platform detection script
-          if [ ! -f "scripts/validate/auto_detect_platform.php" ]; then
-            MISSING_FILES+=("scripts/validate/auto_detect_platform.php")
+          if [ ! -f "api/validate/auto_detect_platform.php" ]; then
+            MISSING_FILES+=("api/validate/auto_detect_platform.php")
           fi
 
           # Check for schema definition files required by bulk_update_repos.php
@@ -277,7 +277,7 @@ jobs:
           echo "**Arguments:** \`$ARGS\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          if php scripts/automation/bulk_sync.php $ARGS 2>&1 | tee /tmp/bulk_sync.log; then
+          if php api/automation/bulk_sync.php $ARGS 2>&1 | tee /tmp/bulk_sync.log; then
             echo "### ✅ Dry Run Completed Successfully" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "Review the logs above to see what changes would be made." >> $GITHUB_STEP_SUMMARY
@@ -327,7 +327,7 @@ jobs:
           fi
 
           # Run the script with automatic confirmation via --yes flag
-          if php scripts/automation/bulk_sync.php $ARGS 2>&1 | tee /tmp/bulk_sync.log; then
+          if php api/automation/bulk_sync.php $ARGS 2>&1 | tee /tmp/bulk_sync.log; then
             echo "### ✅ Bulk Sync Completed Successfully" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "All repositories have been updated with the latest standards." >> $GITHUB_STEP_SUMMARY
@@ -402,7 +402,7 @@ jobs:
             4. Monitor for any issues in target repositories
 
             ### 📚 Resources
-            - [Bulk Sync Script](scripts/automation/bulk_sync.php)
+            - [Bulk Sync Script](api/automation/bulk_sync.php)
             - [Workflow Configuration](.github/workflows/bulk-repo-sync.yml)
             - [MokoStandards Documentation](https://github.com/mokoconsulting-tech/MokoStandards)
 
@@ -502,7 +502,7 @@ jobs:
             6. Update the bulk_sync.php script if there's a bug
 
             ### 📚 Resources
-            - [Bulk Sync Script](scripts/automation/bulk_sync.php)
+            - [Bulk Sync Script](api/automation/bulk_sync.php)
             - [Workflow Configuration](.github/workflows/bulk-repo-sync.yml)
             - [MokoStandards Documentation](https://github.com/mokoconsulting-tech/MokoStandards)
 

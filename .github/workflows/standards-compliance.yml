@@ -960,8 +960,8 @@ jobs:
           echo "## 🔢 Version Consistency Validation" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          if [ -f "scripts/validate/check_version_consistency.php" ]; then
-            php scripts/validate/check_version_consistency.php --verbose | tee /tmp/version-check.log
+          if [ -f "api/validate/check_version_consistency.php" ]; then
+            php api/validate/check_version_consistency.php --verbose | tee /tmp/version-check.log
             EXIT_CODE=$?
 
             echo "" >> $GITHUB_STEP_SUMMARY
@@ -1053,8 +1053,8 @@ jobs:
           echo "## 🏢 Enterprise Readiness Validation" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          if [ -f "scripts/validate/check_enterprise_readiness.php" ]; then
-            php scripts/validate/check_enterprise_readiness.php --verbose | tee /tmp/enterprise-check.log
+          if [ -f "api/validate/check_enterprise_readiness.php" ]; then
+            php api/validate/check_enterprise_readiness.php --verbose | tee /tmp/enterprise-check.log
             EXIT_CODE=$?
 
             echo "" >> $GITHUB_STEP_SUMMARY
@@ -1099,8 +1099,8 @@ jobs:
           echo "## 🏥 Repository Health Check" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          if [ -f "scripts/validate/check_repo_health.php" ]; then
-            php scripts/validate/check_repo_health.php --verbose | tee /tmp/health-check.log
+          if [ -f "api/validate/check_repo_health.php" ]; then
+            php api/validate/check_repo_health.php --verbose | tee /tmp/health-check.log
             EXIT_CODE=$?
 
             echo "" >> $GITHUB_STEP_SUMMARY

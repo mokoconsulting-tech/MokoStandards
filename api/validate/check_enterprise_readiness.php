@@ -23,7 +23,9 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 use MokoStandards\Enterprise\{
     AuditLogger,
     CliFramework,
-    SecurityValidator
+    SecurityValidator,
+    PluginFactory,
+    ProjectTypeDetector
 };
 
 /**
@@ -35,6 +37,8 @@ class EnterpriseReadinessChecker extends CliFramework
 {
     private AuditLogger $logger;
     private SecurityValidator $securityValidator;
+    private PluginFactory $pluginFactory;
+    private ?object $projectPlugin = null;
     
     private array $results = [];
     
@@ -51,8 +55,10 @@ class EnterpriseReadinessChecker extends CliFramework
         
         $this->logger = new AuditLogger('enterprise_readiness');
         $this->securityValidator = new SecurityValidator();
+        $metrics = new \MokoStandards\Enterprise\MetricsCollector();
+        $this->pluginFactory = new PluginFactory($this->logger, $metrics);
         
-        $this->log('Enterprise readiness checker initialized');
+        $this->log('Enterprise readiness checker initialized with plugin system');
     }
     
     protected function run(): int
@@ -62,7 +68,31 @@ class EnterpriseReadinessChecker extends CliFramework
         
         $this->log("Checking enterprise readiness: {$path}");
         
-        // Run enterprise checks
+        // Try to load the project plugin
+        $this->projectPlugin = $this->pluginFactory->createForProject($path);
+        
+        if ($this->projectPlugin) {
+            $pluginName = $this->projectPlugin->getPluginName();
+            $projectType = $this->projectPlugin->getProjectType();
+            $this->log("Using plugin: {$pluginName} for type: {$projectType}");
+            
+            // Use plugin's readiness check if available
+            $pluginReadiness = $this->projectPlugin->checkReadiness($path, []);
+            
+            if (!empty($pluginReadiness)) {
+                $this->log("Plugin readiness check: " . ($pluginReadiness['ready'] ? 'READY' : 'NOT READY'));
+                $this->results['plugin_readiness'] = [
+                    'passed' => $pluginReadiness['ready'],
+                    'score' => $pluginReadiness['score'] ?? 0,
+                    'blockers' => $pluginReadiness['blockers'] ?? [],
+                    'warnings' => $pluginReadiness['warnings'] ?? [],
+                ];
+            }
+        } else {
+            $this->log("No plugin found, using generic readiness checks");
+        }
+        
+        // Run standard enterprise checks (backwards compatible)
         $this->checkEnterpriseLibraries($path);
         $this->checkMonitoring($path);
         $this->checkAuditLogging($path);

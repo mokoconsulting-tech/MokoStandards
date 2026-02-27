@@ -24,7 +24,9 @@ use MokoStandards\Enterprise\{
     AuditLogger,
     CliFramework,
     MetricsCollector,
-    UnifiedValidation
+    UnifiedValidation,
+    PluginFactory,
+    ProjectTypeDetector
 };
 
 /**
@@ -39,6 +41,8 @@ class RepoHealthChecker extends CliFramework
     private AuditLogger $logger;
     private MetricsCollector $metrics;
     private UnifiedValidation $validator;
+    private PluginFactory $pluginFactory;
+    private ?object $projectPlugin = null;
     
     private array $results = [
         'categories' => [],
@@ -66,8 +70,9 @@ class RepoHealthChecker extends CliFramework
         $this->logger = new AuditLogger('repo_health_checker');
         $this->metrics = new MetricsCollector();
         $this->validator = new UnifiedValidation();
+        $this->pluginFactory = new PluginFactory($this->logger, $this->metrics);
         
-        $this->log('Repository health checker initialized');
+        $this->log('Repository health checker initialized with plugin system');
     }
     
     protected function run(): int
@@ -80,7 +85,27 @@ class RepoHealthChecker extends CliFramework
         
         $this->log("Checking repository health: {$path}");
         
-        // Run checks
+        // Try to load the project plugin
+        $this->projectPlugin = $this->pluginFactory->createForProject($path);
+        
+        if ($this->projectPlugin) {
+            $pluginName = $this->projectPlugin->getPluginName();
+            $projectType = $this->projectPlugin->getProjectType();
+            $this->log("Using plugin: {$pluginName} for type: {$projectType}");
+            
+            // Use plugin's health check if available
+            $pluginHealth = $this->projectPlugin->healthCheck($path, []);
+            
+            // Merge plugin health check results
+            if (!empty($pluginHealth)) {
+                $this->results['plugin_health'] = $pluginHealth;
+                $this->log("Plugin health check completed: {$pluginHealth['score']}/100");
+            }
+        } else {
+            $this->log("No plugin found, using generic health checks");
+        }
+        
+        // Run standard checks (backwards compatible)
         $this->runStructureChecks($path);
         $this->runDocumentationChecks($path);
         $this->runWorkflowChecks($path);

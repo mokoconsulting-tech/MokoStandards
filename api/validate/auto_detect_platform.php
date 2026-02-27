@@ -21,7 +21,14 @@ declare(strict_types=1);
 require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/../lib/Enterprise/CliFramework.php';
 
-use MokoStandards\Enterprise\CLIApp;
+use MokoStandards\Enterprise\{
+    CLIApp,
+    ProjectTypeDetector,
+    PluginFactory,
+    PluginRegistry,
+    AuditLogger,
+    MetricsCollector
+};
 
 /**
  * Automatic Platform Detection and Validation
@@ -33,6 +40,9 @@ class AutoDetectPlatform extends CLIApp
 {
     private const DETECTION_THRESHOLD = 0.5; // 50% confidence required
     
+    private ProjectTypeDetector $typeDetector;
+    private PluginFactory $pluginFactory;
+    
     private array $detectionResults = [
         'joomla' => ['score' => 0, 'indicators' => []],
         'dolibarr' => ['score' => 0, 'indicators' => []],
@@ -42,11 +52,13 @@ class AutoDetectPlatform extends CLIApp
         'wordpress' => ['score' => 0, 'indicators' => []],
         'mobile' => ['score' => 0, 'indicators' => []],
         'api' => ['score' => 0, 'indicators' => []],
+        'documentation' => ['score' => 0, 'indicators' => []],
         'generic' => ['score' => 0, 'indicators' => []],
     ];
     
     private string $detectedPlatform = 'generic';
     private string $schemaFile = '';
+    private ?object $detectedPlugin = null;
     
     protected function setupArguments(): array
     {
@@ -80,18 +92,49 @@ class AutoDetectPlatform extends CLIApp
         
         $this->log("Analyzing repository: {$repoPath}", 'INFO');
         
-        // Run platform detection
-        $this->detectJoomla($repoPath);
-        $this->detectDolibarr($repoPath);
-        $this->detectNodeJS($repoPath);
-        $this->detectPython($repoPath);
-        $this->detectTerraform($repoPath);
-        $this->detectWordPress($repoPath);
-        $this->detectMobile($repoPath);
-        $this->detectAPI($repoPath);
+        // Initialize plugin system
+        $logger = new AuditLogger();
+        $metrics = new MetricsCollector();
+        $this->pluginFactory = new PluginFactory($logger, $metrics);
+        $this->typeDetector = new ProjectTypeDetector($logger);
         
-        // Determine platform
-        $this->determinePlatform();
+        // Use the new plugin system for detection
+        $this->log("Using ProjectTypeDetector for platform detection", 'INFO');
+        $detectionResult = $this->typeDetector->detectProjectType($repoPath);
+        
+        if (!empty($detectionResult['type'])) {
+            $this->detectedPlatform = $detectionResult['type'];
+            $this->log("Detected platform via plugin system: {$this->detectedPlatform}", 'INFO');
+            
+            // Try to get the plugin for this type
+            $this->detectedPlugin = $this->pluginFactory->createForProject($repoPath);
+            
+            if ($this->detectedPlugin) {
+                $this->log("Loaded plugin: {$this->detectedPlugin->getPluginName()}", 'INFO');
+                
+                // Update detection results with plugin info
+                $this->detectionResults[$this->detectedPlatform] = [
+                    'score' => $detectionResult['confidence'] ?? 1.0,
+                    'indicators' => $detectionResult['indicators'] ?? [],
+                ];
+            }
+        } else {
+            // Fallback to legacy detection if plugin system doesn't detect anything
+            $this->log("Plugin system did not detect type, using legacy detection", 'WARNING');
+            
+            // Run platform detection using legacy methods
+            $this->detectJoomla($repoPath);
+            $this->detectDolibarr($repoPath);
+            $this->detectNodeJS($repoPath);
+            $this->detectPython($repoPath);
+            $this->detectTerraform($repoPath);
+            $this->detectWordPress($repoPath);
+            $this->detectMobile($repoPath);
+            $this->detectAPI($repoPath);
+            
+            // Determine platform
+            $this->determinePlatform();
+        }
         
         // Map to schema file
         $this->schemaFile = $this->mapPlatformToSchema($schemaDir);
@@ -113,6 +156,10 @@ class AutoDetectPlatform extends CLIApp
         
         $this->log("Platform detection completed: {$this->detectedPlatform}", 'INFO');
         $this->log("Schema file: {$this->schemaFile}", 'INFO');
+        
+        if ($this->detectedPlugin) {
+            $this->log("Plugin available for validation and health checks", 'INFO');
+        }
         
         return 0;
     }
@@ -564,6 +611,7 @@ class AutoDetectPlatform extends CLIApp
             'wordpress' => 'wordpress-repository.xml',
             'mobile' => 'mobile-app-repository.xml',
             'api' => 'api-repository.xml',
+            'documentation' => 'documentation-repository.xml',
             'generic' => 'default-repository.xml',
         ];
         
@@ -605,7 +653,16 @@ class AutoDetectPlatform extends CLIApp
             'detection_results' => $this->detectionResults,
             'threshold' => self::DETECTION_THRESHOLD,
             'timestamp' => date('c'),
+            'plugin_available' => $this->detectedPlugin !== null,
         ];
+        
+        if ($this->detectedPlugin) {
+            $output['plugin_info'] = [
+                'name' => $this->detectedPlugin->getPluginName(),
+                'version' => $this->detectedPlugin->getPluginVersion(),
+                'type' => $this->detectedPlugin->getProjectType(),
+            ];
+        }
         
         echo json_encode($output, JSON_PRETTY_PRINT) . PHP_EOL;
     }

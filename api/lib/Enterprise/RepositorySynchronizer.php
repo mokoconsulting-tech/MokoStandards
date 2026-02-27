@@ -213,6 +213,20 @@ class RepositorySynchronizer
                 'package_dolibarr.sh' => 'scripts/release/package_dolibarr.sh',
                 'package_joomla.sh' => 'scripts/release/package_joomla.sh',
             ],
+            
+            // Project definition files (Terraform HCL format)
+            'projects' => [
+                'nodejs-project-definition.tf' => '.github/project-definition.tf',
+                'python-project-definition.tf' => '.github/project-definition.tf',
+                'terraform-project-definition.tf' => '.github/project-definition.tf',
+                'wordpress-project-definition.tf' => '.github/project-definition.tf',
+                'mobile-app-project-definition.tf' => '.github/project-definition.tf',
+                'api-project-definition.tf' => '.github/project-definition.tf',
+                'joomla-project-definition.tf' => '.github/project-definition.tf',
+                'dolibarr-project-definition.tf' => '.github/project-definition.tf',
+                'generic-project-definition.tf' => '.github/project-definition.tf',
+                'documentation-project-definition.tf' => '.github/project-definition.tf',
+            ],
         ];
         
         // Check if there's already a PR open for this repo
@@ -437,6 +451,8 @@ class RepositorySynchronizer
                 return "{$baseDir}/templates/github/ISSUE_TEMPLATE/{$sourceFile}";
             case 'scripts':
                 return "{$baseDir}/templates/scripts/release/{$sourceFile}";
+            case 'projects':
+                return "{$baseDir}/templates/projects/{$sourceFile}";
             default:
                 return "{$baseDir}/templates/{$sourceFile}";
         }

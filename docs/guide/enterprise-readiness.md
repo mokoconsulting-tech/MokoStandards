@@ -67,16 +67,16 @@ Use this checklist to assess and track enterprise readiness:
 ### Core Infrastructure (40 points)
 
 - [ ] **Enterprise Libraries** (10 points)
-  - [ ] `src/Enterprise/EnterpriseAudit.php` - Audit logging framework
-  - [ ] `src/Enterprise/AuditLogger.php` - Structured audit logs
-  - [ ] `src/Enterprise/ValidationFramework.php` - Validation infrastructure
-  - [ ] `src/Enterprise/UnifiedValidation.php` - Unified validation APIs
-  - [ ] `src/Enterprise/ConfigManager.php` - Configuration management
-  - [ ] `src/Enterprise/SecurityValidator.php` - Security validation
-  - [ ] `src/Enterprise/ErrorRecovery.php` - Error handling and recovery
-  - [ ] `src/Enterprise/TransactionManager.php` - Transaction management
-  - [ ] `src/Enterprise/CliFramework.php` - CLI framework
-  - [ ] `src/Enterprise/Common.php` - Common utilities
+  - [ ] `scripts/lib/Enterprise/EnterpriseAudit.php` - Audit logging framework
+  - [ ] `scripts/lib/Enterprise/AuditLogger.php` - Structured audit logs
+  - [ ] `scripts/lib/Enterprise/ValidationFramework.php` - Validation infrastructure
+  - [ ] `scripts/lib/Enterprise/UnifiedValidation.php` - Unified validation APIs
+  - [ ] `scripts/lib/Enterprise/ConfigManager.php` - Configuration management
+  - [ ] `scripts/lib/Enterprise/SecurityValidator.php` - Security validation
+  - [ ] `scripts/lib/Enterprise/ErrorRecovery.php` - Error handling and recovery
+  - [ ] `scripts/lib/Enterprise/TransactionManager.php` - Transaction management
+  - [ ] `scripts/lib/Enterprise/CliFramework.php` - CLI framework
+  - [ ] `scripts/lib/Enterprise/Common.php` - Common utilities
 
 - [ ] **Enterprise Workflows** (10 points)
   - [ ] `.github/workflows/audit-log-archival.yml` - Audit log management
@@ -134,7 +134,7 @@ Use this checklist to assess and track enterprise readiness:
 
 ### 1. Enterprise Libraries (10 Required)
 
-Located in `src/Enterprise/`, these provide core enterprise functionality:
+Located in `scripts/lib/Enterprise/`, these provide core enterprise functionality:
 
 #### `EnterpriseAudit.php`
 Comprehensive audit logging with:
@@ -325,7 +325,7 @@ For fine-grained control or learning purposes, you can set up components manuall
 ### Step 1: Create Directory Structure
 
 ```bash
-mkdir -p src/Enterprise
+mkdir -p scripts/lib/Enterprise
 mkdir -p .github/workflows
 mkdir -p logs/audit
 mkdir -p logs/metrics
@@ -344,10 +344,10 @@ From MokoStandards repository:
 
 ```bash
 # Copy all enterprise libraries
-cp -r MokoStandards/src/Enterprise src/
+cp -r MokoStandards/scripts/lib/Enterprise src/
 
 # Set appropriate permissions
-chmod -R 755 src/Enterprise/
+chmod -R 755 scripts/lib/Enterprise/
 ```
 
 ### Step 3: Copy Enterprise Workflows

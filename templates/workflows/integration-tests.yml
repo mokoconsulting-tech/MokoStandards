@@ -19,7 +19,7 @@ on:
     branches:
       - main
     paths:
-      - 'src/Enterprise/**'
+      - 'scripts/lib/Enterprise/**'
       - 'src/**/*.php'
   workflow_dispatch:
     inputs:

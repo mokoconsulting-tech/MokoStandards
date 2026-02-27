@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../src/Enterprise/MetricsCollector.php';
-require_once __DIR__ . '/../src/Enterprise/SecurityValidator.php';
-require_once __DIR__ . '/../src/Enterprise/TransactionManager.php';
-require_once __DIR__ . '/../src/Enterprise/UnifiedValidation.php';
-require_once __DIR__ . '/../src/Enterprise/CliFramework.php';
+require_once __DIR__ . '/../scripts/lib/Enterprise/MetricsCollector.php';
+require_once __DIR__ . '/../scripts/lib/Enterprise/SecurityValidator.php';
+require_once __DIR__ . '/../scripts/lib/Enterprise/TransactionManager.php';
+require_once __DIR__ . '/../scripts/lib/Enterprise/UnifiedValidation.php';
+require_once __DIR__ . '/../scripts/lib/Enterprise/CliFramework.php';
 
 use MokoStandards\Enterprise\MetricsCollector;
 use MokoStandards\Enterprise\SecurityValidator;

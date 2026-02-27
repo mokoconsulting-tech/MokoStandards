@@ -39,7 +39,7 @@
 [![Policy Documents](https://img.shields.io/badge/Policy_Documents-77-orange.svg)](./docs/policy)
 [![Validation Checks](https://img.shields.io/badge/Validation_Checks-28-brightgreen.svg)](./.github/workflows/standards-compliance.yml)
 [![Enforcement Levels](https://img.shields.io/badge/Enforcement_Levels-6-blue.svg)](./docs/enforcement-levels.md)
-[![PHP Libraries](https://img.shields.io/badge/PHP_Libraries-13-brightgreen.svg)](./src/Enterprise)
+[![PHP Libraries](https://img.shields.io/badge/PHP_Libraries-13-brightgreen.svg)](./scripts/lib/Enterprise)
 [![Training Hours](https://img.shields.io/badge/Training-17.5_hours-blue.svg)](./docs/training)
 
 > **⚠️ Important**: This repository defines organizational policies and standards. **Do not clone or duplicate** this repository to create new projects. Use our [repository templates](#templates) instead.

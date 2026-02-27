@@ -346,7 +346,7 @@ jobs:
 
 See these files for complete examples:
 
-- `src/Enterprise/ExecutionSummary.php` - PHP implementation
+- `scripts/lib/Enterprise/ExecutionSummary.php` - PHP implementation
 - `.github/workflows/standards-compliance.yml` - Workflow example
 
 ## Benefits

@@ -359,7 +359,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Health reports now generate successfully to `logs/health/health-report.json`
 - Circuit breaker testing works properly with environment safeguards
 - Files affected:
-  - `src/Enterprise/ApiClient.php` (+30 lines)
+  - `scripts/lib/Enterprise/ApiClient.php` (+30 lines)
   - `.github/workflows/health-check.yml` (+12/-8 lines)
   - `templates/workflows/health-check.yml` (+12/-8 lines)
 

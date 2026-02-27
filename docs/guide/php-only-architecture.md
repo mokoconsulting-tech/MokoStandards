@@ -79,7 +79,7 @@ MokoStandards is a **100% PHP-only system** providing enterprise-grade libraries
 
 ## PHP Enterprise Libraries
 
-MokoStandards includes **13 production-ready enterprise libraries** located in `src/Enterprise/`:
+MokoStandards includes **13 production-ready enterprise libraries** located in `scripts/lib/Enterprise/`:
 
 ### Core Libraries (4)
 

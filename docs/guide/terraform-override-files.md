@@ -117,7 +117,7 @@ With an override file, you can:
 
 ### Available Enterprise Features
 
-#### 1. Enterprise Libraries (src/Enterprise/)
+#### 1. Enterprise Libraries (scripts/lib/Enterprise/)
 - **EnterpriseAudit.php** - Transaction tracking and security event logging
 - **ApiClient.php** - Rate limiting, circuit breaker, and response caching
 - **ErrorRecovery.php** - Automatic retry, checkpointing, and state recovery

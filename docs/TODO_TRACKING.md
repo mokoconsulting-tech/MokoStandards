@@ -20,7 +20,7 @@ This document tracks all TODO items found in the MokoStandards repository. TODOs
 
 ### ✅ RepositorySynchronizer Implementation
 **Status**: ✅ COMPLETED (2026-02-27)
-- **Location**: `src/Enterprise/RepositorySynchronizer.php`
+- **Location**: `scripts/lib/Enterprise/RepositorySynchronizer.php`
 - **Issue**: Previously threw `SynchronizationNotImplementedException`
 - **Resolution**: Full implementation completed with GitHub API integration
 - **Verification**: Bulk sync workflow operational, circuit breaker reset implemented
@@ -128,7 +128,7 @@ The following are project management status labels, not code TODOs:
 - These are configuration values and examples, not actual TODOs
 
 ## Security Validator Keywords
-**Location**: `src/Enterprise/SecurityValidator.php:223`
+**Location**: `scripts/lib/Enterprise/SecurityValidator.php:223`
 **Context**: Array of keywords to detect: `'todo'` (lowercase)
 **Status**: ✅ SECURITY FEATURE
 - Purpose: Detect placeholder credentials

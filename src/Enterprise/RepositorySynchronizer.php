@@ -240,27 +240,149 @@ class RepositorySynchronizer
     private function createSyncPR(string $org, string $repo, array $workflows): ?int
     {
         try {
-            // Get default branch
+            // Get repository info
             $repoInfo = $this->apiClient->get("/repos/{$org}/{$repo}");
             $defaultBranch = $repoInfo['default_branch'] ?? 'main';
-            
-            // Create a new branch (we'll use the API to create files directly)
             $branchName = 'chore/sync-mokostandards-updates';
             
-            // For now, just create a placeholder PR
-            // Full implementation would create actual file changes
-            $this->logger->logWarning("PR creation not yet fully implemented - would create PR for {$repo}");
-            $this->logger->logInfo("This requires:");
-            $this->logger->logInfo("  1. Reading template files from templates/workflows/");
-            $this->logger->logInfo("  2. Creating commits via GitHub API");
-            $this->logger->logInfo("  3. Creating PR with proper title and body");
+            $this->logger->logInfo("Creating sync PR for {$org}/{$repo}");
+            $this->logger->logInfo("Default branch: {$defaultBranch}, Target branch: {$branchName}");
             
-            return null;
+            // Get the SHA of the default branch
+            $refData = $this->apiClient->get("/repos/{$org}/{$repo}/git/ref/heads/{$defaultBranch}");
+            $baseSha = $refData['object']['sha'];
+            
+            // Check if branch already exists, delete it if it does
+            try {
+                $this->apiClient->delete("/repos/{$org}/{$repo}/git/refs/heads/{$branchName}");
+                $this->logger->logInfo("Deleted existing branch {$branchName}");
+            } catch (Exception $e) {
+                // Branch doesn't exist, that's fine
+                $this->logger->logInfo("Branch {$branchName} doesn't exist yet");
+            }
+            
+            // Create new branch
+            $this->apiClient->post("/repos/{$org}/{$repo}/git/refs", [
+                'ref' => "refs/heads/{$branchName}",
+                'sha' => $baseSha,
+            ]);
+            $this->logger->logInfo("Created branch {$branchName}");
+            
+            // Read and create files
+            $filesCreated = 0;
+            $baseDir = dirname(dirname(__DIR__)); // Go up to repository root
+            
+            foreach ($workflows as $sourceFile => $targetFile) {
+                $sourcePath = "{$baseDir}/templates/workflows/{$sourceFile}";
+                
+                if (!file_exists($sourcePath)) {
+                    $this->logger->logWarning("Source file not found: {$sourcePath}");
+                    continue;
+                }
+                
+                $content = file_get_contents($sourcePath);
+                if ($content === false) {
+                    $this->logger->logWarning("Failed to read: {$sourcePath}");
+                    continue;
+                }
+                
+                // Remove .template extension from content if needed
+                // and update any repository-specific placeholders
+                $content = $this->processTemplateContent($content, $repo);
+                
+                // Create or update file
+                $targetPath = ".github/workflows/{$targetFile}";
+                
+                try {
+                    // Try to get existing file to get its SHA
+                    $existingFile = $this->apiClient->get("/repos/{$org}/{$repo}/contents/{$targetPath}", [
+                        'ref' => $branchName,
+                    ]);
+                    $existingSha = $existingFile['sha'];
+                    
+                    // Update existing file
+                    $this->apiClient->put("/repos/{$org}/{$repo}/contents/{$targetPath}", [
+                        'message' => "chore: update {$targetFile} from MokoStandards",
+                        'content' => base64_encode($content),
+                        'sha' => $existingSha,
+                        'branch' => $branchName,
+                    ]);
+                    $this->logger->logInfo("Updated file: {$targetPath}");
+                    
+                } catch (Exception $e) {
+                    // File doesn't exist, create it
+                    $this->apiClient->put("/repos/{$org}/{$repo}/contents/{$targetPath}", [
+                        'message' => "chore: add {$targetFile} from MokoStandards",
+                        'content' => base64_encode($content),
+                        'branch' => $branchName,
+                    ]);
+                    $this->logger->logInfo("Created file: {$targetPath}");
+                }
+                
+                $filesCreated++;
+            }
+            
+            if ($filesCreated === 0) {
+                $this->logger->logWarning("No files were created/updated");
+                return null;
+            }
+            
+            // Create pull request
+            $prData = $this->apiClient->post("/repos/{$org}/{$repo}/pulls", [
+                'title' => 'chore: Sync MokoStandards workflows and configurations',
+                'head' => $branchName,
+                'base' => $defaultBranch,
+                'body' => $this->generatePRBody($filesCreated),
+            ]);
+            
+            $prNumber = $prData['number'] ?? null;
+            $this->logger->logInfo("Created PR #{$prNumber} with {$filesCreated} files");
+            
+            return $prNumber;
             
         } catch (Exception $e) {
             $this->logger->logError("Failed to create PR: " . $e->getMessage());
             return null;
         }
+    }
+    
+    /**
+     * Process template content (remove placeholders, etc.)
+     */
+    private function processTemplateContent(string $content, string $repo): string
+    {
+        // Remove .template references if any
+        $content = str_replace('.yml.template', '.yml', $content);
+        
+        // Could add more template processing here
+        // For example, replacing {{repo_name}} with actual repo name
+        $content = str_replace('{{repo_name}}', $repo, $content);
+        
+        return $content;
+    }
+    
+    /**
+     * Generate PR body text
+     */
+    private function generatePRBody(int $fileCount): string
+    {
+        return <<<EOT
+## MokoStandards Synchronization
+
+This PR synchronizes workflows and configurations from the MokoStandards repository.
+
+### Changes
+- Updated {$fileCount} workflow file(s)
+- Synced from latest MokoStandards templates
+
+### Review Notes
+- Please review the workflow changes carefully
+- Ensure no custom configurations are overwritten
+- Test workflows after merging
+
+---
+*This PR was automatically generated by the MokoStandards bulk sync process.*
+EOT;
     }
     
     /**

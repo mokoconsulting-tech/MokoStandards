@@ -339,12 +339,12 @@ Each training session includes:
 - **[PHP-Only Architecture](../guide/php-only-architecture.md)**: Complete architecture guide
 - **[Automation Guide](../automation/README.md)**: Complete automation documentation
 - **[Planning Roadmap](../planning/README.md)**: Implementation roadmap and future plans
-- **[Library Source Code](../../src/Enterprise/)**: Full source code for all 13 PHP libraries
+- **[Library Source Code](../../scripts/lib/Enterprise/)**: Full source code for all 13 PHP libraries
 - **[Integration Tests](../../.github/workflows/integration-tests.yml)**: Test examples
 
 ### Code Examples
 - **[Sample PHP Scripts](../../scripts/)**: Production-ready PHP automation scripts
-- **[PHP Enterprise Libraries](../../src/Enterprise/)**: 13 enterprise-grade PHP classes
+- **[PHP Enterprise Libraries](../../scripts/lib/Enterprise/)**: 13 enterprise-grade PHP classes
 - **[Web Interface](../../public/)**: Material Design 3 web dashboard
 - **[Composer Configuration](../../composer.json)**: Dependency management setup
 
@@ -480,7 +480,7 @@ We continuously improve this training program based on participant feedback.
 | **Policy Documents** | [docs/policy/](../policy/index.md) |
 | **Security Policies** | [docs/policy/security/](../policy/security/index.md) |
 | **Quality Policies** | [docs/policy/quality/](../policy/quality/index.md) |
-| **PHP Libraries** | [src/Enterprise/](../../src/Enterprise/) |
+| **PHP Libraries** | [scripts/lib/Enterprise/](../../scripts/lib/Enterprise/) |
 | **PHP Architecture** | [docs/guide/php-only-architecture.md](../guide/php-only-architecture.md) |
 | **Automation Guide** | [docs/automation/README.md](../automation/README.md) |
 | **Web Interface** | [public/index.php](../../public/index.php) |

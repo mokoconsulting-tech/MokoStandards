@@ -24,7 +24,7 @@ Repository structure definition templates
 
 ### Script Templates
 Build, validation, and automation script templates
-- See [templates/scripts/](../../templates/scripts/)
+- See [scripts/lib/](../../scripts/lib/)
 
 ### Documentation Templates
 Documentation file templates for consistency

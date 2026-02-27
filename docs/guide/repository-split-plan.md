@@ -154,7 +154,7 @@ This document defines the recommended split between the public **mokoconsulting-
    ✅ joomla/ - Joomla extension templates
    ✅ generic/ - Generic project templates
 
-✅ templates/scripts/ - Public validation scripts
+✅ scripts/lib/ - Public validation scripts
    ✅ validate/ - Various validation scripts
 
 ❌ templates/.github/ - ALREADY REMOVED (consolidated to main .github/)

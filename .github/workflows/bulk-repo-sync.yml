@@ -92,10 +92,6 @@ on:
         required: false
         type: boolean
         default: false
-      branch:
-        description: 'Branch to use for sync (defaults to current branch)'
-        required: false
-        type: string
 
 # ┌─────────────────────────────────────────────────────────────────────────┐
 # │                         USAGE INSTRUCTIONS                               │
@@ -115,7 +111,6 @@ on:
 #                   Scheduled runs automatically exclude MokoStandards and MokoStandards-Private
 #   dry_run:        Set to true to preview changes without creating PRs
 #   force_override: Set to true to override protected files (use only for emergency security updates)
-#   branch:         Branch to use for templates (defaults to current branch, useful for testing)
 #
 # SCHEDULED BEHAVIOR:
 #   - Runs monthly on the 1st at 00:00 UTC
@@ -149,11 +144,6 @@ on:
 #      exclude: "archived-repo test-repo"
 #      dry_run: false
 #
-#   5. Test sync from feature branch:
-#      branch: "feature/new-templates"
-#      repos: "moko-cassiopeia"
-#      dry_run: true
-#
 
 jobs:
   sync-repos:
@@ -167,8 +157,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
-        with:
-          ref: ${{ inputs.branch || github.ref }}
 
       - name: Setup PHP
         uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.31.0

@@ -252,6 +252,10 @@ class BulkSync extends CLIApp
             
             $this->log("[{$progress}/{$total}] Processing {$repoName}...", 'INFO');
             
+            // Reset circuit breaker before processing each repository
+            // This prevents failures on one repo from blocking subsequent repos
+            $this->api->resetCircuitBreaker();
+            
             try {
                 // Process repository with dry-run mode and no force override
                 $updated = $this->synchronizer->processRepository(

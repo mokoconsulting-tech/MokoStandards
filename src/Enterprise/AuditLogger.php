@@ -322,6 +322,57 @@ class AuditLogger
         ];
         $this->writeLogEntry($entry);
     }
+
+    /**
+     * Log a message with specified level.
+     *
+     * @param string $level Log level (info, warning, error)
+     * @param string $message Message to log
+     * @param array $data Additional data
+     */
+    private function logMessage(string $level, string $message, array $data = []): void
+    {
+        $entry = [
+            'event_type' => 'log',
+            'level' => $level,
+            'message' => $message,
+            'data' => $data,
+        ];
+        $this->writeLogEntry($entry);
+    }
+
+    /**
+     * Log an informational message.
+     *
+     * @param string $message Message to log
+     * @param array $data Additional data
+     */
+    public function logInfo(string $message, array $data = []): void
+    {
+        $this->logMessage('info', $message, $data);
+    }
+
+    /**
+     * Log a warning message.
+     *
+     * @param string $message Message to log
+     * @param array $data Additional data
+     */
+    public function logWarning(string $message, array $data = []): void
+    {
+        $this->logMessage('warning', $message, $data);
+    }
+
+    /**
+     * Log an error message.
+     *
+     * @param string $message Message to log
+     * @param array $data Additional data
+     */
+    public function logError(string $message, array $data = []): void
+    {
+        $this->logMessage('error', $message, $data);
+    }
 }
 
 /**

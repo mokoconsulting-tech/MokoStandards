@@ -71,7 +71,7 @@ on:
   schedule:
     - cron: '0 0 1 * *'
 
-  # Allow manual triggering
+  # Allow manual triggering from any branch
   workflow_dispatch:
     inputs:
       repos:
@@ -92,6 +92,10 @@ on:
         required: false
         type: boolean
         default: false
+      branch:
+        description: 'Branch to use for sync (defaults to current branch)'
+        required: false
+        type: string
 
 # ┌─────────────────────────────────────────────────────────────────────────┐
 # │                         USAGE INSTRUCTIONS                               │
@@ -111,6 +115,7 @@ on:
 #                   Scheduled runs automatically exclude MokoStandards and MokoStandards-Private
 #   dry_run:        Set to true to preview changes without creating PRs
 #   force_override: Set to true to override protected files (use only for emergency security updates)
+#   branch:         Branch to use for templates (defaults to current branch, useful for testing)
 #
 # SCHEDULED BEHAVIOR:
 #   - Runs monthly on the 1st at 00:00 UTC
@@ -144,6 +149,11 @@ on:
 #      exclude: "archived-repo test-repo"
 #      dry_run: false
 #
+#   5. Test sync from feature branch:
+#      branch: "feature/new-templates"
+#      repos: "moko-cassiopeia"
+#      dry_run: true
+#
 
 jobs:
   sync-repos:
@@ -157,6 +167,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.branch || github.ref }}
 
       - name: Setup PHP
         uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.31.0
@@ -331,6 +343,7 @@ jobs:
             echo "### ✅ Bulk Sync Completed Successfully" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "All repositories have been updated with the latest standards." >> $GITHUB_STEP_SUMMARY
+            echo "SYNC_STATUS=success" >> $GITHUB_ENV
           else
             EXIT_CODE=$?
             echo "### ❌ Bulk Sync Failed" >> $GITHUB_STEP_SUMMARY
@@ -338,8 +351,105 @@ jobs:
             echo "**Exit Code:** $EXIT_CODE" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "Check the error messages in the workflow logs for details." >> $GITHUB_STEP_SUMMARY
+            echo "SYNC_STATUS=failure" >> $GITHUB_ENV
             exit $EXIT_CODE
           fi
+
+      - name: Create tracking issue on success
+        if: success() && github.event_name != 'pull_request'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            let logContent = '';
+            try {
+              logContent = fs.readFileSync('/tmp/bulk_sync.log', 'utf8');
+              // Limit log size to prevent API issues
+              if (logContent.length > 50000) {
+                logContent = logContent.substring(0, 50000) + '\n\n... (log truncated)';
+              }
+            } catch (err) {
+              logContent = '_Log file not available_';
+            }
+
+            const body = `## ✅ Bulk Repository Sync Completed Successfully
+
+            **Event**: ${context.eventName}
+            **Workflow Run**: [${context.runId}](${context.payload.repository.html_url}/actions/runs/${context.runId})
+            **Triggered by**: @${context.actor}
+            **Branch**: ${{ inputs.branch || github.ref_name }}
+            **Date**: ${new Date().toISOString()}
+
+            ### Sync Configuration
+            ${context.eventName === 'schedule' ?
+              '- **Mode**: Scheduled monthly sync' :
+              '- **Mode**: Manual workflow dispatch'}
+            ${context.eventName === 'workflow_dispatch' ?
+              `- **Repos**: ${{ inputs.repos || 'all' }}
+            - **Exclude**: ${{ inputs.exclude || 'default exclusions' }}
+            - **Dry run**: ${{ inputs.dry_run }}
+            - **Branch**: ${{ inputs.branch || github.ref_name }}` : ''}
+
+            ### ✅ Sync Results
+            The bulk repository synchronization process has completed successfully.
+            MokoStandards updates have been deployed to organization repositories.
+
+            <details>
+            <summary>📋 View Sync Log (last 50KB)</summary>
+
+            \`\`\`
+            ${logContent}
+            \`\`\`
+            </details>
+
+            ### 📊 Summary
+            - Pull requests created in target repositories
+            - Files synced: workflows, scripts, templates, configurations
+            - Check individual repository PRs for detailed changes
+
+            ### 🔍 Next Steps
+            1. Review the workflow run logs for detailed sync information
+            2. Check target repositories for new pull requests
+            3. Review and merge PRs in target repositories
+            4. Monitor for any issues in target repositories
+
+            ### 📚 Resources
+            - [Bulk Sync Script](scripts/automation/bulk_sync.php)
+            - [Workflow Configuration](.github/workflows/bulk-repo-sync.yml)
+            - [MokoStandards Documentation](https://github.com/mokoconsulting-tech/MokoStandards)
+
+            ---
+            *This issue was automatically created by the Bulk Repository Sync workflow.*
+            `;
+
+            // Validate assignees before creating issue
+            async function validateAssignees(assignees) {
+              const validAssignees = [];
+              for (const assignee of assignees) {
+                try {
+                  await github.rest.users.getByUsername({ username: assignee });
+                  validAssignees.push(assignee);
+                  console.log(`✓ Validated assignee: ${assignee}`);
+                } catch (error) {
+                  console.log(`✗ Invalid assignee (skipping): ${assignee} - ${error.message}`);
+                }
+              }
+              return validAssignees;
+            }
+
+            const requestedAssignees = ['jmiller-moko'];
+            const validAssignees = await validateAssignees(requestedAssignees);
+
+            // Create new success tracking issue
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `[Infrastructure] Bulk Repository Sync Completed - ${new Date().toISOString().split('T')[0]}`,
+              body: body,
+              labels: ['infrastructure', 'bulk-sync-success', 'automation'],
+              assignees: validAssignees
+            });
+            console.log(`Created tracking issue #${issue.data.number}`);
 
       - name: Create tracking issue on failure
         if: failure()
@@ -363,6 +473,7 @@ jobs:
             **Event**: ${context.eventName}
             **Workflow Run**: [${context.runId}](${context.payload.repository.html_url}/actions/runs/${context.runId})
             **Triggered by**: @${context.actor}
+            **Branch**: ${{ inputs.branch || github.ref_name }}
             **Date**: ${new Date().toISOString()}
 
             ### Sync Configuration
@@ -372,7 +483,8 @@ jobs:
             ${context.eventName === 'workflow_dispatch' ?
               `- **Repos**: ${{ inputs.repos || 'all' }}
             - **Exclude**: ${{ inputs.exclude || 'default exclusions' }}
-            - **Dry run**: ${{ inputs.dry_run }}` : ''}
+            - **Dry run**: ${{ inputs.dry_run }}
+            - **Branch**: ${{ inputs.branch || github.ref_name }}` : ''}
 
             ### ❌ Error Details
             The bulk repository synchronization process has failed. This affects

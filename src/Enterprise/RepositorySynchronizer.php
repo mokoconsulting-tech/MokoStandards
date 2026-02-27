@@ -175,11 +175,43 @@ class RepositorySynchronizer
     {
         $this->logger->logInfo("Starting synchronization for {$org}/{$repo}");
         
-        // Define standard workflows to sync
-        $workflows = [
-            'standards-compliance.yml.template' => 'standards-compliance.yml',
-            'code-quality.yml.template' => 'code-quality.yml',
-            'branch-cleanup.yml.template' => 'branch-cleanup.yml',
+        // Define all files to sync
+        $filesToSync = [
+            // Workflows - Core compliance and quality
+            'workflows' => [
+                'standards-compliance.yml.template' => '.github/workflows/standards-compliance.yml',
+                'code-quality.yml.template' => '.github/workflows/code-quality.yml',
+                'branch-cleanup.yml.template' => '.github/workflows/branch-cleanup.yml',
+                
+                // Build and release workflows
+                'build.yml.template' => '.github/workflows/build.yml',
+                'release-cycle.yml.template' => '.github/workflows/release-cycle.yml',
+                'reusable-build.yml.template' => '.github/workflows/reusable-build.yml',
+                'reusable-release.yml.template' => '.github/workflows/reusable-release.yml',
+            ],
+            
+            // GitHub configuration files
+            'github' => [
+                'copilot.yml' => '.github/copilot.yml',
+                'PULL_REQUEST_TEMPLATE.md' => '.github/PULL_REQUEST_TEMPLATE.md',
+                'dependabot.yml' => '.github/dependabot.yml',
+            ],
+            
+            // Issue templates
+            'issue_templates' => [
+                'bug_report.md' => '.github/ISSUE_TEMPLATE/bug_report.md',
+                'feature_request.md' => '.github/ISSUE_TEMPLATE/feature_request.md',
+                'documentation.md' => '.github/ISSUE_TEMPLATE/documentation.md',
+                'question.md' => '.github/ISSUE_TEMPLATE/question.md',
+                'config.yml' => '.github/ISSUE_TEMPLATE/config.yml',
+            ],
+            
+            // Release scripts
+            'scripts' => [
+                'package.sh' => 'scripts/release/package.sh',
+                'package_dolibarr.sh' => 'scripts/release/package_dolibarr.sh',
+                'package_joomla.sh' => 'scripts/release/package_joomla.sh',
+            ],
         ];
         
         // Check if there's already a PR open for this repo
@@ -190,7 +222,7 @@ class RepositorySynchronizer
         }
         
         // Create PR with file updates
-        $prNumber = $this->createSyncPR($org, $repo, $workflows);
+        $prNumber = $this->createSyncPR($org, $repo, $filesToSync);
         
         if ($prNumber) {
             $this->logger->logInfo("Successfully created PR #{$prNumber} for {$repo}");
@@ -224,7 +256,7 @@ class RepositorySynchronizer
     /**
      * Create a PR with sync updates
      */
-    private function createSyncPR(string $org, string $repo, array $workflows): ?int
+    private function createSyncPR(string $org, string $repo, array $filesToSync): ?int
     {
         try {
             // Get repository info
@@ -267,61 +299,93 @@ class RepositorySynchronizer
                 $this->logger->logInfo("Created branch {$branchName}");
             }
             
-            // Read and create files
-            $filesCreated = 0;
+            // Track what was copied and skipped
+            $summary = [
+                'copied' => [],
+                'skipped' => [],
+                'total' => 0,
+            ];
+            
             // Use __DIR__ to get the directory of this file, then navigate to repository root
             $baseDir = dirname(dirname(__DIR__));
             
-            foreach ($workflows as $sourceFile => $targetFile) {
-                $sourcePath = "{$baseDir}/templates/workflows/{$sourceFile}";
+            // Process each file type
+            foreach ($filesToSync as $fileType => $files) {
+                $this->logger->logInfo("Processing {$fileType} files...");
                 
-                if (!file_exists($sourcePath)) {
-                    $this->logger->logWarning("Source file not found: {$sourcePath}");
-                    continue;
-                }
-                
-                $content = file_get_contents($sourcePath);
-                if ($content === false) {
-                    $this->logger->logWarning("Failed to read: {$sourcePath}");
-                    continue;
-                }
-                
-                // Process template content
-                $content = $this->processTemplateContent($content, $repo);
-                
-                // Create or update file
-                $targetPath = ".github/workflows/{$targetFile}";
-                
-                try {
-                    // Try to get existing file to get its SHA
-                    $existingFile = $this->apiClient->get("/repos/{$org}/{$repo}/contents/{$targetPath}", [
-                        'ref' => $branchName,
-                    ]);
-                    $existingSha = $existingFile['sha'];
+                foreach ($files as $sourceFile => $targetPath) {
+                    $summary['total']++;
                     
-                    // Update existing file
-                    $this->apiClient->put("/repos/{$org}/{$repo}/contents/{$targetPath}", [
-                        'message' => "chore: update {$targetFile} from MokoStandards",
-                        'content' => base64_encode($content),
-                        'sha' => $existingSha,
-                        'branch' => $branchName,
-                    ]);
-                    $this->logger->logInfo("Updated file: {$targetPath}");
+                    // Determine source path based on file type
+                    $sourcePath = $this->getSourcePath($baseDir, $fileType, $sourceFile);
                     
-                } catch (Exception $e) {
-                    // File doesn't exist, create it
-                    $this->apiClient->put("/repos/{$org}/{$repo}/contents/{$targetPath}", [
-                        'message' => "chore: add {$targetFile} from MokoStandards",
-                        'content' => base64_encode($content),
-                        'branch' => $branchName,
-                    ]);
-                    $this->logger->logInfo("Created file: {$targetPath}");
+                    if (!file_exists($sourcePath)) {
+                        $this->logger->logWarning("Source file not found: {$sourcePath}");
+                        $summary['skipped'][] = [
+                            'file' => $targetPath,
+                            'reason' => 'Source file not found',
+                        ];
+                        continue;
+                    }
+                    
+                    $content = file_get_contents($sourcePath);
+                    if ($content === false) {
+                        $this->logger->logWarning("Failed to read: {$sourcePath}");
+                        $summary['skipped'][] = [
+                            'file' => $targetPath,
+                            'reason' => 'Failed to read source',
+                        ];
+                        continue;
+                    }
+                    
+                    // Process template content
+                    $content = $this->processTemplateContent($content, $repo);
+                    
+                    try {
+                        // Try to get existing file to get its SHA
+                        $existingFile = $this->apiClient->get("/repos/{$org}/{$repo}/contents/{$targetPath}", [
+                            'ref' => $branchName,
+                        ]);
+                        $existingSha = $existingFile['sha'];
+                        
+                        // Update existing file
+                        $this->apiClient->put("/repos/{$org}/{$repo}/contents/{$targetPath}", [
+                            'message' => "chore: update " . basename($targetPath) . " from MokoStandards",
+                            'content' => base64_encode($content),
+                            'sha' => $existingSha,
+                            'branch' => $branchName,
+                        ]);
+                        $this->logger->logInfo("Updated file: {$targetPath}");
+                        $summary['copied'][] = [
+                            'file' => $targetPath,
+                            'action' => 'updated',
+                        ];
+                        
+                    } catch (Exception $e) {
+                        // File doesn't exist, create it
+                        try {
+                            $this->apiClient->put("/repos/{$org}/{$repo}/contents/{$targetPath}", [
+                                'message' => "chore: add " . basename($targetPath) . " from MokoStandards",
+                                'content' => base64_encode($content),
+                                'branch' => $branchName,
+                            ]);
+                            $this->logger->logInfo("Created file: {$targetPath}");
+                            $summary['copied'][] = [
+                                'file' => $targetPath,
+                                'action' => 'created',
+                            ];
+                        } catch (Exception $e2) {
+                            $this->logger->logError("Failed to create {$targetPath}: " . $e2->getMessage());
+                            $summary['skipped'][] = [
+                                'file' => $targetPath,
+                                'reason' => 'API error: ' . $e2->getMessage(),
+                            ];
+                        }
+                    }
                 }
-                
-                $filesCreated++;
             }
             
-            if ($filesCreated === 0) {
+            if (count($summary['copied']) === 0) {
                 $this->logger->logWarning("No files were created/updated");
                 return null;
             }
@@ -331,17 +395,39 @@ class RepositorySynchronizer
                 'title' => 'chore: Sync MokoStandards workflows and configurations',
                 'head' => $branchName,
                 'base' => $defaultBranch,
-                'body' => $this->generatePRBody($filesCreated),
+                'body' => $this->generatePRBody($summary),
             ]);
             
             $prNumber = $prData['number'] ?? null;
-            $this->logger->logInfo("Created PR #{$prNumber} with {$filesCreated} files");
+            $this->logger->logInfo("Created PR #{$prNumber} with " . count($summary['copied']) . " files");
+            
+            // Log summary
+            $this->logger->logInfo("Sync summary: " . count($summary['copied']) . " copied, " . count($summary['skipped']) . " skipped, " . $summary['total'] . " total");
             
             return $prNumber;
             
         } catch (Exception $e) {
             $this->logger->logError("Failed to create PR: " . $e->getMessage());
             return null;
+        }
+    }
+    
+    /**
+     * Get source path based on file type
+     */
+    private function getSourcePath(string $baseDir, string $fileType, string $sourceFile): string
+    {
+        switch ($fileType) {
+            case 'workflows':
+                return "{$baseDir}/templates/workflows/{$sourceFile}";
+            case 'github':
+                return "{$baseDir}/.github/{$sourceFile}";
+            case 'issue_templates':
+                return "{$baseDir}/templates/github/ISSUE_TEMPLATE/{$sourceFile}";
+            case 'scripts':
+                return "{$baseDir}/templates/scripts/release/{$sourceFile}";
+            default:
+                return "{$baseDir}/templates/{$sourceFile}";
         }
     }
     
@@ -363,25 +449,46 @@ class RepositorySynchronizer
     /**
      * Generate PR body text
      */
-    private function generatePRBody(int $fileCount): string
+    private function generatePRBody(array $summary): string
     {
-        return <<<EOT
-## MokoStandards Synchronization
-
-This PR synchronizes workflows and configurations from the MokoStandards repository.
-
-### Changes
-- Updated {$fileCount} workflow file(s)
-- Synced from latest MokoStandards templates
-
-### Review Notes
-- Please review the workflow changes carefully
-- Ensure no custom configurations are overwritten
-- Test workflows after merging
-
----
-*This PR was automatically generated by the MokoStandards bulk sync process.*
-EOT;
+        $body = "## MokoStandards Synchronization\n\n";
+        $body .= "This PR synchronizes workflows, configurations, and scripts from the MokoStandards repository.\n\n";
+        
+        // Summary statistics
+        $body .= "### Summary\n";
+        $body .= "- ✅ **Copied**: " . count($summary['copied']) . " files\n";
+        $body .= "- ⏭️ **Skipped**: " . count($summary['skipped']) . " files\n";
+        $body .= "- 📊 **Total**: " . $summary['total'] . " files processed\n\n";
+        
+        // List copied files
+        if (!empty($summary['copied'])) {
+            $body .= "### Files Copied\n\n";
+            foreach ($summary['copied'] as $item) {
+                $action = $item['action'] === 'created' ? '🆕' : '🔄';
+                $body .= "- {$action} `{$item['file']}`\n";
+            }
+            $body .= "\n";
+        }
+        
+        // List skipped files
+        if (!empty($summary['skipped'])) {
+            $body .= "### Files Skipped\n\n";
+            foreach ($summary['skipped'] as $item) {
+                $body .= "- ⚠️ `{$item['file']}` - {$item['reason']}\n";
+            }
+            $body .= "\n";
+        }
+        
+        $body .= "### Review Notes\n";
+        $body .= "- Please review all changes carefully\n";
+        $body .= "- Ensure no custom configurations are overwritten\n";
+        $body .= "- Test workflows and scripts after merging\n";
+        $body .= "- Verify issue templates render correctly\n\n";
+        
+        $body .= "---\n";
+        $body .= "*This PR was automatically generated by the MokoStandards bulk sync process.*\n";
+        
+        return $body;
     }
     
     /**

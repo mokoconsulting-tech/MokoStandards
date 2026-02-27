@@ -25,9 +25,11 @@ use MokoStandards\Enterprise\{
     ApiClient,
     AuditLogger,
     CheckpointManager,
+    CircuitBreakerOpen,
     CLIApp,
     Config,
     MetricsCollector,
+    RateLimitExceeded,
     RepositorySynchronizer,
     SecurityValidator,
     SynchronizationNotImplementedException
@@ -291,6 +293,18 @@ class BulkSync extends CLIApp
                 $this->log("Until this is implemented, bulk sync will not function.", 'ERROR');
                 $this->log("", 'ERROR');
                 throw $e;
+                
+            } catch (CircuitBreakerOpen $e) {
+                // Circuit breaker is open - API service is unavailable
+                $results['failed']++;
+                $results['repositories'][$repoName] = 'failed';
+                $this->log("  ✗ {$repoName} failed: Circuit breaker open - " . $e->getMessage(), 'ERROR');
+                
+            } catch (RateLimitExceeded $e) {
+                // Rate limit exceeded - should fail the sync
+                $results['failed']++;
+                $results['repositories'][$repoName] = 'failed';
+                $this->log("  ✗ {$repoName} failed: Rate limit exceeded - " . $e->getMessage(), 'ERROR');
                 
             } catch (\Exception $e) {
                 $results['failed']++;

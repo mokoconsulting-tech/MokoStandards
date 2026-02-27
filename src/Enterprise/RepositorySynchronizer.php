@@ -406,7 +406,13 @@ class RepositorySynchronizer
             
             return $prNumber;
             
+        } catch (CircuitBreakerOpen | RateLimitExceeded $e) {
+            // Re-throw circuit breaker and rate limit exceptions
+            // These indicate service-level issues that should fail the sync
+            $this->logger->logError("Failed to create PR: " . $e->getMessage());
+            throw $e;
         } catch (Exception $e) {
+            // Other exceptions (e.g., file not found, API errors) should not fail the entire sync
             $this->logger->logError("Failed to create PR: " . $e->getMessage());
             return null;
         }

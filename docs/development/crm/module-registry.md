@@ -67,7 +67,7 @@ Dolibarr module numbers **185051 to 185099** are reserved for Moko Consulting us
 | MokoDoliAuth | 185061 | Reserved | Advanced authentication module for Dolibarr | TBD |
 | MokoDoliOffline | 185062 | Reserved | Offline capability module for Dolibarr | TBD |
 | MokoDoliReleaseHelper | 185063 | Reserved | Release management and version control helper module for Dolibarr | TBD |
-| MokoDoliCGAdClaude | 185064 | Reserved | Dolibarr module MokoDoliCGAdClaude | https://github.com/mokoconsulting-tech/MokoDoliCGAdClaude |
+| MokoDoliCGAdClaude | 185064 | Reserved | A Dolibarr module used to bridge Google Ads reporting with Claude AI analysis | https://github.com/mokoconsulting-tech/MokoDoliCGAdClaude |
 | Available for Assignment | 185065-185099 | Reserved | Reserved for future Moko Consulting modules | - |
 
 ## Module ID Reservation Process

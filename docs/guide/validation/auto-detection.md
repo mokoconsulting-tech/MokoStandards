@@ -9,7 +9,7 @@ The `auto_detect_platform.php` script automatically detects whether a repository
 ## Features
 
 - **Automatic Platform Detection**: Analyzes repository structure to identify platform
-- **Smart Schema Selection**: Automatically loads the correct schema from `scripts/definitions/`
+- **Smart Schema Selection**: Automatically loads the correct schema from `api/definitions/`
 - **Documentation Generation**: Creates detailed validation and detection reports
 - **Multiple Platform Support**: Joomla, Dolibarr, and Generic repositories
 
@@ -84,9 +84,9 @@ Contains overall status, quick facts table, links to reports, and action items.
 
 | Platform | Schema File | Location |
 |----------|-------------|----------|
-| **Joomla/WaaS** | `waas-component.xml` | `scripts/definitions/waas-component.xml` |
-| **Dolibarr/CRM** | `crm-module.xml` | `scripts/definitions/crm-module.xml` |
-| **Generic** | `default-repository.xml` | `scripts/definitions/default-repository.xml` |
+| **Joomla/WaaS** | `waas-component.xml` | `api/definitions/waas-component.xml` |
+| **Dolibarr/CRM** | `crm-module.xml` | `api/definitions/crm-module.xml` |
+| **Generic** | `default-repository.xml` | `api/definitions/default-repository.xml` |
 
 ## Exit Codes
 

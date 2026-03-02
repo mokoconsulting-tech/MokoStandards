@@ -1,4 +1,4 @@
-# Docs Index: /scripts/definitions
+# Docs Index: /api/definitions
 
 ## Purpose
 

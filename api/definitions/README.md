@@ -47,7 +47,7 @@ Each definition file includes:
 ```bash
 # Validate repository against definition
 python3 scripts/validate/validate_structure_v2.py \
-  --schema scripts/definitions/default-repository.xml \
+  --schema api/definitions/default-repository.xml \
   --repo /path/to/repository
 ```
 
@@ -61,7 +61,7 @@ php scripts/validate/auto_detect_platform.php \
 
 The auto-detection script will:
 1. Detect the repository type (Joomla, Dolibarr, or Generic)
-2. Load the appropriate definition from `scripts/definitions/`
+2. Load the appropriate definition from `api/definitions/`
 3. Validate the repository structure
 4. Generate validation reports
 
@@ -70,7 +70,7 @@ The auto-detection script will:
 ```bash
 # Generate missing files based on definition
 python3 scripts/validate/generate_stubs.py \
-  scripts/definitions/default-repository.xml \
+  api/definitions/default-repository.xml \
   /path/to/repository
 ```
 
@@ -81,7 +81,7 @@ To create a custom repository structure definition:
 1. **Copy Template**:
    ```bash
    cp templates/schemas/template-repository-structure.xml \
-      scripts/definitions/my-custom-structure.xml
+      api/definitions/my-custom-structure.xml
    ```
 
 2. **Edit Definition**:
@@ -94,13 +94,13 @@ To create a custom repository structure definition:
 3. **Validate Definition**:
    ```bash
    xmllint --schema schemas/repository-structure.xsd \
-           scripts/definitions/my-custom-structure.xml
+           api/definitions/my-custom-structure.xml
    ```
 
 4. **Test Definition**:
    ```bash
    python3 scripts/validate/validate_structure_v2.py \
-     --schema scripts/definitions/my-custom-structure.xml \
+     --schema api/definitions/my-custom-structure.xml \
      --repo /test/repository
    ```
 
@@ -264,6 +264,6 @@ See [Schema Guide](../../docs/schemas/repohealth/schema-guide.md) for complete d
 
 ---
 
-**Location**: `scripts/definitions/`
+**Location**: `api/definitions/`
 **Last Updated**: 2026-01-16
 **Maintained By**: MokoStandards Team

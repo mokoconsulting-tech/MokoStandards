@@ -4,6 +4,49 @@
 
 This directory contains repository structure definition files that define the expected file and directory structure for different types of repositories in the MokoStandards ecosystem.
 
+## Directory Structure
+
+```
+api/definitions/
+├── default/          # Default platform-based definitions
+│   ├── crm-module.tf            # Dolibarr/CRM modules
+│   ├── default-repository.tf    # Generic repositories
+│   ├── generic-repository.tf    # Alternative generic structure
+│   ├── standards-repository.tf  # MokoStandards repository
+│   └── waas-component.tf        # Joomla/WaaS components
+├── sync/             # Auto-generated synced repository definitions
+│   ├── .gitignore               # Ignores *.def.tf files
+│   ├── README.md                # Documentation for synced definitions
+│   └── *.def.tf                 # Repository-specific definitions (gitignored)
+├── README.md         # This file
+└── index.md          # Directory index
+```
+
+### Default Definitions (`default/`)
+
+Contains base platform-specific definitions that serve as templates for repository validation and structure:
+
+- **crm-module.tf** - Structure for Dolibarr/CRM modules
+- **default-repository.tf** - Standard structure for generic repositories  
+- **generic-repository.tf** - Alternative generic repository structure
+- **standards-repository.tf** - Structure for MokoStandards organizational repository
+- **waas-component.tf** - Structure for Joomla/WaaS components, modules, plugins
+
+**Documentation:** See [docs/api/definitions/default/index.md](../../../docs/api/definitions/default/index.md)
+
+### Synced Definitions (`sync/`)
+
+Contains auto-generated repository-specific definitions created during bulk sync operations. Each file follows the naming convention `{repository}.def.tf` and captures:
+
+- Detected platform and repository type
+- Repository-specific metadata (name, org, sync date)
+- Customizations based on actual repository structure
+- Health check configurations
+
+These files are **automatically generated** and **tracked in git** for audit trail.
+
+**Documentation:** See [docs/api/definitions/sync/index.md](../../../docs/api/definitions/sync/index.md)
+
 ## Definition Files
 
 | File | Type | Description |

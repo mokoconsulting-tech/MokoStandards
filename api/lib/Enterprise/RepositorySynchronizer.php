@@ -30,7 +30,7 @@ use RuntimeException;
  */
 class RepositorySynchronizer
 {
-    private const SYNC_OVERRIDE_FILE = '.github/override.tf';
+    private const SYNC_DEFINITION_DIR = 'api/definitions/sync';
     
     private ApiClient $apiClient;
     private AuditLogger $logger;
@@ -175,6 +175,9 @@ class RepositorySynchronizer
     {
         $this->logger->logInfo("Starting synchronization for {$org}/{$repo}");
         
+        // Generate repository definition first
+        $this->generateRepositoryDefinition($org, $repo);
+        
         // Define all files to sync
         $filesToSync = [
             // Workflows - Core compliance and quality
@@ -195,7 +198,8 @@ class RepositorySynchronizer
                 'copilot.yml' => '.github/copilot.yml',
                 'PULL_REQUEST_TEMPLATE.md' => '.github/PULL_REQUEST_TEMPLATE.md',
                 'dependabot.yml' => '.github/dependabot.yml',
-                'override.tf.template' => '.github/override.tf', // Repository-specific health check overrides
+                // Note: override.tf is NO LONGER synced to remote repos
+                // Repository definitions are now stored centrally in api/definitions/sync/
             ],
             
             // Issue templates
@@ -266,6 +270,157 @@ class RepositorySynchronizer
         }
         
         return null;
+    }
+    
+    /**
+     * Generate repository definition file
+     * 
+     * @param string $org Organization name
+     * @param string $repo Repository name
+     * @return bool Success status
+     */
+    private function generateRepositoryDefinition(string $org, string $repo): bool
+    {
+        try {
+            $this->logger->logInfo("Generating repository definition for {$org}/{$repo}");
+            
+            // Get repository info
+            $repoInfo = $this->apiClient->get("/repos/{$org}/{$repo}");
+            
+            // Detect platform (simplified - in real implementation would use auto_detect_platform)
+            $platform = $this->detectPlatform($repoInfo);
+            
+            // Load base definition
+            $baseDefPath = "api/definitions/default/{$platform}.tf";
+            if (!file_exists($baseDefPath)) {
+                $this->logger->logWarning("Base definition not found: {$baseDefPath}, using default");
+                $baseDefPath = "api/definitions/default/default-repository.tf";
+            }
+            
+            $baseDefinition = file_get_contents($baseDefPath);
+            
+            // Generate repository-specific definition
+            $definition = $this->customizeDefinition($baseDefinition, $org, $repo, $repoInfo, $platform);
+            
+            // Save to sync directory
+            $defFilePath = self::SYNC_DEFINITION_DIR . "/{$repo}.def.tf";
+            
+            // Ensure directory exists
+            if (!is_dir(self::SYNC_DEFINITION_DIR)) {
+                mkdir(self::SYNC_DEFINITION_DIR, 0755, true);
+            }
+            
+            file_put_contents($defFilePath, $definition);
+            
+            $this->logger->logInfo("Generated definition: {$defFilePath}");
+            $this->metrics->incrementCounter('definitions_generated');
+            
+            return true;
+            
+        } catch (Exception $e) {
+            $this->logger->logError("Failed to generate definition for {$repo}: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Detect platform from repository info
+     */
+    private function detectPlatform(array $repoInfo): string
+    {
+        $name = strtolower($repoInfo['name'] ?? '');
+        $description = strtolower($repoInfo['description'] ?? '');
+        $topics = $repoInfo['topics'] ?? [];
+        
+        // Check topics first
+        if (in_array('joomla', $topics) || in_array('joomla-extension', $topics)) {
+            return 'waas-component';
+        }
+        if (in_array('dolibarr', $topics) || in_array('dolibarr-module', $topics)) {
+            return 'crm-module';
+        }
+        
+        // Check name patterns
+        if (str_contains($name, 'joomla') || str_contains($name, 'waas')) {
+            return 'waas-component';
+        }
+        if (str_contains($name, 'doli') || str_contains($name, 'crm')) {
+            return 'crm-module';
+        }
+        
+        // Check description patterns
+        if (str_contains($description, 'joomla') || str_contains($description, 'component')) {
+            return 'waas-component';
+        }
+        if (str_contains($description, 'dolibarr') || str_contains($description, 'module')) {
+            return 'crm-module';
+        }
+        
+        // Default
+        return 'default-repository';
+    }
+    
+    /**
+     * Customize definition with repository-specific metadata
+     */
+    private function customizeDefinition(string $baseDefinition, string $org, string $repo, array $repoInfo, string $platform): string
+    {
+        $timestamp = date('c');
+        $description = $repoInfo['description'] ?? '';
+        
+        // Add header comment
+        $header = <<<EOT
+/**
+ * Repository Definition: {$org}/{$repo}
+ * Auto-generated during bulk sync on {$timestamp}
+ * Platform: {$platform}
+ * Description: {$description}
+ * 
+ * This file is automatically generated and should not be edited manually.
+ * Changes should be made to the base definition in api/definitions/default/
+ */
+
+EOT;
+        
+        // Customize metadata in the definition
+        $customized = $baseDefinition;
+        
+        // Update description to include repo-specific info
+        $customized = preg_replace(
+            '/description\s*=\s*"[^"]*"/',
+            'description      = "Repository structure for ' . $org . '/' . $repo . '"',
+            $customized,
+            1
+        );
+        
+        // Update last_updated timestamp
+        $customized = preg_replace(
+            '/last_updated\s*=\s*"[^"]*"/',
+            'last_updated     = "' . $timestamp . '"',
+            $customized,
+            1
+        );
+        
+        // Add sync metadata block after the main metadata closing brace
+        $syncMetadata = <<<EOT
+
+      
+      # Sync Metadata (auto-generated)
+      sync_generated    = true
+      sync_date         = "{$timestamp}"
+      source_repo       = "{$org}/{$repo}"
+      detected_platform = "{$platform}"
+EOT;
+        
+        // Insert sync metadata before the closing brace of metadata block
+        $customized = preg_replace(
+            '/(metadata\s*=\s*\{[^}]*)(})/',
+            '$1' . $syncMetadata . "\n    " . '$2',
+            $customized,
+            1
+        );
+        
+        return $header . $customized;
     }
     
     /**

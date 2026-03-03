@@ -64,7 +64,7 @@ class AutoDetectPlatform extends CLIApp
     {
         return [
             'repo-path:' => 'Path to repository to analyze (default: current directory)',
-            'schema-dir:' => 'Path to schema definitions directory (default: scripts/definitions)',
+            'schema-dir:' => 'Path to schema definitions directory (default: api/definitions/default)',
             'output-dir:' => 'Directory for output reports (default: var/logs/validation)',
         ];
     }
@@ -72,7 +72,7 @@ class AutoDetectPlatform extends CLIApp
     protected function run(): int
     {
         $repoPath = $this->getOption('repo-path', '.');
-        $schemaDir = $this->getOption('schema-dir', 'scripts/definitions');
+        $schemaDir = $this->getOption('schema-dir', 'api/definitions/default');
         $outputDir = $this->getOption('output-dir', 'var/logs/validation');
         
         // Make paths absolute
@@ -603,16 +603,17 @@ class AutoDetectPlatform extends CLIApp
     private function mapPlatformToSchema(string $schemaDir): string
     {
         $mapping = [
-            'joomla' => 'waas-component.xml',
-            'dolibarr' => 'crm-module.xml',
-            'nodejs' => 'nodejs-repository.xml',
-            'python' => 'python-repository.xml',
-            'terraform' => 'terraform-repository.xml',
-            'wordpress' => 'wordpress-repository.xml',
-            'mobile' => 'mobile-app-repository.xml',
-            'api' => 'api-repository.xml',
-            'documentation' => 'documentation-repository.xml',
-            'generic' => 'default-repository.xml',
+            'joomla' => 'waas-component.tf',
+            'dolibarr' => 'crm-module.tf',
+            'nodejs' => 'nodejs-repository.tf',
+            'python' => 'python-repository.tf',
+            'terraform' => 'terraform-repository.tf',
+            'wordpress' => 'wordpress-repository.tf',
+            'mobile' => 'mobile-app-repository.tf',
+            'api' => 'api-repository.tf',
+            'documentation' => 'documentation-repository.tf',
+            'standards' => 'standards-repository.tf',
+            'generic' => 'default-repository.tf',
         ];
         
         return $schemaDir . '/' . $mapping[$this->detectedPlatform];

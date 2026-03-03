@@ -50,10 +50,10 @@ Structure definitions in `scripts/definitions/` still use XML format:
 
 ```bash
 # Validate repository structure
-python scripts/validate/validate_structure.py scripts/definitions/crm-module.xml .
+python scripts/validate/validate_structure.py scripts/definitions/crm-module.tf .
 
 # Generate stubs for new project
-python scripts/validate/generate_stubs.py scripts/definitions/crm-module.xml /path/to/new/project --dry-run
+python scripts/validate/generate_stubs.py scripts/definitions/crm-module.tf /path/to/new/project --dry-run
 ```
 
 **Note**: These XML definitions will be migrated to Terraform in a future release.
@@ -289,10 +289,10 @@ python scripts/validate/check_repo_health.py --output json > health-report.json
 
 ```makefile
 validate-structure:
-	python scripts/validate/validate_structure.py schemas/structures/crm-module.xml .
+	python scripts/validate/validate_structure.py schemas/structures/crm-module.tf .
 
 generate-stubs:
-	python scripts/validate/generate_stubs.py schemas/structures/crm-module.xml .
+	python scripts/validate/generate_stubs.py schemas/structures/crm-module.tf .
 ```
 
 #### GitHub Actions
@@ -300,7 +300,7 @@ generate-stubs:
 ```yaml
 - name: Validate Structure
   run: python .mokostandards/scripts/validate/validate_structure.py \
-         .mokostandards/schemas/structures/crm-module.xml .
+         .mokostandards/schemas/structures/crm-module.tf .
 ```
 
 ### Repository Health Integration

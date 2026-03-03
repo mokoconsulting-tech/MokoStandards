@@ -8,7 +8,9 @@
 # VERSION: 04.00.03
 # BRIEF: Monthly automation to sync workflows, scripts, and configurations to organization repositories
 # NOTE: Runs bulk_update_repos.php script to deploy MokoStandards to all org repos
-# NOTE: Now uses Terraform format (.github/override.tf) for override configuration
+# NOTE: Repository definitions now stored centrally in api/definitions/sync/
+# Individual repo definitions use .def.tf naming convention (e.g., MyRepo.def.tf)
+# No longer creates .github/override.tf files in remote repositories
 
 name: Bulk Repository Sync
 
@@ -29,7 +31,7 @@ env:
 #        ▼
 #   ┌──────────────────┐
 #   │  Parse Terraform │
-#   │  Override Config │───┐ Read .github/override.tf
+#   │  Definition Gen │───┐ Generate api/definitions/sync/{repo}.def.tf
 #   └──────────────────┘   │ Extract exclusions & configs
 #        │                 │
 #        ▼                 │
@@ -119,7 +121,7 @@ on:
 #   - Never uses force_override mode (safety feature)
 #
 # SYNC BEHAVIOR:
-#   - Checks .github/override.tf in target repo for platform type
+#   - Generates repository definition in api/definitions/sync/{repo}.def.tf
 #   - Falls back to auto-detection if override doesn't specify platform
 #   - Respects exclude_files and protected_files from override (unless force_override is true)
 #   - Creates PR with synced files (never pushes directly to main/master)
@@ -217,17 +219,22 @@ jobs:
             MISSING_FILES+=("api/validate/auto_detect_platform.php")
           fi
 
-          # Check for schema definition files required by bulk_update_repos.php
-          if [ ! -f "scripts/definitions/crm-module.xml" ]; then
-            MISSING_FILES+=("scripts/definitions/crm-module.xml")
+          # Check for schema definition files in new location
+          if [ ! -f "api/definitions/default/crm-module.tf" ]; then
+            MISSING_FILES+=("api/definitions/default/crm-module.tf")
           fi
 
-          if [ ! -f "scripts/definitions/default-repository.xml" ]; then
-            MISSING_FILES+=("scripts/definitions/default-repository.xml")
+          if [ ! -f "api/definitions/default/default-repository.tf" ]; then
+            MISSING_FILES+=("api/definitions/default/default-repository.tf")
           fi
 
-          if [ ! -f "scripts/definitions/waas-component.xml" ]; then
-            MISSING_FILES+=("scripts/definitions/waas-component.xml")
+          if [ ! -f "api/definitions/default/waas-component.tf" ]; then
+            MISSING_FILES+=("api/definitions/default/waas-component.tf")
+          fi
+          
+          # Ensure sync directory exists
+          if [ ! -d "api/definitions/sync" ]; then
+            MISSING_FILES+=("api/definitions/sync/ directory")
           fi
 
           # Report errors if any files are missing
@@ -341,6 +348,51 @@ jobs:
             echo "Check the error messages in the workflow logs for details." >> $GITHUB_STEP_SUMMARY
             echo "SYNC_STATUS=failure" >> $GITHUB_ENV
             exit $EXIT_CODE
+          fi
+
+      - name: Commit generated definitions
+        if: success() && github.event_name != 'pull_request'
+        run: |
+          set -x
+          
+          # Check if there are any new or modified definition files
+          if [ -n "$(git status --porcelain api/definitions/sync/)" ]; then
+            echo "## 📝 Committing Generated Definitions" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            
+            # Configure git
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            
+            # Add all definition files in sync directory
+            git add api/definitions/sync/*.def.tf
+            
+            # Count files
+            ADDED=$(git diff --cached --name-only | grep "\.def\.tf$" | wc -l)
+            
+            # Commit with descriptive message
+            git commit -m "chore: update synced repository definitions
+
+Generated during bulk sync run on $(date -u +"%Y-%m-%d")
+Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+- Updated $ADDED repository definition(s)
+- Definitions stored in api/definitions/sync/
+- Files use .def.tf naming convention
+
+Co-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+            
+            # Push to the same branch
+            git push origin ${{ github.ref_name }}
+            
+            echo "**Committed Files:** $ADDED definition(s)" >> $GITHUB_STEP_SUMMARY
+            echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## ℹ️ No New Definitions" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "No new or modified repository definitions to commit." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
           fi
 
       - name: Create tracking issue on success

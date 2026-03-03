@@ -16,22 +16,26 @@ This directory contains repository structure definition files that define the ex
 
 ## Schema Format
 
-Definition files can be in Terraform (.tf), XML, or JSON format:
+Definition files use the `.tf` extension for consistency with repository configuration standards, though they may contain different internal formats:
 
-### Terraform Format (Preferred)
+### Terraform Extension (Standard)
 - Extension: `.tf`
-- Infrastructure-as-code approach
-- Consistent with repository configuration standards
+- Used for consistency with `.github/config.tf` and infrastructure-as-code approach
+- Content format may be XML, HCL, or JSON depending on the file
+- Current definition files contain XML format with `.tf` extension
 
-### XML Format
-- Extension: `.xml`
+### XML Content Format
+- Internal format: XML
 - Schema: `schemas/repository-structure.xsd`
 - Namespace: `http://mokoconsulting.com/schemas/repository-structure`
+- Used within `.tf` files for structural definitions
 
-### JSON Format
+### JSON Format (Alternative)
 - Extension: `.json`
 - Schema: `schemas/repository-structure.schema.json`
 - More lightweight and easier to parse programmatically
+
+**Note:** The `.tf` extension is used as the standard extension for all repository definition and configuration files in the MokoStandards ecosystem, ensuring consistency regardless of internal content format.
 
 ## Structure
 

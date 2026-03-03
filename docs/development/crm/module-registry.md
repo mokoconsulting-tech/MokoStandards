@@ -68,7 +68,8 @@ Dolibarr module numbers **185051 to 185099** are reserved for Moko Consulting us
 | MokoDoliOffline | 185062 | Reserved | Offline capability module for Dolibarr | TBD |
 | MokoDoliReleaseHelper | 185063 | Reserved | Release management and version control helper module for Dolibarr | TBD |
 | MokoDoliProjTemplate | 185064 | Reserved | A Dolibarr module designed to provide project templates | TBD |
-| Available for Assignment | 185065-185099 | Reserved | Reserved for future Moko Consulting modules | - |
+| MokoDoliCGAdClaude | 185065 | Reserved | Multi-platform advertising analysis module integrating Google Ads, Meta Ads, LinkedIn Ads with Claude AI | TBD |
+| Available for Assignment | 185066-185099 | Reserved | Reserved for future Moko Consulting modules | - |
 
 ## Module ID Reservation Process
 
@@ -99,7 +100,7 @@ If you prefer to reserve manually:
 1. **Create a Pull Request** to [https://github.com/mokoconsulting-tech/MokoStandards](https://github.com/mokoconsulting-tech/MokoStandards)
 2. **Update this table** with:
    - Module name
-   - Next available module number from the reserved range (185065-185099)
+   - Next available module number from the reserved range (185066-185099)
    - Status: "Reserved"
    - Brief description of the module's purpose
    - Repository link (use "TBD" if not yet created)
@@ -195,7 +196,7 @@ Use the automated workflow (recommended) or create a manual PR. See [Module ID R
 
 ### Can I request a specific module ID?
 
-Yes! When using the workflow, you can specify a module ID in the range 185064-185099. The workflow will validate it's available.
+Yes! When using the workflow, you can specify a module ID in the range 185066-185099. The workflow will validate it's available.
 
 ### What if all IDs are reserved?
 

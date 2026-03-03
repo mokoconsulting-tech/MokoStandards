@@ -16,26 +16,53 @@ This directory contains repository structure definition files that define the ex
 
 ## Schema Format
 
-Definition files use the `.tf` extension for consistency with repository configuration standards, though they may contain different internal formats:
+Definition files use Terraform HCL (HashiCorp Configuration Language) format with `.tf` extension:
 
-### Terraform Extension (Standard)
+### Terraform HCL Format (Standard)
 - Extension: `.tf`
-- Used for consistency with `.github/config.tf` and infrastructure-as-code approach
-- Content format may be XML, HCL, or JSON depending on the file
-- Current definition files contain XML format with `.tf` extension
+- Syntax: HashiCorp Configuration Language (HCL)
+- Structure: Uses `locals` blocks with nested maps and lists
+- Consistent with `.github/config.tf` and other infrastructure-as-code files
+- Native to Terraform ecosystem
 
-### XML Content Format
-- Internal format: XML
-- Schema: `schemas/repository-structure.xsd`
-- Namespace: `http://mokoconsulting.com/schemas/repository-structure`
-- Used within `.tf` files for structural definitions
+**Example Structure:**
+```hcl
+locals {
+  repository_structure = {
+    metadata = {
+      name             = "Repository Name"
+      description      = "Description"
+      repository_type  = "type"
+      platform         = "platform"
+      last_updated     = "2026-01-01T00:00:00Z"
+      maintainer       = "Maintainer"
+    }
+    root_files = [
+      {
+        name        = "README.md"
+        extension   = "md"
+        description = "Project documentation"
+        required    = true
+        audience    = "general"
+      }
+    ]
+    directories = [
+      {
+        name       = "src"
+        path       = "src"
+        required   = true
+        purpose    = "Source code"
+      }
+    ]
+  }
+}
+```
 
 ### JSON Format (Alternative)
 - Extension: `.json`
 - Schema: `schemas/repository-structure.schema.json`
-- More lightweight and easier to parse programmatically
-
-**Note:** The `.tf` extension is used as the standard extension for all repository definition and configuration files in the MokoStandards ecosystem, ensuring consistency regardless of internal content format.
+- Lightweight alternative for programmatic parsing
+- Example: `default-repository.json`
 
 ## Structure
 
@@ -55,16 +82,42 @@ Each definition file includes:
 
 ```bash
 # Validate repository against definition
-python3 scripts/validate/validate_structure_v2.py \
-  --schema api/definitions/default-repository.tf \
-  --repo /path/to/repository
+php api/validate/auto_detect_platform.php \
+  --repo-path /path/to/repository \
+  --schema-dir api/definitions
+```
+
+### Programmatic Access
+
+The definition files can be parsed using Terraform or HCL parsing libraries:
+
+**Terraform:**
+```bash
+terraform console < api/definitions/default-repository.tf
+```
+
+**Python (using python-hcl2):**
+```python
+import hcl2
+with open('api/definitions/default-repository.tf', 'r') as f:
+    data = hcl2.load(f)
+    metadata = data['locals'][0]['repository_structure']['metadata']
+```
+
+**JavaScript/Node.js (using hcl-parser):**
+```javascript
+const hcl = require('hcl-parser');
+const fs = require('fs');
+const content = fs.readFileSync('api/definitions/default-repository.tf', 'utf-8');
+const parsed = hcl.parse(content);
+const metadata = parsed.locals.repository_structure.metadata;
 ```
 
 ### With Auto-Detection Script
 
 ```bash
 # Auto-detect platform and validate
-php scripts/validate/auto_detect_platform.php \
+php api/validate/auto_detect_platform.php \
   --repo-path /path/to/repository
 ```
 
@@ -74,44 +127,111 @@ The auto-detection script will:
 3. Validate the repository structure
 4. Generate validation reports
 
-### With Stub Generation Script
-
-```bash
-# Generate missing files based on definition
-python3 scripts/validate/generate_stubs.py \
-  api/definitions/default-repository.tf \
-  /path/to/repository
-```
-
 ## Creating Custom Definitions
 
 To create a custom repository structure definition:
 
 1. **Copy Template**:
    ```bash
-   cp templates/schemas/template-repository-structure.tf \
+   cp api/definitions/generic-repository.tf \
       api/definitions/my-custom-structure.tf
    ```
 
 2. **Edit Definition**:
-   - Update metadata (name, description, type)
-   - Define root files with source/destination
-   - Define directory structure
-   - Add validation rules
-   - Specify repository requirements
+   - Update metadata (name, description, type, platform)
+   - Define root_files array with required files
+   - Define directories array with nested structure
+   - Add validation rules and repository requirements as needed
+   - Use proper HCL syntax with snake_case naming
 
-3. **Validate Definition**:
+3. **Validate Syntax**:
    ```bash
-   xmllint --schema schemas/repository-structure.xsd \
-           api/definitions/my-custom-structure.tf
+   # Using Terraform (if installed)
+   terraform fmt -check api/definitions/my-custom-structure.tf
+   
+   # Or use an HCL linter
+   hclfmt api/definitions/my-custom-structure.tf
    ```
 
 4. **Test Definition**:
    ```bash
-   python3 scripts/validate/validate_structure_v2.py \
-     --schema api/definitions/my-custom-structure.tf \
-     --repo /test/repository
+   php api/validate/auto_detect_platform.php \
+     --repo-path /test/repository \
+     --schema-dir api/definitions \
+     --platform my-custom-type
    ```
+
+## Schema Structure
+
+Each definition file uses a consistent HCL structure:
+
+```hcl
+locals {
+  repository_structure = {
+    # Basic information about the repository type
+    metadata = {
+      name             = "Repository Type Name"
+      description      = "Detailed description"
+      repository_type  = "type-identifier"
+      platform         = "platform-name"
+      last_updated     = "ISO8601-timestamp"
+      maintainer       = "Maintainer Name"
+      version          = "1.0"
+      schema_version   = "1.0"
+    }
+    
+    # Files expected at repository root
+    root_files = [
+      {
+        name              = "filename.ext"
+        extension         = "ext"
+        description       = "File description"
+        required          = true|false
+        requirement_status = "required|suggested|optional"
+        always_overwrite  = true|false
+        audience          = "general|developer|contributor"
+        template          = "path/to/template"
+      }
+    ]
+    
+    # Directory structure with nested files
+    directories = [
+      {
+        name                = "dirname"
+        path                = "path/to/dir"
+        description         = "Directory description"
+        required            = true|false
+        requirement_status  = "required|suggested|optional"
+        purpose             = "Purpose description"
+        
+        files = [
+          { /* file definition */ }
+        ]
+        
+        subdirectories = [
+          { /* nested directory definition */ }
+        ]
+      }
+    ]
+    
+    # Repository-level requirements (optional)
+    repository_requirements = {
+      secrets = [
+        { name = "SECRET_NAME", description = "Description", required = true }
+      ]
+      variables = [
+        { name = "VAR_NAME", description = "Description", required = true }
+      ]
+      branch_protections = {
+        /* protection rules */
+      }
+      repository_settings = {
+        /* settings */
+      }
+    }
+  }
+}
+```
 
 ## Definition Examples
 

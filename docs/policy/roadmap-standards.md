@@ -275,10 +275,10 @@ Frame outcomes as value statements:
 
 ROADMAP.md is defined as a **suggested** file in repository structure schemas:
 
-- `scripts/definitions/default-repository.xml`
-- `scripts/definitions/waas-component.xml`
-- `scripts/definitions/crm-module.xml`
-- `scripts/definitions/generic-repository.xml`
+- `scripts/definitions/default-repository.tf`
+- `scripts/definitions/waas-component.tf`
+- `scripts/definitions/crm-module.tf`
+- `scripts/definitions/generic-repository.tf`
 
 Repositories that adopt MokoStandards SHOULD include ROADMAP.md as part of their documentation suite.
 

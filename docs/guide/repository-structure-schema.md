@@ -28,8 +28,8 @@ The system consists of the following components:
 - **Location**: `scripts/definitions/`
 - **Purpose**: Define specific repository structures (e.g., CRM modules, WaaS components)
 - **Examples**:
-  - `crm-module.xml` - MokoCRM (Dolibarr) module structure
-  - `waas-component.xml` - MokoWaaS (Joomla) component structure
+  - `crm-module.tf` - MokoCRM (Dolibarr) module structure
+  - `waas-component.tf` - MokoWaaS (Joomla) component structure
 
 ### 3. Validation Tool
 - **File**: `scripts/validate/validate_structure.py`
@@ -195,7 +195,7 @@ Defines the actual file and folder hierarchy:
 
 ### MokoCRM Module Structure
 
-**File**: `scripts/definitions/crm-module.xml`
+**File**: `scripts/definitions/crm-module.tf`
 
 Defines the standard structure for MokoCRM (Dolibarr) modules with special emphasis on the dual-README requirement:
 
@@ -212,7 +212,7 @@ Key directories:
 
 ### MokoWaaS Component Structure
 
-**File**: `scripts/definitions/waas-component.xml` (to be created)
+**File**: `scripts/definitions/waas-component.tf` (to be created)
 
 Defines the standard structure for MokoWaaS (Joomla) components.
 
@@ -222,10 +222,10 @@ Defines the standard structure for MokoWaaS (Joomla) components.
 
 ```bash
 # Validate current directory
-python scripts/validate/validate_structure.py scripts/definitions/crm-module.xml
+python scripts/validate/validate_structure.py scripts/definitions/crm-module.tf
 
 # Validate specific directory
-python scripts/validate/validate_structure.py scripts/definitions/crm-module.xml /path/to/repo
+python scripts/validate/validate_structure.py scripts/definitions/crm-module.tf /path/to/repo
 
 # Use with make (from project root)
 make validate-structure
@@ -247,7 +247,7 @@ The validation tool provides:
 
 ```
 Validating repository: /path/to/repo
-Against structure: scripts/definitions/crm-module.xml
+Against structure: scripts/definitions/crm-module.tf
 --------------------------------------------------------------------------------
 Structure: MokoCRM Module
 Description: Standard repository structure for MokoCRM (Dolibarr) modules
@@ -297,16 +297,16 @@ Total issues: 6
 
 ```bash
 # Dry run (preview)
-python scripts/validate/generate_stubs.py scripts/definitions/crm-module.xml --dry-run
+python scripts/validate/generate_stubs.py scripts/definitions/crm-module.tf --dry-run
 
 # Generate stubs in current directory
-python scripts/validate/generate_stubs.py scripts/definitions/crm-module.xml
+python scripts/validate/generate_stubs.py scripts/definitions/crm-module.tf
 
 # Generate stubs in specific directory
-python scripts/validate/generate_stubs.py scripts/definitions/crm-module.xml /path/to/repo
+python scripts/validate/generate_stubs.py scripts/definitions/crm-module.tf /path/to/repo
 
 # Force overwrite existing files
-python scripts/validate/generate_stubs.py scripts/definitions/crm-module.xml --force
+python scripts/validate/generate_stubs.py scripts/definitions/crm-module.tf --force
 
 # Use with make (from project root)
 make generate-stubs STRUCTURE=crm-module
@@ -337,7 +337,7 @@ Available placeholders for use in `stub-content`:
 ```
 === STUB GENERATION ===
 Repository: /path/to/repo
-Structure: scripts/definitions/crm-module.xml
+Structure: scripts/definitions/crm-module.tf
 Force overwrite: False
 --------------------------------------------------------------------------------
 
@@ -384,7 +384,7 @@ cd my-new-module
 
 # 2. Generate structure stubs
 python ../MokoStandards/scripts/validate/generate_stubs.py \
-    ../MokoStandards/scripts/definitions/crm-module.xml
+    ../MokoStandards/scripts/definitions/crm-module.tf
 
 # 3. Review generated files
 ls -la
@@ -394,7 +394,7 @@ ls -la
 
 # 5. Validate structure
 python ../MokoStandards/scripts/validate/validate_structure.py \
-    ../MokoStandards/scripts/definitions/crm-module.xml
+    ../MokoStandards/scripts/definitions/crm-module.tf
 
 # 6. Initialize git and commit
 git init
@@ -408,13 +408,13 @@ git commit -m "Initial commit with standard structure"
 # Validate against CRM module structure
 cd existing-module
 python ../MokoStandards/scripts/validate/validate_structure.py \
-    ../MokoStandards/scripts/definitions/crm-module.xml
+    ../MokoStandards/scripts/definitions/crm-module.tf
 
 # Fix any errors reported
 
 # Validate again
 python ../MokoStandards/scripts/validate/validate_structure.py \
-    ../MokoStandards/scripts/definitions/crm-module.xml
+    ../MokoStandards/scripts/definitions/crm-module.tf
 ```
 
 ### Example 3: Generate Missing Files Only
@@ -423,7 +423,7 @@ python ../MokoStandards/scripts/validate/validate_structure.py \
 # Generate stubs without overwriting existing files
 cd partially-complete-module
 python ../MokoStandards/scripts/validate/generate_stubs.py \
-    ../MokoStandards/scripts/definitions/crm-module.xml
+    ../MokoStandards/scripts/definitions/crm-module.tf
 
 # This will create only missing files
 # Existing files will be skipped
@@ -457,7 +457,7 @@ jobs:
       - name: Validate Structure
         run: |
           python MokoStandards/scripts/validate/validate_structure.py \
-            MokoStandards/scripts/definitions/crm-module.xml .
+            MokoStandards/scripts/definitions/crm-module.tf .
 ```
 
 ## Best Practices
@@ -506,8 +506,8 @@ jobs:
 schemas/
 ├── repository-structure.xsd    # XSD schema
 └── structures/
-    ├── crm-module.xml          # CRM module structure
-    ├── waas-component.xml      # WaaS component structure
+    ├── crm-module.tf          # CRM module structure
+    ├── waas-component.tf      # WaaS component structure
     ├── waas-module.xml         # WaaS module structure
     └── standards.xml           # Standards repository structure
 ```
@@ -683,7 +683,7 @@ jobs:
       - name: Validate Repository Structure
         run: |
           python .mokostandards/scripts/validate/validate_structure.py \
-            .mokostandards/scripts/definitions/crm-module.xml .
+            .mokostandards/scripts/definitions/crm-module.tf .
 ```
 
 ## Troubleshooting

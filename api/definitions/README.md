@@ -8,15 +8,20 @@ This directory contains repository structure definition files that define the ex
 
 | File | Type | Description |
 |------|------|-------------|
-| **default-repository.xml** | Generic | Standard structure for generic repositories |
+| **default-repository.tf** | Generic | Standard structure for generic repositories |
 | **default-repository.json** | Generic | JSON format of default repository structure |
-| **waas-component.xml** | Joomla | Structure for Joomla/WaaS components, modules, plugins |
-| **crm-module.xml** | Dolibarr | Structure for Dolibarr/CRM modules |
-| **generic-repository.xml** | Generic | Alternative generic repository structure |
+| **waas-component.tf** | Joomla | Structure for Joomla/WaaS components, modules, plugins |
+| **crm-module.tf** | Dolibarr | Structure for Dolibarr/CRM modules |
+| **generic-repository.tf** | Generic | Alternative generic repository structure |
 
 ## Schema Format
 
-Definition files can be in either XML or JSON format:
+Definition files can be in Terraform (.tf), XML, or JSON format:
+
+### Terraform Format (Preferred)
+- Extension: `.tf`
+- Infrastructure-as-code approach
+- Consistent with repository configuration standards
 
 ### XML Format
 - Extension: `.xml`
@@ -47,7 +52,7 @@ Each definition file includes:
 ```bash
 # Validate repository against definition
 python3 scripts/validate/validate_structure_v2.py \
-  --schema api/definitions/default-repository.xml \
+  --schema api/definitions/default-repository.tf \
   --repo /path/to/repository
 ```
 
@@ -70,7 +75,7 @@ The auto-detection script will:
 ```bash
 # Generate missing files based on definition
 python3 scripts/validate/generate_stubs.py \
-  api/definitions/default-repository.xml \
+  api/definitions/default-repository.tf \
   /path/to/repository
 ```
 
@@ -80,8 +85,8 @@ To create a custom repository structure definition:
 
 1. **Copy Template**:
    ```bash
-   cp templates/schemas/template-repository-structure.xml \
-      api/definitions/my-custom-structure.xml
+   cp templates/schemas/template-repository-structure.tf \
+      api/definitions/my-custom-structure.tf
    ```
 
 2. **Edit Definition**:
@@ -94,13 +99,13 @@ To create a custom repository structure definition:
 3. **Validate Definition**:
    ```bash
    xmllint --schema schemas/repository-structure.xsd \
-           api/definitions/my-custom-structure.xml
+           api/definitions/my-custom-structure.tf
    ```
 
 4. **Test Definition**:
    ```bash
    python3 scripts/validate/validate_structure_v2.py \
-     --schema api/definitions/my-custom-structure.xml \
+     --schema api/definitions/my-custom-structure.tf \
      --repo /test/repository
    ```
 

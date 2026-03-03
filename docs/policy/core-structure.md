@@ -397,12 +397,12 @@ Repositories can be validated against this core structure using:
 ```bash
 # Validate repository structure
 python3 scripts/validate/validate_structure.py \
-  --definition scripts/definitions/default-repository.xml \
+  --definition scripts/definitions/default-repository.tf \
   --target /path/to/repository
 
 # Generate missing structure elements
 python3 scripts/validate/generate_stubs.py \
-  --definition scripts/definitions/default-repository.xml \
+  --definition scripts/definitions/default-repository.tf \
   --target /path/to/repository \
   --dry-run
 ```
@@ -455,7 +455,7 @@ python3 scripts/docs/rebuild_script_indexes.py
 1. **Use Structure Definition**
    ```bash
    python3 scripts/validate/generate_stubs.py \
-     --definition scripts/definitions/default-repository.xml \
+     --definition scripts/definitions/default-repository.tf \
      --target /path/to/new-repo
    ```
 
@@ -516,7 +516,7 @@ Add to repository CI pipeline:
 - name: Validate repository structure
   run: |
     python3 scripts/validate/validate_structure.py \
-      --definition scripts/definitions/default-repository.xml
+      --definition scripts/definitions/default-repository.tf
 
 - name: Check index freshness
   run: |

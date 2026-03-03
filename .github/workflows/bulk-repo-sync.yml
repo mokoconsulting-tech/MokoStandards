@@ -218,16 +218,16 @@ jobs:
           fi
 
           # Check for schema definition files required by bulk_update_repos.php
-          if [ ! -f "api/definitions/crm-module.xml" ]; then
-            MISSING_FILES+=("api/definitions/crm-module.xml")
+          if [ ! -f "api/definitions/crm-module.tf" ]; then
+            MISSING_FILES+=("api/definitions/crm-module.tf")
           fi
 
-          if [ ! -f "api/definitions/default-repository.xml" ]; then
-            MISSING_FILES+=("api/definitions/default-repository.xml")
+          if [ ! -f "api/definitions/default-repository.tf" ]; then
+            MISSING_FILES+=("api/definitions/default-repository.tf")
           fi
 
-          if [ ! -f "api/definitions/waas-component.xml" ]; then
-            MISSING_FILES+=("api/definitions/waas-component.xml")
+          if [ ! -f "api/definitions/waas-component.tf" ]; then
+            MISSING_FILES+=("api/definitions/waas-component.tf")
           fi
 
           # Report errors if any files are missing

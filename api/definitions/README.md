@@ -8,12 +8,12 @@ This directory contains repository structure definition files that define the ex
 
 | File | Type | Description |
 |------|------|-------------|
-| **default-repository.tf** | Generic | Standard structure for generic repositories |
+| **crm-module.tf** | Dolibarr | Structure for Dolibarr/CRM modules |
 | **default-repository.json** | Generic | JSON format of default repository structure |
+| **default-repository.tf** | Generic | Standard structure for generic repositories |
 | **generic-repository.tf** | Generic | Alternative generic repository structure |
 | **standards-repository.tf** | Standards | Structure for MokoStandards organizational repository |
 | **waas-component.tf** | Joomla | Structure for Joomla/WaaS components, modules, plugins |
-| **crm-module.tf** | Dolibarr | Structure for Dolibarr/CRM modules |
 
 ## Schema Format
 

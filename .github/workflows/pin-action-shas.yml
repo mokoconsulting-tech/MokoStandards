@@ -1,0 +1,182 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.Automation
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/pin-action-shas.yml
+# VERSION: 04.00.03
+# BRIEF: Pin GitHub Actions to immutable commit SHAs in workflow files
+# NOTE: Resolves tag-based action refs to pinned commit SHAs to satisfy the
+#       CodeQL "Unpinned tag for a non-immutable Action" (actions/unpinned-tag)
+#       security rule.
+
+name: Pin Action SHAs
+
+# MokoStandards Policy Compliance:
+# - Security: Ensures all GitHub Actions are pinned to immutable commit SHAs
+# - Reference: docs/policy/security.md
+
+# ┌─────────────────────────────────────────────────────────────────────────┐
+# │                         WORKFLOW FLOW DIAGRAM                            │
+# └─────────────────────────────────────────────────────────────────────────┘
+#
+#   TRIGGER: Schedule (monthly), workflow_dispatch, or PR/push
+#        │
+#        ▼
+#   ┌──────────────────┐
+#   │  Checkout repo   │
+#   └──────────────────┘
+#        │
+#        ▼
+#   ┌──────────────────┐
+#   │  Dry-run scan    │   ← detect unpinned actions
+#   └──────────────────┘
+#        │
+#     changes?
+#    yes │   no ──► done
+#        ▼
+#   ┌──────────────────┐
+#   │  Pin all SHAs    │   ← call GitHub API per action
+#   └──────────────────┘
+#        │
+#        ▼
+#   ┌──────────────────┐
+#   │  Commit & Push   │
+#   └──────────────────┘
+
+on:
+  schedule:
+    # Run at 03:00 UTC on the first day of every month
+    - cron: '0 3 1 * *'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/**'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run – show changes without modifying files'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  pin-action-shas:
+    name: Pin Action SHAs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.31.0
+        with:
+          php-version: '8.1'
+          extensions: json
+          coverage: none
+
+      - name: Scan for unpinned actions (dry run)
+        id: scan
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          echo "## 🔒 GitHub Actions SHA Pin Check" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          php api/maintenance/pin_action_shas.php --dry-run --verbose \
+            > /tmp/pin_scan.txt 2>&1 || true
+
+          cat /tmp/pin_scan.txt
+
+          if grep -qE "^\s+[-+]" /tmp/pin_scan.txt; then
+            echo "needs_update=true" >> "$GITHUB_OUTPUT"
+            echo "### 📝 Unpinned actions detected" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "needs_update=false" >> "$GITHUB_OUTPUT"
+            echo "✅ All actions are already pinned to commit SHAs" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/pin_scan.txt >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Pin action SHAs
+        if: |
+          steps.scan.outputs.needs_update == 'true' &&
+          github.event.inputs.dry_run != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### 🔄 Pinning actions" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          php api/maintenance/pin_action_shas.php --verbose \
+            | tee /tmp/pin_update.txt
+
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/pin_update.txt >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Configure Git
+        if: |
+          steps.scan.outputs.needs_update == 'true' &&
+          github.event.inputs.dry_run != 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+      - name: Commit and push pinned SHAs
+        if: |
+          steps.scan.outputs.needs_update == 'true' &&
+          github.event.inputs.dry_run != 'true'
+        run: |
+          set -euo pipefail
+
+          if git diff --quiet .github/workflows/; then
+            echo "ℹ️ No changes to commit" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          git add .github/workflows/
+          git commit \
+            -m "chore(security): pin GitHub Actions to immutable commit SHAs" \
+            -m "" \
+            -m "[skip ci]" \
+            -m "" \
+            -m "Pins all tag-based action references to pinned commit SHAs to" \
+            -m "satisfy CodeQL rule actions/unpinned-tag (Medium severity)." \
+            -m "Generated by: .github/workflows/pin-action-shas.yml" \
+            -m "Commit: ${{ github.sha }}" \
+            -m "Triggered by: ${{ github.event_name }}"
+
+          git push
+
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### ✅ Changes committed" >> "$GITHUB_STEP_SUMMARY"
+          echo "All workflow files have been updated with pinned commit SHAs." \
+            >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Summary footer
+        if: always()
+        run: |
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "---" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Workflow:** Pin Action SHAs" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Trigger:** ${{ github.event_name }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Branch:** ${{ github.ref_name }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Commit:** ${{ github.sha }}" >> "$GITHUB_STEP_SUMMARY"

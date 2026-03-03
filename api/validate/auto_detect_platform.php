@@ -612,6 +612,7 @@ class AutoDetectPlatform extends CLIApp
             'mobile' => 'mobile-app-repository.tf',
             'api' => 'api-repository.tf',
             'documentation' => 'documentation-repository.tf',
+            'standards' => 'standards-repository.tf',
             'generic' => 'default-repository.tf',
         ];
         

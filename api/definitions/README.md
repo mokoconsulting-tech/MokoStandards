@@ -10,9 +10,10 @@ This directory contains repository structure definition files that define the ex
 |------|------|-------------|
 | **default-repository.tf** | Generic | Standard structure for generic repositories |
 | **default-repository.json** | Generic | JSON format of default repository structure |
+| **generic-repository.tf** | Generic | Alternative generic repository structure |
+| **standards-repository.tf** | Standards | Structure for MokoStandards organizational repository |
 | **waas-component.tf** | Joomla | Structure for Joomla/WaaS components, modules, plugins |
 | **crm-module.tf** | Dolibarr | Structure for Dolibarr/CRM modules |
-| **generic-repository.tf** | Generic | Alternative generic repository structure |
 
 ## Schema Format
 

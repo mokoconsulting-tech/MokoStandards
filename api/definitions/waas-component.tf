@@ -1,389 +1,385 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<repository-structure xmlns="http://mokoconsulting.com/schemas/repository-structure"
-                      version="1.0"
-                      schema-version="1.0">
-  <metadata>
-    <name>MokoWaaS Component</name>
-    <description>Standard repository structure for MokoWaaS (Joomla) components</description>
-    <repository-type>waas-component</repository-type>
-    <platform>mokowaas</platform>
-    <last-updated>2026-01-15T00:00:00Z</last-updated>
-    <maintainer>Moko Consulting</maintainer>
-  </metadata>
+/**
+ * MokoWaaS Component Structure Definition
+ * Standard repository structure for MokoWaaS (Joomla) components
+ * 
+ * Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Version: 1.0
+ * Schema Version: 1.0
+ */
 
-  <structure>
-    <!-- Root level files -->
-    <root-files>
-      <file extension="md">
-        <name>README.md</name>
-        <description>Developer-focused documentation for contributors and maintainers</description>
-        <required>true</required>
-        <audience>developer</audience>
-      </file>
+locals {
+  repository_structure = {
+    metadata = {
+      name             = "MokoWaaS Component"
+      description      = "Standard repository structure for MokoWaaS (Joomla) components"
+      repository_type  = "waas-component"
+      platform         = "mokowaas"
+      last_updated     = "2026-01-15T00:00:00Z"
+      maintainer       = "Moko Consulting"
+      version          = "1.0"
+      schema_version   = "1.0"
+    }
 
-      <file extension="">
-        <name>LICENSE</name>
-        <description>License file (GPL-3.0-or-later) - Default for Joomla/WaaS components</description>
-        <required>true</required>
-        <audience>general</audience>
-        <template>templates/licenses/GPL-3.0</template>
-        <license-type>GPL-3.0-or-later</license-type>
-      </file>
+    root_files = [
+      {
+        name              = "README.md"
+        extension         = "md"
+        description       = "Developer-focused documentation for contributors and maintainers"
+        required          = true
+        audience          = "developer"
+      },
+      {
+        name              = "LICENSE"
+        extension         = ""
+        description       = "License file (GPL-3.0-or-later) - Default for Joomla/WaaS components"
+        required          = true
+        audience          = "general"
+        template          = "templates/licenses/GPL-3.0"
+        license_type      = "GPL-3.0-or-later"
+      },
+      {
+        name              = "CHANGELOG.md"
+        extension         = "md"
+        description       = "Version history and changes"
+        required          = true
+        audience          = "general"
+      },
+      {
+        name              = "SECURITY.md"
+        extension         = "md"
+        description       = "Security policy and vulnerability reporting"
+        required          = true
+        audience          = "general"
+      },
+      {
+        name              = "CODE_OF_CONDUCT.md"
+        extension         = "md"
+        description       = "Community code of conduct"
+        required          = true
+        always_overwrite  = true
+        audience          = "contributor"
+      },
+      {
+        name              = "ROADMAP.md"
+        extension         = "md"
+        description       = "Project roadmap with version goals and milestones"
+        required          = false
+        audience          = "general"
+      },
+      {
+        name              = "CONTRIBUTING.md"
+        extension         = "md"
+        description       = "Contribution guidelines"
+        required          = true
+        audience          = "contributor"
+      },
+      {
+        name                = "Makefile"
+        description         = "Build automation using MokoStandards templates"
+        required            = true
+        always_overwrite    = true
+        audience            = "developer"
+        source_path         = "templates/makefiles"
+        source_filename     = "Makefile.joomla.template"
+        source_type         = "template"
+        destination_path    = "."
+        destination_filename = "Makefile"
+        create_path         = false
+        template            = "templates/makefiles/Makefile.joomla.template"
+      },
+      {
+        name              = ".gitignore"
+        extension         = "gitignore"
+        description       = "Git ignore patterns for Joomla development - preserved during sync operations"
+        required          = true
+        always_overwrite  = false
+        audience          = "developer"
+        template          = "templates/configs/.gitignore.joomla"
+        validation_rules = [
+          {
+            type        = "content-pattern"
+            description = "Must contain sftp-config pattern to ignore SFTP sync configuration files"
+            pattern     = "sftp-config"
+            severity    = "error"
+          },
+          {
+            type        = "content-pattern"
+            description = "Must contain user.css pattern to ignore custom user CSS overrides"
+            pattern     = "user\\.css"
+            severity    = "error"
+          },
+          {
+            type        = "content-pattern"
+            description = "Must contain user.js pattern to ignore custom user JavaScript overrides"
+            pattern     = "user\\.js"
+            severity    = "error"
+          },
+          {
+            type        = "content-pattern"
+            description = "Must contain modulebuilder.txt pattern to ignore Joomla Module Builder artifacts"
+            pattern     = "modulebuilder\\.txt"
+            severity    = "error"
+          },
+          {
+            type        = "content-pattern"
+            description = "Must contain colors_custom.css pattern to ignore custom color scheme overrides"
+            pattern     = "colors_custom\\.css"
+            severity    = "error"
+          }
+        ]
+      },
+      {
+        name              = ".gitattributes"
+        extension         = "gitattributes"
+        description       = "Git attributes configuration"
+        required          = true
+        audience          = "developer"
+      },
+      {
+        name              = ".editorconfig"
+        extension         = "editorconfig"
+        description       = "Editor configuration for consistent coding style - preserved during sync"
+        required          = true
+        always_overwrite  = false
+        audience          = "developer"
+      }
+    ]
 
-      <file extension="md">
-        <name>CHANGELOG.md</name>
-        <description>Version history and changes</description>
-        <required>true</required>
-        <audience>general</audience>
-      </file>
-
-      <file extension="md">
-        <name>SECURITY.md</name>
-        <description>Security policy and vulnerability reporting</description>
-        <required>true</required>
-        <audience>general</audience>
-      </file>
-
-      <file extension="md">
-        <name>CODE_OF_CONDUCT.md</name>
-        <description>Community code of conduct</description>
-        <required>true</required>
-        <always-overwrite>true</always-overwrite>
-        <audience>contributor</audience>
-      </file>
-
-      <file extension="md">
-        <name>ROADMAP.md</name>
-        <description>Project roadmap with version goals and milestones</description>
-        <required>false</required>
-        <audience>general</audience>
-      </file>
-
-      <file extension="md">
-        <name>CONTRIBUTING.md</name>
-        <description>Contribution guidelines</description>
-        <required>true</required>
-        <audience>contributor</audience>
-      </file>
-
-      <file>
-        <name>Makefile</name>
-        <description>Build automation using MokoStandards templates</description>
-        <required>true</required>
-        <always-overwrite>true</always-overwrite>
-        <audience>developer</audience>
-        <source>
-          <path>templates/makefiles</path>
-          <filename>Makefile.joomla.template</filename>
-          <type>template</type>
-        </source>
-        <destination>
-          <path>.</path>
-          <filename>Makefile</filename>
-          <create-path>false</create-path>
-        </destination>
-        <template>templates/makefiles/Makefile.joomla.template</template>
-      </file>
-
-      <file extension="gitignore">
-        <name>.gitignore</name>
-        <description>Git ignore patterns for Joomla development - preserved during sync operations</description>
-        <required>true</required>
-        <always-overwrite>false</always-overwrite>
-        <audience>developer</audience>
-        <template>templates/configs/.gitignore.joomla</template>
-        <validation-rules>
-          <rule>
-            <type>content-pattern</type>
-            <description>Must contain sftp-config pattern to ignore SFTP sync configuration files</description>
-            <pattern>sftp-config</pattern>
-            <severity>error</severity>
-          </rule>
-          <rule>
-            <type>content-pattern</type>
-            <description>Must contain user.css pattern to ignore custom user CSS overrides</description>
-            <pattern>user\.css</pattern>
-            <severity>error</severity>
-          </rule>
-          <rule>
-            <type>content-pattern</type>
-            <description>Must contain user.js pattern to ignore custom user JavaScript overrides</description>
-            <pattern>user\.js</pattern>
-            <severity>error</severity>
-          </rule>
-          <rule>
-            <type>content-pattern</type>
-            <description>Must contain modulebuilder.txt pattern to ignore Joomla Module Builder artifacts</description>
-            <pattern>modulebuilder\.txt</pattern>
-            <severity>error</severity>
-          </rule>
-          <rule>
-            <type>content-pattern</type>
-            <description>Must contain colors_custom.css pattern to ignore custom color scheme overrides</description>
-            <pattern>colors_custom\.css</pattern>
-            <severity>error</severity>
-          </rule>
-        </validation-rules>
-      </file>
-
-      <file extension="gitattributes">
-        <name>.gitattributes</name>
-        <description>Git attributes configuration</description>
-        <required>true</required>
-        <audience>developer</audience>
-      </file>
-
-      <file extension="editorconfig">
-        <name>.editorconfig</name>
-        <description>Editor configuration for consistent coding style - preserved during sync</description>
-        <required>true</required>
-        <always-overwrite>false</always-overwrite>
-        <audience>developer</audience>
-      </file>
-    </root-files>
-
-    <!-- Directory structure -->
-    <directories>
-      <!-- Source directory for site (frontend) -->
-      <directory path="site">
-        <name>site</name>
-        <description>Component frontend (site) code</description>
-        <required>true</required>
-        <purpose>Contains frontend component code deployed to site</purpose>
-
-        <files>
-          <file extension="php">
-            <name>controller.php</name>
-            <description>Main site controller</description>
-            <required>true</required>
-            <audience>developer</audience>
-          </file>
-
-          <file extension="xml">
-            <name>manifest.xml</name>
-            <description>Component manifest for site</description>
-            <required>true</required>
-            <audience>developer</audience>
-          </file>
-        </files>
-
-        <subdirectories>
-          <directory path="site/controllers">
-            <name>controllers</name>
-            <description>Site controllers</description>
-            <requirement-status>suggested</requirement-status>
-          </directory>
-
-          <directory path="site/models">
-            <name>models</name>
-            <description>Site models</description>
-            <requirement-status>suggested</requirement-status>
-          </directory>
-
-          <directory path="site/views">
-            <name>views</name>
-            <description>Site views</description>
-            <required>true</required>
-          </directory>
-        </subdirectories>
-      </directory>
-
-      <!-- Admin directory -->
-      <directory path="admin">
-        <name>admin</name>
-        <description>Component backend (admin) code</description>
-        <required>true</required>
-        <purpose>Contains backend component code for administrator</purpose>
-
-        <files>
-          <file extension="php">
-            <name>controller.php</name>
-            <description>Main admin controller</description>
-            <required>true</required>
-            <audience>developer</audience>
-          </file>
-        </files>
-
-        <subdirectories>
-          <directory path="admin/controllers">
-            <name>controllers</name>
-            <description>Admin controllers</description>
-            <requirement-status>suggested</requirement-status>
-          </directory>
-
-          <directory path="admin/models">
-            <name>models</name>
-            <description>Admin models</description>
-            <requirement-status>suggested</requirement-status>
-          </directory>
-
-          <directory path="admin/views">
-            <name>views</name>
-            <description>Admin views</description>
-            <required>true</required>
-          </directory>
-
-          <directory path="admin/sql">
-            <name>sql</name>
-            <description>Database schema files</description>
-            <requirement-status>suggested</requirement-status>
-          </directory>
-        </subdirectories>
-      </directory>
-
-      <!-- Media directory -->
-      <directory path="media">
-        <name>media</name>
-        <description>Media files (CSS, JS, images)</description>
-        <requirement-status>suggested</requirement-status>
-        <purpose>Contains static assets</purpose>
-
-        <subdirectories>
-          <directory path="media/css">
-            <name>css</name>
-            <description>Stylesheets</description>
-            <requirement-status>suggested</requirement-status>
-          </directory>
-
-          <directory path="media/js">
-            <name>js</name>
-            <description>JavaScript files</description>
-            <requirement-status>suggested</requirement-status>
-          </directory>
-
-          <directory path="media/images">
-            <name>images</name>
-            <description>Image files</description>
-            <requirement-status>suggested</requirement-status>
-          </directory>
-        </subdirectories>
-      </directory>
-
-      <!-- Language directory -->
-      <directory path="language">
-        <name>language</name>
-        <description>Language translation files</description>
-        <required>true</required>
-        <purpose>Contains language INI files</purpose>
-      </directory>
-
-      <!-- Documentation directory -->
-      <directory path="docs">
-        <name>docs</name>
-        <description>Developer and technical documentation</description>
-        <required>true</required>
-        <purpose>Contains technical documentation, API docs, architecture diagrams</purpose>
-
-        <files>
-          <file extension="md">
-            <name>index.md</name>
-            <description>Documentation index</description>
-            <required>true</required>
-          </file>
-        </files>
-      </directory>
-
-      <!-- Scripts directory -->
-      <directory path="scripts">
-        <name>scripts</name>
-        <description>Build and maintenance scripts</description>
-        <required>true</required>
-        <purpose>Contains scripts for building, testing, and deploying</purpose>
-
-        <files>
-          <file extension="md">
-            <name>index.md</name>
-            <description>Scripts documentation</description>
-            <requirement-status>required</requirement-status>
-          </file>
-          
-          <file extension="sh">
-            <name>build_package.sh</name>
-            <description>Package building script for Joomla component</description>
-            <requirement-status>suggested</requirement-status>
-            <template>templates/scripts/release/package_joomla.sh</template>
-          </file>
-          
-          <file extension="sh">
-            <name>validate_manifest.sh</name>
-            <description>Manifest validation script</description>
-            <requirement-status>suggested</requirement-status>
-            <template>templates/scripts/validate/manifest.sh</template>
-          </file>
-
-          <file extension="xml">
-            <name>MokoStandards.override.xml</name>
-            <description>MokoStandards sync override configuration - preserved during sync</description>
-            <requirement-status>suggested</requirement-status>
-            <always-overwrite>false</always-overwrite>
-            <audience>developer</audience>
-          </file>
-        </files>
-      </directory>
-
-      <!-- Tests directory -->
-      <directory path="tests">
-        <name>tests</name>
-        <description>Test files</description>
-        <required>true</required>
-        <purpose>Contains unit tests, integration tests, and test fixtures</purpose>
-
-        <subdirectories>
-          <directory path="tests/unit">
-            <name>unit</name>
-            <description>Unit tests</description>
-            <required>true</required>
-          </directory>
-
-          <directory path="tests/integration">
-            <name>integration</name>
-            <description>Integration tests</description>
-            <requirement-status>suggested</requirement-status>
-          </directory>
-        </subdirectories>
-      </directory>
-
-      <!-- .github directory -->
-      <directory path=".github">
-        <name>.github</name>
-        <description>GitHub-specific configuration</description>
-        <requirement-status>suggested</requirement-status>
-        <purpose>Contains GitHub Actions workflows, issue templates, etc.</purpose>
-
-        <subdirectories>
-          <directory path=".github/workflows">
-            <name>workflows</name>
-            <description>GitHub Actions workflows</description>
-            <requirement-status>required</requirement-status>
-            
-            <files>
-              <file extension="yml">
-                <name>ci-joomla.yml</name>
-                <description>Joomla-specific CI workflow</description>
-                <requirement-status>required</requirement-status>
-                <always-overwrite>true</always-overwrite>
-                <template>templates/workflows/joomla/ci-joomla.yml.template</template>
-              </file>
-              
-              <file extension="yml">
-                <name>codeql-analysis.yml</name>
-                <description>CodeQL security analysis workflow</description>
-                <requirement-status>required</requirement-status>
-                <always-overwrite>true</always-overwrite>
-                <template>templates/workflows/generic/codeql-analysis.yml.template</template>
-              </file>
-              
-              <file extension="yml">
-                <name>standards-compliance.yml</name>
-                <description>MokoStandards compliance validation</description>
-                <requirement-status>required</requirement-status>
-                <always-overwrite>true</always-overwrite>
-                <template>.github/workflows/standards-compliance.yml</template>
-              </file>
-            </files>
-          </directory>
-        </subdirectories>
-      </directory>
-    </directories>
-  </structure>
-</repository-structure>
+    directories = [
+      {
+        name                = "site"
+        path                = "site"
+        description         = "Component frontend (site) code"
+        required            = true
+        purpose             = "Contains frontend component code deployed to site"
+        files = [
+          {
+            name              = "controller.php"
+            extension         = "php"
+            description       = "Main site controller"
+            required          = true
+            audience          = "developer"
+          },
+          {
+            name              = "manifest.xml"
+            extension         = "xml"
+            description       = "Component manifest for site"
+            required          = true
+            audience          = "developer"
+          }
+        ]
+        subdirectories = [
+          {
+            name                = "controllers"
+            path                = "site/controllers"
+            description         = "Site controllers"
+            requirement_status  = "suggested"
+          },
+          {
+            name                = "models"
+            path                = "site/models"
+            description         = "Site models"
+            requirement_status  = "suggested"
+          },
+          {
+            name                = "views"
+            path                = "site/views"
+            description         = "Site views"
+            required            = true
+          }
+        ]
+      },
+      {
+        name                = "admin"
+        path                = "admin"
+        description         = "Component backend (admin) code"
+        required            = true
+        purpose             = "Contains backend component code for administrator"
+        files = [
+          {
+            name              = "controller.php"
+            extension         = "php"
+            description       = "Main admin controller"
+            required          = true
+            audience          = "developer"
+          }
+        ]
+        subdirectories = [
+          {
+            name                = "controllers"
+            path                = "admin/controllers"
+            description         = "Admin controllers"
+            requirement_status  = "suggested"
+          },
+          {
+            name                = "models"
+            path                = "admin/models"
+            description         = "Admin models"
+            requirement_status  = "suggested"
+          },
+          {
+            name                = "views"
+            path                = "admin/views"
+            description         = "Admin views"
+            required            = true
+          },
+          {
+            name                = "sql"
+            path                = "admin/sql"
+            description         = "Database schema files"
+            requirement_status  = "suggested"
+          }
+        ]
+      },
+      {
+        name                = "media"
+        path                = "media"
+        description         = "Media files (CSS, JS, images)"
+        requirement_status  = "suggested"
+        purpose             = "Contains static assets"
+        subdirectories = [
+          {
+            name                = "css"
+            path                = "media/css"
+            description         = "Stylesheets"
+            requirement_status  = "suggested"
+          },
+          {
+            name                = "js"
+            path                = "media/js"
+            description         = "JavaScript files"
+            requirement_status  = "suggested"
+          },
+          {
+            name                = "images"
+            path                = "media/images"
+            description         = "Image files"
+            requirement_status  = "suggested"
+          }
+        ]
+      },
+      {
+        name                = "language"
+        path                = "language"
+        description         = "Language translation files"
+        required            = true
+        purpose             = "Contains language INI files"
+      },
+      {
+        name                = "docs"
+        path                = "docs"
+        description         = "Developer and technical documentation"
+        required            = true
+        purpose             = "Contains technical documentation, API docs, architecture diagrams"
+        files = [
+          {
+            name              = "index.md"
+            extension         = "md"
+            description       = "Documentation index"
+            required          = true
+          }
+        ]
+      },
+      {
+        name                = "scripts"
+        path                = "scripts"
+        description         = "Build and maintenance scripts"
+        required            = true
+        purpose             = "Contains scripts for building, testing, and deploying"
+        files = [
+          {
+            name                = "index.md"
+            extension           = "md"
+            description         = "Scripts documentation"
+            requirement_status  = "required"
+          },
+          {
+            name                = "build_package.sh"
+            extension           = "sh"
+            description         = "Package building script for Joomla component"
+            requirement_status  = "suggested"
+            template            = "templates/scripts/release/package_joomla.sh"
+          },
+          {
+            name                = "validate_manifest.sh"
+            extension           = "sh"
+            description         = "Manifest validation script"
+            requirement_status  = "suggested"
+            template            = "templates/scripts/validate/manifest.sh"
+          },
+          {
+            name                = "MokoStandards.override.xml"
+            extension           = "xml"
+            description         = "MokoStandards sync override configuration - preserved during sync"
+            requirement_status  = "suggested"
+            always_overwrite    = false
+            audience            = "developer"
+          }
+        ]
+      },
+      {
+        name                = "tests"
+        path                = "tests"
+        description         = "Test files"
+        required            = true
+        purpose             = "Contains unit tests, integration tests, and test fixtures"
+        subdirectories = [
+          {
+            name                = "unit"
+            path                = "tests/unit"
+            description         = "Unit tests"
+            required            = true
+          },
+          {
+            name                = "integration"
+            path                = "tests/integration"
+            description         = "Integration tests"
+            requirement_status  = "suggested"
+          }
+        ]
+      },
+      {
+        name                = ".github"
+        path                = ".github"
+        description         = "GitHub-specific configuration"
+        requirement_status  = "suggested"
+        purpose             = "Contains GitHub Actions workflows, issue templates, etc."
+        subdirectories = [
+          {
+            name                = "workflows"
+            path                = ".github/workflows"
+            description         = "GitHub Actions workflows"
+            requirement_status  = "required"
+            files = [
+              {
+                name                = "ci-joomla.yml"
+                extension           = "yml"
+                description         = "Joomla-specific CI workflow"
+                requirement_status  = "required"
+                always_overwrite    = true
+                template            = "templates/workflows/joomla/ci-joomla.yml.template"
+              },
+              {
+                name                = "codeql-analysis.yml"
+                extension           = "yml"
+                description         = "CodeQL security analysis workflow"
+                requirement_status  = "required"
+                always_overwrite    = true
+                template            = "templates/workflows/generic/codeql-analysis.yml.template"
+              },
+              {
+                name                = "standards-compliance.yml"
+                extension           = "yml"
+                description         = "MokoStandards compliance validation"
+                requirement_status  = "required"
+                always_overwrite    = true
+                template            = ".github/workflows/standards-compliance.yml"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

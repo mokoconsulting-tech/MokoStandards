@@ -27,7 +27,7 @@ on:
         required: false
         type: number
       push_to_remote:
-        description: 'Push DOLIBARR_MODULE_ID.txt to remote repository'
+        description: 'Scan remote repository for module ID references, update them, and open a PR with the new ID'
         required: false
         type: boolean
         default: false
@@ -251,7 +251,7 @@ jobs:
             4. Merge to officially reserve the module ID`;
 
             if (pushToRemote) {
-              nextSteps += `\n            5. Module ID file will be created in remote repository: ${repoUrl}`;
+              nextSteps += `\n            5. Review and merge the remote PR that was automatically opened in ${repoUrl}`;
             } else {
               nextSteps += `\n            5. Manually create \`src/DOLIBARR_MODULE_ID.txt\` in ${repoUrl} if needed`;
             }
@@ -323,32 +323,38 @@ jobs:
 
       - name: Push to remote repository
         if: ${{ github.event.inputs.push_to_remote == 'true' }}
+        id: push_remote
         env:
           MODULE_ID: ${{ steps.find_id.outputs.module_id }}
           MODULE_NAME: ${{ steps.extract_name.outputs.module_name }}
           REMOTE_REPO: ${{ steps.extract_name.outputs.repo_url }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          echo "🚀 Pushing module ID to remote repository..."
+          echo "🚀 Opening module ID update PR in remote repository..."
 
           # Create a temporary directory for the remote repo
           TEMP_DIR=$(mktemp -d)
           cd "$TEMP_DIR"
 
-          # Clone the remote repository
+          # Clone the remote repository using GH_TOKEN for authentication
           echo "📥 Cloning remote repository..."
-          git clone "$REMOTE_REPO" repo
+          git clone "https://x-access-token:${GH_TOKEN}@github.com/mokoconsulting-tech/${MODULE_NAME}" repo
           cd repo
 
           # Configure Git
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+          # Create a new branch for the changes
+          REMOTE_BRANCH="reserve-module-id/${MODULE_ID}"
+          echo "🔀 Creating branch: $REMOTE_BRANCH"
+          git checkout -b "$REMOTE_BRANCH"
+
           # Create src directory if it doesn't exist
           mkdir -p src
 
           # Create DOLIBARR_MODULE_ID.txt file
           MODULE_ID_FILE="src/DOLIBARR_MODULE_ID.txt"
-
           echo "DOLIBARR_MODULE_ID=$MODULE_ID" > "$MODULE_ID_FILE"
           echo "" >> "$MODULE_ID_FILE"
           echo "This module ID has been officially reserved in MokoStandards." >> "$MODULE_ID_FILE"
@@ -364,44 +370,77 @@ jobs:
           echo "" >> "$MODULE_ID_FILE"
           echo "This ID is registered in the MokoStandards module registry:" >> "$MODULE_ID_FILE"
           echo "https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/development/crm/module-registry.md" >> "$MODULE_ID_FILE"
-
+          git add "$MODULE_ID_FILE"
           echo "✅ Created $MODULE_ID_FILE"
 
-          # Commit and push
-          git add "$MODULE_ID_FILE"
+          # Scan PHP files for $this->numero = <digits> and update with the reserved ID
+          echo "🔍 Scanning PHP files for \$this->numero patterns..."
+          UPDATED_PHP=0
+          while IFS= read -r file; do
+            perl -i -pe 's/(\$this->numero\s*=\s*)\d+/$1'"$MODULE_ID"'/' "$file"
+            git add "$file"
+            echo "  Updated: $file"
+            UPDATED_PHP=$((UPDATED_PHP + 1))
+          done < <(grep -rl '$this->numero' . --include="*.php" 2>/dev/null || true)
+          echo "✅ Updated $UPDATED_PHP PHP file(s) with \$this->numero = $MODULE_ID"
 
-          # Create commit message for remote repo
-          printf "Reserve Dolibarr module ID %s\n\n" "$MODULE_ID" > /tmp/remote_commit.txt
-          printf "Module %s\n" "$MODULE_NAME" >> /tmp/remote_commit.txt
-          printf "ID %s\n\n" "$MODULE_ID" >> /tmp/remote_commit.txt
-          printf "Added files\n" >> /tmp/remote_commit.txt
-          printf -- "- src/DOLIBARR_MODULE_ID.txt with reserved module ID\n\n" >> /tmp/remote_commit.txt
-          printf "This ID has been officially reserved in MokoStandards.\n" >> /tmp/remote_commit.txt
+          # Scan other files for DOLIBARR_MODULE_ID=<digits> (skip the file we just created)
+          echo "🔍 Scanning for DOLIBARR_MODULE_ID= pattern in other files..."
+          UPDATED_OTHER=0
+          while IFS= read -r file; do
+            if [[ "$file" != "./$MODULE_ID_FILE" ]]; then
+              perl -i -pe 's/(DOLIBARR_MODULE_ID=)\d+/$1'"$MODULE_ID"'/' "$file"
+              git add "$file"
+              echo "  Updated: $file"
+              UPDATED_OTHER=$((UPDATED_OTHER + 1))
+            fi
+          done < <(grep -rl 'DOLIBARR_MODULE_ID=' . 2>/dev/null || true)
+          echo "✅ Updated $UPDATED_OTHER other file(s) with DOLIBARR_MODULE_ID=$MODULE_ID"
+
+          # Commit all changes
+          printf "feat: set Dolibarr module ID to %s\n\n" "$MODULE_ID" > /tmp/remote_commit.txt
+          printf "Module: %s\n" "$MODULE_NAME" >> /tmp/remote_commit.txt
+          printf "ID: %s\n\n" "$MODULE_ID" >> /tmp/remote_commit.txt
+          printf "Changes:\n" >> /tmp/remote_commit.txt
+          printf -- "- Added src/DOLIBARR_MODULE_ID.txt with reserved module ID\n" >> /tmp/remote_commit.txt
+          printf -- "- Updated \$this->numero in PHP module descriptor(s) to %s\n" "$MODULE_ID" >> /tmp/remote_commit.txt
+          printf -- "- Updated any existing DOLIBARR_MODULE_ID references to %s\n\n" "$MODULE_ID" >> /tmp/remote_commit.txt
+          printf "This ID is officially reserved in MokoStandards.\n" >> /tmp/remote_commit.txt
           printf "See https://github.com/mokoconsulting-tech/MokoStandards\n\n" >> /tmp/remote_commit.txt
           printf "DO NOT change the module ID!\n" >> /tmp/remote_commit.txt
-
           git commit -F /tmp/remote_commit.txt
 
-          # Detect and push to the default branch
-          echo "📤 Detecting default branch..."
-          DEFAULT_BRANCH=$(git remote show origin | grep 'HEAD branch' | cut -d' ' -f5)
+          # Push the new branch to the remote repository
+          echo "📤 Pushing branch $REMOTE_BRANCH..."
+          git push origin "$REMOTE_BRANCH"
 
-          if [ -z "$DEFAULT_BRANCH" ]; then
-            echo "⚠️ Could not detect default branch, trying main then master..."
-            DEFAULT_BRANCH="main"
-          fi
+          # Create a PR in the remote repository via GitHub CLI
+          echo "📬 Creating PR in remote repository..."
+          REMOTE_PR_URL=$(gh pr create \
+            --repo "mokoconsulting-tech/${MODULE_NAME}" \
+            --head "$REMOTE_BRANCH" \
+            --base "main" \
+            --title "feat: set Dolibarr module ID to ${MODULE_ID} for ${MODULE_NAME}" \
+            --body "## Module ID Assignment
 
-          echo "Default branch: $DEFAULT_BRANCH"
+          This PR sets the Dolibarr module ID for **${MODULE_NAME}** to **${MODULE_ID}**.
 
-          if git push origin "$DEFAULT_BRANCH"; then
-            echo "✅ Pushed to $DEFAULT_BRANCH successfully"
-          else
-            echo "❌ Failed to push to $DEFAULT_BRANCH"
-            echo "Please check if the branch exists and you have push permissions"
-            exit 1
-          fi
+          The ID has been officially reserved in the MokoStandards module registry.
 
-          echo "✅ Pushed module ID to remote repository"
+          ### Changes
+          - Added \`src/DOLIBARR_MODULE_ID.txt\` with the reserved module ID
+          - Updated \`\$this->numero\` in PHP module descriptor(s) to \`${MODULE_ID}\`
+          - Updated any other \`DOLIBARR_MODULE_ID\` references to \`${MODULE_ID}\`
+
+          ### Registry
+          - [MokoStandards Module Registry](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/development/crm/module-registry.md)
+
+          ---
+
+          🤖 _Automatically created by the [reserve-dolibarr-module-id](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/.github/workflows/reserve-dolibarr-module-id.yml) workflow._")
+
+          echo "✅ Remote PR created: $REMOTE_PR_URL"
+          echo "remote_pr_url=$REMOTE_PR_URL" >> $GITHUB_OUTPUT
 
           # Cleanup
           cd /
@@ -414,6 +453,7 @@ jobs:
           PR_URL: ${{ steps.create_pr.outputs.pr_url }}
           REPO_URL: ${{ steps.extract_name.outputs.repo_url }}
           PUSH_TO_REMOTE: ${{ github.event.inputs.push_to_remote }}
+          REMOTE_PR_URL: ${{ steps.push_remote.outputs.remote_pr_url }}
         run: |
           echo "## 🎉 Module ID Reservation Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -423,6 +463,7 @@ jobs:
           echo "**Pull Request:** $PR_URL" >> $GITHUB_STEP_SUMMARY
           if [ "$PUSH_TO_REMOTE" = "true" ]; then
             echo "**Remote Push:** ✅ Enabled" >> $GITHUB_STEP_SUMMARY
+            echo "**Remote PR:** $REMOTE_PR_URL" >> $GITHUB_STEP_SUMMARY
           else
             echo "**Remote Push:** ⏭️ Skipped" >> $GITHUB_STEP_SUMMARY
           fi
@@ -433,7 +474,7 @@ jobs:
           echo "3. Get approval from CRM Development Lead" >> $GITHUB_STEP_SUMMARY
           echo "4. Merge the PR to officially reserve the module ID" >> $GITHUB_STEP_SUMMARY
           if [ "$PUSH_TO_REMOTE" = "true" ]; then
-            echo "5. Verify DOLIBARR_MODULE_ID.txt was created in $REPO_URL" >> $GITHUB_STEP_SUMMARY
+            echo "5. Review and merge the remote PR: $REMOTE_PR_URL" >> $GITHUB_STEP_SUMMARY
           else
             echo "5. Manually create src/DOLIBARR_MODULE_ID.txt in $REPO_URL if needed" >> $GITHUB_STEP_SUMMARY
           fi

@@ -125,7 +125,7 @@ jobs:
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**Remediation Steps:**" >> $GITHUB_STEP_SUMMARY
             [ ! -d "docs" ] && echo "- Create docs directory: \`mkdir docs && echo '# Documentation' > docs/README.md\`" >> $GITHUB_STEP_SUMMARY
-            [ ! -d "scripts" ] && echo "- Create scripts directory: \`mkdir scripts && touch scripts/.gitkeep\`" >> $GITHUB_STEP_SUMMARY
+            [ ! -d "api" ] && echo "- Create api directory: \`mkdir api && touch api/.gitkeep\`" >> $GITHUB_STEP_SUMMARY
             [ ! -d ".github" ] && echo "- Create .github directory: \`mkdir -p .github/workflows\`" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "📚 Reference: [MokoStandards Repository Structure](https://github.com/mokoconsulting-tech/MokoStandards/tree/main/docs/policy/core-structure.md)" >> $GITHUB_STEP_SUMMARY
@@ -1009,11 +1009,10 @@ jobs:
           echo "## 🔐 Script Integrity Validation" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          if [ -f "scripts/.script-registry.json" ]; then
+          if [ -f "api/.script-registry.json" ]; then
             echo "### Critical Scripts" >> $GITHUB_STEP_SUMMARY
-            python3 scripts/maintenance/validate_script_registry.py \
-              --priority critical \
-              --verbose | tee /tmp/script-validation.log
+            php api/maintenance/update_sha_hashes.php \
+              --dry-run --verbose | tee /tmp/script-validation.log
 
             EXIT_CODE=$?
 

@@ -19,14 +19,12 @@ on:
     branches:
       - main
     paths:
-      - 'scripts/**'
+      - 'api/**'
       - '.github/workflows/**'
   workflow_dispatch:
     inputs:
       scan_type:
         description: 'Type of security scan'
-        required: false
-        type: choice
         options:
           - all
           - credentials

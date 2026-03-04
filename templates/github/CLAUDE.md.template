@@ -103,7 +103,7 @@ All PHP scripts must extend `MokoStandards\Enterprise\CliFramework` — **never*
  * DEFGROUP: {{REPO_NAME}}.Scripts
  * INGROUP: {{REPO_NAME}}
  * REPO: {{REPO_URL}}
- * PATH: /scripts/my_script.php
+ * PATH: /api/my_script.php
  * VERSION: XX.YY.ZZ
  * BRIEF: One-line description of what this script does
  */

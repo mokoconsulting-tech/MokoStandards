@@ -11,7 +11,7 @@
  * DEFGROUP: MokoStandards.Scripts.Validate
  * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
- * PATH: /scripts/validate/check_repo_health.php
+ * PATH: /api/validate/check_repo_health.php
  * VERSION: 04.00.03
  * BRIEF: Repository health checker - PHP implementation
  */

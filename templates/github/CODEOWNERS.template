@@ -35,8 +35,8 @@
 /docs/policy/security-*.md          @mokoconsulting-tech/security-team
 /.github/workflows/security-*.yml   @mokoconsulting-tech/security-team
 
-# Scripts and automation
-/scripts/                           @mokoconsulting-tech/automation-team
+# API and automation
+/api/                               @mokoconsulting-tech/automation-team
 
 # Build system
 /Makefiles/                         @mokoconsulting-tech/build-team

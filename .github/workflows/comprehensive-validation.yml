@@ -16,7 +16,7 @@ on:
     branches:
       - main
     paths:
-      - 'scripts/**'
+      - 'api/**'
       - '.github/workflows/**'
       - 'templates/**'
       - 'docs/templates/**'
@@ -26,7 +26,7 @@ on:
     branches:
       - main
     paths:
-      - 'scripts/**'
+      - 'api/**'
       - '.github/workflows/**'
       - 'templates/**'
   schedule:
@@ -79,7 +79,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
 
           # Find all PHP files
-          PHP_FILES=$(find scripts/ src/ web/ -name "*.php" -type f 2>/dev/null | wc -l)
+          PHP_FILES=$(find api/ src/ web/ -name "*.php" -type f 2>/dev/null | wc -l)
           echo "Found $PHP_FILES PHP files" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
@@ -90,7 +90,7 @@ jobs:
               echo "❌ Syntax error in $file" >> $GITHUB_STEP_SUMMARY
               EXIT_CODE=1
             fi
-          done < <(find scripts/ src/ web/ -name "*.php" -type f 2>/dev/null)
+          done < <(find api/ src/ web/ -name "*.php" -type f 2>/dev/null)
 
           if [ $EXIT_CODE -eq 0 ]; then
             echo "✅ All PHP files have valid syntax" >> $GITHUB_STEP_SUMMARY
@@ -127,7 +127,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
 
           # Find all shell scripts
-          SHELL_FILES=$(find scripts/ templates/ -name "*.sh" -type f 2>/dev/null | wc -l)
+          SHELL_FILES=$(find api/ templates/ -name "*.sh" -type f 2>/dev/null | wc -l)
           echo "Found $SHELL_FILES shell scripts" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
@@ -138,7 +138,7 @@ jobs:
               echo "⚠️ Issues found in $file" >> $GITHUB_STEP_SUMMARY
               EXIT_CODE=1
             fi
-          done < <(find scripts/ templates/ -name "*.sh" -type f 2>/dev/null)
+          done < <(find api/ templates/ -name "*.sh" -type f 2>/dev/null)
 
           if [ $EXIT_CODE -eq 0 ]; then
             echo "✅ All shell scripts passed shellcheck" >> $GITHUB_STEP_SUMMARY

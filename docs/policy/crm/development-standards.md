@@ -283,7 +283,7 @@ For the complete, up-to-date registry table and reservation process, see:
 
 **Module ID Reservation**:
 
-To reserve a Dolibarr module ID from the Moko Consulting range (185051-185099), use the **automated workflow** (recommended) or create a manual PR. See the [Module Registry](../../development/crm/module-registry.md#module-id-reservation-process) for complete instructions.
+To reserve a Dolibarr module ID, use the **[Reserve Dolibarr Module ID workflow](../../workflows/reserve-dolibarr-module-id.md)** GitHub Actions workflow. This is the only permitted reservation method — direct edits to the registry are not allowed. See the [Module Registry](../../development/crm/module-registry.md#module-id-reservation-process) for full instructions.
 
 **Important**: Module IDs MUST be reserved through a pull request to [https://github.com/mokoconsulting-tech/MokoStandards](https://github.com/mokoconsulting-tech/MokoStandards). Direct commits are not permitted and are blocked on protected branches.
 

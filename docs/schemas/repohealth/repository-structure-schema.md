@@ -822,7 +822,6 @@ For issues or questions:
 
 ---
 
-**Version**: 1.0.0
 **Last Updated**: 2026-01-07
 **Maintained By**: Moko Consulting
 

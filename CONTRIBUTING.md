@@ -28,6 +28,8 @@
  NOTE: Breaking changes from v1 - no backward compatibility
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Contributing to MokoStandards v2.0
 
 Welcome! Thank you for your interest in contributing to MokoStandards. This guide defines contribution requirements, development standards, and workflows for the v2.0 release. Version 2.0 introduces breaking changes with enhanced automation, comprehensive documentation, and strict code quality standards.
@@ -526,7 +528,7 @@ DEFGROUP: MokoStandards.Scripts
 INGROUP: MokoStandards.Automation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /scripts/category/script_name.py
-VERSION: 04.00.03
+VERSION: XX.YY.ZZ
 BRIEF: Brief description of purpose
 """
 ```
@@ -922,7 +924,7 @@ In file headers, use format: `VERSION: 04.00.03` (no 'v' prefix)
 
 ```python
 # FILE INFORMATION
-VERSION: 04.00.03
+VERSION: XX.YY.ZZ
 ```
 
 ### Changelog

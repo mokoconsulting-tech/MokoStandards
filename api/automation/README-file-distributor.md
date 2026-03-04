@@ -1,3 +1,6 @@
+
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # File Distributor v03.00.00
 
 Enterprise file distribution utility with GUI, depth control, and comprehensive audit logging.

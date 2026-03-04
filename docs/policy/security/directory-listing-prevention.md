@@ -1,6 +1,6 @@
 # Directory Listing Security Policy
 
-**Status**: Active | **Version**: 01.01.00 | **Effective**: 2026-01-16
+**Status**: Active | **Effective**: 2026-01-16
 
 ## Overview
 

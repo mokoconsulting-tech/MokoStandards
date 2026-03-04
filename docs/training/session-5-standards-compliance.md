@@ -481,7 +481,7 @@ class AuthManager {
  * INGROUP: MokoStandards.Enterprise
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: src/Auth/AuthManager.php
- * VERSION: 04.00.03
+ * VERSION: XX.YY.ZZ
  * BRIEF: Secure authentication manager with audit logging
  *
  * @data-classification: HIGHLY_CONFIDENTIAL

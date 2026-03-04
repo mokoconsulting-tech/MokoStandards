@@ -1,3 +1,6 @@
+
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Script Wrappers
 
 This directory contains shell and PowerShell wrappers for all Python scripts in the MokoStandards repository.

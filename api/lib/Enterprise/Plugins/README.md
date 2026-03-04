@@ -1,3 +1,6 @@
+
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Enterprise API Plugins
 
 This directory contains enterprise-grade plugins for validating, analyzing, and managing different types of software projects.

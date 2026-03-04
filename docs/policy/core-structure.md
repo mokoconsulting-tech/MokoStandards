@@ -68,7 +68,7 @@ The README.md title **MUST** follow this format:
 
 **Example**:
 ```markdown
-# README - MokoStandards (VERSION: 04.00.03)
+# README - MokoStandards (VERSION: XX.YY.ZZ)
 ```
 
 **Purpose**: This format provides:

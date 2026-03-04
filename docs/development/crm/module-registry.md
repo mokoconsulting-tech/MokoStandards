@@ -218,6 +218,5 @@ For questions about module ID reservation or Dolibarr development:
 
 ---
 
-**Document Version**: 04.00.03  
 **Last Updated**: 2026-02-19  
 **Maintained By**: CRM Development Lead

@@ -1,3 +1,6 @@
+
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Scripts Index
 
 Quick navigation for MokoStandards scripts organized by function.

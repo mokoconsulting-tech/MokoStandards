@@ -18,7 +18,6 @@ BRIEF: Guide to MokoStandards PHP-only architecture
 
 # PHP-Only Architecture
 
-**Version**: 1.0.0  
 **Status**: Active  
 **Last Updated**: 2026-02-14
 

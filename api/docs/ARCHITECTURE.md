@@ -1,6 +1,8 @@
+
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # MokoStandards Scripts Architecture
 
-**Version**: 2.0
 **Last Updated**: 2026-01-19
 **Status**: Comprehensive rebuild in progress
 

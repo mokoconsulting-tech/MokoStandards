@@ -3,7 +3,7 @@
 # Standards Compliance Workflow
 
 **Workflow**: `standards-compliance.yml`  
-**Status**: Active | **Version**: 04.00.03 | **Last Updated**: 2026-02-21
+**Status**: Active | **Last Updated**: 2026-02-21
 
 ## Overview
 

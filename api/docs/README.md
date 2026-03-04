@@ -1,3 +1,6 @@
+
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Documentation Scripts
 
 This directory contains scripts for documentation generation, maintenance, and validation, as well as comprehensive documentation about scripts and processes.

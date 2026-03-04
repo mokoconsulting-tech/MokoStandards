@@ -1,7 +1,9 @@
+
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Update .gitignore Patterns Script
 
 **Script**: `update_gitignore_patterns.sh`
-**Version**: 01.00.00
 **Purpose**: Standardize .gitignore patterns across all repositories
 
 ## Overview

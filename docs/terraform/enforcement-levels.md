@@ -1,13 +1,15 @@
 # File Enforcement Levels in Terraform Configuration
 
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 <!-- Copyright (C) 2026 Moko Consulting -->
 
 ## Metadata
 
 | Field | Value |
 |-------|-------|
-| **VERSION** | 04.00.03 |
 | **LAST UPDATED** | 2026-02-21 |
 | **STATUS** | Active |
 | **APPLIES TO** | All terraform configurations and bulk sync operations |

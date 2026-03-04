@@ -31,7 +31,6 @@ BRIEF: Guide for installing and using Terraform across organization repositories
 
 # Terraform Installation Guide
 
-**Version**: 1.0.0  
 **Status**: Active  
 **Last Updated**: 2026-02-11
 

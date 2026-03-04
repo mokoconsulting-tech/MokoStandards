@@ -658,7 +658,7 @@ class modYourModule extends DolibarrModules
         $this->editor_url = 'https://www.mokoconsulting.tech';
         $this->editor_squarred_logo = 'logo.png@<module>';
 
-        $this->version = '01.00.00';
+        $this->version = 'XX.YY.ZZ';
         $this->const_name = 'MAIN_MODULE_'.strtoupper($this->name);
         $this->picto = 'generic';
 

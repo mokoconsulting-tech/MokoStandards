@@ -1,3 +1,6 @@
+
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Automation Scripts
 
 This directory contains scripts for automating repository management and bulk operations across the MokoStandards organization.

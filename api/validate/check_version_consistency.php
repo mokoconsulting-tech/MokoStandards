@@ -37,8 +37,10 @@ function parseArguments(): array
 {
     global $argv;
     $options = [
-        'verbose' => false,
-        'help' => false,
+        'verbose'      => false,
+        'help'         => false,
+        'create-issue' => false,
+        'repo'         => '',
     ];
 
     for ($i = 1; $i < count($argv); $i++) {
@@ -50,6 +52,12 @@ function parseArguments(): array
             case '--help':
             case '-h':
                 $options['help'] = true;
+                break;
+            case '--create-issue':
+                $options['create-issue'] = true;
+                break;
+            case '--repo':
+                $options['repo'] = $argv[++$i] ?? '';
                 break;
             default:
                 echo COLOR_RED . "Unknown option: {$argv[$i]}" . COLOR_RESET . "\n";
@@ -68,8 +76,10 @@ function displayHelp(): void
     echo COLOR_BOLD . "Version Consistency Checker" . COLOR_RESET . "\n\n";
     echo "Usage: php check_version_consistency.php [options]\n\n";
     echo "Options:\n";
-    echo "  -v, --verbose    Enable verbose output\n";
-    echo "  -h, --help       Display this help message\n\n";
+    echo "  -v, --verbose        Enable verbose output\n";
+    echo "  --create-issue       Create GitHub issue on failure\n";
+    echo "  --repo <owner/repo>  Target repo for issue creation (requires --create-issue)\n";
+    echo "  -h, --help           Display this help message\n\n";
     echo "Description:\n";
     echo "  Checks for version number consistency across critical repository files.\n";
     echo "  The expected version is read from composer.json.\n\n";
@@ -333,7 +343,81 @@ function main(): int
     }
 
     echo COLOR_RED . "\n✗ Please update the version numbers in the files listed above." . COLOR_RESET . "\n";
+
+    if ($options['create-issue']) {
+        if (!empty($options['repo'])) {
+            createGitHubIssue($options['repo'], $allIssues, $expectedVersion);
+        } else {
+            echo COLOR_YELLOW . "⚠ --create-issue requires --repo (format: owner/repo)" . COLOR_RESET . "\n";
+        }
+    }
+
     return 1;
+}
+
+/**
+ * Create a GitHub issue reporting version mismatches.
+ *
+ * @param string $repo           owner/repo
+ * @param array  $allIssues      Array of mismatch records from main()
+ * @param string $expectedVersion Expected version string
+ */
+function createGitHubIssue(string $repo, array $allIssues, string $expectedVersion): void
+{
+    $token = getenv('GITHUB_TOKEN') ?: getenv('GH_TOKEN');
+    if (empty($token)) {
+        echo COLOR_RED . "✗ GITHUB_TOKEN or GH_TOKEN required to create issue" . COLOR_RESET . "\n";
+        return;
+    }
+
+    $lines = [
+        "## ❌ Version Consistency Failures",
+        "",
+        "**Expected version:** `{$expectedVersion}`",
+        "",
+    ];
+    foreach ($allIssues as $issue) {
+        $lines[] = "### `{$issue['file']}`";
+        $lines[] = "Type: {$issue['type']}";
+        foreach ($issue['mismatches'] as $m) {
+            $lines[] = "- Line {$m['line']}: found `{$m['found']}` (expected `{$m['expected']}`)";
+        }
+        $lines[] = '';
+    }
+    $lines[] = "---\n*Automatically created by check_version_consistency.php*";
+
+    $data = [
+        'title'  => '❌ Version consistency: ' . count($allIssues) . ' mismatch(es) found',
+        'body'   => implode("\n", $lines),
+        'labels' => ['version-consistency', 'validation', 'automated'],
+    ];
+
+    $ch = curl_init("https://api.github.com/repos/{$repo}/issues");
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => json_encode($data),
+        CURLOPT_HTTPHEADER     => [
+            'Authorization: token ' . $token,
+            'Content-Type: application/json',
+            'User-Agent: MokoStandards-VersionConsistency',
+            'Accept: application/vnd.github.v3+json',
+        ],
+    ]);
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($httpCode >= 200 && $httpCode < 300) {
+        $result = json_decode($response, true);
+        echo COLOR_GREEN . "✅ Created issue #" . ($result['number'] ?? '?') . " in {$repo}" . COLOR_RESET . "\n";
+    } else {
+        echo COLOR_RED . "✗ Failed to create issue (HTTP {$httpCode})" . COLOR_RESET . "\n";
+        if ($response) {
+            $error = json_decode($response, true);
+            echo COLOR_RED . "  " . ($error['message'] ?? $response) . COLOR_RESET . "\n";
+        }
+    }
 }
 
 exit(main());

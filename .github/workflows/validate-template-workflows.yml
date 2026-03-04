@@ -81,19 +81,17 @@ jobs:
 
             FILE_ERRORS=""
 
-            # --- yamllint ---
+            # --- yamllint: report only error-severity findings ---
             YAML_OUT=$(yamllint -d "{extends: relaxed, rules: {line-length: {max: 200}, truthy: disable}}" \
-              "$tmp_file" 2>&1) || true
-            # Filter out errors caused by ${{ }} template expressions (false positives)
-            YAML_REAL=$(echo "$YAML_OUT" | grep -v "^\s*$" | \
-              grep -v "wrong indentation\|comment\|new line\|document start" | \
-              grep "error:" || true)
+              -f parsable "$tmp_file" 2>&1) || true
+            YAML_REAL=$(echo "$YAML_OUT" | grep " \[error\] " || true)
             if [ -n "$YAML_REAL" ]; then
               FILE_ERRORS="${FILE_ERRORS}**yamllint** in \`${rel_path}\`:\n\`\`\`\n${YAML_REAL}\n\`\`\`\n"
             fi
 
-            # --- actionlint ---
-            ACTION_OUT=$(actionlint -ignore 'SC[0-9]+' -ignore 'expression' \
+            # --- actionlint: suppress only SC2086/SC2048 (word-splitting) which are
+            #     false positives in GitHub Actions expression contexts ---
+            ACTION_OUT=$(actionlint -ignore 'SC2086' -ignore 'SC2048' \
               "$tmp_file" 2>&1) || true
             if [ -n "$ACTION_OUT" ]; then
               # Strip temp path prefix so errors show original relative path

@@ -164,9 +164,9 @@ jobs:
           # Update the "Available for Assignment" range to reflect the new next available ID
           NEXT_ID=$((MODULE_ID + 1))
           if [ "$NEXT_ID" -le 185099 ]; then
-            sed -i "s/| Available for Assignment | ${MODULE_ID}-185099 |/| Available for Assignment | ${NEXT_ID}-185099 |/" "$REGISTRY_FILE"
+            sed -i "s/| Available for Assignment | [0-9][0-9]*-185099 |/| Available for Assignment | ${NEXT_ID}-185099 |/" "$REGISTRY_FILE"
           else
-            sed -i "s/| Available for Assignment | ${MODULE_ID}-185099 |/| Available for Assignment | None |/" "$REGISTRY_FILE"
+            sed -i "s/| Available for Assignment | [0-9][0-9]*-185099 |/| Available for Assignment | None |/" "$REGISTRY_FILE"
           fi
 
           echo "✅ Registry updated with:"

@@ -69,7 +69,7 @@
         <required>true</required>
         <always-overwrite>false</always-overwrite>
         <audience>developer</audience>
-        <template>templates/configs/.gitignore</template>
+        <template>templates/configs/gitignore</template>
       </file>
 
       <file extension="gitattributes">

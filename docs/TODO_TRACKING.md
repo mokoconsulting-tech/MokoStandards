@@ -92,7 +92,7 @@ All files under `docs/training/` contain exercise TODOs:
 
 ### .gitignore TODO Files
 **Status**: ✅ WORKING AS DESIGNED
-- **Files**: `.gitignore`, `templates/configs/.gitignore*`
+- **Files**: `.gitignore`, `templates/configs/gitignore*`
 - **Lines**: Ignore patterns for `TODO.md`, `todo*`
 - **Purpose**: Prevent personal TODO files from being committed
 - **Action**: None required

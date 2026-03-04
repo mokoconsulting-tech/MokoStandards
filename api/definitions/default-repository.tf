@@ -183,6 +183,25 @@
         </destination>
         <template>templates/makefiles/Makefile.generic.template</template>
       </file>
+
+      <file extension="md">
+        <name>CLAUDE.md</name>
+        <description>Claude AI assistant context file — repository structure, conventions, and key constraints</description>
+        <requirement-status>required</requirement-status>
+        <always-overwrite>true</always-overwrite>
+        <audience>developer</audience>
+        <source>
+          <path>templates/github</path>
+          <filename>CLAUDE.md.template</filename>
+          <type>template</type>
+        </source>
+        <destination>
+          <path>.</path>
+          <filename>CLAUDE.md</filename>
+          <create-path>false</create-path>
+        </destination>
+        <template>templates/github/CLAUDE.md.template</template>
+      </file>
     </root-files>
 
     <!-- Directory structure -->
@@ -448,6 +467,27 @@
             </files>
           </directory>
         </subdirectories>
+
+        <files>
+          <file extension="md">
+            <name>copilot-instructions.md</name>
+            <description>GitHub Copilot custom instructions — repository context, conventions, and constraints</description>
+            <requirement-status>required</requirement-status>
+            <always-overwrite>true</always-overwrite>
+            <audience>developer</audience>
+            <source>
+              <path>templates/github</path>
+              <filename>copilot-instructions.md.template</filename>
+              <type>template</type>
+            </source>
+            <destination>
+              <path>.github</path>
+              <filename>copilot-instructions.md</filename>
+              <create-path>true</create-path>
+            </destination>
+            <template>templates/github/copilot-instructions.md.template</template>
+          </file>
+        </files>
       </directory>
 
       <!-- Not-allowed directories (generated/build artifacts) -->

@@ -196,6 +196,8 @@ class RepositorySynchronizer
                 'PULL_REQUEST_TEMPLATE.md' => '.github/PULL_REQUEST_TEMPLATE.md',
                 'dependabot.yml' => '.github/dependabot.yml',
                 'override.tf.template' => '.github/override.tf', // Repository-specific health check overrides
+                'copilot-instructions.md.template' => '.github/copilot-instructions.md', // GitHub Copilot custom instructions
+                'CLAUDE.md.template' => 'CLAUDE.md', // Claude AI assistant context (root)
             ],
             
             // Issue templates
@@ -209,9 +211,9 @@ class RepositorySynchronizer
             
             // Release scripts
             'scripts' => [
-                'package.sh' => 'scripts/release/package.sh',
-                'package_dolibarr.sh' => 'scripts/release/package_dolibarr.sh',
-                'package_joomla.sh' => 'scripts/release/package_joomla.sh',
+                'package.php' => 'api/release/package.php',
+                'package_dolibarr.php' => 'api/release/package_dolibarr.php',
+                'package_joomla.php' => 'api/release/package_joomla.php',
             ],
             
             // Project definition files (Terraform HCL format)
@@ -354,7 +356,7 @@ class RepositorySynchronizer
                     }
                     
                     // Process template content
-                    $content = $this->processTemplateContent($content, $repo);
+                    $content = $this->processTemplateContent($content, $repo, $org);
                     
                     try {
                         // Try to get existing file to get its SHA
@@ -442,8 +444,15 @@ class RepositorySynchronizer
             case 'workflows':
                 return "{$baseDir}/templates/workflows/{$sourceFile}";
             case 'github':
-                // Special handling for PR template which is in templates/github
-                if ($sourceFile === 'PULL_REQUEST_TEMPLATE.md') {
+                // Files that live in templates/github/ (not in .github/)
+                if (in_array($sourceFile, [
+                    'PULL_REQUEST_TEMPLATE.md',
+                    'copilot-instructions.md.template',
+                    'CLAUDE.md.template',
+                    'dependabot.yml.template',
+                    'override.tf.template',
+                    'CODEOWNERS.template',
+                ], true)) {
                     return "{$baseDir}/templates/github/{$sourceFile}";
                 }
                 return "{$baseDir}/.github/{$sourceFile}";
@@ -459,18 +468,39 @@ class RepositorySynchronizer
     }
     
     /**
-     * Process template content (remove placeholders, etc.)
+     * Process template content — replace tokens with repository-specific values.
+     *
+     * Tokens replaced:
+     *   {{REPO_NAME}}        - repository name (e.g. MyModule)
+     *   {{REPO_URL}}         - full GitHub URL (e.g. https://github.com/org/repo)
+     *   {{PRIMARY_LANGUAGE}} - primary language (defaults to PHP; overridable via override.tf)
+     *   {{PLATFORM_TYPE}}    - platform type (defaults to generic; overridable via override.tf)
+     *   {{REPO_DESCRIPTION}} - short description (defaults to generic text)
+     *   {{repo_name}}        - legacy lowercase token (backward-compat)
+     *
+     * @param string $content  Raw template content
+     * @param string $repo     Repository name
+     * @param string $org      Organisation name
+     * @return string          Processed content
      */
-    private function processTemplateContent(string $content, string $repo): string
+    private function processTemplateContent(string $content, string $repo, string $org = ''): string
     {
-        // Remove .template references if any
+        // Remove .template extension references
         $content = str_replace('.yml.template', '.yml', $content);
-        
-        // Could add more template processing here
-        // For example, replacing {{repo_name}} with actual repo name
-        $content = str_replace('{{repo_name}}', $repo, $content);
-        
-        return $content;
+
+        $repoUrl     = $org !== '' ? "https://github.com/{$org}/{$repo}" : "https://github.com/{$repo}";
+        $description = "A Moko Consulting governed repository.";
+
+        $tokens = [
+            '{{REPO_NAME}}'        => $repo,
+            '{{REPO_URL}}'         => $repoUrl,
+            '{{PRIMARY_LANGUAGE}}' => 'PHP',
+            '{{PLATFORM_TYPE}}'    => 'generic',
+            '{{REPO_DESCRIPTION}}' => $description,
+            '{{repo_name}}'        => $repo, // backward-compat
+        ];
+
+        return str_replace(array_keys($tokens), array_values($tokens), $content);
     }
     
     /**

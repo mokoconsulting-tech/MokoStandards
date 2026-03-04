@@ -207,7 +207,7 @@ abstract class CliBase
     /**
      * Run command and return success status
      */
-    protected function run Command(string $command): bool
+    protected function runCommand(string $command): bool
     {
         $exitCode = 0;
         $this->exec($command, $output, $exitCode);

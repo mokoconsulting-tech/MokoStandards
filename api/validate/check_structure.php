@@ -7,52 +7,38 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
  * FILE INFORMATION
- * DEFGROUP: MokoStandards.Templates.Scripts
- * INGROUP: MokoStandards.Templates
+ * DEFGROUP: MokoStandards.Scripts.Validate
+ * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
- * PATH: /templates/scripts/validate/structure.php
+ * PATH: /api/validate/check_structure.php
  * VERSION: XX.YY.ZZ
- * BRIEF: Repository structure validation script
- * NOTE: Template script — copy to scripts/validate/ in the target repository.
+ * BRIEF: Validates required repository directory and file structure
  */
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../lib/Common.php';
-require_once __DIR__ . '/../common/CliBase.template.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
+
+use MokoStandards\Enterprise\CliFramework;
 
 /**
  * Validates that the required directories and files exist in the repository root.
- *
- * Required directories: docs/, scripts/, .github/workflows/
- * Required files: README.md, LICENSE, CHANGELOG.md, CONTRIBUTING.md, SECURITY.md
  */
-class ValidateStructure extends CliBase
+class CheckStructure extends CliFramework
 {
-	/** @var list<string>  Required directory paths (relative to cwd). */
+	/** @var list<string>  Required directory paths (relative to repo root). */
 	private const REQUIRED_DIRS = ['docs', 'scripts', '.github/workflows'];
 
-	/** @var list<string>  Required file paths (relative to cwd). */
+	/** @var list<string>  Required file paths (relative to repo root). */
 	private const REQUIRED_FILES = ['README.md', 'LICENSE', 'CHANGELOG.md', 'CONTRIBUTING.md', 'SECURITY.md'];
 
 	/**
-	 * @param array<int,string> $argv  Command-line argument vector.
+	 * Configure available arguments.
 	 */
-	public function __construct(array $argv)
+	protected function configure(): void
 	{
-		parent::__construct($argv);
-	}
-
-	/**
-	 * Print usage information.
-	 */
-	protected function showHelp(): void
-	{
-		echo "Usage: {$this->scriptName} [--dry-run] [--help]\n\n";
-		echo "Validates that required repository directories and files exist.\n\n";
-		echo "OPTIONS:\n";
-		echo "  --dry-run   No-op (validation is always read-only)\n";
-		echo "  --help      Show this help message\n";
+		$this->setDescription('Validates required repository directory and file structure');
+		$this->addArgument('--path', 'Repository path to check', '.');
 	}
 
 	/**
@@ -60,17 +46,18 @@ class ValidateStructure extends CliBase
 	 *
 	 * @return int  Exit code: 0 if everything is present, 1 if anything is missing.
 	 */
-	public function execute(): int
+	protected function run(): int
 	{
+		$path         = $this->getArgument('--path');
+		$missingDirs  = [];
+		$missingFiles = [];
+
 		echo "===================================\n";
 		echo "Repository Structure Validation\n";
 		echo "===================================\n\n";
 
-		$missingDirs  = [];
-		$missingFiles = [];
-
 		foreach (self::REQUIRED_DIRS as $dir) {
-			if (!is_dir($dir)) {
+			if (!is_dir($path . '/' . $dir)) {
 				$missingDirs[] = $dir;
 				echo "✗ Missing required directory: {$dir}\n";
 			} else {
@@ -79,7 +66,7 @@ class ValidateStructure extends CliBase
 		}
 
 		foreach (self::REQUIRED_FILES as $file) {
-			if (!is_file($file)) {
+			if (!is_file($path . '/' . $file)) {
 				$missingFiles[] = $file;
 				echo "✗ Missing required file: {$file}\n";
 			} else {
@@ -88,15 +75,13 @@ class ValidateStructure extends CliBase
 		}
 
 		echo "\n===================================\n";
-		echo "Validation Summary\n";
-		echo "===================================\n";
 
 		if (empty($missingDirs) && empty($missingFiles)) {
 			echo "✓ All required directories and files are present\n";
 			return 0;
 		}
 
-		echo "✗ Validation failed\n\n";
+		echo "✗ Validation failed\n";
 		if (!empty($missingDirs)) {
 			echo "Missing directories: " . implode(', ', $missingDirs) . "\n";
 		}
@@ -107,5 +92,5 @@ class ValidateStructure extends CliBase
 	}
 }
 
-$script = new ValidateStructure($argv);
-exit($script->run());
+$script = new CheckStructure('check_structure', 'Validates required repository directory and file structure');
+exit($script->execute());

@@ -8,36 +8,28 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
  * FILE INFORMATION
- * DEFGROUP: MokoStandards.Required
- * INGROUP: MokoStandards.Setup
+ * DEFGROUP: MokoStandards.Scripts.Maintenance
+ * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
- * PATH: /templates/required/setup-labels.php
+ * PATH: /api/maintenance/setup_labels.php
  * VERSION: XX.YY.ZZ
- * BRIEF: REQUIRED label deployment script for all repositories
- * NOTE: This file must be copied to scripts/maintenance/setup-labels.php in your repository
+ * BRIEF: REQUIRED label deployment script for all MokoStandards-governed repositories
  */
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../scripts/lib/Common.php';
-require_once __DIR__ . '/../scripts/common/CliBase.template.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
+
+use MokoStandards\Enterprise\CliFramework;
 
 /**
  * Deploys the standard set of GitHub repository labels required by MokoStandards.
  *
  * Uses the GitHub CLI (`gh`) to create or update each label.
  * Supports --dry-run mode to preview without making changes.
- *
- * Copy to: scripts/maintenance/setup-labels.php
- * Usage:   php scripts/maintenance/setup-labels.php [--dry-run]
  */
-class SetupLabels extends CliBase
+class SetupLabels extends CliFramework
 {
 	/**
 	 * Label definitions — [name, hexColor (no #), description].
@@ -111,30 +103,12 @@ class SetupLabels extends CliBase
 	];
 
 	/**
-	 * @param array<int,string> $argv  Command-line argument vector.
+	 * Configure available arguments.
 	 */
-	public function __construct(array $argv)
+	protected function configure(): void
 	{
-		parent::__construct($argv);
-	}
-
-	/**
-	 * Print usage information.
-	 */
-	protected function showHelp(): void
-	{
-		echo "Usage: {$this->scriptName} [--dry-run] [--help]\n\n";
-		echo "REQUIRED SCRIPT: Deploy standard labels to repository\n\n";
-		echo "OPTIONS:\n";
-		echo "  --dry-run    Show what would be created without actually creating labels\n";
-		echo "  --help       Show this help message\n\n";
-		echo "Prerequisites:\n";
-		echo "  - GitHub CLI (gh) must be installed\n";
-		echo "  - Must be authenticated: gh auth login\n";
-		echo "  - Must have admin access to repository\n\n";
-		echo "Installation:\n";
-		echo "  curl -fsSL https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/templates/required/setup-labels.php > scripts/maintenance/setup-labels.php\n";
-		echo "  chmod +x scripts/maintenance/setup-labels.php\n";
+		$this->setDescription('REQUIRED: Deploy standard labels to repository');
+		$this->addArgument('--dry-run', 'Show what would be created without actually creating labels', false);
 	}
 
 	/**
@@ -142,69 +116,45 @@ class SetupLabels extends CliBase
 	 *
 	 * @return int  Exit code: 0 on success, 1 on error.
 	 */
-	public function execute(): int
+	protected function run(): int
 	{
-		// ── Prerequisites ─────────────────────────────────────────────────────
+		$dryRun = (bool) $this->getArgument('--dry-run');
+
 		$ghPath = trim((string) shell_exec('command -v gh 2>/dev/null'));
 		if ($ghPath === '') {
-			$this->log('GitHub CLI (gh) is not installed', 'ERROR');
+			$this->log('ERROR', 'GitHub CLI (gh) is not installed');
 			echo "Install it from: https://cli.github.com/\n";
 			return 1;
 		}
 
 		exec('gh auth status 2>/dev/null', $authOut, $authCode);
 		if ($authCode !== 0) {
-			$this->log('Not authenticated with GitHub CLI', 'ERROR');
+			$this->log('ERROR', 'Not authenticated with GitHub CLI');
 			echo "Run: gh auth login\n";
 			return 1;
 		}
 
 		$repo = trim((string) shell_exec('gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null'));
-		$this->log("Setting up labels for repository: {$repo}");
+		$this->log('INFO', "Setting up labels for repository: {$repo}");
 
 		echo "\n";
 
-		// ── Create all labels ─────────────────────────────────────────────────
-		$this->deployGroup('Creating REQUIRED project type labels...',   0,  2);
-		$this->deployGroup('Creating REQUIRED language labels...',       3,  8);
-		$this->deployGroup('Creating REQUIRED component labels...',      9, 16);
-		$this->deployGroup('Creating REQUIRED workflow labels...',      17, 21);
-		$this->deployGroup('Creating REQUIRED priority labels...',      22, 25);
-		$this->deployGroup('Creating REQUIRED type labels...',          26, 30);
-		$this->deployGroup('Creating REQUIRED status labels...',        31, 35);
-		$this->deployGroup('Creating REQUIRED size labels...',          36, 41);
-		$this->deployGroup('Creating REQUIRED health labels...',        42, 45);
+		$this->deployGroup('Creating REQUIRED project type labels...',   0,  2, $dryRun);
+		$this->deployGroup('Creating REQUIRED language labels...',       3,  8, $dryRun);
+		$this->deployGroup('Creating REQUIRED component labels...',      9, 16, $dryRun);
+		$this->deployGroup('Creating REQUIRED workflow labels...',      17, 21, $dryRun);
+		$this->deployGroup('Creating REQUIRED priority labels...',      22, 25, $dryRun);
+		$this->deployGroup('Creating REQUIRED type labels...',          26, 30, $dryRun);
+		$this->deployGroup('Creating REQUIRED status labels...',        31, 35, $dryRun);
+		$this->deployGroup('Creating REQUIRED size labels...',          36, 41, $dryRun);
+		$this->deployGroup('Creating REQUIRED health labels...',        42, 45, $dryRun);
 
-		// ── Summary ───────────────────────────────────────────────────────────
 		echo "\n============================================================\n";
-		if ($this->dryRun) {
-			$this->log('[DRY-RUN] Label deployment simulation completed');
-			echo "\n";
-			$this->log("To apply these labels, run:");
-			echo "  {$this->scriptName}\n";
+		if ($dryRun) {
+			$this->log('INFO', '[DRY-RUN] Label deployment simulation completed');
 		} else {
-			$this->success('Label deployment completed successfully!');
-			echo "\n";
-			$this->log('Summary:');
-			echo "  - Project Types: 3 labels\n";
-			echo "  - Languages: 6 labels\n";
-			echo "  - Components: 8 labels\n";
-			echo "  - Workflow: 5 labels\n";
-			echo "  - Priority: 4 labels\n";
-			echo "  - Type: 5 labels\n";
-			echo "  - Status: 5 labels\n";
-			echo "  - Size: 6 labels\n";
-			echo "  - Health: 4 labels\n";
-			echo "  - TOTAL: 46 labels\n";
-
-			echo "\n";
-			$this->log('Next steps:');
-			echo "  1. Configure auto-labeling by adding .github/labeler.yml\n";
-			echo "  2. Setup label automation workflow in .github/workflows/\n";
-			echo "  3. Verify labels in repository settings\n";
-			echo "\n";
-			$this->log('For more information:');
-			echo "  https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/guides/label-deployment.md\n";
+			$this->log('INFO', 'Label deployment completed successfully!');
+			echo "\n  - TOTAL: 46 labels\n";
 		}
 		echo "============================================================\n\n";
 
@@ -219,13 +169,14 @@ class SetupLabels extends CliBase
 	 * @param string $heading    Informational banner printed before the group.
 	 * @param int    $fromIndex  First label index (inclusive).
 	 * @param int    $toIndex    Last label index (inclusive).
+	 * @param bool   $dryRun     When true, preview only.
 	 */
-	private function deployGroup(string $heading, int $fromIndex, int $toIndex): void
+	private function deployGroup(string $heading, int $fromIndex, int $toIndex, bool $dryRun): void
 	{
-		$this->log($heading);
+		$this->log('INFO', $heading);
 		for ($i = $fromIndex; $i <= $toIndex; $i++) {
 			[$name, $color, $desc] = self::LABELS[$i];
-			$this->createLabel($name, $color, $desc);
+			$this->createLabel($name, $color, $desc, $dryRun);
 		}
 		echo "\n";
 	}
@@ -236,15 +187,16 @@ class SetupLabels extends CliBase
 	 * @param string $name   Label name.
 	 * @param string $color  Hex colour without the leading '#'.
 	 * @param string $desc   Short description text.
+	 * @param bool   $dryRun When true, preview only.
 	 */
-	private function createLabel(string $name, string $color, string $desc): void
+	private function createLabel(string $name, string $color, string $desc, bool $dryRun): void
 	{
-		if ($this->dryRun) {
+		if ($dryRun) {
 			echo "[DRY-RUN] Would create label: {$name} (color: #{$color}, description: {$desc})\n";
 			return;
 		}
 
-		$cmd  = 'gh label create '
+		$cmd = 'gh label create '
 			. escapeshellarg($name)
 			. ' --color ' . escapeshellarg($color)
 			. ' --description ' . escapeshellarg($desc)
@@ -254,12 +206,12 @@ class SetupLabels extends CliBase
 		unset($out);
 
 		if ($code === 0) {
-			$this->success("Created/updated label: {$name}");
+			$this->log('INFO', "Created/updated label: {$name}");
 		} else {
-			$this->warning("Failed to create label: {$name}");
+			$this->log('WARNING', "Failed to create label: {$name}");
 		}
 	}
 }
 
-$script = new SetupLabels($argv);
-exit($script->run());
+$script = new SetupLabels('setup_labels', 'REQUIRED: Deploy standard labels to repository');
+exit($script->execute());

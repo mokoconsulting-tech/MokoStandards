@@ -10,7 +10,6 @@ This index provides navigation to documentation within this folder.
 ## Subfolders
 
 - [fix/](./fix/index.md)
-- [lib/](./lib/index.md)
 - [release/](./release/index.md)
 - [validate/](./validate/index.md)
 

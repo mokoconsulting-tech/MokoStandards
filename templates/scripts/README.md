@@ -3,14 +3,20 @@
 
 # Script Templates
 
-This directory contains template scripts for common repository operations including validation, fixes, and release automation.
+> **Note:** PHP scripts have been consolidated into the `api/` enterprise hierarchy.
+> - Fix scripts → `api/fix/`
+> - Release scripts → `api/release/`
+> - Validate scripts → `api/validate/`
+> - Maintenance scripts → `api/maintenance/`
+> - Shared libraries → `api/lib/` and `api/lib/Enterprise/`
+>
+> This directory retains only index/documentation files and any non-PHP template assets.
 
 ## Directory Structure
 
-- `validate/` - Validation scripts for CI pipelines
-- `fix/` - Automated fix scripts for common issues
-- `release/` - Release automation scripts
-- `lib/` - Shared library functions
+- `validate/` - Validation script index (PHP scripts now live in `api/validate/`)
+- `fix/` - Fix script index (PHP scripts now live in `api/fix/`)
+- `release/` - Release script index (PHP scripts now live in `api/release/`)
 
 ## Validation Scripts
 

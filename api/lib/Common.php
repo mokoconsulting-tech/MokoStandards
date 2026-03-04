@@ -1,4 +1,3 @@
-#!/usr/bin/env php
 <?php
 /* Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
  *
@@ -7,13 +6,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
  * FILE INFORMATION
- * DEFGROUP: MokoStandards.Templates.Scripts
- * INGROUP: MokoStandards.Templates
+ * DEFGROUP: MokoStandards.Lib
+ * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
- * PATH: /templates/scripts/lib/Common.php
+ * PATH: /api/lib/Common.php
  * VERSION: XX.YY.ZZ
- * BRIEF: Common utility functions for scripts
- * NOTE: Template library script — copy to scripts/lib/ in the target repository.
+ * BRIEF: Common utility functions for api/ scripts
  */
 
 declare(strict_types=1);
@@ -32,9 +30,9 @@ class Common
 	 */
 	const FALLBACK_VERSION = '04.00.00';
 
-	const REPO_URL    = 'https://github.com/mokoconsulting-tech/MokoStandards';
-	const COPYRIGHT   = 'Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>';
-	const LICENSE     = 'GPL-3.0-or-later';
+	const REPO_URL  = 'https://github.com/mokoconsulting-tech/MokoStandards';
+	const COPYRIGHT = 'Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>';
+	const LICENSE   = 'GPL-3.0-or-later';
 
 	// Exit codes
 	const EXIT_SUCCESS      = 0;
@@ -43,16 +41,12 @@ class Common
 	const EXIT_NOT_FOUND    = 3;
 	const EXIT_PERMISSION   = 4;
 
-	// ANSI colours
-	private const RED    = "\033[0;31m";
-	private const GREEN  = "\033[0;32m";
-	private const YELLOW = "\033[1;33m";
-	private const NC     = "\033[0m";
-
 	// ── Logging ───────────────────────────────────────────────────────────────
 
 	/**
 	 * Print an informational message.
+	 *
+	 * @param string $message  Text to display.
 	 */
 	public static function info(string $message): void
 	{
@@ -61,6 +55,8 @@ class Common
 
 	/**
 	 * Print a success message.
+	 *
+	 * @param string $message  Text to display.
 	 */
 	public static function success(string $message): void
 	{
@@ -69,6 +65,8 @@ class Common
 
 	/**
 	 * Print a warning message.
+	 *
+	 * @param string $message  Text to display.
 	 */
 	public static function warn(string $message): void
 	{
@@ -77,6 +75,8 @@ class Common
 
 	/**
 	 * Print an error message to STDERR.
+	 *
+	 * @param string $message  Error text.
 	 */
 	public static function error(string $message): void
 	{
@@ -86,7 +86,9 @@ class Common
 	/**
 	 * Print a fatal error to STDERR and exit.
 	 *
-	 * @param int $exitCode  One of the EXIT_* constants.
+	 * @param string $message   Error text.
+	 * @param int    $exitCode  One of the EXIT_* constants.
+	 * @return never
 	 */
 	public static function fatal(string $message, int $exitCode = self::EXIT_ERROR): never
 	{
@@ -96,6 +98,8 @@ class Common
 
 	/**
 	 * Print a debug message to STDERR when the DEBUG env var is set.
+	 *
+	 * @param string $message  Debug text.
 	 */
 	public static function debug(string $message): void
 	{
@@ -105,7 +109,9 @@ class Common
 	}
 
 	/**
-	 * Print a plain message.
+	 * Print a plain message to stdout.
+	 *
+	 * @param string $message  Text to display.
 	 */
 	public static function plain(string $message): void
 	{
@@ -160,12 +166,12 @@ class Common
 	/**
 	 * Return the absolute path to the repository root by walking up from cwd.
 	 *
-	 * @throws RuntimeException  When no .git directory is found.
+	 * @throws \RuntimeException  When no .git directory is found.
 	 * @return string  Absolute path (no trailing slash).
 	 */
 	public static function getRepoRoot(): string
 	{
-		$dir = getcwd();
+		$dir = (string) getcwd();
 		while ($dir !== '/') {
 			if (is_dir($dir . '/.git')) {
 				return $dir;
@@ -177,6 +183,8 @@ class Common
 
 	/**
 	 * Return the current git branch name (or "unknown").
+	 *
+	 * @return string  Branch name.
 	 */
 	public static function getGitBranch(): string
 	{
@@ -186,6 +194,8 @@ class Common
 
 	/**
 	 * Return the current full git commit hash (or "unknown").
+	 *
+	 * @return string  Full commit SHA.
 	 */
 	public static function getGitCommit(): string
 	{
@@ -195,6 +205,8 @@ class Common
 
 	/**
 	 * Return the short git commit hash (or "unknown").
+	 *
+	 * @return string  Short commit SHA.
 	 */
 	public static function getGitCommitShort(): string
 	{
@@ -204,6 +216,8 @@ class Common
 
 	/**
 	 * Return true when the git working directory is clean.
+	 *
+	 * @return bool  True if no uncommitted changes.
 	 */
 	public static function isGitClean(): bool
 	{
@@ -212,6 +226,8 @@ class Common
 
 	/**
 	 * Return true when the current directory is inside a git repository.
+	 *
+	 * @return bool  True if inside a git repo.
 	 */
 	public static function isGitRepo(): bool
 	{
@@ -225,6 +241,7 @@ class Common
 	 * Return the path relative to the repository root, prefixed with '/'.
 	 *
 	 * @param string $absolutePath  Absolute filesystem path.
+	 * @return string  Repo-relative path starting with '/'.
 	 */
 	public static function getRelativePath(string $absolutePath): string
 	{

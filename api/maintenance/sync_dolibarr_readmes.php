@@ -7,22 +7,19 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
  * FILE INFORMATION
- * DEFGROUP: MokoStandards.Templates.Scripts
- * INGROUP: MokoStandards.Templates
+ * DEFGROUP: MokoStandards.Scripts.Maintenance
+ * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
- * PATH: /templates/scripts/maintenance/sync_dolibarr_readmes.php
+ * PATH: /api/maintenance/sync_dolibarr_readmes.php
  * VERSION: XX.YY.ZZ
  * BRIEF: Keeps root README.md and src/README.md in sync for Dolibarr module repositories
- * NOTE: Template script — copy to scripts/maintenance/ in the target repository.
- *       Root README.md targets developers/contributors; src/README.md targets end users.
- *       This script copies end-user sections from root to src and updates the module
- *       version in both files to match the FILE INFORMATION VERSION in root README.md.
  */
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../lib/Common.php';
-require_once __DIR__ . '/../common/CliBase.template.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
+
+use MokoStandards\Enterprise\CliFramework;
 
 /**
  * Synchronises root README.md ↔ src/README.md for a Dolibarr module repository.
@@ -34,33 +31,16 @@ require_once __DIR__ . '/../common/CliBase.template.php';
  *     module name/description, and the Installation/Configuration/Usage/Support
  *     sections extracted from root README.md.
  */
-class SyncDolibarrReadmes extends CliBase
+class SyncDolibarrReadmes extends CliFramework
 {
 	/**
-	 * @param array<int,string> $argv  Command-line argument vector.
+	 * Configure available arguments.
 	 */
-	public function __construct(array $argv)
+	protected function configure(): void
 	{
-		parent::__construct($argv);
-	}
-
-	/**
-	 * Print usage information.
-	 */
-	protected function showHelp(): void
-	{
-		echo "Usage: {$this->scriptName} [--dry-run] [--path <repo-root>] [--help]\n\n";
-		echo "Keeps root README.md and src/README.md in sync for Dolibarr module repos.\n\n";
-		echo "OPTIONS:\n";
-		echo "  --dry-run        Preview changes without writing\n";
-		echo "  --path DIR       Dolibarr module repo root (default: two levels above this script)\n";
-		echo "  --help           Show this help message\n\n";
-		echo "What this script does:\n";
-		echo "  1. Reads VERSION from root README.md FILE INFORMATION block\n";
-		echo "  2. Updates the version badge in root README.md (if stale)\n";
-		echo "  3. Regenerates src/README.md with the FILE INFORMATION header,\n";
-		echo "     module name/description and end-user sections from root README.md\n";
-		echo "  4. Updates the version badge in src/README.md\n";
+		$this->setDescription('Keeps root README.md and src/README.md in sync for Dolibarr module repos');
+		$this->addArgument('--path', 'Dolibarr module repo root', '.');
+		$this->addArgument('--dry-run', 'Preview changes without writing', false);
 	}
 
 	/**
@@ -68,49 +48,42 @@ class SyncDolibarrReadmes extends CliBase
 	 *
 	 * @return int  Exit code: 0 on success, 1 on error.
 	 */
-	public function execute(): int
+	protected function run(): int
 	{
-		// Resolve repo root: --path option, or two levels above this script.
-		$repoRoot = (string) ($this->getOption('path') ?? realpath(__DIR__ . '/../..'));
-		$repoRoot = rtrim($repoRoot, '/');
-
+		$repoRoot   = rtrim((string) $this->getArgument('--path'), '/');
+		$dryRun     = (bool) $this->getArgument('--dry-run');
 		$rootReadme = $repoRoot . '/README.md';
 		$srcReadme  = $repoRoot . '/src/README.md';
 
-		// ── Validate ─────────────────────────────────────────────────────────
 		if (!is_file($rootReadme)) {
-			$this->log("✗ Root README.md not found at {$rootReadme}", 'ERROR');
+			$this->log('ERROR', "Root README.md not found at {$rootReadme}");
 			return 1;
 		}
 
 		if (!is_dir($repoRoot . '/src')) {
-			$this->log('✗ src/ directory not found — is this a Dolibarr module repository?', 'ERROR');
+			$this->log('ERROR', 'src/ directory not found — is this a Dolibarr module repository?');
 			return 1;
 		}
 
 		$rootContent = (string) file_get_contents($rootReadme);
 
-		// ── Extract VERSION ───────────────────────────────────────────────────
 		if (!preg_match('/^\s*VERSION:\s*(\d{2}\.\d{2}\.\d{2})/m', $rootContent, $m)) {
-			$this->log('✗ Could not find VERSION in root README.md FILE INFORMATION block', 'ERROR');
+			$this->log('ERROR', 'Could not find VERSION in root README.md FILE INFORMATION block');
 			return 1;
 		}
 		$version = $m[1];
 
-		// ── Extract metadata from root README.md ──────────────────────────────
 		$moduleName = $this->extractModuleName($rootContent, $repoRoot);
 		$repoUrl    = $this->extractField($rootContent, 'REPO', 'https://github.com/mokoconsulting-tech');
 		$defgroup   = $this->extractField($rootContent, 'DEFGROUP', 'MokoStandards.Module');
 		$ingroup    = $this->extractField($rootContent, 'INGROUP', 'MokoStandards');
 		$brief      = $this->extractField($rootContent, 'BRIEF', "{$moduleName} end-user documentation");
 
-		// ── Extract end-user sections ─────────────────────────────────────────
 		$installSection = $this->extractSection($rootContent, 'Installation');
 		$configSection  = $this->extractSection($rootContent, 'Configuration');
 		$usageSection   = $this->extractSection($rootContent, 'Usage');
 		$supportSection = $this->extractSection($rootContent, 'Support');
 
-		// ── Banner ────────────────────────────────────────────────────────────
 		echo "═══════════════════════════════════════════════════════════\n";
 		echo "  Dolibarr README Sync\n";
 		echo "═══════════════════════════════════════════════════════════\n\n";
@@ -118,27 +91,24 @@ class SyncDolibarrReadmes extends CliBase
 		echo "Version: {$version}\n";
 		echo "Root:    {$rootReadme}\n";
 		echo "Src:     {$srcReadme}\n";
-		if ($this->dryRun) {
+		if ($dryRun) {
 			echo "  DRY RUN — no files will be written\n";
 		}
 		echo "\n";
 
-		// ── Step 1: Update root README.md ────────────────────────────────────
 		echo "Step 1: Update root README.md badges and VERSION field...\n";
-		$this->updateRootReadme($rootReadme, $rootContent, $version);
+		$this->updateRootReadme($rootReadme, $rootContent, $version, $dryRun);
 
-		// ── Step 2: Sync src/README.md ────────────────────────────────────────
 		echo "Step 2: Sync src/README.md...\n";
-		$today        = gmdate('Y-m-d');
+		$today         = gmdate('Y-m-d');
 		$newSrcContent = $this->buildSrcReadme(
 			$version, $moduleName, $repoUrl, $defgroup, $ingroup, $brief, $today,
 			$installSection, $configSection, $usageSection, $supportSection
 		);
-		$this->syncSrcReadme($srcReadme, $newSrcContent);
+		$this->syncSrcReadme($srcReadme, $newSrcContent, $dryRun);
 
-		// ── Summary ───────────────────────────────────────────────────────────
 		echo "\n═══════════════════════════════════════════════════════════\n";
-		if ($this->dryRun) {
+		if ($dryRun) {
 			echo "  Dry Run Complete\n";
 			echo "═══════════════════════════════════════════════════════════\n";
 			echo "Run without --dry-run to apply changes.\n";
@@ -160,9 +130,10 @@ class SyncDolibarrReadmes extends CliBase
 	/**
 	 * Extract a named field from the FILE INFORMATION block.
 	 *
-	 * @param  string $content   Full file content.
-	 * @param  string $field     Field name (e.g. 'REPO').
-	 * @param  string $fallback  Value to use when the field is absent.
+	 * @param string $content   Full file content.
+	 * @param string $field     Field name (e.g. 'REPO').
+	 * @param string $fallback  Value to use when the field is absent.
+	 * @return string  Field value or fallback.
 	 */
 	private function extractField(string $content, string $field, string $fallback): string
 	{
@@ -175,12 +146,12 @@ class SyncDolibarrReadmes extends CliBase
 	/**
 	 * Extract the module name from the first H1 heading after the closing '-->' of the header.
 	 *
-	 * @param  string $content   Full root README.md content.
-	 * @param  string $repoRoot  Repository root path (used as fallback).
+	 * @param string $content   Full root README.md content.
+	 * @param string $repoRoot  Repository root path (used as fallback).
+	 * @return string  Module name.
 	 */
 	private function extractModuleName(string $content, string $repoRoot): string
 	{
-		// Find closing --> then first # heading
 		if (preg_match('/-->\s*\n+# (.+)/u', $content, $m)) {
 			return trim($m[1]);
 		}
@@ -190,9 +161,9 @@ class SyncDolibarrReadmes extends CliBase
 	/**
 	 * Extract a Markdown H2 section (from '## Heading' to the next '## ').
 	 *
-	 * @param  string $content  Full file content.
-	 * @param  string $heading  Section heading (without '## ' prefix).
-	 * @return string           The extracted section text, or '' if not found.
+	 * @param string $content  Full file content.
+	 * @param string $heading  Section heading (without '## ' prefix).
+	 * @return string  The extracted section text, or '' if not found.
 	 */
 	private function extractSection(string $content, string $heading): string
 	{
@@ -200,8 +171,6 @@ class SyncDolibarrReadmes extends CliBase
 		if (!preg_match('/^## ' . $quoted . '$/m', $content)) {
 			return '';
 		}
-
-		// Capture from the heading line up to (but not including) the next ## heading or EOF.
 		if (preg_match('/^## ' . $quoted . '$(.*?)(?=^## |\Z)/ms', $content, $m)) {
 			return '## ' . $heading . $m[1];
 		}
@@ -214,8 +183,9 @@ class SyncDolibarrReadmes extends CliBase
 	 * @param string $path     Path to root README.md.
 	 * @param string $content  Current file content.
 	 * @param string $version  New version string.
+	 * @param bool   $dryRun   When true, preview only.
 	 */
-	private function updateRootReadme(string $path, string $content, string $version): void
+	private function updateRootReadme(string $path, string $content, string $version, bool $dryRun): void
 	{
 		$updated = preg_replace(
 			'/(https:\/\/img\.shields\.io\/badge\/MokoStandards-)\d{2}\.\d{2}\.\d{2}/i',
@@ -233,7 +203,7 @@ class SyncDolibarrReadmes extends CliBase
 			return;
 		}
 
-		if ($this->dryRun) {
+		if ($dryRun) {
 			echo "  ~ root README.md (would update version fields)\n";
 			return;
 		}
@@ -245,17 +215,17 @@ class SyncDolibarrReadmes extends CliBase
 	/**
 	 * Build the full content for src/README.md.
 	 *
-	 * @param string $version        Version string.
-	 * @param string $moduleName     Module display name.
-	 * @param string $repoUrl        Repository URL.
-	 * @param string $defgroup       DEFGROUP value.
-	 * @param string $ingroup        INGROUP value.
-	 * @param string $brief          BRIEF value.
-	 * @param string $today          ISO date string (YYYY-MM-DD).
-	 * @param string $installSection Extracted Installation section (may be '').
-	 * @param string $configSection  Extracted Configuration section (may be '').
-	 * @param string $usageSection   Extracted Usage section (may be '').
-	 * @param string $supportSection Extracted Support section (may be '').
+	 * @param string $version         Version string.
+	 * @param string $moduleName      Module display name.
+	 * @param string $repoUrl         Repository URL.
+	 * @param string $defgroup        DEFGROUP value.
+	 * @param string $ingroup         INGROUP value.
+	 * @param string $brief           BRIEF value.
+	 * @param string $today           ISO date string (YYYY-MM-DD).
+	 * @param string $installSection  Extracted Installation section (may be '').
+	 * @param string $configSection   Extracted Configuration section (may be '').
+	 * @param string $usageSection    Extracted Usage section (may be '').
+	 * @param string $supportSection  Extracted Support section (may be '').
 	 * @return string  Complete file content.
 	 */
 	private function buildSrcReadme(
@@ -314,8 +284,9 @@ SRCREADME;
 	 *
 	 * @param string $path     Path to src/README.md.
 	 * @param string $content  Desired file content.
+	 * @param bool   $dryRun   When true, preview only.
 	 */
-	private function syncSrcReadme(string $path, string $content): void
+	private function syncSrcReadme(string $path, string $content, bool $dryRun): void
 	{
 		if (is_file($path)) {
 			$existing = (string) file_get_contents($path);
@@ -323,14 +294,10 @@ SRCREADME;
 				echo "  ✓ src/README.md already current\n";
 				return;
 			}
-
-			if ($this->dryRun) {
-				echo "  ~ src/README.md (would regenerate)\n\n";
-				echo "  Diff preview:\n";
-				$this->previewDiff($existing, $content);
+			if ($dryRun) {
+				echo "  ~ src/README.md (would regenerate)\n";
 				return;
 			}
-
 			if (!is_dir(dirname($path))) {
 				mkdir(dirname($path), 0755, true);
 			}
@@ -339,7 +306,7 @@ SRCREADME;
 			return;
 		}
 
-		if ($this->dryRun) {
+		if ($dryRun) {
 			echo "  ~ src/README.md (would create — file does not exist)\n";
 			return;
 		}
@@ -350,35 +317,7 @@ SRCREADME;
 		file_put_contents($path, $content);
 		echo "  ✓ src/README.md created\n";
 	}
-
-	/**
-	 * Print a simple line-by-line diff preview (first 30 changed lines).
-	 *
-	 * @param string $old  Original content.
-	 * @param string $new  New content.
-	 */
-	private function previewDiff(string $old, string $new): void
-	{
-		$oldLines = explode("\n", $old);
-		$newLines = explode("\n", $new);
-		$max      = max(count($oldLines), count($newLines));
-		$shown    = 0;
-
-		for ($i = 0; $i < $max && $shown < 30; $i++) {
-			$oldLine = $oldLines[$i] ?? null;
-			$newLine = $newLines[$i] ?? null;
-			if ($oldLine !== $newLine) {
-				if ($oldLine !== null) {
-					echo "    - " . $oldLine . "\n";
-				}
-				if ($newLine !== null) {
-					echo "    + " . $newLine . "\n";
-				}
-				$shown++;
-			}
-		}
-	}
 }
 
-$script = new SyncDolibarrReadmes($argv);
-exit($script->run());
+$script = new SyncDolibarrReadmes('sync_dolibarr_readmes', 'Keeps root README.md and src/README.md in sync for Dolibarr module repos');
+exit($script->execute());

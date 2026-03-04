@@ -84,14 +84,15 @@ All module ID reservations **must** go through the **[Reserve Dolibarr Module ID
    - Repository name (module name is derived from it)
    - Specific module ID (optional — leave blank to auto-assign the next available ID; check the [registry table above](#dolibarr-extensions-registry) first)
    - Whether to push `DOLIBARR_MODULE_ID.txt` to the target repository
-4. **Review** the automatically created pull request
-5. **Get approval** from CRM Development Lead
-6. **Merge** to officially reserve the module ID
+4. **Wait** — the GitHub Actions workflow will automatically create a pull request with all registry changes
+5. **Review** the pull request created by the workflow
+6. **Get approval** from CRM Development Lead
+7. **Merge** to officially reserve the module ID
 
 The workflow automatically:
 - Finds the next available module ID (or validates your specified ID)
 - Updates this registry table
-- Creates a pull request with all changes
+- **Creates a pull request** — you do not create the PR yourself
 - Optionally pushes `DOLIBARR_MODULE_ID.txt` to your module repository (if enabled)
 
 > **Mandatory**: All module ID reservations must be made through the GitHub Actions workflow above. Direct edits to this registry table are blocked on protected branches and will be rejected.

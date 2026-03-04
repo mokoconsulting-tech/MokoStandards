@@ -270,10 +270,11 @@ The workflow generates a summary with:
 **Pull Request:** https://github.com/mokoconsulting-tech/MokoStandards/pull/123
 
 ### Next Steps
-1. Review the pull request
-2. Get approval from CRM Development Lead
-3. Merge the PR to officially reserve the module ID
-4. Verify DOLIBARR_MODULE_ID.txt was created in https://github.com/mokoconsulting-tech/MokoDoliExample
+1. The GitHub Actions workflow has created the pull request above automatically
+2. Review the pull request
+3. Get approval from CRM Development Lead
+4. Merge the PR to officially reserve the module ID
+5. Verify DOLIBARR_MODULE_ID.txt was created in https://github.com/mokoconsulting-tech/MokoDoliExample
 ```
 
 ### Files Modified

@@ -245,14 +245,15 @@ jobs:
             const title = `Reserve Dolibarr Module ID ${moduleId} for ${moduleName}`;
 
             let nextSteps = `### Next Steps
-            1. Review this PR
-            2. Approve if the reservation is appropriate
-            3. Merge to officially reserve the module ID`;
+            1. This PR was created automatically by the GitHub Actions workflow
+            2. Review the PR to confirm the reservation details are correct
+            3. Approve if the reservation is appropriate
+            4. Merge to officially reserve the module ID`;
 
             if (pushToRemote) {
-              nextSteps += `\n            4. Module ID file will be created in remote repository: ${repoUrl}`;
+              nextSteps += `\n            5. Module ID file will be created in remote repository: ${repoUrl}`;
             } else {
-              nextSteps += `\n            4. Manually create \`src/DOLIBARR_MODULE_ID.txt\` in ${repoUrl} if needed`;
+              nextSteps += `\n            5. Manually create \`src/DOLIBARR_MODULE_ID.txt\` in ${repoUrl} if needed`;
             }
 
             const body = `## Module ID Reservation Request
@@ -427,13 +428,14 @@ jobs:
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
-          echo "1. Review the pull request" >> $GITHUB_STEP_SUMMARY
-          echo "2. Get approval from CRM Development Lead" >> $GITHUB_STEP_SUMMARY
-          echo "3. Merge the PR to officially reserve the module ID" >> $GITHUB_STEP_SUMMARY
+          echo "1. This PR was created automatically by the GitHub Actions workflow" >> $GITHUB_STEP_SUMMARY
+          echo "2. Review the PR to confirm the reservation details are correct" >> $GITHUB_STEP_SUMMARY
+          echo "3. Get approval from CRM Development Lead" >> $GITHUB_STEP_SUMMARY
+          echo "4. Merge the PR to officially reserve the module ID" >> $GITHUB_STEP_SUMMARY
           if [ "$PUSH_TO_REMOTE" = "true" ]; then
-            echo "4. Verify DOLIBARR_MODULE_ID.txt was created in $REPO_URL" >> $GITHUB_STEP_SUMMARY
+            echo "5. Verify DOLIBARR_MODULE_ID.txt was created in $REPO_URL" >> $GITHUB_STEP_SUMMARY
           else
-            echo "4. Manually create src/DOLIBARR_MODULE_ID.txt in $REPO_URL if needed" >> $GITHUB_STEP_SUMMARY
+            echo "5. Manually create src/DOLIBARR_MODULE_ID.txt in $REPO_URL if needed" >> $GITHUB_STEP_SUMMARY
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "---" >> $GITHUB_STEP_SUMMARY

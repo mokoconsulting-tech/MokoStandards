@@ -951,7 +951,13 @@ jobs:
         with:
           php-version: '8.1'
           extensions: json
+          tools: composer
           coverage: none
+
+      - name: Install API Package
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+        env:
+          COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ secrets.GH_TOKEN }}"}}'
 
       - name: Run Version Consistency Check
         id: version_check
@@ -1044,13 +1050,17 @@ jobs:
         with:
           php-version: '8.1'
           extensions: json, mbstring
+          tools: composer
           coverage: none
+
+      - name: Install API Package
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+        env:
+          COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ secrets.GH_TOKEN }}"}}'
 
       - name: Check Enterprise Readiness
         id: enterprise_check
         run: |
-          set -x
-          echo "## 🏢 Enterprise Readiness Validation" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
           if [ -f "api/validate/check_enterprise_readiness.php" ]; then
@@ -1090,13 +1100,17 @@ jobs:
         with:
           php-version: '8.1'
           extensions: json, mbstring
+          tools: composer
           coverage: none
+
+      - name: Install API Package
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+        env:
+          COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ secrets.GH_TOKEN }}"}}'
 
       - name: Check Repository Health
         id: health_check
         run: |
-          set -x
-          echo "## 🏥 Repository Health Check" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
           if [ -f "api/validate/check_repo_health.php" ]; then

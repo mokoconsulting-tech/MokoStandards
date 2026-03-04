@@ -5,13 +5,13 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # FILE INFORMATION
-# DEFGROUP: GitHub.WorkflowTemplates.Reusable
+# DEFGROUP: GitHub.Workflows.Reusable
 # INGROUP: MokoStandards.Automation
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
-# PATH: /templates/workflows/reusable-script-executor.yml.template
+# PATH: /.github/workflows/reusable-script-executor.yml
 # VERSION: 04.01.00
 # BRIEF: Reusable workflow that executes MokoStandards PHP API scripts against a caller repository
-# NOTE: Lives in MokoStandards .github/workflows/. Org repos call it via
+# NOTE: Called by org repos via:
 #       uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-script-executor.yml@main
 
 name: Execute MokoStandards API Script
@@ -42,7 +42,7 @@ on:
         default: true
     secrets:
       GH_TOKEN:
-        description: 'GitHub PAT for package installation and API calls'
+        description: 'GitHub PAT (org-level secret) for package install and API calls'
         required: true
     outputs:
       exit_code:
@@ -69,7 +69,7 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
           path: _repo
 
-      # 2. Checkout MokoStandards so we have access to api/ scripts
+      # 2. Checkout MokoStandards to access api/ scripts
       - name: Checkout MokoStandards
         uses: actions/checkout@v6
         with:

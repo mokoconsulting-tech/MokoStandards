@@ -25,7 +25,7 @@ declare(strict_types=1);
  */
 class ScriptRegistryUpdater
 {
-    private const REGISTRY_PATH = 'scripts/.script-registry.json';
+    private const REGISTRY_PATH = 'api/.script-registry.json';
     
     private bool $dryRun = false;
     private bool $verbose = false;

@@ -1,3 +1,6 @@
+
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Required Templates
 
 This directory contains **REQUIRED** files that must be present in all MokoStandards-compliant repositories.
@@ -155,5 +158,4 @@ As MokoStandards evolves, additional required files may be added:
 ---
 
 **Last Updated**: 2026-01-28  
-**Version**: 03.01.00  
 **Maintained By**: MokoStandards Team

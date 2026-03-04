@@ -1,0 +1,129 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.Automation
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/sync-version-on-merge.yml
+# VERSION: XX.YY.ZZ
+# BRIEF: On push to main, reads VERSION from README.md and propagates it to all badges and FILE INFORMATION headers
+# NOTE: README.md is the single source of truth for the repository version.
+#       This workflow fires when README.md changes on main and commits back any updated files.
+
+name: Sync Version from README
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'README.md'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (preview only, no commit)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  sync-version:
+    name: Propagate README version
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          tools: composer
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Extract version from README.md
+        id: readme_version
+        run: |
+          VERSION=$(grep -oP '^\s*VERSION:\s*\K[0-9]{2}\.[0-9]{2}\.[0-9]{2}' README.md | head -1)
+          if [ -z "$VERSION" ]; then
+            echo "❌ Could not find VERSION in README.md FILE INFORMATION block"
+            exit 1
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "✅ README.md version: $VERSION"
+
+      - name: Run version sync (dry run check)
+        if: ${{ inputs.dry_run == true }}
+        run: |
+          php api/maintenance/update_version_from_readme.php \
+            --path . \
+            --dry-run
+          echo "ℹ️ Dry run complete — no files written"
+
+      - name: Run version sync
+        if: ${{ inputs.dry_run != true }}
+        run: |
+          php api/maintenance/update_version_from_readme.php \
+            --path . \
+            --create-issue \
+            --repo "${{ github.repository }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check for changes
+        if: ${{ inputs.dry_run != true }}
+        id: changes
+        run: |
+          if git diff --quiet; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ No version changes needed"
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            CHANGED_COUNT=$(git diff --name-only | wc -l)
+            echo "✅ ${CHANGED_COUNT} file(s) updated"
+            git diff --name-only | head -20
+          fi
+
+      - name: Commit updated files
+        if: ${{ inputs.dry_run != true && steps.changes.outputs.changed == 'true' }}
+        run: |
+          VERSION="${{ steps.readme_version.outputs.version }}"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add -A
+          git commit -m "chore(version): sync badges and FILE INFORMATION headers to ${VERSION}
+
+Auto-propagated from README.md FILE INFORMATION block.
+README.md is the single source of truth for the repository version.
+
+[skip ci]" \
+            --author="github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+          git push
+
+      - name: Summary
+        run: |
+          VERSION="${{ steps.readme_version.outputs.version }}"
+          echo "## 📦 Version Sync — ${VERSION}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Source:** \`README.md\` FILE INFORMATION block" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** \`${VERSION}\`" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.changes.outputs.changed }}" = "true" ]; then
+            echo "**Result:** ✅ Files updated and committed" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ inputs.dry_run }}" = "true" ]; then
+            echo "**Result:** 🔍 Dry run — no files written" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Result:** ℹ️ All files already at current version" >> $GITHUB_STEP_SUMMARY
+          fi

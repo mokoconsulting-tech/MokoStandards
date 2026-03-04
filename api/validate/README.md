@@ -1,3 +1,6 @@
+
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Validation Scripts
 
 This directory contains comprehensive validation and verification scripts for code quality, security, and standards compliance.

@@ -2,7 +2,7 @@
 
 # Code Review Guidelines
 
-**Status**: Active | **Version**: 01.00.00 | **Effective**: 2026-01-07
+**Status**: Active | **Effective**: 2026-01-07
 
 ## Overview
 

@@ -11,6 +11,8 @@ VERSION: 04.00.03
 BRIEF: Installation and setup instructions for [PROJECT_NAME]
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Installation
 
 ## Overview

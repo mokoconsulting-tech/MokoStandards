@@ -1,3 +1,6 @@
+
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Dolibarr Release Workflow
 
 ## Overview
@@ -52,7 +55,7 @@ VERSION: development
 
 # When ready to release:
 # 1. Update README.md
-VERSION: 04.00.03
+VERSION: XX.YY.ZZ
 
 # 2. Commit and tag
 git add README.md

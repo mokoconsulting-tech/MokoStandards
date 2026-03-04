@@ -21,7 +21,6 @@ For full license text, see LICENSE file in repository root.
 | **Owner** | Development Team |
 | **Repo** | MokoStandards |
 | **Path** | docs/policy/copilot-usage-policy.md |
-| **VERSION** | 03.00.00 |
 | **Status** | Active |
 | **Last Reviewed** | 2026-01-28 |
 | **Reviewed By** | Development Team |
@@ -270,6 +269,7 @@ All Copilot-generated code must undergo standard code review:
 - ✅ API documentation updated
 - ✅ README updated if public API changed
 - ✅ Changelog entries added
+- ✅ Every new or modified Markdown file includes the MokoStandards version badge immediately after the closing `-->` of the file header (or at the top if no header exists)
 
 ### 4. Standards Compliance
 
@@ -279,6 +279,8 @@ Copilot-generated code must comply with:
 - Framework conventions
 - Security policies
 - Performance requirements
+- Version badge present on every Markdown file (`[![MokoStandards](https://img.shields.io/badge/MokoStandards-…-blue)](…)`)
+- Version number appears **only** in the FILE INFORMATION header and the badge — never in body text
 
 ## Best Practices
 

@@ -1,3 +1,6 @@
+
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Security Scanning Guide
 
 **Version**: 01.00.00 | **Status**: Active | **Last Updated**: 2026-01-28

@@ -90,14 +90,14 @@ All terraform files in MokoStandards follow a consistent structure:
 # INGROUP: MokoStandards.Terraform
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /infrastructure/terraform/main.tf
-# VERSION: 04.00.03
+# VERSION: XX.YY.ZZ
 # BRIEF: Main terraform configuration
 
 locals {
   file_metadata = {
     name              = "Main Configuration"
     description       = "Primary terraform configuration"
-    version           = "04.00.03"
+    version           = "XX.YY.ZZ"
     last_updated      = "2026-02-21T00:00:00Z"
     maintainer        = "MokoStandards Team"
     schema_version    = "2.0"
@@ -147,14 +147,14 @@ cat > infrastructure/terraform/modules/example-module/main.tf << 'EOF'
 # INGROUP: MokoStandards.Terraform
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /infrastructure/terraform/modules/example-module/main.tf
-# VERSION: 04.00.03
+# VERSION: XX.YY.ZZ
 # BRIEF: Example terraform module
 
 locals {
   file_metadata = {
     name              = "Example Module"
     description       = "Example terraform module for training"
-    version           = "04.00.03"
+    version           = "XX.YY.ZZ"
     last_updated      = "2026-02-21T00:00:00Z"
     maintainer        = "Training Participant"
     schema_version    = "2.0"
@@ -723,7 +723,7 @@ MokoStandards Bulk Sync Log
 =================================================================
 Session ID: sync-2026-02-21-073000
 Repository: mokoconsulting-tech/my-api-service
-MokoStandards Version: 04.00.03
+MokoStandards Version: XX.YY.ZZ
 Sync Started: 2026-02-21T07:30:00Z
 Sync Completed: 2026-02-21T07:30:45Z
 Duration: 45 seconds
@@ -795,14 +795,14 @@ Validation: PASSED ✓
 # INGROUP: [Project].Configuration
 # REPO: https://github.com/mokoconsulting-tech/[repo]
 # PATH: /.github/config.tf
-# VERSION: 04.00.03
+# VERSION: XX.YY.ZZ
 # BRIEF: Repository-specific override configuration
 
 locals {
   file_metadata = {
     name              = "[Project] Override Configuration"
     description       = "Override configuration for bulk synchronization"
-    version           = "04.00.03"
+    version           = "XX.YY.ZZ"
     last_updated      = "2026-02-21T00:00:00Z"
     maintainer        = "[Team Name]"
     schema_version    = "2.0"
@@ -908,14 +908,14 @@ cat > .github/config.tf << 'EOF'
 # INGROUP: WebApp.Configuration
 # REPO: https://github.com/mokoconsulting-tech/webapp
 # PATH: /.github/config.tf
-# VERSION: 04.00.03
+# VERSION: XX.YY.ZZ
 # BRIEF: Web application override configuration
 
 locals {
   file_metadata = {
     name              = "WebApp Override Configuration"
     description       = "Override configuration for web application"
-    version           = "04.00.03"
+    version           = "XX.YY.ZZ"
     last_updated      = "2026-02-21T00:00:00Z"
     maintainer        = "WebApp Team"
     schema_version    = "2.0"
@@ -1385,7 +1385,7 @@ locals {
   file_metadata = {
     name              = "API Project Override Configuration"
     description       = "Override configuration for API service"
-    version           = "04.00.03"
+    version           = "XX.YY.ZZ"
     last_updated      = "2026-02-21T00:00:00Z"
     maintainer        = "API Team"
     schema_version    = "2.0"
@@ -1542,7 +1542,6 @@ locals {
 
 ---
 
-**Version**: 04.00.03  
 **Last Updated**: 2026-02-21  
 **Instructor**: MokoStandards Team  
 **Duration**: 2.5 hours

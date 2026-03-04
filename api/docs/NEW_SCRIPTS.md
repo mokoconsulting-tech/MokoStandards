@@ -1,3 +1,6 @@
+
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # New Automation Scripts - v2.0.1
 
 This document describes the new automation scripts added to MokoStandards.

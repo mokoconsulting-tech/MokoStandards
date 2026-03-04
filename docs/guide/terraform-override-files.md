@@ -31,7 +31,6 @@ BRIEF: Guide for using override.config.tf files to control bulk sync behavior
 
 # Terraform Override Files - Complete Guide
 
-**Version**: 2.0.0  
 **Status**: Active  
 **Last Updated**: 2026-02-11
 

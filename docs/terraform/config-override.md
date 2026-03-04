@@ -1,7 +1,10 @@
 # Override Configuration (.github/config.tf)
 
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+
 <!-- Copyright (C) 2026 Moko Consulting -->
+
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 ## Metadata
 
@@ -88,14 +91,14 @@ All override files must follow [Terraform File Standards](../policy/terraform-fi
 # INGROUP: [Parent.Group]
 # REPO: https://github.com/mokoconsulting-tech/[repo-name]
 # PATH: /.github/config.tf
-# VERSION: 04.00.03
+# VERSION: XX.YY.ZZ
 # BRIEF: Repository-specific override configuration
 
 locals {
   file_metadata = {
     name              = "Repository Override Configuration"
     description       = "Override configuration for bulk synchronization"
-    version           = "04.00.03"
+    version           = "XX.YY.ZZ"
     last_updated      = "2026-02-21T00:00:00Z"
     maintainer        = "MokoStandards Team"
     schema_version    = "2.0"
@@ -220,7 +223,7 @@ locals {
   file_metadata = {
     name              = "Example Project Override"
     description       = "Override configuration for example-project"
-    version           = "04.00.03"
+    version           = "XX.YY.ZZ"
     last_updated      = "2026-02-21T00:00:00Z"
     maintainer        = "Example Team"
     schema_version    = "2.0"

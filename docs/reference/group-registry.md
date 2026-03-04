@@ -4,7 +4,6 @@
 
 **Purpose**: Official registry of all MokoStandards groups with definitions, purposes, and membership criteria.
 
-**Version**: 01.00.00  
 **Last Updated**: 2026-01-30
 
 ---

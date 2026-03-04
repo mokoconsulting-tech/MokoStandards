@@ -27,6 +27,8 @@ VERSION: 04.00.03
 BRIEF: Comprehensive catalog of all templates in MokoStandards
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Templates Catalog
 
 ## Overview

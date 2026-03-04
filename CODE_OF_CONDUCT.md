@@ -20,6 +20,8 @@
   NOTE: Adapted with attribution from the Contributor Covenant v2.1
 -->
 
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # Contributor Covenant Code of Conduct
 
 ## Our Pledge

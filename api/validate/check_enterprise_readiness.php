@@ -47,6 +47,8 @@ class EnterpriseReadinessChecker extends CliFramework
         $this->setDescription('Check enterprise readiness compliance');
         $this->addArgument('--path', 'Repository path to check', '.');
         $this->addArgument('--strict', 'Fail on any non-compliance', false);
+        $this->addArgument('--create-issue', 'Create GitHub issue on failure', false);
+        $this->addArgument('--repo', 'GitHub repo for issue creation (owner/repo)', '');
     }
     
     protected function initialize(): void
@@ -103,7 +105,18 @@ class EnterpriseReadinessChecker extends CliFramework
         $this->displayResults();
         
         $failures = count(array_filter($this->results, fn($r) => !$r['passed']));
-        
+
+        $createIssue = $this->getArgument('--create-issue');
+        $repo        = $this->getArgument('--repo');
+
+        if ($failures > 0 && $createIssue) {
+            if (!empty($repo)) {
+                $this->createGitHubIssue($repo, $failures);
+            } else {
+                $this->warn('--create-issue requires --repo (format: owner/repo)');
+            }
+        }
+
         if ($strict && $failures > 0) {
             $this->error("Enterprise readiness check failed (strict mode): {$failures} issues found");
             return 1;
@@ -207,6 +220,61 @@ class EnterpriseReadinessChecker extends CliFramework
         );
     }
     
+    private function createGitHubIssue(string $repo, int $failures): void
+    {
+        $this->log("Creating enterprise readiness issue for {$repo}");
+
+        $token = getenv('GITHUB_TOKEN') ?: getenv('GH_TOKEN');
+        if (empty($token)) {
+            $this->error('GITHUB_TOKEN or GH_TOKEN environment variable required');
+            return;
+        }
+
+        $lines = ["## ❌ Enterprise Readiness Failures\n"];
+        foreach ($this->results as $result) {
+            if (!$result['passed']) {
+                $check   = htmlspecialchars($result['check'],   ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+                $message = htmlspecialchars($result['message'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+                $lines[] = "- ❌ **{$check}**: {$message}";
+            }
+        }
+        $lines[] = "\n---\n*Automatically created by check_enterprise_readiness.php*";
+        $body = implode("\n", $lines);
+
+        $data = [
+            'title'  => "❌ Enterprise readiness: {$failures} issue(s) found",
+            'body'   => $body,
+            'labels' => ['enterprise-readiness', 'validation', 'automated'],
+        ];
+
+        $ch = curl_init("https://api.github.com/repos/{$repo}/issues");
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => json_encode($data),
+            CURLOPT_HTTPHEADER     => [
+                'Authorization: token ' . $token,
+                'Content-Type: application/json',
+                'User-Agent: MokoStandards-EnterpriseReadiness',
+                'Accept: application/vnd.github.v3+json',
+            ],
+        ]);
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode >= 200 && $httpCode < 300) {
+            $result = json_decode($response, true);
+            $this->log('✅ Created issue #' . ($result['number'] ?? 'unknown') . " in {$repo}");
+        } else {
+            $this->error("Failed to create issue (HTTP {$httpCode})");
+            if ($response) {
+                $error = json_decode($response, true);
+                $this->error('Error: ' . ($error['message'] ?? $response));
+            }
+        }
+    }
+
     private function addResult(string $check, bool $passed, string $message): void
     {
         $this->results[] = [

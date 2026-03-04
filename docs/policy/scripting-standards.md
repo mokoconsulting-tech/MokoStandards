@@ -687,7 +687,7 @@ DEFGROUP: MokoStandards.Scripts
 INGROUP: MokoStandards.Automation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /scripts/my_script.py
-VERSION: 04.00.03
+VERSION: XX.YY.ZZ
 BRIEF: Brief description of script purpose
 """
 ```

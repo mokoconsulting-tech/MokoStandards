@@ -233,7 +233,7 @@ git push origin main
 All files with version headers are automatically updated during release:
 
 ```markdown
-VERSION: 04.00.03
+VERSION: XX.YY.ZZ
 ```
 
 Supported file types:
@@ -327,7 +327,6 @@ python3 scripts/maintenance/release_version.py \
 
 ## Metadata
 
-**Document Version**: 05.00.00
 **Last Updated**: 2026-01-04
 **Status**: Active
 

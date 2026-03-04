@@ -1,3 +1,6 @@
+
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+
 # TODO Tracking Document
 
 **Created**: 2026-02-27  
@@ -92,7 +95,7 @@ All files under `docs/training/` contain exercise TODOs:
 
 ### .gitignore TODO Files
 **Status**: ✅ WORKING AS DESIGNED
-- **Files**: `.gitignore`, `templates/configs/.gitignore*`
+- **Files**: `.gitignore`, `templates/configs/gitignore*`
 - **Lines**: Ignore patterns for `TODO.md`, `todo*`
 - **Purpose**: Prevent personal TODO files from being committed
 - **Action**: None required

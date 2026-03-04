@@ -452,7 +452,7 @@ git commit -m "Add required documentation (Layer 1)"
 cp /path/to/MokoStandards/templates/docs/extra/template-CODE_OF_CONDUCT.md ./CODE_OF_CONDUCT.md
 
 # Copy Joomla-specific .gitignore
-cp /path/to/MokoStandards/templates/configs/.gitignore.joomla ./.gitignore
+cp /path/to/MokoStandards/templates/configs/gitignore ./.gitignore
 
 # Copy Makefile for Joomla
 cp /path/to/MokoStandards/Makefiles/Makefile.joomla ./Makefile
@@ -479,7 +479,7 @@ git commit -m "Add Joomla-specific required structure"
 # After completing base requirements above
 
 # Copy Dolibarr-specific .gitignore
-cp /path/to/MokoStandards/templates/configs/.gitignore.dolibarr ./.gitignore
+cp /path/to/MokoStandards/templates/configs/gitignore ./.gitignore
 
 # Copy Makefile for Dolibarr
 cp /path/to/MokoStandards/Makefiles/Makefile.dolibarr ./Makefile
@@ -507,7 +507,7 @@ git commit -m "Add Dolibarr-specific required structure"
 cp /path/to/MokoStandards/templates/docs/extra/template-CODE_OF_CONDUCT.md ./CODE_OF_CONDUCT.md
 
 # Copy generic .gitignore
-cp /path/to/MokoStandards/templates/configs/.gitignore.generic ./.gitignore
+cp /path/to/MokoStandards/templates/configs/gitignore ./.gitignore
 
 # Optional: Add Makefile for generic repos
 cp /path/to/MokoStandards/Makefiles/Makefile.generic ./Makefile

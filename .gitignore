@@ -440,8 +440,6 @@ modulebuilder.txt
 /administrator/language/en-GB/en-GB.plg_fields_radio.sys.ini
 /administrator/language/en-GB/en-GB.plg_fields_repeatable.ini
 /administrator/language/en-GB/en-GB.plg_fields_repeatable.sys.ini
-/administrator/language/en-GB/en-GB.plg_fields_sql.ini
-/administrator/language/en-GB/en-GB.plg_fields_sql.sys.ini
 /administrator/language/en-GB/en-GB.plg_fields_text.ini
 /administrator/language/en-GB/en-GB.plg_fields_text.sys.ini
 /administrator/language/en-GB/en-GB.plg_fields_textarea.ini
@@ -838,7 +836,6 @@ modulebuilder.txt
 /plugins/fields/media/*
 /plugins/fields/radio/*
 /plugins/fields/repeatable/*
-/plugins/fields/sql/*
 /plugins/fields/text/*
 /plugins/fields/textarea/*
 /plugins/fields/url/*

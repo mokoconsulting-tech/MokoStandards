@@ -25,7 +25,11 @@ declare(strict_types=1);
  */
 class Common
 {
-	/** Fallback version used when README.md cannot be parsed. */
+	/**
+	 * Fallback version used when README.md cannot be parsed.
+	 * NOTE: Kept in sync with _FALLBACK_VERSION in the original common.sh.
+	 *       Update this constant when the minimum supported baseline version changes.
+	 */
 	const FALLBACK_VERSION = '04.00.00';
 
 	const REPO_URL    = 'https://github.com/mokoconsulting-tech/MokoStandards';

@@ -82,7 +82,7 @@ class SetupLabels extends CliBase
 		['priority: low',          '0E8A16', 'Low priority'],
 
 		// Type
-		['type: bug',              'D73A4A', 'Something isn\'t working'],
+		['type: bug',              'D73A4A', "Something isn't working"],
 		['type: feature',          'A2EEEF', 'New feature or request'],
 		['type: enhancement',      '84B6EB', 'Enhancement to existing feature'],
 		['type: refactor',         'F9D0C4', 'Code refactoring'],

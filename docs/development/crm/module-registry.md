@@ -67,7 +67,9 @@ Dolibarr module numbers **185051 to 185099** are reserved for Moko Consulting us
 | MokoDoliAuth | 185061 | Reserved | Advanced authentication module for Dolibarr | TBD |
 | MokoDoliOffline | 185062 | Reserved | Offline capability module for Dolibarr | TBD |
 | MokoDoliReleaseHelper | 185063 | Reserved | Release management and version control helper module for Dolibarr | TBD |
-| Available for Assignment | 185064-185099 | Reserved | Reserved for future Moko Consulting modules | - |
+| MokoDoliProjTemplate | 185064 | Reserved | A Dolibarr module designed to provide project templates | TBD |
+| MokoDoliCGAdClaude | 185065 | Reserved | Multi-platform advertising analysis module integrating Google Ads, Meta Ads, LinkedIn Ads with Claude AI | TBD |
+| Available for Assignment | 185066-185099 | Reserved | Reserved for future Moko Consulting modules | - |
 
 ## Module ID Reservation Process
 
@@ -98,7 +100,7 @@ If you prefer to reserve manually:
 1. **Create a Pull Request** to [https://github.com/mokoconsulting-tech/MokoStandards](https://github.com/mokoconsulting-tech/MokoStandards)
 2. **Update this table** with:
    - Module name
-   - Next available module number from the reserved range (185064-185099)
+   - Next available module number from the reserved range (185066-185099)
    - Status: "Reserved"
    - Brief description of the module's purpose
    - Repository link (use "TBD" if not yet created)
@@ -116,11 +118,11 @@ Once your module ID is reserved:
 Create `src/DOLIBARR_MODULE_ID.txt` in your module repository:
 
 ```
-DOLIBARR_MODULE_ID=185064
+DOLIBARR_MODULE_ID=185065
 
 Module Name: YourModuleName
-Module ID: 185064
-Reserved Range: 185064-185099 (Moko Consulting)
+Module ID: 185065
+Reserved Range: 185065-185099 (Moko Consulting)
 Description: Your module description
 
 This ID is registered in the MokoStandards module registry:
@@ -194,7 +196,7 @@ Use the automated workflow (recommended) or create a manual PR. See [Module ID R
 
 ### Can I request a specific module ID?
 
-Yes! When using the workflow, you can specify a module ID in the range 185064-185099. The workflow will validate it's available.
+Yes! When using the workflow, you can specify a module ID in the range 185066-185099. The workflow will validate it's available.
 
 ### What if all IDs are reserved?
 
@@ -218,5 +220,6 @@ For questions about module ID reservation or Dolibarr development:
 
 ---
 
+**Document Version**: 04.00.03  
 **Last Updated**: 2026-02-19  
 **Maintained By**: CRM Development Lead

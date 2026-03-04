@@ -55,7 +55,6 @@ on:
 permissions:
   contents: read
   pull-requests: write
-  issues: write
 
 jobs:
   validate-php:
@@ -374,90 +373,3 @@ jobs:
         run: |
           echo "❌ Critical validation issues detected - workflow failed"
           exit 1
-
-      - name: Create or update issue on failure
-        if: |
-          failure() &&
-          github.event_name == 'push' &&
-          (
-            needs.validate-php.result == 'failure' ||
-            needs.validate-shell.result == 'failure' ||
-            needs.validate-workflows.result == 'failure' ||
-            needs.validate-templates.result == 'failure' ||
-            needs.validate-yaml-tabs.result == 'failure'
-          )
-        uses: actions/github-script@v8
-        with:
-          script: |
-            const date   = new Date().toISOString().split('T')[0];
-            const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
-
-            const jobs = [
-              { name: 'PHP Scripts',    result: '${{ needs.validate-php.result }}'        },
-              { name: 'Shell Scripts',  result: '${{ needs.validate-shell.result }}'      },
-              { name: 'Workflows',      result: '${{ needs.validate-workflows.result }}'  },
-              { name: 'Templates',      result: '${{ needs.validate-templates.result }}'  },
-              { name: 'YAML Tab Check', result: '${{ needs.validate-yaml-tabs.result }}'  },
-            ];
-
-            const failed = jobs.filter(j => j.result === 'failure');
-            const lines  = failed.map(j => `- ❌ **${j.name}**`).join('\n');
-
-            const body = [
-              `## ❌ Comprehensive Validation Failed`,
-              ``,
-              `**Date:** ${date}`,
-              `**Branch:** \`${{ github.ref_name }}\``,
-              `**Run:** [View run](${runUrl})`,
-              ``,
-              `## Failed Checks`,
-              ``,
-              lines,
-              ``,
-              `## How to Fix`,
-              ``,
-              `1. Open the [workflow run](${runUrl}) and expand the failed job(s)`,
-              `2. Fix the reported issues`,
-              `3. Push your fixes — this issue updates automatically on the next run`,
-              ``,
-              `---`,
-              `_Automatically created by [comprehensive-validation](.github/workflows/comprehensive-validation.yml)_`,
-            ].join('\n');
-
-            // Validate assignee
-            let assignees = [];
-            try {
-              await github.rest.users.getByUsername({ username: 'jmiller-moko' });
-              assignees = ['jmiller-moko'];
-            } catch (e) {
-              console.log('Assignee not found, skipping');
-            }
-
-            // Update existing open issue or create new one
-            const existing = await github.rest.issues.listForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open',
-              labels: 'validation-failure',
-              per_page: 1,
-            });
-
-            if (existing.data.length > 0) {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: existing.data[0].number,
-                body: `### 🔄 Updated Results — ${date}\n\n${body}`,
-              });
-              console.log(`Updated existing issue #${existing.data[0].number}`);
-            } else {
-              const issue = await github.rest.issues.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                title: `[Validation] Comprehensive check failures — ${date}`,
-                body,
-                labels: ['validation-failure', 'validation', 'automated'],
-                assignees,
-              });
-              console.log(`Created issue #${issue.data.number}`);
-            }

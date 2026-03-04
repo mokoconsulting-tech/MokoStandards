@@ -3,8 +3,6 @@ Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
 SPDX-License-Identifier: GPL-3.0-or-later
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
-
 # CRM Development Documentation
 
 Welcome to the CRM Development documentation section. This directory contains resources specific to developing MokoCRM and Dolibarr modules.

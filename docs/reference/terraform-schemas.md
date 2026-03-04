@@ -2,6 +2,7 @@
 
 # Terraform Schema Definitions
 
+**Version**: 2.0
 **Status**: Active
 **Last Updated**: 2026-01-27
 
@@ -605,6 +606,7 @@ For questions or issues:
 
 ---
 
+**Document Version**: 1.0
 **Last Updated**: 2026-01-27
 **Maintainer**: MokoStandards Team
 

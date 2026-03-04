@@ -21,6 +21,7 @@ For full license text, see LICENSE file in repository root.
 | **Owner** | Development Team |
 | **Repo** | MokoStandards |
 | **Path** | docs/guide/copilot-usage-guide.md |
+| **VERSION** | 04.00.03 |
 | **Status** | Active |
 | **Last Reviewed** | 2026-01-28 |
 | **Reviewed By** | Development Team |

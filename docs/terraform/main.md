@@ -1,10 +1,7 @@
 # Main Terraform Configuration
 
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
-
 <!-- Copyright (C) 2026 Moko Consulting -->
-
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 ## Metadata
 
@@ -76,7 +73,7 @@ locals {
   file_metadata = {
     name              = "Main Configuration"
     description       = "Primary terraform configuration"
-    version           = "XX.YY.ZZ"
+    version           = "04.00.03"
     last_updated      = "2026-02-21T00:00:00Z"
     maintainer        = "MokoStandards Team"
     schema_version    = "2.0"

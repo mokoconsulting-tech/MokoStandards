@@ -83,12 +83,12 @@ These workflows had overlapping triggers that caused duplicate releases.
 
 1. Update the version number in `CITATION.cff`:
    ```yaml
-   version: "XX.YY.ZZ"
+   version: "04.00.03"
    ```
 
 2. Update the version in `pyproject.toml`:
    ```toml
-   version = "XX.YY.ZZ"
+   version = "04.00.03"
    ```
 
 3. Add a new version section to `CHANGELOG.md`:
@@ -315,4 +315,5 @@ For questions or issues with the release system:
 ---
 
 **Last Updated**: 2026-02-02  
+**Version**: 01.00.00  
 **Maintained by**: Moko Consulting Infrastructure Team

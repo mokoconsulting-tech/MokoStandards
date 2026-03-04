@@ -33,7 +33,7 @@ This policy defines the standard format and maintenance requirements for CHANGEL
 
 **Example:**
 ```markdown
-# CHANGELOG - MokoStandards (VERSION: XX.YY.ZZ)
+# CHANGELOG - MokoStandards (VERSION: 04.00.03)
 ```
 
 **Rules:**
@@ -103,7 +103,7 @@ Within each version section, changes are organized by category using H3:
 ## Complete Example
 
 ```markdown
-# CHANGELOG - MokoStandards (VERSION: XX.YY.ZZ)
+# CHANGELOG - MokoStandards (VERSION: 04.00.03)
 
 All notable changes to this project will be documented in this file.
 

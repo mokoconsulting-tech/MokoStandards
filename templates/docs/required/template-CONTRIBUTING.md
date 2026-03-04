@@ -20,8 +20,6 @@
  BRIEF: How to contribute; commit, PR, testing and security policies
  -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
-
 # Contributing
 
 1. Fork and branch: feat/ or fix/*

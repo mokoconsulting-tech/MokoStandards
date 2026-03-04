@@ -19,8 +19,6 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
-
 # Build Templates
 
 This directory contains Makefile templates for automating common build and development tasks for MokoWaaS extensions and MokoCRM modules.

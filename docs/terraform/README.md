@@ -1,15 +1,13 @@
 # Terraform Configuration Documentation
 
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
-
 <!-- Copyright (C) 2026 Moko Consulting -->
-
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 ## Metadata
 
 | Field | Value |
 |-------|-------|
+| **VERSION** | 04.00.03 |
 | **LAST UPDATED** | 2026-02-21 |
 | **STATUS** | Active |
 

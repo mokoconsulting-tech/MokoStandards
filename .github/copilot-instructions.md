@@ -1,187 +1,169 @@
-# MokoStandards — GitHub Copilot Custom Instructions
+# GitHub Copilot Instructions for MokoStandards
 
-## What This Repo Is
+## Repository Overview
 
-MokoStandards is the **authoritative standards and automation repository** for all Moko Consulting repositories (https://github.com/mokoconsulting-tech/MokoStandards). It is not a project template, not a runnable application, and not a library. It is the single source of truth for policies, PHP enterprise libraries, GitHub Actions workflows, and Terraform configuration templates that governed repositories pull via bulk sync.
+**MokoStandards** is the authoritative source of coding standards, architectural patterns, GitHub Actions workflow templates, governance policies, and PHP automation libraries for the Moko Consulting ecosystem. It is **Tier 2 (Public SOURCE OF TRUTH)** — do **not** clone or duplicate it to start new projects; use the template repositories instead.
+
+- **Languages**: PHP (primary), Python, PowerShell, Bash, YAML, Terraform HCL
+- **PHP requirement**: ≥ 8.1; Composer-managed dependencies
+- **License**: GPL-3.0-or-later
+- **Version**: 04.00.03 (semantic versioning `MM.mm.pp` style used throughout)
 
 ---
 
-## Primary Language
+## Directory Layout
 
-**PHP 8.1+ is the only language for new automation scripts and library code in `api/`.** Do not suggest Python scripts inside `api/`. Python tooling config (`pyproject.toml`) exists but the runtime is PHP-only. YAML uses 2-space indentation (spaces, not tabs). All other files use tabs.
+```
+.github/            GitHub Actions workflows + config
+api/                Main API directory (replaces legacy scripts/)
+  automation/       Automation scripts (bulk_sync.php, etc.)
+  build/            Build helpers
+  definitions/      Repository structure definitions (.tf files, HCL format)
+    default/        Platform base definitions (crm-module.tf, standards-repository.tf, …)
+    sync/           Auto-generated per-repo definitions ({repo}.def.tf)
+  fix/              Auto-fix scripts
+  lib/              Shared libraries
+    Enterprise/     PHP Enterprise classes (PluginFactory, RepositoryHealthChecker, …)
+    plugins/        Project-type plugins (Joomla, Dolibarr)
+  maintenance/      Maintenance scripts
+  release/          Release automation
+  src/              PSR-4 autoloaded source (namespace MokoStandards\)
+  tests/            PHPUnit tests (namespace MokoStandards\Tests\)
+  validate/         Validation scripts (auto_detect_platform.php, check_repo_health.php, …)
+  wrappers/         Cross-platform wrapper scripts (PowerShell / Bash, 100+)
+docs/               238 documentation files
+  policy/           77 policy documents (file-header-standards.md, coding-style-guide.md, …)
+  training/         7 training sessions
+  guide/            Implementation guides
+  reference/        Technical references
+  enforcement-levels.md   45 KB six-tier enforcement guide (OPTIONAL→FORCED→NOT_ALLOWED)
+templates/          Project templates and config templates
+logs/               Runtime log output (gitignored)
+```
 
 ---
 
-## File Header — Always Required on New Files
+## Build, Lint, Test Commands
 
-Every new file needs a copyright header as its first content. Use the minimal form unless the file is a policy doc, README, or public API.
+Always run `composer install` before any PHP command when `vendor/` is absent.
 
-**PHP:**
+```bash
+# Install dependencies
+composer install
+
+# Run all checks (phpcs + phpstan + phpunit)
+composer run check
+
+# Code style (PSR-12, 120-char line limit, no var_dump/eval)
+composer run phpcs          # or: ./vendor/bin/phpcs
+
+# Static analysis (level 5, paths: api/src, api/tests)
+composer run phpstan        # or: ./vendor/bin/phpstan analyse api/src/ api/tests/
+
+# Type checking
+./vendor/bin/psalm          # psalm.xml config at repo root
+
+# Unit tests
+composer run test           # or: ./vendor/bin/phpunit
+
+# YAML lint
+yamllint .
+
+# Markdown lint
+markdownlint "**/*.md"
+
+# Python lint (pyproject.toml config)
+pylint <file>
+```
+
+Key config files: `phpcs.xml`, `phpstan.neon`, `psalm.xml`, `pyproject.toml`, `.eslintrc.json`, `.markdownlint.json`, `.yamllint`, `.editorconfig`.
+
+The CI workflows that must pass before merge are in `.github/workflows/`:
+- `standards-compliance.yml` — 28 validation checks (structure, headers, code style, docs, license)
+- `security-comprehensive.yml` / `security-scan.yml` — CodeQL + secret scanning
+- `integration-tests.yml` — integration test suite
+- `validate-script-integrity.yml` — script registry integrity
+
+---
+
+## Coding Standards (mandatory)
+
+### File Headers
+
+Every file that supports comments **must** start with a copyright block. Use the comment syntax for the file type:
+
 ```php
 <?php
-/* Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
- *
- * This file is part of a Moko Consulting project.
+/**
+ * Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
  * FILE INFORMATION
- * DEFGROUP: MokoStandards.Scripts.Validate
+ * DEFGROUP: MokoStandards.<Group>
  * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
- * PATH: /api/validate/my_script.php
- * VERSION: XX.YY.ZZ
- * BRIEF: One-line description of purpose
+ * PATH: /<relative-path-from-repo-root>
+ * VERSION: 04.00.03
+ * BRIEF: <one-line description>
  */
-
-declare(strict_types=1);
 ```
 
-**Markdown:**
-```markdown
-<!--
-Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+For YAML, Markdown, Bash/shell, Python — adapt the comment delimiter accordingly. JSON files do not support comments and are exempt. See `docs/policy/file-header-standards.md` for complete examples.
 
-This file is part of a Moko Consulting project.
+### Indentation
 
-SPDX-License-Identifier: GPL-3.0-or-later
+| File type | Style |
+|-----------|-------|
+| PHP, PowerShell, Bash, Terraform | **Tabs** |
+| YAML, Python, JSON, RST | **Spaces** (YAML=2, Python=4, JSON=2) |
+| Makefiles | **Tabs** (required by Make) |
 
-# FILE INFORMATION
-DEFGROUP: MokoStandards.Guide
-INGROUP: MokoStandards.Documentation
-REPO: https://github.com/mokoconsulting-tech/MokoStandards
-PATH: /docs/guide/my-doc.md
-VERSION: XX.YY.ZZ
-BRIEF: One-line description
--->
-```
+See `.editorconfig` for authoritative per-extension rules.
 
-**YAML / Shell:** Use `#` comments with the same fields. JSON files are exempt.
+### PHP Style
 
----
+- PSR-12 + `declare(strict_types=1)` at top of every file
+- Namespace prefix: `MokoStandards\` (autoloaded from `api/src/`)
+- Enterprise classes live under `MokoStandards\Enterprise\` (source: `api/lib/Enterprise/`)
+- Forbidden: `eval`, `create_function`, `var_dump`, `print_r`
+- Max line length: 120 characters (hard limit 150)
+- Use typed properties and return types
 
-## PHP Script Structure
+### Commit / Version discipline
 
-All scripts in `api/` extend `CliFramework` from `api/lib/Enterprise/CliFramework.php`. Use `configure()` to declare arguments and `run()` to execute.
-
-```php
-#!/usr/bin/env php
-<?php
-/* … header … */
-
-declare(strict_types=1);
-
-require_once __DIR__ . '/../../vendor/autoload.php';
-
-use MokoStandards\Enterprise\{AuditLogger, CliFramework, MetricsCollector, PluginFactory};
-
-class MyScript extends CliFramework
-{
-    private AuditLogger $logger;
-
-    protected function configure(): void
-    {
-        $this->setDescription('What this script does');
-        $this->addArgument('--path', 'Repository path', '.');
-        $this->addArgument('--dry-run', 'Preview without changes', false);
-    }
-
-    protected function initialize(): void
-    {
-        parent::initialize();
-        $this->logger = new AuditLogger('my_script');
-    }
-
-    protected function run(): int
-    {
-        $path = $this->getArgument('--path');
-        $this->log("Processing: {$path}");
-        return 0;
-    }
-}
-
-$script = new MyScript();
-exit($script->run());
-```
-
-PHPDoc is required on all public methods. `declare(strict_types=1)` is required in every PHP file. Never use `var_dump`, `print_r`, `eval`, or `create_function`.
+- Update `VERSION` field in every modified file header
+- Keep `CHANGELOG.md` current for every PR
+- Semantic version format: `MM.mm.pp` (e.g., `04.00.03`)
+- Conventional commits are expected (see `.gitmessage`)
 
 ---
 
-## Naming Conventions
+## Key Architecture Points
 
-| Context | Convention | Example |
-|---------|-----------|---------|
-| PHP class | `PascalCase` | `RepositorySynchronizer` |
-| PHP method / function | `camelCase` | `getUserData()` |
-| PHP variable | `$snake_case` | `$repo_path` |
-| PHP constant | `UPPER_SNAKE_CASE` | `DEFAULT_THRESHOLD` |
-| PHP class file | `PascalCase.php` | `ApiClient.php` |
-| PHP script file | `snake_case.php` | `check_repo_health.php` |
-| YAML workflow | `kebab-case.yml` | `bulk-repo-sync.yml` |
-| Markdown doc | `kebab-case.md` | `php-only-architecture.md` |
+- **Plugin system**: All validation/automation scripts use `PluginFactory` and `ProjectTypeDetector`. Call `PluginFactory::createForProject()` for auto-detection; do not instantiate plugins directly.
+- **Circuit breaker**: `ApiClient` implements a circuit breaker. In bulk-sync loops, reset it before each repository to prevent state leakage.
+- **Repository definitions**: Definition files are Terraform HCL (`.tf` extension) stored in `api/definitions/default/`. Auto-generated per-repo definitions go in `api/definitions/sync/` with the pattern `{repo}.def.tf`. Do **not** create `.github/override.tf` in remote repos manually — the bulk sync workflow handles this.
+- **Documentation mirrors API**: `docs/api/` mirrors `api/` structure. Subdirectories use `index.md` files only, never `README.md`.
+- **Dolibarr module IDs**: Sequential IDs reserved in `docs/development/crm/module-registry.md`. Always check this file for the current next available ID before reserving a new one.
+- **Six-tier enforcement**: Files synced to repos follow OPTIONAL → SUGGESTED → REQUIRED → FORCED → NOT_SUGGESTED → NOT_ALLOWED. NOT_ALLOWED takes absolute priority. See `docs/enforcement-levels.md`.
 
 ---
 
-## Commit Messages
+## Validation Before Committing
 
-Format: `<type>(<scope>): <subject>` — imperative, lower-case subject, no trailing period.
-
-Valid types: `feat` · `fix` · `docs` · `chore` · `ci` · `refactor` · `style` · `test` · `perf` · `revert` · `build`
-
-Examples:
-- `feat(validate): add version drift detection to scan_drift.php`
-- `fix(api): correct circuit breaker reset in RepositorySynchronizer`
-- `docs(policy): update file-header-standards for YAML files`
-- `chore(deps): bump phpstan to level 6`
-
----
-
-## Branch Naming
-
-Format: `<prefix>/<MAJOR.MINOR.PATCH>[/description]`
-
-Approved prefixes: `dev/` · `rc/` · `version/` · `patch/` · `copilot/` · `dependabot/`
-
-- ✅ `dev/4.0.4/add-validator`
-- ✅ `patch/4.0.4/fix-header`
-- ❌ `feature/my-thing` — rejected by branch protection
-
----
-
-## Validation Commands
+Run these locally before pushing:
 
 ```bash
-find api -name "*.php" -exec php -l {} \;          # syntax check
-./vendor/bin/phpcs --standard=phpcs.xml api/        # PSR-12 style
-./vendor/bin/phpstan analyse -c phpstan.neon api/   # static analysis
-./vendor/bin/psalm --config=psalm.xml               # type checking
-./vendor/bin/phpunit api/tests/                     # tests
+# Full quality check
+composer run check
+
+# YAML lint
+yamllint .
+
+# Standards compliance (mirrors the CI workflow)
+php api/validate/auto_detect_platform.php --path .
+php api/validate/check_repo_health.php --path .
 ```
 
----
-
-## Key Constraints
-
-- Never commit directly to `main` — all changes go via PR, squash-merged
-- Never add Python to `api/` — PHP only
-- Never hardcode a specific version like `04.00.03` in document body text — use the version badge and FILE INFORMATION header
-- Never skip the FILE INFORMATION block on a new file
-- Never use bare `catch (\Throwable $e) {}` without logging or re-throwing
-- Policy documents live in `docs/policy/` — never mix policy and guide content
-- Templates synced to other repos live in `templates/` — never modify them inline without understanding sync impact
-
----
-
-## Where Things Live
-
-| What | Where |
-|------|-------|
-| Executable PHP scripts | `api/validate/`, `api/automation/`, `api/maintenance/` |
-| PHP enterprise library classes | `api/lib/Enterprise/` |
-| GitHub Actions workflows for THIS repo | `.github/workflows/` |
-| Workflow templates synced to other repos | `templates/workflows/` |
-| Policy documents | `docs/policy/` |
-| How-to guides | `docs/guide/` |
-| Repository structure definitions (.tf HCL) | `api/definitions/` |
-| Linter/config templates | `templates/configs/` |
+Trust these instructions. Only search the codebase for additional context if the instructions above are incomplete or appear out-of-date for your specific task.

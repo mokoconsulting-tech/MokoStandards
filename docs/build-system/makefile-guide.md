@@ -2,7 +2,7 @@
 
 # Makefile Creation Guide
 
-**Status**: Active | **Effective**: 2026-01-13
+**Status**: Active | **Version**: 04.00.03 | **Effective**: 2026-01-13
 
 ## Overview
 

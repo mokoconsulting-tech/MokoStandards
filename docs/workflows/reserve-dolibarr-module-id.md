@@ -2,7 +2,7 @@
 
 # Reserve Dolibarr Module ID Workflow
 
-**Status**: Active | **Effective**: 2026-02-21
+**Status**: Active | **Version**: 04.00.03 | **Effective**: 2026-02-21
 
 ## Overview
 

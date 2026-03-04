@@ -1,20 +1,5 @@
-# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
-#
-# This file is part of a Moko Consulting project.
-#
-# SPDX-License-Identifier: GPL-3.0-or-later
-#
-# FILE INFORMATION
-# DEFGROUP: MokoStandards.GitHub
-# INGROUP: MokoStandards.Configuration
-# REPO: https://github.com/mokoconsulting-tech/MokoStandards
-# PATH: /.github/copilot.yml
-# VERSION: XX.YY.ZZ
-# BRIEF: GitHub Copilot allowed-domains and file-inclusion configuration for this repository
-#
 # GitHub Copilot Configuration
-# Behavioural context lives in .github/copilot-instructions.md
-# This file controls trusted domains and file patterns only.
+# This file configures GitHub Copilot settings for the repository
 
 # Allowed domains for Copilot to access
 # These domains are trusted sources that Copilot can fetch information from

@@ -1,6 +1,3 @@
-
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
-
 # Web Server Terraform Configuration
 
 This directory contains Terraform definitions for Windows and Ubuntu web servers in both development and production environments.

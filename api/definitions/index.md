@@ -1,7 +1,4 @@
-
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
-
-# Docs Index: /scripts/definitions
+# Docs Index: /api/definitions
 
 ## Purpose
 

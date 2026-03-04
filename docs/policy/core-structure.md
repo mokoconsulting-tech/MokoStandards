@@ -68,14 +68,16 @@ The README.md title **MUST** follow this format:
 
 **Example**:
 ```markdown
-# README - MokoStandards
+# README - MokoStandards (VERSION: 04.00.03)
 ```
 
 **Purpose**: This format provides:
 - Clear identification as the README file
 - Repository name
+- Current version in a machine-readable format
+- Single source of truth for repository version (used by build and release scripts)
 
-**Version information** is conveyed through the version badge in the document body, not in the heading.
+**Validation**: The `scripts/lib/common.py` and `scripts/lib/common.sh` libraries validate this format when extracting the version. Repositories that don't comply will fall back to a default version (04.00.03), which may cause version mismatches in releases and documentation.
 
 ### `/docs/` Folder Structure
 
@@ -395,12 +397,12 @@ Repositories can be validated against this core structure using:
 ```bash
 # Validate repository structure
 python3 scripts/validate/validate_structure.py \
-  --definition scripts/definitions/default-repository.xml \
+  --definition scripts/definitions/default-repository.tf \
   --target /path/to/repository
 
 # Generate missing structure elements
 python3 scripts/validate/generate_stubs.py \
-  --definition scripts/definitions/default-repository.xml \
+  --definition scripts/definitions/default-repository.tf \
   --target /path/to/repository \
   --dry-run
 ```
@@ -453,7 +455,7 @@ python3 scripts/docs/rebuild_script_indexes.py
 1. **Use Structure Definition**
    ```bash
    python3 scripts/validate/generate_stubs.py \
-     --definition scripts/definitions/default-repository.xml \
+     --definition scripts/definitions/default-repository.tf \
      --target /path/to/new-repo
    ```
 
@@ -514,7 +516,7 @@ Add to repository CI pipeline:
 - name: Validate repository structure
   run: |
     python3 scripts/validate/validate_structure.py \
-      --definition scripts/definitions/default-repository.xml
+      --definition scripts/definitions/default-repository.tf
 
 - name: Check index freshness
   run: |

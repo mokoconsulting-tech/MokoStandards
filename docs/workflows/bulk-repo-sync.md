@@ -33,7 +33,7 @@ BRIEF: Comprehensive documentation for the bulk repository sync workflow
 
 # Bulk Repository Sync Workflow
 
-**Status**: ✅ Active | **Enterprise Ready**: ✅ Certified | **Last Updated**: 2026-02-26
+**Status**: ✅ Active | **Version**: 2.0.0 | **Enterprise Ready**: ✅ Certified | **Last Updated**: 2026-02-26
 
 ## Table of Contents
 

@@ -1,6 +1,4 @@
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
-
 # Standard Dry-Run Pattern for MokoStandards Scripts
 
 ## 1. Add --dry-run argument to argparse

@@ -32,6 +32,7 @@ BRIEF: Comprehensive guide for MokoStandards version compliance badges
 # Version Badge Documentation
 
 **Document Type**: Guide  
+**Version**: 04.00.03  
 **Last Updated**: 2026-02-11  
 **Status**: Active
 

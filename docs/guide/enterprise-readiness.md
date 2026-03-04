@@ -277,7 +277,7 @@ Terraform configuration for sync behavior:
 locals {
   override_metadata = {
     name           = "Repository Override"
-    version        = "XX.YY.ZZ"
+    version        = "04.00.03"
     enterprise_ready = true
     monitoring_enabled = true
     audit_logging = true
@@ -381,7 +381,7 @@ locals {
   override_metadata = {
     name           = "Repository Override Configuration"
     description    = "Override configuration for repository"
-    version        = "XX.YY.ZZ"
+    version        = "04.00.03"
     last_updated   = "2026-02-11T00:00:00Z"
     maintainer     = "MokoStandards Team"
     schema_version = "2.0"
@@ -428,7 +428,7 @@ Add to the top of `README.md` (after the first heading):
 enterprise_ready = true
 monitoring_enabled = true
 audit_logging = true
-version = "XX.YY.ZZ"
+version = "04.00.03"
 ```
 
 #### For Node.js projects (`package.json`):

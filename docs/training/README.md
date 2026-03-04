@@ -31,6 +31,7 @@ BRIEF: Training program index for MokoStandards enterprise libraries
 
 # MokoStandards Enterprise Libraries Training Program
 
+**Version**: 04.00.03  
 **Duration**: 17.5 hours across 7 sessions  
 **Format**: Instructor-led with hands-on exercises  
 **Level**: Intermediate to Advanced

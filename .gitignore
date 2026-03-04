@@ -113,6 +113,7 @@ reports/
 !docs/reports/
 test-results/
 tests/_output/
+/tests/
 .github/local/
 .github/workflows/*.log
 

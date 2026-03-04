@@ -68,16 +68,14 @@ The README.md title **MUST** follow this format:
 
 **Example**:
 ```markdown
-# README - MokoStandards (VERSION: XX.YY.ZZ)
+# README - MokoStandards
 ```
 
 **Purpose**: This format provides:
 - Clear identification as the README file
 - Repository name
-- Current version in a machine-readable format
-- Single source of truth for repository version (used by build and release scripts)
 
-**Validation**: The `scripts/lib/common.py` and `scripts/lib/common.sh` libraries validate this format when extracting the version. Repositories that don't comply will fall back to a default version (04.00.03), which may cause version mismatches in releases and documentation.
+**Version information** is conveyed through the version badge in the document body, not in the heading.
 
 ### `/docs/` Folder Structure
 

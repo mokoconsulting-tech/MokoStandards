@@ -186,7 +186,7 @@ jobs:
             echo "## ❌ Error: GH_TOKEN Not Set" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "The GH_TOKEN secret is not set or is empty." >> $GITHUB_STEP_SUMMARY
-            echo "Please configure the GH_TOKEN secret in repository settings." >> $GITHUB_STEP_SUMMARY
+            echo "Please configure the GH_TOKEN secret in the organization's Actions secrets (Settings → Secrets and variables → Actions)." >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "### Required Permissions" >> $GITHUB_STEP_SUMMARY
             echo "- repo (full control)" >> $GITHUB_STEP_SUMMARY

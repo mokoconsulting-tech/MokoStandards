@@ -554,12 +554,12 @@ The workflow requires:
 
 ### Remote Repository Access
 
-The workflow interacts with remote repositories using `GH_TOKEN`:
+The workflow interacts with remote repositories using `GH_TOKEN`, which is an **organization-level Actions secret** (set under GitHub organization Settings → Secrets and variables → Actions):
 
 - Repository URL is constructed as `https://github.com/mokoconsulting-tech/{repo_name}`
 - `GH_TOKEN` must have `repo` (contents write) and `pull-requests: write` on the target repository
 - The workflow creates a branch `reserve-module-id/<ID>` and opens a PR — it never pushes directly to the default branch
-- Remote repository must be accessible to the github-actions bot via the configured token
+- Because `GH_TOKEN` is an organization secret it is automatically available to all repositories in the `mokoconsulting-tech` organization without any per-repo configuration
 
 ### Protected Files
 

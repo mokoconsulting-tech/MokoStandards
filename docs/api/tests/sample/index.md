@@ -2,11 +2,13 @@
 
 ## Overview
 
-`api/tests/sample/` is a minimal generic repository fixture used by MokoStandards API tests.
+`tests/sample/` (at the repository root) is a minimal generic repository fixture used by
+MokoStandards API tests. This directory is gitignored (`/tests/`) and lives only on the
+developer's local machine.
 
 ## Purpose
 
-Test scripts pass `api/tests/sample/` as the `--path` argument to validation scripts so
+Test scripts pass `tests/sample/` as the `--path` argument to validation scripts so
 that validators can be exercised locally without network access or a real GitHub repository.
 
 ## Fixture Contents
@@ -27,7 +29,9 @@ that validators can be exercised locally without network access or a real GitHub
 ## Example Usage
 
 ```php
-$samplePath = __DIR__ . '/../tests/sample';
+// From a test script at api/tests/test_*.php, __DIR__ = api/tests/
+// Two levels up from api/tests/ reaches the repo root
+$samplePath = __DIR__ . '/../../tests/sample';
 
 // Platform detection
 $detector = new AutoDetectPlatform();
@@ -47,6 +51,6 @@ $score   = $checker->run(); // should reach passing threshold
 ---
 
 **Location**: `docs/api/tests/sample/`
-**Mirrors**: `/api/tests/sample/`
+**Mirrors**: `/tests/sample/` (gitignored — local only)
 **Last Updated**: 2026-03-04
 **Maintained By**: MokoStandards Team

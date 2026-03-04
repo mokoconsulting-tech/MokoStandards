@@ -29,11 +29,12 @@ php api/tests/test_enterprise_libraries.php
 
 ## Sample Fixture
 
-`api/tests/sample/` is a minimal generic repository used to exercise validators
-(`check_repo_health.php`, `auto_detect_platform.php`) against a local path without
+`tests/sample/` (at the repository root) is a minimal generic repository used to exercise
+validators (`check_repo_health.php`, `auto_detect_platform.php`) against a local path without
 requiring network access or a real GitHub repository.
 
-It contains:
+This directory is excluded from version control via `.gitignore` (`/tests/`) and must be
+created locally by each developer. It contains:
 
 | Path | Purpose |
 |---|---|

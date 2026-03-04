@@ -11,7 +11,6 @@ This directory contains PHPUnit test suites and sample fixtures for the
 |---|---|
 | `test_circuit_breaker_handling.php` | Tests `CircuitBreakerOpen` and `RateLimitExceeded` exception handling in `ApiClient` |
 | `test_enterprise_libraries.php` | Smoke-tests all Enterprise library classes (MetricsCollector, SecurityValidator, TransactionManager, UnifiedValidator, CliFramework) |
-| `sample/` | Minimal generic repository fixture for running validators against a local path |
 
 ## Related Documentation
 

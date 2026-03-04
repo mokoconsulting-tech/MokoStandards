@@ -31,18 +31,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- **`api/tests/sample/` fixture directory** (2026-03-04):
-  - Added minimal generic repository used by MokoStandards API tests
+- **`tests/sample/` fixture directory** (2026-03-04):
+  - Minimal generic repository fixture used by MokoStandards API tests
+  - Located at `tests/sample/` (repo root, gitignored — local developer copy only)
   - Satisfies all `check_repo_health.php` basic checks: README, LICENSE, .gitignore,
     CHANGELOG, CODE_OF_CONDUCT, SECURITY, docs/, .github/workflows/, dependabot.yml
   - Detectable as `generic` PHP project by `auto_detect_platform.php` via `composer.json`
   - Files: `README.md`, `LICENSE`, `.gitignore`, `CHANGELOG.md`, `CODE_OF_CONDUCT.md`,
     `SECURITY.md`, `composer.json`, `docs/index.md`, `.github/workflows/ci.yml`,
-    `.github/dependabot.yml`, `index.md`
+    `.github/dependabot.yml`
+  - Moved from `api/tests/sample/` (removed from git) to root `tests/sample/` (gitignored)
 - **Documentation updates** (2026-03-04):
-  - Updated `api/tests/index.md` — replaced stale auto-generated stub with accurate content
-  - Updated `docs/api/tests/index.md` — replaced "To be documented" with full test-suite description
-  - Added `docs/api/tests/sample/index.md` — documents the new fixture directory
+  - Updated `api/tests/index.md` — removed stale `sample/` entry (fixture moved to root `tests/sample/`)
+  - Updated `docs/api/tests/index.md` — sample fixture section updated to reference `tests/sample/`
+  - Updated `docs/api/tests/sample/index.md` — corrected path and mirrors references
 - **`.gitignore`**: Added `/tests/` entry to exclude any root-level `tests/` directory
 
 - **Terraform Health Checks Complete** ⭐ FEATURE COMPLETE:

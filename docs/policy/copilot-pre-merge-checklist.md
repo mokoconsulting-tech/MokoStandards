@@ -221,6 +221,10 @@ Verify compliance with MokoStandards:
 - Check revision histories in descending order
 - Validate metadata tables complete
 - Ensure semantic versioning followed
+- Confirm every Markdown file has the MokoStandards version badge after
+  the closing --> of the file header (or at the top if no header exists)
+- Confirm version number appears only in FILE INFORMATION header and badge,
+  not anywhere in the body text
 ```
 
 **Verification**:
@@ -230,6 +234,8 @@ Verify compliance with MokoStandards:
 - [ ] Revision histories ordered correctly
 - [ ] Metadata complete and accurate
 - [ ] Version numbering semantic
+- [ ] MokoStandards version badge present on every new or modified Markdown file
+- [ ] No version numbers in Markdown body text (only in header block and badge)
 
 ## Comprehensive Pre-Merge Prompt
 

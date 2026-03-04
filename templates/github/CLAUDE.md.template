@@ -57,6 +57,127 @@ YAML uses 2-space indentation (spaces, not tabs). All other text files use tabs 
 
 ---
 
+# Composer Package (PHP repositories)
+
+This repository requires the MokoStandards enterprise library. The package is installed from the private GitHub VCS source.
+
+`composer.json` must contain:
+
+```json
+{
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/mokoconsulting-tech/MokoStandards"
+    }
+  ],
+  "require": {
+    "mokoconsulting/mokostandards": "^4.0"
+  }
+}
+```
+
+Install or update with:
+
+```bash
+composer install          # first time
+composer update mokoconsulting/mokostandards   # upgrade
+```
+
+---
+
+# PHP Script Pattern
+
+All PHP scripts must extend `MokoStandards\Enterprise\CliFramework` — **never** use a standalone class or the legacy `CliBase`.
+
+```php
+#!/usr/bin/env php
+<?php
+/* Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+ *
+ * This file is part of a Moko Consulting project.
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ *
+ * FILE INFORMATION
+ * DEFGROUP: {{REPO_NAME}}.Scripts
+ * INGROUP: {{REPO_NAME}}
+ * REPO: {{REPO_URL}}
+ * PATH: /scripts/my_script.php
+ * VERSION: XX.YY.ZZ
+ * BRIEF: One-line description of what this script does
+ */
+
+declare(strict_types=1);
+
+require_once __DIR__ . '/vendor/autoload.php';
+
+use MokoStandards\Enterprise\CliFramework;
+
+class MyScript extends CliFramework
+{
+    protected function configure(): void
+    {
+        $this->setDescription('One-line description of what this script does');
+        $this->addArgument('--path',    'Repository root path',             '.');
+        $this->addArgument('--dry-run', 'Preview changes without writing',  false);
+    }
+
+    protected function run(): int
+    {
+        $path   = $this->getArgument('--path');
+        $dryRun = (bool) $this->getArgument('--dry-run');
+
+        // implementation …
+        $this->log('INFO', "Processing: {$path}");
+
+        return 0;
+    }
+}
+
+$script = new MyScript('my_script', 'One-line description of what this script does');
+exit($script->execute());
+```
+
+**CliFramework interface summary:**
+
+| Member | Purpose |
+|--------|---------|
+| `configure(): void` | Abstract — register arguments with `addArgument()` |
+| `run(): int` | Abstract — main script logic; return the exit code |
+| `initialize(): void` | Optional hook — runs after arg-parse, before `run()` |
+| `execute(array $argv = []): int` | **Public entry point** — call this at the bottom; it calls `configure()`, parses argv, then calls `run()` |
+| `addArgument(string $name, string $desc, mixed $default)` | Register a CLI argument |
+| `getArgument(string $name): mixed` | Read a parsed or default argument value |
+| `log(string $level, string $message)` | Structured log — levels: INFO SUCCESS WARNING ERROR DEBUG |
+| `error(string $message, int $code = 1): never` | Log error and exit |
+| `$this->dryRun` | `true` when `--dry-run` is passed |
+| `$this->verbose` | `true` when `--verbose` / `-v` is passed |
+
+**Forbidden patterns in PHP:**
+
+```php
+// ❌ Wrong — legacy base class, not namespaced
+class MyScript extends CliBase { … }
+
+// ❌ Wrong — standalone class with no framework
+class MyScript { public function run() { … } }
+
+// ❌ Wrong — method names and entry-point transposed
+protected function execute(): int { … }   // should be run()
+exit($script->run());                      // should be execute()
+
+// ✅ Correct
+class MyScript extends CliFramework {
+    protected function configure(): void { … }
+    protected function run(): int { … }
+}
+$script = new MyScript('name', 'description');
+exit($script->execute());
+```
+
+---
+
 # Version Management
 
 **`README.md` is the single source of truth for the repository version.**
@@ -147,6 +268,30 @@ Approved prefixes: `dev/` · `rc/` · `version/` · `patch/` · `copilot/` · `d
 
 ---
 
+# GitHub Actions — Token Usage
+
+Every workflow in this repository must use **`secrets.GH_TOKEN`** (the org-level Personal Access Token).
+
+```yaml
+# ✅ Correct — always use GH_TOKEN
+- uses: actions/checkout@v4
+  with:
+    token: ${{ secrets.GH_TOKEN }}
+
+env:
+  GH_TOKEN: ${{ secrets.GH_TOKEN }}
+```
+
+```yaml
+# ❌ Wrong — never use these
+token: ${{ github.token }}
+token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+PHP scripts read the token with: `getenv('GH_TOKEN') ?: getenv('GITHUB_TOKEN')` — `GH_TOKEN` is always preferred; `GITHUB_TOKEN` is a local-dev fallback only.
+
+---
+
 # What NOT to Do
 
 - **Never commit directly to `main`** — all changes go through a PR.
@@ -154,6 +299,9 @@ Approved prefixes: `dev/` · `rc/` · `version/` · `patch/` · `copilot/` · `d
 - **Never skip the FILE INFORMATION block** on a new source file.
 - **Never use bare `catch (\Throwable $e) {}`** — always log or re-throw.
 - **Never mix tabs and spaces** within a file — follow `.editorconfig`.
+- **Never use `github.token` or `secrets.GITHUB_TOKEN` in workflows** — always use `secrets.GH_TOKEN`.
+- **Never extend `CliBase` in PHP scripts** — extend `MokoStandards\Enterprise\CliFramework` instead.
+- **Never use `exit($script->run())`** — the correct entry point is `exit($script->execute())`.
 
 ---
 
@@ -166,3 +314,5 @@ Approved prefixes: `dev/` · `rc/` · `version/` · `patch/` · `copilot/` · `d
 | [branching-strategy.md](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/policy/branching-strategy.md) | Branch naming, hierarchy, and release workflow |
 | [merge-strategy.md](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/policy/merge-strategy.md) | Squash-merge policy and PR conventions |
 | [changelog-standards.md](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/policy/changelog-standards.md) | How and when to update CHANGELOG.md |
+| [scripting-standards.md](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/policy/scripting-standards.md) | PHP script requirements and CliFramework usage |
+| [package-installation.md](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/guide/package-installation.md) | Installing `mokoconsulting/mokostandards` via Composer |

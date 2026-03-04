@@ -95,6 +95,100 @@ BRIEF: One-line description
 
 ---
 
+## GitHub Actions — Token Usage
+
+Every workflow must use **`secrets.GH_TOKEN`** (the org-level Personal Access Token). This applies to all `actions/checkout`, `gh` CLI calls, and any step that talks to the GitHub API.
+
+```yaml
+# ✅ Correct
+- uses: actions/checkout@v4
+  with:
+    token: ${{ secrets.GH_TOKEN }}
+
+env:
+  GH_TOKEN: ${{ secrets.GH_TOKEN }}
+```
+
+```yaml
+# ❌ Wrong — never use these in workflows
+token: ${{ github.token }}
+token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+PHP scripts read the token with: `getenv('GH_TOKEN') ?: getenv('GITHUB_TOKEN')` — `GH_TOKEN` is always preferred; `GITHUB_TOKEN` is accepted only as a local-dev fallback.
+
+---
+
+## Composer Package (PHP repositories)
+
+This repository requires the MokoStandards enterprise library. The `composer.json` must include:
+
+```json
+{
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/mokoconsulting-tech/MokoStandards"
+    }
+  ],
+  "require": {
+    "mokoconsulting/mokostandards": "^4.0"
+  }
+}
+```
+
+Run `composer install` after adding the dependency. See [package-installation.md](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/guide/package-installation.md) for full instructions.
+
+---
+
+## PHP Script Pattern
+
+All PHP scripts **must** extend `MokoStandards\Enterprise\CliFramework`. Never write standalone classes or extend the legacy `CliBase`.
+
+```php
+#!/usr/bin/env php
+<?php
+/* … file header … */
+
+declare(strict_types=1);
+
+require_once __DIR__ . '/vendor/autoload.php';
+
+use MokoStandards\Enterprise\CliFramework;
+
+class MyScript extends CliFramework
+{
+    protected function configure(): void
+    {
+        $this->setDescription('One-line description');
+        $this->addArgument('--path',    'Repository root',          '.');
+        $this->addArgument('--dry-run', 'Preview without writing',  false);
+    }
+
+    protected function run(): int
+    {
+        $path   = $this->getArgument('--path');
+        $dryRun = (bool) $this->getArgument('--dry-run');
+
+        $this->log('INFO', "Processing: {$path}");
+        return 0;
+    }
+}
+
+$script = new MyScript('my_script', 'One-line description');
+exit($script->execute());
+```
+
+**Key rules:**
+- Abstract methods to implement: `configure()` and `run()` — **not** `execute()`
+- `execute()` is the **public entry point** that orchestrates setup (arg parsing, `initialize()`) and then calls your `run()` implementation; call it at the bottom with `exit($script->execute())`
+- Entry point at the bottom: `$script->execute()` — **not** `$script->run()`
+- Constructor always takes `(string $name, string $description = '')`; pass the description here — `setDescription()` inside `configure()` is only needed to override it
+- `log(string $level, string $message)` — level is the **first** argument (INFO / SUCCESS / WARNING / ERROR)
+- `$this->dryRun` and `$this->verbose` are set automatically from `--dry-run` / `--verbose`
+
+---
+
 ## Naming Conventions
 
 | Context | Convention | Example |
@@ -142,6 +236,9 @@ Approved prefixes: `dev/` · `rc/` · `version/` · `patch/` · `copilot/` · `d
 - Never skip the FILE INFORMATION block on a new file
 - Never use bare `catch (\Throwable $e) {}` without logging or re-throwing
 - Never hardcode version numbers in body text — update `README.md` and let automation propagate
+- Never use `github.token` or `secrets.GITHUB_TOKEN` in workflows — always use `secrets.GH_TOKEN`
+- Never extend `CliBase` in PHP scripts — extend `MokoStandards\Enterprise\CliFramework`
+- Never call `$script->run()` as the entry point — call `$script->execute()`
 - Policy documents and guides must not be mixed
 
 ---
@@ -157,3 +254,5 @@ This repository is governed by [MokoStandards](https://github.com/mokoconsulting
 | [branching-strategy.md](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/policy/branching-strategy.md) | Branch naming, hierarchy, and release workflow |
 | [merge-strategy.md](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/policy/merge-strategy.md) | Squash-merge policy and PR title/body conventions |
 | [changelog-standards.md](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/policy/changelog-standards.md) | How and when to update CHANGELOG.md |
+| [scripting-standards.md](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/policy/scripting-standards.md) | PHP script requirements and CliFramework usage |
+| [package-installation.md](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/guide/package-installation.md) | Installing `mokoconsulting/mokostandards` via Composer |

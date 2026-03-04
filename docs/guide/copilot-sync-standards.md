@@ -42,6 +42,7 @@ BRIEF: Comprehensive guide for using GitHub Copilot to sync standards across rep
 | **Owner** | MokoStandards Team |
 | **Repo** | https://github.com/mokoconsulting-tech/MokoStandards |
 | **Path** | /docs/guide/copilot-sync-standards.md |
+| **VERSION** | 03.01.00 |
 | **Status** | Active |
 | **Last Reviewed** | 2026-01-28 |
 | **Reviewed By** | MokoStandards Team |

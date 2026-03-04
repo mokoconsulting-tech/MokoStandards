@@ -2,7 +2,7 @@
 
 # SFTP Deployment Guide
 
-**Status**: Active | **Effective**: 2026-01-07
+**Status**: Active | **Version**: 01.00.00 | **Effective**: 2026-01-07
 
 ## Overview
 

@@ -18,9 +18,6 @@
 	PATH: ./LICENSE.md
 	BRIEF: Project license (GPL-3.0-or-later)
 -->
-
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
-
 										GNU GENERAL PUBLIC LICENSE
 											 Version 3, 29 June 2007
 

@@ -1,6 +1,3 @@
-
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
-
 # Auto-Update Changelog Workflow Template
 
 This workflow automatically updates CHANGELOG.md when a pull request is merged to the main branch.
@@ -294,5 +291,6 @@ Review and update:
 
 ---
 
+**Version**: 03.00.00
 **Last Updated**: 2026-01-28
 **Maintained By**: Development Team

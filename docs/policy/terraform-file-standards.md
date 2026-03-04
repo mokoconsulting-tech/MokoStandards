@@ -1,10 +1,7 @@
 # Terraform File Structure Standards
 
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
-
 <!-- Copyright (C) 2026 Moko Consulting -->
-
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 ## Metadata
 
@@ -54,7 +51,7 @@ All Terraform files (`.tf`) MUST follow this structure:
 # INGROUP: [Parent.Group]
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /path/to/file.tf
-# VERSION: XX.YY.ZZ
+# VERSION: 04.00.03
 # BRIEF: [Brief one-line description]
 ```
 
@@ -87,7 +84,7 @@ locals {
   file_metadata = {
     name              = "[Descriptive Name]"
     description       = "[Detailed description of file purpose]"
-    version           = "XX.YY.ZZ"
+    version           = "04.00.03"
     last_updated      = "2026-02-21T00:00:00Z"  # ISO 8601 format
     maintainer        = "MokoStandards Team"
     schema_version    = "2.0"
@@ -205,7 +202,7 @@ When bulk sync detects a legacy override file:
 # INGROUP: MokoStandards.Configuration
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /infrastructure/terraform/main.tf
-# VERSION: XX.YY.ZZ
+# VERSION: 04.00.03
 # BRIEF: Main Terraform configuration for MokoStandards
 
 # This is the primary Terraform configuration file that loads
@@ -215,7 +212,7 @@ locals {
   file_metadata = {
     name              = "MokoStandards Main Terraform Configuration"
     description       = "Primary terraform file that orchestrates repository schema definitions"
-    version           = "XX.YY.ZZ"
+    version           = "04.00.03"
     last_updated      = "2026-02-21T00:00:00Z"
     maintainer        = "MokoStandards Team"
     schema_version    = "2.0"

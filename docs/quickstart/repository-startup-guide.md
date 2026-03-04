@@ -86,7 +86,7 @@ cp ~/MokoStandards/.gitattributes ./
 
 # Update .gitignore if needed (GitHub created one already)
 # Optionally merge with MokoStandards template
-# cat ~/MokoStandards/templates/configs/gitignore >> .gitignore
+# cat ~/MokoStandards/templates/configs/.gitignore.generic >> .gitignore
 ```
 
 ### Step 4: Create Required Directory Structure
@@ -285,7 +285,7 @@ cp ~/MokoStandards/.editorconfig ./
 cp ~/MokoStandards/.gitattributes ./
 
 # Copy Joomla-specific .gitignore
-cp ~/MokoStandards/templates/configs/gitignore ./.gitignore
+cp ~/MokoStandards/templates/configs/.gitignore.joomla ./.gitignore
 
 # Copy Makefile for Joomla
 cp ~/MokoStandards/Makefiles/Makefile.joomla ./Makefile
@@ -535,7 +535,7 @@ cp ~/MokoStandards/templates/docs/required/template-CODE_OF_CONDUCT.md ./CODE_OF
 # Copy configuration files
 cp ~/MokoStandards/.editorconfig ./
 cp ~/MokoStandards/.gitattributes ./
-cp ~/MokoStandards/templates/configs/gitignore ./.gitignore
+cp ~/MokoStandards/templates/configs/.gitignore.dolibarr ./.gitignore
 
 # Copy Makefile for Dolibarr
 cp ~/MokoStandards/Makefiles/Makefile.dolibarr ./Makefile
@@ -658,7 +658,7 @@ class modYourModule extends DolibarrModules
         $this->editor_url = 'https://www.mokoconsulting.tech';
         $this->editor_squarred_logo = 'logo.png@<module>';
 
-        $this->version = 'XX.YY.ZZ';
+        $this->version = '01.00.00';
         $this->const_name = 'MAIN_MODULE_'.strtoupper($this->name);
         $this->picto = 'generic';
 

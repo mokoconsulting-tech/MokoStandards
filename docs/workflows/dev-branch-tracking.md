@@ -16,7 +16,7 @@ BRIEF: Dev branch tracking and issue coordination system documentation
 
 # Dev Branch Tracking and Issue Coordination
 
-**Status**: Active | **Effective**: 2026-02-06
+**Status**: Active | **Version**: 01.00.00 | **Effective**: 2026-02-06
 
 ## Overview
 

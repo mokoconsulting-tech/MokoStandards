@@ -17,9 +17,6 @@
  PATH: ./CHANGELOG.md
  BRIEF: Version history using Keep a Changelog
 -->
-
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
-
 # Changelog
 
 ## [Unreleased]

@@ -2,7 +2,7 @@
 
 # GitHub Workflow Templates Documentation
 
-**Status**: Active | **Effective**: 2026-01-07
+**Status**: Active | **Version**: 04.00.03 | **Effective**: 2026-01-07
 
 ## Overview
 

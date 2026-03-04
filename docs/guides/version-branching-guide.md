@@ -32,6 +32,7 @@ BRIEF: Guide for version branch management and old version preservation
 # Version Branching Guide
 
 **Document Type**: Guide  
+**Version**: 03.02.00  
 **Last Updated**: 2026-02-11  
 **Status**: Active
 
@@ -688,5 +689,6 @@ git checkout version/03.02.00
 
 ---
 
+**Current Version**: 04.00.03  
 **Version Branch**: version/03.02.00 (to be created on next bump)  
 **Next Version**: 03.03.00 (planned Q1 2026)

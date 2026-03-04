@@ -14,8 +14,6 @@ VERSION: 04.00.03
 BRIEF: Code quality and security tool configuration templates
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
-
 # Code Quality Configuration Templates
 
 This directory contains standardized configuration files for code quality, linting, and security tools used across MokoStandards projects.

@@ -50,9 +50,9 @@ schemas/
 ├── repository-structure.xsd          # XML Schema Definition (XSD)
 ├── repository-structure.schema.json  # JSON Schema Definition
 └── structures/                       # Repository structure definitions
-    ├── default-repository.xml        # Generic repository structure
-    ├── waas-component.xml            # Joomla component structure
-    ├── crm-module.xml                # Dolibarr module structure
+    ├── default-repository.tf        # Generic repository structure
+    ├── waas-component.tf            # Joomla component structure
+    ├── crm-module.tf                # Dolibarr module structure
     └── ...
 ```
 
@@ -878,9 +878,9 @@ Source and destination extensions should match intent:
 
 - [Repository Structure Schema XSD](../../../schemas/repository-structure.xsd)
 - [Repository Structure JSON Schema](../../../schemas/repository-structure.schema.json)
-- [Default Repository Structure](../../../scripts/definitions/default-repository.xml)
-- [Joomla Component Structure](../../../scripts/definitions/waas-component.xml)
-- [Dolibarr Module Structure](../../../scripts/definitions/crm-module.xml)
+- [Default Repository Structure](../../../scripts/definitions/default-repository.tf)
+- [Joomla Component Structure](../../../scripts/definitions/waas-component.tf)
+- [Dolibarr Module Structure](../../../scripts/definitions/crm-module.tf)
 - [Validation Script Documentation](../validation/auto-detection.md)
 
 ---

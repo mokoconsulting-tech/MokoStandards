@@ -25,11 +25,7 @@ on:
       module_id:
         description: 'Specific module ID to assign (optional, auto-assigns if not provided)'
         required: false
-        type: string
-      description:
-        description: 'Short description of the module (e.g., "Invoice approval workflow for Dolibarr")'
-        required: false
-        type: string
+        type: number
       push_to_remote:
         description: 'Push DOLIBARR_MODULE_ID.txt to remote repository'
         required: false
@@ -134,18 +130,13 @@ jobs:
           MODULE_NAME: ${{ steps.extract_name.outputs.module_name }}
           MODULE_ID: ${{ steps.find_id.outputs.module_id }}
           REPO_URL: ${{ steps.extract_name.outputs.repo_url }}
-          INPUT_DESCRIPTION: ${{ github.event.inputs.description }}
         run: |
           REGISTRY_FILE="docs/development/crm/module-registry.md"
 
           echo "📝 Updating module registry table..."
 
-          # Use user-supplied description or generate a default
-          if [ -n "$INPUT_DESCRIPTION" ]; then
-            DESCRIPTION="$INPUT_DESCRIPTION"
-          else
-            DESCRIPTION="Dolibarr module for $MODULE_NAME"
-          fi
+          # Generate simple description from module name
+          DESCRIPTION="Dolibarr module $MODULE_NAME"
 
           # Find the line with "Available for Assignment"
           LINE_NUM=$(grep -n "| Available for Assignment |" "$REGISTRY_FILE" | cut -d: -f1)
@@ -161,20 +152,12 @@ jobs:
           # Insert the new entry before "Available for Assignment" line
           sed -i "${LINE_NUM}i\\${NEW_ENTRY}" "$REGISTRY_FILE"
 
-          # Update the "Available for Assignment" range to reflect the new next available ID
-          NEXT_ID=$((MODULE_ID + 1))
-          if [ "$NEXT_ID" -le 185099 ]; then
-            sed -i "s/| Available for Assignment | [0-9][0-9]*-185099 |/| Available for Assignment | ${NEXT_ID}-185099 |/" "$REGISTRY_FILE"
-          else
-            sed -i "s/| Available for Assignment | [0-9][0-9]*-185099 |/| Available for Assignment | None |/" "$REGISTRY_FILE"
-          fi
-
           echo "✅ Registry updated with:"
           echo "$NEW_ENTRY"
 
-      - name: Update override config to protect workflow
+      - name: Update override.config.tf to protect workflow
         run: |
-          OVERRIDE_FILE=".github/config.tf"
+          OVERRIDE_FILE="override.config.tf"
           WORKFLOW_FILE=".github/workflows/reserve-dolibarr-module-id.yml"
 
           echo "🔧 Updating override.config.tf to protect workflow file..."
@@ -213,28 +196,26 @@ jobs:
           MODULE_ID: ${{ steps.find_id.outputs.module_id }}
           MODULE_NAME: ${{ steps.extract_name.outputs.module_name }}
         run: |
-          # Branch name follows convention: chore/VERSION/reserve-module-ID
-          REPO_VERSION=$(grep "^# VERSION:" .github/workflows/reserve-dolibarr-module-id.yml | head -1 | sed 's/# VERSION: //')
-          BRANCH_NAME="chore/${REPO_VERSION}/reserve-module-${MODULE_ID}"
+          BRANCH_NAME="reserve-module-id/$MODULE_ID"
 
           echo "🔀 Creating branch: $BRANCH_NAME"
           git checkout -b "$BRANCH_NAME"
 
           echo "📦 Committing changes..."
           git add docs/development/crm/module-registry.md
-          git add .github/config.tf
+          git add override.config.tf
 
-          git commit -m "chore(crm): reserve Dolibarr module ID ${MODULE_ID} for ${MODULE_NAME}
+          # Create commit message
+          printf "Reserve Dolibarr module ID %s for %s\n\n" "$MODULE_ID" "$MODULE_NAME" > /tmp/commit_msg.txt
+          printf "Module name: %s\n" "$MODULE_NAME" >> /tmp/commit_msg.txt
+          printf "Module ID: %s\n\n" "$MODULE_ID" >> /tmp/commit_msg.txt
+          printf "This PR reserves module ID %s from Moko Consulting range (185064-185099).\n\n" "$MODULE_ID" >> /tmp/commit_msg.txt
+          printf "Updates in this PR:\n" >> /tmp/commit_msg.txt
+          printf -- "- Module registry in docs/development/crm/module-registry.md\n" >> /tmp/commit_msg.txt
+          printf -- "- override.config.tf protection for workflow\n\n" >> /tmp/commit_msg.txt
+          printf "Automated via reserve-dolibarr-module-id workflow.\n" >> /tmp/commit_msg.txt
 
-Module name: ${MODULE_NAME}
-Module ID:   ${MODULE_ID}
-
-Reserved from Moko Consulting range (185064-185099).
-Updates:
-- docs/development/crm/module-registry.md
-- .github/config.tf (workflow protection)
-
-Automated via reserve-dolibarr-module-id workflow."
+          git commit -F /tmp/commit_msg.txt
 
           echo "⬆️ Pushing branch..."
           git push origin "$BRANCH_NAME"

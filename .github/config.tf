@@ -475,10 +475,6 @@ locals {
       path   = ".github/workflows/validate-script-integrity.yml"
       reason = "MokoStandards-specific workflow for validating script integrity"
     },
-    {
-      path   = ".github/workflows/validate-template-workflows.yml"
-      reason = "MokoStandards-only: scans .yml.template files — not applicable to governed repos"
-    },
   ]
 
   # Files available for sync from templates/

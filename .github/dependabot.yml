@@ -34,30 +34,6 @@ updates:
         patterns:
           - "*"
 
-  # Monitor GitHub Actions in template workflow files (.yml only)
-  # Note: .yml.template files are not scanned by Dependabot — update those manually
-  - package-ecosystem: "github-actions"
-    directory: "/templates/workflows"
-    schedule:
-      interval: "monthly"
-    open-pull-requests-limit: 1
-    labels:
-      - "dependencies"
-      - "security"
-      - "automated"
-      - "templates"
-    commit-message:
-      prefix: "chore(deps)"
-      include: "scope"
-    reviewers:
-      - "mokoconsulting-tech/maintainers"
-    assignees:
-      - "jmiller-moko"
-    groups:
-      github-actions-templates:
-        patterns:
-          - "*"
-
   # Monitor Python dependencies for security updates
   - package-ecosystem: "pip"
     directory: "/"

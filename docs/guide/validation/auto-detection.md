@@ -9,7 +9,7 @@ The `auto_detect_platform.php` script automatically detects whether a repository
 ## Features
 
 - **Automatic Platform Detection**: Analyzes repository structure to identify platform
-- **Smart Schema Selection**: Automatically loads the correct schema from `scripts/definitions/`
+- **Smart Schema Selection**: Automatically loads the correct schema from `api/definitions/`
 - **Documentation Generation**: Creates detailed validation and detection reports
 - **Multiple Platform Support**: Joomla, Dolibarr, and Generic repositories
 

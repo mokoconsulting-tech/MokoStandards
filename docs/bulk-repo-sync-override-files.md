@@ -31,6 +31,7 @@ BRIEF: Complete guide to terraform override files for bulk repository synchroniz
 
 # Terraform Override Files for Bulk Repository Sync
 
+**Version**: 1.0.0  
 **Status**: Active  
 **Last Updated**: 2026-02-16
 

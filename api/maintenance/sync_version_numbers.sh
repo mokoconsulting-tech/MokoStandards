@@ -6,185 +6,145 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # FILE INFORMATION
-# DEFGROUP: MokoStandards.Scripts.Maintenance
+# DEFGROUP: Maintenance Scripts
 # INGROUP: MokoStandards
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
-# PATH: /api/maintenance/sync_version_numbers.sh
-# VERSION: XX.YY.ZZ
-# BRIEF: Synchronize version numbers across all repository files from README.md (single source of truth)
-# NOTE: Version is read dynamically from the FILE INFORMATION block in README.md.
-#       Version format is zero-padded semver: XX.YY.ZZ (e.g. 04.00.03). All regex patterns
-#       enforce exactly two digits per component by design.
-#       For automated propagation on merge, see .github/workflows/sync-version-on-merge.yml
+# PATH: scripts/maintenance/sync_version_numbers.sh
+# VERSION: 04.00.03
+# BRIEF: Synchronize version numbers across all repository files
 
-set -euo pipefail
+set -e
 
-# ── Colour helpers ─────────────────────────────────────────────────────────
+# Color output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-NC='\033[0m'
+NC='\033[0m' # No Color
 
-# ── Options ────────────────────────────────────────────────────────────────
-DRY_RUN=false
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+# Target version (canonical source: README.md)
+TARGET_VERSION="04.00.03"
 
-while [[ $# -gt 0 ]]; do
-	case $1 in
-		--dry-run)      DRY_RUN=true; shift ;;
-		--path)         REPO_ROOT="$2"; shift 2 ;;
-		--help|-h)
-			echo "Usage: $0 [--dry-run] [--path <repo-root>]"
-			echo ""
-			echo "  --dry-run   Show what would change without writing files"
-			echo "  --path DIR  Repository root (default: auto-detected)"
-			exit 0
-			;;
-		*) echo -e "${RED}Unknown option: $1${NC}"; exit 2 ;;
-	esac
-done
-
-README="${REPO_ROOT}/README.md"
-
-# ── Extract version from README.md ─────────────────────────────────────────
-if [ ! -f "$README" ]; then
-	echo -e "${RED}✗ README.md not found at ${README}${NC}"
-	exit 1
-fi
-
-TARGET_VERSION=$(grep -oP '^\s*VERSION:\s*\K[0-9]{2}\.[0-9]{2}\.[0-9]{2}' "$README" | head -1)
-
-if [ -z "$TARGET_VERSION" ]; then
-	echo -e "${RED}✗ Could not find VERSION in README.md FILE INFORMATION block${NC}"
-	echo "  Expected format:  VERSION: XX.YY.ZZ"
-	exit 1
-fi
-
-# ── Banner ─────────────────────────────────────────────────────────────────
 echo -e "${GREEN}═══════════════════════════════════════════════════════════${NC}"
-echo -e "${GREEN}  Version Number Synchronization${NC}"
+echo -e "${GREEN}  Version Number Synchronization Script${NC}"
 echo -e "${GREEN}═══════════════════════════════════════════════════════════${NC}"
 echo ""
-echo -e "Source:  ${YELLOW}README.md${NC} (single source of truth)"
-echo -e "Version: ${YELLOW}${TARGET_VERSION}${NC}"
-echo -e "Root:    ${YELLOW}${REPO_ROOT}${NC}"
-if $DRY_RUN; then
-	echo -e "${YELLOW}  DRY RUN — no files will be written${NC}"
-fi
+echo -e "Target version: ${YELLOW}${TARGET_VERSION}${NC}"
 echo ""
 
-# ── Badge pattern (Markdown) ────────────────────────────────────────────────
-BADGE_PATTERN='s|\(https://img\.shields\.io/badge/MokoStandards-[0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]-|(https://img.shields.io/badge/MokoStandards-'"${TARGET_VERSION}"'-|g'
+# Count files before
+echo "Analyzing repository..."
+TOTAL_FILES=$(find . -type f \( -name "*.tf" -o -name "*.php" -o -name "*.yml" -o -name "*.yaml" -o -name "*.py" -o -name "*.sh" -o -name "*.md" -o -name "*.json" \) \
+    ! -path "*/vendor/*" ! -path "*/.git/*" ! -path "*/node_modules/*" ! -path "*/tests/*" | wc -l)
 
-# ── VERSION field patterns (per file type) ──────────────────────────────────
-# Markdown/YAML/Shell:  VERSION: OLD  →  VERSION: NEW
-VERSION_GENERIC='s|^\(\s*VERSION:\s*\)[0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]|\1'"${TARGET_VERSION}"'|'
-# PHP:  * VERSION: OLD  →  * VERSION: NEW
-VERSION_PHP='s|^\(\s*\*\s*VERSION:\s*\)[0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]|\1'"${TARGET_VERSION}"'|'
-# composer.json:  "version": "OLD"  →  "version": "NEW"
-VERSION_JSON='s|"version":\s*"[0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]"|"version": "'"${TARGET_VERSION}"'"|'
+echo "Total files to scan: $TOTAL_FILES"
+echo ""
 
+# Find files with old version patterns
+echo "Searching for version mismatches..."
+OLD_VERSIONS=$(grep -r "04\.00\.0[0-2]" --include="*.tf" --include="*.php" --include="*.yml" --include="*.yaml" --include="*.py" --include="*.sh" --include="*.md" --include="*.json" \
+    --exclude-dir=vendor --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=tests \
+    2>/dev/null | wc -l || echo "0")
+
+echo "Found $OLD_VERSIONS references to old versions (04.00.03, 04.00.03)"
+echo ""
+
+if [ "$OLD_VERSIONS" -eq 0 ]; then
+    echo -e "${GREEN}✅ All versions are already synchronized to ${TARGET_VERSION}${NC}"
+    exit 0
+fi
+
+# Perform replacement
+echo "Synchronizing versions..."
 UPDATED_COUNT=0
 
-# ── Helper: update a single file ───────────────────────────────────────────
-update_file() {
-	local file="$1"
-	local before
-	before=$(md5sum "$file" 2>/dev/null | awk '{print $1}')
+# Update Terraform files
+for file in $(find . -name "*.tf" ! -path "*/vendor/*" ! -path "*/.git/*" ! -path "*/node_modules/*" ! -path "*/tests/*"); do
+    if grep -q "04\.00\.0[0-2]" "$file" 2>/dev/null; then
+        sed -i 's/04\.00\.01/04.00.03/g; s/04\.00\.02/04.00.03/g' "$file"
+        UPDATED_COUNT=$((UPDATED_COUNT + 1))
+        echo -e "  ${GREEN}✓${NC} $file"
+    fi
+done
 
-	case "${file##*.}" in
-		md)
-			sed -i "${VERSION_GENERIC}" "$file"
-			sed -i "${BADGE_PATTERN}" "$file"
-			;;
-		php)
-			sed -i "${VERSION_PHP}" "$file"
-			;;
-		yml|yaml|sh|ps1|py|tf)
-			sed -i "${VERSION_GENERIC}" "$file"
-			;;
-		json)
-			sed -i "${VERSION_JSON}" "$file"
-			;;
-		*)
-			return
-			;;
-	esac
+# Update PHP files
+for file in $(find . -name "*.php" ! -path "*/vendor/*" ! -path "*/.git/*" ! -path "*/node_modules/*" ! -path "*/tests/*"); do
+    if grep -q "04\.00\.0[0-2]" "$file" 2>/dev/null; then
+        sed -i 's/04\.00\.01/04.00.03/g; s/04\.00\.02/04.00.03/g' "$file"
+        UPDATED_COUNT=$((UPDATED_COUNT + 1))
+        echo -e "  ${GREEN}✓${NC} $file"
+    fi
+done
 
-	local after
-	after=$(md5sum "$file" 2>/dev/null | awk '{print $1}')
-	if [ "$before" != "$after" ]; then
-		UPDATED_COUNT=$((UPDATED_COUNT + 1))
-		echo -e "  ${GREEN}✓${NC} ${file#"${REPO_ROOT}/"}"
-	fi
-}
+# Update YAML files
+for file in $(find . \( -name "*.yml" -o -name "*.yaml" \) ! -path "*/vendor/*" ! -path "*/.git/*" ! -path "*/node_modules/*" ! -path "*/tests/*"); do
+    if grep -q "04\.00\.0[0-2]" "$file" 2>/dev/null; then
+        sed -i 's/04\.00\.01/04.00.03/g; s/04\.00\.02/04.00.03/g' "$file"
+        UPDATED_COUNT=$((UPDATED_COUNT + 1))
+        echo -e "  ${GREEN}✓${NC} $file"
+    fi
+done
 
-update_file_dry() {
-	local file="$1"
-	local rel="${file#"${REPO_ROOT}/"}"
-	local ext="${file##*.}"
-	local has_version=false
+# Update Python files
+for file in $(find . -name "*.py" ! -path "*/vendor/*" ! -path "*/.git/*" ! -path "*/node_modules/*" ! -path "*/tests/*"); do
+    if grep -q "04\.00\.0[0-2]" "$file" 2>/dev/null; then
+        sed -i 's/04\.00\.01/04.00.03/g; s/04\.00\.02/04.00.03/g' "$file"
+        UPDATED_COUNT=$((UPDATED_COUNT + 1))
+        echo -e "  ${GREEN}✓${NC} $file"
+    fi
+done
 
-	case "$ext" in
-		md)
-			grep -qP '^\s*VERSION:\s*[0-9]{2}\.[0-9]{2}\.[0-9]{2}' "$file" 2>/dev/null && has_version=true
-			grep -qP 'img\.shields\.io/badge/MokoStandards-[0-9]{2}\.[0-9]{2}\.[0-9]{2}' "$file" 2>/dev/null && has_version=true
-			;;
-		php)
-			grep -qP '^\s*\*\s*VERSION:\s*[0-9]{2}\.[0-9]{2}\.[0-9]{2}' "$file" 2>/dev/null && has_version=true
-			;;
-		yml|yaml|sh|ps1|py|tf)
-			grep -qP '^\s*#\s*VERSION:\s*[0-9]{2}\.[0-9]{2}\.[0-9]{2}' "$file" 2>/dev/null && has_version=true
-			;;
-		json)
-			grep -qP '"version":\s*"[0-9]{2}\.[0-9]{2}\.[0-9]{2}"' "$file" 2>/dev/null && has_version=true
-			;;
-	esac
+# Update Shell scripts
+for file in $(find . -name "*.sh" ! -path "*/vendor/*" ! -path "*/.git/*" ! -path "*/node_modules/*" ! -path "*/tests/*"); do
+    if grep -q "04\.00\.0[0-2]" "$file" 2>/dev/null; then
+        sed -i 's/04\.00\.01/04.00.03/g; s/04\.00\.02/04.00.03/g' "$file"
+        UPDATED_COUNT=$((UPDATED_COUNT + 1))
+        echo -e "  ${GREEN}✓${NC} $file"
+    fi
+done
 
-	if $has_version; then
-		UPDATED_COUNT=$((UPDATED_COUNT + 1))
-		echo -e "  ${YELLOW}~${NC} ${rel}  (would update)"
-	fi
-}
+# Update Markdown files
+for file in $(find . -name "*.md" ! -path "*/vendor/*" ! -path "*/.git/*" ! -path "*/node_modules/*" ! -path "*/tests/*"); do
+    if grep -q "04\.00\.0[0-2]" "$file" 2>/dev/null; then
+        sed -i 's/04\.00\.01/04.00.03/g; s/04\.00\.02/04.00.03/g' "$file"
+        UPDATED_COUNT=$((UPDATED_COUNT + 1))
+        echo -e "  ${GREEN}✓${NC} $file"
+    fi
+done
 
-# ── Walk the repo ───────────────────────────────────────────────────────────
-EXCLUDES=(-not -path "*/vendor/*" -not -path "*/.git/*" \
-          -not -path "*/node_modules/*" -not -path "*/logs/*")
+# Update JSON files
+for file in $(find . -name "*.json" ! -path "*/vendor/*" ! -path "*/.git/*" ! -path "*/node_modules/*" ! -path "*/tests/*"); do
+    if grep -q "04\.00\.0[0-2]" "$file" 2>/dev/null; then
+        sed -i 's/04\.00\.01/04.00.03/g; s/04\.00\.02/04.00.03/g' "$file"
+        UPDATED_COUNT=$((UPDATED_COUNT + 1))
+        echo -e "  ${GREEN}✓${NC} $file"
+    fi
+done
 
-while IFS= read -r -d '' file; do
-	if $DRY_RUN; then
-		update_file_dry "$file"
-	else
-		update_file "$file"
-	fi
-done < <(find "$REPO_ROOT" -type f \
-	\( -name "*.md" -o -name "*.php" -o -name "*.yml" -o -name "*.yaml" \
-	   -o -name "*.sh" -o -name "*.ps1" -o -name "*.py" -o -name "*.tf" \
-	   -o -name "*.json" -o -name "*.md.template" -o -name "*.yml.template" \
-	   -o -name "*.sh.template" \) \
-	"${EXCLUDES[@]}" -print0)
-
-# ── Summary ─────────────────────────────────────────────────────────────────
 echo ""
 echo -e "${GREEN}═══════════════════════════════════════════════════════════${NC}"
-if $DRY_RUN; then
-	echo -e "${GREEN}  Dry Run Complete${NC}"
-	echo -e "${GREEN}═══════════════════════════════════════════════════════════${NC}"
-	echo ""
-	echo -e "Files that would be updated: ${YELLOW}${UPDATED_COUNT}${NC}"
-	echo ""
-	echo "To apply changes, run without --dry-run:"
-	echo "  $0 --path ${REPO_ROOT}"
+echo -e "${GREEN}  Version Synchronization Complete${NC}"
+echo -e "${GREEN}═══════════════════════════════════════════════════════════${NC}"
+echo ""
+echo -e "Files updated: ${YELLOW}${UPDATED_COUNT}${NC}"
+echo -e "Target version: ${YELLOW}${TARGET_VERSION}${NC}"
+echo ""
+
+# Verify synchronization
+REMAINING=$(grep -r "04\.00\.0[0-2]" --include="*.tf" --include="*.php" --include="*.yml" --include="*.yaml" --include="*.py" --include="*.sh" --include="*.md" --include="*.json" \
+    --exclude-dir=vendor --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=tests \
+    2>/dev/null | wc -l || echo "0")
+
+if [ "$REMAINING" -eq 0 ]; then
+    echo -e "${GREEN}✅ Verification: All versions synchronized successfully${NC}"
 else
-	echo -e "${GREEN}  Version Synchronization Complete${NC}"
-	echo -e "${GREEN}═══════════════════════════════════════════════════════════${NC}"
-	echo ""
-	echo -e "Files updated: ${YELLOW}${UPDATED_COUNT}${NC}"
-	echo -e "Version:       ${YELLOW}${TARGET_VERSION}${NC}"
-	echo ""
-	echo "Next steps:"
-	echo "  1. Review changes: git diff"
-	echo "  2. Commit:         git add -A && git commit -m \"chore(version): sync to ${TARGET_VERSION}\""
-	echo "  3. Push:           git push"
+    echo -e "${YELLOW}⚠️  Warning: ${REMAINING} version references still remain${NC}"
+    echo "Run the following command to review:"
+    echo "  grep -rn \"04\.00\.0[0-2]\" --include=\"*.tf\" --include=\"*.php\" --include=\"*.yml\" --include=\"*.yaml\""
 fi
+
+echo ""
+echo "Next steps:"
+echo "  1. Review changes: git diff"
+echo "  2. Commit changes: git add -A && git commit -m 'Sync version numbers to ${TARGET_VERSION}'"
+echo "  3. Push changes: git push"
 echo ""

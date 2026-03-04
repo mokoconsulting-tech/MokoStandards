@@ -162,7 +162,7 @@ jobs:
                 all = "templates/configs/.editorconfig"
               }
               ".gitignore" = {
-                generic = "templates/configs/gitignore"
+                generic = "templates/configs/.gitignore"
               }
             }
 

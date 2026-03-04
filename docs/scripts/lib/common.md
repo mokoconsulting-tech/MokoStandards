@@ -270,7 +270,7 @@ Generate standard GPL-3.0 file header for shell scripts.
 header = common.generate_shell_header(
     file_path="scripts/maintenance/cleanup.sh",
     brief="Clean up temporary files",
-    version="XX.YY.ZZ"
+    version="01.00.00"
 )
 with open("cleanup.sh", "w") as f:
     f.write(header)

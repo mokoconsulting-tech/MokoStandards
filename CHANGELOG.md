@@ -21,9 +21,7 @@
  NOTE: Adheres to SemVer when applicable
  -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
-
-# CHANGELOG - MokoStandards
+# CHANGELOG - MokoStandards (VERSION: 04.00.03)
 
 All notable changes to this project will be documented in this file.
 

@@ -32,6 +32,7 @@ BRIEF: Enterprise guidance for implementation planning and sprint documentation
 # Planning Guidance
 
 **Document Type**: Policy  
+**Version**: 04.00.03  
 **Last Updated**: 2026-02-11  
 **Status**: Active
 

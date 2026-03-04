@@ -44,7 +44,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_TOKEN }}
 
       - name: Configure Git
         run: |
@@ -234,6 +234,7 @@ jobs:
           BRANCH_NAME: ${{ steps.commit.outputs.branch_name }}
           PUSH_TO_REMOTE: ${{ github.event.inputs.push_to_remote }}
         with:
+          github-token: ${{ secrets.GH_TOKEN }}
           script: |
             const moduleId = process.env.MODULE_ID;
             const moduleName = process.env.MODULE_NAME;
@@ -309,6 +310,7 @@ jobs:
         env:
           PR_NUMBER: ${{ steps.create_pr.outputs.pr_number }}
         with:
+          github-token: ${{ secrets.GH_TOKEN }}
           script: |
             const prNumber = parseInt(process.env.PR_NUMBER);
 

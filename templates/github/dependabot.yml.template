@@ -1,0 +1,151 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.Dependabot
+# INGROUP: MokoStandards.Security
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /templates/github/dependabot.yml.template
+# VERSION: XX.YY.ZZ
+# BRIEF: Template Dependabot configuration for governed repositories
+# NOTE: Copy to .github/dependabot.yml and remove ecosystems that don't apply.
+#       Keep the github-actions entry — it is required for all governed repos.
+#       The templates/workflows entry only applies if your repo ships template
+#       workflow files (.yml) under templates/workflows/.
+#       .yml.template files are NOT scanned by Dependabot; update them manually.
+
+version: 2
+updates:
+
+  # -------------------------------------------------------------------------
+  # GitHub Actions — REQUIRED for all governed repositories
+  # Monitors uses: pins in .github/workflows/*.yml
+  # -------------------------------------------------------------------------
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "security"
+      - "automated"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    reviewers:
+      - "mokoconsulting-tech/maintainers"
+    assignees:
+      - "jmiller-moko"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+
+  # -------------------------------------------------------------------------
+  # GitHub Actions — template workflows
+  # Include only if this repo ships template .yml files under templates/workflows/
+  # Remove this block if templates/workflows/ does not exist in your repo.
+  # -------------------------------------------------------------------------
+  # - package-ecosystem: "github-actions"
+  #   directory: "/templates/workflows"
+  #   schedule:
+  #     interval: "monthly"
+  #   open-pull-requests-limit: 5
+  #   labels:
+  #     - "dependencies"
+  #     - "security"
+  #     - "automated"
+  #     - "templates"
+  #   commit-message:
+  #     prefix: "chore(deps)"
+  #     include: "scope"
+  #   reviewers:
+  #     - "mokoconsulting-tech/maintainers"
+  #   assignees:
+  #     - "jmiller-moko"
+  #   groups:
+  #     github-actions-templates:
+  #       patterns:
+  #         - "*"
+
+  # -------------------------------------------------------------------------
+  # Composer — PHP repositories
+  # Remove this block if the repo has no composer.json
+  # -------------------------------------------------------------------------
+  - package-ecosystem: "composer"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "security"
+      - "automated"
+      - "php"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    reviewers:
+      - "mokoconsulting-tech/maintainers"
+    assignees:
+      - "jmiller-moko"
+    groups:
+      composer-dependencies:
+        patterns:
+          - "*"
+
+  # -------------------------------------------------------------------------
+  # npm — Node.js / JavaScript repositories
+  # Remove this block if the repo has no package.json
+  # -------------------------------------------------------------------------
+  # - package-ecosystem: "npm"
+  #   directory: "/"
+  #   schedule:
+  #     interval: "monthly"
+  #   open-pull-requests-limit: 5
+  #   labels:
+  #     - "dependencies"
+  #     - "security"
+  #     - "automated"
+  #     - "javascript"
+  #   commit-message:
+  #     prefix: "chore(deps)"
+  #     include: "scope"
+  #   reviewers:
+  #     - "mokoconsulting-tech/maintainers"
+  #   assignees:
+  #     - "jmiller-moko"
+  #   groups:
+  #     npm-dependencies:
+  #       patterns:
+  #         - "*"
+
+  # -------------------------------------------------------------------------
+  # pip — Python repositories
+  # Remove this block if the repo has no requirements.txt / pyproject.toml
+  # -------------------------------------------------------------------------
+  # - package-ecosystem: "pip"
+  #   directory: "/"
+  #   schedule:
+  #     interval: "monthly"
+  #   open-pull-requests-limit: 5
+  #   labels:
+  #     - "dependencies"
+  #     - "security"
+  #     - "automated"
+  #     - "python"
+  #   commit-message:
+  #     prefix: "chore(deps)"
+  #     include: "scope"
+  #   reviewers:
+  #     - "mokoconsulting-tech/maintainers"
+  #   assignees:
+  #     - "jmiller-moko"
+  #   groups:
+  #     python-dependencies:
+  #       patterns:
+  #         - "*"

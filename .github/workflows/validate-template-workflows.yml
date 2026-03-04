@@ -1,0 +1,212 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.Validation
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/validate-template-workflows.yml
+# VERSION: XX.YY.ZZ
+# BRIEF: Validates .yml.template workflow files — MokoStandards only, not for governed repos
+# NOTE: Strips .template suffix into a temp dir, scans with yamllint and actionlint, restores.
+# NOTE: This workflow intentionally lives only in .github/workflows/ and is listed in
+#       .github/config.tf protected_files so bulk sync never pushes it to governed repos.
+
+name: Validate Template Workflows
+
+on:
+  push:
+    branches:
+      - main
+      - dev/**
+      - rc/**
+    paths:
+      - 'templates/workflows/**'
+      - '.github/workflows/validate-template-workflows.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'templates/workflows/**'
+      - '.github/workflows/validate-template-workflows.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  scan-templates:
+    name: Scan Template Workflow Files
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install tools
+        run: |
+          pip install yamllint --quiet
+          # Install actionlint
+          bash <(curl -sL https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+          sudo mv actionlint /usr/local/bin/actionlint
+          echo "✅ Tools installed"
+          yamllint --version
+          actionlint --version
+
+      - name: Strip .template suffix and scan
+        id: scan
+        run: |
+          SCAN_DIR=$(mktemp -d)
+          echo "scan_dir=$SCAN_DIR" >> $GITHUB_OUTPUT
+
+          ERRORS=""
+          SCANNED=0
+          FAILED=0
+
+          echo "## 📋 Template Workflow Scan" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Find all .yml.template files
+          while IFS= read -r template_file; do
+            rel_path="${template_file#./}"
+            # Copy to temp dir with .yml extension (original is untouched)
+            yml_name=$(basename "$template_file" .template)
+            tmp_file="$SCAN_DIR/$yml_name"
+            cp "$template_file" "$tmp_file"
+            SCANNED=$((SCANNED + 1))
+
+            FILE_ERRORS=""
+
+            # --- yamllint: report only error-severity findings ---
+            YAML_OUT=$(yamllint -d "{extends: relaxed, rules: {line-length: {max: 200}, truthy: disable}}" \
+              -f parsable "$tmp_file" 2>&1) || true
+            YAML_REAL=$(echo "$YAML_OUT" | grep " \[error\] " || true)
+            if [ -n "$YAML_REAL" ]; then
+              FILE_ERRORS="${FILE_ERRORS}**yamllint** in \`${rel_path}\`:\n\`\`\`\n${YAML_REAL}\n\`\`\`\n"
+            fi
+
+            # --- actionlint: suppress only SC2086/SC2048 (word-splitting) which are
+            #     false positives in GitHub Actions expression contexts ---
+            ACTION_OUT=$(actionlint -ignore 'SC2086' -ignore 'SC2048' \
+              "$tmp_file" 2>&1) || true
+            if [ -n "$ACTION_OUT" ]; then
+              # Strip temp path prefix so errors show original relative path
+              ACTION_CLEAN=$(echo "$ACTION_OUT" | sed "s|$SCAN_DIR/||g")
+              FILE_ERRORS="${FILE_ERRORS}**actionlint** in \`${rel_path}\`:\n\`\`\`\n${ACTION_CLEAN}\n\`\`\`\n"
+            fi
+
+            if [ -n "$FILE_ERRORS" ]; then
+              FAILED=$((FAILED + 1))
+              ERRORS="${ERRORS}### \`${rel_path}\`\n${FILE_ERRORS}\n"
+              echo "❌ $rel_path" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "✅ $rel_path" >> $GITHUB_STEP_SUMMARY
+            fi
+
+          done < <(find templates/workflows -name "*.yml.template" | sort)
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Scanned:** $SCANNED files | **Failed:** $FAILED files" >> $GITHUB_STEP_SUMMARY
+
+          # Write errors to file for issue-creation step
+          printf '%s' "$ERRORS" > /tmp/scan_errors.txt
+          echo "failed=$FAILED" >> $GITHUB_OUTPUT
+          echo "scanned=$SCANNED" >> $GITHUB_OUTPUT
+
+          # Temp dir is automatically cleaned up — original files are never modified
+
+      - name: Fail if errors found
+        if: steps.scan.outputs.failed != '0'
+        run: |
+          echo "❌ ${{ steps.scan.outputs.failed }} template file(s) failed validation"
+          exit 1
+
+      - name: Create or update GitHub issue on failure
+        if: failure() && github.event_name == 'push'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            const failed  = '${{ steps.scan.outputs.failed }}';
+            const scanned = '${{ steps.scan.outputs.scanned }}';
+            const runUrl  = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const date    = new Date().toISOString().split('T')[0];
+
+            let errorDetails = '';
+            try {
+              errorDetails = fs.readFileSync('/tmp/scan_errors.txt', 'utf8').trim();
+            } catch (e) {
+              errorDetails = '_Error details unavailable._';
+            }
+
+            const body = [
+              `## ❌ Template Workflow Validation Failed`,
+              ``,
+              `**Date:** ${date}`,
+              `**Branch:** \`${{ github.ref_name }}\``,
+              `**Run:** [View run](${runUrl})`,
+              `**Result:** ${failed} of ${scanned} template file(s) failed`,
+              ``,
+              `## Failures`,
+              ``,
+              errorDetails || '_No details captured._',
+              ``,
+              `## How to Fix`,
+              ``,
+              `1. Review the failures listed above`,
+              `2. Fix the issues in the \`.yml.template\` files`,
+              `3. Run the workflow locally:`,
+              `   \`\`\`bash`,
+              `   yamllint -d "{extends: relaxed, rules: {line-length: {max: 200}, truthy: disable}}" <file.yml>`,
+              `   actionlint <file.yml>`,
+              `   \`\`\``,
+              `4. Push your fixes — this issue will be updated automatically`,
+              ``,
+              `> ⚠️ Note: \`.yml.template\` files contain \`\${{ }}\` expressions that may produce`,
+              `> false positives. Only \`error:\` severity yamllint findings are reported.`,
+              ``,
+              `---`,
+              `_Automatically created by [validate-template-workflows](.github/workflows/validate-template-workflows.yml)_`,
+            ].join('\n');
+
+            // Validate assignee exists
+            let assignees = [];
+            try {
+              await github.rest.users.getByUsername({ username: 'jmiller-moko' });
+              assignees = ['jmiller-moko'];
+            } catch (e) {
+              console.log('Assignee not found, skipping');
+            }
+
+            // Check for existing open issue with this label
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'template-validation-failure',
+              per_page: 1,
+            });
+
+            if (existing.data.length > 0) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.data[0].number,
+                body: `### 🔄 Updated Scan Results — ${date}\n\n${body}`,
+              });
+              console.log(`Updated existing issue #${existing.data[0].number}`);
+            } else {
+              const issue = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `[Validation] Template workflow failures — ${date}`,
+                body,
+                labels: ['template-validation-failure', 'validation', 'automated'],
+                assignees,
+              });
+              console.log(`Created issue #${issue.data.number}`);
+            }

@@ -1,0 +1,159 @@
+<!--
+Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+
+This file is part of a Moko Consulting project.
+
+SPDX-License-Identifier: GPL-3.0-or-later
+
+# FILE INFORMATION
+DEFGROUP: MokoStandards.Templates.GitHub
+INGROUP: MokoStandards.Templates
+REPO: https://github.com/mokoconsulting-tech/MokoStandards
+PATH: /templates/github/copilot-instructions.md.template
+VERSION: XX.YY.ZZ
+BRIEF: Standard GitHub Copilot custom instructions template for Moko Consulting governed repositories
+NOTE: Synced to .github/copilot-instructions.md in all governed repositories via bulk sync.
+      Tokens replaced at sync time: {{REPO_NAME}}, {{REPO_URL}}, {{PRIMARY_LANGUAGE}}, {{PLATFORM_TYPE}}
+-->
+
+# {{REPO_NAME}} — GitHub Copilot Custom Instructions
+
+## What This Repo Is
+
+This is a **Moko Consulting** repository governed by [MokoStandards](https://github.com/mokoconsulting-tech/MokoStandards). All coding standards, workflows, and policies are defined there and enforced here via bulk sync.
+
+Repository URL: {{REPO_URL}}
+Primary language: **{{PRIMARY_LANGUAGE}}**
+Platform type: **{{PLATFORM_TYPE}}**
+
+---
+
+## Primary Language
+
+**{{PRIMARY_LANGUAGE}} is the primary language for this repository.** Follow the conventions documented in [MokoStandards coding-style-guide](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/policy/coding-style-guide.md).
+
+YAML uses 2-space indentation (spaces, not tabs). All other text files use tabs per `.editorconfig`.
+
+---
+
+## File Header — Always Required on New Files
+
+Every new file needs a copyright header as its first content. Use the minimal form unless the file is a policy doc, README, or public API.
+
+**PHP:**
+```php
+<?php
+/* Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+ *
+ * This file is part of a Moko Consulting project.
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ *
+ * FILE INFORMATION
+ * DEFGROUP: {{REPO_NAME}}.Module
+ * INGROUP: {{REPO_NAME}}
+ * REPO: {{REPO_URL}}
+ * PATH: /path/to/file.php
+ * VERSION: XX.YY.ZZ
+ * BRIEF: One-line description of purpose
+ */
+
+declare(strict_types=1);
+```
+
+**Markdown:**
+```markdown
+<!--
+Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+
+This file is part of a Moko Consulting project.
+
+SPDX-License-Identifier: GPL-3.0-or-later
+
+# FILE INFORMATION
+DEFGROUP: {{REPO_NAME}}.Documentation
+INGROUP: {{REPO_NAME}}
+REPO: {{REPO_URL}}
+PATH: /docs/file.md
+VERSION: XX.YY.ZZ
+BRIEF: One-line description
+-->
+```
+
+**YAML / Shell:** Use `#` comments with the same fields. JSON files are exempt.
+
+---
+
+## Version Management
+
+**`README.md` is the single source of truth for the repository version.**
+
+- The `VERSION: XX.YY.ZZ` field in the README.md `FILE INFORMATION` block governs all other version references.
+- Update the version in `README.md` only — the `sync-version-on-merge` workflow propagates it automatically to all badges and `FILE INFORMATION` headers on merge to `main`.
+- Version format is zero-padded semver: `XX.YY.ZZ` (e.g. `04.00.03`).
+- Never hardcode a specific version in document body text — use the badge or FILE INFORMATION header only.
+
+---
+
+## Naming Conventions
+
+| Context | Convention | Example |
+|---------|-----------|---------|
+| PHP class | `PascalCase` | `MyService` |
+| PHP method / function | `camelCase` | `getUserData()` |
+| PHP variable | `$snake_case` | `$repo_path` |
+| PHP constant | `UPPER_SNAKE_CASE` | `DEFAULT_THRESHOLD` |
+| PHP class file | `PascalCase.php` | `ApiClient.php` |
+| PHP script file | `snake_case.php` | `check_health.php` |
+| YAML workflow | `kebab-case.yml` | `bulk-repo-sync.yml` |
+| Markdown doc | `kebab-case.md` | `coding-style-guide.md` |
+
+---
+
+## Commit Messages
+
+Format: `<type>(<scope>): <subject>` — imperative, lower-case subject, no trailing period.
+
+Valid types: `feat` · `fix` · `docs` · `chore` · `ci` · `refactor` · `style` · `test` · `perf` · `revert` · `build`
+
+Examples:
+- `feat(module): add user preference caching`
+- `fix(api): handle null response from external service`
+- `docs(readme): update installation instructions`
+- `chore(deps): bump phpunit to 11.x`
+
+---
+
+## Branch Naming
+
+Format: `<prefix>/<MAJOR.MINOR.PATCH>[/description]`
+
+Approved prefixes: `dev/` · `rc/` · `version/` · `patch/` · `copilot/` · `dependabot/`
+
+- ✅ `dev/1.2.0/add-feature`
+- ✅ `patch/1.2.1/fix-bug`
+- ❌ `feature/my-thing` — rejected by branch protection
+
+---
+
+## Key Constraints
+
+- Never commit directly to `main` — all changes go via PR, squash-merged
+- Never skip the FILE INFORMATION block on a new file
+- Never use bare `catch (\Throwable $e) {}` without logging or re-throwing
+- Never hardcode version numbers in body text — update `README.md` and let automation propagate
+- Policy documents and guides must not be mixed
+
+---
+
+## MokoStandards Reference
+
+This repository is governed by [MokoStandards](https://github.com/mokoconsulting-tech/MokoStandards). Authoritative policies:
+
+| Document | Purpose |
+|----------|---------|
+| [file-header-standards.md](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/policy/file-header-standards.md) | Copyright-header rules for every file type |
+| [coding-style-guide.md](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/policy/coding-style-guide.md) | Naming and formatting conventions |
+| [branching-strategy.md](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/policy/branching-strategy.md) | Branch naming, hierarchy, and release workflow |
+| [merge-strategy.md](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/policy/merge-strategy.md) | Squash-merge policy and PR title/body conventions |
+| [changelog-standards.md](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/policy/changelog-standards.md) | How and when to update CHANGELOG.md |

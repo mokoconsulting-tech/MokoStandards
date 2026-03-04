@@ -37,7 +37,7 @@ The script looks for:
 
 ### Generic Repository (Fallback)
 
-If neither Joomla nor Dolibarr patterns are detected, the repository is classified as generic and validated against `default-repository.xml`.
+If neither Joomla nor Dolibarr patterns are detected, the repository is classified as generic and validated against `default-repository.tf`.
 
 ## Usage
 
@@ -84,9 +84,9 @@ Contains overall status, quick facts table, links to reports, and action items.
 
 | Platform | Schema File | Location |
 |----------|-------------|----------|
-| **Joomla/WaaS** | `waas-component.xml` | `scripts/definitions/waas-component.xml` |
-| **Dolibarr/CRM** | `crm-module.xml` | `scripts/definitions/crm-module.xml` |
-| **Generic** | `default-repository.xml` | `scripts/definitions/default-repository.xml` |
+| **Joomla/WaaS** | `waas-component.tf` | `api/definitions/waas-component.tf` |
+| **Dolibarr/CRM** | `crm-module.tf` | `api/definitions/crm-module.tf` |
+| **Generic** | `default-repository.tf` | `api/definitions/default-repository.tf` |
 
 ## Exit Codes
 

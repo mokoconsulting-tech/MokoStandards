@@ -147,7 +147,7 @@
         <requirement-status>required</requirement-status>
         <always-overwrite>false</always-overwrite>
         <audience>developer</audience>
-        <template>templates/configs/.gitignore.default</template>
+        <template>templates/configs/.gitignore</template>
       </file>
 
       <file extension="gitattributes">

@@ -91,7 +91,7 @@
         <required>true</required>
         <always-overwrite>false</always-overwrite>
         <audience>developer</audience>
-        <template>templates/configs/.gitignore.joomla</template>
+        <template>templates/configs/.gitignore</template>
         <validation-rules>
           <rule>
             <type>content-pattern</type>

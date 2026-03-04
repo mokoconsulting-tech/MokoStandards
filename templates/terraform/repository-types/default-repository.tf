@@ -1,5 +1,5 @@
 # Default Repository Structure Definition
-# Converted from scripts/definitions/default-repository.xml
+# Source: api/definitions/default-repository.tf
 # This defines the standard structure for generic repositories
 
 

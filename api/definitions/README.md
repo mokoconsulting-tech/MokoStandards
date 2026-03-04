@@ -8,18 +8,18 @@ This directory contains repository structure definition files that define the ex
 
 | File | Type | Description |
 |------|------|-------------|
-| **default-repository.xml** | Generic | Standard structure for generic repositories |
+| **default-repository.tf** | Generic | Standard structure for generic repositories |
 | **default-repository.json** | Generic | JSON format of default repository structure |
-| **waas-component.xml** | Joomla | Structure for Joomla/WaaS components, modules, plugins |
-| **crm-module.xml** | Dolibarr | Structure for Dolibarr/CRM modules |
-| **generic-repository.xml** | Generic | Alternative generic repository structure |
+| **waas-component.tf** | Joomla | Structure for Joomla/WaaS components, modules, plugins |
+| **crm-module.tf** | Dolibarr | Structure for Dolibarr/CRM modules |
+| **generic-repository.tf** | Generic | Alternative generic repository structure |
 
 ## Schema Format
 
-Definition files can be in either XML or JSON format:
+Definition files use XML content with a `.tf` extension for consistency with repository configuration standards. The `.tf` extension is an organisational convention used across the MokoStandards ecosystem — it does **not** indicate Terraform HCL format; the content remains XML:
 
-### XML Format
-- Extension: `.xml`
+- Extension: `.tf`
+- Content format: XML
 - Schema: `schemas/repository-structure.xsd`
 - Namespace: `http://mokoconsulting.com/schemas/repository-structure`
 
@@ -61,7 +61,7 @@ php scripts/validate/auto_detect_platform.php \
 
 The auto-detection script will:
 1. Detect the repository type (Joomla, Dolibarr, or Generic)
-2. Load the appropriate definition from `scripts/definitions/`
+2. Load the appropriate definition from `api/definitions/`
 3. Validate the repository structure
 4. Generate validation reports
 
@@ -70,7 +70,7 @@ The auto-detection script will:
 ```bash
 # Generate missing files based on definition
 python3 scripts/validate/generate_stubs.py \
-  scripts/definitions/default-repository.xml \
+  api/definitions/default-repository.tf \
   /path/to/repository
 ```
 
@@ -80,8 +80,8 @@ To create a custom repository structure definition:
 
 1. **Copy Template**:
    ```bash
-   cp templates/schemas/template-repository-structure.xml \
-      scripts/definitions/my-custom-structure.xml
+   cp templates/schemas/template-repository-structure.tf \
+      api/definitions/my-custom-structure.tf
    ```
 
 2. **Edit Definition**:
@@ -94,13 +94,13 @@ To create a custom repository structure definition:
 3. **Validate Definition**:
    ```bash
    xmllint --schema schemas/repository-structure.xsd \
-           scripts/definitions/my-custom-structure.xml
+           api/definitions/my-custom-structure.tf
    ```
 
 4. **Test Definition**:
    ```bash
    python3 scripts/validate/validate_structure_v2.py \
-     --schema scripts/definitions/my-custom-structure.xml \
+     --schema api/definitions/my-custom-structure.tf \
      --repo /test/repository
    ```
 
@@ -264,6 +264,6 @@ See [Schema Guide](../../docs/schemas/repohealth/schema-guide.md) for complete d
 
 ---
 
-**Location**: `scripts/definitions/`
+**Location**: `api/definitions/`
 **Last Updated**: 2026-01-16
 **Maintained By**: MokoStandards Team

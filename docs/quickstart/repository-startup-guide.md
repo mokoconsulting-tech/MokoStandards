@@ -86,7 +86,7 @@ cp ~/MokoStandards/.gitattributes ./
 
 # Update .gitignore if needed (GitHub created one already)
 # Optionally merge with MokoStandards template
-# cat ~/MokoStandards/templates/configs/.gitignore.generic >> .gitignore
+# cat ~/MokoStandards/templates/configs/.gitignore >> .gitignore
 ```
 
 ### Step 4: Create Required Directory Structure
@@ -285,7 +285,7 @@ cp ~/MokoStandards/.editorconfig ./
 cp ~/MokoStandards/.gitattributes ./
 
 # Copy Joomla-specific .gitignore
-cp ~/MokoStandards/templates/configs/.gitignore.joomla ./.gitignore
+cp ~/MokoStandards/templates/configs/.gitignore ./.gitignore
 
 # Copy Makefile for Joomla
 cp ~/MokoStandards/Makefiles/Makefile.joomla ./Makefile
@@ -535,7 +535,7 @@ cp ~/MokoStandards/templates/docs/required/template-CODE_OF_CONDUCT.md ./CODE_OF
 # Copy configuration files
 cp ~/MokoStandards/.editorconfig ./
 cp ~/MokoStandards/.gitattributes ./
-cp ~/MokoStandards/templates/configs/.gitignore.dolibarr ./.gitignore
+cp ~/MokoStandards/templates/configs/.gitignore ./.gitignore
 
 # Copy Makefile for Dolibarr
 cp ~/MokoStandards/Makefiles/Makefile.dolibarr ./Makefile

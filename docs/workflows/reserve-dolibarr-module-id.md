@@ -6,7 +6,7 @@
 
 ## Overview
 
-The `reserve-dolibarr-module-id.yml` workflow automates the reservation of Dolibarr module IDs from the Moko Consulting reserved range (185064-185099). It simplifies the module ID reservation process by automatically updating the module registry table and creating a pull request for approval.
+The `reserve-dolibarr-module-id.yml` workflow automates the reservation of Dolibarr module IDs from the Moko Consulting reserved range. Check the **[Module Registry](../development/crm/module-registry.md)** for the current next available ID. It simplifies the module ID reservation process by automatically updating the module registry table and creating a pull request for approval.
 
 ## Quick Links
 
@@ -52,7 +52,7 @@ The `reserve-dolibarr-module-id.yml` workflow automates the reservation of Dolib
        ▼                 │
   ┌──────────────────┐   │
   │ Determine ID     │◀──┘ Manual or Auto-assign
-  │ (185064-185099)  │
+  │ (see registry)   │
   └──────────────────┘
        │
        ▼
@@ -96,11 +96,10 @@ The `reserve-dolibarr-module-id.yml` workflow automates the reservation of Dolib
 
 ### Module ID Range
 
-**Reserved Range**: 185064-185099 (Moko Consulting)  
-**Total Available**: 36 module IDs  
-**Assignment**: Sequential, starting from 185064
+**Reserved Range**: 185051-185099 (Moko Consulting)  
+**Assignment**: Sequential; the workflow scans the [module registry](../development/crm/module-registry.md) for all used IDs and auto-assigns the first free one.
 
-The workflow uses regex pattern `1850(6[4-9]|[7-8][0-9]|9[0-9])` to precisely match IDs in this range.
+Always check the **[Module Registry](../development/crm/module-registry.md#dolibarr-extensions-registry)** to see which IDs are currently available before making a reservation.
 
 ## Usage
 
@@ -118,7 +117,7 @@ Inputs:
 ```
 
 **Result**:
-- Workflow will auto-assign next available ID (e.g., 185064) and create PR
+- Workflow will auto-assign the next available ID (check the [registry](../development/crm/module-registry.md#dolibarr-extensions-registry) to see which ID that will be) and create PR
 - Repository URL automatically constructed as `https://github.com/mokoconsulting-tech/MokoDoliExample`
 - Module ID file NOT pushed to remote (you can create it manually later)
 

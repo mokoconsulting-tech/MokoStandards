@@ -101,7 +101,7 @@ If you prefer to reserve manually:
 1. **Create a Pull Request** to [https://github.com/mokoconsulting-tech/MokoStandards](https://github.com/mokoconsulting-tech/MokoStandards)
 2. **Update this table** with:
    - Module name
-   - Next available module number from the reserved range (185067-185099)
+   - Next available module number (check the [registry table above](#dolibarr-extensions-registry) for the current next available ID)
    - Status: "Reserved"
    - Brief description of the module's purpose
    - Repository link (use "TBD" if not yet created)
@@ -123,7 +123,7 @@ DOLIBARR_MODULE_ID=185065
 
 Module Name: YourModuleName
 Module ID: 185065
-Reserved Range: 185065-185099 (Moko Consulting)
+Reserved Range: 185051-185099 (Moko Consulting)
 Description: Your module description
 
 This ID is registered in the MokoStandards module registry:
@@ -197,7 +197,7 @@ Use the automated workflow (recommended) or create a manual PR. See [Module ID R
 
 ### Can I request a specific module ID?
 
-Yes! When using the workflow, you can specify a module ID in the range 185067-185099. The workflow will validate it's available.
+Yes! When using the workflow, you can specify a module ID. Check the [registry table](#dolibarr-extensions-registry) for the current next available ID, then supply it as the `module_id` input. The workflow will validate it is not already taken.
 
 ### What if all IDs are reserved?
 

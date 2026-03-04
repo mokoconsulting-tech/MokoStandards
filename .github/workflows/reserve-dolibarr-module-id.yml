@@ -76,23 +76,24 @@ jobs:
             echo "🔢 Using manually specified module ID: $MODULE_ID"
 
             # Validate it's in the correct range
-            if [ "$MODULE_ID" -lt 185064 ] || [ "$MODULE_ID" -gt 185099 ]; then
-              echo "❌ Error: Module ID must be in range 185064-185099"
+            if [ "$MODULE_ID" -lt 185051 ] || [ "$MODULE_ID" -gt 185099 ]; then
+              echo "❌ Error: Module ID must be in the Moko Consulting reserved range 185051-185099"
+              echo "ℹ️  Check the registry for available IDs: https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/development/crm/module-registry.md"
               exit 1
             fi
           else
             # Auto-assign next available ID
-            echo "🔍 Scanning for next available module ID..."
+            echo "🔍 Scanning registry for next available module ID..."
 
-            # Extract module IDs from the table, only from the 185064-185099 range
-            USED_IDS=$(grep -oP '(?<=\| )1850(6[4-9]|[7-8][0-9]|9[0-9])(?= \|)' "$REGISTRY_FILE" | sort -n || true)
+            # Extract all reserved module IDs from the full Moko Consulting range (185051-185099)
+            USED_IDS=$(grep -oP '(?<=\| )1850(5[1-9]|6[0-9]|[7-8][0-9]|9[0-9])(?= \|)' "$REGISTRY_FILE" | sort -n || true)
 
-            echo "Used IDs in range 185064-185099:"
+            echo "Used IDs in Moko Consulting reserved range (185051-185099):"
             echo "$USED_IDS"
 
-            # Find the first available ID
+            # Find the first available ID across the full reserved range
             MODULE_ID=""
-            for id in $(seq 185064 185099); do
+            for id in $(seq 185051 185099); do
               if ! echo "$USED_IDS" | grep -q "^$id$"; then
                 MODULE_ID=$id
                 break
@@ -100,7 +101,8 @@ jobs:
             done
 
             if [ -z "$MODULE_ID" ]; then
-              echo "❌ Error: No available module IDs in range 185064-185099"
+              echo "❌ Error: No available module IDs in the Moko Consulting reserved range (185051-185099)"
+              echo "ℹ️  Contact the CRM Development Lead or see the registry: https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/development/crm/module-registry.md"
               exit 1
             fi
 
@@ -209,7 +211,7 @@ jobs:
           printf "Reserve Dolibarr module ID %s for %s\n\n" "$MODULE_ID" "$MODULE_NAME" > /tmp/commit_msg.txt
           printf "Module name: %s\n" "$MODULE_NAME" >> /tmp/commit_msg.txt
           printf "Module ID: %s\n\n" "$MODULE_ID" >> /tmp/commit_msg.txt
-          printf "This PR reserves module ID %s from Moko Consulting range (185064-185099).\n\n" "$MODULE_ID" >> /tmp/commit_msg.txt
+          printf "This PR reserves module ID %s from the Moko Consulting reserved range.\n\n" "$MODULE_ID" >> /tmp/commit_msg.txt
           printf "Updates in this PR:\n" >> /tmp/commit_msg.txt
           printf -- "- Module registry in docs/development/crm/module-registry.md\n" >> /tmp/commit_msg.txt
           printf -- "- override.config.tf protection for workflow\n\n" >> /tmp/commit_msg.txt
@@ -263,7 +265,7 @@ jobs:
 
             ---
 
-            This PR reserves module ID **${moduleId}** from the Moko Consulting reserved range (185064-185099) for the **${moduleName}** module.
+            This PR reserves module ID **${moduleId}** from the Moko Consulting reserved range for the **${moduleName}** module.
 
             ### Changes
             - ✅ Updated module registry table in \`docs/development/crm/module-registry.md\`
@@ -275,7 +277,7 @@ jobs:
 
             ### Policy Compliance
             - Follows module ID reservation process per [Module Registry](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/development/crm/module-registry.md#module-id-reservation-process)
-            - Module ID from reserved Moko Consulting range (185064-185099)
+            - Module ID verified against the [Moko Consulting Module Registry](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/development/crm/module-registry.md)
 
             ### Documentation
             - **[Module Registry](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/development/crm/module-registry.md)** - Official module number registry
@@ -352,7 +354,7 @@ jobs:
           echo "" >> "$MODULE_ID_FILE"
           echo "Module Name: $MODULE_NAME" >> "$MODULE_ID_FILE"
           echo "Module ID: $MODULE_ID" >> "$MODULE_ID_FILE"
-          echo "Reserved Range: 185064-185099 (Moko Consulting)" >> "$MODULE_ID_FILE"
+          echo "Reserved Range: 185051-185099 (Moko Consulting)" >> "$MODULE_ID_FILE"
           echo "Description: Dolibarr module $MODULE_NAME" >> "$MODULE_ID_FILE"
           echo "" >> "$MODULE_ID_FILE"
           echo "Reserved: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> "$MODULE_ID_FILE"

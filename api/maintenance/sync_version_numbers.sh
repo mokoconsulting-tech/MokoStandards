@@ -13,6 +13,8 @@
 # VERSION: XX.YY.ZZ
 # BRIEF: Synchronize version numbers across all repository files from README.md (single source of truth)
 # NOTE: Version is read dynamically from the FILE INFORMATION block in README.md.
+#       Version format is zero-padded semver: XX.YY.ZZ (e.g. 04.00.03). All regex patterns
+#       enforce exactly two digits per component by design.
 #       For automated propagation on merge, see .github/workflows/sync-version-on-merge.yml
 
 set -euo pipefail

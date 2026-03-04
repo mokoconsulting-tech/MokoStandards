@@ -14,7 +14,8 @@
  * VERSION: XX.YY.ZZ
  * BRIEF: Reads VERSION from README.md FILE INFORMATION block and propagates it to all badges and FILE INFORMATION headers
  * NOTE: README.md is the single source of truth for the repository version.
- *       Run automatically on merge to main via .github/workflows/sync-version-on-merge.yml
+ *       Version format is zero-padded semver: XX.YY.ZZ (e.g. 04.00.03). All regex patterns
+ *       in this script enforce exactly two digits per component by design.
  */
 
 declare(strict_types=1);
@@ -30,7 +31,7 @@ use MokoStandards\Enterprise\{AuditLogger, CliFramework};
  * Sources updated:
  *   - Markdown badge:   [![MokoStandards](https://img.shields.io/badge/MokoStandards-OLD-blue)]
  *   - Markdown header:  VERSION: OLD          (inside <!-- --> comment blocks)
- *   - PHP header:       * VERSION: OLD         (inside /* */ comment blocks)
+ *   - PHP header:       * VERSION: OLD         (inside block comments)
  *   - YAML/Shell header:# VERSION: OLD
  *   - composer.json:    "version": "OLD"
  */

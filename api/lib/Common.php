@@ -12,6 +12,8 @@
  * PATH: /api/lib/Common.php
  * VERSION: XX.YY.ZZ
  * BRIEF: Common utility functions for api/ scripts
+ * NOTE: Version format used throughout is zero-padded semver: XX.YY.ZZ (e.g. 04.00.03).
+ *       All version regex patterns enforce exactly two digits per component by design.
  */
 
 declare(strict_types=1);

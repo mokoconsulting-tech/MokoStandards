@@ -63,9 +63,9 @@ class DriftScanner extends CliFramework
         $this->metrics = new MetricsCollector();
         
         // Initialize API client
-        $token = getenv('GITHUB_TOKEN') ?: getenv('GH_TOKEN');
+        $token = getenv('GH_TOKEN') ?: getenv('GITHUB_TOKEN');
         if (empty($token)) {
-            $this->error("GITHUB_TOKEN or GH_TOKEN environment variable required");
+            $this->error("GH_TOKEN or GITHUB_TOKEN environment variable required");
             exit(1);
         }
         

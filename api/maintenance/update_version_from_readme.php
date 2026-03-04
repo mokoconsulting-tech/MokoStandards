@@ -370,9 +370,9 @@ class UpdateVersionFromReadme extends CliFramework
 	 */
 	private function createGitHubIssue(string $repo, string $version, int $remaining): void
 	{
-		$token = getenv('GITHUB_TOKEN') ?: getenv('GH_TOKEN');
+		$token = getenv('GH_TOKEN') ?: getenv('GITHUB_TOKEN');
 		if (empty($token)) {
-			$this->error('GITHUB_TOKEN or GH_TOKEN required to create issue');
+			$this->error('GH_TOKEN or GITHUB_TOKEN required to create issue');
 			return;
 		}
 

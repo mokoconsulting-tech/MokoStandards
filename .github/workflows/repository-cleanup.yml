@@ -163,7 +163,7 @@ jobs:
 
       - name: Clean GitHub Actions Cache
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
           REPO: ${{ github.repository }}
         run: |
           echo "## 🗄️ GitHub Actions Cache Cleanup" >> $GITHUB_STEP_SUMMARY

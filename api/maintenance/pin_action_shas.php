@@ -31,8 +31,9 @@ declare(strict_types=1);
  *   php api/maintenance/pin_action_shas.php [--dry-run] [--verbose] [--help]
  *
  * Environment:
- *   GITHUB_TOKEN   Personal access token or Actions token used for GitHub API
- *                  calls.  Without a token the script still works but is subject
+ *   GH_TOKEN       Personal access token (org secret) used for GitHub API calls.
+ *                  Falls back to GITHUB_TOKEN if GH_TOKEN is not set.
+ *                  Without any token the script still works but is subject
  *                  to the unauthenticated rate limit (60 req/h).
  */
 class ActionShaPinner
@@ -58,10 +59,10 @@ class ActionShaPinner
     public function __construct(array $args)
     {
         $this->parseArguments($args);
-        $this->token = (string)(getenv('GITHUB_TOKEN') ?: '');
+        $this->token = (string)(getenv('GH_TOKEN') ?: getenv('GITHUB_TOKEN') ?: '');
 
         if ($this->token === '') {
-            fwrite(STDERR, "⚠️  GITHUB_TOKEN not set – unauthenticated rate limit (60 req/h) applies\n");
+            fwrite(STDERR, "⚠️  GH_TOKEN not set – unauthenticated rate limit (60 req/h) applies\n");
         }
     }
 
@@ -93,14 +94,15 @@ Options:
   --help        Show this help message and exit
 
 Environment:
-  GITHUB_TOKEN  GitHub API token (recommended to avoid rate limiting)
+  GH_TOKEN      GitHub API token (org secret, recommended to avoid rate limiting)
+                Falls back to GITHUB_TOKEN if GH_TOKEN is not set.
 
 Examples:
   # Preview all changes
-  GITHUB_TOKEN=ghp_xxx php api/maintenance/pin_action_shas.php --dry-run --verbose
+  GH_TOKEN=ghp_xxx php api/maintenance/pin_action_shas.php --dry-run --verbose
 
   # Apply changes
-  GITHUB_TOKEN=ghp_xxx php api/maintenance/pin_action_shas.php
+  GH_TOKEN=ghp_xxx php api/maintenance/pin_action_shas.php
 
 HELP;
     }

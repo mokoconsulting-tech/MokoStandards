@@ -351,9 +351,9 @@ class RepoHealthChecker extends CliFramework
     {
         $this->log("Creating health check issue for {$repo}");
         
-        $token = getenv('GITHUB_TOKEN') ?: getenv('GH_TOKEN');
+        $token = getenv('GH_TOKEN') ?: getenv('GITHUB_TOKEN');
         if (empty($token)) {
-            $this->error("GITHUB_TOKEN or GH_TOKEN environment variable required");
+            $this->error("GH_TOKEN or GITHUB_TOKEN environment variable required");
             return;
         }
         

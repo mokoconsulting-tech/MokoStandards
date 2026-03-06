@@ -290,13 +290,16 @@ jobs:
               // Benchmark 4: Security scanning (scanFile requires a real path)
               $validator = new SecurityValidator();
               $tmpFile = tempnam(sys_get_temp_dir(), 'bench_') . '.php';
+              chmod($tmpFile, 0600);
               file_put_contents($tmpFile, "<?php\n// benchmark file\n\$x = 1;\n");
               $start = microtime(true);
               for ($i = 0; $i < 10; $i++) {
                   $validator->scanFile($tmpFile);
               }
               $elapsed = microtime(true) - $start;
-              @unlink($tmpFile);
+              if (file_exists($tmpFile)) {
+                  unlink($tmpFile);
+              }
               $benchmarks['security_scanning'] = [
                   'iterations' => 10,
                   'total_time_ms' => round($elapsed * 1000, 2),

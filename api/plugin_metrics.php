@@ -242,7 +242,7 @@ function main(array $argv): int
 
     try {
         // Create factory and plugin
-        $logger = new AuditLogger();
+        $logger = new AuditLogger('plugin_metrics');
         $metricsCollector = new MetricsCollector();
         $factory = new PluginFactory($logger, $metricsCollector);
 

@@ -35,7 +35,7 @@ abstract class AbstractProjectPlugin implements ProjectPluginInterface
         ?MetricsCollector $metricsCollector = null,
         array $config = []
     ) {
-        $this->logger = $logger ?? new AuditLogger();
+        $this->logger = $logger ?? new AuditLogger('project_plugin');
         $this->metricsCollector = $metricsCollector ?? new MetricsCollector();
         $this->config = $config;
     }

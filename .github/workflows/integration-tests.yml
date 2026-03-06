@@ -287,14 +287,16 @@ jobs:
               ];
               echo "✅ Metrics collection: {$benchmarks['metrics_collection']['avg_time_ms']}ms/op\n";
 
-              // Benchmark 4: Security scanning
+              // Benchmark 4: Security scanning (scanFile requires a real path)
               $validator = new SecurityValidator();
-              $testContent = str_repeat("password = 'test123'\napi_key = 'secret'\n", 10);
+              $tmpFile = tempnam(sys_get_temp_dir(), 'bench_') . '.php';
+              file_put_contents($tmpFile, "<?php\n// benchmark file\n\$x = 1;\n");
               $start = microtime(true);
               for ($i = 0; $i < 10; $i++) {
-                  $validator->scanContent($testContent, 'test.php');
+                  $validator->scanFile($tmpFile);
               }
               $elapsed = microtime(true) - $start;
+              @unlink($tmpFile);
               $benchmarks['security_scanning'] = [
                   'iterations' => 10,
                   'total_time_ms' => round($elapsed * 1000, 2),
@@ -307,7 +309,7 @@ jobs:
 
               echo "\n✅ All benchmarks completed\n";
 
-          } catch (Exception $e) {
+          } catch (\Throwable $e) {
               echo "⚠️ Benchmark failed: {$e->getMessage()}\n";
           }
           EOF

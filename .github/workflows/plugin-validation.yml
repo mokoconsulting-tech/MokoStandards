@@ -102,7 +102,7 @@ jobs:
             use MokoStandards\Enterprise\AuditLogger;
             use MokoStandards\Enterprise\MetricsCollector;
 
-            \$factory = new PluginFactory(new AuditLogger(), new MetricsCollector());
+            \$factory = new PluginFactory(new AuditLogger('plugin_validation'), new MetricsCollector());
             \$plugins = \$factory->createAll();
 
             if (empty(\$plugins)) {
@@ -126,7 +126,7 @@ jobs:
             use MokoStandards\Enterprise\AuditLogger;
             use MokoStandards\Enterprise\MetricsCollector;
 
-            \$factory = new PluginFactory(new AuditLogger(), new MetricsCollector());
+            \$factory = new PluginFactory(new AuditLogger('plugin_validation'), new MetricsCollector());
             \$plugins = \$factory->createAll();
             \$errors = [];
 
@@ -228,9 +228,8 @@ jobs:
             use MokoStandards\Enterprise\AuditLogger;
             use MokoStandards\Enterprise\MetricsCollector;
 
-            \$factory = new PluginFactory(new AuditLogger(), new MetricsCollector());
+            \$factory = new PluginFactory(new AuditLogger('plugin_validation'), new MetricsCollector());
 
-            // Test create
             \$plugin = \$factory->create('nodejs');
             if (!\$plugin) {
               echo '✗ create() failed for nodejs\n';

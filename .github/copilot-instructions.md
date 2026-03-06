@@ -150,6 +150,26 @@ See `.editorconfig` for authoritative per-extension rules.
 
 ---
 
+## Keeping Documentation Current
+
+Whenever you make code changes, update the corresponding documentation in the same commit or PR. Do not leave docs stale.
+
+| Change type | Documentation to update |
+|-------------|------------------------|
+| New or renamed public PHP method | PHPDoc block on the method; `docs/api/` index for that class |
+| New or changed CLI script argument | Script's own `--help` text; `docs/api/validate/` or equivalent |
+| New or changed GitHub Actions workflow | `docs/workflows/<workflow-name>.md` |
+| New or changed enforcement rule | `docs/enforcement-levels.md` |
+| New or changed policy | Corresponding file under `docs/policy/` |
+| New library class or major feature | `CHANGELOG.md` entry under `Added` |
+| Bug fix | `CHANGELOG.md` entry under `Fixed` |
+| Breaking change | `CHANGELOG.md` entry under `Changed`; update `CONTRIBUTING.md` if contributor steps change |
+| Any modified file | Update the `VERSION` field in that file's `FILE INFORMATION` block |
+
+If your code change makes any existing doc sentence false or incomplete, fix the doc before closing the PR.
+
+---
+
 ## Validation Before Committing
 
 Run these locally before pushing:

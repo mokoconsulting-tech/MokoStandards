@@ -344,6 +344,24 @@ find . -name "*.py" -not -path "*/vendor/*" -exec python3 -m py_compile {} +
 
 **Merge strategy:** squash merge only (merge commits and rebase merges are disabled). Branches are auto-deleted after merge. Never commit directly to `main`.
 
+# Keeping Documentation Current
+
+Whenever you make code changes, update the corresponding documentation in the same commit or PR. Do not leave docs stale.
+
+| Change type | Documentation to update |
+|-------------|------------------------|
+| New or renamed public PHP method | PHPDoc block on the method; `docs/api/` index for that class |
+| New or changed CLI script argument | Script's own `--help` text (via `setDescription`/`addArgument`); `docs/api/validate/` or equivalent |
+| New or changed GitHub Actions workflow | `docs/workflows/<workflow-name>.md` |
+| New or changed enforcement rule | `docs/enforcement-levels.md` |
+| New or changed policy | Corresponding file under `docs/policy/` |
+| New library class or major feature | `CHANGELOG.md` entry under `Added` |
+| Bug fix | `CHANGELOG.md` entry under `Fixed` |
+| Breaking change | `CHANGELOG.md` entry under `Changed`; update `CONTRIBUTING.md` if contributor steps change |
+| Any modified file | Update the `VERSION` field in that file's `FILE INFORMATION` block |
+
+**Rule**: if your code change makes any existing doc sentence false or incomplete, fix the doc before closing the PR. The PR checklist item `docs/ updated if public-facing behaviour changed` is a reminder, not a suggestion.
+
 # PR Checklist
 
 - [ ] Branch name follows `(prefix)/MAJOR.MINOR.PATCH[/description]` format

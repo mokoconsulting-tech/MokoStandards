@@ -85,7 +85,7 @@ jobs:
               // Scan PHP files
               $phpFiles = new RecursiveIteratorIterator(
                   new RecursiveCallbackFilterIterator(
-                      new RecursiveDirectoryIterator('src', RecursiveDirectoryIterator::SKIP_DOTS),
+                      new RecursiveDirectoryIterator('api/src', RecursiveDirectoryIterator::SKIP_DOTS),
                       function ($file, $key, $iterator) {
                           return $file->isDir() || $file->getExtension() === 'php';
                       }
@@ -173,7 +173,7 @@ jobs:
               // Scan for dangerous functions
               $phpFiles = new RecursiveIteratorIterator(
                   new RecursiveCallbackFilterIterator(
-                      new RecursiveDirectoryIterator('src', RecursiveDirectoryIterator::SKIP_DOTS),
+                      new RecursiveDirectoryIterator('api/src', RecursiveDirectoryIterator::SKIP_DOTS),
                       function ($file, $key, $iterator) {
                           return $file->isDir() || $file->getExtension() === 'php';
                       }

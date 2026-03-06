@@ -79,7 +79,7 @@ jobs:
 
       # 3. Set up PHP with Composer
       - name: Set up PHP ${{ inputs.php_version }}
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.31.0
         with:
           php-version: ${{ inputs.php_version }}
           extensions: json, mbstring, curl
@@ -97,7 +97,7 @@ jobs:
       - name: Run api/${{ inputs.script_path }}.php
         id: run
         run: |
-          SCRIPT="_mokostandards/api/${{ inputs.script_path }}.php"
+          SCRIPT="_mokostandards/api/${INPUT_SCRIPT_PATH}.php"
 
           if [ ! -f "$SCRIPT" ]; then
             echo "❌ Script not found: $SCRIPT" >&2
@@ -107,20 +107,21 @@ jobs:
             exit 1
           fi
 
-          if [ "${{ inputs.create_summary }}" = "true" ]; then
-            echo "## 🚀 ${{ inputs.script_path }}" >> $GITHUB_STEP_SUMMARY
+          if [ "$INPUT_CREATE_SUMMARY" = "true" ]; then
+            echo "## 🚀 ${INPUT_SCRIPT_PATH}" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
           fi
 
           set +e
-          OUTPUT=$(php "$SCRIPT" --path _repo ${{ inputs.script_args }} 2>&1)
+          # shellcheck disable=SC2086 - word splitting of INPUT_SCRIPT_ARGS is intentional
+          OUTPUT=$(php "$SCRIPT" --path _repo $INPUT_SCRIPT_ARGS 2>&1)
           EXIT_CODE=$?
           set -e
 
           echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
           echo "$OUTPUT"
 
-          if [ "${{ inputs.create_summary }}" = "true" ]; then
+          if [ "$INPUT_CREATE_SUMMARY" = "true" ]; then
             echo '```' >> $GITHUB_STEP_SUMMARY
             echo "$OUTPUT" | head -n 200 >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY
@@ -134,3 +135,6 @@ jobs:
           exit $EXIT_CODE
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          INPUT_SCRIPT_PATH: ${{ inputs.script_path }}
+          INPUT_SCRIPT_ARGS: ${{ inputs.script_args }}
+          INPUT_CREATE_SUMMARY: ${{ inputs.create_summary }}

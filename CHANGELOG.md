@@ -31,21 +31,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- **`tests/sample/` fixture directory** (2026-03-04):
-  - Minimal generic repository fixture used by MokoStandards API tests
-  - Located at `tests/sample/` (repo root, gitignored — local developer copy only)
+- **`tests/sample/` fixture directory** (2026-03-06):
+  - Minimal generic repository fixture committed to `tests/sample/` at repo root
   - Satisfies all `check_repo_health.php` basic checks: README, LICENSE, .gitignore,
     CHANGELOG, CODE_OF_CONDUCT, SECURITY, docs/, .github/workflows/, dependabot.yml
   - Detectable as `generic` PHP project by `auto_detect_platform.php` via `composer.json`
   - Files: `README.md`, `LICENSE`, `.gitignore`, `CHANGELOG.md`, `CODE_OF_CONDUCT.md`,
     `SECURITY.md`, `composer.json`, `docs/index.md`, `.github/workflows/ci.yml`,
     `.github/dependabot.yml`
-  - Moved from `api/tests/sample/` (removed from git) to root `tests/sample/` (gitignored)
-- **Documentation updates** (2026-03-04):
-  - Updated `api/tests/index.md` — removed stale `sample/` entry (fixture moved to root `tests/sample/`)
-  - Updated `docs/api/tests/index.md` — sample fixture section updated to reference `tests/sample/`
-  - Updated `docs/api/tests/sample/index.md` — corrected path and mirrors references
-- **`.gitignore`**: Added `/tests/` entry to exclude any root-level `tests/` directory
+  - Relocated from `api/tests/sample/`; `tests/_output/` remains gitignored
+- **Documentation updates** (2026-03-06):
+  - Updated `docs/api/tests/index.md` — fixture is committed, not gitignored
+  - Updated `docs/api/tests/sample/index.md` — removed "gitignored/local only" language
+- **`.gitignore`** (2026-03-06): Replaced overly-broad `/tests/` rule with targeted `tests/_output/`
 
 - **Terraform Health Checks Complete** ⭐ FEATURE COMPLETE:
   - Implemented all 4 missing health check categories (47 points, 2026-02-27)

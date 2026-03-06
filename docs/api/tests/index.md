@@ -33,8 +33,7 @@ php api/tests/test_enterprise_libraries.php
 validators (`check_repo_health.php`, `auto_detect_platform.php`) against a local path without
 requiring network access or a real GitHub repository.
 
-This directory is excluded from version control via `.gitignore` (`/tests/`) and must be
-created locally by each developer. It contains:
+This directory is committed to version control. It contains:
 
 | Path | Purpose |
 |---|---|

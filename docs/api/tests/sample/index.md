@@ -3,8 +3,8 @@
 ## Overview
 
 `tests/sample/` (at the repository root) is a minimal generic repository fixture used by
-MokoStandards API tests. This directory is gitignored (`/tests/`) and lives only on the
-developer's local machine.
+MokoStandards API tests. This directory is committed to version control as part of the
+repository.
 
 ## Purpose
 
@@ -51,6 +51,6 @@ $score   = $checker->run(); // should reach passing threshold
 ---
 
 **Location**: `docs/api/tests/sample/`
-**Mirrors**: `/tests/sample/` (gitignored — local only)
+**Mirrors**: `/tests/sample/`
 **Last Updated**: 2026-03-04
 **Maintained By**: MokoStandards Team

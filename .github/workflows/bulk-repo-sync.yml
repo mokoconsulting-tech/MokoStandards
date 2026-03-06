@@ -231,7 +231,7 @@ jobs:
           if [ ! -f "api/definitions/default/waas-component.tf" ]; then
             MISSING_FILES+=("api/definitions/default/waas-component.tf")
           fi
-          
+
           # Ensure sync directory exists
           if [ ! -d "api/definitions/sync" ]; then
             MISSING_FILES+=("api/definitions/sync/ directory")
@@ -354,37 +354,31 @@ jobs:
         if: success() && github.event_name != 'pull_request'
         run: |
           set -x
-          
+
           # Check if there are any new or modified definition files
           if [ -n "$(git status --porcelain api/definitions/sync/)" ]; then
             echo "## 📝 Committing Generated Definitions" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            
+
             # Configure git
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
-            
+
             # Add all definition files in sync directory
             git add api/definitions/sync/*.def.tf
-            
+
             # Count files
             ADDED=$(git diff --cached --name-only | grep "\.def\.tf$" | wc -l)
-            
+
             # Commit with descriptive message
-            git commit -m "chore: update synced repository definitions
+            COMMIT_DATE="$(date -u '+%Y-%m-%d')"
+            COMMIT_RUN="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            COMMIT_MSG="$(printf 'chore: update synced repository definitions\n\nGenerated during bulk sync run on %s\nWorkflow run: %s\n\n- Updated %s repository definition(s)\n- Definitions stored in api/definitions/sync/\n- Files use .def.tf naming convention\n\nCo-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>' "${COMMIT_DATE}" "${COMMIT_RUN}" "${ADDED}")"
+            git commit -m "$COMMIT_MSG"
 
-Generated during bulk sync run on $(date -u +"%Y-%m-%d")
-Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-
-- Updated $ADDED repository definition(s)
-- Definitions stored in api/definitions/sync/
-- Files use .def.tf naming convention
-
-Co-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
-            
             # Push to the same branch
             git push origin ${{ github.ref_name }}
-            
+
             echo "**Committed Files:** $ADDED definition(s)" >> $GITHUB_STEP_SUMMARY
             echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY

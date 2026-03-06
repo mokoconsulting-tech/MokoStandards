@@ -85,7 +85,7 @@ jobs:
             const parentIssue = ${{ inputs.parent_issue }};
             const parentTitle = '${{ steps.validate_parent.outputs.parent_title }}';
             const parentUrl = '${{ steps.validate_parent.outputs.parent_url }}';
-            
+
             const body = `## Sub-Task for #${parentIssue}
 
             **Parent Issue**: [#${parentIssue} - ${parentTitle}](${parentUrl})

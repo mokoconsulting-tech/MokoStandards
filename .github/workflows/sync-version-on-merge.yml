@@ -104,12 +104,8 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add -A
-          git commit -m "chore(version): sync badges and FILE INFORMATION headers to ${VERSION}
-
-Auto-propagated from README.md FILE INFORMATION block.
-README.md is the single source of truth for the repository version.
-
-[skip ci]" \
+          COMMIT_MSG="$(printf 'chore(version): sync badges and FILE INFORMATION headers to %s\n\nAuto-propagated from README.md FILE INFORMATION block.\nREADME.md is the single source of truth for the repository version.\n\n[skip ci]' "${VERSION}")"
+          git commit -m "$COMMIT_MSG" \
             --author="github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
           git push
 

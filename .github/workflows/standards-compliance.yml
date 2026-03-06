@@ -103,7 +103,7 @@ jobs:
           echo "|-----------|--------|-------|------|-------|" >> $GITHUB_STEP_SUMMARY
 
           # Check required directories
-          for dir in docs scripts .github; do
+          for dir in docs api .github; do
             if [ -d "$dir" ]; then
               FILE_COUNT=$(find "$dir" -type f 2>/dev/null | wc -l)
               DIR_SIZE=$(du -sh "$dir" 2>/dev/null | cut -f1)

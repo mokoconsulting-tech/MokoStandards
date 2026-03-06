@@ -262,7 +262,7 @@ jobs:
               $logger = new AuditLogger('benchmark');
               $start = microtime(true);
               for ($i = 0; $i < 100; $i++) {
-                  $logger->logEvent('test_event', ['iteration' => $i]);
+                  $logger->logInfo('test_event', ['iteration' => $i]);
               }
               $elapsed = microtime(true) - $start;
               $benchmarks['audit_logging'] = [

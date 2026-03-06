@@ -12,7 +12,7 @@ REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /templates/github/CLAUDE.md.template
 VERSION: XX.YY.ZZ
 BRIEF: Standard CLAUDE.md template for Moko Consulting governed repositories
-NOTE: Synced to CLAUDE.md at the repository root via bulk sync.
+NOTE: Synced to .github/CLAUDE.md in all governed repositories via bulk sync.
       Tokens replaced at sync time: {{REPO_NAME}}, {{REPO_URL}}, {{PRIMARY_LANGUAGE}}, {{PLATFORM_TYPE}}, {{REPO_DESCRIPTION}}
 -->
 
@@ -35,15 +35,15 @@ This repository is governed by [MokoStandards](https://github.com/mokoconsulting
 ├── src/                  # Primary source code
 ├── docs/                 # Documentation
 ├── tests/                # Test suite
-├── .github/              # GitHub Actions workflows and configuration
+├── .github/
 │   ├── workflows/        # CI/CD workflows (synced from MokoStandards)
 │   ├── ISSUE_TEMPLATE/   # Issue templates (synced from MokoStandards)
 │   ├── copilot-instructions.md  # GitHub Copilot custom instructions
+│   ├── CLAUDE.md             # This file — Claude AI assistant context
 │   └── override.tf       # Repository-specific health-check overrides
 ├── README.md             # Project overview — version source of truth
 ├── CHANGELOG.md          # Version history
 ├── CONTRIBUTING.md       # Contribution guidelines
-├── CLAUDE.md             # This file — Claude AI assistant context
 └── LICENSE               # GPL-3.0-or-later
 ```
 

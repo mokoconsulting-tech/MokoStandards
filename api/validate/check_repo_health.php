@@ -491,6 +491,7 @@ class RepoHealthChecker extends CliFramework
         
         return $body;
     }
+}
 
 // Run the application
 $app = new RepoHealthChecker();

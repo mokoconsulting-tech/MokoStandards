@@ -64,14 +64,14 @@ jobs:
     steps:
       # 1. Checkout the CALLING repository so scripts can analyse it
       - name: Checkout calling repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           token: ${{ secrets.GH_TOKEN }}
           path: _repo
 
       # 2. Checkout MokoStandards to access api/ scripts
       - name: Checkout MokoStandards
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           repository: mokoconsulting-tech/MokoStandards
           token: ${{ secrets.GH_TOKEN }}

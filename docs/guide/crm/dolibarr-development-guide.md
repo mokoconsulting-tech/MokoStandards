@@ -144,7 +144,7 @@ class modMokoExample extends DolibarrModules
         $this->db = $db;
 
         // Module ID - use reserved Moko range 185051-185099
-        $this->numero = 185056; // Example number - reserve via PR!
+        $this->numero = 185056; // Example number - reserve yours via the GitHub Actions workflow!
 
         // Module identification
         $this->rights_class = 'mokoexample';

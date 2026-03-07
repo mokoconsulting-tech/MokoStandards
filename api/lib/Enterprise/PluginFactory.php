@@ -35,7 +35,7 @@ class PluginFactory
         ?MetricsCollector $metricsCollector = null,
         array $defaultConfig = []
     ) {
-        $this->logger = $logger ?? new AuditLogger();
+        $this->logger = $logger ?? new AuditLogger('plugin_factory');
         $this->metricsCollector = $metricsCollector ?? new MetricsCollector();
         $this->defaultConfig = $defaultConfig;
 

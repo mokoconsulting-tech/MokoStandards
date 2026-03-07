@@ -10,7 +10,7 @@
  * DEFGROUP: MokoStandards.Enterprise.ProjectTypes
  * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
- * PATH: /scripts/lib/Enterprise/ProjectTypeDetector.php
+ * PATH: /api/lib/Enterprise/ProjectTypeDetector.php
  * VERSION: 04.00.03
  * BRIEF: Enterprise library for detecting project types
  */

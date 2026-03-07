@@ -8,7 +8,7 @@
  * DEFGROUP: MokoStandards.Scripts
  * INGROUP: MokoStandards.Validation
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
- * PATH: /scripts/validate/check_version_consistency.php
+ * PATH: /api/validate/check_version_consistency.php
  * VERSION: 04.00.03
  * BRIEF: Check for version number consistency across repository
  * 

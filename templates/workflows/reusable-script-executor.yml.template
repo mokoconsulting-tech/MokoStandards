@@ -1,193 +1,136 @@
 # Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
 # SPDX-License-Identifier: GPL-3.0-or-later
+#
 # FILE INFORMATION
-# DEFGROUP: GitHub.Workflows
-# INGROUP: MokoStandards.Reusable
+# DEFGROUP: GitHub.WorkflowTemplates.Reusable
+# INGROUP: MokoStandards.Automation
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
-# PATH: /.github/workflows/reusable-script-executor.yml
-# VERSION: 01.00.00
-# BRIEF: Reusable workflow to execute MokoStandards scripts in any repository
-# NOTE: Provides unified script execution with proper environment setup
+# PATH: /templates/workflows/reusable-script-executor.yml.template
+# VERSION: 04.01.00
+# BRIEF: Reusable workflow that executes MokoStandards PHP API scripts against a caller repository
+# NOTE: Lives in MokoStandards .github/workflows/. Org repos call it via
+#       uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-script-executor.yml@main
 
-name: Execute MokoStandards Script
+name: Execute MokoStandards API Script
 
 on:
   workflow_call:
     inputs:
       script_path:
-        description: 'Path to script relative to scripts/ directory (e.g., validate/no_secrets.py)'
+        description: >
+          Script path relative to api/ — without .php extension.
+          Example: validate/check_repo_health
         required: true
         type: string
       script_args:
-        description: 'Arguments to pass to the script'
+        description: 'Extra arguments to append after --path <repo_path>'
         required: false
         type: string
         default: ''
-      python_version:
-        description: 'Python version to use'
+      php_version:
+        description: 'PHP version to use (default: 8.1)'
         required: false
         type: string
-        default: '3.11'
-      install_dependencies:
-        description: 'Install Python dependencies (pyyaml, etc.)'
-        required: false
-        type: boolean
-        default: true
-      working_directory:
-        description: 'Working directory for script execution'
-        required: false
-        type: string
-        default: '.'
+        default: '8.1'
       create_summary:
-        description: 'Create GitHub step summary'
+        description: 'Append output to GitHub Step Summary'
         required: false
         type: boolean
         default: true
+    secrets:
+      GH_TOKEN:
+        description: 'GitHub PAT for package installation and API calls'
+        required: true
     outputs:
       exit_code:
-        description: 'Script exit code'
-        value: ${{ jobs.execute-script.outputs.exit_code }}
-      script_output:
-        description: 'Script output (truncated to 1000 chars)'
-        value: ${{ jobs.execute-script.outputs.script_output }}
+        description: 'Script exit code (0 = success)'
+        value: ${{ jobs.execute.outputs.exit_code }}
 
 jobs:
-  execute-script:
-    name: Execute ${{ inputs.script_path }}
+  execute:
+    name: '${{ inputs.script_path }}'
     runs-on: ubuntu-latest
 
     outputs:
-      exit_code: ${{ steps.run-script.outputs.exit_code }}
-      script_output: ${{ steps.run-script.outputs.script_output }}
+      exit_code: ${{ steps.run.outputs.exit_code }}
 
     permissions:
       contents: read
+      issues: write
 
     steps:
-      - name: Checkout repository
+      # 1. Checkout the CALLING repository so scripts can analyse it
+      - name: Checkout calling repository
         uses: actions/checkout@v6
-
-      - name: Setup Python
-        if: endsWith(inputs.script_path, '.py')
-        uses: actions/setup-python@v6
         with:
-          python-version: ${{ inputs.python_version }}
+          token: ${{ secrets.GH_TOKEN }}
+          path: _repo
 
-      - name: Install Python dependencies
-        if: endsWith(inputs.script_path, '.py') && inputs.install_dependencies
+      # 2. Checkout MokoStandards so we have access to api/ scripts
+      - name: Checkout MokoStandards
+        uses: actions/checkout@v6
+        with:
+          repository: mokoconsulting-tech/MokoStandards
+          token: ${{ secrets.GH_TOKEN }}
+          path: _mokostandards
+
+      # 3. Set up PHP with Composer
+      - name: Set up PHP ${{ inputs.php_version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ inputs.php_version }}
+          extensions: json, mbstring, curl
+          tools: composer
+          coverage: none
+
+      # 4. Install the API package and its dependencies
+      - name: Install API package
+        working-directory: _mokostandards
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+        env:
+          COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ secrets.GH_TOKEN }}"}}'
+
+      # 5. Execute the requested script, pointing it at the calling repo
+      - name: Run api/${{ inputs.script_path }}.php
+        id: run
         run: |
-          python -m pip install --upgrade pip
-          pip install pyyaml
+          SCRIPT="_mokostandards/api/${{ inputs.script_path }}.php"
 
-          # Install additional dependencies if requirements file exists
-          if [ -f "requirements.txt" ]; then
-            pip install -r requirements.txt
-          fi
-
-          if [ "${{ inputs.create_summary }}" == "true" ]; then
-            echo "## 📦 Dependencies Installed" >> $GITHUB_STEP_SUMMARY
-            echo "- Python ${{ inputs.python_version }}" >> $GITHUB_STEP_SUMMARY
-            echo "- PyYAML (for configuration)" >> $GITHUB_STEP_SUMMARY
-          fi
-
-      - name: Setup Bash
-        if: endsWith(inputs.script_path, '.sh')
-        run: |
-          bash --version
-
-      - name: Verify script exists
-        id: verify
-        run: |
-          SCRIPT_PATH="scripts/${{ inputs.script_path }}"
-
-          if [ ! -f "$SCRIPT_PATH" ]; then
-            echo "❌ Script not found: $SCRIPT_PATH" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "Available scripts:" >> $GITHUB_STEP_SUMMARY
-            find scripts -name "*.py" -o -name "*.sh" | sort >> $GITHUB_STEP_SUMMARY
+          if [ ! -f "$SCRIPT" ]; then
+            echo "❌ Script not found: $SCRIPT" >&2
+            echo "Available scripts under api/:"
+            find _mokostandards/api -name "*.php" \
+              ! -path "*lib*" ! -path "*src*" ! -path "*tests*" | sort
             exit 1
           fi
 
-          echo "script_full_path=$SCRIPT_PATH" >> $GITHUB_OUTPUT
-
-          if [ "${{ inputs.create_summary }}" == "true" ]; then
-            echo "## ✅ Script Found" >> $GITHUB_STEP_SUMMARY
-            echo "**Path:** \`$SCRIPT_PATH\`" >> $GITHUB_STEP_SUMMARY
-            echo "**Type:** $(file -b $SCRIPT_PATH)" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ inputs.create_summary }}" = "true" ]; then
+            echo "## 🚀 ${{ inputs.script_path }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
           fi
 
-      - name: Make script executable
-        run: |
-          chmod +x ${{ steps.verify.outputs.script_full_path }}
-
-      - name: Run script
-        id: run-script
-        working-directory: ${{ inputs.working_directory }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          SCRIPT_PATH="${{ steps.verify.outputs.script_full_path }}"
-          SCRIPT_ARGS="${{ inputs.script_args }}"
-
-          echo "## 🚀 Executing Script" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Script:** \`$SCRIPT_PATH\`" >> $GITHUB_STEP_SUMMARY
-          echo "**Arguments:** \`$SCRIPT_ARGS\`" >> $GITHUB_STEP_SUMMARY
-          echo "**Working Directory:** \`${{ inputs.working_directory }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Output" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-
-          # Execute script and capture output
           set +e
-
-          if [[ "$SCRIPT_PATH" == *.py ]]; then
-            OUTPUT=$(python3 "$SCRIPT_PATH" $SCRIPT_ARGS 2>&1)
-            EXIT_CODE=$?
-          elif [[ "$SCRIPT_PATH" == *.sh ]]; then
-            OUTPUT=$(bash "$SCRIPT_PATH" $SCRIPT_ARGS 2>&1)
-            EXIT_CODE=$?
-          else
-            OUTPUT=$("$SCRIPT_PATH" $SCRIPT_ARGS 2>&1)
-            EXIT_CODE=$?
-          fi
-
+          OUTPUT=$(php "$SCRIPT" --path _repo ${{ inputs.script_args }} 2>&1)
+          EXIT_CODE=$?
           set -e
 
-          # Save outputs
           echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+          echo "$OUTPUT"
 
-          # Truncate output for GitHub output (max 1000 chars)
-          OUTPUT_TRUNCATED="${OUTPUT:0:1000}"
-          echo "script_output<<EOF" >> $GITHUB_OUTPUT
-          echo "$OUTPUT_TRUNCATED" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-          # Show full output in summary (with line limit)
-          echo "$OUTPUT" | head -n 100 >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-
-          # Report exit code
-          if [ $EXIT_CODE -eq 0 ]; then
-            echo "### ✅ Script Completed Successfully" >> $GITHUB_STEP_SUMMARY
-            echo "**Exit Code:** $EXIT_CODE" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "### ❌ Script Failed" >> $GITHUB_STEP_SUMMARY
-            echo "**Exit Code:** $EXIT_CODE" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ inputs.create_summary }}" = "true" ]; then
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "$OUTPUT" | head -n 200 >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            if [ $EXIT_CODE -eq 0 ]; then
+              echo "✅ Completed successfully (exit $EXIT_CODE)" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ Failed (exit $EXIT_CODE)" >> $GITHUB_STEP_SUMMARY
+            fi
           fi
 
           exit $EXIT_CODE
-
-      - name: Upload script output
-        if: always()
-        uses: actions/upload-artifact@v6
-        with:
-          name: script-output-${{ github.run_id }}
-          path: |
-            *.log
-            *.json
-            *.csv
-          retention-days: 7
-          if-no-files-found: ignore
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}

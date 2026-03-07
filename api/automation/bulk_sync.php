@@ -11,7 +11,7 @@
  * DEFGROUP: MokoStandards.Automation
  * INGROUP: MokoStandards.Scripts
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
- * PATH: /scripts/automation/bulk_sync.php
+ * PATH: /api/automation/bulk_sync.php
  * VERSION: 05.00.00
  * BRIEF: Enterprise-grade bulk repository synchronization
  */
@@ -293,7 +293,7 @@ class BulkSync extends CLIApp
                 $this->log("The bulk repository sync is failing silently because the core", 'ERROR');
                 $this->log("synchronization logic has not been implemented yet.", 'ERROR');
                 $this->log("", 'ERROR');
-                $this->log("Location: scripts/lib/Enterprise/RepositorySynchronizer.php", 'ERROR');
+                $this->log("Location: api/lib/Enterprise/RepositorySynchronizer.php", 'ERROR');
                 $this->log("Method: processRepository()", 'ERROR');
                 $this->log("", 'ERROR');
                 $this->log("Required Implementation:", 'ERROR');

@@ -10,7 +10,7 @@
  * DEFGROUP: MokoStandards.Enterprise
  * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
- * PATH: /scripts/lib/Enterprise/RepositoryHealthChecker.php
+ * PATH: /api/lib/Enterprise/RepositoryHealthChecker.php
  * VERSION: 04.00.03
  * BRIEF: Repository health checking enterprise library
  */

@@ -196,7 +196,7 @@
           <type>template</type>
         </source>
         <destination>
-          <path>.</path>
+          <path>.github</path>
           <filename>CLAUDE.md</filename>
           <create-path>false</create-path>
         </destination>

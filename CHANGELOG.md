@@ -31,6 +31,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **`tests/sample/` fixture directory** (2026-03-06):
+  - Minimal generic repository fixture committed to `tests/sample/` at repo root
+  - Satisfies all `check_repo_health.php` basic checks: README, LICENSE, .gitignore,
+    CHANGELOG, CODE_OF_CONDUCT, SECURITY, docs/, .github/workflows/, dependabot.yml
+  - Detectable as `generic` PHP project by `auto_detect_platform.php` via `composer.json`
+  - Files: `README.md`, `LICENSE`, `.gitignore`, `CHANGELOG.md`, `CODE_OF_CONDUCT.md`,
+    `SECURITY.md`, `composer.json`, `docs/index.md`, `.github/workflows/ci.yml`,
+    `.github/dependabot.yml`
+  - Relocated from `api/tests/sample/`; `tests/_output/` remains gitignored
+- **Documentation updates** (2026-03-06):
+  - Updated `docs/api/tests/index.md` — fixture is committed, not gitignored
+  - Updated `docs/api/tests/sample/index.md` — removed "gitignored/local only" language
+- **`.gitignore`** (2026-03-06): Replaced overly-broad `/tests/` rule with targeted `tests/_output/`
+
 - **Terraform Health Checks Complete** ⭐ FEATURE COMPLETE:
   - Implemented all 4 missing health check categories (47 points, 2026-02-27)
   - workflows_checks (12 points): standards-compliance.yml, code-quality.yml, build.yml, release-cycle.yml

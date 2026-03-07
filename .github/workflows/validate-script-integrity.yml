@@ -44,17 +44,12 @@ on:
     branches:
       - main
     paths:
-      - 'scripts/**/*.py'
-      - 'scripts/**/*.sh'
-      - 'scripts/**/*.ps1'
-      - 'scripts/.script-registry.json'
+      - 'api/**/*.php'
   push:
     branches:
       - main
     paths:
-      - 'scripts/**/*.py'
-      - 'scripts/**/*.sh'
-      - 'scripts/**/*.ps1'
+      - 'api/**/*.php'
   workflow_dispatch:
     inputs:
       priority:
@@ -85,15 +80,23 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v6
 
-      - name: Set up Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+      - name: Set up PHP
+        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.31.0
         with:
-          python-version: '3.x'
+          php-version: '8.1'
+          extensions: json, mbstring
+          tools: composer
+          coverage: none
+
+      - name: Install API Package
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+        env:
+          COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ secrets.GH_TOKEN }}"}}'
 
       - name: Check if registry exists
         id: check_registry
         run: |
-          if [ -f "scripts/.script-registry.json" ]; then
+          if [ -f "api/.script-registry.json" ]; then
             echo "exists=true" >> $GITHUB_OUTPUT
             echo "✅ Registry found" >> $GITHUB_STEP_SUMMARY
           else
@@ -106,7 +109,7 @@ jobs:
         run: |
           echo "## 🔐 Generating Script Registry" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          python3 scripts/maintenance/generate_script_registry.py | tee /tmp/registry_gen.log
+          php api/maintenance/update_sha_hashes.php --dry-run --verbose | tee /tmp/registry_gen.log
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           cat /tmp/registry_gen.log >> $GITHUB_STEP_SUMMARY
@@ -121,9 +124,7 @@ jobs:
           echo "### Critical Priority Scripts" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          python3 scripts/maintenance/validate_script_registry.py \
-            --priority critical \
-            --verbose | tee /tmp/validate_critical.log
+          php api/maintenance/update_sha_hashes.php --dry-run --verbose | tee /tmp/validate_critical.log
 
           EXIT_CODE=$?
           echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
@@ -143,9 +144,7 @@ jobs:
           echo "### High Priority Scripts" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          python3 scripts/maintenance/validate_script_registry.py \
-            --priority high \
-            --verbose | tee /tmp/validate_high.log
+          php api/maintenance/update_sha_hashes.php --dry-run --verbose | tee /tmp/validate_high.log
 
           EXIT_CODE=$?
           echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
@@ -170,9 +169,7 @@ jobs:
             STRICT_FLAG="--strict"
           fi
 
-          python3 scripts/maintenance/validate_script_registry.py \
-            $STRICT_FLAG \
-            --verbose | tee /tmp/validate_all.log
+          php api/maintenance/update_sha_hashes.php --dry-run --verbose | tee /tmp/validate_all.log
 
           EXIT_CODE=$?
           echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
@@ -222,13 +219,13 @@ jobs:
           echo "**If changes are legitimate:**" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
           echo "# Update the registry to reflect current state" >> $GITHUB_STEP_SUMMARY
-          echo "python3 scripts/maintenance/generate_script_registry.py --update" >> $GITHUB_STEP_SUMMARY
+          echo "php api/maintenance/update_sha_hashes.php --verbose" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**If changes are NOT authorized:**" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
           echo "# Restore scripts from last known good state" >> $GITHUB_STEP_SUMMARY
-          echo "git checkout HEAD -- scripts/" >> $GITHUB_STEP_SUMMARY
+          echo "git checkout HEAD -- api/" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
       - name: Fail if critical scripts invalid

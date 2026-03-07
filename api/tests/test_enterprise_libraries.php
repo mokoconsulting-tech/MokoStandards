@@ -2,11 +2,7 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../scripts/lib/Enterprise/MetricsCollector.php';
-require_once __DIR__ . '/../scripts/lib/Enterprise/SecurityValidator.php';
-require_once __DIR__ . '/../scripts/lib/Enterprise/TransactionManager.php';
-require_once __DIR__ . '/../scripts/lib/Enterprise/UnifiedValidation.php';
-require_once __DIR__ . '/../scripts/lib/Enterprise/CliFramework.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 use MokoStandards\Enterprise\MetricsCollector;
 use MokoStandards\Enterprise\SecurityValidator;

@@ -16,13 +16,13 @@ on:
     branches:
       - main
     paths:
-      - 'scripts/**'
+      - 'api/**'
       - '.github/workflows/**'
   push:
     branches:
       - main
     paths:
-      - 'scripts/**'
+      - 'api/**'
   schedule:
     # Run daily at 2 AM UTC
     - cron: '0 2 * * *'
@@ -53,10 +53,18 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v6
 
-      - name: Set up Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+      - name: Set up PHP
+        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.31.0
         with:
-          python-version: '3.x'
+          php-version: '8.1'
+          extensions: json, mbstring
+          tools: composer
+          coverage: none
+
+      - name: Install API Package
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+        env:
+          COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ secrets.GH_TOKEN }}"}}'
 
       - name: Run Script Security Scan
         id: security_scan
@@ -64,10 +72,8 @@ jobs:
           echo "## 🛡️ Script Security Analysis" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          python3 scripts/validate/check_script_security.py \
-            --path scripts \
-            --verbose \
-            --output /tmp/security-report.txt | tee /tmp/security-scan.log
+          php api/validate/check_no_secrets.php \
+            --path . | tee /tmp/security-scan.log
 
           EXIT_CODE=$?
           echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
@@ -101,10 +107,18 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v6
 
-      - name: Set up Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+      - name: Set up PHP
+        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.31.0
         with:
-          python-version: '3.x'
+          php-version: '8.1'
+          extensions: json, mbstring
+          tools: composer
+          coverage: none
+
+      - name: Install API Package
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+        env:
+          COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ secrets.GH_TOKEN }}"}}'
 
       - name: Validate Critical Scripts
         id: validate_critical
@@ -113,9 +127,8 @@ jobs:
           echo "## 🔐 Script Integrity - Critical Priority" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          python3 scripts/maintenance/validate_script_registry.py \
-            --priority critical \
-            --verbose | tee /tmp/integrity-critical.log
+          php api/maintenance/update_sha_hashes.php \
+            --dry-run --verbose | tee /tmp/integrity-critical.log
 
           EXIT_CODE=$?
           echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
@@ -132,9 +145,8 @@ jobs:
           echo "## 🔐 Script Integrity - High Priority" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          python3 scripts/maintenance/validate_script_registry.py \
-            --priority high \
-            --verbose | tee /tmp/integrity-high.log
+          php api/maintenance/update_sha_hashes.php \
+            --dry-run --verbose | tee /tmp/integrity-high.log
 
           EXIT_CODE=$?
           echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
@@ -158,10 +170,18 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v6
 
-      - name: Set up Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+      - name: Set up PHP
+        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.31.0
         with:
-          python-version: '3.x'
+          php-version: '8.1'
+          extensions: json, mbstring
+          tools: composer
+          coverage: none
+
+      - name: Install API Package
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+        env:
+          COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ secrets.GH_TOKEN }}"}}'
 
       - name: Run Repository Health Check
         id: health_check
@@ -170,10 +190,8 @@ jobs:
           echo "## 🏥 Repository Health Check" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          # Note: This assumes security checks are integrated in Terraform config
-          # The check_repo_health.py now supports security-scan and script-integrity checks
-          python3 scripts/validate/check_repo_health.py \
-            --repo-path . | tee /tmp/health-check.log
+          php api/validate/check_repo_health.php \
+            --path . | tee /tmp/health-check.log
 
           EXIT_CODE=$?
           echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT

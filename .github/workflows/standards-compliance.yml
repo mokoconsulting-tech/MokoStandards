@@ -103,7 +103,7 @@ jobs:
           echo "|-----------|--------|-------|------|-------|" >> $GITHUB_STEP_SUMMARY
 
           # Check required directories
-          for dir in docs scripts .github; do
+          for dir in docs api .github; do
             if [ -d "$dir" ]; then
               FILE_COUNT=$(find "$dir" -type f 2>/dev/null | wc -l)
               DIR_SIZE=$(du -sh "$dir" 2>/dev/null | cut -f1)
@@ -125,7 +125,7 @@ jobs:
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**Remediation Steps:**" >> $GITHUB_STEP_SUMMARY
             [ ! -d "docs" ] && echo "- Create docs directory: \`mkdir docs && echo '# Documentation' > docs/README.md\`" >> $GITHUB_STEP_SUMMARY
-            [ ! -d "scripts" ] && echo "- Create scripts directory: \`mkdir scripts && touch scripts/.gitkeep\`" >> $GITHUB_STEP_SUMMARY
+            [ ! -d "api" ] && echo "- Create api directory: \`mkdir api && touch api/.gitkeep\`" >> $GITHUB_STEP_SUMMARY
             [ ! -d ".github" ] && echo "- Create .github directory: \`mkdir -p .github/workflows\`" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "📚 Reference: [MokoStandards Repository Structure](https://github.com/mokoconsulting-tech/MokoStandards/tree/main/docs/policy/core-structure.md)" >> $GITHUB_STEP_SUMMARY
@@ -951,7 +951,13 @@ jobs:
         with:
           php-version: '8.1'
           extensions: json
+          tools: composer
           coverage: none
+
+      - name: Install API Package
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+        env:
+          COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ secrets.GH_TOKEN }}"}}'
 
       - name: Run Version Consistency Check
         id: version_check
@@ -1003,11 +1009,10 @@ jobs:
           echo "## 🔐 Script Integrity Validation" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          if [ -f "scripts/.script-registry.json" ]; then
+          if [ -f "api/.script-registry.json" ]; then
             echo "### Critical Scripts" >> $GITHUB_STEP_SUMMARY
-            python3 scripts/maintenance/validate_script_registry.py \
-              --priority critical \
-              --verbose | tee /tmp/script-validation.log
+            php api/maintenance/update_sha_hashes.php \
+              --dry-run --verbose | tee /tmp/script-validation.log
 
             EXIT_CODE=$?
 
@@ -1044,13 +1049,17 @@ jobs:
         with:
           php-version: '8.1'
           extensions: json, mbstring
+          tools: composer
           coverage: none
+
+      - name: Install API Package
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+        env:
+          COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ secrets.GH_TOKEN }}"}}'
 
       - name: Check Enterprise Readiness
         id: enterprise_check
         run: |
-          set -x
-          echo "## 🏢 Enterprise Readiness Validation" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
           if [ -f "api/validate/check_enterprise_readiness.php" ]; then
@@ -1090,13 +1099,17 @@ jobs:
         with:
           php-version: '8.1'
           extensions: json, mbstring
+          tools: composer
           coverage: none
+
+      - name: Install API Package
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+        env:
+          COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ secrets.GH_TOKEN }}"}}'
 
       - name: Check Repository Health
         id: health_check
         run: |
-          set -x
-          echo "## 🏥 Repository Health Check" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
           if [ -f "api/validate/check_repo_health.php" ]; then
@@ -1248,9 +1261,18 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
 
           # Pattern 1: password/secret assignments
+          # Exclusions:
+          #   test|example|sample     - test/example files
+          #   getenv                  - environment-variable reads
+          #   /\.\*/|^\s*//           - regex patterns and commented lines
+          #   CREDENTIAL_PATTERNS|SecurityValidator|SECRET_PATTERN - scanner internals
+          #   ===|!==                 - strict comparison operators (not assignments)
+          #   ApiClient               - constructor calls where token is a variable arg
           if grep -r -n -E "(password|passwd|pwd|secret|api[_-]?key|token).*=.*['\"]" . \
             --include="*.php" --include="*.py" --include="*.js" --include="*.ts" \
-            --exclude-dir=".git" --exclude-dir="vendor" --exclude-dir="node_modules" 2>/dev/null | grep -v -E '(test|example|sample|getenv|/\.\*/|^\s*//|CREDENTIAL_PATTERNS|SecurityValidator)' > /tmp/secrets1.txt 2>/dev/null; then
+            --exclude-dir=".git" --exclude-dir="vendor" --exclude-dir="node_modules" 2>/dev/null | \
+            grep -v -E '(test|example|sample|getenv|/\.\*/|^\s*//|CREDENTIAL_PATTERNS|SecurityValidator|SECRET_PATTERN|===|!==|ApiClient)' | \
+            grep -v "= ''" | grep -v '= ""' > /tmp/secrets1.txt 2>/dev/null; then
             COUNT=$(wc -l < /tmp/secrets1.txt)
             if [ "$COUNT" -gt 0 ]; then
               echo "⚠️ Found $COUNT potential secret assignment(s)" >> $GITHUB_STEP_SUMMARY

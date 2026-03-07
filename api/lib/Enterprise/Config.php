@@ -189,7 +189,8 @@ class Config
     private static function applyEnvironmentOverrides(array &$configData): void
     {
         // GitHub configuration
-        if ($token = getenv('GITHUB_TOKEN')) {
+        // GitHub configuration — prefer GH_TOKEN (org secret), fall back to GITHUB_TOKEN
+        if ($token = getenv('GH_TOKEN') ?: getenv('GITHUB_TOKEN')) {
             $configData['github']['token'] = $token;
         }
         if ($org = getenv('GITHUB_ORG')) {

@@ -42,15 +42,19 @@
     "autoload": {
         "psr-4": {
             "MokoStandards\\": "api/src/",
-            "MokoStandards\\Enterprise\\": "scripts/lib/Enterprise/",
-            "MokoStandards\\Plugins\\Joomla\\": "scripts/lib/plugins/Joomla/",
-            "MokoStandards\\Plugins\\Dolibarr\\": "scripts/lib/plugins/Dolibarr/",
-            "MokoStandards\\Automation\\": "api/src/Automation/",
-            "MokoStandards\\Validation\\": "api/src/Validation/",
-            "MokoStandards\\Web\\": "api/src/Web/"
+            "MokoStandards\\Enterprise\\": "api/lib/Enterprise/",
+            "MokoStandards\\Plugins\\Joomla\\": "api/lib/plugins/Joomla/"
         },
         "files": [
             "api/src/functions.php"
+        ]
+    },
+    "archive": {
+        "exclude": [
+            "/api/tests",
+            "/api/wrappers",
+            "/logs",
+            "/.github"
         ]
     },
     "autoload-dev": {

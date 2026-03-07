@@ -291,10 +291,10 @@ The workflow requires the following GitHub secret:
 
 **Setup**:
 1. Generate PAT with required permissions
-2. Add to repository secrets as `GH_TOKEN`
+2. Add to organization secrets as `GH_TOKEN` (GitHub organization Settings → Secrets and variables → Actions)
 3. Workflow will automatically use it
 
-**Security Note**: Token is only accessible to workflow runs in MokoStandards repository.
+**Security Note**: As an organization secret, `GH_TOKEN` is available to all workflow runs across all repositories in the `mokoconsulting-tech` organization.
 
 ### Repository Override Configuration
 

@@ -478,9 +478,9 @@ The repository includes a GitHub Actions workflow (`.github/workflows/bulk-repo-
    - Generate new token with required permissions
    - Copy the token
 
-2. **Add Token as Secret**:
-   - Go to repository Settings → Secrets and variables → Actions
-   - Create new repository secret named `GH_TOKEN`
+2. **Add Token as Organization Secret**:
+   - Go to GitHub organization Settings → Secrets and variables → Actions
+   - Create new organization secret named `GH_TOKEN`
    - Paste the token value
 
 3. **Configure Git Identity**:

@@ -133,13 +133,15 @@ Types: feat · fix · docs · chore · ci · refactor · style · test · perf �
 
 Claude Code (`claude` CLI) reads **`CLAUDE.md`** from the repository root (and from any subdirectory you run it from) at session start. It gives Claude a complete operational picture so it can contribute without asking basic questions about conventions.
 
-This repository has a fully populated `CLAUDE.md` at the repo root — see [`/CLAUDE.md`](../../CLAUDE.md).
+This repository's `CLAUDE.md` lives at `.github/CLAUDE.md` — see [`.github/CLAUDE.md`](../../.github/CLAUDE.md).
 
 ### Where to Create It
 
 ```
 your-repo/
-├── CLAUDE.md           ← primary context file, read at every session start
+├── .github/
+│   ├── CLAUDE.md       ← primary context file, read at every session start
+│   └── …
 └── src/
     └── CLAUDE.md       ← optional subdirectory context (read when Claude runs from src/)
 ```
@@ -149,7 +151,7 @@ Claude Code also reads `~/.claude/CLAUDE.md` for user-level preferences, and any
 ### Precedence Order
 
 1. `~/.claude/CLAUDE.md` — user-level (personal preferences, API keys style, etc.)
-2. Repo root `CLAUDE.md` — project-level ← **put repo conventions here**
+2. `.github/CLAUDE.md` — project-level ← **put repo conventions here**
 3. Subdirectory `CLAUDE.md` — directory-level overrides
 
 ### Required Sections (per MokoStandards policy)
@@ -281,10 +283,10 @@ auto-commits: false
 dirty-commits: false
 ```
 
-For this repository, `CLAUDE.md` already contains all conventions. Point Aider at it:
+For this repository, `.github/CLAUDE.md` already contains all conventions. Point Aider at it:
 
 ```bash
-aider --read CLAUDE.md --model claude-3-5-sonnet-20241022
+aider --read .github/CLAUDE.md --model claude-3-5-sonnet-20241022
 ```
 
 ---
@@ -294,7 +296,7 @@ aider --read CLAUDE.md --model claude-3-5-sonnet-20241022
 | Client | Context File | Location |
 |--------|-------------|----------|
 | **GitHub Copilot** | `.github/copilot-instructions.md` | Repo root → `.github/` |
-| **Claude Code** | `CLAUDE.md` | Repo root (and subdirectories) |
+| **Claude Code** | `CLAUDE.md` | `.github/` (and subdirectories) |
 | **Cursor** | `.cursor/rules/*.mdc` or `.cursorrules` | Repo root |
 | **Aider** | `CONVENTIONS.md` + `.aider.conf.yml` | Repo root |
 | **Codeium / Windsurf** | `.windsurfrules` | Repo root |
@@ -441,7 +443,7 @@ The bulk-sync workflow (`api/automation/bulk_sync.php`) can propagate a base `co
 
 | Document | Purpose |
 |----------|---------|
-| [`/CLAUDE.md`](../../CLAUDE.md) | Claude Code context file for this repository — use as a reference |
+| [`.github/CLAUDE.md`](../../.github/CLAUDE.md) | Claude Code context file for this repository — use as a reference |
 | [`.github/copilot-instructions.md`](../../.github/copilot-instructions.md) | Copilot coding agent context for this repository |
 | [`docs/policy/file-header-standards.md`](../policy/file-header-standards.md) | Full copyright-header rules for every file type |
 | [`docs/guide/copilot-usage-guide.md`](copilot-usage-guide.md) | General Copilot usage tips and IDE setup |

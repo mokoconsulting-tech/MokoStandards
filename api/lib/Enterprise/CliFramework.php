@@ -1,50 +1,22 @@
 <?php
-
-declare(strict_types=1);
-
-/**
- * Shared CLI Framework for MokoStandards
+/* Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
  *
- * Provides consistent CLI interface for all MokoStandards scripts:
- * - Common argument parsing with getopt
- * - Standard help formatting
- * - Consistent error handling
- * - Integrated logging setup
- * - Enterprise library integration
- * - Command routing and subcommands
- * - Dry-run mode support
- * - JSON output formatting
- *
- * Example usage:
- * ```php
- * class MyScript extends CLIApp {
- *     protected function setupArguments(): array {
- *         return [
- *             'input:' => 'Input file path',
- *             'output:' => 'Output file path'
- *         ];
- *     }
- *     
- *     protected function run(): int {
- *         $input = $this->getOption('input');
- *         echo "Processing: {$input}\n";
- *         return 0;
- *     }
- * }
- * 
- * $app = new MyScript('my_script', 'My Script Description');
- * exit($app->execute());
- * ```
- *
- * Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+ * This file is part of a Moko Consulting project.
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * @package MokoStandards\Enterprise
- * @version 04.00.03
- * @author MokoStandards Team
- * @license GPL-3.0-or-later
+ * FILE INFORMATION
+ * DEFGROUP: MokoStandards.Enterprise.CLI
+ * INGROUP: MokoStandards.Enterprise
+ * REPO: https://github.com/mokoconsulting-tech/MokoStandards
+ * PATH: /api/lib/Enterprise/CliFramework.php
+ * VERSION: 04.01.00
+ * BRIEF: CLI base classes — CLIApp (legacy) and CliFramework (current)
+ * NOTE: All new scripts must extend CliFramework, not CLIApp.
+ *       CLIApp remains for backward-compatibility with existing scripts.
  */
+
+declare(strict_types=1);
 
 namespace MokoStandards\Enterprise;
 

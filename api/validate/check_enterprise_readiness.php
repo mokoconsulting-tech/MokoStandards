@@ -11,7 +11,7 @@
  * DEFGROUP: MokoStandards.Scripts.Validate
  * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
- * PATH: /scripts/validate/check_enterprise_readiness.php
+ * PATH: /api/validate/check_enterprise_readiness.php
  * VERSION: 04.00.03
  * BRIEF: Enterprise readiness checker - PHP implementation
  */
@@ -123,7 +123,7 @@ class EnterpriseReadinessChecker extends CliFramework
         $required = ['ApiClient', 'AuditLogger', 'Config', 'ErrorRecovery', 'MetricsCollector'];
         
         foreach ($required as $library) {
-            $phpFile = "{$path}/scripts/lib/Enterprise/{$library}.php";
+            $phpFile = "{$path}/api/lib/Enterprise/{$library}.php";
             $this->addResult(
                 "Enterprise library: {$library}",
                 file_exists($phpFile),

@@ -11,7 +11,7 @@
  * DEFGROUP: MokoStandards.Scripts.Validate
  * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
- * PATH: /scripts/validate/scan_drift.php
+ * PATH: /api/validate/scan_drift.php
  * VERSION: 04.00.03
  * BRIEF: Standards drift detection - scans repositories for divergence from templates
  */
@@ -63,9 +63,9 @@ class DriftScanner extends CliFramework
         $this->metrics = new MetricsCollector();
         
         // Initialize API client
-        $token = getenv('GITHUB_TOKEN') ?: getenv('GH_TOKEN');
+        $token = getenv('GH_TOKEN') ?: getenv('GITHUB_TOKEN');
         if (empty($token)) {
-            $this->error("GITHUB_TOKEN or GH_TOKEN environment variable required");
+            $this->error("GH_TOKEN or GITHUB_TOKEN environment variable required");
             exit(1);
         }
         
@@ -554,7 +554,7 @@ class DriftScanner extends CliFramework
         $body .= "1. **Option 1:** Run bulk sync to update all files automatically\n";
         $body .= "   ```bash\n";
         $body .= "   # From MokoStandards repository\n";
-        $body .= "   php scripts/automation/bulk_sync.php --repos=\"{$repo}\"\n";
+        $body .= "   php api/automation/bulk_sync.php --repos=\"{$repo}\"\n";
         $body .= "   ```\n\n";
         $body .= "2. **Option 2:** If changes are intentional, update `.github/override.tf` to exclude files\n\n";
         $body .= "3. **Option 3:** Manually update files to match templates\n\n";

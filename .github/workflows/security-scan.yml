@@ -19,14 +19,12 @@ on:
     branches:
       - main
     paths:
-      - 'scripts/**'
+      - 'api/**'
       - '.github/workflows/**'
   workflow_dispatch:
     inputs:
       scan_type:
         description: 'Type of security scan'
-        required: false
-        type: choice
         options:
           - all
           - credentials
@@ -84,12 +82,16 @@ jobs:
               $validator = new SecurityValidator();
               $allFindings = [];
 
-              // Scan PHP files
+              // Scan all PHP files in the repository, excluding generated/dependency directories
+              $excludeDirs = ['vendor', 'node_modules', 'logs'];
               $phpFiles = new RecursiveIteratorIterator(
                   new RecursiveCallbackFilterIterator(
-                      new RecursiveDirectoryIterator('src', RecursiveDirectoryIterator::SKIP_DOTS),
-                      function ($file, $key, $iterator) {
-                          return $file->isDir() || $file->getExtension() === 'php';
+                      new RecursiveDirectoryIterator('.', RecursiveDirectoryIterator::SKIP_DOTS),
+                      function ($file, $key, $iterator) use ($excludeDirs) {
+                          if ($file->isDir()) {
+                              return !in_array($file->getFilename(), $excludeDirs, true);
+                          }
+                          return $file->getExtension() === 'php';
                       }
                   )
               );
@@ -172,12 +174,16 @@ jobs:
               $validator = new SecurityValidator();
               $vulnerabilities = [];
 
-              // Scan for dangerous functions
+              // Scan all PHP files in the repository for dangerous functions, excluding generated/dependency directories
+              $excludeDirs = ['vendor', 'node_modules', 'logs'];
               $phpFiles = new RecursiveIteratorIterator(
                   new RecursiveCallbackFilterIterator(
-                      new RecursiveDirectoryIterator('src', RecursiveDirectoryIterator::SKIP_DOTS),
-                      function ($file, $key, $iterator) {
-                          return $file->isDir() || $file->getExtension() === 'php';
+                      new RecursiveDirectoryIterator('.', RecursiveDirectoryIterator::SKIP_DOTS),
+                      function ($file, $key, $iterator) use ($excludeDirs) {
+                          if ($file->isDir()) {
+                              return !in_array($file->getFilename(), $excludeDirs, true);
+                          }
+                          return $file->getExtension() === 'php';
                       }
                   )
               );

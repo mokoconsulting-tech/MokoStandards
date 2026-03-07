@@ -1,0 +1,140 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflows.Reusable
+# INGROUP: MokoStandards.Automation
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/reusable-script-executor.yml
+# VERSION: 04.01.00
+# BRIEF: Reusable workflow that executes MokoStandards PHP API scripts against a caller repository
+# NOTE: Called by org repos via:
+#       uses: mokoconsulting-tech/MokoStandards/.github/workflows/reusable-script-executor.yml@main
+
+name: Execute MokoStandards API Script
+
+on:
+  workflow_call:
+    inputs:
+      script_path:
+        description: >
+          Script path relative to api/ — without .php extension.
+          Example: validate/check_repo_health
+        required: true
+        type: string
+      script_args:
+        description: 'Extra arguments to append after --path <repo_path>'
+        required: false
+        type: string
+        default: ''
+      php_version:
+        description: 'PHP version to use (default: 8.1)'
+        required: false
+        type: string
+        default: '8.1'
+      create_summary:
+        description: 'Append output to GitHub Step Summary'
+        required: false
+        type: boolean
+        default: true
+    secrets:
+      GH_TOKEN:
+        description: 'GitHub PAT (org-level secret) for package install and API calls'
+        required: true
+    outputs:
+      exit_code:
+        description: 'Script exit code (0 = success)'
+        value: ${{ jobs.execute.outputs.exit_code }}
+
+jobs:
+  execute:
+    name: '${{ inputs.script_path }}'
+    runs-on: ubuntu-latest
+
+    outputs:
+      exit_code: ${{ steps.run.outputs.exit_code }}
+
+    permissions:
+      contents: read
+      issues: write
+
+    steps:
+      # 1. Checkout the CALLING repository so scripts can analyse it
+      - name: Checkout calling repository
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          path: _repo
+
+      # 2. Checkout MokoStandards to access api/ scripts
+      - name: Checkout MokoStandards
+        uses: actions/checkout@v6
+        with:
+          repository: mokoconsulting-tech/MokoStandards
+          token: ${{ secrets.GH_TOKEN }}
+          path: _mokostandards
+
+      # 3. Set up PHP with Composer
+      - name: Set up PHP ${{ inputs.php_version }}
+        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.31.0
+        with:
+          php-version: ${{ inputs.php_version }}
+          extensions: json, mbstring, curl
+          tools: composer
+          coverage: none
+
+      # 4. Install the API package and its dependencies
+      - name: Install API package
+        working-directory: _mokostandards
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+        env:
+          COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ secrets.GH_TOKEN }}"}}'
+
+      # 5. Execute the requested script, pointing it at the calling repo
+      - name: Run api/${{ inputs.script_path }}.php
+        id: run
+        run: |
+          SCRIPT="_mokostandards/api/${INPUT_SCRIPT_PATH}.php"
+
+          if [ ! -f "$SCRIPT" ]; then
+            echo "❌ Script not found: $SCRIPT" >&2
+            echo "Available scripts under api/:"
+            find _mokostandards/api -name "*.php" \
+              ! -path "*lib*" ! -path "*src*" ! -path "*tests*" | sort
+            exit 1
+          fi
+
+          if [ "$INPUT_CREATE_SUMMARY" = "true" ]; then
+            echo "## 🚀 ${INPUT_SCRIPT_PATH}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          set +e
+          # shellcheck disable=SC2086 - word splitting of INPUT_SCRIPT_ARGS is intentional
+          OUTPUT=$(php "$SCRIPT" --path _repo $INPUT_SCRIPT_ARGS 2>&1)
+          EXIT_CODE=$?
+          set -e
+
+          echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+          echo "$OUTPUT"
+
+          if [ "$INPUT_CREATE_SUMMARY" = "true" ]; then
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "$OUTPUT" | head -n 200 >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            if [ $EXIT_CODE -eq 0 ]; then
+              echo "✅ Completed successfully (exit $EXIT_CODE)" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ Failed (exit $EXIT_CODE)" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+
+          exit $EXIT_CODE
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          INPUT_SCRIPT_PATH: ${{ inputs.script_path }}
+          INPUT_SCRIPT_ARGS: ${{ inputs.script_args }}
+          INPUT_CREATE_SUMMARY: ${{ inputs.create_summary }}

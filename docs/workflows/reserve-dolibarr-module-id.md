@@ -6,7 +6,7 @@
 
 ## Overview
 
-The `reserve-dolibarr-module-id.yml` workflow automates the reservation of Dolibarr module IDs from the Moko Consulting reserved range (185064-185099). It simplifies the module ID reservation process by automatically updating the module registry table and creating a pull request for approval.
+The `reserve-dolibarr-module-id.yml` workflow automates the reservation of Dolibarr module IDs from the Moko Consulting reserved range. Check the **[Module Registry](../development/crm/module-registry.md)** for the current next available ID. It simplifies the module ID reservation process by automatically updating the module registry table and creating a pull request for approval.
 
 ## Quick Links
 
@@ -23,7 +23,7 @@ The `reserve-dolibarr-module-id.yml` workflow automates the reservation of Dolib
 - **Conflict Detection**: Validates that the requested ID is not already in use
 - **Registry Update**: Updates the [module registry](../development/crm/module-registry.md) in MokoStandards
 - **Pull Request Creation**: Automatically creates PR with all changes
-- **Optional Remote Push**: Optionally pushes `DOLIBARR_MODULE_ID.txt` to target repository
+- **Optional Remote Push**: Optionally scans the target repository for module ID references (`$this->numero`, `DOLIBARR_MODULE_ID=`), updates them, and opens a PR in that repository
 
 ### Workflow Location
 
@@ -52,7 +52,7 @@ The `reserve-dolibarr-module-id.yml` workflow automates the reservation of Dolib
        ▼                 │
   ┌──────────────────┐   │
   │ Determine ID     │◀──┘ Manual or Auto-assign
-  │ (185064-185099)  │
+  │ (see registry)   │
   └──────────────────┘
        │
        ▼
@@ -96,11 +96,10 @@ The `reserve-dolibarr-module-id.yml` workflow automates the reservation of Dolib
 
 ### Module ID Range
 
-**Reserved Range**: 185064-185099 (Moko Consulting)  
-**Total Available**: 36 module IDs  
-**Assignment**: Sequential, starting from 185064
+**Reserved Range**: 185051-185099 (Moko Consulting)  
+**Assignment**: Sequential; the workflow scans the [module registry](../development/crm/module-registry.md) for all used IDs and auto-assigns the first free one.
 
-The workflow uses regex pattern `1850(6[4-9]|[7-8][0-9]|9[0-9])` to precisely match IDs in this range.
+Always check the **[Module Registry](../development/crm/module-registry.md#dolibarr-extensions-registry)** to see which IDs are currently available before making a reservation.
 
 ## Usage
 
@@ -118,13 +117,13 @@ Inputs:
 ```
 
 **Result**:
-- Workflow will auto-assign next available ID (e.g., 185064) and create PR
+- Workflow will auto-assign the next available ID (check the [registry](../development/crm/module-registry.md#dolibarr-extensions-registry) to see which ID that will be) and create PR
 - Repository URL automatically constructed as `https://github.com/mokoconsulting-tech/MokoDoliExample`
 - Module ID file NOT pushed to remote (you can create it manually later)
 
 ### With Remote Push
 
-When you want to automatically push the module ID file to the remote repository:
+When you want the workflow to scan the remote repository for existing module ID references, update them, and open a PR:
 
 ```yaml
 Inputs:
@@ -136,7 +135,10 @@ Inputs:
 **Result**:
 - Workflow will validate and reserve ID 185070 (if available)
 - Repository URL automatically constructed as `https://github.com/mokoconsulting-tech/MokoDoliSign`
-- Creates `src/DOLIBARR_MODULE_ID.txt` in the remote repository
+- Scans PHP files for `$this->numero = <number>` and updates them to `$this->numero = 185070`
+- Scans other files for `DOLIBARR_MODULE_ID=<number>` and updates them
+- Creates `src/DOLIBARR_MODULE_ID.txt` with the reserved ID
+- Opens a PR in the remote repository with all changes
 
 ## Workflow Inputs
 
@@ -153,7 +155,7 @@ Inputs:
 | Input | Type | Default | Description |
 |-------|------|---------|-------------|
 | `module_id` | number | (auto-assign) | Specific module ID to assign (185064-185099) |
-| `push_to_remote` | boolean | false | Push DOLIBARR_MODULE_ID.txt to remote repository |
+| `push_to_remote` | boolean | false | Scan remote repository for module ID references, update them, and open a PR with the new ID |
 
 ## What the Workflow Does
 
@@ -217,7 +219,17 @@ Creates a PR with:
 
 ### 6. Optional Remote Push
 
-If `push_to_remote` is enabled, the workflow pushes to the remote repository, creating `src/DOLIBARR_MODULE_ID.txt`:
+If `push_to_remote` is enabled, the workflow:
+
+1. Clones the remote repository using `GH_TOKEN` for authentication
+2. Creates a new branch `reserve-module-id/<ID>` in the remote repo
+3. Creates `src/DOLIBARR_MODULE_ID.txt` with the reserved ID
+4. Scans all PHP files for the `$this->numero = <number>` pattern and updates every match to the new ID
+5. Scans all other files for `DOLIBARR_MODULE_ID=<number>` and updates every match
+6. Commits all changes to the new branch
+7. Opens a PR in the remote repository via the GitHub CLI
+
+The generated `src/DOLIBARR_MODULE_ID.txt` contains:
 
 ```
 DOLIBARR_MODULE_ID=185064
@@ -226,7 +238,7 @@ This module ID has been officially reserved in MokoStandards.
 
 Module Name: MokoDoliExample
 Module ID: 185064
-Reserved Range: 185064-185099 (Moko Consulting)
+Reserved Range: 185051-185099 (Moko Consulting)
 Description: Dolibarr module MokoDoliExample
 
 Reserved: 2026-02-19 16:30:00 UTC
@@ -237,7 +249,7 @@ This ID is registered in the MokoStandards module registry:
 https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/development/crm/module-registry.md
 ```
 
-If `push_to_remote` is disabled (default), you can manually create this file later.
+If `push_to_remote` is disabled (default), you can manually create this file and update the module descriptor later.
 
 ## Workflow Steps
 
@@ -253,7 +265,7 @@ If `push_to_remote` is disabled (default), you can manually create this file lat
 8. **Create branch and commit** - Commits changes to new branch
 9. **Create pull request** - Automated PR creation
 10. **Add labels** - Tags PR with relevant labels
-11. **Push to remote** - (Optional) Creates DOLIBARR_MODULE_ID.txt in remote repo if enabled
+11. **Push to remote** - (Optional) Scans remote repo for module ID patterns, updates them, and opens a PR if enabled
 12. **Output summary** - Displays reservation summary
 
 ## Output
@@ -271,10 +283,11 @@ The workflow generates a summary with:
 **Pull Request:** https://github.com/mokoconsulting-tech/MokoStandards/pull/123
 
 ### Next Steps
-1. Review the pull request
-2. Get approval from CRM Development Lead
-3. Merge the PR to officially reserve the module ID
-4. Verify DOLIBARR_MODULE_ID.txt was created in https://github.com/mokoconsulting-tech/MokoDoliExample
+1. The GitHub Actions workflow has created the pull request above automatically
+2. Review the pull request
+3. Get approval from CRM Development Lead
+4. Merge the PR to officially reserve the module ID
+5. Verify DOLIBARR_MODULE_ID.txt was created in https://github.com/mokoconsulting-tech/MokoDoliExample
 ```
 
 ### Files Modified
@@ -283,8 +296,11 @@ The workflow generates a summary with:
 - `docs/development/crm/module-registry.md` - Registry table updated
 - `override.config.tf` - Workflow protection added
 
-**In Remote Repository**:
-- `src/DOLIBARR_MODULE_ID.txt` - Module ID file created (always)
+**In Remote Repository** (when `push_to_remote` is enabled):
+- `src/DOLIBARR_MODULE_ID.txt` — module ID file created
+- PHP module descriptor(s) — `$this->numero` updated to the reserved ID
+- Any other files containing `DOLIBARR_MODULE_ID=` — updated to the reserved ID
+- A PR is opened in the remote repository on branch `reserve-module-id/<ID>`
 
 ## Error Handling
 
@@ -439,9 +455,9 @@ Once a module is deployed, update its status from "Reserved" to "Active":
 ### Remote Push Failed
 
 **Causes**:
-- Invalid repository URL
-- No push permissions
-- Default branch doesn't exist
+- `GH_TOKEN` secret not set or lacks write access to the remote repository
+- Invalid repository name (remote repo does not exist)
+- Branch `reserve-module-id/<ID>` already exists in the remote repo
 
 **Solution**: 
 - Verify repository URL is correct
@@ -513,7 +529,7 @@ Module ID: 185070 (manual)
 Module Name: MokoDoliMulti
 Repository URL: https://github.com/mokoconsulting-tech/MokoDoliMulti
 PR Created: #124
-Remote File: src/DOLIBARR_MODULE_ID.txt created
+Remote PR: opened in MokoDoliMulti with $this->numero and DOLIBARR_MODULE_ID.txt updated to 185070
 ```
 
 ### Example 3: Conflict Handling
@@ -538,11 +554,12 @@ The workflow requires:
 
 ### Remote Repository Access
 
-The workflow automatically pushes to remote repositories:
+The workflow interacts with remote repositories using `GH_TOKEN`, which is an **organization-level Actions secret** (set under GitHub organization Settings → Secrets and variables → Actions):
+
 - Repository URL is constructed as `https://github.com/mokoconsulting-tech/{repo_name}`
-- Ensure GitHub token has push access to the target repository
-- Remote repository must accept push from github-actions bot
-- Consider using deploy keys for production repositories
+- `GH_TOKEN` must have `repo` (contents write) and `pull-requests: write` on the target repository
+- The workflow creates a branch `reserve-module-id/<ID>` and opens a PR — it never pushes directly to the default branch
+- Because `GH_TOKEN` is an organization secret it is automatically available to all repositories in the `mokoconsulting-tech` organization without any per-repo configuration
 
 ### Protected Files
 
@@ -557,6 +574,15 @@ The workflow file itself is protected via `override.config.tf` to prevent accide
 - [Workflow Architecture](./workflow-architecture.md) - Overall workflow design patterns
 
 ## Changelog
+
+### Version 04.00.03 (2026-03-04)
+
+**Changed**:
+- `push_to_remote` now scans remote repository PHP files for `$this->numero = <number>` and updates them to the reserved ID
+- `push_to_remote` now scans other files for `DOLIBARR_MODULE_ID=<number>` and updates them
+- `push_to_remote` now creates a branch `reserve-module-id/<ID>` and opens a PR in the remote repository instead of pushing directly to the default branch
+- Remote push uses `GH_TOKEN` for authenticated clone and PR creation
+- Output summary now shows the remote PR URL when `push_to_remote` is enabled
 
 ### Version 04.00.03 (2026-02-21)
 

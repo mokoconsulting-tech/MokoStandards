@@ -1,0 +1,20 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# FILE INFORMATION
+# DEFGROUP: MokoStandards.Templates.Config
+# INGROUP: MokoStandards.Templates
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /templates/configs/moko-standards.yml.template
+# VERSION: 04.00.03
+# BRIEF: Governance attachment template — synced to .moko-standards in every governed repository
+# NOTE: Tokens replaced at sync time: {{org}}, {{repo_name}}, {{platform}}, {{standards_version}}
+#
+# This file is managed automatically by MokoStandards bulk sync.
+# Do not edit manually — changes will be overwritten on the next sync.
+# To update governance settings, open a PR in MokoStandards instead:
+# https://github.com/mokoconsulting-tech/MokoStandards
+
+standards_source: "https://github.com/mokoconsulting-tech/MokoStandards"
+standards_version: "{{standards_version}}"
+platform: "{{platform}}"
+governed_repo: "{{org}}/{{repo_name}}"

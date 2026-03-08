@@ -132,6 +132,15 @@ EOT
         description       = "Git attributes configuration"
         required          = true
         audience          = "developer"
+      },
+      {
+        name              = ".moko-standards"
+        extension         = "yml"
+        description       = "MokoStandards governance attachment — links this repo back to the standards source"
+        required          = true
+        always_overwrite  = true
+        audience          = "developer"
+        template          = "templates/configs/moko-standards.yml.template"
       }
     ]
 

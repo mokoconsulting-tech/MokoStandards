@@ -204,7 +204,7 @@ class RepositorySynchronizer
         }
 
         // Create PR with file updates driven by the definition
-        $result   = $this->createSyncPR($org, $repo, $filesToSync, $repoRoot, $force);
+        $result   = $this->createSyncPR($org, $repo, $platform, $filesToSync, $repoRoot, $force);
         $prNumber = $result['number'] ?? null;
         $summary  = $result['summary'] ?? [];
 
@@ -409,12 +409,13 @@ HCL;
      *
      * @param string $org
      * @param string $repo
+     * @param string $platform  Detected platform slug (e.g. 'crm-module')
      * @param array<int, array{source: string, destination: string, always_overwrite: bool}> $filesToSync
      * @param string $repoRoot  Absolute path to the MokoStandards repository root
      * @param bool   $force     When true, overwrite files even when always_overwrite = false
      * @return array{number: ?int, summary: array}
      */
-    private function createSyncPR(string $org, string $repo, array $filesToSync, string $repoRoot, bool $force): array
+    private function createSyncPR(string $org, string $repo, string $platform, array $filesToSync, string $repoRoot, bool $force): array
     {
         $nullResult = ['number' => null, 'summary' => []];
 
@@ -466,7 +467,7 @@ HCL;
                     continue;
                 }
 
-                $content = $this->processTemplateContent($content, $repo);
+                $content = $this->processTemplateContent($content, $repo, $org, $platform);
 
                 try {
                     $existingFile = $this->apiClient->get("/repos/{$org}/{$repo}/contents/{$targetPath}", [
@@ -533,15 +534,19 @@ HCL;
     /**
      * Process template content (remove placeholders, etc.)
      */
-    private function processTemplateContent(string $content, string $repo): string
+    private function processTemplateContent(string $content, string $repo, string $org = '', string $platform = ''): string
     {
         // Remove .template references if any
         $content = str_replace('.yml.template', '.yml', $content);
-        
-        // Could add more template processing here
-        // For example, replacing {{repo_name}} with actual repo name
-        $content = str_replace('{{repo_name}}', $repo, $content);
-        
+
+        // Replace all repository-specific placeholders in a single pass
+        $content = strtr($content, [
+            '{{repo_name}}'        => $repo,
+            '{{org}}'              => $org,
+            '{{platform}}'         => $platform,
+            '{{standards_version}}' => Config::VERSION,
+        ]);
+
         return $content;
     }
     

@@ -37,11 +37,66 @@ allowed_domains:
   # PHP and Joomla specific
   - "joomla.org"          # Joomla CMS
   - "docs.joomla.org"     # Joomla documentation
+  - "downloads.joomla.org" # Joomla core downloads
   - "php.net"             # PHP documentation
+  - "getcomposer.org"     # Composer dependency manager
+  - "packagist.org"       # Composer package registry (also listed under packages)
 
   # Dolibarr specific
   - "dolibarr.org"        # Dolibarr ERP/CRM
   - "wiki.dolibarr.org"   # Dolibarr wiki
+  - "docs.dolibarr.org"   # Dolibarr developer documentation
+
+  # Moko Consulting
+  - "mokoconsulting.tech"     # Moko Consulting main site
+  - "*.mokoconsulting.tech"   # All Moko Consulting subdomains (API, docs, CDN, etc.)
+
+  # Google services
+  - "drive.google.com"             # Google Drive (file sharing and assets)
+  - "docs.google.com"              # Google Docs
+  - "sheets.google.com"            # Google Sheets
+  - "accounts.google.com"          # Google authentication
+  - "storage.googleapis.com"       # Google Cloud Storage
+  - "*.googleapis.com"             # Google APIs (Maps, Fonts, etc.)
+  - "*.googleusercontent.com"      # Google user-uploaded content and CDN
+  - "fonts.googleapis.com"         # Google Fonts CSS
+  - "fonts.gstatic.com"            # Google Fonts static assets
+
+  # GitHub extended
+  - "api.github.com"               # GitHub REST API
+  - "upload.github.com"            # GitHub file uploads
+  - "objects.githubusercontent.com" # GitHub release assets and LFS
+  - "user-images.githubusercontent.com" # GitHub issue/PR image attachments
+  - "codeload.github.com"          # GitHub archive downloads
+  - "ghcr.io"                      # GitHub Container Registry
+  - "pkg.github.com"               # GitHub Packages
+
+  # Developer reference
+  - "developer.mozilla.org"        # MDN Web Docs
+  - "stackoverflow.com"            # Stack Overflow
+  - "git-scm.com"                  # Git documentation
+
+  # CDN and infrastructure
+  - "cdn.jsdelivr.net"             # jsDelivr CDN
+  - "unpkg.com"                    # unpkg CDN
+  - "cdnjs.cloudflare.com"         # Cloudflare CDN
+  - "img.shields.io"               # Shields.io badge images
+  - "shields.io"                   # Shields.io badge service
+
+  # Container registries
+  - "hub.docker.com"               # Docker Hub
+  - "registry-1.docker.io"         # Docker registry pulls
+  - "index.docker.io"              # Docker index
+
+  # CI / code quality
+  - "codecov.io"                   # Code coverage reporting
+  - "coveralls.io"                 # Coveralls coverage service
+  - "sonarcloud.io"                # SonarCloud static analysis
+
+  # Terraform / infrastructure
+  - "registry.terraform.io"        # Terraform provider registry
+  - "releases.hashicorp.com"       # HashiCorp release downloads
+  - "checkpoint-api.hashicorp.com" # HashiCorp update checks
 
 # Settings for code generation and suggestions
 copilot:

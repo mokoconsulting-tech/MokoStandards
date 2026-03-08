@@ -1,25 +1,35 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<repository-structure xmlns="http://mokoconsulting.com/schemas/repository-structure"
-                      version="1.0"
-                      schema-version="1.0">
-  <metadata>
-    <name>MokoCRM Module</name>
-    <description>Standard repository structure for MokoCRM (Dolibarr) modules</description>
-    <repository-type>crm-module</repository-type>
-    <platform>mokokrm</platform>
-    <last-updated>2026-01-07T00:00:00Z</last-updated>
-    <maintainer>Moko Consulting</maintainer>
-  </metadata>
+/**
+ * MokoCRM Module Structure Definition
+ * Standard repository structure for MokoCRM (Dolibarr) modules
+ * 
+ * Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Version: 1.0
+ * Schema Version: 1.0
+ */
 
-  <structure>
-    <!-- Root level files -->
-    <root-files>
-      <file extension="md">
-        <name>README.md</name>
-        <description>Developer-focused documentation for contributors and maintainers</description>
-        <required>true</required>
-        <audience>developer</audience>
-        <stub-content><![CDATA[# {MODULE_NAME}
+locals {
+  repository_structure = {
+    metadata = {
+      name             = "MokoCRM Module"
+      description      = "Standard repository structure for MokoCRM (Dolibarr) modules"
+      repository_type  = "crm-module"
+      platform         = "dolibarr"
+      last_updated     = "2026-01-07T00:00:00Z"
+      maintainer       = "Moko Consulting"
+      version          = "1.0"
+      schema_version   = "1.0"
+    }
+
+    root_files = [
+      {
+        name              = "README.md"
+        extension         = "md"
+        description       = "Developer-focused documentation for contributors and maintainers"
+        required          = true
+        audience          = "developer"
+        stub_content      = <<-EOT
+# {MODULE_NAME}
 
 ## For Developers
 
@@ -55,98 +65,92 @@ End user documentation is available in `src/README.md` after installation.
 ## License
 
 See LICENSE file for details.
-]]></stub-content>
-      </file>
+EOT
+      },
+      {
+        name              = "CONTRIBUTING.md"
+        extension         = "md"
+        description       = "Contribution guidelines"
+        required          = true
+        audience          = "contributor"
+      },
+      {
+        name              = "ROADMAP.md"
+        extension         = "md"
+        description       = "Project roadmap with version goals and milestones"
+        required          = false
+        audience          = "general"
+      },
+      {
+        name              = "LICENSE"
+        extension         = ""
+        description       = "License file (GPL-3.0-or-later) - Default for Dolibarr/CRM modules"
+        required          = true
+        audience          = "general"
+        template          = "templates/licenses/GPL-3.0"
+        license_type      = "GPL-3.0-or-later"
+      },
+      {
+        name              = "CHANGELOG.md"
+        extension         = "md"
+        description       = "Version history and changes"
+        required          = true
+        audience          = "general"
+      },
+      {
+        name                = "Makefile"
+        description         = "Build automation using MokoStandards templates"
+        required            = true
+        always_overwrite    = true
+        audience            = "developer"
+        source_path         = "templates/makefiles"
+        source_filename     = "Makefile.dolibarr.template"
+        source_type         = "template"
+        destination_path    = "."
+        destination_filename = "Makefile"
+        create_path         = false
+        template            = "templates/makefiles/Makefile.dolibarr.template"
+      },
+      {
+        name              = ".editorconfig"
+        extension         = "editorconfig"
+        description       = "Editor configuration for consistent coding style"
+        required          = true
+        audience          = "developer"
+      },
+      {
+        name              = ".gitignore"
+        extension         = "gitignore"
+        description       = "Git ignore patterns - preserved during sync operations"
+        required          = true
+        always_overwrite  = false
+        audience          = "developer"
+      },
+      {
+        name              = ".gitattributes"
+        extension         = "gitattributes"
+        description       = "Git attributes configuration"
+        required          = true
+        audience          = "developer"
+      }
+    ]
 
-      <file extension="md">
-        <name>CONTRIBUTING.md</name>
-        <description>Contribution guidelines</description>
-        <required>true</required>
-        <audience>contributor</audience>
-      </file>
-
-      <file extension="md">
-        <name>ROADMAP.md</name>
-        <description>Project roadmap with version goals and milestones</description>
-        <required>false</required>
-        <audience>general</audience>
-      </file>
-
-      <file extension="">
-        <name>LICENSE</name>
-        <description>License file (GPL-3.0-or-later) - Default for Dolibarr/CRM modules</description>
-        <required>true</required>
-        <audience>general</audience>
-        <template>templates/licenses/GPL-3.0</template>
-        <license-type>GPL-3.0-or-later</license-type>
-      </file>
-
-      <file extension="md">
-        <name>CHANGELOG.md</name>
-        <description>Version history and changes</description>
-        <required>true</required>
-        <audience>general</audience>
-      </file>
-
-      <file>
-        <name>Makefile</name>
-        <description>Build automation using MokoStandards templates</description>
-        <required>true</required>
-        <always-overwrite>true</always-overwrite>
-        <audience>developer</audience>
-        <source>
-          <path>templates/makefiles</path>
-          <filename>Makefile.dolibarr.template</filename>
-          <type>template</type>
-        </source>
-        <destination>
-          <path>.</path>
-          <filename>Makefile</filename>
-          <create-path>false</create-path>
-        </destination>
-        <template>templates/makefiles/Makefile.dolibarr.template</template>
-      </file>
-
-      <file extension="editorconfig">
-        <name>.editorconfig</name>
-        <description>Editor configuration for consistent coding style</description>
-        <required>true</required>
-        <audience>developer</audience>
-      </file>
-
-      <file extension="gitignore">
-        <name>.gitignore</name>
-        <description>Git ignore patterns for Dolibarr module development - preserved during sync operations</description>
-        <required>true</required>
-        <always-overwrite>false</always-overwrite>
-        <audience>developer</audience>
-        <template>templates/configs/gitignore</template>
-      </file>
-
-      <file extension="gitattributes">
-        <name>.gitattributes</name>
-        <description>Git attributes configuration</description>
-        <required>true</required>
-        <audience>developer</audience>
-      </file>
-    </root-files>
-
-    <!-- Directory structure -->
-    <directories>
-      <!-- Source directory -->
-      <directory path="src">
-        <name>src</name>
-        <description>Module source code for deployment</description>
-        <required>true</required>
-        <purpose>Contains the actual module code that gets deployed to Dolibarr</purpose>
-
-        <files>
-          <file extension="md">
-            <name>README.md</name>
-            <description>End-user documentation deployed with the module</description>
-            <required>true</required>
-            <audience>end-user</audience>
-            <stub-content><![CDATA[# {MODULE_NAME}
+    directories = [
+      {
+        name                = "src"
+        path                = "src"
+        description         = "Module source code for deployment"
+        required            = true
+        purpose             = "Contains the actual module code that gets deployed to Dolibarr"
+        files = [
+          {
+            name              = "README.md"
+            extension         = "md"
+            description       = "End-user documentation deployed with the module"
+            required          = true
+            audience          = "end-user"
+            stub_content      = <<-EOT
+# {MODULE_NAME}
 
 ## For End Users
 
@@ -178,186 +182,236 @@ For support, contact: {SUPPORT_EMAIL}
 Current version: {VERSION}
 
 See CHANGELOG.md for version history.
-]]></stub-content>
-          </file>
-
-          <file extension="php">
-            <name>core/modules/mod{ModuleName}.class.php</name>
-            <description>Main module descriptor file</description>
-            <required>true</required>
-            <audience>developer</audience>
-          </file>
-        </files>
-
-        <subdirectories>
-          <directory path="src/core">
-            <name>core</name>
-            <description>Core module files</description>
-            <required>true</required>
-          </directory>
-
-          <directory path="src/langs">
-            <name>langs</name>
-            <description>Language translation files</description>
-            <required>true</required>
-          </directory>
-
-          <directory path="src/sql">
-            <name>sql</name>
-            <description>Database schema files</description>
-            <requirement-status>suggested</requirement-status>
-          </directory>
-
-          <directory path="src/css">
-            <name>css</name>
-            <description>Stylesheets</description>
-            <requirement-status>suggested</requirement-status>
-          </directory>
-
-          <directory path="src/js">
-            <name>js</name>
-            <description>JavaScript files</description>
-            <requirement-status>suggested</requirement-status>
-          </directory>
-
-          <directory path="src/class">
-            <name>class</name>
-            <description>PHP class files</description>
-            <requirement-status>suggested</requirement-status>
-          </directory>
-
-          <directory path="src/lib">
-            <name>lib</name>
-            <description>Library files</description>
-            <requirement-status>suggested</requirement-status>
-          </directory>
-        </subdirectories>
-      </directory>
-
-      <!-- Documentation directory -->
-      <directory path="docs">
-        <name>docs</name>
-        <description>Developer and technical documentation</description>
-        <required>true</required>
-        <purpose>Contains technical documentation, API docs, architecture diagrams</purpose>
-
-        <files>
-          <file extension="md">
-            <name>index.md</name>
-            <description>Documentation index</description>
-            <required>true</required>
-          </file>
-        </files>
-      </directory>
-
-      <!-- Scripts directory -->
-      <directory path="scripts">
-        <name>scripts</name>
-        <description>Build and maintenance scripts</description>
-        <required>true</required>
-        <purpose>Contains scripts for building, testing, and deploying</purpose>
-
-        <files>
-          <file extension="md">
-            <name>index.md</name>
-            <description>Scripts documentation</description>
-            <requirement-status>required</requirement-status>
-          </file>
-          
-          <file extension="sh">
-            <name>build_package.sh</name>
-            <description>Package building script for Dolibarr module</description>
-            <requirement-status>suggested</requirement-status>
-            <template>templates/scripts/release/package_dolibarr.sh</template>
-          </file>
-          
-          <file extension="sh">
-            <name>validate_module.sh</name>
-            <description>Module validation script</description>
-            <requirement-status>suggested</requirement-status>
-            <template>templates/scripts/validate/dolibarr_module.sh</template>
-          </file>
-          
-          <file extension="xml">
-            <name>MokoStandards.override.xml</name>
-            <description>MokoStandards sync override configuration</description>
-            <requirement-status>optional</requirement-status>
-            <always-overwrite>false</always-overwrite>
-          </file>
-        </files>
-      </directory>
-
-      <!-- Tests directory -->
-      <directory path="tests">
-        <name>tests</name>
-        <description>Test files</description>
-        <required>true</required>
-        <purpose>Contains unit tests, integration tests, and test fixtures</purpose>
-
-        <subdirectories>
-          <directory path="tests/unit">
-            <name>unit</name>
-            <description>Unit tests</description>
-            <required>true</required>
-          </directory>
-
-          <directory path="tests/integration">
-            <name>integration</name>
-            <description>Integration tests</description>
-            <requirement-status>suggested</requirement-status>
-          </directory>
-        </subdirectories>
-      </directory>
-
-      <!-- Templates directory -->
-      <directory path="templates">
-        <name>templates</name>
-        <description>Template files for code generation</description>
-        <requirement-status>suggested</requirement-status>
-        <purpose>Contains templates used by build scripts</purpose>
-      </directory>
-
-      <!-- .github directory -->
-      <directory path=".github">
-        <name>.github</name>
-        <description>GitHub-specific configuration</description>
-        <requirement-status>suggested</requirement-status>
-        <purpose>Contains GitHub Actions workflows, issue templates, etc.</purpose>
-
-        <subdirectories>
-          <directory path=".github/workflows">
-            <name>workflows</name>
-            <description>GitHub Actions workflows</description>
-            <requirement-status>required</requirement-status>
-            
-            <files>
-              <file extension="yml">
-                <name>ci-dolibarr.yml</name>
-                <description>Dolibarr-specific CI workflow</description>
-                <requirement-status>required</requirement-status>
-                <always-overwrite>true</always-overwrite>
-                <template>templates/workflows/dolibarr/ci-dolibarr.yml.template</template>
-              </file>
-              
-              <file extension="yml">
-                <name>codeql-analysis.yml</name>
-                <description>CodeQL security analysis workflow</description>
-                <requirement-status>required</requirement-status>
-                <always-overwrite>true</always-overwrite>
-                <template>templates/workflows/generic/codeql-analysis.yml.template</template>
-              </file>
-              
-              <file extension="yml">
-                <name>standards-compliance.yml</name>
-                <description>MokoStandards compliance validation</description>
-                <requirement-status>required</requirement-status>
-                <always-overwrite>true</always-overwrite>
-                <template>.github/workflows/standards-compliance.yml</template>
-              </file>
-            </files>
-          </directory>
-        </subdirectories>
-      </directory>
-    </directories>
-  </structure>
-</repository-structure>
+EOT
+          },
+          {
+            name              = "core/modules/mod{ModuleName}.class.php"
+            extension         = "php"
+            description       = "Main module descriptor file"
+            required          = true
+            audience          = "developer"
+          }
+        ]
+        subdirectories = [
+          {
+            name                = "core"
+            path                = "src/core"
+            description         = "Core module files"
+            required            = true
+          },
+          {
+            name                = "langs"
+            path                = "src/langs"
+            description         = "Language translation files"
+            required            = true
+          },
+          {
+            name                = "sql"
+            path                = "src/sql"
+            description         = "Database schema files"
+            requirement_status  = "suggested"
+          },
+          {
+            name                = "css"
+            path                = "src/css"
+            description         = "Stylesheets"
+            requirement_status  = "suggested"
+          },
+          {
+            name                = "js"
+            path                = "src/js"
+            description         = "JavaScript files"
+            requirement_status  = "suggested"
+          },
+          {
+            name                = "class"
+            path                = "src/class"
+            description         = "PHP class files"
+            requirement_status  = "suggested"
+          },
+          {
+            name                = "lib"
+            path                = "src/lib"
+            description         = "Library files"
+            requirement_status  = "suggested"
+          }
+        ]
+      },
+      {
+        name                = "docs"
+        path                = "docs"
+        description         = "Developer and technical documentation"
+        required            = true
+        purpose             = "Contains technical documentation, API docs, architecture diagrams"
+        files = [
+          {
+            name              = "index.md"
+            extension         = "md"
+            description       = "Documentation index"
+            required          = true
+          }
+        ]
+      },
+      {
+        name                = "scripts"
+        path                = "scripts"
+        description         = "Build and maintenance scripts"
+        required            = true
+        purpose             = "Contains scripts for building, testing, and deploying"
+        files = [
+          {
+            name                = "index.md"
+            extension           = "md"
+            description         = "Scripts documentation"
+            requirement_status  = "required"
+          },
+          {
+            name                = "build_package.sh"
+            extension           = "sh"
+            description         = "Package building script for Dolibarr module"
+            requirement_status  = "suggested"
+            template            = "templates/scripts/release/package_dolibarr.sh"
+          },
+          {
+            name                = "validate_module.sh"
+            extension           = "sh"
+            description         = "Module validation script"
+            requirement_status  = "suggested"
+            template            = "templates/scripts/validate/dolibarr_module.sh"
+          },
+          {
+            name                = "MokoStandards.override.xml"
+            extension           = "xml"
+            description         = "MokoStandards sync override configuration"
+            requirement_status  = "optional"
+            always_overwrite    = false
+          }
+        ]
+      },
+      {
+        name                = "tests"
+        path                = "tests"
+        description         = "Test files"
+        required            = true
+        purpose             = "Contains unit tests, integration tests, and test fixtures"
+        subdirectories = [
+          {
+            name                = "unit"
+            path                = "tests/unit"
+            description         = "Unit tests"
+            required            = true
+          },
+          {
+            name                = "integration"
+            path                = "tests/integration"
+            description         = "Integration tests"
+            requirement_status  = "suggested"
+          }
+        ]
+      },
+      {
+        name                = "templates"
+        path                = "templates"
+        description         = "Template files for code generation"
+        requirement_status  = "suggested"
+        purpose             = "Contains templates used by build scripts"
+      },
+      {
+        name                = ".github"
+        path                = ".github"
+        description         = "GitHub-specific configuration"
+        requirement_status  = "suggested"
+        purpose             = "Contains GitHub Actions workflows, issue templates, etc."
+        files = [
+          {
+            name                = "copilot.yml"
+            extension           = "yml"
+            description         = "GitHub Copilot allowed domains configuration"
+            requirement_status  = "required"
+            always_overwrite    = true
+            template            = ".github/copilot.yml"
+          },
+          {
+            name                = "copilot-instructions.md"
+            extension           = "md"
+            description         = "GitHub Copilot custom instructions enforcing MokoStandards"
+            requirement_status  = "required"
+            always_overwrite    = true
+            destination_path    = ".github"
+            destination_filename = "copilot-instructions.md"
+            template            = "templates/github/copilot-instructions.md.template"
+          },
+          {
+            name                = "CLAUDE.md"
+            extension           = "md"
+            description         = "Claude AI assistant context enforcing MokoStandards"
+            requirement_status  = "required"
+            always_overwrite    = true
+            destination_path    = ".github"
+            destination_filename = "CLAUDE.md"
+            template            = "templates/github/CLAUDE.md.template"
+          }
+        ]
+        subdirectories = [
+          {
+            name                = "workflows"
+            path                = ".github/workflows"
+            description         = "GitHub Actions workflows"
+            requirement_status  = "required"
+            files = [
+              {
+                name                = "ci-dolibarr.yml"
+                extension           = "yml"
+                description         = "Dolibarr-specific CI workflow"
+                requirement_status  = "required"
+                always_overwrite    = true
+                template            = "templates/workflows/dolibarr/ci-dolibarr.yml.template"
+              },
+              {
+                name                = "codeql-analysis.yml"
+                extension           = "yml"
+                description         = "CodeQL security analysis workflow"
+                requirement_status  = "required"
+                always_overwrite    = true
+                template            = "templates/workflows/generic/codeql-analysis.yml.template"
+              },
+              {
+                name                = "standards-compliance.yml"
+                extension           = "yml"
+                description         = "MokoStandards compliance validation"
+                requirement_status  = "required"
+                always_overwrite    = true
+                template            = ".github/workflows/standards-compliance.yml"
+              },
+              {
+                name                = "enterprise-firewall-setup.yml"
+                extension           = "yml"
+                description         = "Enterprise firewall configuration for trusted domain access"
+                requirement_status  = "required"
+                always_overwrite    = true
+                template            = "templates/workflows/shared/enterprise-firewall-setup.yml.template"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        name                = "img"
+        path                = "img"
+        description         = "Module image assets including Dolibarr picto"
+        requirement_status  = "required"
+        purpose             = "Contains the module picto displayed in the Dolibarr UI"
+        files = [
+          {
+            name                = "object_mokoconsulting.png"
+            extension           = "png"
+            description         = "Moko Consulting picto shown in Dolibarr module list"
+            requirement_status  = "required"
+            always_overwrite    = true
+            template            = "templates/build/dolibarr/img/object_mokoconsulting.png"
+          }
+        ]
+      }
+    ]
+  }
+}

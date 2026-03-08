@@ -345,6 +345,36 @@ locals {
         description         = "GitHub-specific configuration"
         requirement_status  = "suggested"
         purpose             = "Contains GitHub Actions workflows, issue templates, etc."
+        files = [
+          {
+            name                = "copilot.yml"
+            extension           = "yml"
+            description         = "GitHub Copilot allowed domains configuration"
+            requirement_status  = "required"
+            always_overwrite    = true
+            template            = ".github/copilot.yml"
+          },
+          {
+            name                = "copilot-instructions.md"
+            extension           = "md"
+            description         = "GitHub Copilot custom instructions enforcing MokoStandards"
+            requirement_status  = "required"
+            always_overwrite    = true
+            destination_path    = ".github"
+            destination_filename = "copilot-instructions.md"
+            template            = "templates/github/copilot-instructions.md.template"
+          },
+          {
+            name                = "CLAUDE.md"
+            extension           = "md"
+            description         = "Claude AI assistant context enforcing MokoStandards"
+            requirement_status  = "required"
+            always_overwrite    = true
+            destination_path    = ".github"
+            destination_filename = "CLAUDE.md"
+            template            = "templates/github/CLAUDE.md.template"
+          }
+        ]
         subdirectories = [
           {
             name                = "workflows"
@@ -375,6 +405,14 @@ locals {
                 requirement_status  = "required"
                 always_overwrite    = true
                 template            = ".github/workflows/standards-compliance.yml"
+              },
+              {
+                name                = "enterprise-firewall-setup.yml"
+                extension           = "yml"
+                description         = "Enterprise firewall configuration for trusted domain access"
+                requirement_status  = "required"
+                always_overwrite    = true
+                template            = "templates/workflows/shared/enterprise-firewall-setup.yml.template"
               }
             ]
           }

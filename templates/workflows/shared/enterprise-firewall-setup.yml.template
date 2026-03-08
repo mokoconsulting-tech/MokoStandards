@@ -134,8 +134,56 @@ jobs:
 
           # Platform-Specific
           joomla.org
+          downloads.joomla.org
+          docs.joomla.org
           php.net
+          getcomposer.org
           dolibarr.org
+          wiki.dolibarr.org
+          docs.dolibarr.org
+
+          # Moko Consulting
+          mokoconsulting.tech
+
+          # Google Services
+          drive.google.com
+          docs.google.com
+          sheets.google.com
+          accounts.google.com
+          storage.googleapis.com
+          fonts.googleapis.com
+          fonts.gstatic.com
+
+          # GitHub Extended
+          upload.github.com
+          objects.githubusercontent.com
+          user-images.githubusercontent.com
+          codeload.github.com
+          pkg.github.com
+
+          # Developer Reference
+          developer.mozilla.org
+          stackoverflow.com
+          git-scm.com
+
+          # CDN & Infrastructure
+          cdn.jsdelivr.net
+          unpkg.com
+          cdnjs.cloudflare.com
+          img.shields.io
+
+          # Container Registries
+          hub.docker.com
+          registry-1.docker.io
+
+          # CI & Code Quality
+          codecov.io
+          sonarcloud.io
+
+          # Terraform & Infrastructure
+          registry.terraform.io
+          releases.hashicorp.com
+          checkpoint-api.hashicorp.com
           EOF
 
           echo "✓ Trusted domains documented for this runner"
@@ -212,13 +260,53 @@ jobs:
                   "downloads.joomla.org",
                   "docs.joomla.org",
                   "php.net",
+                  "getcomposer.org",
                   "dolibarr.org",
                   "wiki.dolibarr.org",
+                  "docs.dolibarr.org",
+              ],
+              "moko_consulting": [
+                  "mokoconsulting.tech",
+              ],
+              "google_services": [
+                  "drive.google.com",
+                  "docs.google.com",
+                  "sheets.google.com",
+                  "accounts.google.com",
+                  "storage.googleapis.com",
+                  "fonts.googleapis.com",
+                  "fonts.gstatic.com",
+              ],
+              "github_extended": [
+                  "upload.github.com",
+                  "objects.githubusercontent.com",
+                  "user-images.githubusercontent.com",
+                  "codeload.github.com",
+                  "pkg.github.com",
+              ],
+              "developer_reference": [
+                  "developer.mozilla.org",
+                  "stackoverflow.com",
+                  "git-scm.com",
               ],
               "cdn_and_infrastructure": [
                   "cdn.jsdelivr.net",
                   "unpkg.com",
                   "cdnjs.cloudflare.com",
+                  "img.shields.io",
+              ],
+              "container_registries": [
+                  "hub.docker.com",
+                  "registry-1.docker.io",
+              ],
+              "ci_code_quality": [
+                  "codecov.io",
+                  "sonarcloud.io",
+              ],
+              "terraform_infrastructure": [
+                  "registry.terraform.io",
+                  "releases.hashicorp.com",
+                  "checkpoint-api.hashicorp.com",
               ],
           }
 

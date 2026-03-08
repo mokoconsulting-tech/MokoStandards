@@ -31,13 +31,14 @@ use RuntimeException;
 class RepositorySynchronizer
 {
     private const SYNC_DEFINITION_DIR = 'api/definitions/sync';
-    private const SYNC_OVERRIDE_FILE = '.github/override.tf';
-    
-    private ApiClient $apiClient;
-    private AuditLogger $logger;
-    private MetricsCollector $metrics;
+    private const SYNC_OVERRIDE_FILE  = '.github/override.tf';
+
+    private ApiClient         $apiClient;
+    private AuditLogger       $logger;
+    private MetricsCollector  $metrics;
     private CheckpointManager $checkpoints;
-    
+    private DefinitionParser  $definitionParser;
+
     /**
      * Constructor
      */
@@ -45,12 +46,14 @@ class RepositorySynchronizer
         ApiClient $apiClient,
         AuditLogger $logger,
         MetricsCollector $metrics,
-        ?CheckpointManager $checkpoints = null
+        ?CheckpointManager $checkpoints = null,
+        ?DefinitionParser $definitionParser = null
     ) {
-        $this->apiClient = $apiClient;
-        $this->logger = $logger;
-        $this->metrics = $metrics;
-        $this->checkpoints = $checkpoints ?? new CheckpointManager('.checkpoints');
+        $this->apiClient        = $apiClient;
+        $this->logger           = $logger;
+        $this->metrics          = $metrics;
+        $this->checkpoints      = $checkpoints      ?? new CheckpointManager('.checkpoints');
+        $this->definitionParser = $definitionParser ?? new DefinitionParser();
     }
     
     /**
@@ -175,99 +178,46 @@ class RepositorySynchronizer
     private function synchronizeRepository(string $org, string $repo, bool $force): bool
     {
         $this->logger->logInfo("Starting synchronization for {$org}/{$repo}");
-        
-        // Generate repository definition first
-        $this->generateRepositoryDefinition($org, $repo);
-        
-        // Define all files to sync
-        $filesToSync = [
-            // Workflows - Core compliance and quality
-            'workflows' => [
-                'standards-compliance.yml.template' => '.github/workflows/standards-compliance.yml',
-                'code-quality.yml.template' => '.github/workflows/code-quality.yml',
-                'branch-cleanup.yml.template' => '.github/workflows/branch-cleanup.yml',
-                
-                // Build and release workflows
-                'build.yml.template' => '.github/workflows/build.yml',
-                'release-cycle.yml.template' => '.github/workflows/release-cycle.yml',
-                'reusable-build.yml.template' => '.github/workflows/reusable-build.yml',
-                'reusable-release.yml.template' => '.github/workflows/reusable-release.yml',
 
-                // Shared infrastructure workflows
-                'shared/enterprise-firewall-setup.yml.template' => '.github/workflows/enterprise-firewall-setup.yml',
-            ],
-            
-            // GitHub configuration files
-            'github' => [
-                'copilot.yml' => '.github/copilot.yml',
-                'PULL_REQUEST_TEMPLATE.md' => '.github/PULL_REQUEST_TEMPLATE.md',
-                'dependabot.yml' => '.github/dependabot.yml',
-                // Note: override.tf is NO LONGER synced to remote repos
-                // Repository definitions are now stored centrally in api/definitions/sync/
-            ],
+        // Resolve repo root (two levels up from this file: Enterprise/ → lib/ → api/ → root)
+        $repoRoot = dirname(dirname(dirname(__DIR__)));
 
-            // AI assistant configuration templates — enforce MokoStandards in remote repos
-            'ai_templates' => [
-                'copilot-instructions.md.template' => '.github/copilot-instructions.md',
-                'CLAUDE.md.template' => '.github/CLAUDE.md',
-            ],
-            
-            // Issue templates
-            'issue_templates' => [
-                'bug_report.md' => '.github/ISSUE_TEMPLATE/bug_report.md',
-                'feature_request.md' => '.github/ISSUE_TEMPLATE/feature_request.md',
-                'documentation.md' => '.github/ISSUE_TEMPLATE/documentation.md',
-                'question.md' => '.github/ISSUE_TEMPLATE/question.md',
-                'config.yml' => '.github/ISSUE_TEMPLATE/config.yml',
-            ],
-            
-            // Release scripts
-            'scripts' => [
-                'package.sh' => 'scripts/release/package.sh',
-                'package_dolibarr.sh' => 'scripts/release/package_dolibarr.sh',
-                'package_joomla.sh' => 'scripts/release/package_joomla.sh',
-            ],
-            
-            // Project definition files (Terraform HCL format)
-            'projects' => [
-                'nodejs-project-definition.tf' => '.github/project-definition.tf',
-                'python-project-definition.tf' => '.github/project-definition.tf',
-                'terraform-project-definition.tf' => '.github/project-definition.tf',
-                'wordpress-project-definition.tf' => '.github/project-definition.tf',
-                'mobile-app-project-definition.tf' => '.github/project-definition.tf',
-                'api-project-definition.tf' => '.github/project-definition.tf',
-                'joomla-project-definition.tf' => '.github/project-definition.tf',
-                'dolibarr-project-definition.tf' => '.github/project-definition.tf',
-                'generic-project-definition.tf' => '.github/project-definition.tf',
-                'documentation-project-definition.tf' => '.github/project-definition.tf',
-            ],
-        ];
+        // Detect platform from GitHub repo metadata
+        $repoInfo = $this->apiClient->get("/repos/{$org}/{$repo}");
+        $platform = $this->detectPlatform($repoInfo);
+        $this->logger->logInfo("Detected platform for {$repo}: {$platform}");
 
-        // Add platform-specific files
-        $platform = $this->detectPlatform(
-            $this->apiClient->get("/repos/{$org}/{$repo}")
-        );
-        if ($platform === 'crm-module') {
-            $filesToSync['dolibarr_assets'] = [
-                'object_mokoconsulting.png' => 'img/object_mokoconsulting.png',
-            ];
+        // Load file list from the Terraform definition for this platform
+        $filesToSync = $this->definitionParser->parseForPlatform($platform, $repoRoot);
+        $this->logger->logInfo("Loaded " . count($filesToSync) . " sync entries from definition for {$platform}");
+
+        if (empty($filesToSync)) {
+            $this->logger->logWarning("No syncable entries found in definition for platform '{$platform}', skipping {$repo}");
+            return false;
         }
-        
+
         // Check if there's already a PR open for this repo
         $existingPR = $this->checkForExistingPR($org, $repo);
         if ($existingPR) {
             $this->logger->logInfo("PR #{$existingPR} already exists for {$repo}, skipping");
             return false;
         }
-        
-        // Create PR with file updates
-        $prNumber = $this->createSyncPR($org, $repo, $filesToSync);
-        
+
+        // Create PR with file updates driven by the definition
+        $result   = $this->createSyncPR($org, $repo, $filesToSync, $repoRoot, $force);
+        $prNumber = $result['number'] ?? null;
+        $summary  = $result['summary'] ?? [];
+
         if ($prNumber) {
             $this->logger->logInfo("Successfully created PR #{$prNumber} for {$repo}");
+
+            // Generate / update api/definitions/sync/{repo}.def.tf AFTER the sync so it
+            // reflects exactly what was pushed in this run.
+            $this->generateRepositoryDefinition($org, $repo, $platform, $repoInfo, $summary);
+
             return true;
         }
-        
+
         return false;
     }
     
@@ -293,52 +243,124 @@ class RepositorySynchronizer
     }
     
     /**
-     * Generate repository definition file
-     * 
-     * @param string $org Organization name
-     * @param string $repo Repository name
-     * @return bool Success status
+     * Generate / update the repository tracking definition after a successful sync.
+     *
+     * Writes api/definitions/sync/{repo}.def.tf with:
+     *  - the base platform definition as a foundation
+     *  - a sync_record block recording what was actually pushed (files created/updated/skipped)
+     *  - full timestamps and platform metadata
+     *
+     * @param string $org
+     * @param string $repo
+     * @param string $platform   Detected platform slug (e.g. 'crm-module')
+     * @param array  $repoInfo   Raw GitHub API repository object
+     * @param array  $summary    Sync result from createSyncPR: {copied[], skipped[], total}
+     * @return bool
      */
-    private function generateRepositoryDefinition(string $org, string $repo): bool
-    {
+    private function generateRepositoryDefinition(
+        string $org,
+        string $repo,
+        string $platform,
+        array $repoInfo,
+        array $summary
+    ): bool {
         try {
-            $this->logger->logInfo("Generating repository definition for {$org}/{$repo}");
-            
-            // Get repository info
-            $repoInfo = $this->apiClient->get("/repos/{$org}/{$repo}");
-            
-            // Detect platform (simplified - in real implementation would use auto_detect_platform)
-            $platform = $this->detectPlatform($repoInfo);
-            
-            // Load base definition
-            $baseDefPath = "api/definitions/default/{$platform}.tf";
+            $this->logger->logInfo("Writing sync tracking definition for {$org}/{$repo}");
+
+            $timestamp   = date('c');
+            $description = addslashes($repoInfo['description'] ?? '');
+            $defaultBranch = $repoInfo['default_branch'] ?? 'main';
+
+            // Resolve repo root relative to this file's location
+            $repoRoot    = dirname(dirname(dirname(__DIR__)));
+            $baseDefPath = "{$repoRoot}/api/definitions/default/{$platform}.tf";
             if (!file_exists($baseDefPath)) {
-                $this->logger->logWarning("Base definition not found: {$baseDefPath}, using default");
-                $baseDefPath = "api/definitions/default/default-repository.tf";
+                $baseDefPath = "{$repoRoot}/api/definitions/default/default-repository.tf";
             }
-            
-            $baseDefinition = file_get_contents($baseDefPath);
-            
-            // Generate repository-specific definition
-            $definition = $this->customizeDefinition($baseDefinition, $org, $repo, $repoInfo, $platform);
-            
-            // Save to sync directory
-            $defFilePath = self::SYNC_DEFINITION_DIR . "/{$repo}.def.tf";
-            
-            // Ensure directory exists
-            if (!is_dir(self::SYNC_DEFINITION_DIR)) {
-                mkdir(self::SYNC_DEFINITION_DIR, 0755, true);
+            $baseDefinition = file_get_contents($baseDefPath) ?: '';
+
+            // Build the synced_files list
+            $syncedEntries  = '';
+            foreach ($summary['copied'] ?? [] as $item) {
+                $action = addslashes($item['action'] ?? 'synced');
+                $file   = addslashes($item['file']   ?? '');
+                $syncedEntries .= "      { path = \"{$file}\" action = \"{$action}\" },\n";
             }
-            
+
+            $skippedEntries = '';
+            foreach ($summary['skipped'] ?? [] as $item) {
+                $file   = addslashes($item['file']   ?? '');
+                $reason = addslashes($item['reason'] ?? '');
+                $skippedEntries .= "      { path = \"{$file}\" reason = \"{$reason}\" },\n";
+            }
+
+            $createdCount = count(array_filter($summary['copied'] ?? [], fn($i) => ($i['action'] ?? '') === 'created'));
+            $updatedCount = count(array_filter($summary['copied'] ?? [], fn($i) => ($i['action'] ?? '') === 'updated'));
+            $skippedCount = count($summary['skipped'] ?? []);
+            $totalCount   = (int) ($summary['total'] ?? 0);
+
+            // Assemble the definition file
+            $definition = <<<HCL
+            /**
+             * Repository Sync Tracking Definition: {$org}/{$repo}
+             *
+             * Auto-generated by MokoStandards bulk sync on {$timestamp}
+             * Platform : {$platform}
+             * Description: {$description}
+             *
+             * DO NOT EDIT MANUALLY — this file is regenerated on every successful sync.
+             * To change what gets synced, edit api/definitions/default/{$platform}.tf
+             * and re-run the bulk-repo-sync workflow.
+             */
+
+            locals {
+              sync_record = {
+                metadata = {
+                  repo              = "{$org}/{$repo}"
+                  default_branch    = "{$defaultBranch}"
+                  detected_platform = "{$platform}"
+                  description       = "{$description}"
+                  sync_timestamp    = "{$timestamp}"
+                  source_repo       = "mokoconsulting-tech/MokoStandards"
+                  base_definition   = "api/definitions/default/{$platform}.tf"
+                }
+
+                sync_stats = {
+                  total_files   = {$totalCount}
+                  created_files = {$createdCount}
+                  updated_files = {$updatedCount}
+                  skipped_files = {$skippedCount}
+                }
+
+                synced_files = [
+            {$syncedEntries}    ]
+
+                skipped_files = [
+            {$skippedEntries}    ]
+              }
+            }
+
+            # ---- Base platform definition (reference copy) ----
+            {$baseDefinition}
+            HCL;
+
+            // Strip leading whitespace introduced by the heredoc indentation
+            $definition = preg_replace('/^[ \t]+/m', '', $definition);
+
+            $defFilePath = "{$repoRoot}/" . self::SYNC_DEFINITION_DIR . "/{$repo}.def.tf";
+
+            if (!is_dir(dirname($defFilePath))) {
+                mkdir(dirname($defFilePath), 0755, true);
+            }
+
             file_put_contents($defFilePath, $definition);
-            
-            $this->logger->logInfo("Generated definition: {$defFilePath}");
+            $this->logger->logInfo("Wrote sync tracking definition: {$defFilePath}");
             $this->metrics->incrementCounter('definitions_generated');
-            
+
             return true;
-            
+
         } catch (Exception $e) {
-            $this->logger->logError("Failed to generate definition for {$repo}: " . $e->getMessage());
+            $this->logger->logError("Failed to write tracking definition for {$repo}: " . $e->getMessage());
             return false;
         }
     }
@@ -379,261 +401,130 @@ class RepositorySynchronizer
         // Default
         return 'default-repository';
     }
-    
-    /**
-     * Customize definition with repository-specific metadata
-     */
-    private function customizeDefinition(string $baseDefinition, string $org, string $repo, array $repoInfo, string $platform): string
-    {
-        $timestamp = date('c');
-        $description = $repoInfo['description'] ?? '';
-        
-        // Add header comment
-        $header = <<<EOT
-/**
- * Repository Definition: {$org}/{$repo}
- * Auto-generated during bulk sync on {$timestamp}
- * Platform: {$platform}
- * Description: {$description}
- * 
- * This file is automatically generated and should not be edited manually.
- * Changes should be made to the base definition in api/definitions/default/
- */
 
-EOT;
-        
-        // Customize metadata in the definition
-        $customized = $baseDefinition;
-        
-        // Update description to include repo-specific info
-        $customized = preg_replace(
-            '/description\s*=\s*"[^"]*"/',
-            'description      = "Repository structure for ' . $org . '/' . $repo . '"',
-            $customized,
-            1
-        );
-        
-        // Update last_updated timestamp
-        $customized = preg_replace(
-            '/last_updated\s*=\s*"[^"]*"/',
-            'last_updated     = "' . $timestamp . '"',
-            $customized,
-            1
-        );
-        
-        // Add sync metadata block after the main metadata closing brace
-        $syncMetadata = <<<EOT
-
-      
-      # Sync Metadata (auto-generated)
-      sync_generated    = true
-      sync_date         = "{$timestamp}"
-      source_repo       = "{$org}/{$repo}"
-      detected_platform = "{$platform}"
-EOT;
-        
-        // Insert sync metadata before the closing brace of metadata block
-        $customized = preg_replace(
-            '/(metadata\s*=\s*\{[^}]*)(})/',
-            '$1' . $syncMetadata . "\n    " . '$2',
-            $customized,
-            1
-        );
-        
-        return $header . $customized;
-    }
-    
     /**
-     * Create a PR with sync updates
+     * Create a PR with sync updates driven by the flat entry list from DefinitionParser.
+     *
+     * @param string $org
+     * @param string $repo
+     * @param array<int, array{source: string, destination: string, always_overwrite: bool}> $filesToSync
+     * @param string $repoRoot  Absolute path to the MokoStandards repository root
+     * @param bool   $force     When true, overwrite files even when always_overwrite = false
+     * @return array{number: ?int, summary: array}
      */
-    private function createSyncPR(string $org, string $repo, array $filesToSync): ?int
+    private function createSyncPR(string $org, string $repo, array $filesToSync, string $repoRoot, bool $force): array
     {
+        $nullResult = ['number' => null, 'summary' => []];
+
         try {
-            // Get repository info
-            $repoInfo = $this->apiClient->get("/repos/{$org}/{$repo}");
+            $repoInfo      = $this->apiClient->get("/repos/{$org}/{$repo}");
             $defaultBranch = $repoInfo['default_branch'] ?? 'main';
-            $branchName = 'chore/sync-mokostandards-updates';
-            
+            $branchName    = 'chore/sync-mokostandards-updates';
+
             $this->logger->logInfo("Creating sync PR for {$org}/{$repo}");
-            $this->logger->logInfo("Default branch: {$defaultBranch}, Target branch: {$branchName}");
-            
+
             // Get the SHA of the default branch
             $refData = $this->apiClient->get("/repos/{$org}/{$repo}/git/ref/heads/{$defaultBranch}");
             $baseSha = $refData['object']['sha'];
-            
-            // Check if branch already exists
-            $branchExists = false;
+
+            // Create or reset the sync branch
             try {
                 $this->apiClient->get("/repos/{$org}/{$repo}/git/ref/heads/{$branchName}");
-                $branchExists = true;
-                $this->logger->logInfo("Branch {$branchName} already exists, will update it");
-            } catch (Exception $e) {
-                // Branch doesn't exist, we'll create it
-                $this->logger->logInfo("Branch {$branchName} doesn't exist yet, will create");
-            }
-            
-            // Create or update branch
-            if ($branchExists) {
-                // Update existing branch to point to latest default branch
                 $this->apiClient->patch("/repos/{$org}/{$repo}/git/refs/heads/{$branchName}", [
-                    'sha' => $baseSha,
+                    'sha'   => $baseSha,
                     'force' => true,
                 ]);
-                $this->logger->logInfo("Updated branch {$branchName} to latest {$defaultBranch}");
-            } else {
-                // Create new branch
+                $this->logger->logInfo("Reset branch {$branchName} to {$defaultBranch}");
+            } catch (Exception $e) {
                 $this->apiClient->post("/repos/{$org}/{$repo}/git/refs", [
                     'ref' => "refs/heads/{$branchName}",
                     'sha' => $baseSha,
                 ]);
                 $this->logger->logInfo("Created branch {$branchName}");
             }
-            
-            // Track what was copied and skipped
-            $summary = [
-                'copied' => [],
-                'skipped' => [],
-                'total' => 0,
-            ];
-            
-            // Use __DIR__ to get the directory of this file, then navigate to repository root
-            $baseDir = dirname(dirname(__DIR__));
-            
-            // Process each file type
-            foreach ($filesToSync as $fileType => $files) {
-                $this->logger->logInfo("Processing {$fileType} files...");
-                
-                foreach ($files as $sourceFile => $targetPath) {
-                    $summary['total']++;
-                    
-                    // Determine source path based on file type
-                    $sourcePath = $this->getSourcePath($baseDir, $fileType, $sourceFile);
-                    
-                    if (!file_exists($sourcePath)) {
-                        $this->logger->logWarning("Source file not found: {$sourcePath}");
-                        $summary['skipped'][] = [
-                            'file' => $targetPath,
-                            'reason' => 'Source file not found',
-                        ];
+
+            $summary = ['copied' => [], 'skipped' => [], 'total' => 0];
+
+            foreach ($filesToSync as $entry) {
+                $summary['total']++;
+                $sourcePath  = rtrim($repoRoot, '/') . '/' . ltrim($entry['source'], '/');
+                $targetPath  = $entry['destination'];
+                $canOverwrite = $force || $entry['always_overwrite'];
+
+                if (!file_exists($sourcePath)) {
+                    $this->logger->logWarning("Source not found: {$sourcePath}");
+                    $summary['skipped'][] = ['file' => $targetPath, 'reason' => 'Source file not found'];
+                    continue;
+                }
+
+                $content = file_get_contents($sourcePath);
+                if ($content === false) {
+                    $this->logger->logWarning("Cannot read: {$sourcePath}");
+                    $summary['skipped'][] = ['file' => $targetPath, 'reason' => 'Failed to read source'];
+                    continue;
+                }
+
+                $content = $this->processTemplateContent($content, $repo);
+
+                try {
+                    $existingFile = $this->apiClient->get("/repos/{$org}/{$repo}/contents/{$targetPath}", [
+                        'ref' => $branchName,
+                    ]);
+
+                    if (!$canOverwrite) {
+                        $this->logger->logInfo("Skipping existing file (always_overwrite=false): {$targetPath}");
+                        $summary['skipped'][] = ['file' => $targetPath, 'reason' => 'Preserved (always_overwrite=false)'];
                         continue;
                     }
-                    
-                    $content = file_get_contents($sourcePath);
-                    if ($content === false) {
-                        $this->logger->logWarning("Failed to read: {$sourcePath}");
-                        $summary['skipped'][] = [
-                            'file' => $targetPath,
-                            'reason' => 'Failed to read source',
-                        ];
-                        continue;
-                    }
-                    
-                    // Process template content
-                    $content = $this->processTemplateContent($content, $repo);
-                    
+
+                    $this->apiClient->put("/repos/{$org}/{$repo}/contents/{$targetPath}", [
+                        'message' => "chore: update {$targetPath} from MokoStandards",
+                        'content' => base64_encode($content),
+                        'sha'     => $existingFile['sha'],
+                        'branch'  => $branchName,
+                    ]);
+                    $this->logger->logInfo("Updated: {$targetPath}");
+                    $summary['copied'][] = ['file' => $targetPath, 'action' => 'updated'];
+
+                } catch (Exception $e) {
+                    // File does not exist yet — create it
                     try {
-                        // Try to get existing file to get its SHA
-                        $existingFile = $this->apiClient->get("/repos/{$org}/{$repo}/contents/{$targetPath}", [
-                            'ref' => $branchName,
-                        ]);
-                        $existingSha = $existingFile['sha'];
-                        
-                        // Update existing file
                         $this->apiClient->put("/repos/{$org}/{$repo}/contents/{$targetPath}", [
-                            'message' => "chore: update {$targetPath} from MokoStandards",
+                            'message' => "chore: add {$targetPath} from MokoStandards",
                             'content' => base64_encode($content),
-                            'sha' => $existingSha,
-                            'branch' => $branchName,
+                            'branch'  => $branchName,
                         ]);
-                        $this->logger->logInfo("Updated file: {$targetPath}");
-                        $summary['copied'][] = [
-                            'file' => $targetPath,
-                            'action' => 'updated',
-                        ];
-                        
-                    } catch (Exception $e) {
-                        // File doesn't exist, create it
-                        try {
-                            $this->apiClient->put("/repos/{$org}/{$repo}/contents/{$targetPath}", [
-                                'message' => "chore: add {$targetPath} from MokoStandards",
-                                'content' => base64_encode($content),
-                                'branch' => $branchName,
-                            ]);
-                            $this->logger->logInfo("Created file: {$targetPath}");
-                            $summary['copied'][] = [
-                                'file' => $targetPath,
-                                'action' => 'created',
-                            ];
-                        } catch (Exception $e2) {
-                            $this->logger->logError("Failed to create {$targetPath}: " . $e2->getMessage());
-                            $summary['skipped'][] = [
-                                'file' => $targetPath,
-                                'reason' => 'API error: ' . $e2->getMessage(),
-                            ];
-                        }
+                        $this->logger->logInfo("Created: {$targetPath}");
+                        $summary['copied'][] = ['file' => $targetPath, 'action' => 'created'];
+                    } catch (Exception $e2) {
+                        $this->logger->logError("Failed to create {$targetPath}: " . $e2->getMessage());
+                        $summary['skipped'][] = ['file' => $targetPath, 'reason' => 'API error: ' . $e2->getMessage()];
                     }
                 }
             }
-            
+
             if (count($summary['copied']) === 0) {
-                $this->logger->logWarning("No files were created/updated");
-                return null;
+                $this->logger->logWarning("No files were created/updated for {$repo}");
+                return $nullResult;
             }
-            
-            // Create pull request
-            $prData = $this->apiClient->post("/repos/{$org}/{$repo}/pulls", [
+
+            $prData   = $this->apiClient->post("/repos/{$org}/{$repo}/pulls", [
                 'title' => 'chore: Sync MokoStandards workflows and configurations',
-                'head' => $branchName,
-                'base' => $defaultBranch,
-                'body' => $this->generatePRBody($summary),
+                'head'  => $branchName,
+                'base'  => $defaultBranch,
+                'body'  => $this->generatePRBody($summary),
             ]);
-            
             $prNumber = $prData['number'] ?? null;
-            $this->logger->logInfo("Created PR #{$prNumber} with " . count($summary['copied']) . " files");
-            
-            // Log summary
-            $this->logger->logInfo("Sync summary: " . count($summary['copied']) . " copied, " . count($summary['skipped']) . " skipped, " . $summary['total'] . " total");
-            
-            return $prNumber;
-            
+            $this->logger->logInfo("Created PR #{$prNumber} — " . count($summary['copied']) . " files synced");
+
+            return ['number' => $prNumber, 'summary' => $summary];
+
         } catch (CircuitBreakerOpen | RateLimitExceeded $e) {
-            // Re-throw circuit breaker and rate limit exceptions
-            // These indicate service-level issues that should fail the sync
             $this->logger->logError("Failed to create PR: " . $e->getMessage());
             throw $e;
         } catch (Exception $e) {
-            // Other exceptions (e.g., file not found, API errors) should not fail the entire sync
             $this->logger->logError("Failed to create PR: " . $e->getMessage());
-            return null;
-        }
-    }
-    
-    /**
-     * Get source path based on file type
-     */
-    private function getSourcePath(string $baseDir, string $fileType, string $sourceFile): string
-    {
-        switch ($fileType) {
-            case 'workflows':
-                return "{$baseDir}/templates/workflows/{$sourceFile}";
-            case 'github':
-                // Special handling for PR template which is in templates/github
-                if ($sourceFile === 'PULL_REQUEST_TEMPLATE.md') {
-                    return "{$baseDir}/templates/github/{$sourceFile}";
-                }
-                return "{$baseDir}/.github/{$sourceFile}";
-            case 'ai_templates':
-                return "{$baseDir}/templates/github/{$sourceFile}";
-            case 'issue_templates':
-                return "{$baseDir}/templates/github/ISSUE_TEMPLATE/{$sourceFile}";
-            case 'scripts':
-                return "{$baseDir}/templates/scripts/release/{$sourceFile}";
-            case 'projects':
-                return "{$baseDir}/templates/projects/{$sourceFile}";
-            case 'dolibarr_assets':
-                return "{$baseDir}/templates/build/dolibarr/img/{$sourceFile}";
-            default:
-                return "{$baseDir}/templates/{$sourceFile}";
+            return $nullResult;
         }
     }
     

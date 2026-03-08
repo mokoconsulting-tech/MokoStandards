@@ -14,7 +14,7 @@ locals {
       name             = "MokoCRM Module"
       description      = "Standard repository structure for MokoCRM (Dolibarr) modules"
       repository_type  = "crm-module"
-      platform         = "mokokrm"
+      platform         = "dolibarr"
       last_updated     = "2026-01-07T00:00:00Z"
       maintainer       = "Moko Consulting"
       version          = "1.0"
@@ -322,6 +322,36 @@ EOT
         description         = "GitHub-specific configuration"
         requirement_status  = "suggested"
         purpose             = "Contains GitHub Actions workflows, issue templates, etc."
+        files = [
+          {
+            name                = "copilot.yml"
+            extension           = "yml"
+            description         = "GitHub Copilot allowed domains configuration"
+            requirement_status  = "required"
+            always_overwrite    = true
+            template            = ".github/copilot.yml"
+          },
+          {
+            name                = "copilot-instructions.md"
+            extension           = "md"
+            description         = "GitHub Copilot custom instructions enforcing MokoStandards"
+            requirement_status  = "required"
+            always_overwrite    = true
+            destination_path    = ".github"
+            destination_filename = "copilot-instructions.md"
+            template            = "templates/github/copilot-instructions.md.template"
+          },
+          {
+            name                = "CLAUDE.md"
+            extension           = "md"
+            description         = "Claude AI assistant context enforcing MokoStandards"
+            requirement_status  = "required"
+            always_overwrite    = true
+            destination_path    = ".github"
+            destination_filename = "CLAUDE.md"
+            template            = "templates/github/CLAUDE.md.template"
+          }
+        ]
         subdirectories = [
           {
             name                = "workflows"
@@ -352,8 +382,33 @@ EOT
                 requirement_status  = "required"
                 always_overwrite    = true
                 template            = ".github/workflows/standards-compliance.yml"
+              },
+              {
+                name                = "enterprise-firewall-setup.yml"
+                extension           = "yml"
+                description         = "Enterprise firewall configuration for trusted domain access"
+                requirement_status  = "required"
+                always_overwrite    = true
+                template            = "templates/workflows/shared/enterprise-firewall-setup.yml.template"
               }
             ]
+          }
+        ]
+      },
+      {
+        name                = "img"
+        path                = "img"
+        description         = "Module image assets including Dolibarr picto"
+        requirement_status  = "required"
+        purpose             = "Contains the module picto displayed in the Dolibarr UI"
+        files = [
+          {
+            name                = "object_mokoconsulting.png"
+            extension           = "png"
+            description         = "Moko Consulting picto shown in Dolibarr module list"
+            requirement_status  = "required"
+            always_overwrite    = true
+            template            = "templates/build/dolibarr/img/object_mokoconsulting.png"
           }
         ]
       }

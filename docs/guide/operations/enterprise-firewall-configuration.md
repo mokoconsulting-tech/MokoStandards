@@ -14,6 +14,13 @@ Enterprise environments often have strict firewall policies that block outbound 
 - **Package Registries**: Download and update dependencies securely
 - **Documentation Sources**: Access official documentation and standards
 - **Platform-Specific Resources**: Joomla, Dolibarr, and PHP ecosystem resources
+- **Moko Consulting Services**: Internal APIs, CDN, and documentation at `*.mokoconsulting.tech`
+- **Google Services**: Drive, Docs, Sheets, Fonts, and Cloud Storage for asset hosting and collaboration
+- **GitHub Extended**: Full GitHub ecosystem including Container Registry, LFS, and Packages
+- **Developer Reference**: MDN, Stack Overflow, and Git documentation
+- **Container Registries**: Docker Hub and related registries
+- **CI & Code Quality**: Coverage reporting and static analysis services
+- **Terraform & Infrastructure**: HashiCorp provider registry and release downloads
 
 ## Automated Workflow
 
@@ -116,8 +123,51 @@ In manual mode, you can:
 | `downloads.joomla.org` | Joomla downloads | Joomla core downloads |
 | `docs.joomla.org` | Joomla documentation | Joomla developer docs |
 | `php.net` | PHP documentation | PHP language reference |
+| `getcomposer.org` | Composer dependency manager | PHP dependency management |
 | `dolibarr.org` | Dolibarr ERP/CRM | Dolibarr platform resources |
 | `wiki.dolibarr.org` | Dolibarr wiki | Dolibarr documentation |
+| `docs.dolibarr.org` | Dolibarr developer docs | Dolibarr developer reference |
+
+### Moko Consulting
+
+| Domain | Purpose | Required For |
+|--------|---------|--------------|
+| `mokoconsulting.tech` | Moko Consulting main site | Organization resources |
+| `*.mokoconsulting.tech` | All Moko Consulting subdomains | API, docs, CDN, and internal services |
+
+### Google Services
+
+| Domain | Purpose | Required For |
+|--------|---------|--------------|
+| `drive.google.com` | Google Drive | File sharing and asset hosting |
+| `docs.google.com` | Google Docs | Documentation and specifications |
+| `sheets.google.com` | Google Sheets | Data and reporting |
+| `accounts.google.com` | Google authentication | OAuth and sign-in flows |
+| `storage.googleapis.com` | Google Cloud Storage | Asset and artifact storage |
+| `*.googleapis.com` | Google APIs | Maps, Fonts, and other Google APIs |
+| `*.googleusercontent.com` | Google user content CDN | User-uploaded files and assets |
+| `fonts.googleapis.com` | Google Fonts CSS | Web font delivery |
+| `fonts.gstatic.com` | Google Fonts static assets | Web font files |
+
+### GitHub Extended
+
+| Domain | Purpose | Required For |
+|--------|---------|--------------|
+| `api.github.com` | GitHub REST API | Automation and integrations |
+| `upload.github.com` | GitHub file uploads | Release asset uploads |
+| `objects.githubusercontent.com` | GitHub release assets and LFS | Binary downloads |
+| `user-images.githubusercontent.com` | GitHub issue/PR attachments | Image assets |
+| `codeload.github.com` | GitHub archive downloads | Source tarballs |
+| `ghcr.io` | GitHub Container Registry | Container image pulls |
+| `pkg.github.com` | GitHub Packages | npm/Maven package registry |
+
+### Developer Reference
+
+| Domain | Purpose | Required For |
+|--------|---------|--------------|
+| `developer.mozilla.org` | MDN Web Docs | Web API reference |
+| `stackoverflow.com` | Stack Overflow | Developer Q&A |
+| `git-scm.com` | Git documentation | Git reference |
 
 ### CDN & Infrastructure
 
@@ -125,7 +175,33 @@ In manual mode, you can:
 |--------|---------|--------------|
 | `cdn.jsdelivr.net` | jsDelivr CDN | Library hosting |
 | `unpkg.com` | unpkg CDN | npm package CDN |
-| `cdnjs.cloudflare.com` | cdnjs CDN | Library hosting |
+| `cdnjs.cloudflare.com` | Cloudflare CDN | Library hosting |
+| `img.shields.io` | Shields.io badge images | README badges |
+| `shields.io` | Shields.io badge service | Badge metadata |
+
+### Container Registries
+
+| Domain | Purpose | Required For |
+|--------|---------|--------------|
+| `hub.docker.com` | Docker Hub | Container image discovery |
+| `registry-1.docker.io` | Docker registry | Container image pulls |
+| `index.docker.io` | Docker index | Container image index |
+
+### CI & Code Quality
+
+| Domain | Purpose | Required For |
+|--------|---------|--------------|
+| `codecov.io` | Code coverage reporting | Coverage badges and reports |
+| `coveralls.io` | Coveralls coverage service | Alternative coverage reporting |
+| `sonarcloud.io` | SonarCloud static analysis | Code quality gates |
+
+### Terraform & Infrastructure
+
+| Domain | Purpose | Required For |
+|--------|---------|--------------|
+| `registry.terraform.io` | Terraform provider registry | Provider downloads |
+| `releases.hashicorp.com` | HashiCorp releases | Terraform binary downloads |
+| `checkpoint-api.hashicorp.com` | HashiCorp update checks | Version update notifications |
 
 ## Required Ports
 

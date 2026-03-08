@@ -31,6 +31,7 @@ use RuntimeException;
 class RepositorySynchronizer
 {
     private const SYNC_DEFINITION_DIR = 'api/definitions/sync';
+    private const SYNC_OVERRIDE_FILE = '.github/override.tf';
     
     private ApiClient $apiClient;
     private AuditLogger $logger;
@@ -191,6 +192,9 @@ class RepositorySynchronizer
                 'release-cycle.yml.template' => '.github/workflows/release-cycle.yml',
                 'reusable-build.yml.template' => '.github/workflows/reusable-build.yml',
                 'reusable-release.yml.template' => '.github/workflows/reusable-release.yml',
+
+                // Shared infrastructure workflows
+                'shared/enterprise-firewall-setup.yml.template' => '.github/workflows/enterprise-firewall-setup.yml',
             ],
             
             // GitHub configuration files
@@ -200,6 +204,12 @@ class RepositorySynchronizer
                 'dependabot.yml' => '.github/dependabot.yml',
                 // Note: override.tf is NO LONGER synced to remote repos
                 // Repository definitions are now stored centrally in api/definitions/sync/
+            ],
+
+            // AI assistant configuration templates — enforce MokoStandards in remote repos
+            'ai_templates' => [
+                'copilot-instructions.md.template' => '.github/copilot-instructions.md',
+                'CLAUDE.md.template' => '.github/CLAUDE.md',
             ],
             
             // Issue templates
@@ -232,6 +242,16 @@ class RepositorySynchronizer
                 'documentation-project-definition.tf' => '.github/project-definition.tf',
             ],
         ];
+
+        // Add platform-specific files
+        $platform = $this->detectPlatform(
+            $this->apiClient->get("/repos/{$org}/{$repo}")
+        );
+        if ($platform === 'crm-module') {
+            $filesToSync['dolibarr_assets'] = [
+                'object_mokoconsulting.png' => 'img/object_mokoconsulting.png',
+            ];
+        }
         
         // Check if there's already a PR open for this repo
         $existingPR = $this->checkForExistingPR($org, $repo);
@@ -602,12 +622,16 @@ EOT;
                     return "{$baseDir}/templates/github/{$sourceFile}";
                 }
                 return "{$baseDir}/.github/{$sourceFile}";
+            case 'ai_templates':
+                return "{$baseDir}/templates/github/{$sourceFile}";
             case 'issue_templates':
                 return "{$baseDir}/templates/github/ISSUE_TEMPLATE/{$sourceFile}";
             case 'scripts':
                 return "{$baseDir}/templates/scripts/release/{$sourceFile}";
             case 'projects':
                 return "{$baseDir}/templates/projects/{$sourceFile}";
+            case 'dolibarr_assets':
+                return "{$baseDir}/templates/build/dolibarr/img/{$sourceFile}";
             default:
                 return "{$baseDir}/templates/{$sourceFile}";
         }

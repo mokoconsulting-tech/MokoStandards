@@ -64,6 +64,7 @@ Please describe the tests that you ran to verify your changes. Provide instructi
 - [ ] Any dependent changes have been merged and published in downstream modules
 - [ ] I have checked my code and corrected any misspellings
 - [ ] I have updated the CHANGELOG.md file
+- [ ] **Patch version bumped** — incremented `XX.YY.ZZ` in `README.md` (e.g. `01.02.03` → `01.02.04`); `sync-version-on-merge` propagates it to all file headers and badges on merge
 - [ ] All file headers are present and correct
 
 ## Breaking Changes

@@ -27,6 +27,7 @@ Relates to #
 <!-- All items must be completed before merge. See docs/policy/copilot-pre-merge-checklist.md for details and sample prompts -->
 
 ### 1. Version Management ✅
+- [ ] **Patch version bumped in `README.md`** — increment `MM.mm.pp` by one (e.g. `04.00.04` → `04.00.05`); required on **every PR** without exception
 - [ ] All version numbers updated consistently (VERSION file, package.json, etc.)
 - [ ] Version updated in documentation headers
 - [ ] Version updated in CHANGELOG.md
@@ -34,7 +35,9 @@ Relates to #
 
 **Copilot Prompt Used**:
 ```
-Update all version numbers from X.Y.Z to X.Y.Z+1 across the repository
+Bump the patch version: increment the last segment of MM.mm.pp in README.md by 1
+(e.g. 04.00.04 → 04.00.05). The sync-version-on-merge workflow will propagate it
+to all file headers and badges automatically on merge.
 ```
 
 ### 2. Changelog Updates ✅
@@ -95,7 +98,7 @@ Update CHANGELOG.md with all changes from this PR, grouped by type with implemen
 - [ ] Timestamps use UTC
 - [ ] Revision histories in descending order
 - [ ] Metadata tables complete and accurate
-- [ ] Semantic versioning followed
+- [ ] Semantic versioning followed — patch bumped in `README.md` on every PR
 
 ## Testing Performed
 
@@ -148,16 +151,17 @@ Update CHANGELOG.md with all changes from this PR, grouped by type with implemen
 ```
 Prepare this PR for merge by completing all pre-merge requirements:
 
-1. UPDATE VERSION NUMBERS: Update all version numbers from X.Y.Z to X.Y.Z+1
-2. UPDATE CHANGELOG: Review all commits and update CHANGELOG.md
-3. ADDRESS CODE REVIEW: Review and address all code review comments
-4. RUN SECURITY SCANS: Execute CodeQL, dependency scanning, secret detection
-5. FIX QUALITY ISSUES: Run linters, formatters, tests
-6. UPDATE DOCUMENTATION: Update README, API docs, user guides, examples
-7. CHECK FOR DRIFT: Validate documentation matches implementation
-8. VERIFY STANDARDS COMPLIANCE: File headers, indentation, timestamps, metadata
-9. CREATE FINAL SUMMARY: Generate comprehensive PR description
-10. REQUEST FINAL REVIEW: Tag reviewers for final approval
+1. BUMP PATCH VERSION: Increment the last segment of MM.mm.pp in README.md by 1 (required on every PR). The sync-version-on-merge workflow propagates it to all headers and badges on merge.
+2. UPDATE VERSION NUMBERS: Confirm all file VERSION headers now reflect the new patch version
+3. UPDATE CHANGELOG: Review all commits and update CHANGELOG.md
+4. ADDRESS CODE REVIEW: Review and address all code review comments
+5. RUN SECURITY SCANS: Execute CodeQL, dependency scanning, secret detection
+6. FIX QUALITY ISSUES: Run linters, formatters, tests
+7. UPDATE DOCUMENTATION: Update README, API docs, user guides, examples
+8. CHECK FOR DRIFT: Validate documentation matches implementation
+9. VERIFY STANDARDS COMPLIANCE: File headers, indentation, timestamps, metadata
+10. CREATE FINAL SUMMARY: Generate comprehensive PR description
+11. REQUEST FINAL REVIEW: Tag reviewers for final approval
 ```
 
 </details>
@@ -172,6 +176,7 @@ Prepare this PR for merge by completing all pre-merge requirements:
 
 - [ ] Code changes align with described functionality
 - [ ] Pre-merge checklist completed
+- [ ] Patch version bumped in `README.md`
 - [ ] Version numbers consistent
 - [ ] CHANGELOG accurate and complete
 - [ ] Tests adequate and passing

@@ -185,7 +185,7 @@ locals {
             extension           = "md"
             description         = "GitHub Copilot custom instructions enforcing MokoStandards"
             requirement_status  = "required"
-            always_overwrite    = true
+            always_overwrite    = false
             destination_path    = ".github"
             destination_filename = "copilot-instructions.md"
             template            = "templates/github/copilot-instructions.md.template"
@@ -195,7 +195,7 @@ locals {
             extension           = "md"
             description         = "Claude AI assistant context enforcing MokoStandards"
             requirement_status  = "required"
-            always_overwrite    = true
+            always_overwrite    = false
             destination_path    = ".github"
             destination_filename = "CLAUDE.md"
             template            = "templates/github/CLAUDE.md.template"

@@ -61,18 +61,18 @@ Tools not listed above require written approval from the repository owner before
 
 ## Mandatory Context Files
 
-Every governed repository **must** include the following context files. They are pushed automatically by the [bulk sync system](../guide/repo-sync.md) and must not be deleted.
+Every governed repository **must** include the following context files. They are created automatically by the [bulk sync system](../guide/repo-sync.md) on first sync and must not be deleted. Once created, they are **never overwritten** by subsequent syncs so that project-specific customisations are preserved.
 
 ### `.github/copilot-instructions.md`
 
-- **Enforcement level**: FORCED
+- **Enforcement level**: REQUIRED (created on first sync; never overwritten)
 - **Source template**: `templates/github/copilot-instructions.md.template`
 - **Purpose**: Provides GitHub Copilot with MokoStandards conventions, file-header requirements, naming rules, commit format, and token policies.
-- **Customisation**: Repositories may add project-specific sections **below** the `## MokoStandards Reference` section. The MokoStandards section must not be removed or modified.
+- **Customisation**: Repositories may freely extend this file with project-specific sections. The file will not be overwritten by bulk sync after initial creation.
 
 ### `.github/CLAUDE.md`
 
-- **Enforcement level**: FORCED
+- **Enforcement level**: REQUIRED (created on first sync; never overwritten)
 - **Source template**: `templates/github/CLAUDE.md.template`
 - **Purpose**: Provides Claude (Anthropic) with the same MokoStandards context as `copilot-instructions.md`, in the format Claude Code expects.
 - **Customisation**: Same rules as `copilot-instructions.md`.
@@ -155,7 +155,7 @@ AI-generated code may incorporate patterns from training data. Before committing
 
 | Control | Mechanism |
 |---|---|
-| Context files present | Bulk sync pushes `copilot-instructions.md`, `CLAUDE.md`, `copilot.yml` to every repo; health check validates presence |
+| Context files present | Bulk sync creates `copilot-instructions.md` and `CLAUDE.md` on first sync (never overwritten); `copilot.yml` always synced; health check validates presence |
 | Domain allow-list | `copilot.yml` restricts Copilot's accessible domains to the approved list |
 | Security scans | `codeql-analysis.yml` and `security-scan.yml` run on every PR |
 | Standards compliance | `standards-compliance.yml` validates file headers, structure, and coding style |

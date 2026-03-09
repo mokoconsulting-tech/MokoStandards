@@ -101,7 +101,10 @@ The version in `README.md` **must always match** the `<version>` tag in `manifes
 <!-- In manifest.xml — must match README.md version -->
 <version>01.02.04</version>
 
-<!-- In update.xml — prepend a new <update> block for every release -->
+<!-- In update.xml — prepend a new <update> block for every release.
+     Note: the backslash in version="4\.[0-9]+" is a literal backslash character
+     in the XML attribute value. Joomla's update server treats the value as a
+     regular expression, so \. matches a literal dot. -->
 <updates>
 	<update>
 		<name>{{EXTENSION_NAME}}</name>
@@ -170,7 +173,7 @@ The `manifest.xml` must reference it via:
 - Every release must prepend a new `<update>` block at the top of `update.xml` — old entries must be preserved below.
 - The `<version>` in `update.xml` must exactly match `<version>` in `manifest.xml` and the version in `README.md`.
 - The `<downloadurl>` must be a publicly accessible direct download link (GitHub Releases asset URL).
-- `<targetplatform version="4\.[0-9]+">` — Joomla 4.x regex pattern (escaped backslash).
+- `<targetplatform name="joomla" version="4\.[0-9]+">` — the backslash is a **literal backslash character** in the XML attribute value; Joomla's update-server parser treats the value as a regular expression, so `\.` matches a literal dot and `[0-9]+` matches one or more digits. Do not double-escape it.
 
 ---
 

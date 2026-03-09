@@ -23,15 +23,15 @@ DEFGROUP: MokoStandards.Roadmap
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: ROADMAP.md
-VERSION: 04.00.04
+VERSION: 04.00.05
 BRIEF: Version planning roadmap for MokoStandards with release strategy and milestones
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.05-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # MokoStandards Version Roadmap
 
-**Current Version**: 04.00.04  
+**Current Version**: 04.00.05  
 **Last Updated**: 2026-03-09  
 **Release Cycle**: Minor updates monthly, Major updates quarterly
 
@@ -43,7 +43,19 @@ This document outlines version planning, release strategy, and high-level milest
 
 ## Version History
 
-### Version 04.00.04 (Current) - 2026-03-09
+### Version 04.00.05 (Current) - 2026-03-09
+**Type**: MINOR (New Features + Governance)
+**Status**: ✅ Released
+
+**Changes**:
+- 🆕 **Platform-Specific AI Templates** — Joomla and Dolibarr editions of `copilot-instructions.md` and `CLAUDE.md` now shipped as separate templates; definitions updated to select the right template per platform
+- 📄 **Joomla update.xml Template** — `templates/joomla/update.xml.template` added; `update.xml` is now a required root file in all WaaS repos (`waas-component.tf`)
+- 📚 **Missing Guides Created** — `docs/guide/package-installation.md`, `docs/policy/waas/update-server.md`, `docs/guide/waas/update-server-guide.md`, `docs/guide/platform-ai-templates.md`
+- 🔧 **AI Governance Updated** — `ai-tool-governance.md` updated to document platform-specific template selection
+
+**Breaking Changes**: None
+
+### Version 04.00.04 (Previous) - 2026-03-09
 **Type**: PATCH (Security + Documentation + Governance)
 **Status**: ✅ Released
 
@@ -104,7 +116,7 @@ This document outlines version planning, release strategy, and high-level milest
 
 ## Upcoming Versions
 
-### Version 04.00.05 or 04.01.00 (Planned) - Q2 2026
+### Version 04.00.06 or 04.01.00 (Planned) - Q2 2026
 **Type**: MINOR or MAJOR (TBD based on scope)  
 **Target**: April-June 2026  
 **Status**: 📋 Planning
@@ -200,7 +212,7 @@ Following **Semantic Versioning** (XX.YY.ZZ):
 - Remote logging system deployed
 
 **📋 Milestone 2: Adoption and Integration (Next)**
-- Target Version: 04.00.05 or 04.01.00
+- Target Version: 04.00.06 or 04.01.00
 - Repository adoption tracking
 - Feedback incorporation
 - Training delivery
@@ -262,7 +274,7 @@ Following **Semantic Versioning** (XX.YY.ZZ):
 - ✅ Auto-migration system operational
 - ✅ 100% backward compatible
 
-### Version 04.00.04 (Current - ACHIEVED ✅)
+### Version 04.00.04 (Previous - ACHIEVED ✅)
 - ✅ GH_TOKEN standard enforced across all workflows and templates
 - ✅ 22 documentation files updated
 - ✅ Terraform health checks validate org PAT (GH_TOKEN)
@@ -271,7 +283,14 @@ Following **Semantic Versioning** (XX.YY.ZZ):
 - ✅ AI instruction files protected from overwrite on sync (`always_overwrite = false`)
 - ✅ 100% backward compatible
 
-### Version 04.00.05 or 04.01.00 (Target: Q2 2026)
+### Version 04.00.05 (Current - ACHIEVED ✅)
+- ✅ Platform-specific AI templates for Joomla, Dolibarr, and generic repos
+- ✅ Joomla `update.xml` template and root-file requirement
+- ✅ `package-installation.md`, `update-server.md`, `update-server-guide.md`, `platform-ai-templates.md` created
+- ✅ `ai-tool-governance.md` updated with platform-specific template section
+- ✅ 100% backward compatible
+
+### Version 04.00.06 or 04.01.00 (Target: Q2 2026)
 - 🎯 60% repositories using enforcement system
 - 🎯 Monitoring dashboard operational
 - 🎯 Training delivered to all teams
@@ -329,7 +348,7 @@ Following **Semantic Versioning** (XX.YY.ZZ):
 
 ### Version-Specific Documentation
 - **[CHANGELOG.md](CHANGELOG.md)** - Detailed version history
-- **[Current Version Guide](docs/)** - Documentation for 04.00.04
+- **[Current Version Guide](docs/)** - Documentation for 04.00.05
 - **[Migration Guides](docs/planning/)** - Upgrade instructions
 
 ### Planning Documentation
@@ -381,7 +400,7 @@ Following **Semantic Versioning** (XX.YY.ZZ):
 
 ---
 
-**Current Version**: 04.00.04
-**Next Version**: 04.00.05 or 04.01.00 (Planned Q2 2026)
+**Current Version**: 04.00.05
+**Next Version**: 04.00.06 or 04.01.00 (Planned Q2 2026)
 **Release Type**: PATCH (Security + Documentation)
 **Status**: ✅ Current Release Complete - GH_TOKEN standardisation, documentation updates, Terraform health-check fixes

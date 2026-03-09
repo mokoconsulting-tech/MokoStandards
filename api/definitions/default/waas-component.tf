@@ -75,6 +75,15 @@ locals {
         audience          = "contributor"
       },
       {
+        name              = "update.xml"
+        extension         = "xml"
+        description       = "Joomla extension update server manifest — lists releases for Joomla auto-update; must be kept in sync with manifest.xml version"
+        required          = true
+        always_overwrite  = false
+        audience          = "developer"
+        template          = "templates/joomla/update.xml.template"
+      },
+      {
         name                = "Makefile"
         description         = "Build automation using MokoStandards templates"
         required            = true
@@ -366,22 +375,22 @@ locals {
           {
             name                = "copilot-instructions.md"
             extension           = "md"
-            description         = "GitHub Copilot custom instructions enforcing MokoStandards"
+            description         = "GitHub Copilot custom instructions enforcing MokoStandards — Joomla/WaaS edition"
             requirement_status  = "required"
             always_overwrite    = false
             destination_path    = ".github"
             destination_filename = "copilot-instructions.md"
-            template            = "templates/github/copilot-instructions.md.template"
+            template            = "templates/github/copilot-instructions.joomla.md.template"
           },
           {
             name                = "CLAUDE.md"
             extension           = "md"
-            description         = "Claude AI assistant context enforcing MokoStandards"
+            description         = "Claude AI assistant context enforcing MokoStandards — Joomla/WaaS edition"
             requirement_status  = "required"
             always_overwrite    = false
             destination_path    = ".github"
             destination_filename = "CLAUDE.md"
-            template            = "templates/github/CLAUDE.md.template"
+            template            = "templates/github/CLAUDE.joomla.md.template"
           }
         ]
         subdirectories = [

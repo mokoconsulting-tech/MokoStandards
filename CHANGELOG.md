@@ -97,6 +97,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved metrics collection with gauges, timers, and comprehensive measurements
 - Updated `docs/workflows/bulk-repo-sync.md` with enterprise-ready certification badge and documentation
 
+## [04.00.05] - 2026-03-09
+
+### Added
+
+- **Platform-specific AI instruction templates**:
+  - `templates/github/copilot-instructions.joomla.md.template` — Joomla/MokoWaaS Copilot instructions with `update.xml` rules, manifest version alignment, Joomla MVC structure, and `defined('_JEXEC') or die;` guidance
+  - `templates/github/CLAUDE.joomla.md.template` — Joomla/MokoWaaS Claude context with identical platform coverage plus a PR checklist
+  - `templates/github/copilot-instructions.dolibarr.md.template` — Dolibarr/MokoCRM Copilot instructions with module descriptor class pattern, module ID immutability rule, and version alignment
+  - `templates/github/CLAUDE.dolibarr.md.template` — Dolibarr/MokoCRM Claude context with identical platform coverage plus a PR checklist
+- **Joomla update.xml template** (`templates/joomla/update.xml.template`) — starter update-server manifest with full `<updates>/<update>` structure, `<targetplatform>`, `<php_minimum>`, and inline guidance
+- **`docs/guide/package-installation.md`** — missing guide for adding `mokoconsulting/mokostandards` via Composer to any governed PHP repository (authentication, CI wiring, troubleshooting)
+- **`docs/policy/waas/update-server.md`** — policy: `update.xml` is required at the root of all MokoWaaS (Joomla) repos; version alignment rules, prepend-only release policy, enforcement checks
+- **`docs/guide/waas/update-server-guide.md`** — how-to: initial setup, per-release update steps, version alignment check script, curl/xmllint tests, common mistakes
+- **`docs/guide/platform-ai-templates.md`** — guide explaining how platform-specific AI templates are selected by the sync system and how developers may customise them
+
+### Changed
+
+- **`api/definitions/default/waas-component.tf`** — Joomla repos now receive Joomla-specific AI templates; `update.xml` added as required root file (`always_overwrite = false`, template from `templates/joomla/update.xml.template`)
+- **`api/definitions/default/crm-module.tf`** — Dolibarr repos now receive Dolibarr-specific AI templates
+- **`docs/policy/ai-tool-governance.md`** — Mandatory Context Files section updated to document platform-specific template selection; table added showing Generic/Joomla/Dolibarr variants; link to new `platform-ai-templates.md` guide added; version bumped 04.00.04 → 04.00.05
+- **Patch version bump**: `04.00.04` → `04.00.05` in `README.md`
+
 ## [04.00.04] - 2026-03-09
 
 ### Security

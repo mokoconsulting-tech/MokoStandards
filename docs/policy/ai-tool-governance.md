@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Governance
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/ai-tool-governance.md
-VERSION: 04.00.04
+VERSION: 04.00.05
 BRIEF: Governance policy for AI coding tools in all MokoStandards-governed repositories
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.05-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # AI Tool Governance Policy
 
@@ -66,16 +66,28 @@ Every governed repository **must** include the following context files. They are
 ### `.github/copilot-instructions.md`
 
 - **Enforcement level**: REQUIRED (created on first sync; never overwritten)
-- **Source template**: `templates/github/copilot-instructions.md.template`
-- **Purpose**: Provides GitHub Copilot with MokoStandards conventions, file-header requirements, naming rules, commit format, and token policies.
+- **Source template**: platform-specific (see table below)
+- **Purpose**: Provides GitHub Copilot with MokoStandards conventions, file-header requirements, naming rules, commit format, and token policies, plus platform-specific guidance (Joomla `update.xml`, Dolibarr module IDs, etc.).
 - **Customisation**: Repositories may freely extend this file with project-specific sections. The file will not be overwritten by bulk sync after initial creation.
 
 ### `.github/CLAUDE.md`
 
 - **Enforcement level**: REQUIRED (created on first sync; never overwritten)
-- **Source template**: `templates/github/CLAUDE.md.template`
-- **Purpose**: Provides Claude (Anthropic) with the same MokoStandards context as `copilot-instructions.md`, in the format Claude Code expects.
+- **Source template**: platform-specific (see table below)
+- **Purpose**: Provides Claude (Anthropic) with the same MokoStandards context as `copilot-instructions.md`, plus platform-specific guidance, in the format Claude Code expects.
 - **Customisation**: Same rules as `copilot-instructions.md`.
+
+### Platform-Specific Templates
+
+The bulk sync system selects the correct template based on the repository's platform definition. Each platform template extends the common baseline with platform-specific rules:
+
+| Platform | `copilot-instructions.md` source | `CLAUDE.md` source | Used by |
+|----------|----------------------------------|-------------------|---------|
+| Generic / multi-platform | `templates/github/copilot-instructions.md.template` | `templates/github/CLAUDE.md.template` | `generic-repository.tf` |
+| Joomla / MokoWaaS | `templates/github/copilot-instructions.joomla.md.template` | `templates/github/CLAUDE.joomla.md.template` | `waas-component.tf` |
+| Dolibarr / MokoCRM | `templates/github/copilot-instructions.dolibarr.md.template` | `templates/github/CLAUDE.dolibarr.md.template` | `crm-module.tf` |
+
+For full details on how platform templates are selected and what each adds, see [platform-ai-templates.md](../guide/platform-ai-templates.md).
 
 ### `.github/copilot.yml`
 
@@ -187,6 +199,7 @@ AI-generated code may incorporate patterns from training data. Before committing
 | [security-scanning.md](security-scanning.md) | Security scanning requirements |
 | [docs/guide/ai-client-setup.md](../guide/ai-client-setup.md) | How to configure AI tools in a governed repository |
 | [docs/guide/repo-sync.md](../guide/repo-sync.md) | How bulk sync pushes context files to governed repos |
+| [docs/guide/platform-ai-templates.md](../guide/platform-ai-templates.md) | Platform-specific AI template selection and customisation |
 
 ## Metadata
 
@@ -199,13 +212,14 @@ AI-generated code may incorporate patterns from training data. Before committing
 | Owner         | Moko Consulting |
 | Repo          | https://github.com/mokoconsulting-tech/ |
 | Path          | /docs/policy/ai-tool-governance.md |
-| Version       | 04.00.04 |
+| Version       | 04.00.05 |
 | Status        | Active |
-| Last Reviewed | 2026-03-08 |
+| Last Reviewed | 2026-03-09 |
 | Reviewed By   | Documentation Team |
 
 ## Revision History
 
 | Date       | Author          | Change  | Notes |
 | ---------- | --------------- | ------- | ----- |
+| 2026-03-09 | Moko Consulting | Updated | Added platform-specific template section; Joomla and Dolibarr templates documented |
 | 2026-03-08 | Moko Consulting | Created | Initial AI tool governance policy |

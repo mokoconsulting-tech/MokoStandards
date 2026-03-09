@@ -343,22 +343,22 @@ EOT
           {
             name                = "copilot-instructions.md"
             extension           = "md"
-            description         = "GitHub Copilot custom instructions enforcing MokoStandards"
+            description         = "GitHub Copilot custom instructions enforcing MokoStandards — Dolibarr/CRM edition"
             requirement_status  = "required"
             always_overwrite    = false
             destination_path    = ".github"
             destination_filename = "copilot-instructions.md"
-            template            = "templates/github/copilot-instructions.md.template"
+            template            = "templates/github/copilot-instructions.dolibarr.md.template"
           },
           {
             name                = "CLAUDE.md"
             extension           = "md"
-            description         = "Claude AI assistant context enforcing MokoStandards"
+            description         = "Claude AI assistant context enforcing MokoStandards — Dolibarr/CRM edition"
             requirement_status  = "required"
             always_overwrite    = false
             destination_path    = ".github"
             destination_filename = "CLAUDE.md"
-            template            = "templates/github/CLAUDE.md.template"
+            template            = "templates/github/CLAUDE.dolibarr.md.template"
           }
         ]
         subdirectories = [

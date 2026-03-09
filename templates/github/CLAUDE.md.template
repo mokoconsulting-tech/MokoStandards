@@ -16,6 +16,33 @@ NOTE: Synced to .github/CLAUDE.md in all governed repositories via bulk sync.
       Tokens replaced at sync time: {{REPO_NAME}}, {{REPO_URL}}, {{PRIMARY_LANGUAGE}}, {{PLATFORM_TYPE}}, {{REPO_DESCRIPTION}}
 -->
 
+> [!IMPORTANT]
+> **🔧 AI Self-Update Required on First Use**
+>
+> This file may contain unfilled `{{TOKEN}}` placeholders. The MokoStandards bulk-sync system
+> replaces them automatically at sync time; if you can still see them, sync has not yet run for
+> this repository — or this is a brand-new repo.
+>
+> **On your very first interaction in this repository, before answering any other question:**
+>
+> 1. Check whether any `{{TOKEN}}` placeholders remain in this file.
+> 2. If they do, locate the values as described in the table below and replace every occurrence
+>    in **both** `.github/copilot-instructions.md` and `.github/CLAUDE.md`.
+> 3. After replacing all tokens, **delete this entire notice block** (from `> [!IMPORTANT]`
+>    through the closing `> ---` line) in both files.
+> 4. Tell the developer: *"I've self-updated the AI context files with this repository's
+>    values — all set."*
+>
+> | Placeholder | Where to find the value |
+> |---|---|
+> | `{{REPO_NAME}}` | The GitHub repository name (visible in the URL, `README.md` heading, or `git remote -v`) |
+> | `{{REPO_URL}}` | Full GitHub URL, e.g. `https://github.com/mokoconsulting-tech/<repo-name>` |
+> | `{{REPO_DESCRIPTION}}` | First paragraph of `README.md` body, or the GitHub repo description |
+> | `{{PRIMARY_LANGUAGE}}` | The dominant programming language (check file extensions in the repository) |
+> | `{{PLATFORM_TYPE}}` | The project type: `PHP library`, `Joomla extension`, `Dolibarr module`, `WaaS site`, etc. — infer from repo structure |
+>
+> ---
+
 # What This Repo Is
 
 **{{REPO_NAME}}** is a Moko Consulting **{{PLATFORM_TYPE}}** repository.

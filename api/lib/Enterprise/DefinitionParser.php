@@ -235,7 +235,9 @@ class DefinitionParser
 		$j = $i + 2; // skip <<
 
 		// Optional indent-strip marker
+		$stripIndent = false;
 		if (isset($content[$j]) && $content[$j] === '-') {
+			$stripIndent = true;
 			$j++;
 		}
 
@@ -264,7 +266,12 @@ class DefinitionParser
 			$lineEnd = ($lineEnd === false) ? $len : $lineEnd;
 
 			$line = substr($content, $j, $lineEnd - $j);
-			if (rtrim($line) === $delimiter) {
+			// For <<- (indent-stripping) form, the terminator may itself be indented;
+			// strip leading whitespace before comparing.  For the non-stripping form
+			// (<<), the terminator must be at column 0 — but we still rtrim trailing
+			// whitespace/CR to handle Windows line-endings gracefully.
+			$normalised = $stripIndent ? trim($line) : rtrim($line);
+			if ($normalised === $delimiter) {
 				return $lineEnd + 1;
 			}
 			$j = $lineEnd + 1;

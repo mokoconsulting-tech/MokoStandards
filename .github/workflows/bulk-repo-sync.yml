@@ -448,9 +448,9 @@ jobs:
             4. Monitor for any issues in target repositories
 
             ### 📚 Resources
-            - [Bulk Sync Script](api/automation/bulk_sync.php)
-            - [Workflow Configuration](.github/workflows/bulk-repo-sync.yml)
-            - [MokoStandards Documentation](https://github.com/mokoconsulting-tech/MokoStandards)
+            - [Bulk Sync Script](${{ github.server_url }}/${{ github.repository }}/blob/${{ github.ref_name }}/api/automation/bulk_sync.php)
+            - [Workflow Configuration](${{ github.server_url }}/${{ github.repository }}/blob/${{ github.ref_name }}/.github/workflows/bulk-repo-sync.yml)
+            - [MokoStandards Documentation](${{ github.server_url }}/${{ github.repository }})
 
             ---
             *This issue was automatically created by the Bulk Repository Sync workflow.*
@@ -548,9 +548,9 @@ jobs:
             6. Update the bulk_sync.php script if there's a bug
 
             ### 📚 Resources
-            - [Bulk Sync Script](api/automation/bulk_sync.php)
-            - [Workflow Configuration](.github/workflows/bulk-repo-sync.yml)
-            - [MokoStandards Documentation](https://github.com/mokoconsulting-tech/MokoStandards)
+            - [Bulk Sync Script](${{ github.server_url }}/${{ github.repository }}/blob/${{ github.ref_name }}/api/automation/bulk_sync.php)
+            - [Workflow Configuration](${{ github.server_url }}/${{ github.repository }}/blob/${{ github.ref_name }}/.github/workflows/bulk-repo-sync.yml)
+            - [MokoStandards Documentation](${{ github.server_url }}/${{ github.repository }})
 
             ---
             *This issue was automatically created by the Bulk Repository Sync workflow.*

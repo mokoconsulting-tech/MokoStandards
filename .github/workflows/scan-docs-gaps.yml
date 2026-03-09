@@ -1,0 +1,106 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.Documentation
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/scan-docs-gaps.yml
+# VERSION: 04.00.03
+# BRIEF: Scan docs/ for missing or unwritten guides and policies; optionally create issues
+# NOTE: Runs monthly on schedule and on-demand via workflow_dispatch
+
+name: Scan Documentation Gaps
+
+on:
+  schedule:
+    # First day of each month at 06:00 UTC
+    - cron: '0 6 1 * *'
+  workflow_dispatch:
+    inputs:
+      create_issues:
+        description: 'Create GitHub issues for every gap found'
+        required: false
+        type: boolean
+        default: false
+      priority_filter:
+        description: 'Only report gaps at this priority level (high, medium, low; leave blank for all)'
+        required: false
+        type: string
+        default: ''
+      dry_run:
+        description: 'Dry run — report gaps but do not create issues'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  scan-docs-gaps:
+    name: Scan Documentation Gaps
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2
+        with:
+          php-version: '8.1'
+          tools: composer
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Scan for documentation gaps
+        id: scan
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          set -e
+
+          ARGS="--verbose"
+
+          if [ -n "${{ inputs.priority_filter }}" ]; then
+            ARGS="$ARGS --priority-filter=${{ inputs.priority_filter }}"
+          fi
+
+          if [ "${{ inputs.dry_run }}" == "true" ]; then
+            ARGS="$ARGS --dry-run"
+          fi
+
+          if [ "${{ inputs.create_issues }}" == "true" ] || [ "${{ github.event_name }}" == "schedule" ]; then
+            ARGS="$ARGS --create-issues"
+          fi
+
+          echo "## 📚 Documentation Gap Scan" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Trigger:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Create issues:** ${{ inputs.create_issues || 'true (scheduled)' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Priority filter:** ${{ inputs.priority_filter || 'all' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          php api/validate/scan_docs_gaps.php $ARGS 2>&1 | tee /tmp/scan_docs_gaps.log
+          SCAN_EXIT=${PIPESTATUS[0]}
+
+          if [ $SCAN_EXIT -eq 0 ]; then
+            echo "### ✅ Scan completed successfully" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ❌ Scan exited with code $SCAN_EXIT" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          exit $SCAN_EXIT
+
+      - name: Report results
+        if: always()
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Workflow Details**" >> $GITHUB_STEP_SUMMARY
+          echo "- Event: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Completed at: $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "- Run: [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY

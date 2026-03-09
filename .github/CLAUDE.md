@@ -359,11 +359,13 @@ Whenever you make code changes, update the corresponding documentation in the sa
 | Bug fix | `CHANGELOG.md` entry under `Fixed` |
 | Breaking change | `CHANGELOG.md` entry under `Changed`; update `CONTRIBUTING.md` if contributor steps change |
 | Any modified file | Update the `VERSION` field in that file's `FILE INFORMATION` block |
+| **Every PR** | **Bump the patch version** — increment `MM.mm.pp` in `README.md`; `sync-version-on-merge` propagates it to all headers and badges on merge |
 
 **Rule**: if your code change makes any existing doc sentence false or incomplete, fix the doc before closing the PR. The PR checklist item `docs/ updated if public-facing behaviour changed` is a reminder, not a suggestion.
 
 # PR Checklist
 
+- [ ] Patch version bumped in `README.md` (`MM.mm.pp` → next patch)
 - [ ] Branch name follows `(prefix)/MAJOR.MINOR.PATCH[/description]` format
 - [ ] All new files have a correct FILE INFORMATION header
 - [ ] Version badge added to any new Markdown files

@@ -132,6 +132,7 @@ See `.editorconfig` for authoritative per-extension rules.
 
 ### Commit / Version discipline
 
+- **Bump the patch version on every PR** — increment `MM.mm.pp` (e.g. `04.00.04` → `04.00.05`) in `README.md` before opening the PR; the `sync-version-on-merge` workflow propagates it to all file headers and badges on merge
 - Update `VERSION` field in every modified file header
 - Keep `CHANGELOG.md` current for every PR
 - Semantic version format: `MM.mm.pp` (e.g., `04.00.03`)
@@ -165,6 +166,7 @@ Whenever you make code changes, update the corresponding documentation in the sa
 | Bug fix | `CHANGELOG.md` entry under `Fixed` |
 | Breaking change | `CHANGELOG.md` entry under `Changed`; update `CONTRIBUTING.md` if contributor steps change |
 | Any modified file | Update the `VERSION` field in that file's `FILE INFORMATION` block |
+| **Every PR** | **Bump the patch version** — increment `MM.mm.pp` in `README.md`; `sync-version-on-merge` propagates it to all headers and badges on merge |
 
 If your code change makes any existing doc sentence false or incomplete, fix the doc before closing the PR.
 

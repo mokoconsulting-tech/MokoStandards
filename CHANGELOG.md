@@ -15,13 +15,13 @@
  DEFGROUP: MokoStandards
  INGROUP: MokoStandards.Documentation
  REPO: https://github.com/mokoconsulting-tech/MokoStandards/
- VERSION: 04.00.03
+ VERSION: 04.00.04
  PATH: ./CHANGELOG.md
  BRIEF: Version history using Keep a Changelog
  NOTE: Adheres to SemVer when applicable
  -->
 
-# CHANGELOG - MokoStandards (VERSION: 04.00.03)
+# CHANGELOG - MokoStandards (VERSION: 04.00.04)
 
 All notable changes to this project will be documented in this file.
 
@@ -96,6 +96,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhanced sync logs with security validation results and detailed operation tracking
 - Improved metrics collection with gauges, timers, and comprehensive measurements
 - Updated `docs/workflows/bulk-repo-sync.md` with enterprise-ready certification badge and documentation
+
+## [04.00.04] - 2026-03-09
+
+### Security
+
+- **Standardised token usage across all workflows, templates, and documentation**:
+  - Replaced all `secrets.GITHUB_TOKEN` references with `secrets.GH_TOKEN` in active workflows
+  - Renamed `GITHUB_TOKEN:` env keys to `GH_TOKEN:` in `pin-action-shas.yml` (×2) and `sync-version-on-merge.yml` (×1)
+  - Updated all 13 template workflow files (`.template`) to use `secrets.GH_TOKEN`
+  - Corrected `manage-repo-templates.yml.template` env var setup, fallback source, and Terraform variable refs
+  - Updated error message strings referencing `GITHUB_TOKEN is required` → `GH_TOKEN is required`
+  - Updated Terraform health-check definitions (5 templates + 3 `api/definitions`) to check `GH_TOKEN` (org PAT) instead of `GITHUB_TOKEN` (auto-provided — trivially always present)
+  - Fixed key name typo `gch_token_available` → `gh_token_available` in all 5 repo-health template definitions
+
+### Changed
+
+- **Documentation fully updated to reflect GH_TOKEN standard**:
+  - Updated 22 documentation files (`docs/`, `CONTRIBUTING.md`, `CHANGELOG.md`, `templates/`)
+  - Python scripting-standards example: `os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")`
+  - Training sessions 2, 3, 4 PHP code examples: `getenv('GH_TOKEN') ?: getenv('GITHUB_TOKEN')`
+  - Terraform CLI examples in guides use `$GH_TOKEN`
+  - Health check label-deployment docs updated to reference org PAT requirement
+- **Patch version bump**: `04.00.03` → `04.00.04` across all file headers, PHP constants, badges, and config
 
 ## [04.00.03] - 2026-02-21 to 2026-02-23
 

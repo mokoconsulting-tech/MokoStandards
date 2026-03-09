@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Policy.Governance
 INGROUP: MokoStandards.Policy
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/governance/release-management.md
-VERSION: 04.00.03
+VERSION: 04.00.04
 BRIEF: Release management policy for production deployments
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Release Management Policy
 

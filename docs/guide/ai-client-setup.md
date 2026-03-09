@@ -27,7 +27,7 @@ VERSION: XX.YY.ZZ
 BRIEF: How to set up AI coding agent context files for all major AI clients in governed repositories
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # AI Coding Agent Setup Guide
 
@@ -336,7 +336,7 @@ repository. It must:
 - Start with the full HTML comment header (with GPL warranty disclaimer) using
   DEFGROUP: MokoStandards.Policy and INGROUP: MokoStandards.Documentation
 - Follow the full header with a blank line then the version badge:
-  [![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+  [![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 - Use tabs for indentation (not spaces)
 - Not include any hardcoded version numbers in body text
 - End with a ## Metadata table and a ## Revision History table
@@ -412,7 +412,7 @@ in the target repo before writing anything — do not guess at conventions.
 This markdown file is missing a version badge. After the closing --> of the
 HTML comment file header (or at the top if there is no header), add:
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 Ensure there is a blank line before and after the badge. Do not add any version
 number anywhere else in the file body.

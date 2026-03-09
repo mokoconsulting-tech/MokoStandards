@@ -90,7 +90,7 @@ BRIEF: One-line description
 
 - The `VERSION: XX.YY.ZZ` field in the README.md `FILE INFORMATION` block governs all other version references.
 - Update the version in `README.md` only — the `sync-version-on-merge` workflow propagates it automatically to all badges and `FILE INFORMATION` headers on merge to `main`.
-- Version format is zero-padded semver: `XX.YY.ZZ` (e.g. `04.00.03`).
+- Version format is zero-padded semver: `XX.YY.ZZ` (e.g. `04.00.04`).
 - Never hardcode a specific version in document body text — use the badge or FILE INFORMATION header only.
 
 ---

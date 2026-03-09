@@ -9,7 +9,7 @@ locals {
   config_metadata = {
     name              = "Repository Type Repo Health Defaults"
     description       = "Default repository structure and configuration schema definitions"
-    version           = "04.00.03"
+    version           = "04.00.04"
     last_updated      = "2026-02-27"
     maintainer        = "MokoStandards Team"
     schema_version    = "2.0"

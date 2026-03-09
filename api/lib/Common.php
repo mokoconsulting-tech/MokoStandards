@@ -12,7 +12,7 @@
  * PATH: /api/lib/Common.php
  * VERSION: XX.YY.ZZ
  * BRIEF: Common utility functions for api/ scripts
- * NOTE: Version format used throughout is zero-padded semver: XX.YY.ZZ (e.g. 04.00.03).
+ * NOTE: Version format used throughout is zero-padded semver: XX.YY.ZZ (e.g. 04.00.04).
  *       All version regex patterns enforce exactly two digits per component by design.
  */
 
@@ -276,7 +276,7 @@ class Common
 	 * Searches upward from cwd for the repo root, then reads README.md.
 	 * Falls back to FALLBACK_VERSION when the file is absent or unparseable.
 	 *
-	 * @return string  Zero-padded semver string, e.g. "04.00.03".
+	 * @return string  Zero-padded semver string, e.g. "04.00.04".
 	 */
 	public static function getVersionFromReadme(): string
 	{

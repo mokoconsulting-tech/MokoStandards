@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Training
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: docs/training/session-7-terraform-infrastructure.md
-VERSION: 04.00.03
+VERSION: 04.00.04
 BRIEF: Training Session 7 - Terraform Infrastructure and Configuration Management
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Session 7: Terraform Infrastructure and Configuration Management
 
@@ -90,14 +90,14 @@ All terraform files in MokoStandards follow a consistent structure:
 # INGROUP: MokoStandards.Terraform
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /infrastructure/terraform/main.tf
-# VERSION: 04.00.03
+# VERSION: 04.00.04
 # BRIEF: Main terraform configuration
 
 locals {
   file_metadata = {
     name              = "Main Configuration"
     description       = "Primary terraform configuration"
-    version           = "04.00.03"
+    version           = "04.00.04"
     last_updated      = "2026-02-21T00:00:00Z"
     maintainer        = "MokoStandards Team"
     schema_version    = "2.0"
@@ -125,7 +125,7 @@ locals {
 1. ✅ GPL-3.0-or-later copyright header
 2. ✅ FILE INFORMATION section
 3. ✅ file_metadata locals block
-4. ✅ Version 04.00.03
+4. ✅ Version 04.00.04
 5. ✅ ISO 8601 timestamps
 6. ✅ Schema version 2.0
 
@@ -147,14 +147,14 @@ cat > infrastructure/terraform/modules/example-module/main.tf << 'EOF'
 # INGROUP: MokoStandards.Terraform
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /infrastructure/terraform/modules/example-module/main.tf
-# VERSION: 04.00.03
+# VERSION: 04.00.04
 # BRIEF: Example terraform module
 
 locals {
   file_metadata = {
     name              = "Example Module"
     description       = "Example terraform module for training"
-    version           = "04.00.03"
+    version           = "04.00.04"
     last_updated      = "2026-02-21T00:00:00Z"
     maintainer        = "Training Participant"
     schema_version    = "2.0"
@@ -480,7 +480,7 @@ MokoStandards includes a comprehensive **standards-compliance.yml** workflow wit
 - File size limits (1MB warning, 10MB error)
 
 **Metrics Checks** (4):
-- Version consistency (04.00.03 everywhere)
+- Version consistency (04.00.04 everywhere)
 - Enterprise readiness assessment
 - Repository health scoring
 - Performance metrics
@@ -723,7 +723,7 @@ MokoStandards Bulk Sync Log
 =================================================================
 Session ID: sync-2026-02-21-073000
 Repository: mokoconsulting-tech/my-api-service
-MokoStandards Version: 04.00.03
+MokoStandards Version: 04.00.04
 Sync Started: 2026-02-21T07:30:00Z
 Sync Completed: 2026-02-21T07:30:45Z
 Duration: 45 seconds
@@ -731,7 +731,7 @@ Duration: 45 seconds
 OPERATIONS PERFORMED
 [07:30:01] Repository sync started
 [07:30:03] Validating .github/config.tf - PASSED ✓
-[07:30:05] Updating .github/config.tf to version 04.00.03
+[07:30:05] Updating .github/config.tf to version 04.00.04
 [07:30:10] Processing 25 files
 
 FILES PROCESSED
@@ -795,14 +795,14 @@ Validation: PASSED ✓
 # INGROUP: [Project].Configuration
 # REPO: https://github.com/mokoconsulting-tech/[repo]
 # PATH: /.github/config.tf
-# VERSION: 04.00.03
+# VERSION: 04.00.04
 # BRIEF: Repository-specific override configuration
 
 locals {
   file_metadata = {
     name              = "[Project] Override Configuration"
     description       = "Override configuration for bulk synchronization"
-    version           = "04.00.03"
+    version           = "04.00.04"
     last_updated      = "2026-02-21T00:00:00Z"
     maintainer        = "[Team Name]"
     schema_version    = "2.0"
@@ -867,7 +867,7 @@ locals {
 
 **During Bulk Sync**:
 1. ✅ Validates config.tf syntax
-2. ✅ Updates config.tf version to 04.00.03
+2. ✅ Updates config.tf version to 04.00.04
 3. ✅ Preserves repository-specific sections
 4. ✅ Processes files by enforcement level
 5. ✅ Logs all decisions with reasons
@@ -908,14 +908,14 @@ cat > .github/config.tf << 'EOF'
 # INGROUP: WebApp.Configuration
 # REPO: https://github.com/mokoconsulting-tech/webapp
 # PATH: /.github/config.tf
-# VERSION: 04.00.03
+# VERSION: 04.00.04
 # BRIEF: Web application override configuration
 
 locals {
   file_metadata = {
     name              = "WebApp Override Configuration"
     description       = "Override configuration for web application"
-    version           = "04.00.03"
+    version           = "04.00.04"
     last_updated      = "2026-02-21T00:00:00Z"
     maintainer        = "WebApp Team"
     schema_version    = "2.0"
@@ -984,7 +984,7 @@ php scripts/automation/bulk_update_repos.php \
 # Scanning .github/config.tf...
 # ✓ config.tf validation passed
 # Updating .github/config.tf...
-# ✓ config.tf updated to version 04.00.03
+# ✓ config.tf updated to version 04.00.04
 #
 # Processing files:
 # ✓ Sync .github/workflows/deploy-to-staging.yml: OPTIONAL (Level 1 - explicitly included)
@@ -1051,12 +1051,12 @@ Processing repository: mokoconsulting-tech/example
   ✓ Successfully migrated
   
   Scanning .github/config.tf...
-  ⚠ Version outdated - will be updated to 04.00.03
+  ⚠ Version outdated - will be updated to 04.00.04
   ⚠ File 'standards-compliance.yml' is protected but marked as FORCE_OVERRIDE
   ✓ config.tf validation passed
   
   Updating .github/config.tf...
-  ✓ Updated config.tf to version 04.00.03
+  ✓ Updated config.tf to version 04.00.04
   
   Processing files:
   ✓ Sync file1.yml: FORCED (Level 4)
@@ -1385,7 +1385,7 @@ locals {
   file_metadata = {
     name              = "API Project Override Configuration"
     description       = "Override configuration for API service"
-    version           = "04.00.03"
+    version           = "04.00.04"
     last_updated      = "2026-02-21T00:00:00Z"
     maintainer        = "API Team"
     schema_version    = "2.0"
@@ -1542,7 +1542,7 @@ locals {
 
 ---
 
-**Version**: 04.00.03  
+**Version**: 04.00.04  
 **Last Updated**: 2026-02-21  
 **Instructor**: MokoStandards Team  
 **Duration**: 2.5 hours

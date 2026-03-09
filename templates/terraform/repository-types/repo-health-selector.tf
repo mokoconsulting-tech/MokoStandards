@@ -71,7 +71,7 @@ locals {
     config_source   = local.selected_config.source
     total_points    = local.selected_config.points
     description     = local.selected_config.description
-    version         = "04.00.03"
+    version         = "04.00.04"
     last_updated    = "2026-02-27"
   }
   

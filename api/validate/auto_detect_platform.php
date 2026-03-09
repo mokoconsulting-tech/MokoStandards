@@ -12,7 +12,7 @@
  * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: /api/validate/auto_detect_platform.php
- * VERSION: 04.00.03
+ * VERSION: 04.00.04
  * BRIEF: Automatic platform detection and validation - PHP implementation
  */
 

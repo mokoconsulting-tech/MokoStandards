@@ -23,15 +23,15 @@ DEFGROUP: MokoStandards.Roadmap
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: ROADMAP.md
-VERSION: 04.00.03
+VERSION: 04.00.04
 BRIEF: Version planning roadmap for MokoStandards with release strategy and milestones
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # MokoStandards Version Roadmap
 
-**Current Version**: 04.00.03  
+**Current Version**: 04.00.04  
 **Last Updated**: 2026-02-23  
 **Release Cycle**: Minor updates monthly, Major updates quarterly
 
@@ -43,7 +43,19 @@ This document outlines version planning, release strategy, and high-level milest
 
 ## Version History
 
-### Version 04.00.03 (Current) - 2026-02-21 to 2026-02-23
+### Version 04.00.04 (Current) - 2026-03-09
+**Type**: PATCH (Security + Documentation)
+**Status**: ✅ Released
+
+**Changes**:
+- 🔒 **Token Standardisation** — All `secrets.GITHUB_TOKEN` references replaced with `secrets.GH_TOKEN` in active workflows, all 13 template workflow files, and Terraform health-check definitions
+- 📄 **Documentation Update** — 22 documentation files updated to reflect GH_TOKEN standard, including training sessions, policy examples, and guides
+- 🔧 **Terraform Health Checks** — Health check definitions now check `GH_TOKEN` (org PAT) instead of `GITHUB_TOKEN` (auto-provided, trivially present)
+- 🐛 **Typo Fix** — `gch_token_available` corrected to `gh_token_available` in 5 repo-health template definitions
+
+**Breaking Changes**: None
+
+### Version 04.00.03 (Previous) - 2026-02-21 to 2026-02-23
 **Type**: MINOR (New Features + Major Enhancements)  
 **Status**: ✅ Released and Fully Documented
 
@@ -236,7 +248,7 @@ Following **Semantic Versioning** (XX.YY.ZZ):
 
 ## Success Metrics by Version
 
-### Version 04.00.03 (Current - ACHIEVED ✅)
+### Version 04.00.03 (Previous - ACHIEVED ✅)
 - ✅ 6-tier enforcement system implemented
 - ✅ 28 validation checks operational
 - ✅ Visual badge system integrated
@@ -246,6 +258,13 @@ Following **Semantic Versioning** (XX.YY.ZZ):
 - ✅ 12 terraform files standardized
 - ✅ Remote logging system deployed
 - ✅ Auto-migration system operational
+- ✅ 100% backward compatible
+
+### Version 04.00.04 (Current - ACHIEVED ✅)
+- ✅ GH_TOKEN standard enforced across all workflows and templates
+- ✅ 22 documentation files updated
+- ✅ Terraform health checks validate org PAT (GH_TOKEN)
+- ✅ Typo `gch_token_available` fixed to `gh_token_available`
 - ✅ 100% backward compatible
 
 ### Version 04.00.04 or 04.01.00 (Target: Q2 2026)
@@ -306,7 +325,7 @@ Following **Semantic Versioning** (XX.YY.ZZ):
 
 ### Version-Specific Documentation
 - **[CHANGELOG.md](CHANGELOG.md)** - Detailed version history
-- **[Current Version Guide](docs/)** - Documentation for 04.00.03
+- **[Current Version Guide](docs/)** - Documentation for 04.00.04
 - **[Migration Guides](docs/planning/)** - Upgrade instructions
 
 ### Planning Documentation
@@ -358,7 +377,7 @@ Following **Semantic Versioning** (XX.YY.ZZ):
 
 ---
 
-**Current Version**: 04.00.03  
-**Next Version**: 04.00.04 or 04.01.00 (Planned Q2 2026)  
-**Release Type**: MINOR (New Features)  
-**Status**: ✅ Current Release Complete - Six-tier enforcement system, 28 checks, 45KB+ documentation, visual badges, remote logging, terraform standardization
+**Current Version**: 04.00.04
+**Next Version**: 04.00.05 or 04.01.00 (Planned Q2 2026)
+**Release Type**: PATCH (Security + Documentation)
+**Status**: ✅ Current Release Complete - GH_TOKEN standardisation, documentation updates, Terraform health-check fixes

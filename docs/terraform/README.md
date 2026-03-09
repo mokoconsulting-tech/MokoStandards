@@ -7,7 +7,7 @@
 
 | Field | Value |
 |-------|-------|
-| **VERSION** | 04.00.03 |
+| **VERSION** | 04.00.04 |
 | **LAST UPDATED** | 2026-02-21 |
 | **STATUS** | Active |
 
@@ -158,7 +158,7 @@ All terraform files in this repository follow [Terraform File Standards](../poli
 1. ✅ GPL-3.0-or-later copyright header
 2. ✅ FILE INFORMATION section
 3. ✅ `file_metadata` locals block
-4. ✅ Version 04.00.03
+4. ✅ Version 04.00.04
 5. ✅ ISO 8601 timestamps
 6. ✅ Schema version 2.0
 
@@ -173,9 +173,9 @@ All terraform files in this repository follow [Terraform File Standards](../poli
 
 | Version | Date | Changes |
 |---------|------|---------|
-| 04.00.03 | 2026-02-21 | Comprehensive terraform documentation added |
-| 04.00.03 | 2026-02-20 | Override system standardized |
-| 04.00.03 | 2026-02-19 | Initial terraform structure |
+| 04.00.04 | 2026-02-21 | Comprehensive terraform documentation added |
+| 04.00.04 | 2026-02-20 | Override system standardized |
+| 04.00.04 | 2026-02-19 | Initial terraform structure |
 
 ## Contributing
 

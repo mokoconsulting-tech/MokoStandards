@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Governance
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/ai-tool-governance.md
-VERSION: 04.00.03
+VERSION: 04.00.04
 BRIEF: Governance policy for AI coding tools in all MokoStandards-governed repositories
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # AI Tool Governance Policy
 
@@ -199,7 +199,7 @@ AI-generated code may incorporate patterns from training data. Before committing
 | Owner         | Moko Consulting |
 | Repo          | https://github.com/mokoconsulting-tech/ |
 | Path          | /docs/policy/ai-tool-governance.md |
-| Version       | 04.00.03 |
+| Version       | 04.00.04 |
 | Status        | Active |
 | Last Reviewed | 2026-03-08 |
 | Reviewed By   | Documentation Team |

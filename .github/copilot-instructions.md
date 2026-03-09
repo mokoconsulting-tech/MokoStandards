@@ -7,7 +7,7 @@
 - **Languages**: PHP (primary), Python, PowerShell, Bash, YAML, Terraform HCL
 - **PHP requirement**: ≥ 8.1; Composer-managed dependencies
 - **License**: GPL-3.0-or-later
-- **Version**: 04.00.03 (semantic versioning `MM.mm.pp` style used throughout)
+- **Version**: 04.00.04 (semantic versioning `MM.mm.pp` style used throughout)
 
 ---
 
@@ -104,7 +104,7 @@ Every file that supports comments **must** start with a copyright block. Use the
  * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: /<relative-path-from-repo-root>
- * VERSION: 04.00.03
+ * VERSION: 04.00.04
  * BRIEF: <one-line description>
  */
 ```

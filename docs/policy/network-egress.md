@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Security
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/network-egress.md
-VERSION: 04.00.03
+VERSION: 04.00.04
 BRIEF: Policy governing outbound network access from CI/CD runners and development workstations
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Network Egress Policy
 
@@ -256,7 +256,7 @@ For on-premise or VPN-connected development environments, apply the rules in `en
 | Owner         | Moko Consulting |
 | Repo          | https://github.com/mokoconsulting-tech/ |
 | Path          | /docs/policy/network-egress.md |
-| Version       | 04.00.03 |
+| Version       | 04.00.04 |
 | Status        | Active |
 | Last Reviewed | 2026-03-08 |
 | Reviewed By   | Documentation Team |

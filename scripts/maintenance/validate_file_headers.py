@@ -24,7 +24,7 @@ DEFGROUP: MokoStandards.Scripts
 INGROUP: MokoStandards.Validation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /scripts/maintenance/validate_file_headers.py
-VERSION: 04.00.03
+VERSION: 04.00.04
 BRIEF: Validate copyright headers and file information in repository files
 """
 

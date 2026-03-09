@@ -51,7 +51,7 @@ All Terraform files (`.tf`) MUST follow this structure:
 # INGROUP: [Parent.Group]
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /path/to/file.tf
-# VERSION: 04.00.03
+# VERSION: 04.00.04
 # BRIEF: [Brief one-line description]
 ```
 
@@ -60,7 +60,7 @@ All Terraform files (`.tf`) MUST follow this structure:
 - **INGROUP**: Parent group this file belongs to (e.g., `MokoStandards.Configuration`)
 - **REPO**: Repository URL (always MokoStandards for these files)
 - **PATH**: Full path from repository root, starting with `/`
-- **VERSION**: Current repository version (04.00.03)
+- **VERSION**: Current repository version (04.00.04)
 - **BRIEF**: Short one-line description of file purpose
 
 ### 3. Detailed Description (REQUIRED)
@@ -84,7 +84,7 @@ locals {
   file_metadata = {
     name              = "[Descriptive Name]"
     description       = "[Detailed description of file purpose]"
-    version           = "04.00.03"
+    version           = "04.00.04"
     last_updated      = "2026-02-21T00:00:00Z"  # ISO 8601 format
     maintainer        = "MokoStandards Team"
     schema_version    = "2.0"
@@ -104,7 +104,7 @@ locals {
 **Required Metadata Fields**:
 - **name**: Human-readable name
 - **description**: What this file does
-- **version**: Must match repository version (04.00.03)
+- **version**: Must match repository version (04.00.04)
 - **last_updated**: ISO 8601 timestamp (UTC)
 - **maintainer**: "MokoStandards Team"
 - **schema_version**: "2.0"
@@ -164,7 +164,7 @@ locals {
 
 ### override.config.tf → .github/config.tf
 
-**Location**: `.github/config.tf` (new standard as of v04.00.03)
+**Location**: `.github/config.tf` (new standard as of v04.00.04)
 **Purpose**: Repository-specific overrides for bulk synchronization
 **file_type**: `"override"`
 
@@ -202,7 +202,7 @@ When bulk sync detects a legacy override file:
 # INGROUP: MokoStandards.Configuration
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /infrastructure/terraform/main.tf
-# VERSION: 04.00.03
+# VERSION: 04.00.04
 # BRIEF: Main Terraform configuration for MokoStandards
 
 # This is the primary Terraform configuration file that loads
@@ -212,7 +212,7 @@ locals {
   file_metadata = {
     name              = "MokoStandards Main Terraform Configuration"
     description       = "Primary terraform file that orchestrates repository schema definitions"
-    version           = "04.00.03"
+    version           = "04.00.04"
     last_updated      = "2026-02-21T00:00:00Z"
     maintainer        = "MokoStandards Team"
     schema_version    = "2.0"
@@ -253,7 +253,7 @@ During code review, verify:
 - [ ] Copyright header present and correct
 - [ ] FILE INFORMATION complete and accurate
 - [ ] file_metadata locals block present
-- [ ] Version is 04.00.03
+- [ ] Version is 04.00.04
 - [ ] Last updated timestamp is recent
 - [ ] file_type is appropriate
 - [ ] Description matches actual functionality
@@ -265,7 +265,7 @@ During code review, verify:
 1. Add copyright header if missing
 2. Add/update FILE INFORMATION section
 3. Add `file_metadata` locals block
-4. Update version to 04.00.03
+4. Update version to 04.00.04
 5. Ensure timestamps are ISO 8601 (UTC)
 
 ### Template
@@ -280,7 +280,7 @@ Use the template at `templates/infrastructure/terraform/template.tf` as a starti
 
 ## Changelog
 
-### Version 04.00.03 (2026-02-21)
+### Version 04.00.04 (2026-02-21)
 - **Added**: Comprehensive Terraform file structure standards
 - **Added**: Required file_metadata locals block
 - **Added**: File type classification
@@ -382,7 +382,7 @@ The `terraform-validation` job performs 6 distinct checks:
    - Warns if missing with reference to documentation
 
 5. **Version Consistency**
-   - Validates all files use current version (04.00.03)
+   - Validates all files use current version (04.00.04)
    - Identifies version mismatches
    - Ensures consistency across repository
 
@@ -411,7 +411,7 @@ The `terraform-validation` job performs 6 distinct checks:
 ✅ All Terraform files contain file_metadata block
 
 ### Version Consistency Check
-✅ All Terraform file versions match 04.00.03
+✅ All Terraform file versions match 04.00.04
 
 ### Copyright Header Check
 ✅ All Terraform files have copyright headers
@@ -442,7 +442,7 @@ The bulk sync operation (via `bulk_update_repos.php`) includes comprehensive Ter
    - Detects conflicts with force-override files
 
 3. **Config.tf Update**
-   - Updates to latest version (04.00.03)
+   - Updates to latest version (04.00.04)
    - Updates `last_updated` timestamp
    - Preserves repository-specific customizations
    - Merges new standards with existing config
@@ -589,7 +589,7 @@ terraform fmt -recursive
 # Check docs/policy/terraform-file-standards.md
 
 # 4. Update versions
-# Ensure all files use 04.00.03
+# Ensure all files use 04.00.04
 ```
 
 ### Issue: File Not Being Synced

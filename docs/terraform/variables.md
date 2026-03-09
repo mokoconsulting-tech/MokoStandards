@@ -8,7 +8,7 @@
 | Field | Value |
 |-------|-------|
 | **File** | `infrastructure/terraform/variables.tf` |
-| **Version** | 04.00.03 |
+| **Version** | 04.00.04 |
 | **Last Updated** | 2026-02-21 |
 | **Type** | variables |
 | **Purpose** | Input variable definitions for terraform configuration |
@@ -323,15 +323,15 @@ This file follows [Terraform File Standards](../policy/terraform-file-standards.
 - ✅ Copyright header (GPL-3.0-or-later)
 - ✅ FILE INFORMATION section
 - ✅ file_metadata locals block
-- ✅ Version 04.00.03
+- ✅ Version 04.00.04
 
 ## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
-| 04.00.03 | 2026-02-21 | Comprehensive variable documentation |
-| 04.00.03 | 2026-02-20 | Additional validation rules |
-| 04.00.03 | 2026-02-19 | Initial structured variables |
+| 04.00.04 | 2026-02-21 | Comprehensive variable documentation |
+| 04.00.04 | 2026-02-20 | Additional validation rules |
+| 04.00.04 | 2026-02-19 | Initial structured variables |
 
 ## See Also
 

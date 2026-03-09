@@ -6,7 +6,7 @@ locals {
   joomla_config_metadata = {
     name              = "Repository Type Joomla Health Configuration"
     description       = "Health scoring for Joomla extensions and components"
-    version           = "04.00.03"
+    version           = "04.00.04"
     last_updated      = "2026-02-27"
     maintainer        = "MokoStandards Team"
     schema_version    = "2.0"

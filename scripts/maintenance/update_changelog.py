@@ -20,7 +20,7 @@ You should have received a copy of the GNU General Public License (./LICENSE).
 DEFGROUP: MokoStandards
 INGROUP: MokoStandards.Scripts
 REPO: https://github.com/mokoconsulting-tech/MokoStandards/
-VERSION: 04.00.03
+VERSION: 04.00.04
 PATH: /scripts/maintenance/update_changelog.py
 BRIEF: Script to update CHANGELOG.md with entries to UNRELEASED section
 NOTE: Follows Keep a Changelog format, supports Added/Changed/Deprecated/Removed/Fixed/Security

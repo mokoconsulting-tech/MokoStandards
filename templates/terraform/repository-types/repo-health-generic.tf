@@ -6,7 +6,7 @@ locals {
   generic_config_metadata = {
     name              = "Repository Type Generic Health Configuration"
     description       = "Health scoring for generic libraries and projects"
-    version           = "04.00.03"
+    version           = "04.00.04"
     last_updated      = "2026-02-27"
     maintainer        = "MokoStandards Team"
     schema_version    = "2.0"

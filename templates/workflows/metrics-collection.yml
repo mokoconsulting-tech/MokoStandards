@@ -5,7 +5,7 @@
 # INGROUP: MokoStandards.MetricsCollection
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/metrics-collection.yml
-# VERSION: 04.00.03
+# VERSION: 04.00.04
 # BRIEF: Daily metrics collection and trend report generation
 # NOTE: Collects and exports metrics using PHP MetricsCollector
 

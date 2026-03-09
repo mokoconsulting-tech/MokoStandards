@@ -23,15 +23,15 @@ DEFGROUP: MokoStandards.Training
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: docs/training/README.md
-VERSION: 04.00.03
+VERSION: 04.00.04
 BRIEF: Training program index for MokoStandards enterprise libraries
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # MokoStandards Enterprise Libraries Training Program
 
-**Version**: 04.00.03  
+**Version**: 04.00.04  
 **Duration**: 17.5 hours across 7 sessions  
 **Format**: Instructor-led with hands-on exercises  
 **Level**: Intermediate to Advanced

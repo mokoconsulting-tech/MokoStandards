@@ -11,7 +11,7 @@
  * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: /api/lib/Enterprise/DefinitionParser.php
- * VERSION: 04.00.04
+ * VERSION: 04.00.05
  * BRIEF: Parses Terraform HCL repository definition files into a flat sync-file list
  */
 
@@ -25,11 +25,22 @@ namespace MokoStandards\Enterprise;
  * Parses the Terraform HCL repository definition files stored in
  * api/definitions/default/ and returns a flat list of file sync entries.
  *
- * Only file blocks that carry a `template` field are returned — these are
- * the files that the bulk-sync process should push to remote repositories.
+ * File blocks that carry either a `template` field (external file path) or a
+ * `stub_content` heredoc (inline content) are returned — these are the files
+ * that the bulk-sync process should push to remote repositories.
  *
- * Each returned entry is an associative array:
+ * When both `stub_content` and `template` are present in the same block,
+ * `stub_content` takes priority (the definition file is authoritative).
+ *
+ * Each returned entry is an associative array with one of two shapes:
+ *
+ * External-file entry (legacy, uses `template` path):
  *   'source'           => string  — path relative to the MokoStandards repo root
+ *   'destination'      => string  — path in the target repository
+ *   'always_overwrite' => bool    — true: overwrite existing file; false: create-only
+ *
+ * Inline-content entry (uses `stub_content` heredoc):
+ *   'inline_content'   => string  — rendered template content (ready to push)
  *   'destination'      => string  — path in the target repository
  *   'always_overwrite' => bool    — true: overwrite existing file; false: create-only
  */
@@ -173,6 +184,10 @@ class DefinitionParser
 	/**
 	 * Split $content into top-level `{ … }` blocks (depth 1 only).
 	 *
+	 * Heredoc sections (`<<-WORD … WORD` and `<<WORD … WORD`) are skipped in
+	 * their entirety so that any `{` or `}` characters inside template content
+	 * do not corrupt the brace-depth counter.
+	 *
 	 * @return string[]  Each element is the inner content of one block (without outer braces)
 	 */
 	private function splitBlocks(string $content): array
@@ -181,8 +196,15 @@ class DefinitionParser
 		$depth  = 0;
 		$start  = null;
 		$len    = strlen($content);
+		$i      = 0;
 
-		for ($i = 0; $i < $len; $i++) {
+		while ($i < $len) {
+			// Detect heredoc: <<WORD or <<-WORD
+			if ($content[$i] === '<' && isset($content[$i + 1]) && $content[$i + 1] === '<') {
+				$i = $this->skipHeredoc($content, $i, $len);
+				continue;
+			}
+
 			if ($content[$i] === '{') {
 				if ($depth === 0) {
 					$start = $i;
@@ -195,9 +217,60 @@ class DefinitionParser
 					$start = null;
 				}
 			}
+			$i++;
 		}
 
 		return $blocks;
+	}
+
+	/**
+	 * Advance past a HCL heredoc starting at position $i.
+	 *
+	 * Supports both `<<WORD` (content-preserving) and `<<-WORD`
+	 * (indent-stripping) forms.  Returns the index immediately after the
+	 * closing delimiter line, or $i + 2 if the heredoc is malformed.
+	 */
+	private function skipHeredoc(string $content, int $i, int $len): int
+	{
+		$j = $i + 2; // skip <<
+
+		// Optional indent-strip marker
+		if (isset($content[$j]) && $content[$j] === '-') {
+			$j++;
+		}
+
+		// Read the delimiter identifier (alphanumeric + underscore)
+		$delimiter = '';
+		while ($j < $len && (ctype_alnum($content[$j]) || $content[$j] === '_')) {
+			$delimiter .= $content[$j];
+			$j++;
+		}
+
+		if ($delimiter === '') {
+			return $i + 2; // Not a real heredoc
+		}
+
+		// Skip optional whitespace and the rest of the opening line
+		while ($j < $len && $content[$j] !== "\n") {
+			$j++;
+		}
+		if ($j < $len) {
+			$j++; // skip the newline after the opening line
+		}
+
+		// Scan line by line until the closing delimiter
+		while ($j < $len) {
+			$lineEnd = strpos($content, "\n", $j);
+			$lineEnd = ($lineEnd === false) ? $len : $lineEnd;
+
+			$line = substr($content, $j, $lineEnd - $j);
+			if (rtrim($line) === $delimiter) {
+				return $lineEnd + 1;
+			}
+			$j = $lineEnd + 1;
+		}
+
+		return $len; // unterminated heredoc — consume to EOF
 	}
 
 	/**
@@ -221,18 +294,28 @@ class DefinitionParser
 	}
 
 	/**
-	 * Parse a single file block `{ name = "…", template = "…", … }`.
-	 * Returns null when the block has no `template` field (not a synced file).
+	 * Parse a single file block `{ name = "…", template = "…", … }` or
+	 * `{ name = "…", stub_content = <<-EOT … EOT, … }`.
 	 *
-	 * @return array{source: string, destination: string, always_overwrite: bool}|null
+	 * When a `stub_content` heredoc is present it takes priority over a
+	 * `template` file-path reference.  Returns null when the block has
+	 * neither (structural-only entry that should not be synced).
+	 *
+	 * @return array{source?: string, inline_content?: string, destination: string, always_overwrite: bool}|null
 	 */
 	private function parseFileBlock(string $block, string $dirPath): ?array
 	{
-		// A block without 'template' is a structural-only entry; skip it.
-		if (!preg_match('/\btemplate\s*=\s*"([^"]+)"/', $block, $m)) {
-			return null;
+		// --- try stub_content heredoc first (preferred) ---
+		$inlineContent = $this->extractHeredoc($block, 'stub_content');
+
+		// --- fall back to external template path ---
+		$source = null;
+		if ($inlineContent === null) {
+			if (!preg_match('/\btemplate\s*=\s*"([^"]+)"/', $block, $m)) {
+				return null; // neither inline content nor template → structural entry
+			}
+			$source = $m[1];
 		}
-		$source = $m[1];
 
 		// name is required
 		if (!preg_match('/\bname\s*=\s*"([^"]+)"/', $block, $m)) {
@@ -259,11 +342,65 @@ class DefinitionParser
 			$alwaysOverwrite = ($m[1] === 'true');
 		}
 
+		if ($inlineContent !== null) {
+			return [
+				'inline_content'   => $inlineContent,
+				'destination'      => $destination,
+				'always_overwrite' => $alwaysOverwrite,
+			];
+		}
+
 		return [
 			'source'           => $source,
 			'destination'      => $destination,
 			'always_overwrite' => $alwaysOverwrite,
 		];
+	}
+
+	/**
+	 * Extract a heredoc value for the given field name from a block string.
+	 *
+	 * Handles both `<<WORD` (content-preserving) and `<<-WORD`
+	 * (indent-stripping) forms.  Leading tabs/spaces are stripped uniformly
+	 * when the `<<-` form is used, matching HCL semantics.
+	 *
+	 * Returns null when the field is not found.
+	 */
+	private function extractHeredoc(string $block, string $field): ?string
+	{
+		$pattern = '/\b' . preg_quote($field, '/') . '\s*=\s*<<(-?)(\w+)[ \t]*\r?\n(.*?)\r?\n[ \t]*\2[ \t]*(?:\r?\n|$)/s';
+		if (!preg_match($pattern, $block, $m)) {
+			return null;
+		}
+
+		$stripIndent = ($m[1] === '-');
+		$rawContent  = $m[3];
+
+		if ($stripIndent) {
+			// Determine the minimum leading-whitespace prefix across non-empty lines
+			$lines  = explode("\n", $rawContent);
+			$minIndent = PHP_INT_MAX;
+			foreach ($lines as $line) {
+				if (trim($line) === '') {
+					continue;
+				}
+				$indent = strlen($line) - strlen(ltrim($line, " \t"));
+				if ($indent < $minIndent) {
+					$minIndent = $indent;
+				}
+			}
+			if ($minIndent === PHP_INT_MAX) {
+				$minIndent = 0;
+			}
+			// Strip that many characters from the start of each line
+			$lines = array_map(
+				static fn(string $l) => (strlen($l) >= $minIndent) ? substr($l, $minIndent) : $l,
+				$lines
+			);
+			$rawContent = implode("\n", $lines);
+		}
+
+		return $rawContent;
 	}
 
 	/**

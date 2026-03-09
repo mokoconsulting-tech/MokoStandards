@@ -11,7 +11,7 @@
  * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: /api/lib/Enterprise/RepositorySynchronizer.php
- * VERSION: 04.00.04
+ * VERSION: 04.00.05
  * BRIEF: Repository synchronization enterprise library
  */
 
@@ -410,7 +410,7 @@ HCL;
      * @param string $org
      * @param string $repo
      * @param string $platform  Detected platform slug (e.g. 'crm-module')
-     * @param array<int, array{source: string, destination: string, always_overwrite: bool}> $filesToSync
+     * @param array<int, array{source?: string, inline_content?: string, destination: string, always_overwrite: bool}> $filesToSync
      * @param string $repoRoot  Absolute path to the MokoStandards repository root
      * @param bool   $force     When true, overwrite files even when always_overwrite = false
      * @return array{number: ?int, summary: array}
@@ -450,21 +450,28 @@ HCL;
 
             foreach ($filesToSync as $entry) {
                 $summary['total']++;
-                $sourcePath  = rtrim($repoRoot, '/') . '/' . ltrim($entry['source'], '/');
-                $targetPath  = $entry['destination'];
+                $targetPath   = $entry['destination'];
                 $canOverwrite = $force || $entry['always_overwrite'];
 
-                if (!file_exists($sourcePath)) {
-                    $this->logger->logWarning("Source not found: {$sourcePath}");
-                    $summary['skipped'][] = ['file' => $targetPath, 'reason' => 'Source file not found'];
-                    continue;
-                }
+                // Resolve content: prefer inline_content (stub_content heredoc),
+                // fall back to reading from the external template file (source path).
+                if (isset($entry['inline_content'])) {
+                    $content = $entry['inline_content'];
+                } else {
+                    $sourcePath = rtrim($repoRoot, '/') . '/' . ltrim($entry['source'] ?? '', '/');
 
-                $content = file_get_contents($sourcePath);
-                if ($content === false) {
-                    $this->logger->logWarning("Cannot read: {$sourcePath}");
-                    $summary['skipped'][] = ['file' => $targetPath, 'reason' => 'Failed to read source'];
-                    continue;
+                    if (!file_exists($sourcePath)) {
+                        $this->logger->logWarning("Source not found: {$sourcePath}");
+                        $summary['skipped'][] = ['file' => $targetPath, 'reason' => 'Source file not found'];
+                        continue;
+                    }
+
+                    $content = file_get_contents($sourcePath);
+                    if ($content === false) {
+                        $this->logger->logWarning("Cannot read: {$sourcePath}");
+                        $summary['skipped'][] = ['file' => $targetPath, 'reason' => 'Failed to read source'];
+                        continue;
+                    }
                 }
 
                 $content = $this->processTemplateContent($content, $repo, $org, $platform);

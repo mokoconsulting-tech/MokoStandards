@@ -1,0 +1,265 @@
+<!--
+Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+
+This file is part of a Moko Consulting project.
+
+SPDX-License-Identifier: GPL-3.0-or-later
+
+# FILE INFORMATION
+DEFGROUP: MokoStandards.Templates.GitHub
+INGROUP: MokoStandards.Templates
+REPO: https://github.com/mokoconsulting-tech/MokoStandards
+PATH: /templates/github/CLAUDE.joomla.md.template
+VERSION: XX.YY.ZZ
+BRIEF: Claude AI assistant context template for Joomla/MokoWaaS governed repositories
+NOTE: Synced to .github/CLAUDE.md in all Joomla/WaaS repos via bulk sync.
+      Tokens replaced at sync time: {{REPO_NAME}}, {{REPO_URL}}, {{EXTENSION_NAME}},
+      {{EXTENSION_TYPE}}, {{EXTENSION_ELEMENT}}, {{REPO_DESCRIPTION}}
+-->
+
+# What This Repo Is
+
+**{{REPO_NAME}}** is a Moko Consulting **MokoWaaS** (Joomla) extension repository.
+
+{{REPO_DESCRIPTION}}
+
+Extension name: **{{EXTENSION_NAME}}**
+Extension type: **{{EXTENSION_TYPE}}** (`{{EXTENSION_ELEMENT}}`)
+Repository URL: {{REPO_URL}}
+
+This repository is governed by [MokoStandards](https://github.com/mokoconsulting-tech/MokoStandards) — the single source of truth for coding standards, file-header policies, GitHub Actions workflows, and Terraform configuration templates across all Moko Consulting repositories.
+
+---
+
+# Repo Structure
+
+```
+{{REPO_NAME}}/
+├── manifest.xml          # Joomla installer manifest (root — required)
+├── update.xml            # Update server manifest (root — required)
+├── site/                 # Frontend (site) code
+│   ├── controller.php
+│   ├── controllers/
+│   ├── models/
+│   └── views/
+├── admin/                # Backend (admin) code
+│   ├── controller.php
+│   ├── controllers/
+│   ├── models/
+│   ├── views/
+│   └── sql/
+├── language/             # Language INI files
+├── media/                # CSS, JS, images
+├── docs/                 # Technical documentation
+├── tests/                # Test suite
+├── .github/
+│   ├── workflows/        # CI/CD workflows (synced from MokoStandards)
+│   ├── copilot-instructions.md
+│   └── CLAUDE.md         # This file
+├── README.md             # Version source of truth
+├── CHANGELOG.md
+├── CONTRIBUTING.md
+└── LICENSE               # GPL-3.0-or-later
+```
+
+---
+
+# Primary Language
+
+**PHP** (≥ 7.4) is the primary language for this Joomla extension. YAML uses 2-space indentation. All other text files use tabs per `.editorconfig`.
+
+---
+
+# Version Management
+
+**`README.md` is the single source of truth for the repository version.**
+
+- **Bump the patch version on every PR** — increment `XX.YY.ZZ` (e.g. `01.02.03` → `01.02.04`) in `README.md` before opening the PR; the `sync-version-on-merge` workflow propagates it to all `FILE INFORMATION` headers automatically on merge.
+- Version format is zero-padded semver: `XX.YY.ZZ` (e.g. `01.02.03`).
+- Never hardcode a version number in body text — use the badge or FILE INFORMATION header only.
+
+### Joomla Version Alignment
+
+Three files must **always have the same version**:
+
+| File | Where the version lives |
+|------|------------------------|
+| `README.md` | `FILE INFORMATION` block + badge |
+| `manifest.xml` | `<version>` tag |
+| `update.xml` | `<version>` in the most recent `<update>` block |
+
+The `make release` command / release workflow syncs all three automatically.
+
+---
+
+# update.xml — Required in Repo Root
+
+`update.xml` is the Joomla update server manifest. It allows Joomla installations to check for new versions of this extension via:
+
+```xml
+<!-- In manifest.xml -->
+<updateservers>
+	<server type="extension" priority="1" name="{{EXTENSION_NAME}}">
+		{{REPO_URL}}/raw/main/update.xml
+	</server>
+</updateservers>
+```
+
+**Rules:**
+- Every release prepends a new `<update>` block at the top — older entries are preserved.
+- `<version>` in `update.xml` must exactly match `<version>` in `manifest.xml` and `README.md`.
+- `<downloadurl>` must be a publicly accessible GitHub Releases asset URL.
+- `<targetplatform version="4\.[0-9]+">` — backslash is literal (Joomla regex syntax).
+
+Example `update.xml` entry for a new release:
+```xml
+<updates>
+	<update>
+		<name>{{EXTENSION_NAME}}</name>
+		<description>{{REPO_NAME}}</description>
+		<element>{{EXTENSION_ELEMENT}}</element>
+		<type>{{EXTENSION_TYPE}}</type>
+		<version>01.02.04</version>
+		<infourl title="Release Information">{{REPO_URL}}/releases/tag/01.02.04</infourl>
+		<downloads>
+			<downloadurl type="full" format="zip">
+				{{REPO_URL}}/releases/download/01.02.04/{{EXTENSION_ELEMENT}}-01.02.04.zip
+			</downloadurl>
+		</downloads>
+		<targetplatform name="joomla" version="4\.[0-9]+" />
+		<php_minimum>7.4</php_minimum>
+		<maintainer>Moko Consulting</maintainer>
+		<maintainerurl>https://mokoconsulting.tech</maintainerurl>
+	</update>
+</updates>
+```
+
+---
+
+# File Header Requirements
+
+Every new file **must** have a copyright header as its first content. JSON files, binary files, generated files, and third-party files are exempt.
+
+**PHP:**
+```php
+<?php
+/* Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+ *
+ * This file is part of a Moko Consulting project.
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ *
+ * FILE INFORMATION
+ * DEFGROUP: {{REPO_NAME}}.{{EXTENSION_TYPE}}
+ * INGROUP: {{REPO_NAME}}
+ * REPO: {{REPO_URL}}
+ * PATH: /site/controllers/item.php
+ * VERSION: XX.YY.ZZ
+ * BRIEF: One-line description of file purpose
+ */
+
+defined('_JEXEC') or die;
+```
+
+**Markdown / YAML / Shell / XML:** Use the appropriate comment syntax with the same fields.
+
+---
+
+# Coding Standards
+
+## Naming Conventions
+
+| Context | Convention | Example |
+|---------|-----------|---------|
+| PHP class | `PascalCase` | `ItemModel` |
+| PHP method / function | `camelCase` | `getItems()` |
+| PHP variable | `$snake_case` | `$item_id` |
+| PHP constant | `UPPER_SNAKE_CASE` | `MAX_ITEMS` |
+| PHP class file | `PascalCase.php` | `ItemModel.php` |
+| YAML workflow | `kebab-case.yml` | `ci-joomla.yml` |
+| Markdown doc | `kebab-case.md` | `installation-guide.md` |
+
+## Commit Messages
+
+Format: `<type>(<scope>): <subject>` — imperative, lower-case subject, no trailing period.
+
+Valid types: `feat` · `fix` · `docs` · `chore` · `ci` · `refactor` · `style` · `test` · `perf` · `revert` · `build`
+
+## Branch Naming
+
+Format: `<prefix>/<MAJOR.MINOR.PATCH>[/description]`
+
+Approved prefixes: `dev/` · `rc/` · `version/` · `patch/` · `copilot/` · `dependabot/`
+
+---
+
+# GitHub Actions — Token Usage
+
+Every workflow must use **`secrets.GH_TOKEN`** (the org-level Personal Access Token).
+
+```yaml
+# ✅ Correct
+- uses: actions/checkout@v4
+  with:
+    token: ${{ secrets.GH_TOKEN }}
+
+env:
+  GH_TOKEN: ${{ secrets.GH_TOKEN }}
+```
+
+```yaml
+# ❌ Wrong — never use these
+token: ${{ github.token }}
+token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+---
+
+# Keeping Documentation Current
+
+| Change type | Documentation to update |
+|-------------|------------------------|
+| New or renamed PHP class/method | PHPDoc block; `docs/api/` entry |
+| New or changed `manifest.xml` | Sync version to `update.xml` and `README.md` |
+| New release | Prepend `<update>` to `update.xml`; update `CHANGELOG.md`; bump `README.md` |
+| New or changed workflow | `docs/workflows/<workflow-name>.md` |
+| Any modified file | Update the `VERSION` field in that file's `FILE INFORMATION` block |
+| **Every PR** | **Bump the patch version** — increment `XX.YY.ZZ` in `README.md`; `sync-version-on-merge` propagates it |
+
+---
+
+# What NOT to Do
+
+- **Never commit directly to `main`** — all changes go through a PR.
+- **Never hardcode version numbers** in body text — update `README.md` and let automation propagate.
+- **Never let `manifest.xml`, `update.xml`, and `README.md` versions diverge.**
+- **Never skip the FILE INFORMATION block** on a new source file.
+- **Never use bare `catch (\Throwable $e) {}`** — always log or re-throw.
+- **Never mix tabs and spaces** within a file — follow `.editorconfig`.
+- **Never use `github.token` or `secrets.GITHUB_TOKEN` in workflows** — always use `secrets.GH_TOKEN`.
+- **Never remove `defined('_JEXEC') or die;`** from web-accessible PHP files.
+
+---
+
+# PR Checklist
+
+Before opening a PR, verify:
+
+- [ ] Patch version bumped in `README.md` (e.g. `01.02.03` → `01.02.04`)
+- [ ] If this is a release: `manifest.xml` version updated; `update.xml` updated with new entry
+- [ ] FILE INFORMATION headers updated in modified files
+- [ ] CHANGELOG.md updated
+- [ ] Tests pass
+
+---
+
+# Key Policy Documents (MokoStandards)
+
+| Document | Purpose |
+|----------|---------|
+| [file-header-standards.md](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/policy/file-header-standards.md) | Copyright-header rules for every file type |
+| [coding-style-guide.md](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/policy/coding-style-guide.md) | Naming and formatting conventions |
+| [branching-strategy.md](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/policy/branching-strategy.md) | Branch naming, hierarchy, and release workflow |
+| [merge-strategy.md](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/policy/merge-strategy.md) | Squash-merge policy and PR conventions |
+| [changelog-standards.md](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/policy/changelog-standards.md) | How and when to update CHANGELOG.md |
+| [joomla-development-guide.md](https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/guide/waas/joomla-development-guide.md) | MokoWaaS Joomla extension development guide |

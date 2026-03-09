@@ -118,6 +118,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Training sessions 2, 3, 4 PHP code examples: `getenv('GH_TOKEN') ?: getenv('GITHUB_TOKEN')`
   - Terraform CLI examples in guides use `$GH_TOKEN`
   - Health check label-deployment docs updated to reference org PAT requirement
+- **Patch-bump-every-PR rule added to all AI instruction files**:
+  - `.github/copilot-instructions.md` — new bullet in Commit/Version discipline section; new row in Keeping Documentation Current table
+  - `.github/CLAUDE.md` — new row in documentation table; new `[ ] Patch version bumped in README.md` PR checklist item
+  - `templates/github/copilot-instructions.md.template` — new bullet in Version Management section; new row in documentation table (synced to governed repos)
+  - `templates/github/CLAUDE.md.template` — new bullet in Version Management section; new row in documentation table (synced to governed repos)
+  - `templates/github/PULL_REQUEST_TEMPLATE.md` — patch-bump checklist item added (synced to governed repos)
+  - `.github/pull_request_template.md` — patch bump promoted to first item in Version Management section; added to reviewer checklist; Comprehensive Pre-Merge Prompt updated to list "BUMP PATCH VERSION" as step 1
+- **AI instruction files never overwritten on repo sync**:
+  - `always_overwrite` changed from `true` → `false` for `copilot-instructions.md` and `CLAUDE.md` in all three platform definitions (`crm-module.tf`, `generic-repository.tf`, `waas-component.tf`)
+  - Files are now created on first sync only; subsequent syncs skip them to preserve project-specific customisations
+  - `copilot.yml` (domain allow-list) remains `always_overwrite = true`
+  - `docs/policy/ai-tool-governance.md` enforcement level updated: `FORCED` → `REQUIRED (created on first sync; never overwritten)`
 - **Patch version bump**: `04.00.03` → `04.00.04` across all file headers, PHP constants, badges, and config
 
 ## [04.00.03] - 2026-02-21 to 2026-02-23

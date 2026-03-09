@@ -32,7 +32,7 @@ BRIEF: Version planning roadmap for MokoStandards with release strategy and mile
 # MokoStandards Version Roadmap
 
 **Current Version**: 04.00.04  
-**Last Updated**: 2026-02-23  
+**Last Updated**: 2026-03-09  
 **Release Cycle**: Minor updates monthly, Major updates quarterly
 
 ## Overview
@@ -44,7 +44,7 @@ This document outlines version planning, release strategy, and high-level milest
 ## Version History
 
 ### Version 04.00.04 (Current) - 2026-03-09
-**Type**: PATCH (Security + Documentation)
+**Type**: PATCH (Security + Documentation + Governance)
 **Status**: ✅ Released
 
 **Changes**:
@@ -52,6 +52,8 @@ This document outlines version planning, release strategy, and high-level milest
 - 📄 **Documentation Update** — 22 documentation files updated to reflect GH_TOKEN standard, including training sessions, policy examples, and guides
 - 🔧 **Terraform Health Checks** — Health check definitions now check `GH_TOKEN` (org PAT) instead of `GITHUB_TOKEN` (auto-provided, trivially present)
 - 🐛 **Typo Fix** — `gch_token_available` corrected to `gh_token_available` in 5 repo-health template definitions
+- 📋 **Patch-Bump-Every-PR Rule** — Rule added to all AI instruction files and PR templates; every PR must increment the patch version in `README.md` before opening
+- 🔐 **AI Instruction Files Protected** — `copilot-instructions.md` and `CLAUDE.md` set to `always_overwrite = false` in all three platform sync definitions; files are created on first sync only and never overwritten thereafter
 
 **Breaking Changes**: None
 
@@ -102,7 +104,7 @@ This document outlines version planning, release strategy, and high-level milest
 
 ## Upcoming Versions
 
-### Version 04.00.04 or 04.01.00 (Planned) - Q2 2026
+### Version 04.00.05 or 04.01.00 (Planned) - Q2 2026
 **Type**: MINOR or MAJOR (TBD based on scope)  
 **Target**: April-June 2026  
 **Status**: 📋 Planning
@@ -198,7 +200,7 @@ Following **Semantic Versioning** (XX.YY.ZZ):
 - Remote logging system deployed
 
 **📋 Milestone 2: Adoption and Integration (Next)**
-- Target Version: 04.00.04 or 04.01.00
+- Target Version: 04.00.05 or 04.01.00
 - Repository adoption tracking
 - Feedback incorporation
 - Training delivery
@@ -265,9 +267,11 @@ Following **Semantic Versioning** (XX.YY.ZZ):
 - ✅ 22 documentation files updated
 - ✅ Terraform health checks validate org PAT (GH_TOKEN)
 - ✅ Typo `gch_token_available` fixed to `gh_token_available`
+- ✅ Patch-bump-every-PR rule in all AI instruction files and PR templates
+- ✅ AI instruction files protected from overwrite on sync (`always_overwrite = false`)
 - ✅ 100% backward compatible
 
-### Version 04.00.04 or 04.01.00 (Target: Q2 2026)
+### Version 04.00.05 or 04.01.00 (Target: Q2 2026)
 - 🎯 60% repositories using enforcement system
 - 🎯 Monitoring dashboard operational
 - 🎯 Training delivered to all teams

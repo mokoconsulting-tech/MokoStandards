@@ -12,7 +12,7 @@
  * INGROUP: MokoStandards.Scripts
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: /api/automation/bulk_sync.php
- * VERSION: 05.00.00
+ * VERSION: 05.00.01
  * BRIEF: Enterprise-grade bulk repository synchronization
  */
 
@@ -385,6 +385,78 @@ class BulkSync extends CLIApp
         }
         
         $this->log(str_repeat('=', 60), 'INFO');
+        
+        $this->writeStepSummary($results);
+    }
+    
+    /**
+     * Write synchronization results to the GitHub Actions step summary.
+     *
+     * Appends a Markdown summary table listing every repository that was
+     * processed — together with its outcome (updated, skipped, or failed) —
+     * to the file referenced by the GITHUB_STEP_SUMMARY environment variable.
+     * When that variable is not set (e.g. local runs) the method is a no-op.
+     */
+    private function writeStepSummary(array $results): void
+    {
+        $summaryFile = getenv('GITHUB_STEP_SUMMARY');
+        if (empty($summaryFile)) {
+            return;
+        }
+        
+        // Validate that the path is an absolute filesystem path and not a
+        // special device file, to guard against environment variable injection.
+        $realDir = realpath(dirname($summaryFile));
+        if ($realDir === false || !str_starts_with($summaryFile, '/') || strpos($summaryFile, '..') !== false) {
+            $this->log('⚠️  GITHUB_STEP_SUMMARY path is not safe, skipping step summary write.', 'WARN');
+            return;
+        }
+        
+        $total = $results['total'];
+        $success = $results['success'];
+        $skipped = $results['skipped'];
+        $failed = $results['failed'];
+        $duration = $results['duration'];
+        $successRate = $total > 0 ? round(($success / $total) * 100, 1) : 0;
+        
+        $lines = [];
+        $lines[] = '';
+        $lines[] = '### 📊 Synchronization Summary';
+        $lines[] = '';
+        $lines[] = '| Total | ✅ Updated | ⊘ Skipped | ❌ Failed | Success Rate | Duration |';
+        $lines[] = '|------:|----------:|----------:|----------:|-------------:|---------:|';
+        $lines[] = sprintf(
+            '| %d | %d | %d | %d | %.1f%% | %.2fs |',
+            $total,
+            $success,
+            $skipped,
+            $failed,
+            $successRate,
+            $duration
+        );
+        $lines[] = '';
+        
+        if (!empty($results['repositories'])) {
+            $lines[] = '### 📋 Repositories Processed';
+            $lines[] = '';
+            $lines[] = '| Repository | Status |';
+            $lines[] = '|:-----------|:-------|';
+            foreach ($results['repositories'] as $repo => $status) {
+                $label = match ($status) {
+                    'success' => '✅ Updated',
+                    'skipped' => '⊘ Skipped',
+                    'failed'  => '❌ Failed',
+                    default   => $status,
+                };
+                $lines[] = sprintf('| `%s` | %s |', $repo, $label);
+            }
+            $lines[] = '';
+        }
+        
+        $written = file_put_contents($summaryFile, implode("\n", $lines) . "\n", FILE_APPEND);
+        if ($written === false) {
+            $this->log('⚠️  Failed to write to GITHUB_STEP_SUMMARY.', 'WARN');
+        }
     }
 }
 

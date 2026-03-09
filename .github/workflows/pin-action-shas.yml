@@ -87,7 +87,7 @@ jobs:
       - name: Scan for unpinned actions (dry run)
         id: scan
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           set -euo pipefail
 
@@ -117,7 +117,7 @@ jobs:
           steps.scan.outputs.needs_update == 'true' &&
           github.event.inputs.dry_run != 'true'
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           set -euo pipefail
 

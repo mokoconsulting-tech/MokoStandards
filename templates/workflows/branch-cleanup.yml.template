@@ -95,7 +95,7 @@ jobs:
 
       - name: Verify GitHub token availability
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           # Verify token is available before attempting authentication
           if [ -z "$GH_TOKEN" ]; then
@@ -113,7 +113,7 @@ jobs:
 
       - name: Find and cleanup branches
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
           STALE_DAYS: ${{ steps.setup.outputs.stale-days }}
           DELETE_MERGED: ${{ steps.setup.outputs.delete-merged }}
           DELETE_STALE: ${{ steps.setup.outputs.delete-stale }}

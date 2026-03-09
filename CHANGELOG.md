@@ -50,7 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - workflows_checks (12 points): standards-compliance.yml, code-quality.yml, build.yml, release-cycle.yml
   - issue_template_checks (5 points): bug_report, feature_request, ISSUE_TEMPLATE directory
   - repository_settings_checks (10 points): branch protection, required status checks, PR reviews
-  - deployment_secrets_checks (20 points): GITHUB_TOKEN, GH_TOKEN, deployment secrets, documentation
+  - deployment_secrets_checks (20 points): GH_TOKEN, deployment secrets, documentation
   - Total health checks now: 103 points across 8 categories (was 56 points in 4 categories)
   - Removed TODO comments from infrastructure/terraform/repository-types/repo-health-defaults.tf
   - Created comprehensive check definitions with remediation guidance for all categories

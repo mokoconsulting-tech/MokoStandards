@@ -181,10 +181,10 @@ resource "example_resource" "example" {
 
 ### Issue: Provider Authentication Failed
 
-**Solution**: Ensure `GITHUB_TOKEN` environment variable is set or passed via variable file.
+**Solution**: Ensure `GH_TOKEN` environment variable is set or passed via variable file.
 
 ```bash
-export GITHUB_TOKEN="ghp_xxxxxxxxxxxxx"
+export GH_TOKEN="ghp_xxxxxxxxxxxxx"
 terraform plan
 ```
 

@@ -736,7 +736,7 @@ jobs:
         with:
           repository: mokoconsulting-tech/MokoStandards
           path: .mokostandards
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_TOKEN }}
 
       # Note: Python validation scripts removed in v04.00.03+
       # Implement custom validation or use web interface

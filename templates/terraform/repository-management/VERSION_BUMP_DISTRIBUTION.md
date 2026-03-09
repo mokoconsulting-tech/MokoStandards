@@ -245,10 +245,10 @@ cd infrastructure/terraform/repository-management
 terraform init
 
 # Plan deployment
-terraform plan -var="github_token=$GITHUB_TOKEN"
+terraform plan -var="github_token=$GH_TOKEN"
 
 # Apply changes
-terraform apply -var="github_token=$GITHUB_TOKEN"
+terraform apply -var="github_token=$GH_TOKEN"
 ```
 
 ## Repository Structure Created

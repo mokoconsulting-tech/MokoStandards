@@ -431,7 +431,7 @@ terraform.tfvars
 EOF
 
 # Use environment variables or secret managers
-export TF_VAR_github_token="${GITHUB_TOKEN}"
+export TF_VAR_github_token="${GH_TOKEN}"
 terraform apply
 ```
 

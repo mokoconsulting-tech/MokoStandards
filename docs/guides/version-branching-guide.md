@@ -416,7 +416,7 @@ jobs:
       - name: Create GitHub Release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
           tag_name: v${{ steps.version.outputs.version }}
           release_name: Release ${{ steps.version.outputs.version }}

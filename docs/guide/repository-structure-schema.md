@@ -673,7 +673,7 @@ jobs:
         with:
           repository: mokoconsulting-tech/MokoStandards
           path: .mokostandards
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v4

@@ -297,11 +297,11 @@ Health scores are available via API:
 
 ```bash
 # Get score for specific repository
-curl -H "Authorization: token $GITHUB_TOKEN" \
+curl -H "Authorization: token $GH_TOKEN" \
   https://api.github.com/repos/mokoconsulting-tech/REPO/properties/health-score
 
 # Get all repository scores (requires org admin)
-curl -H "Authorization: token $GITHUB_TOKEN" \
+curl -H "Authorization: token $GH_TOKEN" \
   https://api.github.com/orgs/mokoconsulting-tech/properties/repository-health
 ```
 

@@ -80,7 +80,7 @@ This comprehensive training program introduces developers to the MokoStandards e
 2. **GitHub Access**:
    - GitHub account with organization access
    - Personal access token (PAT) with appropriate scopes
-   - Set `GITHUB_TOKEN` environment variable
+   - Set `GH_TOKEN` environment variable
 
 3. **Tools**:
    - PHP 8.1 or higher (PHP 8.2+ recommended)

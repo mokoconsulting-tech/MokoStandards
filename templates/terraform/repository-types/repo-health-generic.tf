@@ -541,19 +541,19 @@ locals {
 
   # Deployment Secrets Checks (10 points) - lighter than standards
   generic_deployment_secrets_checks = {
-    github_token_available = {
-      id          = "github-token-available"
-      name        = "GITHUB_TOKEN Available"
-      description = "Check if GITHUB_TOKEN is configured"
+    gh_token_available = {
+      id          = "gh-token-available"
+      name        = "GH_TOKEN Available"
+      description = "Check if GH_TOKEN (org PAT) is configured"
       points      = 5
       check_type  = "secret-exists"
       category    = "deployment-secrets"
       required    = true
-      remediation = "GITHUB_TOKEN is automatically provided"
+      remediation = "Set GH_TOKEN in organisation Actions secrets (Settings → Secrets → Actions)"
       parameters = {
-        secret_name   = "GITHUB_TOKEN"
+        secret_name   = "GH_TOKEN"
         scope         = "automatic"
-        documentation = "Automatically provided by GitHub Actions"
+        documentation = "Org-level PAT required — configure in org Actions secrets"
       }
     }
 

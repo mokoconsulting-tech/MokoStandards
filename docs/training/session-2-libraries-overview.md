@@ -211,7 +211,7 @@ use MokoStandards\Enterprise\CircuitBreakerOpen;
 // Initialize client with rate limiting
 $client = new ApiClient(
     baseUrl: 'https://api.github.com',
-    authToken: getenv('GITHUB_TOKEN'),
+    authToken: getenv('GH_TOKEN') ?: getenv('GITHUB_TOKEN'),
     maxRequestsPerHour: 5000,
     enableCaching: true,
     cacheTtl: 300  // 5 minutes
@@ -1126,7 +1126,7 @@ Create a simple automation script that:
 composer install
 
 # Set GitHub token
-export GITHUB_TOKEN="your_token_here"
+export GH_TOKEN="your_token_here"
 
 # Run your script
 php my_script.php --org mokoconsulting-tech

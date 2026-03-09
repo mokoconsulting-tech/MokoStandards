@@ -113,7 +113,7 @@ For actual deployment:
 
 ### GitHub Actions Deployment
 
-- **GITHUB_TOKEN** secret with appropriate permissions (automatically available)
+- **GH_TOKEN** secret configured in org Actions secrets (required)
 - **Workflow permissions** set to allow Actions to modify repository settings
 
 ## Best Practices

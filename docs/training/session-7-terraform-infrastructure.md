@@ -1076,7 +1076,7 @@ Processing repository: mokoconsulting-tech/example
 
 ```bash
 # 1. Set GitHub token
-export GITHUB_TOKEN="ghp_your_token_here"
+export GH_TOKEN="ghp_your_token_here"
 
 # 2. Run sync on test repository
 php scripts/automation/bulk_update_repos.php \

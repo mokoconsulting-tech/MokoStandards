@@ -78,7 +78,7 @@ jobs:
           if [ -z "$GH_TOKEN" ]; then
             echo "## ❌ Error: GitHub Token Not Available" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "GITHUB_TOKEN is required for this workflow." >> $GITHUB_STEP_SUMMARY
+            echo "GH_TOKEN is required for this workflow." >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
 

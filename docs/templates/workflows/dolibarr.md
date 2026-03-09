@@ -243,7 +243,7 @@ class modYourModule extends DolibarrModules
 
 Dolibarr templates may require:
 
-- `GITHUB_TOKEN`: Automatically provided
+- `GH_TOKEN`: Org-level PAT — configure in org Actions secrets (required)
 - `DOLISTORE_TOKEN`: For Dolistore submissions (optional)
 - `DOLIBARR_DB_CREDENTIALS`: For integration testing
 - `DEPLOY_CREDENTIALS`: For module deployment

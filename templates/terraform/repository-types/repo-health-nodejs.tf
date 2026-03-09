@@ -548,17 +548,17 @@ locals {
       }
     }
 
-    github_token_available = {
-      id          = "github-token-available"
-      name        = "GITHUB_TOKEN Available"
-      description = "GitHub token for actions"
+    gh_token_available = {
+      id          = "gh-token-available"
+      name        = "GH_TOKEN Available"
+      description = "Org-level GitHub PAT available"
       points      = 5
       check_type  = "secret-exists"
       category    = "deployment-secrets"
       required    = true
-      remediation = "Automatically provided"
+      remediation = "Set GH_TOKEN in organisation Actions secrets"
       parameters = {
-        secret_name = "GITHUB_TOKEN"
+        secret_name = "GH_TOKEN"
         scope       = "automatic"
       }
     }

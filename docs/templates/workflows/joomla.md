@@ -259,7 +259,7 @@ Templates support all Joomla extension types:
 
 Joomla templates may require:
 
-- `GITHUB_TOKEN`: Automatically provided
+- `GH_TOKEN`: Org-level PAT — configure in org Actions secrets (required)
 - `JED_TOKEN`: For Joomla Extensions Directory submissions (optional)
 - `UPDATE_SERVER_TOKEN`: For update server authentication
 - `FTP_CREDENTIALS`: For deployment workflows

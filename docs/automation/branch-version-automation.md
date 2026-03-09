@@ -195,7 +195,7 @@ Options:
 **Manual:**
 ```bash
 cd infrastructure/terraform/repository-management
-terraform apply -var="github_token=$GITHUB_TOKEN"
+terraform apply -var="github_token=$GH_TOKEN"
 ```
 
 ### Configuration Files

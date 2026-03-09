@@ -215,7 +215,7 @@ cp templates/workflows/generic/repo_health.yml.template .github/workflows/repo-h
 
 Most generic templates require the following secrets to be configured in repository settings:
 
-- `GITHUB_TOKEN`: Automatically provided by GitHub Actions
+- `GH_TOKEN`: Org-level PAT — configure in org Actions secrets (required)
 - `CODECOV_TOKEN`: For code coverage reporting (if using Codecov)
 - `DEPLOY_KEY`: For deployment workflows (environment-specific)
 

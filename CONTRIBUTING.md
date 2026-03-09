@@ -261,7 +261,7 @@ def sync_file_to_project(
         True
 
     Note:
-        Requires GITHUB_TOKEN environment variable to be set.
+        Requires GH_TOKEN environment variable to be set (GITHUB_TOKEN accepted as local-dev fallback).
     """
     pass
 ```

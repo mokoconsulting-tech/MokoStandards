@@ -147,7 +147,7 @@ The private repository contains:
 cd .github-private/scripts/project-automation
 
 # Configure your GitHub PAT
-export GITHUB_TOKEN="your_pat_here"
+export GH_TOKEN="your_pat_here"
 
 # Run internal automation
 python3 setup_project_7.py --project-number 7

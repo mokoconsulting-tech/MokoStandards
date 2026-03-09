@@ -715,7 +715,7 @@ class OptimizedAPIClient
         );
         
         $this->api = new GitHubClient(
-            token: getenv('GITHUB_TOKEN'),
+            token: getenv('GH_TOKEN') ?: getenv('GITHUB_TOKEN'),
             rateLimitConfig: $rateConfig
         );
         

@@ -496,10 +496,10 @@ def validate_file_path(path: str) -> Path:
 ```python
 import os
 
-# ✅ Correct: Use environment variables
-github_token = os.environ.get("GITHUB_TOKEN")
+# ✅ Correct: Use environment variables — prefer GH_TOKEN (org secret), fall back to GITHUB_TOKEN
+github_token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
 if not github_token:
-    print("Error: GITHUB_TOKEN environment variable not set", file=sys.stderr)
+    print("Error: GH_TOKEN environment variable not set", file=sys.stderr)
     sys.exit(1)
 
 # ❌ Incorrect: Hardcoded credentials

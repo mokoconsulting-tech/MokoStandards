@@ -192,7 +192,7 @@ class modMokoDoliForm extends DolibarrModules
         // Author
         $this->editor_name = 'Moko Consulting';
         $this->editor_url = 'https://mokoconsulting.tech';
-        $this->editor_squarred_logo = 'favicon.png@mokocrm';
+        $this->editor_squarred_logo = 'favicon_256.png@mokocrm';
 
         // ... additional configuration
     }

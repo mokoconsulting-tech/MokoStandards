@@ -62,12 +62,12 @@ Brand and favicon image assets for all Moko Consulting governed repositories.
 
 ### Fonts (`fonts/`)
 
-Locally bundled typeface files for offline, print, and native use cases.
+Locally bundled typefaces for offline, print, and native use cases.
 
 **Contents:**
-- `osaka-re.ttf` — Osaka Re display typeface (TrueType, for headings and brand materials)
+- `osaka-re.ttf` — Osaka Re, the **official stylized logo font** (TrueType, for wordmark and brand lockups only)
 
-For web-facing projects, use **Google Fonts** instead of self-hosted files.
+Body text uses **Open Sans** via Google Fonts.
 See [Google Fonts Policy](../docs/policy/google-fonts.md) for requirements.
 
 **Documentation**: [docs/templates/fonts/index.md](../docs/templates/fonts/index.md)
@@ -273,7 +273,7 @@ templates/
 ├── images/               # Brand and favicon image assets
 │   └── primary/         # Current production brand set (logo, favicon_256, etc.)
 ├── fonts/                # Locally bundled typeface files (offline / print / native use)
-│   └── osaka-re.ttf     # Osaka Re display typeface (TrueType)
+│   └── osaka-re.ttf     # Osaka Re — stylized logo font (TrueType)
 ├── workflows/            # GitHub Actions workflow templates
 │   ├── joomla/          # Joomla-specific workflows
 │   ├── dolibarr/        # Dolibarr-specific workflows

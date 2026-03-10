@@ -65,14 +65,19 @@ engineering lead.
 
 The following Google Fonts families are approved for use in Moko Consulting web projects:
 
-| Family | Weights | Intended Use |
-|---|---|---|
-| **Inter** | 400, 500, 600, 700 | Body text, UI labels, default sans-serif |
-| **Roboto** | 400, 500, 700 | Alternative body text (legacy compatibility) |
-| **Roboto Mono** | 400, 700 | Code blocks, monospace UI |
-| **Merriweather** | 400, 700 | Long-form editorial / blog body copy |
-| **Poppins** | 400, 600, 700 | Marketing headings, landing pages |
-| **Open Sans** | 400, 600, 700 | General purpose sans-serif alternative |
+| Family | Weights | Intended Use | Status |
+|---|---|---|---|
+| **Open Sans** | 400, 600, 700 | **★ Official body text** — paragraphs, UI labels, default sans-serif | **Preferred** |
+| **Inter** | 400, 500, 600, 700 | Alternative body text and UI (modern, high-legibility) | Approved |
+| **Roboto** | 400, 500, 700 | Alternative body text (legacy compatibility) | Approved |
+| **Roboto Mono** | 400, 700 | Code blocks, monospace UI | Approved |
+| **Merriweather** | 400, 700 | Long-form editorial / blog body copy | Approved |
+| **Poppins** | 400, 600, 700 | Marketing headings, landing pages | Approved |
+
+> **Logo Font:** The stylized logo font is **Osaka Re**, provided as a locally bundled TrueType
+> file at `templates/fonts/osaka-re.ttf`. It is **not** available on Google Fonts. Use it only
+> via `@font-face` with the local file — see the [Font Assets catalogue](../templates/fonts/index.md)
+> for the `@font-face` declaration. Do **not** substitute a Google Font for the logo wordmark.
 
 Requesting additional font families requires a PR to this policy with a documented design
 justification. The PR must be reviewed and approved before the font is used in any governed
@@ -89,7 +94,7 @@ stylesheet `<link>`:
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap">
 ```
 
 The `display=swap` query parameter is **mandatory** (see Performance section below).
@@ -101,7 +106,7 @@ descriptor **must** be set to `swap`:
 
 ```css
 @font-face {
-    font-family: 'Inter';
+    font-family: 'Open Sans';
     src: url('https://fonts.gstatic.com/...');
     font-display: swap;
 }
@@ -109,7 +114,7 @@ descriptor **must** be set to `swap`:
 
 ### Subsets and Variable Fonts
 
-- Prefer the variable font API (`family=Inter:ital,opsz,wght@...`) when multiple weights
+- Prefer the variable font API (`family=Open+Sans:ital,wght@0,400;0,600;0,700`) when multiple weights
   are needed, as the Google Fonts API v2 automatically optimises served glyphs.
 - Use the `text` parameter when only a fixed string is needed (e.g., a logo or heading)
   to receive a minimal character-subset response.

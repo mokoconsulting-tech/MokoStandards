@@ -42,7 +42,7 @@ requirements.
 
 ```
 templates/fonts/
-└── osaka-re.ttf    # Osaka Re — display / heading typeface (TrueType)
+└── osaka-re.ttf    # Osaka Re — stylized logo font (TrueType)
 ```
 
 ## Asset Reference
@@ -51,14 +51,14 @@ templates/fonts/
 
 | File | Format | Family | Style | Weight | Classification |
 |---|---|---|---|---|---|
-| `osaka-re.ttf` | TrueType (TTF) | Osaka Re | Regular | 400 | Display / Heading |
+| `osaka-re.ttf` | TrueType (TTF) | Osaka Re | Regular | 400 | **Stylized Logo Font** |
 
 #### osaka-re.ttf
 
-**Osaka Re** is a display typeface used for headings, banners, and decorative elements in
-Moko Consulting brand materials. It is provided as a local TrueType file for contexts where
-a Google Fonts CDN link is unavailable (e.g., offline PDF generation, native app builds,
-or print workflows).
+**Osaka Re** is the **official stylized logo font** for Moko Consulting. It is used exclusively
+for the brand wordmark, logo lockups, and stylized display contexts (e.g., splash screens,
+printed brand collateral). It is **not** used for body text or UI labels — use
+**Open Sans** (via Google Fonts) for those purposes.
 
 **Usage:**
 
@@ -79,7 +79,8 @@ redistribution.
 ## Web Font Strategy
 
 For all **web-facing** projects, fonts must be loaded via Google Fonts rather than
-self-hosted files. See the [Google Fonts Policy](../../policy/google-fonts.md) for:
+self-hosted files. The official body text font is **Open Sans** (400, 600, 700).
+See the [Google Fonts Policy](../../policy/google-fonts.md) for:
 
 - Approved font families and approved weights
 - Required `<link>` preconnect and stylesheet tags

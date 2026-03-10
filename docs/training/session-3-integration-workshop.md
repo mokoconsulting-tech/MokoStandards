@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Training
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: docs/training/session-2-integration-workshop.md
-VERSION: 04.00.03
+VERSION: 04.00.04
 BRIEF: Session 2 - Practical Integration Workshop training materials
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Session 2: Practical Integration Workshop
 
@@ -269,9 +269,9 @@ function main(): void
     $dryRun = isset($options['dry-run']);
     
     // Get token from environment
-    $token = getenv('GITHUB_TOKEN');
+    $token = getenv('GH_TOKEN') ?: getenv('GITHUB_TOKEN');
     if (!$token) {
-        fwrite(STDERR, "Error: GITHUB_TOKEN not set\n");
+        fwrite(STDERR, "Error: GH_TOKEN not set\n");
         exit(1);
     }
     
@@ -484,7 +484,7 @@ protected function initialize(): void
     );
     
     $this->api = new GitHubClient(
-        token: getenv('GITHUB_TOKEN') ?: '',
+        token: getenv('GH_TOKEN') ?: getenv('GITHUB_TOKEN') ?: '',
         rateLimitConfig: $rateConfig
     );
 }
@@ -516,7 +516,7 @@ protected function initialize(): void
     parent::initialize();
     $this->audit = new AuditLogger(service: 'repository_manager');
     $this->metrics = new MetricsCollector(service: 'repository_manager');
-    $this->api = new GitHubClient(token: getenv('GITHUB_TOKEN') ?: '');
+    $this->api = new GitHubClient(token: getenv('GH_TOKEN') ?: getenv('GITHUB_TOKEN') ?: '');
 }
 
 protected function updateRepository(string $org, string $repoName, object $txn): bool
@@ -576,7 +576,7 @@ protected function initialize(): void
     parent::initialize();
     $this->audit = new AuditLogger(service: 'repository_manager');
     $this->metrics = new MetricsCollector(service: 'repository_manager');
-    $this->api = new GitHubClient(token: getenv('GITHUB_TOKEN') ?: '');
+    $this->api = new GitHubClient(token: getenv('GH_TOKEN') ?: getenv('GITHUB_TOKEN') ?: '');
     
     // Initialize checkpoint
     $this->checkpoint = new Checkpoint(
@@ -641,7 +641,7 @@ protected function initialize(): void
     parent::initialize();
     $this->audit = new AuditLogger(service: 'repository_manager');
     $this->metrics = new MetricsCollector(service: 'repository_manager');
-    $this->api = new GitHubClient(token: getenv('GITHUB_TOKEN') ?: '');
+    $this->api = new GitHubClient(token: getenv('GH_TOKEN') ?: getenv('GITHUB_TOKEN') ?: '');
     $this->checkpoint = new Checkpoint(name: 'repository_updates');
     $this->security = new SecurityValidator();
 }
@@ -720,7 +720,7 @@ class RepositoryManager extends CliFramework
             enableCaching: true
         );
         $this->api = new GitHubClient(
-            token: getenv('GITHUB_TOKEN') ?: '',
+            token: getenv('GH_TOKEN') ?: getenv('GITHUB_TOKEN') ?: '',
             rateLimitConfig: $rateConfig
         );
         
@@ -938,7 +938,7 @@ class ConfigDrivenScript extends CliFramework
 ```yaml
 github:
   organization: mokoconsulting-tech
-  token: ${GITHUB_TOKEN}
+  token: ${GH_TOKEN}
 
 settings:
   max_retries: 3
@@ -1375,7 +1375,7 @@ class FixedScript extends CliFramework
         parent::initialize();
         $this->audit = new AuditLogger(service: 'fixed_script');
         $this->metrics = new MetricsCollector(service: 'fixed_script');
-        $this->api = new GitHubClient(token: getenv('GITHUB_TOKEN') ?: '');
+        $this->api = new GitHubClient(token: getenv('GH_TOKEN') ?: getenv('GITHUB_TOKEN') ?: '');
         $this->checkpoint = new Checkpoint(name: 'process_repos');
     }
     

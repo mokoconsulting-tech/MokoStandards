@@ -29,7 +29,7 @@ use Exception;
  */
 abstract class CLIApp
 {
-    private const VERSION = '04.00.03';
+    private const VERSION = '04.00.04';
 
     protected string $name;
     protected string $description;

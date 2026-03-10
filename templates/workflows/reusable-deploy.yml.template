@@ -96,7 +96,7 @@ jobs:
         id: create-deployment
         uses: chrnorm/deployment-action@v2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_TOKEN }}
           environment: ${{ inputs.environment }}
           description: "Deploy ${{ needs.detect.outputs.project-type }} v${{ steps.version.outputs.version }}"
 
@@ -248,7 +248,7 @@ jobs:
         if: success()
         uses: chrnorm/deployment-status@v2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_TOKEN }}
           deployment-id: ${{ needs.prepare.outputs.deployment-id }}
           state: success
           environment-url: ${{ inputs.health-check-url }}
@@ -276,7 +276,7 @@ jobs:
       - name: Update deployment status (failure)
         uses: chrnorm/deployment-status@v2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_TOKEN }}
           deployment-id: ${{ needs.prepare.outputs.deployment-id }}
           state: failure
 

@@ -1,11 +1,11 @@
 # Joomla Script Library Definitions
 # Defines all Joomla-specific script templates for repository health and automation
-# Version: 04.00.03
+# Version: 04.00.04
 
 locals {
   joomla_scripts_metadata = {
     name              = "Joomla Script Library"
-    version           = "04.00.03"
+    version           = "04.00.04"
     description       = "Comprehensive Joomla extension development and automation scripts"
     maintainer        = "MokoStandards Team"
     last_updated      = "2026-02-27"

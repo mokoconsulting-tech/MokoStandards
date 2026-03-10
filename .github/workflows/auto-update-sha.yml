@@ -5,7 +5,7 @@
 # INGROUP: MokoStandards.Automation
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/auto-update-sha.yml
-# VERSION: 04.00.03
+# VERSION: 04.00.05
 # BRIEF: Automatically update SHA-256 hashes on PR and after merge to main
 # NOTE: Ensures security verification hashes stay synchronized with file changes
 
@@ -165,7 +165,7 @@ jobs:
                      -m "Commit: ${{ github.sha }}" \
                      -m "Triggered by: ${{ github.event_name }}"
 
-          git push
+          git push origin HEAD:${{ github.head_ref || github.ref_name }}
 
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### ✅ Changes Committed" >> $GITHUB_STEP_SUMMARY

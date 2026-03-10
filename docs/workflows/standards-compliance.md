@@ -1,9 +1,9 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Standards Compliance Workflow
 
 **Workflow**: `standards-compliance.yml`  
-**Status**: Active | **Version**: 04.00.03 | **Last Updated**: 2026-02-21
+**Status**: Active | **Version**: 04.00.04 | **Last Updated**: 2026-02-21
 
 ## Overview
 
@@ -554,7 +554,7 @@ git checkout HEAD -- scripts/
 
 ## Changelog
 
-### v04.00.03 (2026-02-21)
+### v04.00.04 (2026-02-21)
 
 **Added**:
 - ✨ Version Consistency Check - Validates all version numbers match
@@ -570,7 +570,7 @@ git checkout HEAD -- scripts/
 **Fixed**:
 - 🐛 Compliance percentage now correctly calculates based on critical checks only
 
-### v04.00.03 (2026-01-07)
+### v04.00.04 (2026-01-07)
 
 **Added**:
 - Initial comprehensive standards compliance workflow

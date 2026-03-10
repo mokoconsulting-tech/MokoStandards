@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Guide
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/guide/repo-sync.md
-VERSION: 04.00.03
+VERSION: 04.00.04
 BRIEF: Guide for the definition-driven bulk repository sync system
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Repository Sync Guide
 
@@ -327,7 +327,7 @@ A previous sync created a PR that is still open. Merge or close it before runnin
 | Owner         | Moko Consulting |
 | Repo          | https://github.com/mokoconsulting-tech/ |
 | Path          | /docs/guide/repo-sync.md |
-| Version       | 04.00.03 |
+| Version       | 04.00.04 |
 | Status        | Active |
 | Last Reviewed | 2026-03-08 |
 | Reviewed By   | Documentation Team |

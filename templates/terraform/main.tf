@@ -22,7 +22,7 @@
 # INGROUP: MokoStandards.Configuration
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /infrastructure/terraform/main.tf
-# VERSION: 04.00.03
+# VERSION: 04.00.04
 # BRIEF: Main Terraform configuration for MokoStandards repository schemas
 
 # Terraform configuration for MokoStandards repository schemas
@@ -33,7 +33,7 @@ locals {
   file_metadata = {
     name              = "MokoStandards Main Terraform Configuration"
     description       = "Primary terraform file that orchestrates repository schema definitions"
-    version           = "04.00.03"
+    version           = "04.00.04"
     last_updated      = "2026-02-21T00:00:00Z"
     maintainer        = "MokoStandards Team"
     schema_version    = "2.0"
@@ -47,7 +47,7 @@ locals {
   config_metadata = {
     name              = "MokoStandards Repository Schemas"
     description       = "Terraform configuration for repository structure schemas and type definitions"
-    version           = "04.00.03"
+    version           = "04.00.04"
     last_updated      = "2026-02-21T00:00:00Z"
     maintainer        = "MokoStandards Team"
     schema_version    = "2.0"

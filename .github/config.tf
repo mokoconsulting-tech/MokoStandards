@@ -22,7 +22,7 @@
 # INGROUP: MokoStandards.Configuration
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/config.tf
-# VERSION: 04.00.03
+# VERSION: 04.00.04
 # BRIEF: Repository-specific override configuration for bulk synchronization
 
 # Repository Override Configuration
@@ -102,7 +102,7 @@ locals {
   file_metadata = {
     name              = "Repository Override Configuration"
     description       = "Override configuration for bulk repository synchronization - located in .github/config.tf"
-    version           = "04.00.03"
+    version           = "04.00.04"
     last_updated      = "2026-02-21T00:00:00Z"
     maintainer        = "MokoStandards Team"
     schema_version    = "2.0"
@@ -117,7 +117,7 @@ locals {
   override_metadata = {
     name           = "MokoStandards Repository Override"
     description    = "Override configuration preventing sync of template files in the standards repository"
-    version        = "04.00.03"
+    version        = "04.00.04"
     last_updated   = "2026-02-21T00:00:00Z"
     maintainer     = "MokoStandards Team"
     schema_version = "2.0"

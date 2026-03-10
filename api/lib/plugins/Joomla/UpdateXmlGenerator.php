@@ -11,7 +11,7 @@
  * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: /api/lib/plugins/Joomla/UpdateXmlGenerator.php
- * VERSION: 04.00.03
+ * VERSION: 04.00.04
  * BRIEF: Generates and updates Joomla extension update.xml files
  */
 

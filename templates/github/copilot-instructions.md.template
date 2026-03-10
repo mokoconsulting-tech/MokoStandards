@@ -16,6 +16,32 @@ NOTE: Synced to .github/copilot-instructions.md in all governed repositories via
       Tokens replaced at sync time: {{REPO_NAME}}, {{REPO_URL}}, {{PRIMARY_LANGUAGE}}, {{PLATFORM_TYPE}}
 -->
 
+> [!IMPORTANT]
+> **🔧 AI Self-Update Required on First Use**
+>
+> This file may contain unfilled `{{TOKEN}}` placeholders. The MokoStandards bulk-sync system
+> replaces them automatically at sync time; if you can still see them, sync has not yet run for
+> this repository — or this is a brand-new repo.
+>
+> **On your very first interaction in this repository, before answering any other question:**
+>
+> 1. Check whether any `{{TOKEN}}` placeholders remain in this file.
+> 2. If they do, locate the values as described in the table below and replace every occurrence
+>    in **both** `.github/copilot-instructions.md` and `.github/CLAUDE.md`.
+> 3. After replacing all tokens, **delete this entire notice block** (from `> [!IMPORTANT]`
+>    through the closing `> ---` line) in both files.
+> 4. Tell the developer: *"I've self-updated the AI context files with this repository's
+>    values — all set."*
+>
+> | Placeholder | Where to find the value |
+> |---|---|
+> | `{{REPO_NAME}}` | The GitHub repository name (visible in the URL, `README.md` heading, or `git remote -v`) |
+> | `{{REPO_URL}}` | Full GitHub URL, e.g. `https://github.com/mokoconsulting-tech/<repo-name>` |
+> | `{{PRIMARY_LANGUAGE}}` | The dominant programming language (check file extensions in the repository) |
+> | `{{PLATFORM_TYPE}}` | The project type: `PHP library`, `Joomla extension`, `Dolibarr module`, `WaaS site`, etc. — infer from repo structure |
+>
+> ---
+
 # {{REPO_NAME}} — GitHub Copilot Custom Instructions
 
 ## What This Repo Is
@@ -88,9 +114,10 @@ BRIEF: One-line description
 
 **`README.md` is the single source of truth for the repository version.**
 
+- **Bump the patch version on every PR** — increment `XX.YY.ZZ` (e.g. `01.02.03` → `01.02.04`) in `README.md` before opening the PR; the `sync-version-on-merge` workflow propagates it automatically to all badges and `FILE INFORMATION` headers on merge to `main`.
 - The `VERSION: XX.YY.ZZ` field in the README.md `FILE INFORMATION` block governs all other version references.
 - Update the version in `README.md` only — the `sync-version-on-merge` workflow propagates it automatically to all badges and `FILE INFORMATION` headers on merge to `main`.
-- Version format is zero-padded semver: `XX.YY.ZZ` (e.g. `04.00.03`).
+- Version format is zero-padded semver: `XX.YY.ZZ` (e.g. `04.00.04`).
 - Never hardcode a specific version in document body text — use the badge or FILE INFORMATION header only.
 
 ---
@@ -244,6 +271,7 @@ Whenever you make code changes, update the corresponding documentation in the sa
 | Bug fix | `CHANGELOG.md` entry under `Fixed` |
 | Breaking change | `CHANGELOG.md` entry under `Changed`; update `CONTRIBUTING.md` if contributor steps change |
 | Any modified file | Update the `VERSION` field in that file's `FILE INFORMATION` block |
+| **Every PR** | **Bump the patch version** — increment `XX.YY.ZZ` in `README.md`; `sync-version-on-merge` propagates it to all headers and badges on merge |
 
 If your code change makes any existing doc sentence false or incomplete, fix the doc before closing the PR.
 

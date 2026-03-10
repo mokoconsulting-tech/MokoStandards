@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+
+This file is part of a Moko Consulting project.
+
+SPDX-License-Identifier: GPL-3.0-or-later
+
+FILE INFORMATION
+DEFGROUP: MokoStandards.Templates.Joomla
+INGROUP: MokoStandards.Templates
+REPO: https://github.com/mokoconsulting-tech/MokoStandards
+PATH: /templates/joomla/update.xml.template
+VERSION: XX.YY.ZZ
+BRIEF: Joomla update server XML template — lists available extension releases for Joomla auto-updates
+
+NOTE: The update server URL in manifest.xml must point to the raw GitHub URL of this file.
+      Example: https://raw.githubusercontent.com/mokoconsulting-tech/{{REPO_NAME}}/main/update.xml
+      Tokens replaced at sync time: {{REPO_NAME}}, {{REPO_URL}}, {{EXTENSION_NAME}},
+      {{EXTENSION_TYPE}}, {{EXTENSION_ELEMENT}}, {{VERSION}}, {{DOWNLOAD_URL}},
+      {{MAINTAINER_URL}}
+-->
+<!--
+  Joomla Extension Update Server XML
+  See: https://docs.joomla.org/Deploying_an_Update_Server
+
+  This file is the update server manifest for {{EXTENSION_NAME}}.
+  The Joomla installer polls this URL to check for new versions.
+
+  The manifest.xml in this repository must reference this file:
+    <updateservers>
+      <server type="extension" priority="1" name="{{EXTENSION_NAME}}">
+        {{REPO_URL}}/raw/main/update.xml
+      </server>
+    </updateservers>
+
+  When a new release is made, run `make release` or the release workflow to
+  prepend a new <update> entry to this file automatically.
+-->
+<updates>
+	<update>
+		<name>{{EXTENSION_NAME}}</name>
+		<description>{{REPO_NAME}} — Moko Consulting Joomla extension</description>
+		<element>{{EXTENSION_ELEMENT}}</element>
+		<type>{{EXTENSION_TYPE}}</type>
+		<version>{{VERSION}}</version>
+		<infourl title="Release Information">{{REPO_URL}}/releases/tag/{{VERSION}}</infourl>
+		<downloads>
+			<downloadurl type="full" format="zip">{{DOWNLOAD_URL}}</downloadurl>
+		</downloads>
+		<targetplatform name="joomla" version="4\.[0-9]+" />
+		<php_minimum>7.4</php_minimum>
+		<maintainer>Moko Consulting</maintainer>
+		<maintainerurl>{{MAINTAINER_URL}}</maintainerurl>
+	</update>
+</updates>

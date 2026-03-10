@@ -81,7 +81,7 @@ jobs:
             --create-issue \
             --repo "${{ github.repository }}"
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Check for changes
         if: ${{ inputs.dry_run != true }}

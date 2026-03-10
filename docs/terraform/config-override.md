@@ -8,7 +8,7 @@
 | Field | Value |
 |-------|-------|
 | **File** | `.github/config.tf` |
-| **Version** | 04.00.03 |
+| **Version** | 04.00.04 |
 | **Last Updated** | 2026-02-21 |
 | **Type** | override |
 | **Purpose** | Repository-specific override configuration for bulk synchronization |
@@ -88,14 +88,14 @@ All override files must follow [Terraform File Standards](../policy/terraform-fi
 # INGROUP: [Parent.Group]
 # REPO: https://github.com/mokoconsulting-tech/[repo-name]
 # PATH: /.github/config.tf
-# VERSION: 04.00.03
+# VERSION: 04.00.04
 # BRIEF: Repository-specific override configuration
 
 locals {
   file_metadata = {
     name              = "Repository Override Configuration"
     description       = "Override configuration for bulk synchronization"
-    version           = "04.00.03"
+    version           = "04.00.04"
     last_updated      = "2026-02-21T00:00:00Z"
     maintainer        = "MokoStandards Team"
     schema_version    = "2.0"
@@ -220,7 +220,7 @@ locals {
   file_metadata = {
     name              = "Example Project Override"
     description       = "Override configuration for example-project"
-    version           = "04.00.03"
+    version           = "04.00.04"
     last_updated      = "2026-02-21T00:00:00Z"
     maintainer        = "Example Team"
     schema_version    = "2.0"
@@ -285,7 +285,7 @@ Before any sync operations, bulk sync:
 
 During sync, bulk sync:
 
-1. ✓ Updates config.tf version to 04.00.03
+1. ✓ Updates config.tf version to 04.00.04
 2. ✓ Updates last_updated timestamp
 3. ✓ Preserves repository-specific sections
 4. ✓ Ensures file_location is correct
@@ -373,7 +373,7 @@ Scanning .github/config.tf...
 ✓ File exists
 ✓ Contains required locals {} block
 ✓ Has file_metadata section
-✓ Version is current (04.00.03)
+✓ Version is current (04.00.04)
 ⚠ File 'standards-compliance.yml' in protected_files but marked as FORCE_OVERRIDE
 ✓ config.tf validation passed
 ```
@@ -418,9 +418,9 @@ terraform validate
 
 | Version | Date | Changes |
 |---------|------|---------|
-| 04.00.03 | 2026-02-21 | Enhanced validation and force-override documentation |
-| 04.00.03 | 2026-02-20 | Moved to .github/config.tf standard location |
-| 04.00.03 | 2026-02-19 | Initial override system |
+| 04.00.04 | 2026-02-21 | Enhanced validation and force-override documentation |
+| 04.00.04 | 2026-02-20 | Moved to .github/config.tf standard location |
+| 04.00.04 | 2026-02-19 | Initial override system |
 
 ## Support
 

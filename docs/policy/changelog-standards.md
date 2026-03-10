@@ -10,11 +10,11 @@
  INGROUP: Policy.Documentation
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  PATH: /docs/policy/changelog-standards.md
- VERSION: 04.00.03
+ VERSION: 04.00.04
  BRIEF: Policy defining changelog format and maintenance standards for MokoStandards repositories.
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # MokoStandards: Changelog Standards Policy
 
@@ -33,7 +33,7 @@ This policy defines the standard format and maintenance requirements for CHANGEL
 
 **Example:**
 ```markdown
-# CHANGELOG - MokoStandards (VERSION: 04.00.03)
+# CHANGELOG - MokoStandards (VERSION: 04.00.04)
 ```
 
 **Rules:**
@@ -103,7 +103,7 @@ Within each version section, changes are organized by category using H3:
 ## Complete Example
 
 ```markdown
-# CHANGELOG - MokoStandards (VERSION: 04.00.03)
+# CHANGELOG - MokoStandards (VERSION: 04.00.04)
 
 All notable changes to this project will be documented in this file.
 

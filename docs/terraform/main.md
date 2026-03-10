@@ -8,7 +8,7 @@
 | Field | Value |
 |-------|-------|
 | **File** | `infrastructure/terraform/main.tf` |
-| **Version** | 04.00.03 |
+| **Version** | 04.00.04 |
 | **Last Updated** | 2026-02-21 |
 | **Type** | main |
 | **Purpose** | Primary terraform configuration and module orchestration |
@@ -73,7 +73,7 @@ locals {
   file_metadata = {
     name              = "Main Configuration"
     description       = "Primary terraform configuration"
-    version           = "04.00.03"
+    version           = "04.00.04"
     last_updated      = "2026-02-21T00:00:00Z"
     maintainer        = "MokoStandards Team"
     schema_version    = "2.0"
@@ -181,10 +181,10 @@ resource "example_resource" "example" {
 
 ### Issue: Provider Authentication Failed
 
-**Solution**: Ensure `GITHUB_TOKEN` environment variable is set or passed via variable file.
+**Solution**: Ensure `GH_TOKEN` environment variable is set or passed via variable file.
 
 ```bash
-export GITHUB_TOKEN="ghp_xxxxxxxxxxxxx"
+export GH_TOKEN="ghp_xxxxxxxxxxxxx"
 terraform plan
 ```
 
@@ -217,16 +217,16 @@ This file follows [Terraform File Standards](../policy/terraform-file-standards.
 - ✅ Copyright header (GPL-3.0-or-later)
 - ✅ FILE INFORMATION section
 - ✅ file_metadata locals block
-- ✅ Version 04.00.03
+- ✅ Version 04.00.04
 - ✅ Terraform >= 1.0 requirement
 
 ## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
-| 04.00.03 | 2026-02-21 | Updated to new terraform standards |
-| 04.00.03 | 2026-02-20 | Provider configuration enhanced |
-| 04.00.03 | 2026-02-19 | Initial structured version |
+| 04.00.04 | 2026-02-21 | Updated to new terraform standards |
+| 04.00.04 | 2026-02-20 | Provider configuration enhanced |
+| 04.00.04 | 2026-02-19 | Initial structured version |
 
 ## See Also
 

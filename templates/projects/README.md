@@ -10,7 +10,7 @@ DEFGROUP: GitHub.Projects
 INGROUP: MokoStandards.Standards
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /templates/projects/README.md
-VERSION: 04.00.03
+VERSION: 04.00.04
 BRIEF: GitHub Projects v2 setup standard with remote template selection
 -->
 

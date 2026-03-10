@@ -1,8 +1,8 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Reserve Dolibarr Module ID Workflow
 
-**Status**: Active | **Version**: 04.00.03 | **Effective**: 2026-02-21
+**Status**: Active | **Version**: 04.00.04 | **Effective**: 2026-02-21
 
 ## Overview
 
@@ -575,7 +575,7 @@ The workflow file itself is protected via `override.config.tf` to prevent accide
 
 ## Changelog
 
-### Version 04.00.03 (2026-03-04)
+### Version 04.00.04 (2026-03-04)
 
 **Changed**:
 - `push_to_remote` now scans remote repository PHP files for `$this->numero = <number>` and updates them to the reserved ID
@@ -584,7 +584,7 @@ The workflow file itself is protected via `override.config.tf` to prevent accide
 - Remote push uses `GH_TOKEN` for authenticated clone and PR creation
 - Output summary now shows the remote PR URL when `push_to_remote` is enabled
 
-### Version 04.00.03 (2026-02-21)
+### Version 04.00.04 (2026-02-21)
 
 **Changed**:
 - Remote push is now **optional** with `push_to_remote` input parameter (default: false)
@@ -602,7 +602,7 @@ The workflow file itself is protected via `override.config.tf` to prevent accide
 - Documentation updated to reflect optional push behavior
 - Workflow diagram correctly shows push as "(Optional)"
 
-### Version 04.00.03 (2026-02-20)
+### Version 04.00.04 (2026-02-20)
 
 **Changed**:
 - Simplified workflow inputs to only require `repo_name`
@@ -621,12 +621,12 @@ The workflow file itself is protected via `override.config.tf` to prevent accide
 - `repository` input (auto-constructed)
 - `push_to_remote` input (always true)
 - `remote_repository` input (auto-constructed)
-- `developer` input (removed in v04.00.03)
+- `developer` input (removed in v04.00.04)
 
 **Added**:
 - `repo_name` required input - single field for repository name
 
-### Version 04.00.03 (2026-02-19)
+### Version 04.00.04 (2026-02-19)
 
 **Changed**:
 - Simplified from 866 to 450 lines (48% reduction)
@@ -681,7 +681,7 @@ For issues or questions about this workflow:
 | Owner | Moko Consulting |
 | Repo | https://github.com/mokoconsulting-tech/MokoStandards |
 | Path | /docs/workflows/reserve-dolibarr-module-id.md |
-| Version        | 04.00.03 |
+| Version        | 04.00.04 |
 | Status | Active |
 | Last Reviewed | 2026-02-19 |
 | Reviewed By | Documentation Team |
@@ -690,4 +690,4 @@ For issues or questions about this workflow:
 
 | Date | Author | Change | Notes |
 |------|--------|--------|-------|
-| 2026-02-19 | GitHub Copilot | Initial documentation creation | Comprehensive workflow documentation for v04.00.03 |
+| 2026-02-19 | GitHub Copilot | Initial documentation creation | Comprehensive workflow documentation for v04.00.04 |

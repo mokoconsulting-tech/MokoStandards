@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Guides
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: docs/guides/version-branching-guide.md
-VERSION: 04.00.03
+VERSION: 04.00.04
 BRIEF: Guide for version branch management and old version preservation
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Version Branching Guide
 
@@ -416,7 +416,7 @@ jobs:
       - name: Create GitHub Release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
           tag_name: v${{ steps.version.outputs.version }}
           release_name: Release ${{ steps.version.outputs.version }}
@@ -689,6 +689,6 @@ git checkout version/03.02.00
 
 ---
 
-**Current Version**: 04.00.03  
+**Current Version**: 04.00.04  
 **Version Branch**: version/03.02.00 (to be created on next bump)  
 **Next Version**: 03.03.00 (planned Q1 2026)

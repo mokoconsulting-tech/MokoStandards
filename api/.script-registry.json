@@ -1,6 +1,6 @@
 {
     "metadata": {
-        "generated_at": "2026-02-19T17:09:04.000000Z",
+        "generated_at": "2026-03-10T19:51:42.238134Z",
         "repository": "mokoconsulting-tech/MokoStandards",
         "version": "1.0.0"
     },
@@ -231,10 +231,10 @@
         },
         {
             "path": "scripts/maintenance/release_version.py",
-            "sha256": "1edc101727d0406c43d1fd6ebe70cac4970afc0c1f97aaaf92961236980f35b0",
+            "sha256": "e2eaca49f632752aa53bce5d8c040171bb7130e9b33da18465f71c58aaf681f2",
             "category": "maintenance",
             "priority": "critical",
-            "size_bytes": 15463
+            "size_bytes": 15455
         },
         {
             "path": "scripts/maintenance/setup-labels.sh",
@@ -245,10 +245,10 @@
         },
         {
             "path": "scripts/maintenance/update_changelog.py",
-            "sha256": "b928e3494d22222a771146b58e9a2988524e41067e83689f769011cb8cf3c98d",
+            "sha256": "133685b81fe4a096a7987aeade3854bc5dc42a8005dacba3f62bc94116b14948",
             "category": "maintenance",
             "priority": "critical",
-            "size_bytes": 10653
+            "size_bytes": 10624
         },
         {
             "path": "scripts/maintenance/update_copyright_year.py",
@@ -273,10 +273,10 @@
         },
         {
             "path": "scripts/maintenance/validate_file_headers.py",
-            "sha256": "842380f6bcfb2a61f0eb8360e0653cc21936ccaa26f5f466396a991a92300e1c",
+            "sha256": "f9aafe4982704f21f74583d3362ede8eaa9cda3cbf7eaf7064ac22072a046dc7",
             "category": "maintenance",
             "priority": "critical",
-            "size_bytes": 9058
+            "size_bytes": 9065
         },
         {
             "path": "scripts/maintenance/validate_script_registry.py",

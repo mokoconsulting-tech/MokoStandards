@@ -12,7 +12,7 @@
  * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: /api/validate/scan_drift.php
- * VERSION: 04.00.03
+ * VERSION: 04.00.04
  * BRIEF: Standards drift detection - scans repositories for divergence from templates
  */
 
@@ -34,7 +34,7 @@ use MokoStandards\Enterprise\{
  */
 class DriftScanner extends CliFramework
 {
-    private const VERSION = '04.00.03';
+    private const VERSION = '04.00.04';
     private const DEFAULT_ORG = 'mokoconsulting-tech';
     
     private ApiClient $apiClient;

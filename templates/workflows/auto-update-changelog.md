@@ -219,7 +219,7 @@ Check:
 ### Commit Fails
 
 Check:
-- `GITHUB_TOKEN` has write permissions
+- `GH_TOKEN` has write permissions
 - No branch protection preventing bot commits
 - No conflicts in CHANGELOG.md
 
@@ -269,7 +269,7 @@ Check:
 
 ## Security Considerations
 
-- Uses `GITHUB_TOKEN` with minimal required permissions
+- Uses `GH_TOKEN` with minimal required permissions
 - Bot commits skip CI to avoid loops
 - Read-only access to PR information
 - Write access only to repository contents

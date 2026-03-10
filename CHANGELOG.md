@@ -15,13 +15,13 @@
  DEFGROUP: MokoStandards
  INGROUP: MokoStandards.Documentation
  REPO: https://github.com/mokoconsulting-tech/MokoStandards/
- VERSION: 04.00.03
+ VERSION: 04.00.04
  PATH: ./CHANGELOG.md
  BRIEF: Version history using Keep a Changelog
  NOTE: Adheres to SemVer when applicable
  -->
 
-# CHANGELOG - MokoStandards (VERSION: 04.00.03)
+# CHANGELOG - MokoStandards (VERSION: 04.00.04)
 
 All notable changes to this project will be documented in this file.
 
@@ -50,7 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - workflows_checks (12 points): standards-compliance.yml, code-quality.yml, build.yml, release-cycle.yml
   - issue_template_checks (5 points): bug_report, feature_request, ISSUE_TEMPLATE directory
   - repository_settings_checks (10 points): branch protection, required status checks, PR reviews
-  - deployment_secrets_checks (20 points): GITHUB_TOKEN, GH_TOKEN, deployment secrets, documentation
+  - deployment_secrets_checks (20 points): GH_TOKEN, deployment secrets, documentation
   - Total health checks now: 103 points across 8 categories (was 56 points in 4 categories)
   - Removed TODO comments from infrastructure/terraform/repository-types/repo-health-defaults.tf
   - Created comprehensive check definitions with remediation guidance for all categories
@@ -96,6 +96,63 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhanced sync logs with security validation results and detailed operation tracking
 - Improved metrics collection with gauges, timers, and comprehensive measurements
 - Updated `docs/workflows/bulk-repo-sync.md` with enterprise-ready certification badge and documentation
+
+## [04.00.05] - 2026-03-09
+
+### Added
+
+- **Platform-specific AI instruction templates**:
+  - `templates/github/copilot-instructions.joomla.md.template` — Joomla/MokoWaaS Copilot instructions with `update.xml` rules, manifest version alignment, Joomla MVC structure, and `defined('_JEXEC') or die;` guidance
+  - `templates/github/CLAUDE.joomla.md.template` — Joomla/MokoWaaS Claude context with identical platform coverage plus a PR checklist
+  - `templates/github/copilot-instructions.dolibarr.md.template` — Dolibarr/MokoCRM Copilot instructions with module descriptor class pattern, module ID immutability rule, and version alignment
+  - `templates/github/CLAUDE.dolibarr.md.template` — Dolibarr/MokoCRM Claude context with identical platform coverage plus a PR checklist
+- **Joomla update.xml template** (`templates/joomla/update.xml.template`) — starter update-server manifest with full `<updates>/<update>` structure, `<targetplatform>`, `<php_minimum>`, and inline guidance
+- **`docs/guide/package-installation.md`** — missing guide for adding `mokoconsulting/mokostandards` via Composer to any governed PHP repository (authentication, CI wiring, troubleshooting)
+- **`docs/policy/waas/update-server.md`** — policy: `update.xml` is required at the root of all MokoWaaS (Joomla) repos; version alignment rules, prepend-only release policy, enforcement checks
+- **`docs/guide/waas/update-server-guide.md`** — how-to: initial setup, per-release update steps, version alignment check script, curl/xmllint tests, common mistakes
+- **`docs/guide/platform-ai-templates.md`** — guide explaining how platform-specific AI templates are selected by the sync system and how developers may customise them
+
+### Changed
+
+- **`api/definitions/default/waas-component.tf`** — Joomla repos now receive Joomla-specific AI templates; `update.xml` added as required root file (`always_overwrite = false`, template from `templates/joomla/update.xml.template`)
+- **`api/definitions/default/crm-module.tf`** — Dolibarr repos now receive Dolibarr-specific AI templates
+- **`docs/policy/ai-tool-governance.md`** — Mandatory Context Files section updated to document platform-specific template selection; table added showing Generic/Joomla/Dolibarr variants; link to new `platform-ai-templates.md` guide added; version bumped 04.00.04 → 04.00.05
+- **Patch version bump**: `04.00.04` → `04.00.05` in `README.md`
+
+## [04.00.04] - 2026-03-09
+
+### Security
+
+- **Standardised token usage across all workflows, templates, and documentation**:
+  - Replaced all `secrets.GITHUB_TOKEN` references with `secrets.GH_TOKEN` in active workflows
+  - Renamed `GITHUB_TOKEN:` env keys to `GH_TOKEN:` in `pin-action-shas.yml` (×2) and `sync-version-on-merge.yml` (×1)
+  - Updated all 13 template workflow files (`.template`) to use `secrets.GH_TOKEN`
+  - Corrected `manage-repo-templates.yml.template` env var setup, fallback source, and Terraform variable refs
+  - Updated error message strings referencing `GITHUB_TOKEN is required` → `GH_TOKEN is required`
+  - Updated Terraform health-check definitions (5 templates + 3 `api/definitions`) to check `GH_TOKEN` (org PAT) instead of `GITHUB_TOKEN` (auto-provided — trivially always present)
+  - Fixed key name typo `gch_token_available` → `gh_token_available` in all 5 repo-health template definitions
+
+### Changed
+
+- **Documentation fully updated to reflect GH_TOKEN standard**:
+  - Updated 22 documentation files (`docs/`, `CONTRIBUTING.md`, `CHANGELOG.md`, `templates/`)
+  - Python scripting-standards example: `os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")`
+  - Training sessions 2, 3, 4 PHP code examples: `getenv('GH_TOKEN') ?: getenv('GITHUB_TOKEN')`
+  - Terraform CLI examples in guides use `$GH_TOKEN`
+  - Health check label-deployment docs updated to reference org PAT requirement
+- **Patch-bump-every-PR rule added to all AI instruction files**:
+  - `.github/copilot-instructions.md` — new bullet in Commit/Version discipline section; new row in Keeping Documentation Current table
+  - `.github/CLAUDE.md` — new row in documentation table; new `[ ] Patch version bumped in README.md` PR checklist item
+  - `templates/github/copilot-instructions.md.template` — new bullet in Version Management section; new row in documentation table (synced to governed repos)
+  - `templates/github/CLAUDE.md.template` — new bullet in Version Management section; new row in documentation table (synced to governed repos)
+  - `templates/github/PULL_REQUEST_TEMPLATE.md` — patch-bump checklist item added (synced to governed repos)
+  - `.github/pull_request_template.md` — patch bump promoted to first item in Version Management section; added to reviewer checklist; Comprehensive Pre-Merge Prompt updated to list "BUMP PATCH VERSION" as step 1
+- **AI instruction files never overwritten on repo sync**:
+  - `always_overwrite` changed from `true` → `false` for `copilot-instructions.md` and `CLAUDE.md` in all three platform definitions (`crm-module.tf`, `generic-repository.tf`, `waas-component.tf`)
+  - Files are now created on first sync only; subsequent syncs skip them to preserve project-specific customisations
+  - `copilot.yml` (domain allow-list) remains `always_overwrite = true`
+  - `docs/policy/ai-tool-governance.md` enforcement level updated: `FORCED` → `REQUIRED (created on first sync; never overwritten)`
+- **Patch version bump**: `04.00.03` → `04.00.04` across all file headers, PHP constants, badges, and config
 
 ## [04.00.03] - 2026-02-21 to 2026-02-23
 

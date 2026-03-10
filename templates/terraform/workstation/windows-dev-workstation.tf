@@ -7,7 +7,7 @@
 # INGROUP: MokoStandards.Infrastructure
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: infrastructure/terraform/workstation/dev-workstation.tf
-# VERSION: 04.00.03
+# VERSION: 04.00.04
 # BRIEF: Terraform definition for Windows development workstation provisioning configuration
 # ENTERPRISE: Includes audit logging, monitoring, and compliance features
 
@@ -18,7 +18,7 @@ locals {
   config_metadata = {
     name              = "Workstation Windows Dev Workstation"
     description       = "Development Windows workstation configuration"
-    version           = "04.00.03"
+    version           = "04.00.04"
     last_updated      = "2026-02-11"
     maintainer        = "MokoStandards Team"
     schema_version    = "2.0"

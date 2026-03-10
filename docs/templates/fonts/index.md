@@ -97,6 +97,7 @@ See the [Google Fonts Policy](../../policy/google-fonts.md) for:
 
 ## Related
 
+- [Branding Policy](../../policy/branding.md)
 - [Google Fonts Policy](../../policy/google-fonts.md)
 - [Templates Catalog](../index.md)
 - [Image Assets](../images/index.md)

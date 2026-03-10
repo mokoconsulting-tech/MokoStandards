@@ -159,6 +159,7 @@ directory and reference them in `<head>`:
 
 ## Related
 
+- [Branding Policy](../../policy/branding.md)
 - [Templates Catalog](../index.md)
 - [Font Assets](../fonts/index.md)
 - [crm-module.tf definition](../../../api/definitions/default/crm-module.tf)

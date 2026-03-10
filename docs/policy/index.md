@@ -19,6 +19,7 @@ This index provides navigation to documentation within this folder.
 ## Documents
 
 - [branching-strategy](./branching-strategy.md)
+- [branding](./branding.md)
 - [change-management](./change-management.md)
 - [code-review-guidelines](./code-review-guidelines.md)
 - [coding-style-guide](./coding-style-guide.md)
@@ -29,7 +30,7 @@ This index provides navigation to documentation within this folder.
 - [document-formatting](./document-formatting.md)
 - [documentation-governance](./documentation-governance.md)
 - [file-header-standards](./file-header-standards.md)
-- [GOVERNANCE](./GOVERNANCE.md)
+- [google-fonts](./google-fonts.md)
 - [health-scoring](./health-scoring.md)
 - [license-compliance](./license-compliance.md)
 - [merge-strategy](./merge-strategy.md)

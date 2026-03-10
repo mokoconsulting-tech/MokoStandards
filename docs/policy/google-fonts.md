@@ -172,6 +172,7 @@ Documented exceptions must be recorded in the repository's `.moko-standards` fil
 
 ## Related Policies
 
+- [Branding Policy](./branding.md) — logo, colour palette, background assets, typography stack
 - [Network Egress Policy](./network-egress.md) — approves `fonts.googleapis.com` and `fonts.gstatic.com`
 - [Font Assets (templates/fonts/)](../templates/fonts/index.md) — locally bundled fonts for offline use
 - [Image Assets (templates/images/)](../templates/images/index.md) — brand images and favicon assets

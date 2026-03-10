@@ -528,7 +528,10 @@ EOT
 				        $this->description = 'Description of {{MODULE_NAME}} module';
 				        $this->version = 'XX.YY.ZZ';           // Must match README.md version
 				        $this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);
-				        $this->picto = 'favicon.png@{{MODULE_NAME}}';
+				        $this->picto = 'favicon.png@mokocrm';
+				        $this->editor_name = 'Moko Consulting';
+				        $this->editor_url = 'https://mokoconsulting.tech';		// Must be an external online web site
+				        $this->editor_squarred_logo = 'favicon.png@mokocrm';
 				    }
 				}
 				```

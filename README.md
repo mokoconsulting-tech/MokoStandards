@@ -29,7 +29,7 @@
  NOTE: Standards definition repository - not for duplication. Use templates to create projects.
 -->
 
-![Moko Consulting](https://mokoconsulting.tech/images/branding/logo.png)
+![Moko Consulting](templates/images/primary/logo.png)
 
 # README - MokoStandards
 

@@ -24,7 +24,7 @@
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  PATH: /docs/policy/branding.md
  VERSION: 04.00.05
- BRIEF: Moko Consulting branding policy — logo, typography, colour palette, and background assets
+ BRIEF: Authoritative Moko Consulting brand identity system — foundation, visual identity, logo, colour palette, typography, and usage policy
 -->
 
 [![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.05-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
@@ -100,12 +100,12 @@ definition, or copy it manually during initial project setup.
 
 ### Font Assignments
 
-| Role | Family | Source | Weights |
-|---|---|---|---|
-| **Logo / Wordmark** | **Osaka Re** | `templates/fonts/osaka-re.ttf` (local TrueType) | 400 |
-| **Body text / UI labels** | **Open Sans** | Google Fonts CDN | 400, 600, 700 |
-| **Code / monospace** | **Roboto Mono** | Google Fonts CDN | 400, 700 |
-| **Fallback (no CDN)** | `system-ui, -apple-system, 'Segoe UI', Arial, sans-serif` | System | — |
+| Role | Family | Source | Weights | Status |
+|---|---|---|---|---|
+| **Logo / Wordmark** | **Osaka Re** | `templates/fonts/osaka-re.ttf` (local TrueType) | 400 | Required |
+| **Body text / UI labels** | **Open Sans** | Google Fonts CDN | 400, 600, 700 | **★ Preferred** |
+| **Code / monospace** | **Roboto Mono** | Google Fonts CDN | 400, 700 | Approved |
+| **Fallback (no CDN)** | `system-ui, -apple-system, 'Segoe UI', Arial, sans-serif` | System | — | Required |
 
 ### Logo Font — Osaka Re
 
@@ -128,9 +128,9 @@ distributed as a local TrueType file and is **not** available on Google Fonts.
 
 Do **not** use Osaka Re for body copy, UI labels, or any text longer than a short headline.
 
-### Body Font — Open Sans
+### Body Font — Open Sans ★ Preferred
 
-**Open Sans** is the official body-text font for all web-facing projects. Load it from Google Fonts:
+**Open Sans** is the preferred and official body-text font for all web-facing projects. Load it from Google Fonts:
 
 ```html
 <link rel="preconnect" href="https://fonts.googleapis.com">

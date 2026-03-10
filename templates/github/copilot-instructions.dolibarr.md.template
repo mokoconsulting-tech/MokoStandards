@@ -195,7 +195,7 @@ class mod{{MODULE_CLASS}} extends DolibarrModules
         $this->description = 'Description of {{MODULE_NAME}} module';
         $this->version = 'XX.YY.ZZ';           // Must match README.md version
         $this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);
-        $this->picto = 'object_mokoconsulting.png@{{MODULE_NAME}}';
+        $this->picto = 'favicon.png@{{MODULE_NAME}}';
     }
 }
 ```

@@ -403,12 +403,12 @@ EOT
         purpose             = "Contains the module picto displayed in the Dolibarr UI"
         files = [
           {
-            name                = "object_mokoconsulting.png"
+            name                = "favicon.png"
             extension           = "png"
             description         = "Moko Consulting picto shown in Dolibarr module list"
             requirement_status  = "required"
             always_overwrite    = true
-            template            = "templates/build/dolibarr/img/object_mokoconsulting.png"
+            template            = "templates/build/dolibarr/img/favicon.png"
           }
         ]
       }

@@ -13,7 +13,7 @@
  DEFGROUP:
  INGROUP: Documentation
  REPO:
- VERSION: 04.00.03
+ VERSION: 04.00.04
  PATH: ./CHANGELOG.md
  BRIEF: Version history using Keep a Changelog
 -->

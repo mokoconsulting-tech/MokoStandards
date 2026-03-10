@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Development
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/scripting-standards.md
-VERSION: 04.00.03
+VERSION: 04.00.04
 BRIEF: Standards and requirements for automation scripts and tooling
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Scripting Standards Policy
 
@@ -496,10 +496,10 @@ def validate_file_path(path: str) -> Path:
 ```python
 import os
 
-# ✅ Correct: Use environment variables
-github_token = os.environ.get("GITHUB_TOKEN")
+# ✅ Correct: Use environment variables — prefer GH_TOKEN (org secret), fall back to GITHUB_TOKEN
+github_token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
 if not github_token:
-    print("Error: GITHUB_TOKEN environment variable not set", file=sys.stderr)
+    print("Error: GH_TOKEN environment variable not set", file=sys.stderr)
     sys.exit(1)
 
 # ❌ Incorrect: Hardcoded credentials
@@ -687,7 +687,7 @@ DEFGROUP: MokoStandards.Scripts
 INGROUP: MokoStandards.Automation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /scripts/my_script.py
-VERSION: 04.00.03
+VERSION: 04.00.04
 BRIEF: Brief description of script purpose
 """
 ```

@@ -14,7 +14,7 @@
  * VERSION: XX.YY.ZZ
  * BRIEF: Reads VERSION from README.md FILE INFORMATION block and propagates it to all badges and FILE INFORMATION headers
  * NOTE: README.md is the single source of truth for the repository version.
- *       Version format is zero-padded semver: XX.YY.ZZ (e.g. 04.00.03). All regex patterns
+ *       Version format is zero-padded semver: XX.YY.ZZ (e.g. 04.00.04). All regex patterns
  *       in this script enforce exactly two digits per component by design.
  */
 
@@ -125,7 +125,7 @@ class UpdateVersionFromReadme extends CliFramework
 	 * Handles both indented (` VERSION: X`) and unindented (`VERSION: X`) forms.
 	 *
 	 * @param string $path Full path to README.md
-	 * @return string|null Version string (e.g. "04.00.03"), or null if not found
+	 * @return string|null Version string (e.g. "04.00.04"), or null if not found
 	 */
 	private function extractVersionFromReadme(string $path): ?string
 	{

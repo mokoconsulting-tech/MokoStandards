@@ -5,7 +5,7 @@
 # INGROUP: MokoStandards.Automation
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/pin-action-shas.yml
-# VERSION: 04.00.03
+# VERSION: 04.00.04
 # BRIEF: Pin GitHub Actions to immutable commit SHAs in workflow files
 # NOTE: Resolves tag-based action refs to pinned commit SHAs to satisfy the
 #       CodeQL "Unpinned tag for a non-immutable Action" (actions/unpinned-tag)
@@ -87,7 +87,7 @@ jobs:
       - name: Scan for unpinned actions (dry run)
         id: scan
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           set -euo pipefail
 
@@ -117,7 +117,7 @@ jobs:
           steps.scan.outputs.needs_update == 'true' &&
           github.event.inputs.dry_run != 'true'
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           set -euo pipefail
 

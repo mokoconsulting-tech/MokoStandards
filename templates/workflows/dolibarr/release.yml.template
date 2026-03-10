@@ -272,7 +272,7 @@ jobs:
           draft: false
           prerelease: ${{ steps.version.outputs.prerelease }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Upload to FTP/SFTP
         if: |

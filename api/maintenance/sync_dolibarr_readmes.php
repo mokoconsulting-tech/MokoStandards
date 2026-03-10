@@ -13,7 +13,7 @@
  * PATH: /api/maintenance/sync_dolibarr_readmes.php
  * VERSION: XX.YY.ZZ
  * BRIEF: Keeps root README.md and src/README.md in sync for Dolibarr module repositories
- * NOTE: Version format is zero-padded semver: XX.YY.ZZ (e.g. 04.00.03). All version regex
+ * NOTE: Version format is zero-padded semver: XX.YY.ZZ (e.g. 04.00.04). All version regex
  *       patterns enforce exactly two digits per component by design.
  */
 

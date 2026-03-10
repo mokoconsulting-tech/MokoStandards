@@ -104,7 +104,7 @@ jobs:
         if: steps.pr_action.outputs.is_tracked_branch == 'true'
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GH_TOKEN }}
           script: |
             const baseBranch = '${{ steps.pr_action.outputs.base_branch }}';
             
@@ -156,7 +156,7 @@ jobs:
           steps.find_issue.outputs.found == 'true'
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GH_TOKEN }}
           retries: 3
           script: |
             const issueNumber = parseInt('${{ steps.find_issue.outputs.issue_number }}');
@@ -213,7 +213,7 @@ jobs:
           steps.find_issue.outputs.found == 'true'
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GH_TOKEN }}
           retries: 3
           script: |
             const issueNumber = parseInt('${{ steps.find_issue.outputs.issue_number }}');
@@ -259,7 +259,7 @@ jobs:
           steps.find_issue.outputs.found == 'true'
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GH_TOKEN }}
           retries: 3
           script: |
             const issueNumber = parseInt('${{ steps.find_issue.outputs.issue_number }}');
@@ -316,7 +316,7 @@ This branch has completed its development cycle and been integrated into the mai
       - name: Find and close tracking issue
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GH_TOKEN }}
           retries: 3
           script: |
             const branchName = context.payload.ref;

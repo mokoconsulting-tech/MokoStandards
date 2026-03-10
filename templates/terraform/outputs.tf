@@ -7,7 +7,7 @@ locals {
   config_metadata = {
     name              = "Outputs"
     description       = "Output definitions for Terraform configuration"
-    version           = "04.00.03"
+    version           = "04.00.04"
     last_updated      = "2026-02-11"
     maintainer        = "MokoStandards Team"
     schema_version    = "2.0"

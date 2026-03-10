@@ -7,7 +7,7 @@
 
 | Field | Value |
 |-------|-------|
-| **VERSION** | 04.00.03 |
+| **VERSION** | 04.00.04 |
 | **LAST UPDATED** | 2026-02-21 |
 | **STATUS** | Active |
 | **APPLIES TO** | All terraform configurations and bulk sync operations |
@@ -439,14 +439,14 @@ protected_files = [{
 
 ### Upgrading from Legacy Override System
 
-**Old System** (Before 04.00.03):
+**Old System** (Before 04.00.04):
 ```terraform
 # Only had exclude and protected
 exclude_files = [...]
 protected_files = [...]
 ```
 
-**New System** (04.00.03+):
+**New System** (04.00.04+):
 ```terraform
 enforcement_levels = {
   optional_files = [...]    # Level 1
@@ -490,9 +490,9 @@ protected_files = [...]
 
 | Version | Date | Changes |
 |---------|------|---------|
-| 04.00.03 | 2026-02-21 | Four-tier enforcement level system introduced |
-| 04.00.03 | 2026-02-20 | Force-override system added |
-| 04.00.03 | 2026-02-19 | Basic override system |
+| 04.00.04 | 2026-02-21 | Four-tier enforcement level system introduced |
+| 04.00.04 | 2026-02-20 | Force-override system added |
+| 04.00.04 | 2026-02-19 | Basic override system |
 
 ## Support
 

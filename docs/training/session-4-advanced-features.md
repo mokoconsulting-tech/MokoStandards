@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Training
 INGROUP: MokoStandards.Documentation  
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: docs/training/session-3-advanced-features.md
-VERSION: 04.00.03
+VERSION: 04.00.04
 BRIEF: Session 3 - Advanced Features training materials
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Session 3: Advanced Features
 
@@ -715,7 +715,7 @@ class OptimizedAPIClient
         );
         
         $this->api = new GitHubClient(
-            token: getenv('GITHUB_TOKEN'),
+            token: getenv('GH_TOKEN') ?: getenv('GITHUB_TOKEN'),
             rateLimitConfig: $rateConfig
         );
         

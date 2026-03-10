@@ -5,7 +5,7 @@
 # INGROUP: MokoStandards.Compliance
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /.github/workflows/standards-compliance.yml
-# VERSION: 04.00.03
+# VERSION: 04.00.04
 # BRIEF: MokoStandards compliance validation workflow
 # NOTE: Validates repository structure, documentation, and coding standards
 
@@ -14,7 +14,7 @@ name: Standards Compliance
 env:
   ACTIONS_STEP_DEBUG: true
   ACTIONS_RUNNER_DEBUG: true
-  WORKFLOW_VERSION: "04.00.03"
+  WORKFLOW_VERSION: "04.00.04"
 
 # MokoStandards Policy Compliance:
 # - File formatting: Enforces organizational coding standards
@@ -853,7 +853,7 @@ jobs:
           for LANG in $LANGUAGES; do
             case "$LANG" in
               python)
-                # Check for Python files (should be none in v04.00.03)
+                # Check for Python files (should be none in v04.00.04)
                 if find . -name "*.py" -type f ! -path "./.git/*" | grep -q .; then
                   VALID_LANGS="$VALID_LANGS python"
                   echo "✅ Python: Found Python files" >> $GITHUB_STEP_SUMMARY
@@ -924,7 +924,7 @@ jobs:
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**Note:** This is informational. CodeQL will skip languages without source files." >> $GITHUB_STEP_SUMMARY
-            echo "For PHP repository (v04.00.03), JavaScript language covers JSON/YAML/shell scripts." >> $GITHUB_STEP_SUMMARY
+            echo "For PHP repository (v04.00.04), JavaScript language covers JSON/YAML/shell scripts." >> $GITHUB_STEP_SUMMARY
           else
             echo "✅ **All configured CodeQL languages have corresponding source files**" >> $GITHUB_STEP_SUMMARY
           fi
@@ -2110,7 +2110,7 @@ jobs:
           # 5. Version Consistency Check
           echo "### Version Consistency Check" >> $GITHUB_STEP_SUMMARY
           VERSION_MISMATCHES=0
-          EXPECTED_VERSION="04.00.03"
+          EXPECTED_VERSION="04.00.04"
 
           for tf_file in $(find . -name "*.tf" -type f); do
             if grep -q "version.*=" "$tf_file"; then

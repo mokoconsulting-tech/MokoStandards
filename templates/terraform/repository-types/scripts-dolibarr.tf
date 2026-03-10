@@ -1,11 +1,11 @@
 # Dolibarr Script Library Definitions
 # Defines all Dolibarr-specific script templates for module development and automation
-# Version: 04.00.03
+# Version: 04.00.04
 
 locals {
   dolibarr_scripts_metadata = {
     name              = "Dolibarr Script Library"
-    version           = "04.00.03"
+    version           = "04.00.04"
     description       = "Comprehensive Dolibarr module development and automation scripts"
     maintainer        = "MokoStandards Team"
     last_updated      = "2026-02-27"

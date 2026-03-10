@@ -418,8 +418,8 @@ locals {
     repository_requirements = {
       secrets = [
         {
-          name        = "GITHUB_TOKEN"
-          description = "GitHub API token for automation"
+          name        = "GH_TOKEN"
+          description = "Org-level GitHub PAT for automation — configure in org Actions secrets"
           required    = true
         }
       ]

@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Guide
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: docs/guide/terraform-installation.md
-VERSION: 04.00.03
+VERSION: 04.00.04
 BRIEF: Guide for installing and using Terraform across organization repositories
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Terraform Installation Guide
 
@@ -49,7 +49,7 @@ BRIEF: Guide for installing and using Terraform across organization repositories
 
 ## Overview
 
-As part of the enterprise transformation (version 04.00.03), Terraform is now distributed to all organization repositories to enable Infrastructure as Code (IaC) capabilities across the organization.
+As part of the enterprise transformation (version 04.00.04), Terraform is now distributed to all organization repositories to enable Infrastructure as Code (IaC) capabilities across the organization.
 
 ### Key Benefits
 
@@ -431,7 +431,7 @@ terraform.tfvars
 EOF
 
 # Use environment variables or secret managers
-export TF_VAR_github_token="${GITHUB_TOKEN}"
+export TF_VAR_github_token="${GH_TOKEN}"
 terraform apply
 ```
 

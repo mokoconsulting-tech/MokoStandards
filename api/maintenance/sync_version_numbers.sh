@@ -10,7 +10,7 @@
 # INGROUP: MokoStandards
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: scripts/maintenance/sync_version_numbers.sh
-# VERSION: 04.00.03
+# VERSION: 04.00.04
 # BRIEF: Synchronize version numbers across all repository files
 
 set -e
@@ -22,7 +22,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Target version (canonical source: README.md)
-TARGET_VERSION="04.00.03"
+TARGET_VERSION="04.00.04"
 
 echo -e "${GREEN}═══════════════════════════════════════════════════════════${NC}"
 echo -e "${GREEN}  Version Number Synchronization Script${NC}"
@@ -45,7 +45,7 @@ OLD_VERSIONS=$(grep -r "04\.00\.0[0-2]" --include="*.tf" --include="*.php" --inc
     --exclude-dir=vendor --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=tests \
     2>/dev/null | wc -l || echo "0")
 
-echo "Found $OLD_VERSIONS references to old versions (04.00.03, 04.00.03)"
+echo "Found $OLD_VERSIONS references to old versions (04.00.04, 04.00.04)"
 echo ""
 
 if [ "$OLD_VERSIONS" -eq 0 ]; then
@@ -60,7 +60,7 @@ UPDATED_COUNT=0
 # Update Terraform files
 for file in $(find . -name "*.tf" ! -path "*/vendor/*" ! -path "*/.git/*" ! -path "*/node_modules/*" ! -path "*/tests/*"); do
     if grep -q "04\.00\.0[0-2]" "$file" 2>/dev/null; then
-        sed -i 's/04\.00\.01/04.00.03/g; s/04\.00\.02/04.00.03/g' "$file"
+        sed -i 's/04\.00\.01/04.00.04/g; s/04\.00\.02/04.00.04/g' "$file"
         UPDATED_COUNT=$((UPDATED_COUNT + 1))
         echo -e "  ${GREEN}✓${NC} $file"
     fi
@@ -69,7 +69,7 @@ done
 # Update PHP files
 for file in $(find . -name "*.php" ! -path "*/vendor/*" ! -path "*/.git/*" ! -path "*/node_modules/*" ! -path "*/tests/*"); do
     if grep -q "04\.00\.0[0-2]" "$file" 2>/dev/null; then
-        sed -i 's/04\.00\.01/04.00.03/g; s/04\.00\.02/04.00.03/g' "$file"
+        sed -i 's/04\.00\.01/04.00.04/g; s/04\.00\.02/04.00.04/g' "$file"
         UPDATED_COUNT=$((UPDATED_COUNT + 1))
         echo -e "  ${GREEN}✓${NC} $file"
     fi
@@ -78,7 +78,7 @@ done
 # Update YAML files
 for file in $(find . \( -name "*.yml" -o -name "*.yaml" \) ! -path "*/vendor/*" ! -path "*/.git/*" ! -path "*/node_modules/*" ! -path "*/tests/*"); do
     if grep -q "04\.00\.0[0-2]" "$file" 2>/dev/null; then
-        sed -i 's/04\.00\.01/04.00.03/g; s/04\.00\.02/04.00.03/g' "$file"
+        sed -i 's/04\.00\.01/04.00.04/g; s/04\.00\.02/04.00.04/g' "$file"
         UPDATED_COUNT=$((UPDATED_COUNT + 1))
         echo -e "  ${GREEN}✓${NC} $file"
     fi
@@ -87,7 +87,7 @@ done
 # Update Python files
 for file in $(find . -name "*.py" ! -path "*/vendor/*" ! -path "*/.git/*" ! -path "*/node_modules/*" ! -path "*/tests/*"); do
     if grep -q "04\.00\.0[0-2]" "$file" 2>/dev/null; then
-        sed -i 's/04\.00\.01/04.00.03/g; s/04\.00\.02/04.00.03/g' "$file"
+        sed -i 's/04\.00\.01/04.00.04/g; s/04\.00\.02/04.00.04/g' "$file"
         UPDATED_COUNT=$((UPDATED_COUNT + 1))
         echo -e "  ${GREEN}✓${NC} $file"
     fi
@@ -96,7 +96,7 @@ done
 # Update Shell scripts
 for file in $(find . -name "*.sh" ! -path "*/vendor/*" ! -path "*/.git/*" ! -path "*/node_modules/*" ! -path "*/tests/*"); do
     if grep -q "04\.00\.0[0-2]" "$file" 2>/dev/null; then
-        sed -i 's/04\.00\.01/04.00.03/g; s/04\.00\.02/04.00.03/g' "$file"
+        sed -i 's/04\.00\.01/04.00.04/g; s/04\.00\.02/04.00.04/g' "$file"
         UPDATED_COUNT=$((UPDATED_COUNT + 1))
         echo -e "  ${GREEN}✓${NC} $file"
     fi
@@ -105,7 +105,7 @@ done
 # Update Markdown files
 for file in $(find . -name "*.md" ! -path "*/vendor/*" ! -path "*/.git/*" ! -path "*/node_modules/*" ! -path "*/tests/*"); do
     if grep -q "04\.00\.0[0-2]" "$file" 2>/dev/null; then
-        sed -i 's/04\.00\.01/04.00.03/g; s/04\.00\.02/04.00.03/g' "$file"
+        sed -i 's/04\.00\.01/04.00.04/g; s/04\.00\.02/04.00.04/g' "$file"
         UPDATED_COUNT=$((UPDATED_COUNT + 1))
         echo -e "  ${GREEN}✓${NC} $file"
     fi
@@ -114,7 +114,7 @@ done
 # Update JSON files
 for file in $(find . -name "*.json" ! -path "*/vendor/*" ! -path "*/.git/*" ! -path "*/node_modules/*" ! -path "*/tests/*"); do
     if grep -q "04\.00\.0[0-2]" "$file" 2>/dev/null; then
-        sed -i 's/04\.00\.01/04.00.03/g; s/04\.00\.02/04.00.03/g' "$file"
+        sed -i 's/04\.00\.01/04.00.04/g; s/04\.00\.02/04.00.04/g' "$file"
         UPDATED_COUNT=$((UPDATED_COUNT + 1))
         echo -e "  ${GREEN}✓${NC} $file"
     fi

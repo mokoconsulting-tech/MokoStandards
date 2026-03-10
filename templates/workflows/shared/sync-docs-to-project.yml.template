@@ -72,13 +72,13 @@ jobs:
 
       - name: Verify GitHub token availability
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           # Verify token is available before attempting authentication
           if [ -z "$GH_TOKEN" ]; then
             echo "## ❌ Error: GitHub Token Not Available" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "GITHUB_TOKEN is required for this workflow." >> $GITHUB_STEP_SUMMARY
+            echo "GH_TOKEN is required for this workflow." >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
 
@@ -91,7 +91,7 @@ jobs:
       - name: Sync specific path (manual trigger)
         if: github.event.inputs.file_path != ''
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           echo "Syncing specific path: ${{ github.event.inputs.file_path }}"
 

@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Label Deployment Guide
 
@@ -113,7 +113,7 @@ For actual deployment:
 
 ### GitHub Actions Deployment
 
-- **GITHUB_TOKEN** secret with appropriate permissions (automatically available)
+- **GH_TOKEN** secret configured in org Actions secrets (required)
 - **Workflow permissions** set to allow Actions to modify repository settings
 
 ## Best Practices

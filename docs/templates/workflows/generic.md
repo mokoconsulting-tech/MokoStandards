@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.03-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Generic Workflow Templates
 
@@ -215,7 +215,7 @@ cp templates/workflows/generic/repo_health.yml.template .github/workflows/repo-h
 
 Most generic templates require the following secrets to be configured in repository settings:
 
-- `GITHUB_TOKEN`: Automatically provided by GitHub Actions
+- `GH_TOKEN`: Org-level PAT — configure in org Actions secrets (required)
 - `CODECOV_TOKEN`: For code coverage reporting (if using Codecov)
 - `DEPLOY_KEY`: For deployment workflows (environment-specific)
 
@@ -361,7 +361,7 @@ cp templates/workflows/generic/ci.yml.template .github/workflows/ci.yml
 | Owner          | Moko Consulting                                          |
 | Repo           | https://github.com/mokoconsulting-tech/                                      |
 | Path           | /docs/templates/workflows/generic.md                                      |
-| Version        | 04.00.03                                 |
+| Version        | 04.00.04                                 |
 | Status         | Active                                         |
 | Last Reviewed  | 2026-01-28                                  |
 | Reviewed By    | Documentation Team                                    |
@@ -371,4 +371,4 @@ cp templates/workflows/generic/ci.yml.template .github/workflows/ci.yml
 
 | Date       | Author          | Change                                       | Notes                                              |
 | ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
-| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 04.00.03 with all required fields |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 04.00.04 with all required fields |

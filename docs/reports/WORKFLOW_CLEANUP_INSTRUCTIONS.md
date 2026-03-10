@@ -44,7 +44,7 @@ gh workflow disable 224563235
 # Disable the workflow
 curl -X PUT \
   -H "Accept: application/vnd.github+json" \
-  -H "Authorization: Bearer YOUR_GITHUB_TOKEN" \
+  -H "Authorization: Bearer $GH_TOKEN" \
   https://api.github.com/repos/mokoconsulting-tech/MokoStandards/actions/workflows/224563235/disable
 ```
 

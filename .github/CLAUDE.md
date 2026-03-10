@@ -118,7 +118,7 @@ Use for: policy documents, public-facing APIs, security-sensitive code, README f
 | `INGROUP` | ✅ | Parent group — e.g. `MokoStandards.Documentation` |
 | `REPO` | ✅ | Full repository URL |
 | `PATH` | ✅ | Absolute path from repo root, starting with `/` |
-| `VERSION` | ✅ | Zero-padded semver: `04.00.03` not `4.0.3` |
+| `VERSION` | ✅ | Zero-padded semver: `04.00.04` not `4.0.3` |
 | `BRIEF` | ✅ | ≤ 80 chars; starts with noun or action verb |
 | `NOTE` | optional | Additional warnings or context |
 
@@ -359,11 +359,13 @@ Whenever you make code changes, update the corresponding documentation in the sa
 | Bug fix | `CHANGELOG.md` entry under `Fixed` |
 | Breaking change | `CHANGELOG.md` entry under `Changed`; update `CONTRIBUTING.md` if contributor steps change |
 | Any modified file | Update the `VERSION` field in that file's `FILE INFORMATION` block |
+| **Every PR** | **Bump the patch version** — increment `MM.mm.pp` in `README.md`; `sync-version-on-merge` propagates it to all headers and badges on merge |
 
 **Rule**: if your code change makes any existing doc sentence false or incomplete, fix the doc before closing the PR. The PR checklist item `docs/ updated if public-facing behaviour changed` is a reminder, not a suggestion.
 
 # PR Checklist
 
+- [ ] Patch version bumped in `README.md` (`MM.mm.pp` → next patch)
 - [ ] Branch name follows `(prefix)/MAJOR.MINOR.PATCH[/description]` format
 - [ ] All new files have a correct FILE INFORMATION header
 - [ ] Version badge added to any new Markdown files
@@ -386,7 +388,7 @@ Whenever you make code changes, update the corresponding documentation in the sa
 - **Never commit directly to `main`** — all changes go through a PR.
 - **Never use `feature/` or `hotfix/` branch prefixes** — they are rejected; use `dev/` or `patch/`.
 - **Never add Python scripts to `api/`** — the runtime is PHP-only.
-- **Never hardcode `04.00.03`** (or any specific version) in document body text — use the version badge and FILE INFORMATION header only.
+- **Never hardcode `04.00.04`** (or any specific version) in document body text — use the version badge and FILE INFORMATION header only.
 - **Never commit `.env`, secret keys, API tokens, or credentials** — the `templates/configs/gitignore` template covers common patterns but double-check before pushing.
 - **Never modify files under `vendor/`** — managed by Composer.
 - **Never skip the FILE INFORMATION block** on a new source file — it is required by policy and checked in CI.

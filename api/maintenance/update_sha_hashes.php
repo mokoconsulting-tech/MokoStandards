@@ -12,7 +12,7 @@
  * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: /api/maintenance/update_sha_hashes.php
- * VERSION: 04.00.03
+ * VERSION: 04.00.04
  * BRIEF: Update SHA-256 hashes in script registry
  */
 

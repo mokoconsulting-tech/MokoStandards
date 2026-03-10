@@ -10,7 +10,7 @@ declare(strict_types=1);
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
  * @package MokoStandards\Enterprise
- * @version 04.00.03
+ * @version 04.00.04
  * @author MokoStandards Team
  * @license GPL-3.0-or-later
  */

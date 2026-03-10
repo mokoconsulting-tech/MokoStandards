@@ -79,7 +79,7 @@ jobs:
 
       - name: Configure GitHub Token
         run: |
-          echo "GITHUB_TOKEN=${{ secrets.ORG_ADMIN_TOKEN || secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
+          echo "GH_TOKEN=${{ secrets.ORG_ADMIN_TOKEN || secrets.GH_TOKEN }}" >> $GITHUB_ENV
 
       - name: Create Terraform Configuration
         run: |
@@ -219,7 +219,7 @@ jobs:
           REPOS_JSON=$(cat repos.txt | jq -R -s -c 'split("\n") | map(select(length > 0))')
           echo "repos_json=${REPOS_JSON}" >> $GITHUB_OUTPUT
         env:
-          GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN || secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN || secrets.GH_TOKEN }}
 
       - name: Create Terraform Variables
         run: |
@@ -240,7 +240,7 @@ jobs:
         id: plan
         run: |
           terraform plan \
-            -var="github_token=${{ env.GITHUB_TOKEN }}" \
+            -var="github_token=${{ env.GH_TOKEN }}" \
             -out=tfplan \
             -no-color
         working-directory: ${{ env.TF_WORKING_DIR }}
@@ -298,7 +298,7 @@ jobs:
         id: apply
         run: |
           terraform apply \
-            -var="github_token=${{ env.GITHUB_TOKEN }}" \
+            -var="github_token=${{ env.GH_TOKEN }}" \
             -auto-approve
         working-directory: ${{ env.TF_WORKING_DIR }}
 

@@ -14,6 +14,17 @@ GitHub Actions workflow templates for CI/CD automation
 - [Joomla Workflows](./workflows/joomla.md) - Joomla extension workflows
 - [Dolibarr Workflows](./workflows/dolibarr.md) - Dolibarr module workflows
 
+### [Image Assets](./images/index.md)
+Brand, favicon, and background image assets
+- `primary/logo.png` — README logo (referenced by all governed repo READMEs)
+- `primary/favicon_256.png` — Canonical favicon; sync template for Dolibarr `img/` directories
+- Full favicon set (SVG, ICO, 96 px, 120 px, 256 px), PWA manifest icons, apple-touch-icon
+
+### [Font Assets](./fonts/index.md)
+Locally bundled typefaces for offline, print, and native use cases
+- `osaka-re.ttf` — Osaka Re display typeface (TrueType)
+- Web projects must use Google Fonts; see [Google Fonts Policy](../policy/google-fonts.md)
+
 ### License Templates
 Authoritative license files for organizational compliance
 - See [templates/licenses/](../../templates/licenses/)

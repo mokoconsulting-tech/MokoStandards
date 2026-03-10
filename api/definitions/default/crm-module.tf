@@ -528,7 +528,10 @@ EOT
 				        $this->description = 'Description of {{MODULE_NAME}} module';
 				        $this->version = 'XX.YY.ZZ';           // Must match README.md version
 				        $this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);
-				        $this->picto = 'object_mokoconsulting.png@{{MODULE_NAME}}';
+				        $this->picto = 'favicon_256.png@mokocrm';
+				        $this->editor_name = 'Moko Consulting';
+				        $this->editor_url = 'https://mokoconsulting.tech';		// Must be an external online web site
+				        $this->editor_squarred_logo = 'favicon_256.png@mokocrm';
 				    }
 				}
 				```
@@ -946,12 +949,12 @@ EOT
         purpose             = "Contains the module picto displayed in the Dolibarr UI"
         files = [
           {
-            name                = "object_mokoconsulting.png"
+            name                = "favicon_256.png"
             extension           = "png"
-            description         = "Moko Consulting picto shown in Dolibarr module list"
+            description         = "Moko Consulting picto shown in Dolibarr module list (256 px)"
             requirement_status  = "required"
             always_overwrite    = true
-            template            = "templates/build/dolibarr/img/object_mokoconsulting.png"
+            template            = "templates/images/primary/favicon_256.png"
           }
         ]
       }

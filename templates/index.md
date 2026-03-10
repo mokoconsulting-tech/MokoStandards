@@ -45,6 +45,33 @@ Templates serve to:
 
 ## Template Categories
 
+### Images (`images/`)
+
+Brand and favicon image assets for all Moko Consulting governed repositories.
+
+**Contents (`images/primary/`):**
+- `logo.png` / `logo.svg` — Primary Moko Consulting logo
+- `logo_tiger.png` / `tigerhead_3.svg` — Tiger-head brand variant
+- `background.png` / `background.svg` — Full-width hero backgrounds
+- `favicon_256.png` — ★ **Sync template** — deployed to Dolibarr module `img/` directories
+- `favicon_120.png`, `favicon-96x96.png`, `favicon.svg`, `favicon.ico`, `favicon.gif` — favicon set
+- `apple-touch-icon.png` — iOS home-screen icon
+- `web-app-manifest-192x192.png`, `web-app-manifest-512x512.png` — PWA manifest icons
+
+**Documentation**: [docs/templates/images/index.md](../docs/templates/images/index.md)
+
+### Fonts (`fonts/`)
+
+Locally bundled typefaces for offline, print, and native use cases.
+
+**Contents:**
+- `osaka-re.ttf` — Osaka Re, the **official stylized logo font** (TrueType, for wordmark and brand lockups only)
+
+Body text uses **Open Sans** via Google Fonts.
+See [Google Fonts Policy](../docs/policy/google-fonts.md) for requirements.
+
+**Documentation**: [docs/templates/fonts/index.md](../docs/templates/fonts/index.md)
+
 ### Workflows (`workflows/`)
 
 GitHub Actions workflow templates for CI/CD automation.
@@ -243,6 +270,10 @@ When customizing templates:
 ```
 templates/
 ├── index.md              # This file - catalog of all templates
+├── images/               # Brand and favicon image assets
+│   └── primary/         # Current production brand set (logo, favicon_256, etc.)
+├── fonts/                # Locally bundled typeface files (offline / print / native use)
+│   └── osaka-re.ttf     # Osaka Re — stylized logo font (TrueType)
 ├── workflows/            # GitHub Actions workflow templates
 │   ├── joomla/          # Joomla-specific workflows
 │   ├── dolibarr/        # Dolibarr-specific workflows

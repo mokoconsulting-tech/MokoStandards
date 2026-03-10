@@ -8,6 +8,8 @@ This index provides navigation to documentation within this folder.
 
 ## Subfolders
 
+- [fonts/](./fonts/index.md)
+- [images/](./images/index.md)
 - [workflows/](./workflows/index.md)
 
 ## Documents

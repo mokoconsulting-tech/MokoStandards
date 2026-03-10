@@ -165,15 +165,15 @@ class modMokoExample extends DolibarrModules
 
         // Author
         $this->editor_name = 'Moko Consulting';
-        $this->editor_url = 'https://www.mokoconsulting.tech';
-        $this->editor_squarred_logo = 'logo.png@mokoexample';
+        $this->editor_url = 'https://mokoconsulting.tech';
+        $this->editor_squarred_logo = 'favicon_256.png@mokocrm';
 
         // Version
         $this->version = '1.0.0';
         $this->const_name = 'MAIN_MODULE_'.strtoupper($this->name);
 
         // Images
-        $this->picto = 'mokoexample@mokoexample';
+        $this->picto = 'favicon_256.png@mokocrm';
 
         // Dependencies
         $this->depends = array();

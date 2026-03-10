@@ -144,7 +144,7 @@ $this->familyinfo = array(
 // Author
 $this->editor_name = 'Moko Consulting';
 $this->editor_url = 'https://mokoconsulting.tech';
-$this->editor_squarred_logo = 'favicon.png@mokocrm';
+$this->editor_squarred_logo = 'favicon_256.png@mokocrm';
 ```
 
 **Rationale**:
@@ -232,7 +232,7 @@ class modMokoModule extends DolibarrModules
         // Author
         $this->editor_name = 'Moko Consulting';
         $this->editor_url = 'https://mokoconsulting.tech';
-        $this->editor_squarred_logo = 'favicon.png@mokocrm';
+        $this->editor_squarred_logo = 'favicon_256.png@mokocrm';
 
         // Version
         $this->version = '1.0.0';
@@ -372,7 +372,7 @@ class MokoObject extends CommonObject
     /**
      * @var string Module part for upload dir
      */
-    public $picto = 'favicon.png@mokocrm';
+    public $picto = 'favicon_256.png@mokocrm';
 
     /**
      * Constructor
@@ -593,7 +593,7 @@ class InterfaceModMokoModuleMokoTriggers extends DolibarrTriggers
 
         $this->description = "MokoModule triggers";
         $this->version = '1.0.0';
-        $this->picto = 'favicon.png@mokocrm';
+        $this->picto = 'favicon_256.png@mokocrm';
     }
 
     /**

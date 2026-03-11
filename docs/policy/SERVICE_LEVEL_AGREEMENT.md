@@ -39,7 +39,17 @@ SLA tier information (response times, availability, channels) is also published 
 
 ## Support Tiers
 
-### Standard Support
+| Tier | Response Time | Uptime SLA | Full Details |
+| ---- | ------------- | ---------- | ------------ |
+| Community | 1–2 months (best effort) | No SLA | [`docs/guide/SUPPORT.md`](../guide/SUPPORT.md) |
+| [Standard](#standard-support) | 1–3 weeks | 99% | [Standard Support](#standard-support) |
+| [Premium](#premium-support) | 5 business days | 99.5% | [Premium Support](#premium-support) |
+| [Enterprise](#enterprise-support) | 72 hours | 99.9% | [Enterprise Support](#enterprise-support) |
+
+> Full SLA policy: [docs/policy/SERVICE_LEVEL_AGREEMENT.md](./SERVICE_LEVEL_AGREEMENT.md) ·
+> [Organization Profile](https://github.com/mokoconsulting-tech)
+
+### [Standard Support](#standard-support)
 
 - **Response Time**: 1–3 weeks
 - **Availability**: 99% uptime guarantee
@@ -47,7 +57,7 @@ SLA tier information (response times, availability, channels) is also published 
 - **Priority Levels**: P3–P2
 - **Support Hours**: Business hours (Mon–Fri, 9 AM–6 PM EST)
 
-### Premium Support
+### [Premium Support](#premium-support)
 
 - **Response Time**: 5 business days
 - **Availability**: 99.5% uptime guarantee
@@ -56,7 +66,7 @@ SLA tier information (response times, availability, channels) is also published 
 - **Support Hours**: Extended (Mon–Fri, 6 AM–10 PM EST)
 - **Dedicated Support Engineer**: Yes
 
-### Enterprise Support
+### [Enterprise Support](#enterprise-support)
 
 - **Response Time**: 72 hours
 - **Availability**: 99.9% uptime guarantee
@@ -105,9 +115,9 @@ SLA tier information (response times, availability, channels) is also published 
 
 | Tier | Uptime SLA | Max Downtime/Month | Max Downtime/Year |
 | ---- | ---------- | ------------------ | ----------------- |
-| Standard | 99.0% | 7h 18m | 3d 15h |
-| Premium | 99.5% | 3h 39m | 1d 19h |
-| Enterprise | 99.9% | 43m | 8h 45m |
+| [Standard](#standard-support) | 99.0% | 7h 18m | 3d 15h |
+| [Premium](#premium-support) | 99.5% | 3h 39m | 1d 19h |
+| [Enterprise](#enterprise-support) | 99.9% | 43m | 8h 45m |
 
 ### Exclusions
 
@@ -197,4 +207,5 @@ Submit credit claims within 30 days of incident with documentation of downtime.
 
 | Date | Author | Change | Notes |
 | ---- | ------ | ------ | ----- |
+| 2026-03-11 | Moko Consulting | Added org profile link, tier summary table with links, and uptime table links | Added per new requirement |
 | 2026-03-11 | Moko Consulting | Initial creation — SLA tiers, priority levels, uptime guarantees | Moved from .github-private Tier 1 |

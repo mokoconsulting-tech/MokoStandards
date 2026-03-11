@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.10-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Docs Index: /docs/policy
 
@@ -29,8 +29,10 @@ This index provides navigation to documentation within this folder.
 - [directory-index-requirements](./directory-index-requirements.md)
 - [document-formatting](./document-formatting.md)
 - [documentation-governance](./documentation-governance.md)
+- [DOLIBARR_MODULE_ID_REQUEST](./DOLIBARR_MODULE_ID_REQUEST.md)
 - [file-header-standards](./file-header-standards.md)
 - [google-fonts](./google-fonts.md)
+- [GOVERNANCE](./GOVERNANCE.md)
 - [health-scoring](./health-scoring.md)
 - [license-compliance](./license-compliance.md)
 - [merge-strategy](./merge-strategy.md)
@@ -39,6 +41,7 @@ This index provides navigation to documentation within this folder.
 - [roadmap](./roadmap.md)
 - [scripting-standards](./scripting-standards.md)
 - [security-scanning](./security-scanning.md)
+- [SERVICE_LEVEL_AGREEMENT](./SERVICE_LEVEL_AGREEMENT.md)
 - [two-tier-architecture](./two-tier-architecture.md)
 - [vendor-risk](./vendor-risk.md)
 - [workflow-standards](./workflow-standards.md)

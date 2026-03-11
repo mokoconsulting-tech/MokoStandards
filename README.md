@@ -23,7 +23,7 @@
  INGROUP: MokoStandards
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  FILE: README.md
- VERSION: 04.00.09
+ VERSION: 04.00.10
  BRIEF: Authoritative coding standards, golden architecture, workflows, templates, and governance policies
  PATH: /README.md
  NOTE: Standards definition repository - not for duplication. Use templates to create projects.
@@ -34,7 +34,7 @@
 # README - MokoStandards
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.09-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.10-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 [![Documentation](https://img.shields.io/badge/Documentation-238_files-orange.svg)](./docs)
 [![Policy Documents](https://img.shields.io/badge/Policy_Documents-77-orange.svg)](./docs/policy)
 [![Validation Checks](https://img.shields.io/badge/Validation_Checks-28-brightgreen.svg)](./.github/workflows/standards-compliance.yml)
@@ -46,7 +46,7 @@
 
 ## Overview
 
-**MokoStandards** is the authoritative source of coding standards, architectural patterns, workflow templates, governance policies, and automation tools for the Moko Consulting ecosystem. It serves as **Tier 2 (Public SOURCE OF TRUTH)** in our two-tier architecture.
+**MokoStandards** is the authoritative source of coding standards, architectural patterns, workflow templates, governance policies, and automation tools for the [Moko Consulting](https://github.com/mokoconsulting-tech) ecosystem. It serves as **Tier 2 (Public SOURCE OF TRUTH)** in our two-tier architecture.
 
 This repository provides:
 - **238 Documentation Files**: Comprehensive guides, policies, and references (120KB+)
@@ -341,6 +341,8 @@ This project is licensed under the GNU General Public License v3.0 or later - se
 - **Issues**: [GitHub Issues](https://github.com/mokoconsulting-tech/MokoStandards/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/mokoconsulting-tech/MokoStandards/discussions)
 - **Email**: hello@mokoconsulting.tech
+- **SLA Policy**: [Service Level Agreement](docs/policy/SERVICE_LEVEL_AGREEMENT.md) — response times, uptime guarantees, and priority levels
+- **Organization Profile**: [mokoconsulting-tech](https://github.com/mokoconsulting-tech)
 
 ---
 

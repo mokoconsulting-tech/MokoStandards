@@ -221,7 +221,7 @@ locals {
       { path = ".github/CLAUDE.md"                         action = "updated" },
       { path = ".github/workflows/ci-dolibarr.yml"         action = "updated" },
       { path = ".github/workflows/enterprise-firewall-setup.yml" action = "created" },
-      { path = "img/favicon_256.png"                       action = "created" },
+      { path = "img/object_favicon_256.png"                 action = "created" },
       ...
     ]
 

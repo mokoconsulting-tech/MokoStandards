@@ -295,7 +295,7 @@ sufficient contrast:
 
 | File | Size | Use Case |
 |---|---|---|
-| `templates/images/primary/favicon_256.png` | 256 × 256 px | **Sync template** — Dolibarr module `img/` directory |
+| `templates/images/primary/favicon_256.png` | 256 × 256 px | **Sync template** — deployed to Dolibarr module `img/` directory as `object_favicon_256.png` |
 | `templates/images/primary/favicon_120.png` | 120 × 120 px | General favicon |
 | `templates/images/primary/favicon-96x96.png` | 96 × 96 px | General favicon |
 | `templates/images/primary/favicon.svg` | Vector | Modern browsers (preferred) |

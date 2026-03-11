@@ -53,7 +53,7 @@ Brand and favicon image assets for all Moko Consulting governed repositories.
 - `logo.png` / `logo.svg` — Primary Moko Consulting logo
 - `logo_tiger.png` / `tigerhead_3.svg` — Tiger-head brand variant
 - `background.png` / `background.svg` — Full-width hero backgrounds
-- `favicon_256.png` — ★ **Sync template** — deployed to Dolibarr module `img/` directories
+- `favicon_256.png` — ★ **Sync template** — deployed to Dolibarr module `img/` directories as `object_favicon_256.png`
 - `favicon_120.png`, `favicon-96x96.png`, `favicon.svg`, `favicon.ico`, `favicon.gif` — favicon set
 - `apple-touch-icon.png` — iOS home-screen icon
 - `web-app-manifest-192x192.png`, `web-app-manifest-512x512.png` — PWA manifest icons

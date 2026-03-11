@@ -91,7 +91,9 @@ branches:
         contexts: []
 
       # Enforce all configured restrictions for administrators
-      enforce_admins: true
+      # NOTE: Set to false to allow the sole operator (@jmiller-moko) to self-merge PRs.
+      # See docs/policy/GOVERNANCE.md#sole-operator-policy
+      enforce_admins: false
 
       # Require signed commits
       required_signatures: false

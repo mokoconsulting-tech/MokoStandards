@@ -61,16 +61,16 @@ cd MokoStandards
 git checkout -b feature/your-feature-name
 
 # 3. Install dependencies
-pip install -r requirements.txt
+composer install
 
-# 4. Make changes following v2 standards
-# - Python: 100% type hints, Google docstrings
+# 4. Make changes following standards
+# - PHP: PSR-12, strict_types=1, PHPDoc
 # - PowerShell: Full comment-based help
 # - All: Proper file headers
 
 # 5. Test your changes
-python -m pytest scripts/tests/
-python scripts/validate/validate_file_headers.py .
+composer run test
+python scripts/maintenance/validate_file_headers.py .
 
 # 6. Commit and push
 git add .
@@ -87,12 +87,13 @@ git push origin feature/your-feature-name
 
 **Required**:
 - Git 2.0+
-- Python 3.8+ (scripts and automation)
-- Text editor with Python support (VS Code, PyCharm, etc.)
+- PHP 8.1+ (primary automation language)
+- Composer (PHP dependency manager)
+- Text editor with PHP support (VS Code, PhpStorm, etc.)
 
 **Optional**:
+- Python 3.8+ (maintenance scripts in `scripts/maintenance/`)
 - PowerShell 5.1+ or PowerShell Core 7+ (Windows scripts)
-- Make (for Makefile usage)
 - GitHub CLI (`gh`) for workflow automation
 
 ### Development Environment Setup
@@ -106,19 +107,15 @@ cd MokoStandards
 git remote add upstream https://github.com/mokoconsulting-tech/MokoStandards.git
 ```
 
-#### 2. Install Python Dependencies
+#### 2. Install PHP Dependencies
 
 ```bash
-# Create virtual environment (recommended)
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
+# Install Composer dependencies
+composer install
 
 # Verify installation
-python --version  # Should be 3.9+
-python scripts/validate/validate_file_headers.py --help
+php --version  # Should be 8.1+
+composer run check
 ```
 
 #### 3. Configure Git
@@ -136,11 +133,10 @@ git config user.email "your.email@example.com"
 
 ```bash
 # Run validation scripts
-python scripts/validate/validate_file_headers.py .
-python scripts/validate/validate_workflows.py .github/workflows/
+python scripts/maintenance/validate_file_headers.py .
 
 # Run tests
-python -m pytest scripts/tests/ -v
+composer run test
 ```
 
 ## Code Standards
@@ -560,62 +556,45 @@ BRIEF: Brief description of purpose
 **Run before committing:**
 
 ```bash
-# Python syntax check (check all scripts)
-find scripts -name "*.py" -type f -exec python -m py_compile {} +
+# PHP code style (PSR-12)
+composer run phpcs
 
-# Type checking (if mypy configured)
-mypy scripts/
+# PHP static analysis
+composer run phpstan
 
-# Linting (if configured)
-find scripts -name "*.py" -type f | xargs pylint
-find scripts -name "*.py" -type f | xargs flake8
-
-# Format checking (if Black configured)
-black --check scripts/
+# Run all checks (phpcs + phpstan + phpunit)
+composer run check
 ```
 
 ## Testing Guidelines
 
 ### Unit Tests (Required for Complex Logic)
 
-**Location**: `scripts/tests/`
+**Location**: `api/tests/`
 
-**Framework**: `unittest` or `pytest`
+**Framework**: PHPUnit
 
-```python
-# In scripts/tests/test_my_script.py
-import unittest
-from pathlib import Path
-from scripts.automation.my_script import process_file, validate_path
+```php
+<?php
+// In api/tests/MyFeatureTest.php
+declare(strict_types=1);
 
+use PHPUnit\Framework\TestCase;
 
-class TestProcessFile(unittest.TestCase):
-    """Test process_file function."""
+class MyFeatureTest extends TestCase
+{
+    public function testValidInput(): void
+    {
+        $result = myFeatureFunction('/valid/path');
+        $this->assertTrue($result);
+    }
 
-    def setUp(self) -> None:
-        """Set up test fixtures."""
-        self.test_dir = Path("tests/fixtures")
-        self.test_file = self.test_dir / "test.txt"
-
-    def test_process_valid_file(self) -> None:
-        """Test processing valid file."""
-        result = process_file(str(self.test_file))
-        self.assertTrue(result)
-
-    def test_process_invalid_file(self) -> None:
-        """Test processing non-existent file."""
-        with self.assertRaises(FileNotFoundError):
-            process_file("nonexistent.txt")
-
-    def test_process_with_invalid_encoding(self) -> None:
-        """Test processing file with invalid encoding."""
-        invalid_file = self.test_dir / "invalid_encoding.txt"
-        with self.assertRaises(UnicodeDecodeError):
-            process_file(str(invalid_file))
-
-
-if __name__ == "__main__":
-    unittest.main()
+    public function testInvalidInput(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        myFeatureFunction('');
+    }
+}
 ```
 
 ### Manual Testing Checklist
@@ -625,7 +604,7 @@ Before submitting PR:
 - [ ] Test with valid inputs
 - [ ] Test with invalid inputs
 - [ ] Test with missing arguments
-- [ ] Test `--help` output
+- [ ] Test `--help` output for CLI scripts
 - [ ] Test error messages are clear
 - [ ] Test in clean environment (new terminal)
 - [ ] Test on different platforms (if applicable)
@@ -633,17 +612,14 @@ Before submitting PR:
 ### Running Tests
 
 ```bash
-# Run all tests
-python -m pytest scripts/tests/ -v
+# Run all PHPUnit tests
+composer run test
 
 # Run specific test file
-python -m pytest scripts/tests/test_my_script.py -v
+./vendor/bin/phpunit api/tests/MyFeatureTest.php
 
-# Run with coverage
-python -m pytest scripts/tests/ --cov=scripts --cov-report=html
-
-# Run single test function
-python -m pytest scripts/tests/test_my_script.py::TestProcessFile::test_process_valid_file
+# Run with verbose output
+./vendor/bin/phpunit --verbose
 ```
 
 ## Pull Request Process
@@ -656,8 +632,8 @@ git fetch upstream
 git rebase upstream/main
 
 # Run validation
-python scripts/validate/validate_file_headers.py .
-python -m pytest scripts/tests/
+python scripts/maintenance/validate_file_headers.py .
+composer run test
 
 # Commit changes
 git add .
@@ -722,7 +698,7 @@ git commit -m "Fix: Address review feedback"
 git push origin feature/your-feature
 
 # If major changes, run tests again
-python -m pytest scripts/tests/ -v
+composer run test
 ```
 
 ### 5. Merge Strategy
@@ -949,7 +925,7 @@ All changes documented in [CHANGELOG.md](./CHANGELOG.md) following [Keep a Chang
 **Documentation**:
 - [README.md](./README.md) - Overview and quick start
 - [docs/](./docs/) - Complete documentation
-- [scripts/README.md](./scripts/README.md) - Scripts documentation
+- [api/index.md](./api/index.md) - API documentation
 
 **Community**:
 - [GitHub Discussions](https://github.com/mokoconsulting-tech/MokoStandards/discussions) - Q&A and discussions
@@ -971,7 +947,7 @@ A: Type hints are required. If truly impossible, document why in docstring and r
 A: No. All new scripts must be Python. Existing grandfathered scripts can remain but shouldn't be extended.
 
 **Q: How do I run validation locally?**
-A: `python scripts/validate/validate_file_headers.py .`
+A: `python scripts/maintenance/validate_file_headers.py .`
 
 **Q: How long do PR reviews take?**
 A: Initial review within 2-3 business days. Complex PRs may take longer.

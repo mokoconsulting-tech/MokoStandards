@@ -23,7 +23,7 @@
  INGROUP: MokoStandards
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  FILE: README.md
- VERSION: 04.00.07
+ VERSION: 04.00.12
  BRIEF: Authoritative coding standards, golden architecture, workflows, templates, and governance policies
  PATH: /README.md
  NOTE: Standards definition repository - not for duplication. Use templates to create projects.
@@ -34,19 +34,19 @@
 # README - MokoStandards
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.07-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.12-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 [![Documentation](https://img.shields.io/badge/Documentation-238_files-orange.svg)](./docs)
 [![Policy Documents](https://img.shields.io/badge/Policy_Documents-77-orange.svg)](./docs/policy)
 [![Validation Checks](https://img.shields.io/badge/Validation_Checks-28-brightgreen.svg)](./.github/workflows/standards-compliance.yml)
 [![Enforcement Levels](https://img.shields.io/badge/Enforcement_Levels-6-blue.svg)](./docs/enforcement-levels.md)
-[![PHP Libraries](https://img.shields.io/badge/PHP_Libraries-13-brightgreen.svg)](./scripts/lib/Enterprise)
+[![PHP Libraries](https://img.shields.io/badge/PHP_Libraries-13-brightgreen.svg)](./api/lib/Enterprise)
 [![Training Hours](https://img.shields.io/badge/Training-17.5_hours-blue.svg)](./docs/training)
 
 > **⚠️ Important**: This repository defines organizational policies and standards. **Do not clone or duplicate** this repository to create new projects. Use our [repository templates](#templates) instead.
 
 ## Overview
 
-**MokoStandards** is the authoritative source of coding standards, architectural patterns, workflow templates, governance policies, and automation tools for the Moko Consulting ecosystem. It serves as **Tier 2 (Public SOURCE OF TRUTH)** in our two-tier architecture.
+**MokoStandards** is the authoritative source of coding standards, architectural patterns, workflow templates, governance policies, and automation tools for the [Moko Consulting](https://github.com/mokoconsulting-tech) ecosystem. It serves as **Tier 2 (Public SOURCE OF TRUTH)** in our two-tier architecture.
 
 This repository provides:
 - **238 Documentation Files**: Comprehensive guides, policies, and references (120KB+)
@@ -86,83 +86,135 @@ MokoStandards uses a graduated six-tier enforcement system for file synchronizat
 | **Enforcement System** | 6-tier graduated file enforcement system | [`docs/enforcement-levels.md`](docs/enforcement-levels.md) |
 | **Standards & Policies** | 77 policy documents + 238 total documentation files | [`docs/policy/`](docs/policy/) |
 | **Validation Checks** | 28 comprehensive checks (10 critical + 18 informational) | [`.github/workflows/standards-compliance.yml`](.github/workflows/standards-compliance.yml) |
-| **Automation Scripts** | 187+ scripts for validation and automation | [`scripts/`](scripts/) |
+| **Automation Scripts** | 187+ scripts for validation and automation | [`api/`](api/) |
 | **Training Program** | 17.5 hours across 7 comprehensive sessions | [`docs/training/`](docs/training/) |
-| **GUI Applications** | 3 Windows PowerShell GUI tools | [`scripts/automation/`](scripts/automation/), [`scripts/validate/`](scripts/validate/), [`scripts/run/`](scripts/run/) |
+| **GUI Applications** | 3 Windows PowerShell GUI tools | [`api/automation/`](api/automation/), [`api/validate/`](api/validate/), [`api/run/`](api/run/) |
 | **Templates** | Project templates and configurations | [`templates/`](templates/) |
 | **Workflows** | Reusable GitHub Actions workflows | [`.github/workflows/`](.github/workflows/) |
 | **Visual Docs** | Mermaid diagrams and flowcharts | [`docs/visual/`](docs/visual/) |
-| **Terraform** | Infrastructure configurations with standards | [`infrastructure/terraform/`](infrastructure/terraform/) |
+| **Terraform** | Infrastructure configurations with standards | [`api/definitions/`](api/definitions/) |
 
 ### Repository Structure
 
 ```
 MokoStandards/
+├── api/               # Main API directory (automation, validation, libraries)
+│   ├── automation/    # Automation scripts (bulk_sync, etc.)
+│   ├── definitions/   # Repository structure definitions (.tf files)
+│   ├── fix/           # Auto-fix scripts
+│   ├── lib/           # Shared libraries
+│   │   └── Enterprise/ # PHP Enterprise classes (13 libraries)
+│   ├── maintenance/   # Maintenance scripts
+│   ├── release/       # Release automation
+│   ├── src/           # PSR-4 autoloaded source (MokoStandards\)
+│   ├── tests/         # PHPUnit test suite
+│   ├── validate/      # Validation scripts (20)
+│   └── wrappers/      # Cross-platform wrapper scripts (100+)
 ├── docs/              # Documentation (238 files, 120KB+)
 │   ├── enforcement-levels.md  # 45KB comprehensive enforcement guide
 │   ├── policy/        # 77 policy documents
 │   ├── training/      # 7 sessions, 17.5 hours total
-│   ├── infrastructure/terraform/     # Terraform documentation
 │   ├── guide/         # User guides and tutorials
 │   ├── reference/     # Technical references
 │   └── visual/        # Mermaid diagrams and flowcharts
-├── scripts/           # 187+ automation scripts
-│   ├── validate/      # Validation and checking scripts (20)
-│   ├── automation/    # Automation scripts (9)
-│   ├── maintenance/   # Maintenance scripts (8)
-│   ├── analysis/      # Analysis scripts (4)
-│   ├── lib/           # Shared libraries and utilities
-│   ├── wrappers/      # Cross-platform wrappers (106)
-│   └── [other dirs]/  # Additional script categories
+├── scripts/           # PHP maintenance scripts (scripts/maintenance/); Python legacy only
 ├── templates/         # Project templates and configurations
-├── infrastructure/terraform/         # Infrastructure as code (12 standardized files)
-├── .github/
-│   ├── config.tf      # Override configuration (standard location)
-│   └── workflows/     # 28 validation checks + reusable workflows
-└── schemas/           # JSON schemas for validation
-```
-│   ├── guide/         # User guides and tutorials
-│   ├── reference/     # Technical references
-│   └── visual/        # Mermaid diagrams and flowcharts
-├── scripts/           # 187+ automation scripts
-│   ├── validate/      # Validation and checking scripts (20)
-│   ├── automation/    # Automation scripts (9)
-│   ├── maintenance/   # Maintenance scripts (8)
-│   ├── analysis/      # Analysis scripts (4)
-│   ├── lib/           # Shared libraries and utilities
-│   ├── wrappers/      # Cross-platform wrappers (106)
-│   └── [other dirs]/  # Additional script categories
-├── templates/         # Project templates and configurations
-├── infrastructure/terraform/         # Infrastructure as code
-├── .github/
-│   └── workflows/     # Reusable GitHub Actions workflows
-└── schemas/           # JSON schemas for validation
+└── .github/
+    └── workflows/     # 28 validation checks + reusable workflows
 ```
 
 ### Documentation
 
+> 📚 **Full catalog**: [docs/index.md](docs/index.md) · **Organization**: [mokoconsulting-tech](https://github.com/mokoconsulting-tech)
+
 **Getting Started:**
-- [Contributing Guide](CONTRIBUTING.md) - How to contribute to MokoStandards
-- [Code of Conduct](CODE_OF_CONDUCT.md) - Community guidelines
-- [Security Policy](SECURITY.md) - Security and vulnerability reporting
+- [Contributing Guide](CONTRIBUTING.md) — How to contribute to MokoStandards
+- [Code of Conduct](CODE_OF_CONDUCT.md) — Community guidelines
+- [Security Policy](SECURITY.md) — Security and vulnerability reporting
+- [Quickstart Guide](docs/quickstart/repository-startup-guide.md) — Repository startup checklist
 
-**Key Documentation:**
-- [Two-Tier Architecture](docs/policy/two-tier-architecture.md) - Public/private standards system
-- [Coding Style Guide](docs/policy/coding-style-guide.md) - Language-specific standards
-- [File Header Standards](docs/policy/file-header-standards.md) - File metadata requirements
-- [Visual Features Guide](docs/guide/visual-features.md) - Using visual output helpers
-- [Execution Summaries](docs/guide/execution-summaries.md) - Script summary system
-- [InGroup/DefGroup](docs/reference/ingroup-defgroup.md) - Metadata categorization system
-- [Copilot Sync Guide](docs/guide/copilot-sync-standards.md) - Using Copilot to sync standards
+---
 
-**Scripts & Tools:**
-- [Scripts Overview](scripts/README.md) - Complete script documentation
-- [Demo Data Loader](docs/demo/demo-data-loader.md) - Loading SQL demo data
-- [Help Flag Pattern](docs/scripts/HELP_FLAG_PATTERN.md) - Implementing --help-doc
+#### 📋 Policies ([docs/policy/](docs/policy/index.md))
 
-**Workflows:**
-- [Release Workflow](docs/visual/release-workflow.md) - Automated release process
-- [CI/CD Pipeline](docs/visual/cicd-pipeline.md) - Continuous integration flows
+Standards, requirements, and compliance rules for all governed repositories.
+
+| Area | Key Documents |
+| ---- | ------------- |
+| **Governance** | [GOVERNANCE.md](docs/policy/GOVERNANCE.md) · [Incident Management](docs/policy/governance/incident-management.md) · [Release Management](docs/policy/governance/release-management.md) |
+| **SLA & Support** | [Service Level Agreement](docs/policy/SERVICE_LEVEL_AGREEMENT.md) · [Support Guide](docs/guide/SUPPORT.md) |
+| **Coding Standards** | [Coding Style Guide](docs/policy/coding-style-guide.md) · [File Header Standards](docs/policy/file-header-standards.md) · [Scripting Standards](docs/policy/scripting-standards.md) |
+| **Change & Version** | [Change Management](docs/policy/change-management.md) · [Branching Strategy](docs/policy/branching-strategy.md) · [Merge Strategy](docs/policy/merge-strategy.md) · [Changelog Standards](docs/policy/changelog-standards.md) |
+| **Security** | [Security Scanning](docs/policy/security-scanning.md) · [Data Classification](docs/policy/data-classification.md) · [Encryption Standards](docs/policy/security/encryption-standards.md) · [Vulnerability Management](docs/policy/security/vulnerability-management.md) |
+| **Quality** | [Quality Gates](docs/policy/quality/quality-gates.md) · [Testing Strategy](docs/policy/quality/testing-strategy-standards.md) · [Technical Debt](docs/policy/quality/technical-debt-management.md) |
+| **Operations** | [Monitoring & Alerting](docs/policy/operations/monitoring-alerting-standards.md) · [Environment Management](docs/policy/operations/environment-management.md) · [SLA Policy](docs/policy/operations/sla-policy.md) |
+| **WaaS** | [WaaS Development](docs/policy/waas/development-standards.md) · [Provisioning](docs/policy/waas/waas-provisioning.md) · [Incident Response](docs/policy/waas/incident-response.md) · [Update Server](docs/policy/waas/update-server.md) |
+| **CRM (Dolibarr)** | [CRM Development](docs/policy/crm/development-standards.md) · [Module ID Requests](docs/policy/DOLIBARR_MODULE_ID_REQUEST.md) · [Client Deployment](docs/policy/crm/client-deployment.md) |
+| **AI Tools** | [AI Tool Governance](docs/policy/ai-tool-governance.md) · [Copilot Usage Policy](docs/policy/copilot-usage-policy.md) · [Network Egress](docs/policy/network-egress.md) |
+| **Architecture** | [Two-Tier Architecture](docs/policy/two-tier-architecture.md) · [Core Structure](docs/policy/core-structure.md) · [Dependency Management](docs/policy/dependency-management.md) |
+| **Compliance** | [License Compliance](docs/policy/license-compliance.md) · [Health Scoring](docs/policy/health-scoring.md) · [Vendor Risk](docs/policy/vendor-risk.md) |
+
+---
+
+#### 📖 Guides ([docs/guide/](docs/guide/index.md))
+
+Step-by-step tutorials and implementation how-tos.
+
+| Area | Key Documents |
+| ---- | ------------- |
+| **Repository Management** | [Repo Sync Guide](docs/guide/repo-sync.md) · [Repository Organization](docs/guide/repository-organization.md) · [Bulk Repository Updates](docs/guide/bulk-repository-updates.md) · [Branch Synchronization](docs/guide/branch-synchronization.md) |
+| **AI Tools** | [Copilot Sync Standards](docs/guide/copilot-sync-standards.md) · [AI Client Setup](docs/guide/ai-client-setup.md) · [Platform AI Templates](docs/guide/platform-ai-templates.md) |
+| **WaaS (Joomla)** | [Joomla Development](docs/guide/waas/joomla-development-guide.md) · [WaaS Architecture](docs/guide/waas/waas-architecture.md) · [Client Onboarding](docs/guide/waas/waas-client-onboarding.md) · [Update Server](docs/guide/waas/update-server-guide.md) |
+| **CRM (Dolibarr)** | [Dolibarr Development](docs/guide/crm/dolibarr-development-guide.md) |
+| **Operations** | [Backup & Restore](docs/guide/operations/backup-restore-procedures.md) · [Disaster Recovery](docs/guide/operations/disaster-recovery-procedures.md) · [Incident Runbooks](docs/guide/operations/incident-response-runbooks.md) · [Database Admin](docs/guide/operations/database-administration-guide.md) |
+| **Developer Onboarding** | [Audit Readiness](docs/guide/audit-readiness.md) · [Conflict Resolution](docs/guide/conflict-resolution.md) · [Branching Quick Reference](docs/guide/branching-quick-reference.md) |
+| **Architecture** | [Private Repository Reference](docs/guide/PRIVATE_REPOSITORY_REFERENCE.md) · [Public Architecture](docs/guide/PUBLIC_ARCHITECTURE.md) · [Repository Split Plan](docs/guide/repository-split-plan.md) |
+
+---
+
+#### ✅ Checklists ([docs/checklist/](docs/checklist/index.md))
+
+- [Pre-Deployment Checklist](docs/checklist/pre-deployment.md)
+- [Release Checklist](docs/checklist/release.md)
+- [Repository Setup Checklist](docs/checklist/repository-setup.md)
+- [Security Review Checklist](docs/checklist/security-review.md)
+
+---
+
+#### 🔧 API & Scripts ([docs/api/](docs/api/index.md) · [api/](api/index.md))
+
+- [API Documentation](docs/api/index.md) — Validation, automation, and enterprise libraries
+- [Wrappers](docs/api/wrappers/index.md) — 100+ cross-platform CLI wrapper scripts
+- [Validation Scripts](docs/api/validate/index.md) — 20 repository validation scripts
+- [Help Flag Pattern](docs/scripts/HELP_FLAG_PATTERN.md) — Implementing `--help-doc` in scripts
+- [Automation Scripts](docs/scripts/automation/README.md) — File distribution and setup scripts
+
+---
+
+#### ⚙️ Workflows ([docs/workflows/](docs/workflows/README.md))
+
+- [Bulk Repo Sync](docs/workflows/bulk-repo-sync.md) — Synchronising standards to all governed repos
+- [Release System](docs/workflows/release-system.md) — Automated release workflow
+- [Reusable Workflows](docs/workflows/reusable-workflows.md) — Shared GitHub Actions workflow library
+- [Changelog Management](docs/workflows/changelog-management.md) — Automated changelog maintenance
+- [Reserve Dolibarr Module ID](docs/workflows/reserve-dolibarr-module-id.md) — Module ID reservation workflow
+
+---
+
+#### 📦 Reference ([docs/reference/](docs/reference/index.md))
+
+- [Project Type Detection](docs/reference/PROJECT_TYPE_DETECTION.md) — Auto-detection of Joomla / Dolibarr / generic
+- [Repository Inventory](docs/reference/REPOSITORY_INVENTORY.md) — Full inventory of governed repositories
+- [Repository Templates](docs/reference/repository-templates.md) — Available project templates
+- [Project Types](docs/reference/project-types.md) — WaaS, CRM, and generic type definitions
+- [InGroup/DefGroup](docs/reference/ingroup-defgroup.md) — Metadata categorization system
+- [Glossary](docs/glossary/technical-terms.md) — Technical terminology definitions
+
+---
+
+#### 🏗️ Architecture Decision Records ([docs/adr/](docs/adr/index.md))
+
+Rationale behind key architectural and tooling decisions in MokoStandards.
 
 ## Getting Started
 
@@ -184,7 +236,7 @@ git clone https://github.com/mokoconsulting-tech/MokoStandards.git ~/tools/MokoS
 
 # Run validation against your project (using PHP)
 cd ~/tools/MokoStandards
-php scripts/validate/check_repo_health.php --path /path/to/your/project
+php api/validate/check_repo_health.php --path /path/to/your/project
 ```
 
 ### Using PHP Enterprise Libraries
@@ -199,10 +251,6 @@ use MokoStandards\Enterprise\SecurityValidator;
 
 $checker = new RepositoryHealthChecker();
 $result = $checker->checkRepository('/path/to/project');
-for i in range(100):
-    progress.update(i + 1)
-progress.finish()
-print_success('Complete!')
 ```
 
 **PowerShell Scripts**:
@@ -267,13 +315,13 @@ Use the validation scripts to check your project's compliance:
 
 ```bash
 # Check repository health
-php ~/tools/MokoStandards/scripts/validate/check_repo_health.php --path /path/to/your/project
+php ~/tools/MokoStandards/api/validate/check_repo_health.php --path /path/to/your/project
 
 # Check version consistency
-php ~/tools/MokoStandards/scripts/validate/check_version_consistency.php --path /path/to/your/project
+php ~/tools/MokoStandards/api/validate/check_version_consistency.php --path /path/to/your/project
 
 # Check enterprise readiness
-php ~/tools/MokoStandards/scripts/validate/check_enterprise_readiness.php --path /path/to/your/project
+php ~/tools/MokoStandards/api/validate/check_enterprise_readiness.php --path /path/to/your/project
 ```
 
 ### Using PHP Libraries
@@ -312,7 +360,7 @@ cp config.json.example config.json
 # ⚠️ Important: Never commit config.json - ensure it's in .gitignore
 
 # Sync standards to all repositories
-php scripts/automation/bulk_update_repos.php
+php api/automation/bulk_sync.php
 ```
 
 ### Using Workflows
@@ -361,6 +409,8 @@ This project is licensed under the GNU General Public License v3.0 or later - se
 - **Issues**: [GitHub Issues](https://github.com/mokoconsulting-tech/MokoStandards/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/mokoconsulting-tech/MokoStandards/discussions)
 - **Email**: hello@mokoconsulting.tech
+- **SLA Policy**: [Service Level Agreement](docs/policy/SERVICE_LEVEL_AGREEMENT.md) — response times, uptime guarantees, and priority levels
+- **Organization Profile**: [mokoconsulting-tech](https://github.com/mokoconsulting-tech)
 
 ---
 

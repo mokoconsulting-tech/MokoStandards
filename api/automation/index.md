@@ -1,4 +1,4 @@
-# Docs Index: /scripts/automation
+# Docs Index: /api/automation
 
 ## Purpose
 

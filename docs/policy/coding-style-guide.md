@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Development
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/coding-style-guide.md
-VERSION: 04.00.04
+VERSION: 04.00.12
 BRIEF: Universal coding style standards across all programming languages
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.12-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Coding Style Guide
 
@@ -656,7 +656,7 @@ $timestamp = gmdate('Y-m-d\TH:i:s\Z');
 
 For detailed language-specific standards, see:
 
-- [Scripting Standards](scripting-standards.md) - Python automation scripts
+- [Scripting Standards](scripting-standards.md) - PHP automation scripts (Python by approved exception only)
 - [CRM Development Standards](crm/development-standards.md) - PHP/Dolibarr
 - [WaaS Development Standards](waas/development-standards.md) - PHP/Joomla
 

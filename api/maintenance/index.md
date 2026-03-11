@@ -1,4 +1,4 @@
-# Docs Index: /scripts/maintenance
+# Docs Index: /api/maintenance
 
 ## Purpose
 

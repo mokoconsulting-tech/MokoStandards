@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Development
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/scripting-standards.md
-VERSION: 04.00.04
+VERSION: 04.00.12
 BRIEF: Standards and requirements for automation scripts and tooling
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.12-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Scripting Standards Policy
 
@@ -87,196 +87,258 @@ Accountable for:
 
 ## Language Requirements
 
-### Primary Language: Python
+### Primary Language: PHP
 
-**All new automation scripts MUST be written in Python.**
+**All new automation scripts MUST be written in PHP.**
+
+PHP is the standard language across the entire Moko Consulting ecosystem. Using it for
+automation scripts keeps the toolchain uniform, reduces the number of runtimes required
+in CI/CD, and allows every developer to read and maintain every script without switching
+mental context.
 
 **Rationale**:
-- Cross-platform compatibility (Windows, macOS, Linux)
-- Rich standard library reduces external dependencies
-- Excellent tooling and IDE support
-- Strong typing support with type hints
-- Widely known by development teams
-- Active ecosystem and community
+- **Single runtime**: PHP 8.1+ is already required by all governed repositories; no
+  additional interpreter installation is needed
+- **Consistency**: Application code, validation scripts, and automation all share one
+  language and one set of coding standards
+- **Existing libraries**: The MokoStandards Enterprise library (`api/lib/Enterprise/`) and
+  all shared helpers are PHP — scripts can reuse them directly
+- **Composer ecosystem**: Packages for HTTP, YAML, hashing, and other common needs are
+  available via Composer
+- **Type safety**: PHP 8.1 supports union types, enums, named arguments, and fibers;
+  `declare(strict_types=1)` enforces strict type checking at runtime
 
 **Version Requirements**:
-- Minimum: Python 3.9
-- Recommended: Python 3.11 or later
-- Use version-agnostic features when possible
+- Minimum: PHP 8.1
+- Recommended: PHP 8.2 or later
+- All scripts must include `declare(strict_types=1)`
 - Document minimum version in script header
 
 **Example Header**:
-```python
-#!/usr/bin/env python3
-"""
-Script description here.
+```php
+<?php
+/**
+ * Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ *
+ * FILE INFORMATION
+ * DEFGROUP: MokoStandards.Scripts
+ * INGROUP:  MokoStandards.Automation
+ * REPO:     https://github.com/mokoconsulting-tech/MokoStandards
+ * PATH:     /scripts/maintenance/my_script.php
+ * VERSION:  04.00.12
+ * BRIEF:    Brief description of what this script does
+ */
 
-Requires: Python 3.9+
-"""
+declare(strict_types=1);
 ```
+
+### Secondary Language: Python (Exception Only)
+
+Python may only be used when **all** of the following conditions are met:
+
+1. No PHP equivalent exists in the standard library or Composer ecosystem
+2. The task is intrinsically tied to a Python-only tool (e.g., ML inference, specific
+   data-science pipeline)
+3. The exception is documented in the script header
+4. Maintainer approval has been granted and recorded
+
+> **Guideline**: If you are uncertain whether a PHP equivalent exists, ask before writing
+> Python. In almost all cases a PHP solution is available.
+
+**Migration obligation**: Existing Python scripts (`scripts/maintenance/*.py`) are
+classified as legacy. They must be migrated to PHP when they are next modified for a
+functional reason. Do not write new functionality in these files; open a migration ticket
+instead.
 
 ### Prohibited Languages for New Scripts
 
-The following languages are prohibited for new automation scripts:
+The following languages are prohibited for new automation scripts without explicit
+maintainer approval:
 
+- **Python** (without approved exception — see above)
 - **Shell scripts** (bash, sh, zsh): Platform-specific, poor error handling
 - **Batch files** (.bat, .cmd): Windows-only, limited functionality
 - **PowerShell** (.ps1): Windows-focused, inconsistent cross-platform
 - **Perl**: Declining ecosystem, poor readability
-- **Ruby**: Less common in our tech stack
+- **Ruby**: Not part of the Moko Consulting tech stack
 
 ### Exceptions for Existing Scripts
 
-**Legacy Validation Scripts** in `scripts/lib/validate/`:
+**Legacy Python Scripts** in `scripts/maintenance/`:
+- Existing Python scripts (`.py`) are **grandfathered**
+- May remain as Python until their next functional modification
+- When a functional change is required, migrate the entire script to PHP
+- Do not add new functionality to existing Python scripts; migrate first
+
+**Legacy Bash Validation Scripts** in `scripts/lib/validate/`:
 - Existing bash scripts (`.sh`) are **grandfathered**
 - May remain as bash for backward compatibility
-- Should not be rewritten unless functional changes needed
-- New validation scripts must use Python
+- Should not be rewritten unless functional changes are needed
+- New validation scripts must use PHP
 
 **Minimal Wrapper Scripts**:
 - Simple CI/CD entry points (< 10 lines) may use bash
-- Must only call Python scripts or system commands
+- Must only call PHP scripts (`php script.php`) or system commands
 - Require maintainer approval
 
 **Exception Process**:
 1. Document technical justification
-2. Provide cross-platform compatibility plan
+2. Confirm no PHP equivalent exists
 3. Get Security Owner approval for privileged operations
 4. Get maintainer approval
-5. Document exception in script header
+5. Document exception and approval in script header
+6. Set a migration target date
 
-## Python Coding Standards
+## PHP Coding Standards
 
 ### File Structure
 
-```python
-#!/usr/bin/env python3
-"""
-Module docstring with description.
+```php
+<?php
+/**
+ * Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ *
+ * FILE INFORMATION
+ * DEFGROUP: MokoStandards.Scripts
+ * INGROUP:  MokoStandards.Automation
+ * REPO:     https://github.com/mokoconsulting-tech/MokoStandards
+ * PATH:     /scripts/maintenance/my_script.php
+ * VERSION:  04.00.12
+ * BRIEF:    Script that does XYZ for ABC
+ *
+ * Usage:
+ *   php scripts/maintenance/my_script.php [arguments]
+ *
+ * Examples:
+ *   php scripts/maintenance/my_script.php --input file.txt
+ *   php scripts/maintenance/my_script.php --verbose --output result.json
+ *
+ * Requirements:
+ *   PHP 8.1+
+ *   No external dependencies (or list them)
+ */
 
-This script does XYZ and is used for ABC.
+declare(strict_types=1);
 
-Usage:
-    python script_name.py [arguments]
+require_once __DIR__ . '/../../vendor/autoload.php';
 
-Examples:
-    python script_name.py --input file.txt
-    python script_name.py --verbose --output result.json
+// Constants
+const DEFAULT_VALUE = 'value';
+const MAX_RETRIES = 3;
 
-Requirements:
-    Python 3.9+
-    No external dependencies (or list them)
-"""
+function main(): void
+{
+	// main entry point
+}
 
-import os
-import sys
-from pathlib import Path
-from typing import List, Optional
-
-# Constants
-DEFAULT_VALUE = "value"
-MAX_RETRIES = 3
-
-def main():
-    """Main entry point."""
-    pass
-
-if __name__ == "__main__":
-    main()
+main();
 ```
 
 ### Naming Conventions
 
 **Files**:
-- Use `snake_case` for filenames: `sync_file_to_project.py`
-- Use descriptive, action-oriented names: `validate_manifest.py`
+- Use `snake_case` for filenames: `sync_file_to_project.php`
+- Use descriptive, action-oriented names: `validate_manifest.php`
 - Avoid abbreviations unless widely understood
 
 **Functions**:
-- Use `snake_case`: `def process_file(path: str):`
-- Use verb-noun pattern: `create_issue()`, `update_project()`
-- Private functions prefix with underscore: `def _internal_helper():`
+- Use `camelCase`: `function processFile(string $path): void`
+- Use verb-noun pattern: `createIssue()`, `updateProject()`
+- Private methods prefix with underscore or use `private` visibility: `private function _internalHelper()`
 
 **Classes**:
-- Use `PascalCase`: `class ProjectManager:`
+- Use `PascalCase`: `class ProjectManager`
 - Use noun phrases: `GitHubClient`, `DocumentParser`
 
 **Constants**:
-- Use `UPPER_SNAKE_CASE`: `DEFAULT_PROJECT_NUMBER = 7`
-- Define at module level after imports
+- Use `UPPER_SNAKE_CASE`: `const DEFAULT_PROJECT_NUMBER = 7;`
+- Define at class level or as top-level constants after the header block
 
 **Variables**:
-- Use `snake_case`: `file_path`, `issue_count`
-- Use descriptive names, avoid single letters except loops
-- Boolean variables use `is_`, `has_`, `should_` prefix
+- Use `camelCase`: `$filePath`, `$issueCount`
+- Use descriptive names; avoid single letters except loop counters
+- Boolean variables use `is`, `has`, `should` prefix: `$isVerbose`, `$hasErrors`
 
-### Type Hints
+### Type Declarations
 
-**Type hints are REQUIRED for all function signatures:**
+**Type declarations are REQUIRED for all function signatures (`declare(strict_types=1)` is mandatory):**
 
-```python
-from typing import Dict, List, Optional, Tuple
+```php
+<?php
+declare(strict_types=1);
 
-def process_files(
-    paths: List[str],
-    output_dir: str,
-    verbose: bool = False
-) -> Tuple[int, List[str]]:
-    """Process multiple files and return count and errors."""
-    pass
+/**
+ * Process multiple files and return a count with any errors.
+ *
+ * @param  string[] $paths
+ * @param  string   $outputDir
+ * @param  bool     $verbose
+ * @return array{count: int, errors: string[]}
+ */
+function processFiles(array $paths, string $outputDir, bool $verbose = false): array
+{
+	// implementation
+	return ['count' => 0, 'errors' => []];
+}
 
-def get_config(name: str) -> Optional[Dict[str, str]]:
-    """Get configuration by name, returns None if not found."""
-    pass
+/**
+ * Get configuration by name.
+ *
+ * @param  string $name
+ * @return array<string,string>|null  Returns null if not found.
+ */
+function getConfig(string $name): ?array
+{
+	return null;
+}
 ```
 
 **Benefits**:
-- Enables static type checking with mypy
+- Runtime type enforcement via `strict_types=1`
+- Enables static analysis with PHPStan and Psalm
 - Improves IDE autocomplete
 - Self-documenting code
-- Catches bugs before runtime
+- Catches type bugs before production
 
 ### Documentation
 
-**Docstrings are REQUIRED for all public functions:**
+**PHPDoc blocks are REQUIRED for all public functions:**
 
-```python
-def sync_file_to_project(
-    file_path: str,
-    project_number: int = 7,
-    is_folder: bool = False
-) -> bool:
-    """
-    Sync a file or folder to GitHub Project.
-
-    Args:
-        file_path: Path to file or folder to sync
-        project_number: GitHub Project number (default: 7)
-        is_folder: Whether path is a folder (default: False)
-
-    Returns:
-        True if sync successful, False otherwise
-
-    Raises:
-        ValueError: If file_path is invalid
-        RuntimeError: If GitHub API fails
-
-    Example:
-        >>> sync_file_to_project("docs/policy/new.md")
-        True
-    """
-    pass
+```php
+/**
+ * Sync a file or folder to GitHub Project.
+ *
+ * @param  string $filePath      Path to file or folder to sync.
+ * @param  int    $projectNumber GitHub Project number (default: 7).
+ * @param  bool   $isFolder      Whether path is a folder (default: false).
+ * @return bool   True if sync successful, false otherwise.
+ *
+ * @throws \InvalidArgumentException If $filePath is invalid.
+ * @throws \RuntimeException         If GitHub API fails.
+ *
+ * @example
+ *   syncFileToProject('docs/policy/new.md');  // returns true
+ */
+function syncFileToProject(string $filePath, int $projectNumber = 7, bool $isFolder = false): bool
+{
+	// implementation
+	return true;
+}
 ```
 
-**Docstring Format**: Use Google style docstrings
+**PHPDoc Format**: Follow PSR-5 / phpDocumentor conventions.
 
 ### Code Formatting
 
-**Indentation**: Use tabs, not spaces (MokoStandards standard)
+**Indentation**: Use tabs, not spaces (MokoStandards standard).
 
 - Configure editor to use tabs with 2-space visual width
-- Follow .editorconfig settings in repository root
-- Be consistent throughout script
+- Follow `.editorconfig` settings in repository root
+- Be consistent throughout the script
 - **Exception**: YAML configuration files must use spaces (YAML specification requirement)
 
 **Line length**:
@@ -284,86 +346,81 @@ def sync_file_to_project(
 - Break long lines at logical points
 
 **Formatting tools**:
-- Use `black` for Python formatting (configure for tabs if possible, or follow project .editorconfig)
-- Use `pylint` for style checking
-- Use `mypy` for type checking
+- Use `phpcs` (PHP_CodeSniffer) for style checking — ruleset `phpcs.xml` at repo root
+- Use `phpstan` for static analysis — config `phpstan.neon` at repo root
+- Use `psalm` for type checking — config `psalm.xml` at repo root
 
 ### Error Handling
 
 **Proper error handling is REQUIRED:**
 
-```python
-import sys
-from pathlib import Path
+```php
+<?php
+declare(strict_types=1);
 
-def load_file(path: str) -> str:
-    """Load file contents with error handling."""
-    file_path = Path(path)
+function loadFile(string $path): string
+{
+	if (!file_exists($path)) {
+		fwrite(STDERR, "Error: File not found: {$path}" . PHP_EOL);
+		exit(1);
+	}
 
-    if not file_path.exists():
-        print(f"Error: File not found: {path}", file=sys.stderr)
-        sys.exit(1)
+	if (!is_readable($path)) {
+		fwrite(STDERR, "Error: Permission denied: {$path}" . PHP_EOL);
+		exit(1);
+	}
 
-    try:
-        return file_path.read_text(encoding="utf-8")
-    except PermissionError:
-        print(f"Error: Permission denied: {path}", file=sys.stderr)
-        sys.exit(1)
-    except UnicodeDecodeError:
-        print(f"Error: Invalid UTF-8 encoding: {path}", file=sys.stderr)
-        sys.exit(1)
+	$content = file_get_contents($path);
+	if ($content === false) {
+		fwrite(STDERR, "Error: Could not read file: {$path}" . PHP_EOL);
+		exit(1);
+	}
+
+	return $content;
+}
 ```
 
 **Best Practices**:
-- Use specific exceptions, not bare `except:`
-- Print errors to `stderr` using `sys.stderr`
-- Exit with non-zero code on failure: `sys.exit(1)`
-- Exit with zero on success: `sys.exit(0)`
+- Throw typed exceptions (`\InvalidArgumentException`, `\RuntimeException`)
+- Print errors to `STDERR` using `fwrite(STDERR, ...)`
+- Exit with non-zero code on failure: `exit(1)`
+- Exit with zero on success: `exit(0)`
 - Provide helpful error messages with context
 
 ### Command-Line Arguments
 
-**Use `argparse` for all command-line scripts:**
+**Use `getopt()` or a lightweight CLI helper for all command-line scripts:**
 
-```python
-import argparse
+```php
+<?php
+declare(strict_types=1);
 
-def main():
-    """Main entry point."""
-    parser = argparse.ArgumentParser(
-        description='Sync documentation to GitHub Project'
-    )
-    parser.add_argument(
-        'path',
-        help='Path to file or folder to sync'
-    )
-    parser.add_argument(
-        '--project',
-        type=int,
-        default=7,
-        help='Project number (default: 7)'
-    )
-    parser.add_argument(
-        '--folder',
-        action='store_true',
-        help='Treat path as folder'
-    )
-    parser.add_argument(
-        '--verbose',
-        action='store_true',
-        help='Enable verbose output'
-    )
+$shortopts = '';
+$longopts = [
+	'path:',     // required value
+	'project::',  // optional value
+	'folder',    // flag
+	'verbose',   // flag
+	'dry-run',   // flag
+];
+$opts = getopt($shortopts, $longopts, $restIndex);
 
-    args = parser.parse_args()
+$path      = $opts['path'] ?? null;
+$project   = (int) ($opts['project'] ?? 7);
+$isFolder  = isset($opts['folder']);
+$verbose   = isset($opts['verbose']);
+$dryRun    = isset($opts['dry-run']);
 
-    # Use args.path, args.project, etc.
+if ($path === null) {
+	fwrite(STDERR, "Usage: php script.php --path <path> [--project N] [--folder] [--verbose] [--dry-run]" . PHP_EOL);
+	exit(1);
+}
 ```
 
 **Benefits**:
-- Automatic `--help` generation
-- Type validation
-- Default value handling
-- Standard argument syntax
+- No extra dependency
+- Standard PHP built-in
+- Type-safe when combined with `strict_types=1`
 
 ### Dry-Run Support
 
@@ -371,25 +428,24 @@ def main():
 
 **Requirements:**
 
-```python
-parser.add_argument(
-    '--dry-run',
-    action='store_true',
-    help='Show what would be done without making changes'
-)
+```php
+$dryRun = isset($opts['dry-run']);
 ```
 
 **Implementation:**
 
-```python
-def process_files(files: List[Path], dry_run: bool = False):
-    """Process files with optional dry-run mode."""
-    for file in files:
-        if dry_run:
-            logger.info(f"[DRY-RUN] Would process: {file}")
-        else:
-            logger.info(f"Processing: {file}")
-            # actual processing
+```php
+function processFiles(array $files, bool $dryRun = false): void
+{
+	foreach ($files as $file) {
+		if ($dryRun) {
+			echo "[DRY-RUN] Would process: {$file}" . PHP_EOL;
+		} else {
+			echo "Processing: {$file}" . PHP_EOL;
+			// actual processing
+		}
+	}
+}
 ```
 
 **Dry-run best practices:**
@@ -400,8 +456,8 @@ def process_files(files: List[Path], dry_run: bool = False):
 - Skip any operations that modify state (file writes, API calls, etc.)
 
 **Scripts requiring dry-run:**
-- ✅ File modification scripts (e.g., `file_headers.py`, `tabs.py`)
-- ✅ Validation scripts that could fail builds (e.g., `security_scan.py`)
+- ✅ File modification scripts
+- ✅ Validation scripts that could fail builds
 - ✅ Deployment or release scripts
 - ✅ Scripts that interact with external systems
 
@@ -414,44 +470,22 @@ def process_files(files: List[Path], dry_run: bool = False):
 
 **Minimize external dependencies:**
 
-**Prefer standard library**:
-- ✅ Use `pathlib` for paths (not `os.path`)
-- ✅ Use `subprocess` for external commands
-- ✅ Use `json` for JSON parsing
-- ✅ Use `argparse` for CLI arguments
-- ✅ Use `typing` for type hints
+**Prefer built-in PHP functions and the existing Enterprise library**:
+- ✅ Use `SplFileInfo`/`DirectoryIterator` for filesystem operations
+- ✅ Use `exec()`/`proc_open()` for external commands (safely)
+- ✅ Use `json_decode()`/`json_encode()` for JSON
+- ✅ Use `getopt()` for CLI arguments
+- ✅ Use `api/lib/Enterprise/` classes for MokoStandards operations
 
 **Avoid unnecessary packages**:
-- ❌ Don't use `requests` if `urllib` works
-- ❌ Don't use `click` for simple CLIs
-- ❌ Don't use `sh` when `subprocess` works
+- ❌ Don't add a Composer package if a PHP built-in works
+- ❌ Don't use a full framework for a simple CLI script
 
 **If external dependencies are required**:
-1. Document in script docstring
-2. Add to `requirements.txt`
-3. Use virtual environments
-4. Pin versions for reproducibility
-5. Get maintainer approval
-
-### File Permissions
-
-**Scripts must be executable:**
-
-```bash
-chmod +x scripts/my_script.py
-```
-
-**Include shebang line:**
-
-```python
-#!/usr/bin/env python3
-```
-
-**Git should track executable bit:**
-
-```bash
-git add --chmod=+x scripts/my_script.py
-```
+1. Document in script PHPDoc header
+2. Add to `composer.json` and run `composer require`
+3. Pin versions for reproducibility
+4. Get maintainer approval
 
 ## Security Requirements
 
@@ -459,27 +493,32 @@ git add --chmod=+x scripts/my_script.py
 
 **All user input MUST be validated:**
 
-```python
-from pathlib import Path
+```php
+<?php
+declare(strict_types=1);
 
-def validate_file_path(path: str) -> Path:
-    """Validate and sanitize file path."""
-    file_path = Path(path).resolve()
+function validateFilePath(string $path): string
+{
+	$realPath = realpath($path);
 
-    # Check for path traversal
-    if ".." in path:
-        raise ValueError("Path traversal not allowed")
+	// Check for path traversal
+	if ($realPath === false || str_contains($path, '..')) {
+		throw new \InvalidArgumentException("Path traversal not allowed: {$path}");
+	}
 
-    # Check file exists
-    if not file_path.exists():
-        raise ValueError(f"File not found: {path}")
+	// Check file exists
+	if (!file_exists($realPath)) {
+		throw new \InvalidArgumentException("File not found: {$path}");
+	}
 
-    # Check file is within allowed directory
-    allowed_dir = Path.cwd()
-    if not str(file_path).startswith(str(allowed_dir)):
-        raise ValueError("Access outside repository not allowed")
+	// Check file is within allowed directory
+	$allowedDir = realpath(getcwd());
+	if (!str_starts_with($realPath, $allowedDir)) {
+		throw new \InvalidArgumentException("Access outside repository not allowed");
+	}
 
-    return file_path
+	return $realPath;
+}
 ```
 
 **Requirements**:
@@ -487,23 +526,25 @@ def validate_file_path(path: str) -> Path:
 - Sanitize file paths (prevent path traversal)
 - Validate file types and extensions
 - Check file sizes before processing
-- Escape shell commands properly
+- Escape shell commands properly (use `escapeshellarg()`)
 
 ### Credentials and Secrets
 
 **Credentials MUST NEVER be hardcoded:**
 
-```python
-import os
+```php
+<?php
+declare(strict_types=1);
 
-# ✅ Correct: Use environment variables — prefer GH_TOKEN (org secret), fall back to GITHUB_TOKEN
-github_token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
-if not github_token:
-    print("Error: GH_TOKEN environment variable not set", file=sys.stderr)
-    sys.exit(1)
+// ✅ Correct: Use environment variables — prefer GH_TOKEN (org secret), fall back to GITHUB_TOKEN
+$githubToken = getenv('GH_TOKEN') ?: getenv('GITHUB_TOKEN') ?: null;
+if ($githubToken === null) {
+	fwrite(STDERR, "Error: GH_TOKEN environment variable not set" . PHP_EOL);
+	exit(1);
+}
 
-# ❌ Incorrect: Hardcoded credentials
-github_token = "ghp_xxxxxxxxxxxx"  # NEVER DO THIS
+// ❌ Incorrect: Hardcoded credentials
+$githubToken = 'ghp_xxxxxxxxxxxx'; // NEVER DO THIS
 ```
 
 **Best Practices**:
@@ -515,34 +556,36 @@ github_token = "ghp_xxxxxxxxxxxx"  # NEVER DO THIS
 
 ### Shell Command Execution
 
-**Use `subprocess` safely:**
+**Use `proc_open()` or `escapeshellarg()` safely:**
 
-```python
-import subprocess
-from typing import List
+```php
+<?php
+declare(strict_types=1);
 
-# ✅ Correct: List of arguments (no shell injection)
-def run_command(args: List[str]) -> str:
-    """Run command safely without shell."""
-    result = subprocess.run(
-        args,
-        capture_output=True,
-        text=True,
-        check=True
-    )
-    return result.stdout
+// ✅ Correct: Arguments escaped before shell execution
+function runCommand(array $args): string
+{
+	$escapedArgs = array_map('escapeshellarg', $args);
+	$cmd = implode(' ', $escapedArgs);
+	$output = shell_exec($cmd);
+	if ($output === null) {
+		throw new \RuntimeException("Command failed: {$cmd}");
+	}
+	return $output;
+}
 
-# ❌ Incorrect: Shell=True with user input (injection risk)
-def run_command_unsafe(user_input: str):
-    subprocess.run(f"echo {user_input}", shell=True)  # VULNERABLE
+// ❌ Incorrect: User input concatenated directly into command
+function runCommandUnsafe(string $userInput): void
+{
+	shell_exec("echo {$userInput}"); // VULNERABLE
+}
 ```
 
 **Requirements**:
-- Use `subprocess.run()` with list of arguments
-- Never use `shell=True` with user input
+- Always use `escapeshellarg()` on user-supplied values
+- Prefer an array of arguments via `proc_open()` for complex cases
 - Validate all command arguments
-- Use `check=True` to raise on errors
-- Capture output properly
+- Check exit codes
 
 ### Privilege Management
 
@@ -561,35 +604,41 @@ def run_command_unsafe(user_input: str):
 
 **Scripts with complex logic MUST have unit tests:**
 
-```python
-# In script: scripts/my_script.py
-def calculate_priority(doc_type: str) -> str:
-    """Calculate priority based on document type."""
-    if doc_type == "policy":
-        return "High"
-    return "Medium"
+```php
+<?php
+// In script: scripts/maintenance/my_script.php
+declare(strict_types=1);
 
-# In test: tests/test_my_script.py
-import unittest
-from scripts.my_script import calculate_priority
+function calculatePriority(string $docType): string
+{
+	return $docType === 'policy' ? 'High' : 'Medium';
+}
 
-class TestPriorityCalculation(unittest.TestCase):
-    def test_policy_priority(self):
-        self.assertEqual(calculate_priority("policy"), "High")
+// In test: api/tests/ScriptTest.php
+declare(strict_types=1);
 
-    def test_default_priority(self):
-        self.assertEqual(calculate_priority("guide"), "Medium")
+use PHPUnit\Framework\TestCase;
 
-if __name__ == "__main__":
-    unittest.main()
+class MyScriptTest extends TestCase
+{
+	public function testPolicyPriority(): void
+	{
+		$this->assertSame('High', calculatePriority('policy'));
+	}
+
+	public function testDefaultPriority(): void
+	{
+		$this->assertSame('Medium', calculatePriority('guide'));
+	}
+}
 ```
 
 **Test Requirements**:
 - Test all public functions
 - Test error cases and edge cases
-- Use `unittest` or `pytest`
-- Place tests in `tests/` directory
-- Run tests in CI/CD
+- Use PHPUnit (already a dev dependency via `composer.json`)
+- Place tests in `api/tests/` directory
+- Run tests in CI/CD with `composer run test`
 
 ### Manual Testing
 
@@ -599,7 +648,7 @@ if __name__ == "__main__":
 - [ ] Test with valid inputs
 - [ ] Test with invalid inputs
 - [ ] Test with missing arguments
-- [ ] Test `--help` output
+- [ ] Test `--help` output (if implemented)
 - [ ] Test error messages
 - [ ] Test in clean environment
 - [ ] Test cross-platform (if applicable)
@@ -608,40 +657,38 @@ if __name__ == "__main__":
 
 **Scripts MUST pass CI/CD checks:**
 
-- Syntax validation with `python -m py_compile`
-- Type checking with `mypy` (if configured)
-- Linting with `pylint` or `flake8` (if configured)
-- Unit tests execution
+- Syntax validation: `php -l scripts/my_script.php`
+- Static analysis: `phpstan analyse scripts/`
+- Code style: `phpcs scripts/`
+- Unit tests: `composer run test`
 - Integration tests in workflow
 
 ## Documentation Requirements
 
 ### README Files
 
-**Script directories MUST have README.md:**
+**Script directories MUST have an `index.md` in `docs/scripts/`:**
 
 ```markdown
-# Scripts
-
 ## Available Scripts
 
-### sync_file_to_project.py
+### sync_file_to_project.php
 
 Syncs documentation files and folders to GitHub Project.
 
 **Usage**:
-```bash
-python scripts/sync_file_to_project.py <path> [project_number]
-```
+\`\`\`bash
+php scripts/sync_file_to_project.php --path <path> [--project N] [--folder]
+\`\`\`
 
 **Examples**:
-```bash
-python scripts/sync_file_to_project.py docs/policy/new.md
-python scripts/sync_file_to_project.py docs/guide/ --folder
-```
+\`\`\`bash
+php scripts/sync_file_to_project.php --path docs/policy/new.md
+php scripts/sync_file_to_project.php --path docs/guide/ --folder
+\`\`\`
 
 **Requirements**:
-- Python 3.9+
+- PHP 8.1+
 - GitHub CLI (`gh`) installed and authenticated
 ```
 
@@ -649,15 +696,15 @@ python scripts/sync_file_to_project.py docs/guide/ --folder
 
 **Use comments for complex logic only:**
 
-```python
-# ✅ Good: Explains non-obvious logic
-# Calculate priority based on business rules where policies
-# are high priority due to governance requirements
-priority = "High" if doc_type == "policy" else "Medium"
+```php
+// ✅ Good: Explains non-obvious logic
+// Priority is High for policy docs because governance requirements mandate
+// immediate review by maintainers before other document types.
+$priority = $docType === 'policy' ? 'High' : 'Medium';
 
-# ❌ Bad: States the obvious
-# Set priority to High
-priority = "High"
+// ❌ Bad: States the obvious
+// Set priority to High
+$priority = 'High';
 ```
 
 **When to comment**:
@@ -671,25 +718,27 @@ priority = "High"
 
 **All scripts MUST have standard headers:**
 
-```python
-#!/usr/bin/env python3
-"""
-Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+```php
+<?php
+/**
+ * Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+ *
+ * This file is part of a Moko Consulting project.
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ *
+ * [Full license header...]
+ *
+ * FILE INFORMATION
+ * DEFGROUP: MokoStandards.Scripts
+ * INGROUP:  MokoStandards.Automation
+ * REPO:     https://github.com/mokoconsulting-tech/MokoStandards
+ * PATH:     /scripts/maintenance/my_script.php
+ * VERSION:  04.00.12
+ * BRIEF:    Brief description of script purpose
+ */
 
-This file is part of a Moko Consulting project.
-
-SPDX-License-Identifier: GPL-3.0-or-later
-
-[Full license header...]
-
-FILE INFORMATION
-DEFGROUP: MokoStandards.Scripts
-INGROUP: MokoStandards.Automation
-REPO: https://github.com/mokoconsulting-tech/MokoStandards
-PATH: /scripts/my_script.py
-VERSION: 04.00.04
-BRIEF: Brief description of script purpose
-"""
+declare(strict_types=1);
 ```
 
 ## Maintenance Requirements
@@ -727,7 +776,7 @@ BRIEF: Brief description of script purpose
 
 **Scripts MUST be kept up to date:**
 
-- Update for Python version changes
+- Update for PHP version changes
 - Update for dependency changes
 - Update for API changes
 - Fix bugs promptly
@@ -740,10 +789,11 @@ BRIEF: Brief description of script purpose
 **All scripts require code review:**
 
 **Review Checklist**:
-- [ ] Written in Python (unless exception approved)
+- [ ] Written in PHP (Python only with approved exception)
+- [ ] `declare(strict_types=1)` present
 - [ ] Follows naming conventions
-- [ ] Has type hints
-- [ ] Has docstrings
+- [ ] Has PHP type declarations
+- [ ] Has PHPDoc blocks
 - [ ] Has error handling
 - [ ] Has unit tests (if complex)
 - [ ] Validates inputs
@@ -757,14 +807,17 @@ BRIEF: Brief description of script purpose
 
 ```yaml
 # In .github/workflows/ci.yml
-- name: Validate Python scripts
+- name: Validate PHP scripts
   run: |
-    python -m py_compile scripts/*.py
+    find scripts -name "*.php" -type f -exec php -l {} \;
 
-- name: Check script executability
+- name: Static analysis (phpstan)
   run: |
-    find scripts -name "*.py" -type f ! -executable -print
-    # Should return no results
+    ./vendor/bin/phpstan analyse scripts/
+
+- name: Code style (phpcs)
+  run: |
+    ./vendor/bin/phpcs scripts/
 ```
 
 ### Exceptions and Waivers
@@ -806,40 +859,40 @@ This policy depends on:
 - [Document Formatting Policy](document-formatting.md) - For file headers
 - [Security Scanning Policy](security-scanning.md) - For security requirements
 - [Dependency Management Policy](dependency-management.md) - For external dependencies
-- Python 3.9+ installed in development and CI/CD environments
+- PHP 8.1+ installed in development and CI/CD environments
 
 ## Acceptance Criteria
 
-- [ ] All new scripts written in Python
+- [ ] All new scripts written in PHP
+- [ ] All scripts have `declare(strict_types=1)`
 - [ ] All scripts have proper headers
-- [ ] All scripts have docstrings
-- [ ] All scripts use type hints
+- [ ] All scripts have PHPDoc blocks
+- [ ] All scripts use PHP type declarations
 - [ ] All scripts handle errors properly
 - [ ] All scripts validate inputs
 - [ ] No hardcoded credentials
-- [ ] All scripts executable with shebang
 - [ ] Documentation complete
 - [ ] CI/CD validation passes
 
 ## Metadata
 
-| Field          | Value                                            |
-| -------------- | ------------------------------------------------ |
-| Document Type  | Policy                                       |
-| Domain         | Governance                                         |
-| Applies To     | All Repositories                                     |
-| Jurisdiction   | Tennessee, USA                                   |
-| Owner          | Moko Consulting                                          |
-| Repo           | https://github.com/mokoconsulting-tech/                                      |
-| Path           | /docs/policy/scripting-standards.md                                      |
-| Version        | 03.00.00                                 |
-| Status         | Active                                         |
-| Last Reviewed  | 2026-01-28                                  |
-| Reviewed By    | Documentation Team                                    |
-
+| Field | Value |
+| ----- | ----- |
+| Document Type | Policy |
+| Domain | Governance |
+| Applies To | All Repositories |
+| Jurisdiction | Tennessee, USA |
+| Owner | Moko Consulting |
+| Repo | https://github.com/mokoconsulting-tech/ |
+| Path | /docs/policy/scripting-standards.md |
+| Version | 04.00.12 |
+| Status | Active |
+| Last Reviewed | 2026-03-11 |
+| Reviewed By | Moko Consulting |
 
 ## Revision History
 
-| Date       | Author          | Change                                       | Notes                                              |
-| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
-| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 03.00.00 with all required fields |
+| Date | Author | Change | Notes |
+| ---- | ------ | ------ | ----- |
+| 2026-03-11 | Moko Consulting | Established PHP as the primary scripting language; Python permitted only with approved exception; existing `.py` scripts classified as legacy pending migration | Supersedes Python-primary policy |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history | Updated to version 03.00.00 with all required fields |

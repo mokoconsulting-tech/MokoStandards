@@ -1,4 +1,4 @@
-# Docs Index: /scripts/release
+# Docs Index: /api/release
 
 ## Purpose
 

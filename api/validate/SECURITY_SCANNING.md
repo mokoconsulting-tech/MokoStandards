@@ -324,7 +324,7 @@ For questions or issues with security scanning:
 | Field | Value |
 |-------|-------|
 | Document | Security Scanning Guide |
-| Path | /scripts/validate/SECURITY_SCANNING.md |
+| Path | /api/validate/SECURITY_SCANNING.md |
 | Version | 01.00.00 |
 | Status | Active |
 | Last Updated | 2026-01-28 |

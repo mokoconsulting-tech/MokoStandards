@@ -22,12 +22,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Reference
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
-PATH: /PRIVATE_REPOSITORY_REFERENCE.md
-VERSION: 04.00.04
-BRIEF: Reference to sensitive items moved to private repository
+PATH: /docs/guide/PRIVATE_REPOSITORY_REFERENCE.md
+VERSION: 04.00.11
+BRIEF: Reference to executive-only private repository; governance management is authoritative in MokoStandards
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.11-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Private Repository Reference
 
@@ -43,12 +43,20 @@ Moko Consulting uses a dual-repository strategy:
   - Public standards, templates, and documentation
   - Community-accessible workflow templates
   - Open-source best practices and governance policies
+  - **All governance management** (GOVERNANCE.md, incident management, release management,
+    change management, and all `docs/policy/governance/` documents)
 
-- **`.github-private`** - **Private and Secure Centralization**
+- **`.github-private`** - **Executive-Only Private Repository**
+  - Executive-level internal documentation
   - Proprietary workflow implementations
   - Sensitive automation and deployment logic
   - Organization-specific CI/CD pipelines
   - Internal scripts and configurations
+
+> **Important**: Governance management was moved from `.github-private` to this repository
+> on 2026-03-11. `.github-private` is now reserved for executive-only content. All governance
+> policy documents are authoritative in MokoStandards (`docs/policy/governance/` and
+> `docs/policy/GOVERNANCE.md`).
 
 ## Private Repository Location
 
@@ -272,14 +280,15 @@ This separation was implemented as part of the enterprise readiness initiative t
 | Owner          | Moko Consulting                                          |
 | Repo           | https://github.com/mokoconsulting-tech/                                      |
 | Path           | /docs/guide/PRIVATE_REPOSITORY_REFERENCE.md                                      |
-| Version        | 04.00.04                                 |
+| Version        | 04.00.11                                 |
 | Status         | Active                                         |
-| Last Reviewed  | 2026-01-28                                  |
-| Reviewed By    | Documentation Team                                    |
+| Last Reviewed  | 2026-03-11                                  |
+| Reviewed By    | Moko Consulting                                    |
 
 
 ## Revision History
 
 | Date       | Author          | Change                                       | Notes                                              |
 | ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-03-11 | Moko Consulting | Clarified .github-private is executive-only; governance management now lives in MokoStandards | Moved governance per policy split |
 | 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 04.00.04 with all required fields |

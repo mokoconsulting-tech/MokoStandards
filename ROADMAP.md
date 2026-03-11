@@ -379,7 +379,7 @@ Following **Semantic Versioning** (XX.YY.ZZ):
 **For Developers**:
 - Start: [Automation Guide](docs/automation/branch-version-automation.md)
 - Next: [Integration Examples](docs/planning/README.md#integration-quick-start)
-- Reference: [Library Documentation](scripts/lib/)
+- Reference: [Library Documentation](api/lib/)
 
 **For Team Leads**:
 - Start: [Complete Roadmap](docs/planning/README.md)

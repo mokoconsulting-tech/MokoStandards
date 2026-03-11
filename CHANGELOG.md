@@ -15,13 +15,13 @@
  DEFGROUP: MokoStandards
  INGROUP: MokoStandards.Documentation
  REPO: https://github.com/mokoconsulting-tech/MokoStandards/
- VERSION: 04.00.04
+ VERSION: 04.00.08
  PATH: ./CHANGELOG.md
  BRIEF: Version history using Keep a Changelog
  NOTE: Adheres to SemVer when applicable
  -->
 
-# CHANGELOG - MokoStandards (VERSION: 04.00.04)
+# CHANGELOG - MokoStandards (VERSION: 04.00.08)
 
 All notable changes to this project will be documented in this file.
 
@@ -31,6 +31,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **`api/automation/deploy_sftp.php`** — SFTP deployment CLI tool (2026-03-11):
+  - Deploys a local source directory to one or more remote servers via key-based SFTP
+  - Single-server mode: `--host`, `--user`, `--remote`, `--key` flags
+  - Multi-server mode: `--servers <json-file>` with per-server or shared key
+  - Dry-run mode (`--dry-run`) lists files without connecting
+  - Verbose per-file progress reporting
+  - GitHub Actions step summary output
+- **`api/lib/Enterprise/SftpDeployer.php`** — Enterprise SFTP deployer class (2026-03-11):
+  - `SftpDeployer::deploy()` — deploy a directory tree to a single remote server
+  - `SftpDeployer::deployToMany()` — deploy to multiple servers sequentially
+  - `SftpDeploymentResult` value object carrying upload counts, errors, duration
+  - `SftpDeploymentException` for connection and upload errors
+  - Private-key authentication via `phpseclib3` (`PublicKeyLoader`)
+  - Path-traversal guard on remote destination path
+  - Progress callback support
+- **`api/tests/test_sftp_deployer.php`** — unit tests for `SftpDeployer` (2026-03-11)
+- **`docs/api/automation/index.md`** — documented `deploy_sftp.php` (2026-03-11)
+
 - **`tests/sample/` fixture directory** (2026-03-06):
   - Minimal generic repository fixture committed to `tests/sample/` at repo root
   - Satisfies all `check_repo_health.php` basic checks: README, LICENSE, .gitignore,

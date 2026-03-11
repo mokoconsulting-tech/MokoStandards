@@ -3,7 +3,7 @@
 > **⚠️ DEPRECATED DOCUMENTATION**  
 > **Status**: This document describes a Python-based automation system that is not currently implemented.  
 > **Last Updated**: 2026-02-10  
-> **Current Status**: MokoStandards uses PHP-based automation (see [Automation Scripts](../../scripts/automation/README.md))
+> **Current Status**: MokoStandards uses PHP-based automation (see [Automation Scripts](../../api/automation/index.md))
 
 # Branch and Version Automation - Comprehensive Guide
 
@@ -309,8 +309,8 @@ fi
 ### Related Documentation
 
 - [Terraform Distribution Guide](../../infrastructure/terraform/repository-management/VERSION_BUMP_DISTRIBUTION.md)
-- [Maintenance Scripts](../../scripts/maintenance/README.md)
-- [Release Scripts](../../scripts/release/README.md)
+- [Maintenance Scripts](../../api/maintenance/index.md)
+- [Release Scripts](../../api/release/index.md)
 - [Branching Strategy](../policy/branching-strategy.md)
 
 ### External Resources

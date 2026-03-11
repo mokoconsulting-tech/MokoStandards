@@ -117,7 +117,7 @@ MokoStandards/
 │   ├── guide/         # User guides and tutorials
 │   ├── reference/     # Technical references
 │   └── visual/        # Mermaid diagrams and flowcharts
-├── scripts/           # Legacy maintenance scripts
+├── scripts/           # Python maintenance scripts (scripts/maintenance/)
 ├── templates/         # Project templates and configurations
 └── .github/
     └── workflows/     # 28 validation checks + reusable workflows

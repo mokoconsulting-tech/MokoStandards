@@ -1,4 +1,4 @@
-# Docs Index: /scripts/wrappers/bash
+# Docs Index: /api/wrappers/bash
 
 ## Purpose
 

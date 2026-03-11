@@ -1,4 +1,4 @@
-# Build Index: /scripts/build
+# Build Index: /api/build
 
 ## Purpose
 

@@ -1,4 +1,4 @@
-# Docs Index: /scripts/run
+# Docs Index: /api/run
 
 ## Purpose
 

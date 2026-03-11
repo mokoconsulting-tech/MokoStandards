@@ -1,4 +1,4 @@
-# Docs Index: /scripts/wrappers/powershell
+# Docs Index: /api/wrappers/powershell
 
 ## Purpose
 

@@ -284,7 +284,7 @@ In GitHub Actions workflows, logs are automatically captured. For local log stor
 - name: Run script with logging
   run: |
     mkdir -p logs/automation
-    php scripts/automation/bulk_update_repos.php --dry-run 2>&1 | tee logs/automation/bulk_update_$(date +%Y%m%d_%H%M%S).log
+    php api/automation/bulk_sync.php --dry-run 2>&1 | tee logs/automation/bulk_update_$(date +%Y%m%d_%H%M%S).log
 
 - name: Upload logs as artifacts
   if: always()
@@ -308,9 +308,9 @@ In GitHub Actions workflows, logs are automatically captured. For local log stor
 
 ## Related Documentation
 
-- [Scripts README](../scripts/README.md)
+- [API Documentation](../api/index.md)
 - [Copilot Usage Guide](../docs/guide/copilot-usage-guide.md)
-- [PHP Enterprise Libraries](../scripts/lib/Enterprise/README.md)
+- [PHP Enterprise Libraries](../api/lib/Enterprise/)
 - [PHP-Only Architecture](../docs/guide/php-only-architecture.md)
 
 ## Support

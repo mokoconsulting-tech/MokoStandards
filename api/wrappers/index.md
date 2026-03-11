@@ -1,4 +1,4 @@
-# Docs Index: /scripts/wrappers
+# Docs Index: /api/wrappers
 
 ## Purpose
 

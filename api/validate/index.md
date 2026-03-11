@@ -1,4 +1,4 @@
-# Docs Index: /scripts/validate
+# Docs Index: /api/validate
 
 ## Purpose
 

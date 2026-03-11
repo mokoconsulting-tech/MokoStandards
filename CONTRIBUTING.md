@@ -70,7 +70,7 @@ pip install -r requirements.txt
 
 # 5. Test your changes
 python -m pytest scripts/tests/
-python scripts/validate/validate_file_headers.py .
+python scripts/maintenance/validate_file_headers.py .
 
 # 6. Commit and push
 git add .
@@ -118,7 +118,7 @@ pip install -r requirements.txt
 
 # Verify installation
 python --version  # Should be 3.9+
-python scripts/validate/validate_file_headers.py --help
+python scripts/maintenance/validate_file_headers.py --help
 ```
 
 #### 3. Configure Git
@@ -136,7 +136,7 @@ git config user.email "your.email@example.com"
 
 ```bash
 # Run validation scripts
-python scripts/validate/validate_file_headers.py .
+python scripts/maintenance/validate_file_headers.py .
 python scripts/validate/validate_workflows.py .github/workflows/
 
 # Run tests
@@ -656,7 +656,7 @@ git fetch upstream
 git rebase upstream/main
 
 # Run validation
-python scripts/validate/validate_file_headers.py .
+python scripts/maintenance/validate_file_headers.py .
 python -m pytest scripts/tests/
 
 # Commit changes
@@ -949,7 +949,7 @@ All changes documented in [CHANGELOG.md](./CHANGELOG.md) following [Keep a Chang
 **Documentation**:
 - [README.md](./README.md) - Overview and quick start
 - [docs/](./docs/) - Complete documentation
-- [scripts/README.md](./scripts/README.md) - Scripts documentation
+- [api/index.md](./api/index.md) - API documentation
 
 **Community**:
 - [GitHub Discussions](https://github.com/mokoconsulting-tech/MokoStandards/discussions) - Q&A and discussions
@@ -971,7 +971,7 @@ A: Type hints are required. If truly impossible, document why in docstring and r
 A: No. All new scripts must be Python. Existing grandfathered scripts can remain but shouldn't be extended.
 
 **Q: How do I run validation locally?**
-A: `python scripts/validate/validate_file_headers.py .`
+A: `python scripts/maintenance/validate_file_headers.py .`
 
 **Q: How long do PR reviews take?**
 A: Initial review within 2-3 business days. Complex PRs may take longer.

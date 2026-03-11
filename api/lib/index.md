@@ -1,4 +1,4 @@
-# Docs Index: /scripts/lib
+# Docs Index: /api/lib
 
 ## Purpose
 

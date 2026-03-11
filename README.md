@@ -39,7 +39,7 @@
 [![Policy Documents](https://img.shields.io/badge/Policy_Documents-77-orange.svg)](./docs/policy)
 [![Validation Checks](https://img.shields.io/badge/Validation_Checks-28-brightgreen.svg)](./.github/workflows/standards-compliance.yml)
 [![Enforcement Levels](https://img.shields.io/badge/Enforcement_Levels-6-blue.svg)](./docs/enforcement-levels.md)
-[![PHP Libraries](https://img.shields.io/badge/PHP_Libraries-13-brightgreen.svg)](./scripts/lib/Enterprise)
+[![PHP Libraries](https://img.shields.io/badge/PHP_Libraries-13-brightgreen.svg)](./api/lib/Enterprise)
 [![Training Hours](https://img.shields.io/badge/Training-17.5_hours-blue.svg)](./docs/training)
 
 > **⚠️ Important**: This repository defines organizational policies and standards. **Do not clone or duplicate** this repository to create new projects. Use our [repository templates](#templates) instead.
@@ -86,57 +86,41 @@ MokoStandards uses a graduated six-tier enforcement system for file synchronizat
 | **Enforcement System** | 6-tier graduated file enforcement system | [`docs/enforcement-levels.md`](docs/enforcement-levels.md) |
 | **Standards & Policies** | 77 policy documents + 238 total documentation files | [`docs/policy/`](docs/policy/) |
 | **Validation Checks** | 28 comprehensive checks (10 critical + 18 informational) | [`.github/workflows/standards-compliance.yml`](.github/workflows/standards-compliance.yml) |
-| **Automation Scripts** | 187+ scripts for validation and automation | [`scripts/`](scripts/) |
+| **Automation Scripts** | 187+ scripts for validation and automation | [`api/`](api/) |
 | **Training Program** | 17.5 hours across 7 comprehensive sessions | [`docs/training/`](docs/training/) |
-| **GUI Applications** | 3 Windows PowerShell GUI tools | [`scripts/automation/`](scripts/automation/), [`scripts/validate/`](scripts/validate/), [`scripts/run/`](scripts/run/) |
+| **GUI Applications** | 3 Windows PowerShell GUI tools | [`api/automation/`](api/automation/), [`api/validate/`](api/validate/), [`api/run/`](api/run/) |
 | **Templates** | Project templates and configurations | [`templates/`](templates/) |
 | **Workflows** | Reusable GitHub Actions workflows | [`.github/workflows/`](.github/workflows/) |
 | **Visual Docs** | Mermaid diagrams and flowcharts | [`docs/visual/`](docs/visual/) |
-| **Terraform** | Infrastructure configurations with standards | [`infrastructure/terraform/`](infrastructure/terraform/) |
+| **Terraform** | Infrastructure configurations with standards | [`api/definitions/`](api/definitions/) |
 
 ### Repository Structure
 
 ```
 MokoStandards/
+├── api/               # Main API directory (automation, validation, libraries)
+│   ├── automation/    # Automation scripts (bulk_sync, etc.)
+│   ├── definitions/   # Repository structure definitions (.tf files)
+│   ├── fix/           # Auto-fix scripts
+│   ├── lib/           # Shared libraries
+│   │   └── Enterprise/ # PHP Enterprise classes (13 libraries)
+│   ├── maintenance/   # Maintenance scripts
+│   ├── release/       # Release automation
+│   ├── src/           # PSR-4 autoloaded source (MokoStandards\)
+│   ├── tests/         # PHPUnit test suite
+│   ├── validate/      # Validation scripts (20)
+│   └── wrappers/      # Cross-platform wrapper scripts (100+)
 ├── docs/              # Documentation (238 files, 120KB+)
 │   ├── enforcement-levels.md  # 45KB comprehensive enforcement guide
 │   ├── policy/        # 77 policy documents
 │   ├── training/      # 7 sessions, 17.5 hours total
-│   ├── infrastructure/terraform/     # Terraform documentation
 │   ├── guide/         # User guides and tutorials
 │   ├── reference/     # Technical references
 │   └── visual/        # Mermaid diagrams and flowcharts
-├── scripts/           # 187+ automation scripts
-│   ├── validate/      # Validation and checking scripts (20)
-│   ├── automation/    # Automation scripts (9)
-│   ├── maintenance/   # Maintenance scripts (8)
-│   ├── analysis/      # Analysis scripts (4)
-│   ├── lib/           # Shared libraries and utilities
-│   ├── wrappers/      # Cross-platform wrappers (106)
-│   └── [other dirs]/  # Additional script categories
+├── scripts/           # Legacy maintenance scripts
 ├── templates/         # Project templates and configurations
-├── infrastructure/terraform/         # Infrastructure as code (12 standardized files)
-├── .github/
-│   ├── config.tf      # Override configuration (standard location)
-│   └── workflows/     # 28 validation checks + reusable workflows
-└── schemas/           # JSON schemas for validation
-```
-│   ├── guide/         # User guides and tutorials
-│   ├── reference/     # Technical references
-│   └── visual/        # Mermaid diagrams and flowcharts
-├── scripts/           # 187+ automation scripts
-│   ├── validate/      # Validation and checking scripts (20)
-│   ├── automation/    # Automation scripts (9)
-│   ├── maintenance/   # Maintenance scripts (8)
-│   ├── analysis/      # Analysis scripts (4)
-│   ├── lib/           # Shared libraries and utilities
-│   ├── wrappers/      # Cross-platform wrappers (106)
-│   └── [other dirs]/  # Additional script categories
-├── templates/         # Project templates and configurations
-├── infrastructure/terraform/         # Infrastructure as code
-├── .github/
-│   └── workflows/     # Reusable GitHub Actions workflows
-└── schemas/           # JSON schemas for validation
+└── .github/
+    └── workflows/     # 28 validation checks + reusable workflows
 ```
 
 ### Documentation
@@ -156,7 +140,7 @@ MokoStandards/
 - [Copilot Sync Guide](docs/guide/copilot-sync-standards.md) - Using Copilot to sync standards
 
 **Scripts & Tools:**
-- [Scripts Overview](scripts/README.md) - Complete script documentation
+- [API Documentation](api/index.md) - Complete API documentation
 - [Demo Data Loader](docs/demo/demo-data-loader.md) - Loading SQL demo data
 - [Help Flag Pattern](docs/scripts/HELP_FLAG_PATTERN.md) - Implementing --help-doc
 
@@ -184,7 +168,7 @@ git clone https://github.com/mokoconsulting-tech/MokoStandards.git ~/tools/MokoS
 
 # Run validation against your project (using PHP)
 cd ~/tools/MokoStandards
-php scripts/validate/check_repo_health.php --path /path/to/your/project
+php api/validate/check_repo_health.php --path /path/to/your/project
 ```
 
 ### Using PHP Enterprise Libraries
@@ -199,10 +183,6 @@ use MokoStandards\Enterprise\SecurityValidator;
 
 $checker = new RepositoryHealthChecker();
 $result = $checker->checkRepository('/path/to/project');
-for i in range(100):
-    progress.update(i + 1)
-progress.finish()
-print_success('Complete!')
 ```
 
 **PowerShell Scripts**:
@@ -267,13 +247,13 @@ Use the validation scripts to check your project's compliance:
 
 ```bash
 # Check repository health
-php ~/tools/MokoStandards/scripts/validate/check_repo_health.php --path /path/to/your/project
+php ~/tools/MokoStandards/api/validate/check_repo_health.php --path /path/to/your/project
 
 # Check version consistency
-php ~/tools/MokoStandards/scripts/validate/check_version_consistency.php --path /path/to/your/project
+php ~/tools/MokoStandards/api/validate/check_version_consistency.php --path /path/to/your/project
 
 # Check enterprise readiness
-php ~/tools/MokoStandards/scripts/validate/check_enterprise_readiness.php --path /path/to/your/project
+php ~/tools/MokoStandards/api/validate/check_enterprise_readiness.php --path /path/to/your/project
 ```
 
 ### Using PHP Libraries
@@ -312,7 +292,7 @@ cp config.json.example config.json
 # ⚠️ Important: Never commit config.json - ensure it's in .gitignore
 
 # Sync standards to all repositories
-php scripts/automation/bulk_update_repos.php
+php api/automation/bulk_sync.php
 ```
 
 ### Using Workflows

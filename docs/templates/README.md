@@ -17,7 +17,7 @@ GitHub Actions workflow templates for CI/CD automation
 ### [Image Assets](./images/index.md)
 Brand, favicon, and background image assets
 - `primary/logo.png` — README logo (referenced by all governed repo READMEs)
-- `primary/favicon_256.png` — Canonical favicon; sync template for Dolibarr `img/` directories
+- `primary/favicon_256.png` — Canonical favicon; sync template for Dolibarr `img/` directories (deployed as `object_favicon_256.png`)
 - Full favicon set (SVG, ICO, 96 px, 120 px, 256 px), PWA manifest icons, apple-touch-icon
 
 ### [Font Assets](./fonts/index.md)

@@ -84,22 +84,23 @@ MokoStandards repository `README.md` references it at `templates/images/primary/
 
 | File | Format | Size | Use Case |
 |---|---|---|---|
-| `primary/favicon_256.png` | PNG | 256 × 256 | **Sync template** – synced to Dolibarr module `img/` directories as the module picto |
+| `primary/favicon_256.png` | PNG | 256 × 256 | **Sync template** – synced to Dolibarr module `img/` directories as `object_favicon_256.png` (module picto) |
 | `primary/favicon_120.png` | PNG | 120 × 120 | General favicon use |
 | `primary/favicon-96x96.png` | PNG | 96 × 96 | General favicon use |
 | `primary/favicon.svg` | SVG | Vector | Modern browsers (preferred source) |
 | `primary/favicon.gif` | GIF | Variable | Animated favicon (legacy use only) |
 | `primary/favicon.ico` | ICO | Multi-size bundle | Legacy browser support |
 
-#### Sync Template — favicon_256.png
+#### Sync Template — favicon_256.png → object_favicon_256.png
 
 `templates/images/primary/favicon_256.png` is the **canonical favicon sync template** used
 by the bulk sync system. It is declared in `api/definitions/default/crm-module.tf` and is
-deployed to `img/favicon_256.png` in every Dolibarr (MokoCRM) module repository.
+deployed to `img/object_favicon_256.png` in every Dolibarr (MokoCRM) module repository.
+The `object_` prefix follows Dolibarr's icon naming convention for module pictos.
 
 ```hcl
 file {
-  name               = "favicon_256.png"
+  name               = "object_favicon_256.png"
   template           = "templates/images/primary/favicon_256.png"
   requirement_status = "required"
   always_overwrite   = true

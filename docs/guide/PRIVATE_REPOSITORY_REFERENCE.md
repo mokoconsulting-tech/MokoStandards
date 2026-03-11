@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Reference
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/guide/PRIVATE_REPOSITORY_REFERENCE.md
-VERSION: 04.00.10
+VERSION: 04.00.11
 BRIEF: Reference to executive-only private repository; governance management is authoritative in MokoStandards
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.10-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.11-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Private Repository Reference
 
@@ -280,7 +280,7 @@ This separation was implemented as part of the enterprise readiness initiative t
 | Owner          | Moko Consulting                                          |
 | Repo           | https://github.com/mokoconsulting-tech/                                      |
 | Path           | /docs/guide/PRIVATE_REPOSITORY_REFERENCE.md                                      |
-| Version        | 04.00.10                                 |
+| Version        | 04.00.11                                 |
 | Status         | Active                                         |
 | Last Reviewed  | 2026-03-11                                  |
 | Reviewed By    | Moko Consulting                                    |

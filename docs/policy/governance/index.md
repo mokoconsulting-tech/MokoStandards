@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Policy.Governance
 INGROUP: MokoStandards.Policy
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/governance/index.md
-VERSION: 04.00.10
+VERSION: 04.00.11
 BRIEF: Index of governance policy documents
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.10-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.11-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Docs Index: /docs/policy/governance
 

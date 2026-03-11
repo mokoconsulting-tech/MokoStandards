@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/DOLIBARR_MODULE_ID_REQUEST.md
-VERSION: 04.00.10
+VERSION: 04.00.11
 BRIEF: Policy for requesting and managing unique Dolibarr module IDs within the Moko Consulting organisation
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.10-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.11-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Dolibarr Module ID Request Policy
 
@@ -160,7 +160,7 @@ When a module is retired:
 | Owner | Moko Consulting |
 | Repo | https://github.com/mokoconsulting-tech/ |
 | Path | /docs/policy/DOLIBARR_MODULE_ID_REQUEST.md |
-| Version | 04.00.10 |
+| Version | 04.00.11 |
 | Status | Active |
 | Last Reviewed | 2026-03-11 |
 | Reviewed By | Moko Consulting |

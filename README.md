@@ -23,7 +23,7 @@
  INGROUP: MokoStandards
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  FILE: README.md
- VERSION: 04.00.10
+ VERSION: 04.00.11
  BRIEF: Authoritative coding standards, golden architecture, workflows, templates, and governance policies
  PATH: /README.md
  NOTE: Standards definition repository - not for duplication. Use templates to create projects.
@@ -34,7 +34,7 @@
 # README - MokoStandards
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.10-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.11-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 [![Documentation](https://img.shields.io/badge/Documentation-238_files-orange.svg)](./docs)
 [![Policy Documents](https://img.shields.io/badge/Policy_Documents-77-orange.svg)](./docs/policy)
 [![Validation Checks](https://img.shields.io/badge/Validation_Checks-28-brightgreen.svg)](./.github/workflows/standards-compliance.yml)
@@ -125,28 +125,96 @@ MokoStandards/
 
 ### Documentation
 
+> 📚 **Full catalog**: [docs/index.md](docs/index.md) · **Organization**: [mokoconsulting-tech](https://github.com/mokoconsulting-tech)
+
 **Getting Started:**
-- [Contributing Guide](CONTRIBUTING.md) - How to contribute to MokoStandards
-- [Code of Conduct](CODE_OF_CONDUCT.md) - Community guidelines
-- [Security Policy](SECURITY.md) - Security and vulnerability reporting
+- [Contributing Guide](CONTRIBUTING.md) — How to contribute to MokoStandards
+- [Code of Conduct](CODE_OF_CONDUCT.md) — Community guidelines
+- [Security Policy](SECURITY.md) — Security and vulnerability reporting
+- [Quickstart Guide](docs/quickstart/repository-startup-guide.md) — Repository startup checklist
 
-**Key Documentation:**
-- [Two-Tier Architecture](docs/policy/two-tier-architecture.md) - Public/private standards system
-- [Coding Style Guide](docs/policy/coding-style-guide.md) - Language-specific standards
-- [File Header Standards](docs/policy/file-header-standards.md) - File metadata requirements
-- [Visual Features Guide](docs/guide/visual-features.md) - Using visual output helpers
-- [Execution Summaries](docs/guide/execution-summaries.md) - Script summary system
-- [InGroup/DefGroup](docs/reference/ingroup-defgroup.md) - Metadata categorization system
-- [Copilot Sync Guide](docs/guide/copilot-sync-standards.md) - Using Copilot to sync standards
+---
 
-**Scripts & Tools:**
-- [API Documentation](api/index.md) - Complete API documentation
-- [Demo Data Loader](docs/demo/demo-data-loader.md) - Loading SQL demo data
-- [Help Flag Pattern](docs/scripts/HELP_FLAG_PATTERN.md) - Implementing --help-doc
+#### 📋 Policies ([docs/policy/](docs/policy/index.md))
 
-**Workflows:**
-- [Release Workflow](docs/visual/release-workflow.md) - Automated release process
-- [CI/CD Pipeline](docs/visual/cicd-pipeline.md) - Continuous integration flows
+Standards, requirements, and compliance rules for all governed repositories.
+
+| Area | Key Documents |
+| ---- | ------------- |
+| **Governance** | [GOVERNANCE.md](docs/policy/GOVERNANCE.md) · [Incident Management](docs/policy/governance/incident-management.md) · [Release Management](docs/policy/governance/release-management.md) |
+| **SLA & Support** | [Service Level Agreement](docs/policy/SERVICE_LEVEL_AGREEMENT.md) · [Support Guide](docs/guide/SUPPORT.md) |
+| **Coding Standards** | [Coding Style Guide](docs/policy/coding-style-guide.md) · [File Header Standards](docs/policy/file-header-standards.md) · [Scripting Standards](docs/policy/scripting-standards.md) |
+| **Change & Version** | [Change Management](docs/policy/change-management.md) · [Branching Strategy](docs/policy/branching-strategy.md) · [Merge Strategy](docs/policy/merge-strategy.md) · [Changelog Standards](docs/policy/changelog-standards.md) |
+| **Security** | [Security Scanning](docs/policy/security-scanning.md) · [Data Classification](docs/policy/data-classification.md) · [Encryption Standards](docs/policy/security/encryption-standards.md) · [Vulnerability Management](docs/policy/security/vulnerability-management.md) |
+| **Quality** | [Quality Gates](docs/policy/quality/quality-gates.md) · [Testing Strategy](docs/policy/quality/testing-strategy-standards.md) · [Technical Debt](docs/policy/quality/technical-debt-management.md) |
+| **Operations** | [Monitoring & Alerting](docs/policy/operations/monitoring-alerting-standards.md) · [Environment Management](docs/policy/operations/environment-management.md) · [SLA Policy](docs/policy/operations/sla-policy.md) |
+| **WaaS** | [WaaS Development](docs/policy/waas/development-standards.md) · [Provisioning](docs/policy/waas/waas-provisioning.md) · [Incident Response](docs/policy/waas/incident-response.md) · [Update Server](docs/policy/waas/update-server.md) |
+| **CRM (Dolibarr)** | [CRM Development](docs/policy/crm/development-standards.md) · [Module ID Requests](docs/policy/DOLIBARR_MODULE_ID_REQUEST.md) · [Client Deployment](docs/policy/crm/client-deployment.md) |
+| **AI Tools** | [AI Tool Governance](docs/policy/ai-tool-governance.md) · [Copilot Usage Policy](docs/policy/copilot-usage-policy.md) · [Network Egress](docs/policy/network-egress.md) |
+| **Architecture** | [Two-Tier Architecture](docs/policy/two-tier-architecture.md) · [Core Structure](docs/policy/core-structure.md) · [Dependency Management](docs/policy/dependency-management.md) |
+| **Compliance** | [License Compliance](docs/policy/license-compliance.md) · [Health Scoring](docs/policy/health-scoring.md) · [Vendor Risk](docs/policy/vendor-risk.md) |
+
+---
+
+#### 📖 Guides ([docs/guide/](docs/guide/index.md))
+
+Step-by-step tutorials and implementation how-tos.
+
+| Area | Key Documents |
+| ---- | ------------- |
+| **Repository Management** | [Repo Sync Guide](docs/guide/repo-sync.md) · [Repository Organization](docs/guide/repository-organization.md) · [Bulk Repository Updates](docs/guide/bulk-repository-updates.md) · [Branch Synchronization](docs/guide/branch-synchronization.md) |
+| **AI Tools** | [Copilot Sync Standards](docs/guide/copilot-sync-standards.md) · [AI Client Setup](docs/guide/ai-client-setup.md) · [Platform AI Templates](docs/guide/platform-ai-templates.md) |
+| **WaaS (Joomla)** | [Joomla Development](docs/guide/waas/joomla-development-guide.md) · [WaaS Architecture](docs/guide/waas/waas-architecture.md) · [Client Onboarding](docs/guide/waas/waas-client-onboarding.md) · [Update Server](docs/guide/waas/update-server-guide.md) |
+| **CRM (Dolibarr)** | [Dolibarr Development](docs/guide/crm/dolibarr-development-guide.md) |
+| **Operations** | [Backup & Restore](docs/guide/operations/backup-restore-procedures.md) · [Disaster Recovery](docs/guide/operations/disaster-recovery-procedures.md) · [Incident Runbooks](docs/guide/operations/incident-response-runbooks.md) · [Database Admin](docs/guide/operations/database-administration-guide.md) |
+| **Developer Onboarding** | [Audit Readiness](docs/guide/audit-readiness.md) · [Conflict Resolution](docs/guide/conflict-resolution.md) · [Branching Quick Reference](docs/guide/branching-quick-reference.md) |
+| **Architecture** | [Private Repository Reference](docs/guide/PRIVATE_REPOSITORY_REFERENCE.md) · [Public Architecture](docs/guide/PUBLIC_ARCHITECTURE.md) · [Repository Split Plan](docs/guide/repository-split-plan.md) |
+
+---
+
+#### ✅ Checklists ([docs/checklist/](docs/checklist/index.md))
+
+- [Pre-Deployment Checklist](docs/checklist/pre-deployment.md)
+- [Release Checklist](docs/checklist/release.md)
+- [Repository Setup Checklist](docs/checklist/repository-setup.md)
+- [Security Review Checklist](docs/checklist/security-review.md)
+
+---
+
+#### 🔧 API & Scripts ([docs/api/](docs/api/index.md) · [api/](api/index.md))
+
+- [API Documentation](docs/api/index.md) — Validation, automation, and enterprise libraries
+- [Wrappers](docs/api/wrappers/index.md) — 100+ cross-platform CLI wrapper scripts
+- [Validation Scripts](docs/api/validate/index.md) — 20 repository validation scripts
+- [Help Flag Pattern](docs/scripts/HELP_FLAG_PATTERN.md) — Implementing `--help-doc` in scripts
+- [Automation Scripts](docs/scripts/automation/README.md) — File distribution and setup scripts
+
+---
+
+#### ⚙️ Workflows ([docs/workflows/](docs/workflows/README.md))
+
+- [Bulk Repo Sync](docs/workflows/bulk-repo-sync.md) — Synchronising standards to all governed repos
+- [Release System](docs/workflows/release-system.md) — Automated release workflow
+- [Reusable Workflows](docs/workflows/reusable-workflows.md) — Shared GitHub Actions workflow library
+- [Changelog Management](docs/workflows/changelog-management.md) — Automated changelog maintenance
+- [Reserve Dolibarr Module ID](docs/workflows/reserve-dolibarr-module-id.md) — Module ID reservation workflow
+
+---
+
+#### 📦 Reference ([docs/reference/](docs/reference/index.md))
+
+- [Project Type Detection](docs/reference/PROJECT_TYPE_DETECTION.md) — Auto-detection of Joomla / Dolibarr / generic
+- [Repository Inventory](docs/reference/REPOSITORY_INVENTORY.md) — Full inventory of governed repositories
+- [Repository Templates](docs/reference/repository-templates.md) — Available project templates
+- [Project Types](docs/reference/project-types.md) — WaaS, CRM, and generic type definitions
+- [InGroup/DefGroup](docs/reference/ingroup-defgroup.md) — Metadata categorization system
+- [Glossary](docs/glossary/technical-terms.md) — Technical terminology definitions
+
+---
+
+#### 🏗️ Architecture Decision Records ([docs/adr/](docs/adr/index.md))
+
+Rationale behind key architectural and tooling decisions in MokoStandards.
 
 ## Getting Started
 

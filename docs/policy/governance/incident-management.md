@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Policy.Governance
 INGROUP: MokoStandards.Policy
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/governance/incident-management.md
-VERSION: 04.00.10
+VERSION: 04.00.11
 BRIEF: Incident management policy — classification, escalation, and post-incident review
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.10-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.11-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Incident Management Policy
 
@@ -180,7 +180,7 @@ PIR documents are stored in `docs/reports/` and linked from the GitHub Issue.
 | Owner | Moko Consulting |
 | Repo | https://github.com/mokoconsulting-tech/ |
 | Path | /docs/policy/governance/incident-management.md |
-| Version | 04.00.10 |
+| Version | 04.00.11 |
 | Status | Active |
 | Last Reviewed | 2026-03-11 |
 | Reviewed By | Moko Consulting |

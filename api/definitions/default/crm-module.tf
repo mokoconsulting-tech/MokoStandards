@@ -339,7 +339,7 @@ EOT
         path                = ".github"
         description         = "GitHub-specific configuration"
         requirement_status  = "suggested"
-        purpose             = "Contains GitHub Actions workflows, issue templates, etc."
+        purpose             = "Contains GitHub Actions workflows and configuration"
         files = [
           {
             name                = "copilot.yml"

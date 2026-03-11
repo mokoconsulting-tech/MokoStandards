@@ -161,7 +161,7 @@ locals {
         path                = ".github"
         description         = "GitHub-specific configuration"
         requirement_status  = "suggested"
-        purpose             = "Contains GitHub Actions workflows, issue templates, etc."
+        purpose             = "Contains GitHub Actions workflows and configuration"
         files = [
           {
             name                = "copilot.yml"
@@ -216,12 +216,6 @@ locals {
                 template            = "templates/workflows/shared/enterprise-firewall-setup.yml.template"
               }
             ]
-          },
-          {
-            name                = "ISSUE_TEMPLATE"
-            path                = ".github/ISSUE_TEMPLATE"
-            description         = "GitHub issue templates"
-            requirement_status  = "suggested"
           }
         ]
       }

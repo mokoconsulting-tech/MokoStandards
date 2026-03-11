@@ -91,7 +91,7 @@ branches:
         contexts: []
 
       # Enforce all configured restrictions for administrators
-      # NOTE: Set to false to allow the sole operator (@jmiller-moko) to self-merge PRs.
+      # NOTE: Set to false to allow the sole operator (@mokoconsulting-tech) to self-merge PRs.
       # See docs/policy/GOVERNANCE.md#sole-operator-policy
       enforce_admins: false
 

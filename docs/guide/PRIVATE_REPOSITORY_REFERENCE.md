@@ -257,7 +257,7 @@ This separation was implemented as part of the enterprise readiness initiative t
 
 ### For Internal Users
 
-**Questions about private files**: Contact `@mokoconsulting-tech/maintainers` or email `dev@mokoconsulting.tech`
+**Questions about private files**: Contact `@mokoconsulting-tech` or email `dev@mokoconsulting.tech`
 
 **Access issues**: Contact repository administrators
 

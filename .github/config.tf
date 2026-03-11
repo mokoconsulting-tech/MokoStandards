@@ -104,7 +104,7 @@ locals {
     description       = "Override configuration for bulk repository synchronization - located in .github/config.tf"
     version           = "04.00.04"
     last_updated      = "2026-02-21T00:00:00Z"
-    maintainer        = "MokoStandards Team"
+    maintainer        = "@mokoconsulting-tech"
     schema_version    = "2.0"
     repository_url    = "https://github.com/mokoconsulting-tech/MokoStandards"
     file_type         = "override"
@@ -119,7 +119,7 @@ locals {
     description    = "Override configuration preventing sync of template files in the standards repository"
     version        = "04.00.04"
     last_updated   = "2026-02-21T00:00:00Z"
-    maintainer     = "MokoStandards Team"
+    maintainer     = "@mokoconsulting-tech"
     schema_version = "2.0"
     repository_url = "https://github.com/mokoconsulting-tech/MokoStandards"
     

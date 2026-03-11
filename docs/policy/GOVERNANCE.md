@@ -213,7 +213,7 @@ A **sole operator** is an Organization Admin who is also the sole employee and o
 organization, with no other team members available to act as second approvers or voting
 participants.
 
-**Designated Sole Operator**: @jmiller-moko (Jonathan Miller, dev@mokoconsulting.tech)
+**Designated Sole Operator**: @mokoconsulting-tech (Jonathan Miller, dev@mokoconsulting.tech)
 
 ### Applicability
 
@@ -315,7 +315,7 @@ All changes must:
 
 ## Roles
 
-- **Maintainer / Sole Operator**: Jonathan Miller (@jmiller-moko, dev@mokoconsulting.tech)
+- **Maintainer**: @mokoconsulting-tech (Jonathan Miller, dev@mokoconsulting.tech)
 - **Contributor**: Anyone submitting issues, pull requests, or documentation.
 
 ## Proposals

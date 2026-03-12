@@ -272,7 +272,7 @@ The "Security Scanning" checklist section integrates with:
 
 Default assignees for tracking issues:
 - `copilot` (GitHub Copilot agent)
-- `jmiller-moko` (Primary maintainer)
+- `jmiller-moko` (organization owner — GitHub assignees must be a user account, not an org)
 
 To change assignees:
 - **Auto-created issues**: Edit `.github/workflows/auto-create-dev-branch.yml` line 289

@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Reference
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/guide/PRIVATE_REPOSITORY_REFERENCE.md
-VERSION: 04.00.11
+VERSION: 04.00.14
 BRIEF: Reference to executive-only private repository; governance management is authoritative in MokoStandards
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.11-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.14-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Private Repository Reference
 
@@ -47,6 +47,8 @@ Moko Consulting uses a dual-repository strategy:
     change management, and all `docs/policy/governance/` documents)
 
 - **`.github-private`** - **Executive-Only Private Repository**
+  - **Organization-wide issue templates** — inherited automatically by all org repos via
+    GitHub's community health file mechanism (no sync required)
   - Executive-level internal documentation
   - Proprietary workflow implementations
   - Sensitive automation and deployment logic
@@ -243,7 +245,9 @@ This separation was implemented as part of the enterprise readiness initiative t
 - Maintain clear public/private boundaries
 
 **Related Changes**:
-- GitHub templates (CODEOWNERS, issue templates) previously moved to private repo
+- Issue templates live exclusively in `.github-private` (`.github/ISSUE_TEMPLATE/`) and are
+  inherited org-wide by GitHub automatically — they are **not** synced by MokoStandards bulk sync
+- CODEOWNERS template is defined in MokoStandards (`templates/docs/required/CODEOWNERS`)
 - Internal automation scripts consolidated in private repo
 - Temporary documentation files cleaned up
 
@@ -257,7 +261,7 @@ This separation was implemented as part of the enterprise readiness initiative t
 
 ### For Internal Users
 
-**Questions about private files**: Contact `@mokoconsulting-tech/maintainers` or email `dev@mokoconsulting.tech`
+**Questions about private files**: Contact `@mokoconsulting-tech` or email `dev@mokoconsulting.tech`
 
 **Access issues**: Contact repository administrators
 

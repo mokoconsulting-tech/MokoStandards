@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.PrivateScript
+# INGROUP: MokoStandards
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /templates/github-private/scripts/check-commit-msg.sh.template
+# VERSION: 04.00.04
+# BRIEF: Validates that a commit message follows conventional-commit format
+#
+# USAGE (as a git commit-msg hook):
+#   # In .git/hooks/commit-msg:
+#   exec scripts/check-commit-msg.sh "$1"
+#
+# USAGE (inline):
+#   ./check-commit-msg.sh .git/COMMIT_EDITMSG
+#   COMMIT_MSG="feat: add feature" ./check-commit-msg.sh
+#
+# EXIT CODES:
+#   0 — message is valid
+#   1 — message is invalid
+
+set -euo pipefail
+
+# ── Input ────────────────────────────────────────────────────────────────────
+
+MSG_FILE="${1:-}"
+COMMIT_MSG="${COMMIT_MSG:-}"
+
+if [[ -n "$MSG_FILE" && -f "$MSG_FILE" ]]; then
+	# Read only the subject line (first non-comment, non-empty line)
+	COMMIT_MSG=$(grep -v '^#' "$MSG_FILE" | grep -v '^[[:space:]]*$' | head -1 || true)
+fi
+
+if [[ -z "$COMMIT_MSG" ]]; then
+	echo "❌ No commit message provided."
+	echo "   Usage: $0 <msg-file>"
+	echo "   Or set the COMMIT_MSG environment variable."
+	exit 1
+fi
+
+# ── Exemptions ───────────────────────────────────────────────────────────────
+# Allow standard automated / VCS-generated commit prefixes
+
+if echo "$COMMIT_MSG" | grep -qE '^(Merge |Revert "|Initial commit)'; then
+	echo "✅ Exempt commit type: $COMMIT_MSG"
+	exit 0
+fi
+
+# ── Pattern ──────────────────────────────────────────────────────────────────
+
+TYPES="feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert"
+PATTERN="^(${TYPES})(\([^)]+\))?(!)?: .{1,120}$"
+
+# ── Validation ───────────────────────────────────────────────────────────────
+
+if echo "$COMMIT_MSG" | grep -qE "$PATTERN"; then
+	echo "✅ Commit message is valid: $COMMIT_MSG"
+	exit 0
+fi
+
+echo "❌ Commit message does not follow conventional commit format."
+echo ""
+echo "   Got:      $COMMIT_MSG"
+echo "   Expected: <type>[(<scope>)][!]: <description>"
+echo ""
+echo "   Valid types: ${TYPES//|/, }"
+echo ""
+echo "   Examples:"
+echo "     feat(auth): add OAuth2 login"
+echo "     fix: resolve null pointer exception"
+echo "     chore!: drop support for PHP 7.4"
+exit 1

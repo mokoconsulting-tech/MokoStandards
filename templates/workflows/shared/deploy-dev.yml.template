@@ -251,6 +251,10 @@ jobs:
               print("DRY RUN — no files will be uploaded")
 
           ssh = paramiko.SSHClient()
+          # NOTE: AutoAddPolicy accepts unknown host keys without verification.
+          # For production use, replace with RejectPolicy and maintain a known_hosts
+          # file, or use WarningPolicy to log but continue. AutoAddPolicy is used
+          # here for compatibility with ephemeral CI runners that have no known_hosts.
           ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
           if auth_method == 'key':

@@ -365,8 +365,12 @@ class RepoHealthChecker extends CliFramework
             ],
         ]);
         curl_exec($ch);
+        $error  = curl_error($ch);
         $status = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
+        if (!empty($error)) {
+            $this->warn("curl error checking {$resourcePath}: {$error}");
+        }
         return $status === 200;
     }
 

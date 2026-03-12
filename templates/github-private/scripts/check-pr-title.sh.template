@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.PrivateScript
+# INGROUP: MokoStandards
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /templates/github-private/scripts/check-pr-title.sh.template
+# VERSION: 04.00.04
+# BRIEF: Validates that a PR title follows conventional-commit format
+#
+# USAGE:
+#   ./check-pr-title.sh "feat(auth): add OAuth2 login"
+#   PR_TITLE="fix: resolve null pointer" ./check-pr-title.sh
+#
+# EXIT CODES:
+#   0 — title is valid
+#   1 — title is invalid or missing
+
+set -euo pipefail
+
+# ── Input ────────────────────────────────────────────────────────────────────
+
+PR_TITLE="${1:-${PR_TITLE:-}}"
+
+if [[ -z "$PR_TITLE" ]]; then
+	echo "❌ No PR title provided."
+	echo "   Usage: $0 \"<pr title>\""
+	echo "   Or set the PR_TITLE environment variable."
+	exit 1
+fi
+
+# ── Pattern ──────────────────────────────────────────────────────────────────
+# Conventional commit format:  <type>[(<scope>)][!]: <description>
+#   type        — one of the recognised tokens below
+#   scope       — optional, parenthesised, no parentheses inside
+#   !           — optional breaking-change marker
+#   description — 1–120 non-empty characters
+
+TYPES="feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert"
+PATTERN="^(${TYPES})(\([^)]+\))?(!)?: .{1,120}$"
+
+# ── Validation ───────────────────────────────────────────────────────────────
+
+if echo "$PR_TITLE" | grep -qE "$PATTERN"; then
+	echo "✅ PR title is valid: $PR_TITLE"
+	exit 0
+fi
+
+echo "❌ PR title does not follow conventional commit format."
+echo ""
+echo "   Got:      $PR_TITLE"
+echo "   Expected: <type>[(<scope>)][!]: <description>"
+echo ""
+echo "   Valid types: ${TYPES//|/, }"
+echo ""
+echo "   Examples:"
+echo "     feat(auth): add OAuth2 login"
+echo "     fix: resolve null pointer exception"
+echo "     docs(api): update endpoint reference"
+echo "     chore!: drop support for PHP 7.4"
+exit 1

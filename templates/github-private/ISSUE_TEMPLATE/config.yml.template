@@ -1,0 +1,30 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.PrivateTemplate
+# INGROUP: MokoStandards
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /templates/github-private/ISSUE_TEMPLATE/config.yml.template
+# VERSION: 04.00.04
+# BRIEF: Issue template chooser configuration for the .github-private repo
+
+blank_issues_enabled: false
+
+contact_links:
+  - name: 🔒 Security Vulnerability
+    url: https://github.com/mokoconsulting-tech/.github-private/security/advisories/new
+    about: >
+      Report a security vulnerability through GitHub's private advisory process.
+      Do NOT open a public issue for security concerns.
+  - name: 💬 General Question or Discussion
+    url: https://github.com/orgs/mokoconsulting-tech/discussions
+    about: >
+      For questions, ideas, or general discussion, use the organization's
+      GitHub Discussions page instead of opening an issue.
+  - name: 📚 MokoStandards Documentation
+    url: https://github.com/mokoconsulting-tech/MokoStandards/tree/main/docs
+    about: >
+      Browse the MokoStandards documentation for coding standards,
+      architecture guidance, and policy references.

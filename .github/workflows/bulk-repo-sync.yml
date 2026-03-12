@@ -47,6 +47,11 @@ env:
 #   └──────────────────┘   │
 #        │                 │
 #        ▼                 │
+#   ┌──────────────────┐   │
+#   │ Prioritize Repos │   │ .github-private always first
+#   └──────────────────┘   │
+#        │                 │
+#        ▼                 │
 #   ╔══════════════════╗   │
 #   ║  FOR EACH REPO:  ║◀──┘
 #   ╚══════════════════╝
@@ -232,6 +237,11 @@ jobs:
             MISSING_FILES+=("api/definitions/default/waas-component.tf")
           fi
 
+          # Check for .github-private definition (used to sync org-wide defaults first)
+          if [ ! -f "api/definitions/default/github-private-repository.tf" ]; then
+            MISSING_FILES+=("api/definitions/default/github-private-repository.tf")
+          fi
+
           # Ensure sync directory exists
           if [ ! -d "api/definitions/sync" ]; then
             MISSING_FILES+=("api/definitions/sync/ directory")
@@ -258,6 +268,7 @@ jobs:
           echo "All required files for repository sync validated and ready:" >> $GITHUB_STEP_SUMMARY
           echo "- Platform detection script" >> $GITHUB_STEP_SUMMARY
           echo "- Schema definition files (crm-module, default-repository, waas-component)" >> $GITHUB_STEP_SUMMARY
+          echo "- .github-private repository will be synced first to ensure universal workflows are current" >> $GITHUB_STEP_SUMMARY
 
       - name: Run bulk sync (dry-run)
         if: github.event_name == 'workflow_dispatch' && inputs.dry_run == true

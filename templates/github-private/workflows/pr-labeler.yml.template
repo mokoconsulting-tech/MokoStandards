@@ -1,0 +1,89 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.PrivateWorkflow
+# INGROUP: MokoStandards
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /templates/github-private/workflows/pr-labeler.yml.template
+# VERSION: 04.00.04
+# BRIEF: Universal workflow — labels PRs by branch name and validates PR title format
+# NOTE: Synced to .github-private repo .github/workflows/pr-labeler.yml.
+#       Supports workflow_call for governed repos.
+
+name: PR Labeler
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+  workflow_call:
+    secrets:
+      GH_TOKEN:
+        required: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  label:
+    name: Label PR
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Apply labels from branch name
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          BRANCH: ${{ github.head_ref }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          LABELS=()
+
+          case "$BRANCH" in
+            feature/*|feat/*)   LABELS+=("enhancement") ;;
+            fix/*|bugfix/*)     LABELS+=("bug") ;;
+            hotfix/*)           LABELS+=("bug") LABELS+=("priority: high") ;;
+            docs/*)             LABELS+=("documentation") ;;
+            chore/*)            LABELS+=("chore") ;;
+            refactor/*)         LABELS+=("refactor") ;;
+            ci/*)               LABELS+=("ci") ;;
+            release/*)          LABELS+=("release") ;;
+            copilot/*|ai/*)     LABELS+=("ai-generated") ;;
+            security/*)         LABELS+=("security") ;;
+            test/*)             LABELS+=("testing") ;;
+          esac
+
+          if [ ${#LABELS[@]} -gt 0 ]; then
+            for label in "${LABELS[@]}"; do
+              gh label create "$label" --repo "$REPO" --force 2>/dev/null || true
+              gh issue edit "$PR_NUMBER" --repo "$REPO" --add-label "$label" 2>/dev/null || true
+            done
+            echo "✅ Applied labels: ${LABELS[*]}"
+          else
+            echo "ℹ️  No label matched for branch: $BRANCH"
+          fi
+
+      - name: Validate PR title (conventional commits)
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          PATTERN='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([^)]+\))?(!)?: .{1,120}$'
+
+          if echo "$PR_TITLE" | grep -qE "$PATTERN"; then
+            echo "✅ PR title follows conventional commit format: $PR_TITLE"
+          else
+            echo "⚠️  PR title does not follow conventional commit format (warning only)."
+            echo "   Expected: <type>[(<scope>)][!]: <description>"
+            echo "   Types: feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert"
+            echo "   Got: $PR_TITLE"
+          fi
+
+      - name: Summary
+        run: |
+          echo "### 🏷️ PR Labeler Complete" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**PR:** #${{ github.event.pull_request.number }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Branch:** \`${{ github.head_ref }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Title:** ${{ github.event.pull_request.title }}" >> "$GITHUB_STEP_SUMMARY"

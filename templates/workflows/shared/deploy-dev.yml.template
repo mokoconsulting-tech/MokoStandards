@@ -1,0 +1,352 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow
+# INGROUP: MokoStandards.Deploy
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /templates/workflows/shared/deploy-dev.yml.template
+# VERSION: 04.00.04
+# BRIEF: SFTP deployment workflow for development server — synced to all governed repos
+# NOTE: Synced via bulk-repo-sync to .github/workflows/deploy-dev.yml in all governed repos.
+#       Port is resolved in order: DEV_FTP_PORT variable → :port suffix in DEV_FTP_HOST → 22.
+
+name: Deploy to Dev Server (SFTP)
+
+# Deploys the contents of the src/ directory to the development server via SFTP.
+# Triggers on pushes/merges to main branches and supports manual dispatch.
+#
+# Required org-level variables:  DEV_FTP_HOST, DEV_FTP_PATH, DEV_FTP_USERNAME
+# Optional org-level variable:   DEV_FTP_PORT (auto-detected from host or defaults to 22)
+# Optional repo-level variable:  DEV_FTP_PATH_SUFFIX
+# Required org-level secret:     DEV_FTP_KEY (preferred) or DEV_FTP_PASSWORD
+#
+# Access control: only users with admin or maintain role on the repository may deploy.
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+      - dev
+      - development
+    paths:
+      - 'src/**'
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+      - master
+      - develop
+      - dev
+      - development
+  workflow_dispatch:
+    inputs:
+      source_dir:
+        description: 'Source directory to deploy'
+        required: false
+        default: 'src'
+        type: string
+      dry_run:
+        description: 'Dry run — list files without uploading'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  check-permission:
+    name: Verify Deployment Permission
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check actor permission
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          ACTOR="${{ github.actor }}"
+          REPO="${{ github.repository }}"
+
+          PERMISSION=$(gh api "repos/${REPO}/collaborators/${ACTOR}/permission" \
+            --jq '.permission' 2>/dev/null || echo "none")
+
+          case "$PERMISSION" in
+            admin|maintain)
+              echo "✅ ${ACTOR} has '${PERMISSION}' permission — authorized to deploy"
+              ;;
+            *)
+              echo "❌ Deployment requires admin or maintain role."
+              echo "   ${ACTOR} has '${PERMISSION}' — contact your org administrator."
+              exit 1
+              ;;
+          esac
+
+  deploy:
+    name: SFTP Deploy → Dev
+    runs-on: ubuntu-latest
+    needs: check-permission
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Resolve source directory
+        id: source
+        run: |
+          SRC="${{ inputs.source_dir || 'src' }}"
+          if [ ! -d "$SRC" ]; then
+            echo "⚠️ Source directory '${SRC}' not found — skipping deployment"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            COUNT=$(find "$SRC" -type f | wc -l)
+            echo "✅ Source: ${SRC}/ (${COUNT} files)"
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "dir=${SRC}"  >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Resolve SFTP host and port
+        if: steps.source.outputs.skip == 'false'
+        id: conn
+        env:
+          HOST_RAW: ${{ vars.DEV_FTP_HOST }}
+          PORT_VAR: ${{ vars.DEV_FTP_PORT }}
+        run: |
+          HOST="$HOST_RAW"
+          PORT="$PORT_VAR"
+
+          # Priority 1 — explicit DEV_FTP_PORT variable
+          if [ -n "$PORT" ]; then
+            echo "ℹ️  Using explicit DEV_FTP_PORT=${PORT}"
+
+          # Priority 2 — port embedded in DEV_FTP_HOST  (host:port)
+          elif [[ "$HOST" == *:* ]]; then
+            PORT="${HOST##*:}"
+            HOST="${HOST%:*}"
+            echo "ℹ️  Extracted port ${PORT} from DEV_FTP_HOST"
+
+          # Priority 3 — SFTP default
+          else
+            PORT="22"
+            echo "ℹ️  No port specified — defaulting to SFTP port 22"
+          fi
+
+          echo "host=${HOST}" >> "$GITHUB_OUTPUT"
+          echo "port=${PORT}" >> "$GITHUB_OUTPUT"
+          echo "SFTP target: ${HOST}:${PORT}"
+
+      - name: Build remote path
+        if: steps.source.outputs.skip == 'false'
+        id: remote
+        run: |
+          BASE="${{ vars.DEV_FTP_PATH }}"
+          SUFFIX="${{ vars.DEV_FTP_PATH_SUFFIX }}"
+
+          if [ -n "$SUFFIX" ]; then
+            REMOTE="${BASE%/}/${SUFFIX#/}"
+          else
+            REMOTE="$BASE"
+          fi
+
+          echo "path=${REMOTE}" >> "$GITHUB_OUTPUT"
+          echo "Remote path: ${REMOTE}"
+
+      - name: Detect SFTP authentication method
+        if: steps.source.outputs.skip == 'false'
+        id: auth
+        env:
+          HAS_KEY:      ${{ secrets.DEV_FTP_KEY }}
+          HAS_PASSWORD: ${{ secrets.DEV_FTP_PASSWORD }}
+        run: |
+          if [ -n "$HAS_KEY" ] && [ -n "$HAS_PASSWORD" ]; then
+            # Both set: key auth with password as passphrase; falls back to password-only if key fails
+            echo "method=key" >> "$GITHUB_OUTPUT"
+            echo "use_passphrase=true" >> "$GITHUB_OUTPUT"
+            echo "has_password=true" >> "$GITHUB_OUTPUT"
+            echo "ℹ️  Primary: SSH key + passphrase (DEV_FTP_KEY / DEV_FTP_PASSWORD)"
+            echo "ℹ️  Fallback: password-only auth if key authentication fails"
+          elif [ -n "$HAS_KEY" ]; then
+            # Key only: no passphrase, no password fallback
+            echo "method=key" >> "$GITHUB_OUTPUT"
+            echo "use_passphrase=false" >> "$GITHUB_OUTPUT"
+            echo "has_password=false" >> "$GITHUB_OUTPUT"
+            echo "ℹ️  Using SSH key authentication (DEV_FTP_KEY, no passphrase, no fallback)"
+          elif [ -n "$HAS_PASSWORD" ]; then
+            # Password only: direct SFTP password auth
+            echo "method=password" >> "$GITHUB_OUTPUT"
+            echo "use_passphrase=false" >> "$GITHUB_OUTPUT"
+            echo "has_password=true" >> "$GITHUB_OUTPUT"
+            echo "ℹ️  Using password authentication (DEV_FTP_PASSWORD)"
+          else
+            echo "❌ No SFTP credentials configured."
+            echo "   Set DEV_FTP_KEY (preferred) or DEV_FTP_PASSWORD as an org-level secret."
+            exit 1
+          fi
+
+      - name: Install Python SFTP library
+        if: steps.source.outputs.skip == 'false'
+        run: pip install --quiet paramiko
+
+      - name: Deploy via SFTP
+        if: steps.source.outputs.skip == 'false'
+        env:
+          SFTP_HOST:       ${{ steps.conn.outputs.host }}
+          SFTP_PORT:       ${{ steps.conn.outputs.port }}
+          SFTP_USER:       ${{ vars.DEV_FTP_USERNAME }}
+          SFTP_KEY:        ${{ secrets.DEV_FTP_KEY }}
+          SFTP_PASSWORD:   ${{ secrets.DEV_FTP_PASSWORD }}
+          AUTH_METHOD:     ${{ steps.auth.outputs.method }}
+          USE_PASSPHRASE:  ${{ steps.auth.outputs.use_passphrase }}
+          HAS_PASSWORD:    ${{ steps.auth.outputs.has_password }}
+          REMOTE_PATH:     ${{ steps.remote.outputs.path }}
+          SOURCE_DIR:      ${{ steps.source.outputs.dir }}
+          DRY_RUN:         ${{ inputs.dry_run || 'false' }}
+        run: |
+          python3 << 'PYEOF'
+          import os
+          import sys
+          import stat
+          import tempfile
+          from pathlib import Path
+          import paramiko
+
+          host           = os.environ['SFTP_HOST']
+          port           = int(os.environ['SFTP_PORT'])
+          username       = os.environ['SFTP_USER']
+          auth_method    = os.environ['AUTH_METHOD']
+          use_passphrase = os.environ.get('USE_PASSPHRASE', 'false').lower() == 'true'
+          has_password   = os.environ.get('HAS_PASSWORD',   'false').lower() == 'true'
+          remote_path    = os.environ['REMOTE_PATH'].rstrip('/')
+          source_dir     = os.environ['SOURCE_DIR']
+          dry_run        = os.environ.get('DRY_RUN', 'false').lower() == 'true'
+
+          if auth_method == 'key' and use_passphrase:
+              print(f"Connecting to {host}:{port} as {username} via SFTP (key + passphrase; password fallback available)")
+          elif auth_method == 'key':
+              print(f"Connecting to {host}:{port} as {username} via SFTP (key auth; no fallback)")
+          else:
+              print(f"Connecting to {host}:{port} as {username} via SFTP (password auth)")
+          if dry_run:
+              print("DRY RUN — no files will be uploaded")
+
+          ssh = paramiko.SSHClient()
+          ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+          if auth_method == 'key':
+              key_data   = os.environ['SFTP_KEY']
+              passphrase = os.environ.get('SFTP_PASSWORD') if use_passphrase else None
+              password   = os.environ.get('SFTP_PASSWORD', '') if has_password else ''
+
+              with tempfile.NamedTemporaryFile(mode='w', suffix='.pem', delete=False) as fh:
+                  fh.write(key_data)
+                  key_file = fh.name
+              os.chmod(key_file, stat.S_IRUSR | stat.S_IWUSR)
+
+              try:
+                  ssh.connect(host, port=port, username=username,
+                              key_filename=key_file, passphrase=passphrase)
+                  print("✅ Connected via SSH key authentication")
+              except (paramiko.AuthenticationException, paramiko.SSHException) as key_err:
+                  if password:
+                      print(f"⚠️  Key authentication failed — falling back to password: {key_err}")
+                      ssh.connect(host, port=port, username=username, password=password)
+                      print("✅ Connected via password authentication (key fallback)")
+                  else:
+                      raise RuntimeError(
+                          f"Key authentication failed and no password fallback is available: {key_err}"
+                      ) from key_err
+              finally:
+                  os.unlink(key_file)
+          else:
+              ssh.connect(host, port=port, username=username,
+                          password=os.environ['SFTP_PASSWORD'])
+              print("✅ Connected via password authentication")
+
+          sftp = ssh.open_sftp()
+
+          def sftp_makedirs(sftp_client, path):
+              """Create remote directory tree, silently ignoring already-exists errors."""
+              parts = [p for p in path.split('/') if p]
+              current = '/' if path.startswith('/') else ''
+              for part in parts:
+                  current = (current + '/' + part).replace('//', '/')
+                  try:
+                      sftp_client.mkdir(current)
+                  except OSError:
+                      pass  # directory already exists
+
+          uploaded = 0
+          skipped  = 0
+
+          for local_path in sorted(Path(source_dir).rglob('*')):
+              rel    = local_path.relative_to(source_dir)
+              remote = f"{remote_path}/{rel}".replace('\\', '/')
+
+              if local_path.is_dir():
+                  if not dry_run:
+                      sftp_makedirs(sftp, remote)
+                  continue
+
+              parent = remote.rsplit('/', 1)[0]
+
+              if dry_run:
+                  print(f"  [dry-run] {rel} → {remote}")
+                  skipped += 1
+              else:
+                  sftp_makedirs(sftp, parent)
+                  sftp.put(str(local_path), remote)
+                  print(f"  ✅ {rel} → {remote}")
+                  uploaded += 1
+
+          sftp.close()
+          ssh.close()
+
+          if dry_run:
+              print(f"\nDry run complete — {skipped} file(s) would be uploaded to {remote_path}")
+          else:
+              print(f"\nDeployment complete — {uploaded} file(s) uploaded to {remote_path}")
+          PYEOF
+
+      - name: Deployment summary
+        if: always()
+        run: |
+          if [ "${{ steps.source.outputs.skip }}" == "true" ]; then
+            echo "### ⏭️ Deployment Skipped" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "No \`src/\` directory found in this repository." >> "$GITHUB_STEP_SUMMARY"
+          elif [ "${{ job.status }}" == "success" ]; then
+            echo "### ✅ Dev Deployment Successful" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "| Field | Value |" >> "$GITHUB_STEP_SUMMARY"
+            echo "|-------|-------|" >> "$GITHUB_STEP_SUMMARY"
+            echo "| Host | \`${{ steps.conn.outputs.host }}:${{ steps.conn.outputs.port }}\` |" >> "$GITHUB_STEP_SUMMARY"
+            echo "| Remote path | \`${{ steps.remote.outputs.path }}\` |" >> "$GITHUB_STEP_SUMMARY"
+            echo "| Source | \`${{ steps.source.outputs.dir }}/\` |" >> "$GITHUB_STEP_SUMMARY"
+            echo "| Auth | ${{ steps.auth.outputs.method }} |" >> "$GITHUB_STEP_SUMMARY"
+            echo "| Dry run | ${{ inputs.dry_run || 'false' }} |" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "### ❌ Dev Deployment Failed" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "Check the job log above for error details." >> "$GITHUB_STEP_SUMMARY"
+          fi

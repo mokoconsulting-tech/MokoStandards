@@ -1,240 +1,278 @@
+<!--
+Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+
+This file is part of a Moko Consulting project.
+
+SPDX-License-Identifier: GPL-3.0-or-later
+
+# FILE INFORMATION
+DEFGROUP: MokoStandards.Documentation
+INGROUP: MokoStandards
+REPO: https://github.com/mokoconsulting-tech/MokoStandards
+PATH: /docs/workflows/dev-deployment.md
+VERSION: 04.00.04
+BRIEF: Guide for the SFTP development server deployment workflow
+-->
+
 [![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Development Server Deployment
 
-Automated deployment of `src` directory to development server via FTP/SFTP.
+Automated SFTP deployment of the `src/` directory to the development server.
 
 ## Overview
 
-The dev deployment workflow automatically pushes code changes to a development server when:
-- A pull request is merged to `main`, `master`, `develop`, `dev`, or `development` branches
-- Code is directly pushed to these branches
-- Manually triggered via workflow dispatch
+The `deploy-dev.yml` workflow pushes the contents of `src/` to a development server over **SFTP only** when:
 
-**⚠️ Security Restriction:** Deployment can only be executed by:
-- Organization administrators
-- Repository administrators (users with `admin` role on the repository)
-- Repository maintainers (users with `maintain` role on the repository)
+- A commit is pushed to `main`, `master`, `develop`, `dev`, or `development` branches (and `src/**` changed)
+- A pull request that targets those branches is **merged**
+- Triggered manually via workflow dispatch
 
-This ensures only authorized personnel can deploy code to the development server.
+**⚠️ Access control:** Only users with **admin** or **maintain** role on the repository may trigger a deployment. All other actors are rejected before any files are transferred.
+
+---
 
 ## Configuration
 
-### Organization Variables (Required)
+### Organization Variables (required)
 
-Set these variables at the organization level:
+Configure at the **organization** level in **Settings → Secrets and variables → Actions → Variables**:
 
-- **`DEV_FTP_PATH`**: Base deployment path (e.g., `/var/www/html`)
+| Variable | Example | Description |
+|----------|---------|-------------|
+| `DEV_FTP_HOST` | `dev.example.com` | Dev server hostname. May include an explicit port suffix — `dev.example.com:2222`. |
+| `DEV_FTP_PATH` | `/var/www/html` | Base remote path where files are deployed. |
+| `DEV_FTP_USERNAME` | `deployuser` | SFTP username for authentication. |
 
-### Organization Secrets (Required)
+### Organization Variable (optional)
 
-Set these secrets at the organization level:
+| Variable | Example | Description |
+|----------|---------|-------------|
+| `DEV_FTP_PORT` | `2222` | Explicit port override. See **Port resolution** below. |
 
-- **`DEV_FTP_HOST`**: Development server hostname (e.g., `dev.example.com`)
-- **`DEV_FTP_USER`**: FTP/SFTP username
-- **`DEV_FTP_PASSWORD`**: FTP/SFTP password (optional if using SSH key)
+### Repository Variable (optional)
 
-### Organization Secrets (Optional)
+| Variable | Example | Description |
+|----------|---------|-------------|
+| `DEV_FTP_PATH_SUFFIX` | `/my-module` | Appended to `DEV_FTP_PATH`. Useful for deploying multiple repos to the same server. |
 
-- **`DEV_FTP_KEY`**: SSH private key for SFTP authentication
-- **`DEV_FTP_PROTOCOL`**: Transfer protocol - `ftp`, `ftps`, or `sftp` (default: `sftp`)
-- **`DEV_FTP_PORT`**: Server port (default: 21 for FTP, 22 for SFTP)
+### Organization Secrets (credentials)
 
-### Repository Variables (Optional)
+At least one of the following must be set:
 
-- **`DEV_FTP_PATH_SUFFIX`**: Path suffix to append to base path
-  - Example: `/my-module` → deployed to `/var/www/html/my-module`
-  - Useful for multi-project deployments to the same server
+| Secret | Description |
+|--------|-------------|
+| `DEV_FTP_KEY` | **Preferred.** SSH private key (any format supported by OpenSSH). |
+| `DEV_FTP_PASSWORD` | SFTP password. Also used as the key passphrase when set alongside `DEV_FTP_KEY`. |
 
-## Usage
+---
 
-### Automatic Deployment
+## Authentication logic
 
-The workflow automatically triggers when:
+The workflow determines the connection method at runtime:
 
-1. **PR Merge**: When a pull request is merged to main/develop branches
-   ```yaml
-   on:
-     pull_request:
-       types: [closed]
-       branches: [main, develop]
-   ```
+| Secrets present | Behaviour |
+|-----------------|-----------|
+| `DEV_FTP_KEY` + `DEV_FTP_PASSWORD` | Key auth with `DEV_FTP_PASSWORD` as the key passphrase. If key auth fails, retries with `DEV_FTP_PASSWORD` alone as an SFTP password. |
+| `DEV_FTP_KEY` only | Key auth (no passphrase). Fails hard on auth error — no password fallback. |
+| `DEV_FTP_PASSWORD` only | Password auth directly. |
+| Neither | Workflow fails with an error message. |
 
-2. **Direct Push**: When changes are pushed to main/develop branches
-   ```yaml
-   on:
-     push:
-       branches: [main, develop]
-       paths: ['src/**']
-   ```
+---
 
-### Manual Deployment
+## Port resolution
 
-Trigger manually from GitHub Actions tab:
+The SFTP port is determined in the following order — the first match wins:
 
-1. Go to **Actions** → **Deploy to Dev Server**
-2. Click **Run workflow**
-3. Optionally specify a custom source directory (default: `src`)
+1. **`DEV_FTP_PORT` variable** — explicit override, highest priority.
+2. **Port suffix in `DEV_FTP_HOST`** — if the host value contains `:`, the suffix is extracted and the bare hostname is used (e.g. `dev.example.com:2222` → host `dev.example.com`, port `2222`).
+3. **Default** — port **22** is assumed when neither of the above is present.
 
-### Command Line Deployment
+---
 
-**Note:** The `deploy_to_dev.py` script has been removed. Use the unified release tool or workflows for deployment:
+## Remote path
 
-```bash
-# Use unified release tool
-./scripts/release/unified_release.py release --version 1.2.3
+The final remote path is constructed as:
 
-# Or use the reusable deploy workflow
-# See .github/workflows/reusable-deploy.yml
+```
+DEV_FTP_PATH [+ "/" + DEV_FTP_PATH_SUFFIX]
 ```
 
-For advanced deployment scenarios, create a custom workflow that uses the reusable-deploy workflow.
+`DEV_FTP_PATH_SUFFIX` is optional. When set, exactly one `/` is inserted between the base and the suffix regardless of trailing/leading slashes in the values.
+
+---
+
+## Manual dispatch
+
+1. Go to **Actions → Deploy to Dev Server (SFTP)**.
+2. Click **Run workflow**.
+3. Optionally override the source directory (default: `src`) or enable **Dry run** to list files without uploading.
+
+---
+
+## Repository health checks
+
+The `check_repo_health.php` script scores deployment readiness as part of the overall health report. When `--repo owner/repo` is supplied, it also calls the GitHub API to verify secrets and variables are configured.
+
+### Deployment category checks
+
+| Check | Points | Requires `--repo` |
+|-------|--------|------------------|
+| `deploy-dev.yml` workflow exists | 5 | No |
+| `DEV_FTP_HOST` variable configured | 3 | Yes |
+| `DEV_FTP_PATH` variable configured | 3 | Yes |
+| `DEV_FTP_USERNAME` variable configured | 2 | Yes |
+| SFTP credentials configured (`DEV_FTP_KEY` or `DEV_FTP_PASSWORD`) | 2 | Yes |
+
+Variables and secrets are checked at both the **org level** and **repo level** — a check passes if the item exists at either scope.
+
+---
 
 ## Examples
 
-### Example 1: Basic SFTP Deployment
+### Example 1 — SSH key with passphrase, custom port
 
-**Organization Variables:**
+**Org variables:**
 ```
-DEV_FTP_PATH=/var/www/html
-```
-
-**Organization Secrets:**
-```
-DEV_FTP_HOST=dev.example.com
-DEV_FTP_USER=deployuser
-DEV_FTP_KEY=<ssh-private-key>
+DEV_FTP_HOST     = dev.example.com
+DEV_FTP_PORT     = 2222
+DEV_FTP_PATH     = /var/www/html
+DEV_FTP_USERNAME = deployuser
 ```
 
-**Repository Variable:**
+**Org secrets:**
 ```
-DEV_FTP_PATH_SUFFIX=/my-dolibarr-module
-```
-
-**Result:** Files from `src/` deployed to `/var/www/html/my-dolibarr-module/`
-
-### Example 2: FTP Deployment
-
-**Organization Variables:**
-```
-DEV_FTP_PATH=/public_html
+DEV_FTP_KEY      = <passphrase-protected SSH private key>
+DEV_FTP_PASSWORD = mysecretphrase
 ```
 
-**Organization Secrets:**
+**Behaviour:** Key loaded with `mysecretphrase` as passphrase. If key auth fails, retries with `mysecretphrase` as the SFTP password.
+
+---
+
+### Example 2 — SSH key, port embedded in host
+
+**Org variables:**
 ```
-DEV_FTP_HOST=ftp.example.com
-DEV_FTP_USER=ftpuser
-DEV_FTP_PASSWORD=secretpass
-DEV_FTP_PROTOCOL=ftp
-DEV_FTP_PORT=21
+DEV_FTP_HOST     = dev.example.com:2222
+DEV_FTP_PATH     = /var/www/html
+DEV_FTP_USERNAME = deployuser
 ```
 
-**Result:** Files from `src/` deployed to `/public_html/`
+**Org secret:**
+```
+DEV_FTP_KEY = <unprotected SSH private key>
+```
 
-### Example 3: Multiple Projects to Same Server
+**Behaviour:** Port `2222` extracted from host. Key used without passphrase; no password fallback.
 
-Configure different path suffixes per repository:
+---
 
-**Project A:** `DEV_FTP_PATH_SUFFIX=/project-a`
-**Project B:** `DEV_FTP_PATH_SUFFIX=/project-b`
+### Example 3 — Password only, default port
 
-Both deploy to the same server but different directories.
+**Org variables:**
+```
+DEV_FTP_HOST     = dev.example.com
+DEV_FTP_PATH     = /var/www/html
+DEV_FTP_USERNAME = deployuser
+```
 
-## Security Notes
+**Org secret:**
+```
+DEV_FTP_PASSWORD = secretpass
+```
 
-1. **Access Control**: Only org admins, repo admins, and repo maintainers can deploy to dev server
-2. **Variables vs Secrets**: Paths are stored as variables (non-sensitive), credentials as secrets (sensitive)
-3. **Use SFTP** when possible for encrypted transfers
-4. **SSH Keys** are preferred over passwords
-5. **Organization Secrets** ensure credentials are shared securely across repositories
-6. **Repository Variables** allow per-project customization without exposing secrets
+**Behaviour:** Port defaults to 22. Connects with password directly.
+
+---
+
+### Example 4 — Multiple repos, same server
+
+Each repo sets its own `DEV_FTP_PATH_SUFFIX`:
+
+| Repo | Suffix | Deploys to |
+|------|--------|------------|
+| `project-a` | `/project-a` | `/var/www/html/project-a` |
+| `project-b` | `/project-b` | `/var/www/html/project-b` |
+
+---
 
 ## Troubleshooting
 
-### Permission Denied
+### Permission denied
 
 ```
-Error: Deployment to dev server requires organization admin, repository admin, or repository maintainer permissions
+❌ Deployment requires admin or maintain role.
 ```
 
-**Solution:** Only organization administrators or users with `admin` or `maintain` role on the repository can deploy to the dev server. Contact your organization administrator to request appropriate permissions.
+Only org/repo administrators and maintainers may deploy. Contact your org administrator.
 
-### Missing Configuration Error
-
-```
-Error: Missing required variable: DEV_FTP_PATH
-```
-
-**Solution:** Ensure all required organization variables and secrets are set.
-
-Variables (non-sensitive):
-- `DEV_FTP_PATH` (org variable)
-- `DEV_FTP_PATH_SUFFIX` (repo variable, optional)
-
-Secrets (sensitive):
-- `DEV_FTP_HOST`, `DEV_FTP_USER`, `DEV_FTP_PASSWORD` or `DEV_FTP_KEY`
-
-### Local Path Does Not Exist
+### No credentials configured
 
 ```
-Warning: Local path 'src' does not exist. Skipping deployment.
+❌ No SFTP credentials configured.
+   Set DEV_FTP_KEY (preferred) or DEV_FTP_PASSWORD as an org-level secret.
 ```
 
-**Solution:** This is expected for repositories without a `src` directory. The workflow gracefully skips deployment.
+Set at least one of `DEV_FTP_KEY` or `DEV_FTP_PASSWORD` in **Org Settings → Secrets**.
 
-### Connection Refused
-
-```
-SFTP deployment failed: [Errno 111] Connection refused
-```
-
-**Solution:**
-- Check `DEV_FTP_HOST` is correct
-- Verify `DEV_FTP_PORT` (default 22 for SFTP)
-- Ensure firewall allows connections
-
-### Authentication Failed
+### Key authentication failed, no fallback
 
 ```
-SFTP deployment failed: Authentication failed
+RuntimeError: Key authentication failed and no password fallback is available: ...
 ```
 
-**Solution:**
-- Verify `DEV_FTP_USER` is correct
-- Check `DEV_FTP_PASSWORD` or `DEV_FTP_KEY` is valid
-- For SSH keys, ensure the public key is authorized on the server
+The SSH private key was rejected and `DEV_FTP_PASSWORD` is not set. Check the key is correct and authorized on the server, or add `DEV_FTP_PASSWORD` as a fallback.
 
-## Related Documentation
+### Missing source directory
 
-- [Bulk Repository Updates](./bulk-repository-updates.md)
-- [Reusable Deploy Workflow](../../.github/workflows/reusable-deploy.yml)
-- [Release Pipeline](../../.github/workflows/release_pipeline.yml)
+```
+⚠️ Source directory 'src' not found — skipping deployment
+```
 
-## Version History
+Expected behaviour for repos without a `src/` directory. No files are uploaded; the workflow exits successfully.
 
-| Date       | Version | Author          | Notes                           |
-| ---------- | ------- | --------------- | ------------------------------- |
-| 2026-01-17 | 01.00.00| Moko Consulting | Initial dev deployment workflow |
+### Connection refused
+
+```
+[Errno 111] Connection refused
+```
+
+- Verify `DEV_FTP_HOST` is correct.
+- Check the resolved port (shown in the **Resolve SFTP host and port** step log).
+- Confirm the server firewall allows inbound SFTP on that port.
+
+---
+
+## Related documentation
+
+- [Workflow inventory](./workflow-inventory.md)
+- [Bulk repository sync](./bulk-repo-sync.md)
+- [MokoStandards repo-sync guide](../guide/repo-sync.md)
+- [Workflow template source](../../templates/workflows/shared/deploy-dev.yml.template)
+
+---
 
 ## Metadata
 
-| Field          | Value                                            |
-| -------------- | ------------------------------------------------ |
-| Document Type  | Guide                                       |
-| Domain         | Operations                                         |
-| Applies To     | All Repositories                                     |
-| Jurisdiction   | Tennessee, USA                                   |
-| Owner          | Moko Consulting                                          |
-| Repo           | https://github.com/mokoconsulting-tech/                                      |
-| Path           | /docs/workflows/dev-deployment.md                                      |
-| Version        | 04.00.04                                 |
-| Status         | Active                                         |
-| Last Reviewed  | 2026-01-28                                  |
-| Reviewed By    | Documentation Team                                    |
-
+| Field         | Value                                                       |
+|---------------|-------------------------------------------------------------|
+| Document Type | Guide                                                       |
+| Domain        | Operations                                                  |
+| Applies To    | All Repositories                                            |
+| Jurisdiction  | Tennessee, USA                                              |
+| Owner         | Moko Consulting                                             |
+| Repo          | https://github.com/mokoconsulting-tech/MokoStandards        |
+| Path          | /docs/workflows/dev-deployment.md                           |
+| Version       | 04.00.04                                                    |
+| Status        | Active                                                      |
+| Last Reviewed | 2026-03-12                                                  |
+| Reviewed By   | Documentation Team                                          |
 
 ## Revision History
 
-| Date       | Author          | Change                                       | Notes                                              |
-| ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
-| 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 04.00.04 with all required fields |
+| Date       | Author          | Change                                                               |
+|------------|-----------------|----------------------------------------------------------------------|
+| 2026-03-12 | Moko Consulting | Rewrote for SFTP-only workflow; added auth fallback, port resolution, health check docs |
+| 2026-01-28 | Moko Consulting | Standardized metadata and revision history                           |
+| 2026-01-17 | Moko Consulting | Initial dev deployment workflow documentation                        |

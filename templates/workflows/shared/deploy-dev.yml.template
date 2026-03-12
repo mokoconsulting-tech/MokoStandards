@@ -35,6 +35,8 @@ name: Deploy to Dev Server (SFTP)
 # Required org-level variables:  DEV_FTP_HOST, DEV_FTP_PATH, DEV_FTP_USERNAME
 # Optional org-level variable:   DEV_FTP_PORT (auto-detected from host or defaults to 22)
 # Optional org/repo variable:    DEV_FTP_PATH_SUFFIX
+# Optional org/repo variable:    CUSTOM_FOLDER — when set, appended to the remote path after
+#                                 DEV_FTP_PATH_SUFFIX; used automatically for Dolibarr modules
 # Optional org/repo variable:    FTP_IGNORE — comma-delimited list of regex patterns, each enclosed in
 #                                 double quotes, for files/paths to exclude from upload, e.g.:
 #                                   "\.git*", "\.DS_Store", "configuration\.php", "\.ps1"
@@ -173,11 +175,18 @@ jobs:
         run: |
           BASE="${{ vars.DEV_FTP_PATH }}"
           SUFFIX="${{ vars.DEV_FTP_PATH_SUFFIX }}"
+          CUSTOM="${{ vars.CUSTOM_FOLDER }}"
 
           if [ -n "$SUFFIX" ]; then
             REMOTE="${BASE%/}/${SUFFIX#/}"
           else
             REMOTE="$BASE"
+          fi
+
+          # Append CUSTOM_FOLDER when set — makes Dolibarr module paths automatic
+          if [ -n "$CUSTOM" ]; then
+            REMOTE="${REMOTE%/}/${CUSTOM#/}"
+            echo "ℹ️  CUSTOM_FOLDER appended: ${CUSTOM}"
           fi
 
           echo "path=${REMOTE}" >> "$GITHUB_OUTPUT"
@@ -352,158 +361,191 @@ jobs:
           DRY_RUN:         ${{ inputs.dry_run || 'false' }}
           FTP_IGNORE:      ${{ vars.FTP_IGNORE }}
         run: |
-          python3 << 'PYEOF'
-          import os
-          import re
-          import sys
-          import stat
-          import tempfile
-          from pathlib import Path
-          import paramiko
-          import pathspec
+          cat > /tmp/moko_deploy.php << 'PHPEOF'
+          <?php
+          declare(strict_types=1);
+          require '/tmp/moko-sftp/vendor/autoload.php';
 
-          host           = os.environ['SFTP_HOST']
-          port           = int(os.environ['SFTP_PORT'])
-          username       = os.environ['SFTP_USER']
-          auth_method    = os.environ['AUTH_METHOD']
-          use_passphrase = os.environ.get('USE_PASSPHRASE', 'false').lower() == 'true'
-          has_password   = os.environ.get('HAS_PASSWORD',   'false').lower() == 'true'
-          remote_path    = os.environ['REMOTE_PATH'].rstrip('/')
-          source_dir     = os.environ['SOURCE_DIR']
-          dry_run        = os.environ.get('DRY_RUN', 'false').lower() == 'true'
+          use phpseclib3\Net\SFTP;
+          use phpseclib3\Crypt\PublicKeyLoader;
 
-          # ── FTP_IGNORE: comma-delimited, each pattern enclosed in double quotes ──────
-          # Example value:  "\.git*", "\.DS_Store", "configuration\.php", "\.ps1"
-          ignore_patterns = []
-          ftp_ignore_raw = os.environ.get('FTP_IGNORE', '').strip()
-          if ftp_ignore_raw:
-              for token in ftp_ignore_raw.split(','):
-                  # Strip whitespace then surrounding double-quotes
-                  pattern = token.strip().strip('"')
-                  if not pattern:
-                      continue
-                  try:
-                      ignore_patterns.append(re.compile(pattern))
-                  except re.error as exc:
-                      print(f"⚠️  Invalid FTP_IGNORE pattern '{pattern}' (skipped): {exc}", file=sys.stderr)
-              print(f"ℹ️  Loaded {len(ignore_patterns)} FTP_IGNORE pattern(s)")
+          $host          = (string) getenv('SFTP_HOST');
+          $port          = (int)    getenv('SFTP_PORT');
+          $username      = (string) getenv('SFTP_USER');
+          $authMethod    = (string) getenv('AUTH_METHOD');
+          $usePassphrase = getenv('USE_PASSPHRASE') === 'true';
+          $hasPassword   = getenv('HAS_PASSWORD')   === 'true';
+          $remotePath    = rtrim((string) getenv('REMOTE_PATH'), '/');
+          $sourceDir     = (string) getenv('SOURCE_DIR');
+          $dryRun        = getenv('DRY_RUN') === 'true';
 
-          # ── .gitignore ───────────────────────────────────────────────────────────────
-          gitignore_spec = None
-          gitignore_path = Path('.gitignore')
-          if gitignore_path.exists():
-              with open(gitignore_path) as fh:
-                  gitignore_spec = pathspec.PathSpec.from_lines('gitwildmatch', fh)
-              print("ℹ️  Loaded .gitignore patterns")
+          // ── FTP_IGNORE: comma-delimited, each pattern enclosed in double quotes ──
+          // Example:  "\.git*", "\.DS_Store", "configuration\.php", "\.ps1"
+          $ignorePatterns = [];
+          $ftpIgnoreRaw   = trim((string) getenv('FTP_IGNORE'));
+          if ($ftpIgnoreRaw !== '') {
+              foreach (explode(',', $ftpIgnoreRaw) as $token) {
+                  $pattern = trim(trim($token), '"');
+                  if ($pattern !== '') {
+                      $ignorePatterns[] = $pattern;
+                  }
+              }
+              echo sprintf("ℹ️  Loaded %d FTP_IGNORE pattern(s)\n", count($ignorePatterns));
+          }
 
-          def should_ignore(rel: Path) -> bool:
-              """Return True if the relative path matches any FTP_IGNORE regex or .gitignore rule."""
-              rel_str = str(rel).replace('\\', '/')
-              for pat in ignore_patterns:
-                  if pat.search(rel_str):
-                      print(f"  ⏭️  Ignored (FTP_IGNORE '{pat.pattern}'): {rel_str}")
-                      return True
-              if gitignore_spec and gitignore_spec.match_file(rel_str):
-                  print(f"  ⏭️  Ignored (.gitignore): {rel_str}")
-                  return True
-              return False
+          // ── .gitignore ────────────────────────────────────────────────────────
+          $gitignorePatterns = [];
+          if (file_exists('.gitignore')) {
+              foreach (file('.gitignore', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
+                  $line = rtrim($line);
+                  if ($line === '' || $line[0] === '#') {
+                      continue;
+                  }
+                  $gitignorePatterns[] = $line;
+              }
+              echo sprintf("ℹ️  Loaded %d .gitignore pattern(s)\n", count($gitignorePatterns));
+          }
 
-          if auth_method == 'key' and use_passphrase:
-              print(f"Connecting to {host}:{port} as {username} via SFTP (key + passphrase; password fallback available)")
-          elif auth_method == 'key':
-              print(f"Connecting to {host}:{port} as {username} via SFTP (key auth; no fallback)")
-          else:
-              print(f"Connecting to {host}:{port} as {username} via SFTP (password auth)")
-          if dry_run:
-              print("DRY RUN — no files will be uploaded")
+          function matchesGitignore(string $relPath, array $patterns): bool
+          {
+              $relPath = str_replace('\\', '/', $relPath);
+              foreach ($patterns as $pattern) {
+                  $pattern = rtrim($pattern, '/');
+                  if (!str_contains($pattern, '/')) {
+                      if (fnmatch($pattern, basename($relPath))) {
+                          return true;
+                      }
+                  } else {
+                      if (fnmatch(ltrim($pattern, '/'), $relPath, FNM_PATHNAME)) {
+                          return true;
+                      }
+                  }
+              }
+              return false;
+          }
 
-          ssh = paramiko.SSHClient()
-          # NOTE: AutoAddPolicy accepts unknown host keys without verification.
-          # For production use, replace with RejectPolicy and maintain a known_hosts
-          # file, or use WarningPolicy to log but continue. AutoAddPolicy is used
-          # here for compatibility with ephemeral CI runners that have no known_hosts.
-          ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+          function shouldIgnore(string $relStr, array $ignorePatterns, array $gitignorePatterns): bool
+          {
+              foreach ($ignorePatterns as $pattern) {
+                  if (@preg_match('~' . $pattern . '~u', $relStr) === 1) {
+                      echo "  ⏭️  Ignored (FTP_IGNORE '{$pattern}'): {$relStr}\n";
+                      return true;
+                  }
+              }
+              if (matchesGitignore($relStr, $gitignorePatterns)) {
+                  echo "  ⏭️  Ignored (.gitignore): {$relStr}\n";
+                  return true;
+              }
+              return false;
+          }
 
-          if auth_method == 'key':
-              key_data   = os.environ['SFTP_KEY']
-              passphrase = os.environ.get('SFTP_PASSWORD') if use_passphrase else None
-              password   = os.environ.get('SFTP_PASSWORD', '') if has_password else ''
+          // ── Connection info ───────────────────────────────────────────────────
+          if ($authMethod === 'key' && $usePassphrase) {
+              echo "Connecting to {$host}:{$port} as {$username} via SFTP (key + passphrase; password fallback available)\n";
+          } elseif ($authMethod === 'key') {
+              echo "Connecting to {$host}:{$port} as {$username} via SFTP (key auth; no fallback)\n";
+          } else {
+              echo "Connecting to {$host}:{$port} as {$username} via SFTP (password auth)\n";
+          }
+          if ($dryRun) {
+              echo "DRY RUN — no files will be uploaded\n";
+          }
 
-              with tempfile.NamedTemporaryFile(mode='w', suffix='.pem', delete=False) as fh:
-                  fh.write(key_data)
-                  key_file = fh.name
-              os.chmod(key_file, stat.S_IRUSR | stat.S_IWUSR)
+          $sftp = new SFTP($host, $port);
 
-              try:
-                  ssh.connect(host, port=port, username=username,
-                              key_filename=key_file, passphrase=passphrase)
-                  print("✅ Connected via SSH key authentication")
-              except (paramiko.AuthenticationException, paramiko.SSHException) as key_err:
-                  if password:
-                      print(f"⚠️  Key authentication failed — falling back to password: {key_err}")
-                      ssh.connect(host, port=port, username=username, password=password)
-                      print("✅ Connected via password authentication (key fallback)")
-                  else:
-                      raise RuntimeError(
-                          f"Key authentication failed and no password fallback is available: {key_err}"
-                      ) from key_err
-              finally:
-                  os.unlink(key_file)
-          else:
-              ssh.connect(host, port=port, username=username,
-                          password=os.environ['SFTP_PASSWORD'])
-              print("✅ Connected via password authentication")
+          // ── Authentication ────────────────────────────────────────────────────
+          // NOTE: phpseclib uses a pure-PHP SSH implementation; no host key
+          // verification by default. For production hardening, validate the server
+          // fingerprint via $sftp->getServerPublicHostKey() before calling login().
+          if ($authMethod === 'key') {
+              $keyData    = (string) getenv('SFTP_KEY');
+              $passphrase = $usePassphrase ? (string) getenv('SFTP_PASSWORD') : false;
+              $password   = $hasPassword   ? (string) getenv('SFTP_PASSWORD') : '';
+              $key = PublicKeyLoader::load($keyData, $passphrase);
+              if (!$sftp->login($username, $key)) {
+                  if ($password !== '') {
+                      echo "⚠️  Key authentication failed — falling back to password\n";
+                      if (!$sftp->login($username, $password)) {
+                          fwrite(STDERR, "❌ Both key and password authentication failed\n");
+                          exit(1);
+                      }
+                      echo "✅ Connected via password authentication (key fallback)\n";
+                  } else {
+                      fwrite(STDERR, "❌ Key authentication failed and no password fallback is available\n");
+                      exit(1);
+                  }
+              } else {
+                  echo "✅ Connected via SSH key authentication\n";
+              }
+          } else {
+              if (!$sftp->login($username, (string) getenv('SFTP_PASSWORD'))) {
+                  fwrite(STDERR, "❌ Password authentication failed\n");
+                  exit(1);
+              }
+              echo "✅ Connected via password authentication\n";
+          }
 
-          sftp = ssh.open_sftp()
+          // ── Create remote directory tree ──────────────────────────────────────
+          function sftpMakedirs(SFTP $sftp, string $path): void
+          {
+              $parts   = array_values(array_filter(explode('/', $path), fn(string $p) => $p !== ''));
+              $current = str_starts_with($path, '/') ? '' : '';
+              foreach ($parts as $part) {
+                  $current .= '/' . $part;
+                  $sftp->mkdir($current); // silently returns false if already exists
+              }
+          }
 
-          def sftp_makedirs(sftp_client, path):
-              """Create remote directory tree, silently ignoring already-exists errors."""
-              parts = [p for p in path.split('/') if p]
-              current = '/' if path.startswith('/') else ''
-              for part in parts:
-                  current = (current + '/' + part).replace('//', '/')
-                  try:
-                      sftp_client.mkdir(current)
-                  except OSError:
-                      pass  # directory already exists
+          // ── Upload ────────────────────────────────────────────────────────────
+          $uploaded = 0;
+          $skipped  = 0;
+          $ignored  = 0;
 
-          uploaded = 0
-          skipped  = 0
-          ignored  = 0
+          $iterator = new RecursiveIteratorIterator(
+              new RecursiveDirectoryIterator($sourceDir, RecursiveDirectoryIterator::SKIP_DOTS),
+              RecursiveIteratorIterator::SELF_FIRST
+          );
 
-          for local_path in sorted(Path(source_dir).rglob('*')):
-              rel    = local_path.relative_to(source_dir)
-              remote = f"{remote_path}/{rel}".replace('\\', '/')
+          /** @var SplFileInfo[] $allPaths */
+          $allPaths = iterator_to_array($iterator, false);
+          usort($allPaths, function (SplFileInfo $a, SplFileInfo $b): int {
+              return strcmp((string) $a, (string) $b);
+          });
 
-              if local_path.is_dir():
-                  if not dry_run:
-                      sftp_makedirs(sftp, remote)
-                  continue
+          foreach ($allPaths as $localPath) {
+              $rel    = str_replace('\\', '/', substr((string) $localPath, strlen($sourceDir) + 1));
+              $remote = $remotePath . '/' . $rel;
 
-              if should_ignore(rel):
-                  print(f"  ⏭️  Ignored: {rel}")
-                  ignored += 1
-                  continue
+              if ($localPath->isDir()) {
+                  if (!$dryRun) {
+                      sftpMakedirs($sftp, $remote);
+                  }
+                  continue;
+              }
 
-              parent = remote.rsplit('/', 1)[0]
+              if (shouldIgnore($rel, $ignorePatterns, $gitignorePatterns)) {
+                  $ignored++;
+                  continue;
+              }
 
-              if dry_run:
-                  print(f"  [dry-run] {rel} → {remote}")
-                  skipped += 1
-              else:
-                  sftp_makedirs(sftp, parent)
-                  sftp.put(str(local_path), remote)
-                  print(f"  ✅ {rel} → {remote}")
-                  uploaded += 1
+              if ($dryRun) {
+                  echo "  [dry-run] {$rel} → {$remote}\n";
+                  $skipped++;
+              } else {
+                  sftpMakedirs($sftp, dirname($remote));
+                  $sftp->put($remote, (string) $localPath, SFTP::SOURCE_LOCAL_FILE);
+                  echo "  ✅ {$rel} → {$remote}\n";
+                  $uploaded++;
+              }
+          }
 
-          sftp.close()
-          ssh.close()
-
-          if dry_run:
-              print(f"\nDry run complete — {skipped} file(s) would be uploaded, {ignored} ignored")
-          else:
-              print(f"\nDeployment complete — {uploaded} file(s) uploaded, {ignored} ignored")
-          PYEOF
+          if ($dryRun) {
+              echo "\nDry run complete — {$skipped} file(s) would be uploaded, {$ignored} ignored\n";
+          } else {
+              echo "\nDeployment complete — {$uploaded} file(s) uploaded, {$ignored} ignored\n";
+          }
+          PHPEOF
+          php /tmp/moko_deploy.php
 
       - name: Deployment summary
         if: always()

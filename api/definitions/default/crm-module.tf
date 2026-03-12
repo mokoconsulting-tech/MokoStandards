@@ -953,6 +953,14 @@ EOT
                 requirement_status  = "required"
                 always_overwrite    = true
                 template            = "templates/workflows/shared/deploy-dev.yml.template"
+              },
+              {
+                name                = "publish-to-mokodolibarr.yml"
+                extension           = "yml"
+                description         = "On release, copies src/ to htdocs/custom/$CUSTOM_FOLDER in mokodolibarr and opens a PR"
+                requirement_status  = "required"
+                always_overwrite    = true
+                template            = "templates/workflows/dolibarr/publish-to-mokodolibarr.yml.template"
               }
             ]
           }

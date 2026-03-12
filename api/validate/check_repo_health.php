@@ -37,6 +37,9 @@ use MokoStandards\Enterprise\{
 class RepoHealthChecker extends CliFramework
 {
     private const DEFAULT_THRESHOLD = 70.0;
+
+    /** Repos that are not Dolibarr modules — CUSTOM_FOLDER check is skipped for these. */
+    private const CUSTOM_FOLDER_EXEMPT = ['MokoStandards', '.github-private'];
     
     private AuditLogger $logger;
     private MetricsCollector $metrics;
@@ -290,8 +293,11 @@ class RepoHealthChecker extends CliFramework
             return;
         }
 
-        // Expand max_points now that we can run API checks
-        $this->results['categories'][$category]['max_points'] += 10;
+        // Expand max_points now that we can run API checks.
+        // CUSTOM_FOLDER (2 pts) is not applicable to MokoStandards or .github-private.
+        [, $repoName] = explode('/', $repo, 2) + ['', ''];
+        $checkCustomFolder = !in_array($repoName, self::CUSTOM_FOLDER_EXEMPT, true);
+        $this->results['categories'][$category]['max_points'] += $checkCustomFolder ? 12 : 10;
 
         $token = getenv('GH_TOKEN') ?: getenv('GITHUB_TOKEN');
         if (empty($token)) {
@@ -300,6 +306,9 @@ class RepoHealthChecker extends CliFramework
             $this->addCheck($category, 'DEV_FTP_PATH variable configured', false, 3);
             $this->addCheck($category, 'DEV_FTP_USERNAME variable configured', false, 2);
             $this->addCheck($category, 'SFTP credentials configured (DEV_FTP_KEY or DEV_FTP_PASSWORD)', false, 2);
+            if ($checkCustomFolder) {
+                $this->addCheck($category, 'CUSTOM_FOLDER variable configured', false, 2);
+            }
             return;
         }
 
@@ -343,6 +352,17 @@ class RepoHealthChecker extends CliFramework
             $hasKey || $hasPassword,
             2
         );
+
+        // CUSTOM_FOLDER — repo-level variable; required for publish-to-mokodolibarr workflow.
+        // Not applicable to MokoStandards or .github-private (no Dolibarr module to publish).
+        if ($checkCustomFolder) {
+            $this->addCheck(
+                $category,
+                'CUSTOM_FOLDER variable configured',
+                $this->githubVarExists("repos/{$repo}/actions/variables/CUSTOM_FOLDER", $token),
+                2
+            );
+        }
     }
 
     /**

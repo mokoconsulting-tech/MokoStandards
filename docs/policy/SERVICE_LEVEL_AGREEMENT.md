@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/SERVICE_LEVEL_AGREEMENT.md
-VERSION: 04.00.11
+VERSION: 04.00.13
 BRIEF: Service level agreement defining support tiers, priority levels, uptime guarantees, and response times
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.11-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.13-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Service Level Agreement (SLA)
 
@@ -39,37 +39,38 @@ SLA tier information (response times, availability, channels) is also published 
 
 ## Support Tiers
 
-| Tier | Response Time | Uptime SLA | Full Details |
-| ---- | ------------- | ---------- | ------------ |
-| Community | 1–2 months (best effort) | No SLA | [`docs/guide/SUPPORT.md`](../guide/SUPPORT.md) |
-| [Standard](#standard-support) | 1–3 weeks | 99% | [Standard Support](#standard-support) |
-| [Premium](#premium-support) | 5 business days | 99.5% | [Premium Support](#premium-support) |
-| [Enterprise](#enterprise-support) | 72 hours | 99.9% | [Enterprise Support](#enterprise-support) |
+| Tier | Response Time | Availability | Uptime SLA | Full Details |
+| ---- | ------------- | ------------ | ---------- | ------------ |
+| Community | Best effort | Business hours | No SLA | [`docs/guide/SUPPORT.md`](../guide/SUPPORT.md) |
+| [Standard](#standard-support) | 1–6 weeks | Business hours | 99% | [Standard Support](#standard-support) |
+| [Premium](#premium-support) | 5–14 business days | Business hours | 99.5% | [Premium Support](#premium-support) |
+| [Enterprise](#enterprise-support) | 3–7 business days | 24/7 | Private SLA | [Enterprise Support](#enterprise-support) |
 
 > Full SLA policy: [docs/policy/SERVICE_LEVEL_AGREEMENT.md](./SERVICE_LEVEL_AGREEMENT.md) ·
 > [Organization Profile](https://github.com/mokoconsulting-tech)
 
 ### [Standard Support](#standard-support)
 
-- **Response Time**: 1–3 weeks
-- **Availability**: 99% uptime guarantee
+- **Response Time**: 1–6 weeks
+- **Availability**: Business hours (Mon–Fri, 9 AM–6 PM EST)
+- **Uptime SLA**: 99%
 - **Channels**: Email, Support Portal
 - **Priority Levels**: P3–P2
-- **Support Hours**: Business hours (Mon–Fri, 9 AM–6 PM EST)
 
 ### [Premium Support](#premium-support)
 
-- **Response Time**: 5 business days
-- **Availability**: 99.5% uptime guarantee
+- **Response Time**: 5–14 business days
+- **Availability**: Business hours (Mon–Fri, 9 AM–6 PM EST)
+- **Uptime SLA**: 99.5%
 - **Channels**: Email, Phone, Support Portal, Slack
 - **Priority Levels**: P2–P1
-- **Support Hours**: Extended (Mon–Fri, 6 AM–10 PM EST)
 - **Dedicated Support Engineer**: Yes
 
 ### [Enterprise Support](#enterprise-support)
 
-- **Response Time**: 72 hours
-- **Availability**: 99.9% uptime guarantee
+- **Response Time**: 3–7 business days
+- **Availability**: 24/7
+- **Uptime SLA**: Private SLA
 - **Channels**: Email, Phone (24/7), Support Portal, Slack, Teams
 - **Priority Levels**: P0–P3
 - **Support Hours**: 24/7/365
@@ -85,28 +86,28 @@ SLA tier information (response times, availability, channels) is also published 
 
 - **Definition**: Production system completely down, no workaround available
 - **Impact**: Critical business operations stopped
-- **Response Time**: Enterprise 72h / Premium 5bd / Standard 1w
+- **Response Time**: Enterprise 3 business days / Premium 5 business days / Standard 1 week
 - **Resolution Target**: 5 business days from initial response
 
 ### P1 — High
 
 - **Definition**: Major feature broken, significant performance degradation
 - **Impact**: Major business impact, workaround may be available
-- **Response Time**: Enterprise 72h / Premium 5bd / Standard 1w
+- **Response Time**: Enterprise 3 business days / Premium 5 business days / Standard 1 week
 - **Resolution Target**: 10 business days from initial response
 
 ### P2 — Medium
 
 - **Definition**: Non-critical feature issue, minor performance problem
 - **Impact**: Limited business impact, workaround available
-- **Response Time**: Enterprise 5bd / Premium 1w / Standard 3w
+- **Response Time**: Enterprise 5 business days / Premium 10 business days / Standard 3 weeks
 - **Resolution Target**: 5 business days
 
 ### P3 — Low
 
 - **Definition**: Minor issue, question, or enhancement request
 - **Impact**: Minimal or no business impact
-- **Response Time**: Enterprise 5bd / Premium 3w / Standard 3w
+- **Response Time**: Enterprise 7 business days / Premium 14 business days / Standard 6 weeks
 - **Resolution Target**: 30 days or next release
 
 ## Uptime Guarantees
@@ -117,7 +118,7 @@ SLA tier information (response times, availability, channels) is also published 
 | ---- | ---------- | ------------------ | ----------------- |
 | [Standard](#standard-support) | 99.0% | 7h 18m | 3d 15h |
 | [Premium](#premium-support) | 99.5% | 3h 39m | 1d 19h |
-| [Enterprise](#enterprise-support) | 99.9% | 43m | 8h 45m |
+| [Enterprise](#enterprise-support) | Private SLA | Per agreement | Per agreement |
 
 ### Exclusions
 
@@ -198,14 +199,15 @@ Submit credit claims within 30 days of incident with documentation of downtime.
 | Owner | Moko Consulting |
 | Repo | https://github.com/mokoconsulting-tech/ |
 | Path | /docs/policy/SERVICE_LEVEL_AGREEMENT.md |
-| Version | 04.00.11 |
+| Version | 04.00.13 |
 | Status | Active |
-| Last Reviewed | 2026-03-11 |
+| Last Reviewed | 2026-03-12 |
 | Reviewed By | Moko Consulting |
 
 ## Revision History
 
 | Date | Author | Change | Notes |
 | ---- | ------ | ------ | ----- |
+| 2026-03-12 | Moko Consulting | Updated support tiers: Community→best effort/business hours, Standard→1–6w, Premium→5–14bd/business hours, Enterprise→3–7bd/24/7/private SLA; updated priority levels | Updated per new requirements |
 | 2026-03-11 | Moko Consulting | Added org profile link, tier summary table with links, and uptime table links | Added per new requirement |
 | 2026-03-11 | Moko Consulting | Initial creation — SLA tiers, priority levels, uptime guarantees | Moved from .github-private Tier 1 |

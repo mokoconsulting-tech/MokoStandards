@@ -18,12 +18,12 @@ FILE INFORMATION
  DEFGROUP: MokoStandards
  INGROUP: MokoStandards.Documentation
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
- VERSION: 04.00.11
+ VERSION: 04.00.14
  PATH: docs/policy/GOVERNANCE.md
  BRIEF: Project governance rules and decision process, index policy, and standards documents
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.11-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.14-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Project Governance
 
@@ -199,6 +199,61 @@ For decisions requiring consensus:
 - **Veto**: Organization Admins have veto power
 - **Timeline**: 7-day voting period (3 days for urgent matters)
 
+> **Sole Operator Exception**: When the organization has only one active member (see
+> [Sole Operator Policy](#sole-operator-policy)), quorum and voting requirements are
+> suspended. The sole operator's decision is final.
+
+---
+
+## Sole Operator Policy
+
+### Definition
+
+A **sole operator** is an Organization Admin who is also the sole employee and owner of the
+organization, with no other team members available to act as second approvers or voting
+participants.
+
+**Designated Sole Operator**: @mokoconsulting-tech (Jonathan Miller, dev@mokoconsulting.tech)
+
+### Applicability
+
+This policy applies when:
+
+- The organization has only one active member (the owner)
+- No second approver is available for pull request reviews
+- Voting quorum requirements cannot be met due to team size
+
+### Sole Operator Permissions
+
+When the sole operator status applies, the following relaxations to the standard governance
+process are in effect:
+
+1. **Self-Approval of Pull Requests**: The sole operator may merge their own pull requests
+   without a second reviewer. The pull request itself provides the audit trail for all changes.
+2. **Voting Quorum Suspension**: The three-maintainer quorum and 2/3 majority voting
+   requirements are suspended. The sole operator's decision is final.
+3. **All Change Types**: The sole operator may approve and merge routine, significant, major,
+   and emergency changes without a second approval, subject to the retained requirements below.
+
+### Retained Requirements
+
+The following requirements remain mandatory regardless of sole operator status:
+
+1. **Pull Requests Required**: All changes to protected branches must go through a pull
+   request. Direct commits to `main` are not permitted.
+2. **Automated Checks**: All CI checks, linters, and automated tests must pass before merging.
+3. **Audit Trail**: Issues, pull requests, and commit history must be maintained to provide
+   full traceability of all changes.
+4. **Documentation**: Changes must be documented in `CHANGELOG.md` and relevant documentation
+   files must be updated in the same PR.
+5. **Version Bumps**: The patch version must be incremented in `README.md` on every PR.
+
+### Transition
+
+If the organization grows to include additional team members, this sole operator policy must be
+reviewed and the standard multi-approver requirements reinstated for the appropriate change
+classes.
+
 ---
 
 ## Change Management
@@ -260,7 +315,7 @@ All changes must:
 
 ## Roles
 
-- **Maintainer**: Jonathan Miller (@jmiller, dev@mokoconsulting.tech)
+- **Maintainer**: @mokoconsulting-tech (Jonathan Miller, dev@mokoconsulting.tech)
 - **Contributor**: Anyone submitting issues, pull requests, or documentation.
 
 ## Proposals
@@ -291,6 +346,7 @@ Violations of standards or the Code of Conduct may result in rejected PRs or acc
 
 | Date       | Author          | Change                                                         | Notes                                             |
 | ---------- | --------------- | -------------------------------------------------------------- | ------------------------------------------------- |
+| 2026-03-11 | Moko Consulting | Added Sole Operator Policy; sole operator (@jmiller-moko) may self-approve PRs; audit trail retained | Addresses single-employee org constraint |
 | 2026-03-11 | Moko Consulting | Expanded governance model with full roles, change classes, and conflict resolution | Moved from .github-private Tier 1 |
 | 2026-01-28 | Moko Consulting | Standardized metadata and revision history                     | Updated to version 03.00.00                       |
 

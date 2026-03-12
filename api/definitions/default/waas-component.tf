@@ -197,6 +197,15 @@ locals {
         always_overwrite  = true
         audience          = "developer"
         template          = "templates/configs/moko-standards.yml.template"
+      },
+      {
+        name              = "GOVERNANCE.md"
+        extension         = "md"
+        description       = "Project governance rules, roles, and decision process — auto-maintained by MokoStandards"
+        required          = true
+        always_overwrite  = true
+        audience          = "all"
+        template          = "templates/docs/required/GOVERNANCE.md"
       }
     ]
 
@@ -398,7 +407,7 @@ locals {
         path                = ".github"
         description         = "GitHub-specific configuration"
         requirement_status  = "suggested"
-        purpose             = "Contains GitHub Actions workflows, issue templates, etc."
+        purpose             = "Contains GitHub Actions workflows and configuration"
         files = [
           {
             name                = "copilot.yml"

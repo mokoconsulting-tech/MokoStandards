@@ -25,7 +25,7 @@ updates:
       prefix: "chore(deps)"
       include: "scope"
     reviewers:
-      - "mokoconsulting-tech/maintainers"
+      - "mokoconsulting-tech"
     assignees:
       - "jmiller-moko"
     # Group all updates together
@@ -49,7 +49,7 @@ updates:
       prefix: "chore(deps)"
       include: "scope"
     reviewers:
-      - "mokoconsulting-tech/maintainers"
+      - "mokoconsulting-tech"
     assignees:
       - "jmiller-moko"
     # Group all updates together
@@ -73,7 +73,7 @@ updates:
       prefix: "chore(deps)"
       include: "scope"
     reviewers:
-      - "mokoconsulting-tech/maintainers"
+      - "mokoconsulting-tech"
     assignees:
       - "jmiller-moko"
     # Group all updates together
@@ -97,7 +97,7 @@ updates:
       prefix: "chore(deps)"
       include: "scope"
     reviewers:
-      - "mokoconsulting-tech/maintainers"
+      - "mokoconsulting-tech"
     assignees:
       - "jmiller-moko"
     # Group all updates together

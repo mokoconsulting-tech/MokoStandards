@@ -373,18 +373,12 @@ locals {
         path                = ".github"
         description         = "GitHub-specific configuration"
         required            = true
-        purpose             = "GitHub Actions workflows, issue templates, and configuration"
+        purpose             = "GitHub Actions workflows and configuration"
         subdirectories = [
           {
             name                = "workflows"
             path                = ".github/workflows"
             description         = "GitHub Actions workflows"
-            required            = true
-          },
-          {
-            name                = "ISSUE_TEMPLATE"
-            path                = ".github/ISSUE_TEMPLATE"
-            description         = "GitHub issue templates"
             required            = true
           }
         ]

@@ -259,7 +259,7 @@ locals {
         path                = ".github"
         description         = "GitHub-specific configuration"
         requirement_status  = "required"
-        purpose             = "Contains GitHub Actions workflows, issue templates, etc."
+        purpose             = "Contains GitHub Actions workflows and configuration"
         subdirectories = [
           {
             name                = "workflows"

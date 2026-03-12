@@ -34,7 +34,13 @@ name: Deploy to Dev Server (SFTP)
 #
 # Required org-level variables:  DEV_FTP_HOST, DEV_FTP_PATH, DEV_FTP_USERNAME
 # Optional org-level variable:   DEV_FTP_PORT (auto-detected from host or defaults to 22)
-# Optional repo-level variable:  DEV_FTP_PATH_SUFFIX
+# Optional org/repo variable:    DEV_FTP_PATH_SUFFIX
+# Optional org/repo variable:    FTP_IGNORE — comma-delimited list of regex patterns, each enclosed in
+#                                 double quotes, for files/paths to exclude from upload, e.g.:
+#                                   "\.git*", "\.DS_Store", "configuration\.php", "\.ps1"
+#                                 Patterns are tested against the forward-slash relative path of each
+#                                 file (e.g. "subdir/file.txt"). The repository .gitignore is also
+#                                 respected automatically.
 # Required org-level secret:     DEV_FTP_KEY (preferred) or DEV_FTP_PASSWORD
 #
 # Access control: only users with admin or maintain role on the repository may deploy.
@@ -66,6 +72,11 @@ on:
         type: string
       dry_run:
         description: 'Dry run — list files without uploading'
+        required: false
+        default: false
+        type: boolean
+      clear_remote:
+        description: 'Delete all files inside the remote destination folder before uploading'
         required: false
         default: false
         type: boolean
@@ -204,9 +215,126 @@ jobs:
             exit 1
           fi
 
-      - name: Install Python SFTP library
+      - name: Setup PHP
         if: steps.source.outputs.skip == 'false'
-        run: pip install --quiet paramiko
+        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.31.0
+        with:
+          php-version: '8.1'
+          tools: composer
+
+      - name: Install phpseclib SFTP library
+        if: steps.source.outputs.skip == 'false'
+        run: |
+          mkdir -p /tmp/moko-sftp
+          cd /tmp/moko-sftp
+          composer init --no-interaction --quiet --name moko/sftp-deploy \
+            --description "phpseclib for SFTP deployment"
+          composer require --no-interaction --quiet phpseclib/phpseclib:^3
+
+      - name: Clear remote destination folder
+        if: >-
+          steps.source.outputs.skip == 'false' &&
+          inputs.clear_remote == true &&
+          (inputs.dry_run != true)
+        env:
+          SFTP_HOST:      ${{ steps.conn.outputs.host }}
+          SFTP_PORT:      ${{ steps.conn.outputs.port }}
+          SFTP_USER:      ${{ vars.DEV_FTP_USERNAME }}
+          SFTP_KEY:       ${{ secrets.DEV_FTP_KEY }}
+          SFTP_PASSWORD:  ${{ secrets.DEV_FTP_PASSWORD }}
+          AUTH_METHOD:    ${{ steps.auth.outputs.method }}
+          USE_PASSPHRASE: ${{ steps.auth.outputs.use_passphrase }}
+          HAS_PASSWORD:   ${{ steps.auth.outputs.has_password }}
+          REMOTE_PATH:    ${{ steps.remote.outputs.path }}
+        run: |
+          cat > /tmp/moko_clear.php << 'PHPEOF'
+          <?php
+          declare(strict_types=1);
+          require '/tmp/moko-sftp/vendor/autoload.php';
+
+          use phpseclib3\Net\SFTP;
+          use phpseclib3\Crypt\PublicKeyLoader;
+
+          $host          = (string) getenv('SFTP_HOST');
+          $port          = (int)    getenv('SFTP_PORT');
+          $username      = (string) getenv('SFTP_USER');
+          $authMethod    = (string) getenv('AUTH_METHOD');
+          $usePassphrase = getenv('USE_PASSPHRASE') === 'true';
+          $hasPassword   = getenv('HAS_PASSWORD')   === 'true';
+          $remotePath    = rtrim((string) getenv('REMOTE_PATH'), '/');
+
+          echo "⚠️  Clearing remote folder: {$remotePath}\n";
+
+          $sftp = new SFTP($host, $port);
+
+          // ── Authentication ──────────────────────────────────────────────
+          if ($authMethod === 'key') {
+              $keyData    = (string) getenv('SFTP_KEY');
+              $passphrase = $usePassphrase ? (string) getenv('SFTP_PASSWORD') : false;
+              $password   = $hasPassword   ? (string) getenv('SFTP_PASSWORD') : '';
+              $key = PublicKeyLoader::load($keyData, $passphrase);
+              if (!$sftp->login($username, $key)) {
+                  if ($password !== '') {
+                      echo "⚠️  Key auth failed — falling back to password\n";
+                      if (!$sftp->login($username, $password)) {
+                          fwrite(STDERR, "❌ Both key and password authentication failed\n");
+                          exit(1);
+                      }
+                      echo "✅ Connected via password authentication (key fallback)\n";
+                  } else {
+                      fwrite(STDERR, "❌ Key authentication failed and no password fallback is available\n");
+                      exit(1);
+                  }
+              } else {
+                  echo "✅ Connected via SSH key authentication\n";
+              }
+          } else {
+              if (!$sftp->login($username, (string) getenv('SFTP_PASSWORD'))) {
+                  fwrite(STDERR, "❌ Password authentication failed\n");
+                  exit(1);
+              }
+              echo "✅ Connected via password authentication\n";
+          }
+
+          // ── Recursive delete ────────────────────────────────────────────
+          function rmrf(SFTP $sftp, string $path): void
+          {
+              $entries = $sftp->nlist($path);
+              if ($entries === false) {
+                  return; // path does not exist — nothing to clear
+              }
+              foreach ($entries as $name) {
+                  if ($name === '.' || $name === '..') {
+                      continue;
+                  }
+                  $entry = "{$path}/{$name}";
+                  if ($sftp->is_dir($entry)) {
+                      rmrf($sftp, $entry);
+                      $sftp->rmdir($entry);
+                      echo "  🗑️  Removed dir:  {$entry}\n";
+                  } else {
+                      $sftp->delete($entry);
+                      echo "  🗑️  Removed file: {$entry}\n";
+                  }
+              }
+          }
+
+          // ── Create remote directory tree ────────────────────────────────
+          function sftpMakedirs(SFTP $sftp, string $path): void
+          {
+              $parts = array_values(array_filter(explode('/', $path), fn(string $p) => $p !== ''));
+              $current = str_starts_with($path, '/') ? '' : '';
+              foreach ($parts as $part) {
+                  $current .= '/' . $part;
+                  $sftp->mkdir($current); // silently returns false if already exists
+              }
+          }
+
+          rmrf($sftp, $remotePath);
+          sftpMakedirs($sftp, $remotePath);
+          echo "✅ Remote folder ready: {$remotePath}\n";
+          PHPEOF
+          php /tmp/moko_clear.php
 
       - name: Deploy via SFTP
         if: steps.source.outputs.skip == 'false'
@@ -222,14 +350,17 @@ jobs:
           REMOTE_PATH:     ${{ steps.remote.outputs.path }}
           SOURCE_DIR:      ${{ steps.source.outputs.dir }}
           DRY_RUN:         ${{ inputs.dry_run || 'false' }}
+          FTP_IGNORE:      ${{ vars.FTP_IGNORE }}
         run: |
           python3 << 'PYEOF'
           import os
+          import re
           import sys
           import stat
           import tempfile
           from pathlib import Path
           import paramiko
+          import pathspec
 
           host           = os.environ['SFTP_HOST']
           port           = int(os.environ['SFTP_PORT'])
@@ -240,6 +371,42 @@ jobs:
           remote_path    = os.environ['REMOTE_PATH'].rstrip('/')
           source_dir     = os.environ['SOURCE_DIR']
           dry_run        = os.environ.get('DRY_RUN', 'false').lower() == 'true'
+
+          # ── FTP_IGNORE: comma-delimited, each pattern enclosed in double quotes ──────
+          # Example value:  "\.git*", "\.DS_Store", "configuration\.php", "\.ps1"
+          ignore_patterns = []
+          ftp_ignore_raw = os.environ.get('FTP_IGNORE', '').strip()
+          if ftp_ignore_raw:
+              for token in ftp_ignore_raw.split(','):
+                  # Strip whitespace then surrounding double-quotes
+                  pattern = token.strip().strip('"')
+                  if not pattern:
+                      continue
+                  try:
+                      ignore_patterns.append(re.compile(pattern))
+                  except re.error as exc:
+                      print(f"⚠️  Invalid FTP_IGNORE pattern '{pattern}' (skipped): {exc}", file=sys.stderr)
+              print(f"ℹ️  Loaded {len(ignore_patterns)} FTP_IGNORE pattern(s)")
+
+          # ── .gitignore ───────────────────────────────────────────────────────────────
+          gitignore_spec = None
+          gitignore_path = Path('.gitignore')
+          if gitignore_path.exists():
+              with open(gitignore_path) as fh:
+                  gitignore_spec = pathspec.PathSpec.from_lines('gitwildmatch', fh)
+              print("ℹ️  Loaded .gitignore patterns")
+
+          def should_ignore(rel: Path) -> bool:
+              """Return True if the relative path matches any FTP_IGNORE regex or .gitignore rule."""
+              rel_str = str(rel).replace('\\', '/')
+              for pat in ignore_patterns:
+                  if pat.search(rel_str):
+                      print(f"  ⏭️  Ignored (FTP_IGNORE '{pat.pattern}'): {rel_str}")
+                      return True
+              if gitignore_spec and gitignore_spec.match_file(rel_str):
+                  print(f"  ⏭️  Ignored (.gitignore): {rel_str}")
+                  return True
+              return False
 
           if auth_method == 'key' and use_passphrase:
               print(f"Connecting to {host}:{port} as {username} via SFTP (key + passphrase; password fallback available)")
@@ -302,6 +469,7 @@ jobs:
 
           uploaded = 0
           skipped  = 0
+          ignored  = 0
 
           for local_path in sorted(Path(source_dir).rglob('*')):
               rel    = local_path.relative_to(source_dir)
@@ -310,6 +478,11 @@ jobs:
               if local_path.is_dir():
                   if not dry_run:
                       sftp_makedirs(sftp, remote)
+                  continue
+
+              if should_ignore(rel):
+                  print(f"  ⏭️  Ignored: {rel}")
+                  ignored += 1
                   continue
 
               parent = remote.rsplit('/', 1)[0]
@@ -327,9 +500,9 @@ jobs:
           ssh.close()
 
           if dry_run:
-              print(f"\nDry run complete — {skipped} file(s) would be uploaded to {remote_path}")
+              print(f"\nDry run complete — {skipped} file(s) would be uploaded, {ignored} ignored")
           else:
-              print(f"\nDeployment complete — {uploaded} file(s) uploaded to {remote_path}")
+              print(f"\nDeployment complete — {uploaded} file(s) uploaded, {ignored} ignored")
           PYEOF
 
       - name: Deployment summary
@@ -348,6 +521,7 @@ jobs:
             echo "| Remote path | \`${{ steps.remote.outputs.path }}\` |" >> "$GITHUB_STEP_SUMMARY"
             echo "| Source | \`${{ steps.source.outputs.dir }}/\` |" >> "$GITHUB_STEP_SUMMARY"
             echo "| Auth | ${{ steps.auth.outputs.method }} |" >> "$GITHUB_STEP_SUMMARY"
+            echo "| Clear remote | ${{ inputs.clear_remote || 'false' }} |" >> "$GITHUB_STEP_SUMMARY"
             echo "| Dry run | ${{ inputs.dry_run || 'false' }} |" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "### ❌ Dev Deployment Failed" >> "$GITHUB_STEP_SUMMARY"

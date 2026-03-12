@@ -30,6 +30,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Support Tiers** (2026-03-12):
+  - Community: response time updated to "best effort", availability set to "Business hours"
+  - Standard: response time updated from 1–3 weeks to 1–6 weeks
+  - Premium: response time updated from 5 business days to 5–14 business days; availability changed from Extended hours to Business hours
+  - Enterprise: response time updated from 72 hours to 3–7 business days; SLA changed from 99.9% to private agreement; Enterprise row added to support tiers table in `docs/guide/SUPPORT.md`
+  - Updated `docs/policy/SERVICE_LEVEL_AGREEMENT.md` tier table, tier detail sections, priority-level response times, and uptime guarantees table
+  - Updated `docs/guide/SUPPORT.md` tier table and tier detail sections
+
 ### Added
 - **`tests/sample/` fixture directory** (2026-03-06):
   - Minimal generic repository fixture committed to `tests/sample/` at repo root

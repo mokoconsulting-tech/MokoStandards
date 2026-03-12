@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /SUPPORT.md
-VERSION: 04.00.04
+VERSION: 04.00.13
 BRIEF: Support channels, expectations, and service levels
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.13-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Support
 
@@ -128,39 +128,47 @@ We do **not** provide support for:
 
 ## Support Tiers
 
-Moko Consulting uses a three-band support response-time scale. The band that applies to your
+Moko Consulting uses a four-tier support response-time scale. The tier that applies to your
 request depends on whether you are using free community support or a paid support arrangement.
 
-| Tier          | Response Time             | SLA Guarantee | Channel                        |
-| ------------- | ------------------------- | ------------- | ------------------------------ |
-| **Community** | 1–2 months (best effort)  | No SLA        | GitHub Issues / Discussions    |
-| **Standard**  | Initial response 1–3 weeks | 99% uptime   | Email, Support Portal          |
-| **Premium**   | Initial response 5 business days | 99.5% uptime | Email, Phone, Portal, Slack |
-
-> **Enterprise** customers (72-hour response, 99.9% uptime, 24/7, TAM) are covered under a
-> separate private SLA. Contact [enterprise@mokoconsulting.tech](mailto:enterprise@mokoconsulting.tech).
+| Tier           | Response Time      | Availability   | SLA Guarantee |
+| -------------- | ------------------ | -------------- | ------------- |
+| **Community**  | Best effort        | Business hours | No SLA        |
+| **Standard**   | 1–6 weeks          | Business hours | 99%           |
+| **Premium**    | 5–14 business days | Business hours | 99.5%         |
+| **Enterprise** | 3–7 business days  | 24/7           | Private SLA   |
 
 ### Community Tier
 
-- **Response Time**: 1–2 months (best effort, no guarantee)
-- **Availability**: GitHub Issues and Discussions
+- **Response Time**: Best effort (no guarantee)
+- **Availability**: Business hours
 - **SLA**: No guaranteed SLA
-- **Support Hours**: Best effort
+- **Channel**: GitHub Issues and Discussions
 
 ### Standard Tier
 
-- **Response Time**: Initial response within 1–3 weeks
-- **Availability**: 99% uptime guarantee
+- **Response Time**: Initial response within 1–6 weeks
+- **Availability**: Business hours (Mon–Fri, 9 AM–6 PM EST)
+- **SLA**: 99% uptime guarantee
 - **Channels**: Email, Support Portal
-- **Support Hours**: Business hours (Mon–Fri, 9 AM–6 PM EST)
 
 ### Premium Tier
 
-- **Response Time**: Initial response within 5 business days
-- **Availability**: 99.5% uptime guarantee
+- **Response Time**: Initial response within 5–14 business days
+- **Availability**: Business hours (Mon–Fri, 9 AM–6 PM EST)
+- **SLA**: 99.5% uptime guarantee
 - **Channels**: Email, Phone, Support Portal, Slack
-- **Support Hours**: Extended (Mon–Fri, 6 AM–10 PM EST)
 - **Dedicated Support Engineer**: Yes
+
+### Enterprise Tier
+
+- **Response Time**: Initial response within 3–7 business days
+- **Availability**: 24/7
+- **SLA**: Private SLA (contact enterprise@mokoconsulting.tech)
+- **Channels**: Email, Phone (24/7), Support Portal, Slack, Teams
+- **Dedicated Support Team**: Yes
+- **Technical Account Manager**: Yes
+- **Quarterly Business Reviews**: Yes
 
 ## Response Expectations
 
@@ -290,15 +298,16 @@ This support policy is governed by the MokoStandards framework and may only be m
 | Owner          | Moko Consulting                                          |
 | Repo           | https://github.com/mokoconsulting-tech/                                      |
 | Path           | /docs/guide/SUPPORT.md                                      |
-| Version        | 04.00.04                                 |
+| Version        | 04.00.13                                 |
 | Status         | Active                                         |
-| Last Reviewed  | 2026-01-28                                  |
-| Reviewed By    | Documentation Team                                    |
+| Last Reviewed  | 2026-03-12                                  |
+| Reviewed By    | Moko Consulting                                    |
 
 
 ## Revision History
 
 | Date       | Author          | Change                                       | Notes                                              |
 | ---------- | --------------- | -------------------------------------------- | -------------------------------------------------- |
+| 2026-03-12 | Moko Consulting | Updated support tiers: Community→best effort/business hours, Standard→1–6 weeks, Premium→5–14bd/business hours, Enterprise→3–7bd/24/7; added Enterprise row to table | Updated per new requirements |
 | 2026-03-11 | Moko Consulting | Added three-band support tier response times (Community 1–2mo, Standard 1–3w, Premium 5bd) | Moved from .github-private Tier 1 |
 | 2026-01-28 | Moko Consulting | Standardized metadata and revision history   | Updated to version 04.00.04 with all required fields |

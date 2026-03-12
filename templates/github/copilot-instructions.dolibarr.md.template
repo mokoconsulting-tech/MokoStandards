@@ -136,18 +136,26 @@ public $version = '01.02.04';  // Must match README.md version
 ```
 {{REPO_NAME}}/
 ├── src/                          # Module source code (deployed to Dolibarr)
+│   ├── index.php                 # REQUIRED — accessforbidden() guard
 │   ├── README.md                 # End-user documentation
 │   ├── core/
+│   │   ├── index.php             # REQUIRED — accessforbidden() guard
 │   │   └── modules/
+│   │       ├── index.php         # REQUIRED — accessforbidden() guard
 │   │       └── mod{{MODULE_CLASS}}.class.php   # Main module descriptor
 │   ├── langs/
+│   │   ├── index.php             # REQUIRED — accessforbidden() guard
 │   │   └── en_US/
+│   │       ├── index.php         # REQUIRED — accessforbidden() guard
 │   │       └── {{MODULE_NAME}}.lang
 │   ├── sql/                      # Database schema
+│   │   ├── index.php             # REQUIRED — accessforbidden() guard
 │   │   ├── llx_{{MODULE_NAME}}.sql
 │   │   └── llx_{{MODULE_NAME}}.key.sql
 │   ├── class/                    # PHP class files
+│   │   └── index.php             # REQUIRED — accessforbidden() guard
 │   └── lib/                      # Library files
+│       └── index.php             # REQUIRED — accessforbidden() guard
 ├── docs/                         # Technical documentation
 ├── scripts/                      # Build and maintenance scripts
 ├── tests/                        # Test suite
@@ -160,6 +168,26 @@ public $version = '01.02.04';  // Must match README.md version
 ├── CONTRIBUTING.md
 ├── LICENSE                       # GPL-3.0-or-later
 └── Makefile                      # Build automation
+```
+
+**Every directory inside `src/` MUST have an `index.php`** that either contains live code or calls Dolibarr's built-in `accessforbidden()` to block direct web access. Use this guard template for non-public directories (adjust the relative fallback path to match the directory depth from `htdocs/`):
+
+```php
+<?php
+/* Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * FILE INFORMATION / BRIEF: Directory access guard
+ */
+// Adjust relative path below per depth: mymodule/subdir/ uses ../../../main.inc.php
+$res = 0;
+if (!$res && !empty($_SERVER["DOCUMENT_ROOT"])) {
+	$res = @include $_SERVER["DOCUMENT_ROOT"]."/main.inc.php";
+}
+if (!$res && file_exists("../../../main.inc.php")) {
+	$res = @include "../../../main.inc.php";
+}
+if (!$res) { die("Include of main fails"); }
+accessforbidden();
 ```
 
 ---
@@ -304,3 +332,4 @@ Approved prefixes: `dev/` · `rc/` · `version/` · `patch/` · `copilot/` · `d
 - Never use `github.token` or `secrets.GITHUB_TOKEN` in workflows — always use `secrets.GH_TOKEN`
 - Never let the module descriptor `$this->version` and `README.md` version go out of sync
 - Never register a new module ID without first checking module-registry.md for the next available ID
+- Never create a new directory inside `src/` without adding an `index.php` that calls `accessforbidden()` or contains live code

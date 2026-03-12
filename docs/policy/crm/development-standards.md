@@ -167,25 +167,39 @@ $this->editor_squarred_logo = 'object_favicon_256.png@mokocrm';
 
 ```
 htdocs/custom/mokomodule/
+├── index.php                # REQUIRED — accessforbidden() guard
 ├── admin/                    # Module configuration pages
+│   ├── index.php            # REQUIRED — accessforbidden() guard
 │   ├── setup.php            # Module settings
 │   └── about.php            # Module information
 ├── class/                    # PHP classes
+│   ├── index.php            # REQUIRED — accessforbidden() guard
 │   ├── mokoobject.class.php # Main object class
 │   └── api_mokomodule.class.php # API endpoints
 ├── core/                     # Core module files
+│   ├── index.php            # REQUIRED — accessforbidden() guard
 │   ├── modules/             # Numbering modules
+│   │   └── index.php        # REQUIRED — accessforbidden() guard
 │   ├── triggers/            # Event triggers
+│   │   └── index.php        # REQUIRED — accessforbidden() guard
 │   └── boxes/               # Dashboard widgets
+│       └── index.php        # REQUIRED — accessforbidden() guard
 ├── css/                      # Custom stylesheets
+│   └── index.php            # REQUIRED — accessforbidden() guard
 ├── img/                      # Module images/icons
+│   └── index.php            # REQUIRED — accessforbidden() guard
 ├── js/                       # JavaScript files
+│   └── index.php            # REQUIRED — accessforbidden() guard
 ├── langs/                    # Translations
+│   ├── index.php            # REQUIRED — accessforbidden() guard
 │   └── en_US/
+│       ├── index.php        # REQUIRED — accessforbidden() guard
 │       └── mokomodule.lang
 ├── lib/                      # Library functions
+│   ├── index.php            # REQUIRED — accessforbidden() guard
 │   └── mokomodule.lib.php
 ├── sql/                      # Database scripts
+│   ├── index.php            # REQUIRED — accessforbidden() guard
 │   ├── llx_mokomodule.sql   # Table creation
 │   └── llx_mokomodule.key.sql # Indexes and keys
 ├── mokomoduleindex.php      # Module main page
@@ -769,6 +783,77 @@ $sql .= " AND ref = '".$db->escape($ref)."'";
 $sql = "SELECT * FROM ".MAIN_DB_PREFIX."moko_object WHERE rowid = ?";
 $resql = $db->query($sql, array($id));
 ```
+
+### Directory Index Files
+
+**Every directory in a Dolibarr module MUST contain an `index.php` file.**
+
+This is a mandatory Dolibarr security convention. Without an `index.php`, web servers that have directory listing enabled will expose the full directory contents to unauthenticated visitors.
+
+#### Rule
+
+Every directory must have an `index.php` that either:
+
+1. **Contains live code** — the directory's main page (e.g. `admin/setup.php` is the setup page but `admin/index.php` may redirect to it), or
+2. **Calls `accessforbidden()`** — Dolibarr's built-in function that returns a proper 403 response and terminates execution.
+
+#### Standard accessforbidden() index.php template
+
+For directories that have no live public page, use this template. **Adjust the relative fallback path in `file_exists()` to match the directory depth from `htdocs/`** (see table below):
+
+```php
+<?php
+/* Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+ *
+ * This file is part of a Moko Consulting project.
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ *
+ * FILE INFORMATION
+ * DEFGROUP: mokomodule.Security
+ * INGROUP: mokomodule
+ * REPO: https://github.com/mokoconsulting-tech/<repo>
+ * PATH: /src/<subdir>/index.php
+ * VERSION: XX.YY.ZZ
+ * BRIEF: Directory access guard — prevents direct web access to this directory
+ */
+
+// Load Dolibarr environment
+// Adjust the relative path below to match actual depth from htdocs/ (see depth table in policy)
+$res = 0;
+if (!$res && !empty($_SERVER["DOCUMENT_ROOT"])) {
+	$res = @include $_SERVER["DOCUMENT_ROOT"]."/main.inc.php";
+}
+if (!$res && file_exists("../../../main.inc.php")) {
+	$res = @include "../../../main.inc.php";
+}
+if (!$res) {
+	die("Include of main fails");
+}
+
+accessforbidden();
+```
+
+#### Depth guidance
+
+The `$_SERVER["DOCUMENT_ROOT"]` include covers most web server environments. The relative-path fallback must be adjusted per directory depth from `htdocs/`:
+
+| Directory (deployed location) | Relative path to `main.inc.php` |
+|-------------------------------|--------------------------------|
+| `htdocs/custom/mymodule/` | `../../main.inc.php` |
+| `htdocs/custom/mymodule/admin/` | `../../../main.inc.php` |
+| `htdocs/custom/mymodule/class/` | `../../../main.inc.php` |
+| `htdocs/custom/mymodule/lib/` | `../../../main.inc.php` |
+| `htdocs/custom/mymodule/core/` | `../../../main.inc.php` |
+| `htdocs/custom/mymodule/core/modules/` | `../../../../main.inc.php` |
+
+#### Compliance checklist
+
+When creating a new directory, immediately:
+
+- [ ] Create `index.php` with either live code or the `accessforbidden()` guard above
+- [ ] Include the standard FILE INFORMATION header
+- [ ] Add the `index.php` to the same commit as the new directory
 
 ## Testing Requirements
 

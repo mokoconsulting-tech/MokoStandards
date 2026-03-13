@@ -10,19 +10,21 @@ This directory contains documentation for the MokoStandards API structure. The d
 docs/api/
 ├── index.md                    # This file - API documentation overview
 ├── analysis/                   # Analysis tools documentation
-├── automation/                 # Automation scripts documentation
+├── automation/                 # Automation scripts (bulk_sync.php)
 ├── build/                      # Build tools documentation
 ├── definitions/                # Repository definitions documentation
 │   ├── default/               # Default platform definitions documentation
 │   └── sync/                  # Synced repository definitions documentation
-├── fix/                       # Fix utilities documentation
+├── deploy/                    # Deploy scripts (deploy-sftp.php)
+├── fix/                       # Fix utilities (fix_*.php)
 ├── lib/                       # Library documentation
 │   ├── Enterprise/            # Enterprise libraries
 │   └── plugins/               # Plugin system
 ├── maintenance/               # Maintenance scripts documentation
+├── plugin/                    # Plugin runner scripts (plugin_*.php)
 ├── release/                   # Release tools documentation
 ├── tests/                     # Testing documentation
-├── validate/                  # Validation scripts documentation
+├── validate/                  # Validation scripts (check_*.php)
 └── wrappers/                  # Wrapper scripts documentation
 ```
 
@@ -137,13 +139,37 @@ Testing infrastructure:
 
 [View testing documentation →](./tests/index.md)
 
+### deploy/
+
+SFTP deployment scripts:
+
+- **deploy-sftp.php** — Upload a repo's `src/` to a remote server using `sftp-config.json`
+- Supports PuTTY `.ppk` and OpenSSH PEM keys
+- Called by `deploy-dev.yml` and `deploy-release.yml` workflows
+
+[View deploy documentation →](./deploy/index.md)
+
+### plugin/
+
+Plugin-system runner scripts (entry points for governed repos):
+
+- **plugin_validate.php** — Validate project structure and standards
+- **plugin_health_check.php** — Run health checks and score
+- **plugin_readiness.php** — Check release readiness
+- **plugin_metrics.php** — Collect project metrics
+- **plugin_list.php** — List all registered project-type plugins
+
+[View plugin script documentation →](./plugin/index.md)
+
 ### maintenance/
 
 Maintenance and housekeeping scripts:
 
-- Cleanup utilities
-- Version synchronization
-- Stale resource management
+- **pin_action_shas.php** — Pin GitHub Actions to immutable SHAs
+- **setup_labels.php** — Deploy required GitHub labels
+- **sync_dolibarr_readmes.php** — Keep root and src READMEs in sync
+- **update_sha_hashes.php** — Regenerate script registry hashes
+- **update_version_from_readme.php** — Propagate version from README
 
 [View maintenance documentation →](./maintenance/index.md)
 
@@ -172,10 +198,39 @@ Shell wrappers for cross-platform compatibility:
 
 ```bash
 # Auto-detect platform and validate repository
-php api/validate/auto_detect_platform.php --repo-path /path/to/repo
+php api/validate/auto_detect_platform.php --path /path/to/repo
 
-# Check repository health
-php api/validate/check_repo_health.php --repo-path /path/to/repo
+# Check repository health score
+php api/validate/check_repo_health.php --path /path/to/repo
+
+# Check all validation scripts at once
+php api/validate/check_repo_health.php --path . --json
+```
+
+### Plugin System
+
+```bash
+# Validate a project
+php api/plugin_validate.php --project-path /path/to/project
+
+# Check release readiness
+php api/plugin_readiness.php --project-path /path/to/project
+
+# Run health check
+php api/plugin_health_check.php --project-path /path/to/project
+
+# List all registered plugins
+php api/plugin_list.php
+```
+
+### Deployment
+
+```bash
+# Preview SFTP upload (dry-run)
+php api/deploy/deploy-sftp.php --path /path/to/project --dry-run --verbose
+
+# Deploy src/ to remote server
+php api/deploy/deploy-sftp.php --path /path/to/project
 ```
 
 ### Bulk Sync
@@ -185,15 +240,6 @@ php api/validate/check_repo_health.php --repo-path /path/to/repo
 php api/automation/bulk_sync.php \
   --org mokoconsulting-tech \
   --repos "repo1,repo2,repo3"
-```
-
-### Platform Detection
-
-```bash
-# Detect repository platform
-php api/validate/auto_detect_platform.php \
-  --repo-path /path/to/repo \
-  --output json
 ```
 
 ## Development Guidelines
@@ -256,5 +302,5 @@ Repository validation follows this pipeline:
 **Location**: `docs/api/`  
 **Purpose**: Documentation for MokoStandards API  
 **Mirrors**: `/api/` directory structure  
-**Last Updated**: 2026-03-03  
+**Last Updated**: 2026-03-13
 **Maintained By**: MokoStandards Team

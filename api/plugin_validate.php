@@ -1,16 +1,21 @@
 #!/usr/bin/env php
 <?php
+/* Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+ *
+ * This file is part of a Moko Consulting project.
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ *
+ * FILE INFORMATION
+ * DEFGROUP: MokoStandards.Scripts.Plugin
+ * INGROUP: MokoStandards
+ * REPO: https://github.com/mokoconsulting-tech/MokoStandards
+ * PATH: /api/plugin_validate.php
+ * VERSION: 04.00.15
+ * BRIEF: Validate a project's structure and standards using the auto-detected or specified plugin
+ */
 
 declare(strict_types=1);
-
-/**
- * Plugin Validation Script
- * 
- * Validates a project using the appropriate plugin
- *
- * @package MokoStandards\Enterprise
- * @version 1.0.0
- */
 
 // Autoload dependencies
 require_once __DIR__ . '/../vendor/autoload.php';

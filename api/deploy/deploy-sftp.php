@@ -51,6 +51,63 @@ class DeploySftp extends CLIApp
 	}
 
 	/**
+	 * Print full help including usage examples.
+	 *
+	 * Overrides CLIApp::printHelp() to add an EXAMPLES section and
+	 * document the scripts/keys/ key-resolution convention.
+	 */
+	protected function printHelp(): void
+	{
+		parent::printHelp();
+		echo <<<'EXAMPLES'
+
+ARGUMENTS
+  --path <dir>           Repository root (default: current directory).
+  --src-dir <dir>        Sub-directory inside the repo to upload (default: src).
+  --config <file>        Explicit path to sftp-config.json. When omitted the
+                         script looks for {path}/script/sftp-config.json.
+  --key-passphrase <pw>  Passphrase for the SSH private key if it is encrypted.
+
+KEY RESOLUTION
+  ssh_key_file in sftp-config.json may be an absolute path or a bare filename.
+  When it is not absolute the script looks for the key under:
+    {path}/scripts/keys/{filename}
+  before falling back to the raw value as a relative path from CWD.
+
+  Supported key formats: PuTTY .ppk  |  OpenSSH PEM  (via phpseclib)
+
+CONFIG FORMAT
+  sftp-config.json follows Sublime Text SFTP plugin conventions.
+  // line comments and trailing commas are stripped before parsing.
+
+EXAMPLES
+  # Dry-run: preview what would be uploaded (no connection made)
+  php api/deploy/deploy-sftp.php --dry-run --verbose
+
+  # Deploy src/ of a specific repo
+  php api/deploy/deploy-sftp.php --path /repos/mymodule
+
+  # Use a different source directory
+  php api/deploy/deploy-sftp.php --path /repos/mymodule --src-dir htdocs
+
+  # Explicit config and encrypted key passphrase
+  php api/deploy/deploy-sftp.php \
+    --path /repos/mymodule \
+    --config /repos/mymodule/script/sftp-config.rs.json \
+    --key-passphrase "my passphrase"
+
+  # Quiet mode (only errors printed)
+  php api/deploy/deploy-sftp.php --quiet
+
+EXIT CODES
+  0  All files uploaded successfully
+  1  Connection failed or one or more files could not be uploaded
+  2  Invalid arguments or config file error
+
+EXAMPLES;
+	}
+
+	/**
 	 * Register script-specific CLI arguments.
 	 *
 	 * @return array<string,string> Option spec => description

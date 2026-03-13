@@ -69,9 +69,10 @@ Dolibarr module numbers **185051 to 185099** are reserved for Moko Consulting us
 | MokoDoliReleaseHelper | 185063 | Reserved | Release management and version control helper module for Dolibarr | TBD |
 | MokoDoliProjTemplate | 185064 | Reserved | A Dolibarr module designed to provide project templates | TBD |
 | MokoDoliCGAdClaude | 185065 | Reserved | Multi-platform advertising analysis module integrating Google Ads, Meta Ads, LinkedIn Ads with Claude AI | TBD |
-| MokoDoliArt | 185066 | Reserved | A Dolibarr module used to send proofs of art to clients for approval | TBD |
+| MokoDoliArt | 185066 | Reserved | A Dolibarr module used to send proofs of art to clients for approval | TBD|
 | MokoCRM | 185067 | Reserved | Core CRM module for Moko Consulting's Dolibarr-based CRM platform | TBD |
-| Available for Assignment | 185068-185099 | Reserved | Reserved for future Moko Consulting modules | - |
+| MokoODliTraining | 185068 | Reserved | A deployable module to install training data into Dolibarr and reset on command. | TBD |
+| Available for Assignment | 185069-185099 | Reserved | Reserved for future Moko Consulting modules | - |
 
 ## Module ID Reservation Process
 

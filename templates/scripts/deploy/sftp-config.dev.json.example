@@ -1,0 +1,45 @@
+{
+	"type": "sftp",
+
+	"save_before_upload": true,
+	"upload_on_save": true,
+	"sync_down_on_open": false,
+	"sync_skip_deletes": false,
+	"sync_same_age": true,
+	"confirm_downloads": false,
+	"confirm_sync": false,
+	"confirm_overwrite_newer": false,
+
+	"host": "YOUR_DEV_HOST",
+	"user": "YOUR_DEV_USERNAME",
+	"ssh_key_file": "PATH_TO_YOUR_PRIVATE_KEY.ppk",
+	"port": "22",
+
+	"remote_path": "/home/YOUR_USER/YOUR_DEV_DOMAIN/htdocs/custom/YOUR_MODULE/",
+
+	"ignore_regexes": [
+		"\\.sublime-(project|workspace|settings)",
+		"\\.libsass.json/",
+		"sftp-config(-alt\\d?)?\\.json",
+		"sftp-settings\\.json",
+		"/venv/",
+		"\\.svn/",
+		"\\.hg/",
+		"\\.bzr",
+		"_darcs",
+		"CVS",
+		"\\.DS_Store",
+		"Thumbs\\.db",
+		"robots\\.txt",
+		"desktop\\.ini",
+		"configuration\\.php",
+		"\\.ffs*",
+		"\\.git*",
+		"\\.editorconfig",
+		"conf\\.php",
+		"\\.ps1",
+		"\\.tx"
+	],
+
+	"connect_timeout": 30
+}

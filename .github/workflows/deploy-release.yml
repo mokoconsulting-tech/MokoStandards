@@ -1,0 +1,202 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# This file is part of a Moko Consulting project.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflows.Deploy
+# INGROUP: MokoStandards.Deploy
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /.github/workflows/deploy-release.yml
+# VERSION: 04.00.15
+# BRIEF: Reusable workflow — deploy a repo's src/ to the production SFTP server on release
+# NOTE: Called by governed repos via:
+#       uses: mokoconsulting-tech/MokoStandards/.github/workflows/deploy-release.yml@main
+
+name: Deploy — Release
+
+on:
+  workflow_call:
+    inputs:
+      src_dir:
+        description: 'Sub-directory to upload (default: src)'
+        required: false
+        type: string
+        default: 'src'
+      dry_run:
+        description: 'Preview only — no files will be uploaded'
+        required: false
+        type: boolean
+        default: false
+      php_version:
+        description: 'PHP version to use'
+        required: false
+        type: string
+        default: '8.1'
+      ref:
+        description: 'Git ref to deploy (tag, branch, or SHA). Defaults to triggering ref.'
+        required: false
+        type: string
+        default: ''
+    secrets:
+      GH_TOKEN:
+        description: 'GitHub PAT with package read access'
+        required: true
+      SFTP_HOST:
+        description: 'Production SFTP hostname'
+        required: true
+      SFTP_USER:
+        description: 'Production SFTP username'
+        required: true
+      SFTP_REMOTE_PATH:
+        description: 'Absolute remote path on production server'
+        required: true
+      SFTP_KEY:
+        description: 'SSH private key file content (PEM or PPK format)'
+        required: true
+      SFTP_KEY_PASSPHRASE:
+        description: 'Passphrase for the SSH private key (leave empty if none)'
+        required: false
+    outputs:
+      exit_code:
+        description: 'Script exit code (0 = success)'
+        value: ${{ jobs.deploy.outputs.exit_code }}
+
+  workflow_dispatch:
+    inputs:
+      src_dir:
+        description: 'Sub-directory to upload (default: src)'
+        required: false
+        type: string
+        default: 'src'
+      dry_run:
+        description: 'Preview only — no files will be uploaded'
+        required: false
+        type: boolean
+        default: true
+      ref:
+        description: 'Git ref to deploy (tag, branch, or SHA)'
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy to Production (${{ inputs.dry_run && 'dry-run' || 'live' }})
+    runs-on: ubuntu-latest
+    environment: production
+
+    outputs:
+      exit_code: ${{ steps.deploy.outputs.exit_code }}
+
+    steps:
+      - name: Checkout calling repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          path: _repo
+          ref: ${{ inputs.ref }}
+
+      - name: Checkout MokoStandards
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
+        with:
+          repository: mokoconsulting-tech/MokoStandards
+          token: ${{ secrets.GH_TOKEN }}
+          path: _mokostandards
+
+      - name: Set up PHP ${{ inputs.php_version }}
+        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2
+        with:
+          php-version: ${{ inputs.php_version }}
+          extensions: json, mbstring, curl
+          tools: composer
+          coverage: none
+
+      - name: Install Composer dependencies
+        working-directory: _mokostandards
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+        env:
+          COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ secrets.GH_TOKEN }}"}}'
+
+      - name: Write SSH key
+        id: write_key
+        run: |
+          KEY_FILE="$(mktemp /tmp/sftp_key.XXXXXX)"
+          printf '%s' "$SFTP_KEY_CONTENT" > "$KEY_FILE"
+          chmod 600 "$KEY_FILE"
+          echo "key_file=$KEY_FILE" >> "$GITHUB_OUTPUT"
+        env:
+          SFTP_KEY_CONTENT: ${{ secrets.SFTP_KEY }}
+
+      - name: Write sftp-config.json
+        run: |
+          mkdir -p _repo/script
+          printf '{\n  "type": "sftp",\n  "host": "%s",\n  "user": "%s",\n  "ssh_key_file": "%s",\n  "port": "22",\n  "remote_path": "%s"\n}\n' \
+            "$SFTP_HOST" "$SFTP_USER" "$KEY_FILE" "$SFTP_REMOTE_PATH" \
+            > _repo/script/sftp-config.json
+        env:
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_USER: ${{ secrets.SFTP_USER }}
+          SFTP_REMOTE_PATH: ${{ secrets.SFTP_REMOTE_PATH }}
+          KEY_FILE: ${{ steps.write_key.outputs.key_file }}
+
+      - name: Preview deployment (dry-run)
+        run: |
+          {
+            echo "## Deploy Release — Preview"
+            echo '```'
+            php _mokostandards/api/deploy/deploy-sftp.php \
+              --path _repo \
+              --src-dir "$INPUT_SRC_DIR" \
+              --dry-run \
+              --verbose 2>&1
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+        env:
+          INPUT_SRC_DIR: ${{ inputs.src_dir }}
+
+      - name: Deploy to production server
+        id: deploy
+        if: ${{ !inputs.dry_run }}
+        run: |
+          PASSPHRASE_ARG=()
+          if [ -n "$SFTP_KEY_PASSPHRASE" ]; then
+            PASSPHRASE_ARG=(--key-passphrase "$SFTP_KEY_PASSPHRASE")
+          fi
+
+          set +e
+          php _mokostandards/api/deploy/deploy-sftp.php \
+            --path _repo \
+            --src-dir "$INPUT_SRC_DIR" \
+            "${PASSPHRASE_ARG[@]}" 2>&1
+          EXIT_CODE=$?
+          set -e
+
+          echo "exit_code=$EXIT_CODE" >> "$GITHUB_OUTPUT"
+
+          if [ "$EXIT_CODE" -eq 0 ]; then
+            echo "✅ Production deploy succeeded" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "❌ Production deploy failed (exit $EXIT_CODE)" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          exit "$EXIT_CODE"
+        env:
+          INPUT_SRC_DIR: ${{ inputs.src_dir }}
+          SFTP_KEY_PASSPHRASE: ${{ secrets.SFTP_KEY_PASSPHRASE }}
+
+      - name: Record dry-run exit code
+        if: ${{ inputs.dry_run }}
+        run: |
+          echo "exit_code=0" >> "$GITHUB_OUTPUT"
+          echo "ℹ️ Dry-run only — no files were uploaded to production." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Remove SSH key
+        if: always()
+        run: rm -f "$KEY_FILE"
+        env:
+          KEY_FILE: ${{ steps.write_key.outputs.key_file }}

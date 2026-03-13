@@ -40,7 +40,6 @@ This document maintains the official registry of Dolibarr module numbers reserve
 - **[CRM Development Guide](../../guide/crm/dolibarr-development-guide.md)** - Comprehensive development guide
 - **[Development Standards](../../policy/crm/development-standards.md)** - Development standards and best practices  
 - **[Reserve Module ID Workflow](../../workflows/reserve-dolibarr-module-id.md)** - Automated reservation process
-- **[Run Workflow](./../../../.github/workflows/reserve-dolibarr-module-id.yml)** - Reserve a module ID now
 
 ## Reserved Module Numbers
 

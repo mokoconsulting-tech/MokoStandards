@@ -64,9 +64,17 @@ class DeploySftp extends CLIApp
 ARGUMENTS
   --path <dir>           Repository root (default: current directory).
   --src-dir <dir>        Sub-directory inside the repo to upload (default: src).
-  --config <file>        Explicit path to sftp-config.json. When omitted the
-                         script looks for {path}/script/sftp-config.json.
+  --env <dev|rs>         Target environment. Selects the named config file:
+                           dev  →  {path}/scripts/sftp-config/sftp-config.dev.json
+                           rs   →  {path}/scripts/sftp-config/sftp-config.rs.json
+  --config <file>        Explicit config path — overrides --env and auto-lookup.
   --key-passphrase <pw>  Passphrase for the SSH private key if it is encrypted.
+
+DIRECTORY LAYOUT (gitignored — create locally from templates/scripts/deploy/)
+  {repo_root}/
+    scripts/
+      sftp-config/          ← gitignored; place sftp-config.{env}.json files here
+      keys/                 ← gitignored; place .ppk / PEM key files here
 
 KEY RESOLUTION
   ssh_key_file in sftp-config.json may be an absolute path or a bare filename.
@@ -81,23 +89,26 @@ CONFIG FORMAT
   // line comments and trailing commas are stripped before parsing.
 
 EXAMPLES
-  # Dry-run: preview what would be uploaded (no connection made)
-  php api/deploy/deploy-sftp.php --dry-run --verbose
+  # Dry-run preview of dev deployment
+  php api/deploy/deploy-sftp.php --env dev --dry-run --verbose
 
-  # Deploy src/ of a specific repo
-  php api/deploy/deploy-sftp.php --path /repos/mymodule
+  # Deploy to dev server
+  php api/deploy/deploy-sftp.php --path /repos/mymodule --env dev
+
+  # Deploy to release/production server
+  php api/deploy/deploy-sftp.php --path /repos/mymodule --env rs
 
   # Use a different source directory
-  php api/deploy/deploy-sftp.php --path /repos/mymodule --src-dir htdocs
+  php api/deploy/deploy-sftp.php --env dev --src-dir htdocs
 
-  # Explicit config and encrypted key passphrase
+  # Explicit config with encrypted key
   php api/deploy/deploy-sftp.php \
     --path /repos/mymodule \
-    --config /repos/mymodule/script/sftp-config.rs.json \
+    --env rs \
     --key-passphrase "my passphrase"
 
-  # Quiet mode (only errors printed)
-  php api/deploy/deploy-sftp.php --quiet
+  # Quiet mode (errors only)
+  php api/deploy/deploy-sftp.php --env dev --quiet
 
 EXIT CODES
   0  All files uploaded successfully
@@ -117,7 +128,8 @@ EXAMPLES;
 		return [
 			'path:'           => 'Path to the repository to deploy (default: current directory)',
 			'src-dir:'        => 'Source sub-directory to upload (default: src)',
-			'config:'         => 'Path to sftp-config.json (default: {path}/script/sftp-config.json)',
+			'env:'            => 'Target environment: dev (sftp-config.dev.json) or rs (sftp-config.rs.json)',
+			'config:'         => 'Explicit config file path — overrides --env and default lookup',
 			'key-passphrase:' => 'Passphrase for the SSH private key file (if required)',
 		];
 	}
@@ -211,16 +223,29 @@ EXAMPLES;
 		return $dir;
 	}
 
+	/** Map of --env values to their sftp-config filename. */
+	private const ENV_CONFIG_MAP = [
+		'dev' => 'sftp-config.dev.json',
+		'rs'  => 'sftp-config.rs.json',
+	];
+
 	/**
-	 * Resolve the absolute path to sftp-config.json.
+	 * Resolve the absolute path to the sftp-config file.
+	 *
+	 * Resolution order (first match wins):
+	 *   1. --config <file>   — explicit override
+	 *   2. --env dev|rs      — maps to sftp-config.{env}.json in {path}/scripts/sftp-config/
+	 *   3. sftp-config.json  — generic fallback in {path}/scripts/sftp-config/
 	 *
 	 * @param string $repoPath Absolute repository root
-	 * @return string Absolute path to sftp-config.json
+	 * @return string Absolute path to the config file
 	 */
 	private function resolveConfigPath(string $repoPath): string
 	{
-		$explicit = $this->getOption('config', null);
+		$configDir = $repoPath . DIRECTORY_SEPARATOR . 'scripts' . DIRECTORY_SEPARATOR . 'sftp-config';
 
+		// 1. Explicit --config wins unconditionally
+		$explicit = $this->getOption('config', null);
 		if ($explicit !== null) {
 			$path = realpath($explicit);
 			if ($path === false) {
@@ -230,10 +255,29 @@ EXAMPLES;
 			return $path;
 		}
 
-		$default = $repoPath . DIRECTORY_SEPARATOR . 'script' . DIRECTORY_SEPARATOR . 'sftp-config.json';
+		// 2. --env selects the named config file
+		$env = $this->getOption('env', null);
+		if ($env !== null) {
+			$env = strtolower((string) $env);
+			if (!isset(self::ENV_CONFIG_MAP[$env])) {
+				$valid = implode(', ', array_keys(self::ENV_CONFIG_MAP));
+				$this->log("Unknown --env value '{$env}'. Valid values: {$valid}", 'ERROR');
+				exit(2);
+			}
+			$envConfig = $configDir . DIRECTORY_SEPARATOR . self::ENV_CONFIG_MAP[$env];
+			if (!file_exists($envConfig)) {
+				$this->log("Config file not found for --env {$env}: {$envConfig}", 'ERROR');
+				$this->log("Copy templates/scripts/deploy/sftp-config.{$env}.json.example → {$envConfig}", 'ERROR');
+				exit(1);
+			}
+			return $envConfig;
+		}
+
+		// 3. Generic fallback
+		$default = $configDir . DIRECTORY_SEPARATOR . 'sftp-config.json';
 		if (!file_exists($default)) {
-			$this->log("sftp-config.json not found at default location: {$default}", 'ERROR');
-			$this->log("Use --config <path> to specify a different location.", 'ERROR');
+			$this->log("No config file found. Tried: {$default}", 'ERROR');
+			$this->log("Use --env dev, --env rs, or --config <path>.", 'ERROR');
 			exit(1);
 		}
 

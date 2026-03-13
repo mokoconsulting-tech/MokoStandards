@@ -41,12 +41,40 @@ php api/deploy/deploy-sftp.php [OPTIONS]
 |--------|---------|-------------|
 | `--path <dir>` | `.` | Repository root to deploy |
 | `--src-dir <dir>` | `src` | Sub-directory inside the repo to upload |
-| `--config <file>` | `{path}/script/sftp-config.json` | Explicit config file path |
+| `--env <dev\|rs>` | — | Target environment; selects named config file (see below) |
+| `--config <file>` | — | Explicit config path — overrides `--env` and auto-lookup |
 | `--key-passphrase <pw>` | _(none)_ | Passphrase for encrypted SSH key |
 | `--dry-run` | off | Preview uploads without connecting |
 | `--verbose` / `-v` | off | Show per-file transfer details |
 | `--quiet` / `-q` | off | Suppress all output except errors |
 | `--help` / `-h` | — | Show help and exit |
+
+### Config File Resolution
+
+`--env` controls which config file is loaded from `{path}/scripts/sftp-config/`:
+
+| `--env` | Config file |
+|---------|-------------|
+| `dev` | `scripts/sftp-config/sftp-config.dev.json` |
+| `rs` | `scripts/sftp-config/sftp-config.rs.json` |
+| _(none)_ | `scripts/sftp-config/sftp-config.json` (generic fallback) |
+
+`--config <file>` always takes precedence over `--env`.
+
+### Directory Layout
+
+Both directories are **gitignored** — create them locally and never commit their contents:
+
+```
+{repo_root}/
+  scripts/
+    sftp-config/            ← gitignored; copy templates from templates/scripts/deploy/
+      sftp-config.dev.json  ← copy of sftp-config.dev.json.example, filled in
+      sftp-config.rs.json   ← copy of sftp-config.rs.json.example, filled in
+    keys/                   ← gitignored; place your .ppk / PEM key file here
+```
+
+See `templates/scripts/sftp-config/README.md` for step-by-step setup instructions.
 
 ### Key Resolution
 
@@ -54,38 +82,31 @@ php api/deploy/deploy-sftp.php [OPTIONS]
 When not absolute, the script looks for the key under `{path}/scripts/keys/` first,
 then falls back to the value as a path relative to CWD.
 
-Store keys locally at:
-```
-{repo_root}/
-  scripts/
-    keys/          ← gitignored via *.ppk; place your .ppk / PEM file here
-  script/
-    sftp-config.dev.json    ← gitignored; copy from template
-    sftp-config.rs.json     ← gitignored; copy from template
-```
-
 ### Examples
 
 ```bash
 # Preview what would be uploaded (no connection)
-php api/deploy/deploy-sftp.php --dry-run --verbose
+php api/deploy/deploy-sftp.php --env dev --dry-run --verbose
 
-# Deploy src/ of a specific repository
-php api/deploy/deploy-sftp.php --path /repos/mymodule
+# Deploy src/ to dev server
+php api/deploy/deploy-sftp.php --path /repos/mymodule --env dev
+
+# Deploy src/ to production server
+php api/deploy/deploy-sftp.php --path /repos/mymodule --env rs
 
 # Use a different source directory
-php api/deploy/deploy-sftp.php --path /repos/mymodule --src-dir htdocs
+php api/deploy/deploy-sftp.php --path /repos/mymodule --env dev --src-dir htdocs
 
-# Deploy to production using explicit config
+# Deploy with explicit config and encrypted key
 php api/deploy/deploy-sftp.php \
   --path /repos/mymodule \
-  --config /repos/mymodule/script/sftp-config.rs.json \
+  --config /repos/mymodule/scripts/sftp-config/sftp-config.rs.json \
   --key-passphrase "my passphrase"
 ```
 
 ### Config Format
 
-Copy a template from `templates/scripts/deploy/` and fill in your values:
+Copy a template from `templates/scripts/deploy/` to `scripts/sftp-config/` and fill in your values:
 
 ```json
 {

@@ -63,7 +63,10 @@ todo*
 # ============================================================
 # SFTP / sync tools
 # ============================================================
-sftp-config*.json
+# Runtime directories — never committed; create locally from templates/scripts/deploy/
+scripts/sftp-config/
+scripts/keys/
+# Catch stray key or config files placed outside the above directories
 *.ppk
 
 # ============================================================

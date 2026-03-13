@@ -1,4 +1,7 @@
 {
+	"_template": "Copy this file to scripts/sftp-config/sftp-config.rs.json — it is gitignored",
+	"_env": "rs",
+
 	"type": "sftp",
 
 	"save_before_upload": false,
@@ -12,7 +15,7 @@
 
 	"host": "YOUR_PRODUCTION_HOST",
 	"user": "YOUR_PRODUCTION_USERNAME",
-	"ssh_key_file": "PATH_TO_YOUR_PRIVATE_KEY.ppk",
+	"ssh_key_file": "jmiller_private.ppk",
 	"port": "22",
 
 	"remote_path": "/home/YOUR_USER/YOUR_PRODUCTION_DOMAIN/htdocs/custom/YOUR_MODULE/",

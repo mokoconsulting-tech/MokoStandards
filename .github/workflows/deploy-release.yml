@@ -132,12 +132,12 @@ jobs:
         env:
           SFTP_KEY_CONTENT: ${{ secrets.SFTP_KEY }}
 
-      - name: Write sftp-config.json
+      - name: Write sftp-config.rs.json
         run: |
-          mkdir -p _repo/script
+          mkdir -p _repo/scripts/sftp-config
           printf '{\n  "type": "sftp",\n  "host": "%s",\n  "user": "%s",\n  "ssh_key_file": "%s",\n  "port": "22",\n  "remote_path": "%s"\n}\n' \
             "$SFTP_HOST" "$SFTP_USER" "$KEY_FILE" "$SFTP_REMOTE_PATH" \
-            > _repo/script/sftp-config.json
+            > _repo/scripts/sftp-config/sftp-config.rs.json
         env:
           SFTP_HOST: ${{ secrets.SFTP_HOST }}
           SFTP_USER: ${{ secrets.SFTP_USER }}
@@ -152,6 +152,7 @@ jobs:
             php _mokostandards/api/deploy/deploy-sftp.php \
               --path _repo \
               --src-dir "$INPUT_SRC_DIR" \
+              --env rs \
               --dry-run \
               --verbose 2>&1
             echo '```'
@@ -172,6 +173,7 @@ jobs:
           php _mokostandards/api/deploy/deploy-sftp.php \
             --path _repo \
             --src-dir "$INPUT_SRC_DIR" \
+            --env rs \
             "${PASSPHRASE_ARG[@]}" 2>&1
           EXIT_CODE=$?
           set -e

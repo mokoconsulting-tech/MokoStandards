@@ -1,0 +1,58 @@
+<!--
+Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+
+SPDX-License-Identifier: GPL-3.0-or-later
+
+FILE INFORMATION
+DEFGROUP: GitHub.PrivateTemplate
+INGROUP: MokoStandards
+REPO: https://github.com/mokoconsulting-tech/MokoStandards
+PATH: /templates/github-private/ISSUE_TEMPLATE/bug_report.md.template
+VERSION: 04.00.04
+BRIEF: Standard bug report issue template for all governed repositories
+-->
+
+---
+name: 🐛 Bug Report
+about: Report a reproducible bug or unexpected behaviour
+title: 'fix: '
+labels: ['bug']
+assignees: ''
+---
+
+## Description
+
+<!-- A clear and concise description of the bug. -->
+
+## Steps to Reproduce
+
+1. Go to '...'
+2. Click on '...'
+3. Observe '...'
+
+## Expected Behaviour
+
+<!-- What you expected to happen. -->
+
+## Actual Behaviour
+
+<!-- What actually happened. Include error messages, stack traces, or screenshots. -->
+
+## Environment
+
+| Field        | Value |
+|--------------|-------|
+| OS           |       |
+| PHP version  |       |
+| Browser      |       |
+| Repo version |       |
+
+## Additional Context
+
+<!-- Any other context, logs, or screenshots that may help. -->
+
+## Checklist
+
+- [ ] I have searched existing issues and this is not a duplicate
+- [ ] I have included all information needed to reproduce the bug
+- [ ] For security issues, I have used the [security advisory process](./../security/advisories/new) instead

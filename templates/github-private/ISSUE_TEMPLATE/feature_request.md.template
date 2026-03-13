@@ -1,0 +1,55 @@
+<!--
+Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+
+SPDX-License-Identifier: GPL-3.0-or-later
+
+FILE INFORMATION
+DEFGROUP: GitHub.PrivateTemplate
+INGROUP: MokoStandards
+REPO: https://github.com/mokoconsulting-tech/MokoStandards
+PATH: /templates/github-private/ISSUE_TEMPLATE/feature_request.md.template
+VERSION: 04.00.04
+BRIEF: Standard feature request issue template for all governed repositories
+-->
+
+---
+name: 🚀 Feature Request
+about: Suggest a new feature or improvement
+title: 'feat: '
+labels: ['enhancement']
+assignees: ''
+---
+
+## Summary
+
+<!-- A clear and concise description of the feature you are requesting. -->
+
+## Problem / Motivation
+
+<!-- What problem does this solve? Why is this needed? -->
+
+## Proposed Solution
+
+<!-- Describe the solution you'd like. Include API sketches, UI mockups, or pseudocode where helpful. -->
+
+## Alternatives Considered
+
+<!-- What other approaches did you consider? Why did you choose this one? -->
+
+## Acceptance Criteria
+
+<!-- How will we know when this feature is complete? -->
+
+- [ ] 
+- [ ] 
+- [ ] 
+
+## Additional Context
+
+<!-- Any other context, references, or screenshots. -->
+
+## Checklist
+
+- [ ] I have searched existing issues and this is not already requested
+- [ ] This request aligns with the project roadmap or goals
+- [ ] I am willing to contribute a pull request for this feature

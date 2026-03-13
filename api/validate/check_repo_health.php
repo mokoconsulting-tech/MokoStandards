@@ -13,7 +13,7 @@
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: /api/validate/check_repo_health.php
  * VERSION: 04.00.04
- * BRIEF: Repository health checker - PHP implementation
+ * BRIEF: Repository health checker - PHP implementation; includes deployment, secrets, and variables checks
  */
 
 declare(strict_types=1);
@@ -37,6 +37,9 @@ use MokoStandards\Enterprise\{
 class RepoHealthChecker extends CliFramework
 {
     private const DEFAULT_THRESHOLD = 70.0;
+
+    /** Repos that are not Dolibarr modules — CUSTOM_FOLDER check is skipped for these. */
+    private const CUSTOM_FOLDER_EXEMPT = ['MokoStandards', '.github-private'];
     
     private AuditLogger $logger;
     private MetricsCollector $metrics;
@@ -110,6 +113,7 @@ class RepoHealthChecker extends CliFramework
         $this->runDocumentationChecks($path);
         $this->runWorkflowChecks($path);
         $this->runSecurityChecks($path);
+        $this->runDeploymentChecks($path, $repo);
         
         // Calculate scores
         $this->calculateScore();
@@ -263,13 +267,141 @@ class RepoHealthChecker extends CliFramework
             file_exists("{$path}/.github/dependabot.yaml"), 5);
     }
     
+    private function runDeploymentChecks(string $path, string $repo): void
+    {
+        $category = 'deployment';
+        $this->results['categories'][$category] = [
+            'name'           => 'Dev Deployment',
+            'max_points'     => 5,
+            'earned_points'  => 0,
+            'checks_passed'  => 0,
+            'checks_failed'  => 0,
+        ];
+
+        // 1. Workflow file exists — filesystem check, always runs
+        $workflowFile = "{$path}/.github/workflows/deploy-dev.yml";
+        $this->addCheck(
+            $category,
+            'deploy-dev.yml workflow exists',
+            file_exists($workflowFile),
+            5
+        );
+
+        // 2. Secrets & variables — require --repo for GitHub API
+        if (empty($repo)) {
+            $this->log("Skipping deployment secrets/variables checks (no --repo provided)");
+            return;
+        }
+
+        // Expand max_points now that we can run API checks.
+        // CUSTOM_FOLDER (2 pts) is not applicable to MokoStandards or .github-private.
+        [, $repoName] = array_pad(explode('/', $repo, 2), 2, '');
+        $checkCustomFolder = !in_array($repoName, self::CUSTOM_FOLDER_EXEMPT, true);
+        $this->results['categories'][$category]['max_points'] += $checkCustomFolder ? 12 : 10;
+
+        $token = getenv('GH_TOKEN') ?: getenv('GITHUB_TOKEN');
+        if (empty($token)) {
+            $this->warn("Cannot check deployment secrets/variables: GH_TOKEN not set");
+            $this->addCheck($category, 'DEV_FTP_HOST variable configured', false, 3);
+            $this->addCheck($category, 'DEV_FTP_PATH variable configured', false, 3);
+            $this->addCheck($category, 'DEV_FTP_USERNAME variable configured', false, 2);
+            $this->addCheck($category, 'SFTP credentials configured (DEV_FTP_KEY or DEV_FTP_PASSWORD)', false, 2);
+            if ($checkCustomFolder) {
+                $this->addCheck($category, 'CUSTOM_FOLDER variable configured', false, 2);
+            }
+            return;
+        }
+
+        [$org] = explode('/', $repo, 2);
+
+        // DEV_FTP_HOST — org or repo variable
+        $this->addCheck(
+            $category,
+            'DEV_FTP_HOST variable configured',
+            $this->githubVarExists("orgs/{$org}/actions/variables/DEV_FTP_HOST", $token)
+                || $this->githubVarExists("repos/{$repo}/actions/variables/DEV_FTP_HOST", $token),
+            3
+        );
+
+        // DEV_FTP_PATH — org or repo variable
+        $this->addCheck(
+            $category,
+            'DEV_FTP_PATH variable configured',
+            $this->githubVarExists("orgs/{$org}/actions/variables/DEV_FTP_PATH", $token)
+                || $this->githubVarExists("repos/{$repo}/actions/variables/DEV_FTP_PATH", $token),
+            3
+        );
+
+        // DEV_FTP_USERNAME — org or repo variable
+        $this->addCheck(
+            $category,
+            'DEV_FTP_USERNAME variable configured',
+            $this->githubVarExists("orgs/{$org}/actions/variables/DEV_FTP_USERNAME", $token)
+                || $this->githubVarExists("repos/{$repo}/actions/variables/DEV_FTP_USERNAME", $token),
+            2
+        );
+
+        // SFTP credentials — at least DEV_FTP_KEY or DEV_FTP_PASSWORD must exist
+        $hasKey = $this->githubVarExists("orgs/{$org}/actions/secrets/DEV_FTP_KEY", $token)
+               || $this->githubVarExists("repos/{$repo}/actions/secrets/DEV_FTP_KEY", $token);
+        $hasPassword = $this->githubVarExists("orgs/{$org}/actions/secrets/DEV_FTP_PASSWORD", $token)
+                    || $this->githubVarExists("repos/{$repo}/actions/secrets/DEV_FTP_PASSWORD", $token);
+        $this->addCheck(
+            $category,
+            'SFTP credentials configured (DEV_FTP_KEY or DEV_FTP_PASSWORD)',
+            $hasKey || $hasPassword,
+            2
+        );
+
+        // CUSTOM_FOLDER — repo-level variable; required for publish-to-mokodolibarr workflow.
+        // Not applicable to MokoStandards or .github-private (no Dolibarr module to publish).
+        if ($checkCustomFolder) {
+            $this->addCheck(
+                $category,
+                'CUSTOM_FOLDER variable configured',
+                $this->githubVarExists("repos/{$repo}/actions/variables/CUSTOM_FOLDER", $token),
+                2
+            );
+        }
+    }
+
+    /**
+     * Returns true when the GitHub API responds 200 for the given resource path.
+     * Used to check for the existence of org/repo variables and secrets by name.
+     *
+     * @param string $resourcePath  e.g. "orgs/myorg/actions/variables/MY_VAR"
+     * @param string $token         GitHub personal access token
+     */
+    private function githubVarExists(string $resourcePath, string $token): bool
+    {
+        $url = "https://api.github.com/{$resourcePath}";
+        $ch  = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER     => [
+                'Authorization: token ' . $token,
+                'User-Agent: MokoStandards-HealthCheck',
+                'Accept: application/vnd.github.v3+json',
+            ],
+        ]);
+        curl_exec($ch);
+        $error  = curl_error($ch);
+        $status = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        if (!empty($error)) {
+            $this->warn("curl error checking {$resourcePath}: {$error}");
+        }
+        return $status === 200;
+    }
+
+
     private function addCheck(string $category, string $name, bool $passed, int $points): void
     {
         $this->results['checks'][] = [
             'category' => $category,
-            'name' => $name,
-            'passed' => $passed,
-            'points' => $points,
+            'name'     => $name,
+            'passed'   => $passed,
+            'points'   => $points,
         ];
         
         if ($passed) {

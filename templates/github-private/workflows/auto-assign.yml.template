@@ -1,0 +1,66 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.PrivateWorkflow
+# INGROUP: MokoStandards
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /templates/github-private/workflows/auto-assign.yml.template
+# VERSION: 04.00.04
+# BRIEF: Universal workflow — auto-assigns PR author and requests CODEOWNERS review
+# NOTE: Synced to .github-private repo .github/workflows/auto-assign.yml.
+#       Supports workflow_call for governed repos to reuse.
+
+name: Auto-Assign Reviewers
+
+on:
+  pull_request:
+    types: [opened, ready_for_review]
+  workflow_call:
+    secrets:
+      GH_TOKEN:
+        required: true
+
+permissions:
+  pull-requests: write
+
+jobs:
+  auto-assign:
+    name: Auto-Assign
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+
+    steps:
+      - name: Assign PR author as assignee
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          ACTOR="${{ github.actor }}"
+          REPO="${{ github.repository }}"
+
+          if gh pr edit "$PR_NUMBER" --repo "$REPO" --add-assignee "$ACTOR" 2>/dev/null; then
+            echo "✅ Assigned ${ACTOR} to PR #${PR_NUMBER}"
+          else
+            echo "⚠️  Could not assign ${ACTOR} (may already be assigned or actor is a bot)"
+          fi
+
+      - name: Log CODEOWNERS status
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          REPO="${{ github.repository }}"
+
+          if gh api "repos/${REPO}/contents/.github/CODEOWNERS" --silent 2>/dev/null; then
+            echo "✅ CODEOWNERS found — GitHub will auto-request reviews from code owners"
+          else
+            echo "ℹ️  No CODEOWNERS file — no automated review requests beyond direct assignment"
+          fi
+
+      - name: Summary
+        run: |
+          echo "### 👤 Auto-Assign Complete" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**PR:** #${{ github.event.pull_request.number }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Author/Assignee:** ${{ github.actor }}" >> "$GITHUB_STEP_SUMMARY"

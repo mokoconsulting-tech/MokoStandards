@@ -114,9 +114,16 @@ class BulkSync extends CLIApp
         
         // Apply filters
         $repositories = $this->filterRepositories($repositories, $specificRepos, $excludeRepos);
-        
+
+        // Always process .github-private first so universal workflows and issue
+        // templates are up-to-date before any other repo is synced.
+        $repositories = $this->prioritizeRepositories($repositories);
+
         $count = count($repositories);
         $this->log("Found {$count} repositories to sync", 'INFO');
+        if (!empty($repositories) && $repositories[0]['name'] === '.github-private') {
+            $this->log("ℹ️  .github-private will be synced first (priority repo)", 'INFO');
+        }
         
         if ($count === 0) {
             $this->log("No repositories to process", 'WARN');
@@ -217,7 +224,30 @@ class BulkSync extends CLIApp
         
         return array_values($repositories);
     }
-    
+
+    /**
+     * Sort repositories so that .github-private is always processed first.
+     * All other repositories retain their original relative order.
+     *
+     * @param array<int, array{name: string}> $repositories
+     * @return array<int, array{name: string}>
+     */
+    private function prioritizeRepositories(array $repositories): array
+    {
+        $priority = [];
+        $rest     = [];
+
+        foreach ($repositories as $repo) {
+            if ($repo['name'] === '.github-private') {
+                $priority[] = $repo;
+            } else {
+                $rest[] = $repo;
+            }
+        }
+
+        return array_values(array_merge($priority, $rest));
+    }
+
     /**
      * Confirm synchronization with user
      */

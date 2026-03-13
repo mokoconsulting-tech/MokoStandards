@@ -1,0 +1,89 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.PrivateWorkflow
+# INGROUP: MokoStandards
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /templates/github-private/workflows/welcome.yml.template
+# VERSION: 04.00.04
+# BRIEF: Universal workflow — posts a welcome message when first-time contributors open a PR or issue
+# NOTE: Synced to .github-private repo .github/workflows/welcome.yml.
+#       Supports workflow_call for governed repos.
+
+name: Welcome First-Time Contributors
+
+on:
+  pull_request_target:
+    types: [opened]
+  issues:
+    types: [opened]
+  workflow_call:
+    secrets:
+      GH_TOKEN:
+        required: true
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  welcome:
+    name: Welcome Contributor
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check if first-time contributor
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          REPO: ${{ github.repository }}
+          ACTOR: ${{ github.actor }}
+        run: |
+          PR_COUNT=$(gh pr list --repo "$REPO" --author "$ACTOR" --state all \
+            --json number --jq 'length' 2>/dev/null || echo "0")
+          ISSUE_COUNT=$(gh issue list --repo "$REPO" --author "$ACTOR" --state all \
+            --json number --jq 'length' 2>/dev/null || echo "0")
+          TOTAL=$((PR_COUNT + ISSUE_COUNT))
+          echo "total_contributions=${TOTAL}" >> "$GITHUB_OUTPUT"
+          echo "Actor ${ACTOR} has ${TOTAL} previous contribution(s) in ${REPO}"
+
+      - name: Post welcome message on PR
+        if: github.event_name == 'pull_request_target' && steps.check.outputs.total_contributions == '1'
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          gh pr comment "${{ github.event.pull_request.number }}" \
+            --repo "${{ github.repository }}" \
+            --body "## 👋 Welcome, @${{ github.actor }}!
+
+          Thank you for opening your first pull request in **${{ github.repository }}**!
+
+          Here are a few things to keep in mind:
+
+          - 📋 Make sure your PR title follows [conventional commits](https://www.conventionalcommits.org/) format
+          - 🔍 A maintainer will review your PR shortly
+          - 📚 Check [CONTRIBUTING.md](../blob/main/CONTRIBUTING.md) if you need guidance
+          - ✅ Ensure all CI checks pass before requesting a review
+
+          We appreciate your contribution! 🎉"
+
+      - name: Post welcome message on issue
+        if: github.event_name == 'issues' && steps.check.outputs.total_contributions == '1'
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          gh issue comment "${{ github.event.issue.number }}" \
+            --repo "${{ github.repository }}" \
+            --body "## 👋 Welcome, @${{ github.actor }}!
+
+          Thank you for opening your first issue in **${{ github.repository }}**!
+
+          A maintainer will review your report shortly. In the meantime:
+
+          - 🔍 Search existing issues to make sure this isn't a duplicate
+          - 📚 Review [CONTRIBUTING.md](../blob/main/CONTRIBUTING.md) for guidance
+          - 🔒 For security concerns, use [SECURITY.md](../blob/main/SECURITY.md) instead
+
+          We appreciate your feedback! 🎉"

@@ -1,0 +1,256 @@
+# Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# FILE INFORMATION
+# DEFGROUP: GitHub.Workflow.Dolibarr
+# INGROUP: MokoStandards.Deploy
+# REPO: https://github.com/mokoconsulting-tech/MokoStandards
+# PATH: /templates/workflows/dolibarr/publish-to-mokodolibarr.yml.template
+# VERSION: 04.00.04
+# BRIEF: On release, copies src/ into htdocs/custom/$CUSTOM_FOLDER in mokodolibarr and opens a PR
+#
+# Required repo variable:  CUSTOM_FOLDER — subdirectory name under htdocs/custom/ (e.g. moko-mymodule)
+# Required org secret:     GH_TOKEN — must have write access to mokoconsulting-tech/mokodolibarr
+# Target repository:       mokoconsulting-tech/mokodolibarr
+
+name: Publish to MokoDolibarr
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: "Publish → mokodolibarr/htdocs/custom/${{ vars.CUSTOM_FOLDER }}"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate CUSTOM_FOLDER
+        env:
+          CUSTOM_FOLDER: ${{ vars.CUSTOM_FOLDER }}
+        run: |
+          if [ -z "$CUSTOM_FOLDER" ]; then
+            echo "❌ CUSTOM_FOLDER repository variable is not set."
+            echo "   Set it to the subdirectory name under htdocs/custom/ in mokodolibarr."
+            echo "   Example: moko-mymodule"
+            exit 1
+          fi
+          echo "✅ CUSTOM_FOLDER: ${CUSTOM_FOLDER}"
+
+      - name: Checkout module repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          path: module
+
+      - name: Validate src/ directory
+        id: source
+        run: |
+          if [ ! -d "module/src" ]; then
+            echo "❌ No src/ directory found in this repository — nothing to publish."
+            exit 1
+          fi
+          COUNT=$(find module/src -type f | wc -l)
+          echo "✅ src/ contains ${COUNT} file(s)"
+          echo "count=${COUNT}" >> "$GITHUB_OUTPUT"
+
+      - name: Dry-run — preview files that will be published
+        id: dryrun
+        env:
+          CUSTOM_FOLDER: ${{ vars.CUSTOM_FOLDER }}
+          FTP_IGNORE:    ${{ vars.FTP_IGNORE }}
+        run: |
+          DEST="htdocs/custom/${CUSTOM_FOLDER}"
+
+          # ── Parse FTP_IGNORE patterns ─────────────────────────────────────────
+          IGNORE_PATTERNS=()
+          if [ -n "$FTP_IGNORE" ]; then
+            while IFS= read -r -d ',' token; do
+              pattern=$(echo "$token" | sed 's/^[[:space:]]*"//;s/"[[:space:]]*$//')
+              [ -n "$pattern" ] && IGNORE_PATTERNS+=("$pattern")
+            done <<< "${FTP_IGNORE},"
+          fi
+
+          # ── Collect files, applying FTP_IGNORE and .gitignore ────────────────
+          WOULD_PUBLISH=()
+          IGNORED_FILES=()
+          while IFS= read -r -d '' file; do
+            rel="${file#module/src/}"
+
+            # Check FTP_IGNORE
+            SKIP=false
+            for pat in "${IGNORE_PATTERNS[@]}"; do
+              if echo "$rel" | grep -qE "$pat" 2>/dev/null; then
+                IGNORED_FILES+=("$rel (FTP_IGNORE: $pat)")
+                SKIP=true
+                break
+              fi
+            done
+            $SKIP && continue
+
+            # Check .gitignore
+            if [ -f "module/.gitignore" ] && git -C module check-ignore -q "$rel" 2>/dev/null; then
+              IGNORED_FILES+=("$rel (.gitignore)")
+              continue
+            fi
+
+            WOULD_PUBLISH+=("$rel")
+          done < <(find module/src -type f -print0 | sort -z)
+
+          PUBLISH_COUNT="${#WOULD_PUBLISH[@]}"
+          IGNORE_COUNT="${#IGNORED_FILES[@]}"
+
+          echo "publish_count=${PUBLISH_COUNT}" >> "$GITHUB_OUTPUT"
+          echo "ignore_count=${IGNORE_COUNT}"   >> "$GITHUB_OUTPUT"
+
+          # ── Write step summary ────────────────────────────────────────────────
+          {
+            echo "## 🔍 Publish Dry-Run Summary"
+            echo ""
+            echo "| Field | Value |"
+            echo "|---|---|"
+            echo "| Destination | \`${DEST}/\` |"
+            echo "| Would publish | **${PUBLISH_COUNT}** file(s) |"
+            echo "| Ignored | **${IGNORE_COUNT}** file(s) |"
+            echo ""
+
+            if [ "${PUBLISH_COUNT}" -gt 0 ]; then
+              echo "### 📂 Files that would be published"
+              echo ""
+              echo '```'
+              printf '%s\n' "${WOULD_PUBLISH[@]}"
+              echo '```'
+              echo ""
+            fi
+
+            if [ "${IGNORE_COUNT}" -gt 0 ]; then
+              echo "### ⏭️ Files excluded"
+              echo ""
+              echo "| File | Reason |"
+              echo "|---|---|"
+              for entry in "${IGNORED_FILES[@]}"; do
+                file="${entry% (*}"
+                reason="${entry##* (}"; reason="${reason%)}"
+                echo "| \`${file}\` | ${reason} |"
+              done
+              echo ""
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          echo "✅ Dry-run complete: ${PUBLISH_COUNT} would publish, ${IGNORE_COUNT} ignored"
+
+      - name: Checkout mokodolibarr repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          repository: mokoconsulting-tech/mokodolibarr
+          token: ${{ secrets.GH_TOKEN }}
+          path: mokodolibarr
+
+      - name: Create release branch
+        id: branch
+        run: |
+          MODULE="${{ github.event.repository.name }}"
+          TAG="${{ github.event.release.tag_name }}"
+          BRANCH="release/${MODULE}-${TAG}"
+
+          cd mokodolibarr
+          git config user.email "automation@mokoconsulting.tech"
+          git config user.name "Moko Standards Bot"
+          git checkout -b "$BRANCH"
+
+          echo "branch=${BRANCH}" >> "$GITHUB_OUTPUT"
+          echo "module=${MODULE}" >> "$GITHUB_OUTPUT"
+          echo "tag=${TAG}"       >> "$GITHUB_OUTPUT"
+          echo "ℹ️  Release branch: ${BRANCH}"
+
+      - name: Copy src/ to htdocs/custom/${{ vars.CUSTOM_FOLDER }}
+        id: copy
+        env:
+          CUSTOM_FOLDER: ${{ vars.CUSTOM_FOLDER }}
+        run: |
+          DEST="mokodolibarr/htdocs/custom/${CUSTOM_FOLDER}"
+          mkdir -p "$DEST"
+
+          # --delete removes files in dest that no longer exist in src/
+          rsync -av --delete module/src/ "$DEST/"
+
+          FILE_COUNT=$(find "$DEST" -type f | wc -l)
+          echo "dest=${DEST}" >> "$GITHUB_OUTPUT"
+          echo "✅ Synced to ${DEST} (${FILE_COUNT} file(s))"
+
+      - name: Commit changes
+        id: commit
+        run: |
+          cd mokodolibarr
+          git add -A
+
+          if git diff --staged --quiet; then
+            echo "ℹ️  No changes to commit — src/ is already up to date in mokodolibarr."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "feat(${{ steps.branch.outputs.module }}): update to ${{ steps.branch.outputs.tag }}"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Push release branch
+        if: steps.commit.outputs.changed == 'true'
+        run: |
+          cd mokodolibarr
+          git push origin "${{ steps.branch.outputs.branch }}"
+
+      - name: Create pull request on mokodolibarr
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          MODULE="${{ steps.branch.outputs.module }}"
+          TAG="${{ steps.branch.outputs.tag }}"
+          CUSTOM_FOLDER="${{ vars.CUSTOM_FOLDER }}"
+          RELEASE_URL="${{ github.event.release.html_url }}"
+          RELEASE_BODY="${{ github.event.release.body }}"
+
+          gh pr create \
+            --repo mokoconsulting-tech/mokodolibarr \
+            --head "${{ steps.branch.outputs.branch }}" \
+            --base main \
+            --title "feat(${CUSTOM_FOLDER}): ${TAG}" \
+            --body "## 📦 Module Release
+
+          **Module:** \`${MODULE}\`
+          **Version:** \`${TAG}\`
+          **Destination:** \`htdocs/custom/${CUSTOM_FOLDER}/\`
+          **Source release:** ${RELEASE_URL}
+
+          ### Release Notes
+
+          ${RELEASE_BODY}
+
+          ---
+          *This PR was created automatically by the \`publish-to-mokodolibarr\` workflow.*"
+
+      - name: Summary
+        if: always()
+        run: |
+          MODULE="${{ steps.branch.outputs.module }}"
+          TAG="${{ steps.branch.outputs.tag }}"
+          CHANGED="${{ steps.commit.outputs.changed }}"
+
+          echo "### 📦 Publish to MokoDolibarr" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Field | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|-------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Module | \`${MODULE}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Tag | \`${TAG}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Destination | \`htdocs/custom/${{ vars.CUSTOM_FOLDER }}/\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Files synced | ${{ steps.source.outputs.count }} |" >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$CHANGED" = "true" ]; then
+            echo "| PR | ✅ Created |" >> "$GITHUB_STEP_SUMMARY"
+          elif [ "$CHANGED" = "false" ]; then
+            echo "| PR | ℹ️ Skipped (no changes) |" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "| PR | ❌ Not reached |" >> "$GITHUB_STEP_SUMMARY"
+          fi

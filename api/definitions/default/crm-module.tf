@@ -945,6 +945,22 @@ EOT
                 requirement_status  = "required"
                 always_overwrite    = true
                 template            = "templates/workflows/shared/enterprise-firewall-setup.yml.template"
+              },
+              {
+                name                = "deploy-dev.yml"
+                extension           = "yml"
+                description         = "SFTP deployment of src/ to the development server"
+                requirement_status  = "required"
+                always_overwrite    = true
+                template            = "templates/workflows/shared/deploy-dev.yml.template"
+              },
+              {
+                name                = "publish-to-mokodolibarr.yml"
+                extension           = "yml"
+                description         = "On release, copies src/ to htdocs/custom/$CUSTOM_FOLDER in mokodolibarr and opens a PR"
+                requirement_status  = "required"
+                always_overwrite    = true
+                template            = "templates/workflows/dolibarr/publish-to-mokodolibarr.yml.template"
               }
             ]
           }
@@ -968,5 +984,62 @@ EOT
         ]
       }
     ]
+
+    repository_requirements = {
+      secrets = [
+        {
+          name        = "GH_TOKEN"
+          description = "Org-level GitHub PAT for automation"
+          required    = true
+          scope       = "org"
+        },
+        {
+          name        = "DEV_FTP_KEY"
+          description = "SSH private key for SFTP dev deployment (preferred); if DEV_FTP_PASSWORD is also set it is used as the key passphrase, with password-only as fallback"
+          required    = false
+          scope       = "org"
+        },
+        {
+          name        = "DEV_FTP_PASSWORD"
+          description = "SFTP password for dev deployment; used as SSH key passphrase when DEV_FTP_KEY is also set, and as standalone fallback if key auth fails"
+          required    = false
+          scope       = "org"
+          note        = "At least one of DEV_FTP_KEY or DEV_FTP_PASSWORD must be configured"
+        }
+      ]
+
+      variables = [
+        {
+          name        = "DEV_FTP_HOST"
+          description = "Dev server hostname; may include port suffix (e.g. dev.example.com or dev.example.com:2222)"
+          required    = true
+          scope       = "org"
+        },
+        {
+          name        = "DEV_FTP_PATH"
+          description = "Base remote path for SFTP deployment (e.g. /var/www/html)"
+          required    = true
+          scope       = "org"
+        },
+        {
+          name        = "DEV_FTP_USERNAME"
+          description = "SFTP username for dev server authentication"
+          required    = true
+          scope       = "org"
+        },
+        {
+          name        = "DEV_FTP_PORT"
+          description = "Explicit SFTP port override; if omitted the port is parsed from DEV_FTP_HOST or defaults to 22"
+          required    = false
+          scope       = "org"
+        },
+        {
+          name        = "DEV_FTP_PATH_SUFFIX"
+          description = "Per-repo path suffix appended to DEV_FTP_PATH (e.g. /my-module)"
+          required    = false
+          scope       = "repo"
+        }
+      ]
+    }
   }
 }

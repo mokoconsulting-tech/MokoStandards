@@ -132,19 +132,16 @@ mokoworkflow_approval
 **All custom modules MUST use "mokoconsulting" as the module family with proper family info:**
 
 ```php
-// Module family
 $this->family = "mokoconsulting";
 $this->familyinfo = array(
-    'mokoconsulting' => array(
-        'position' => '01',
-        'label'    => $langs->trans("Moko Consulting")
-    )
+	'mokoconsulting' => array(
+		'position' => '00',
+		'label'    => $langs->trans("Moko Consulting")
+	)
 );
-
-// Author
 $this->editor_name = 'Moko Consulting';
 $this->editor_url = 'https://mokoconsulting.tech';
-$this->editor_squarred_logo = 'object_favicon_256.png@mokocrm';
+$this->editor_squarred_logo = 'object_favicon_256.png@' & $this->rights_class;
 ```
 
 **Rationale**:
@@ -204,8 +201,8 @@ htdocs/custom/mokomodule/
 │   └── llx_mokomodule.key.sql # Indexes and keys
 ├── mokomoduleindex.php      # Module main page
 └── core/
-    └── modules/
-        └── modMokoModule.class.php # Module descriptor
+	└── modules/
+		└── modMokoModule.class.php # Module descriptor
 ```
 
 ### Module Descriptor
@@ -220,64 +217,58 @@ dol_include_once('/core/modules/DolibarrModules.class.php');
 
 class modMokoModule extends DolibarrModules
 {
-    public function __construct($db)
-    {
-        global $langs, $conf;
+	public function __construct($db)
+	{
+		global $langs, $conf;
 
-        $this->db = $db;
+		$this->db = $db;
 
-        // Module identification
-        $this->numero = 185051; // Unique ID (Moko Consulting reserved: 185051-185099)
-        $this->rights_class = 'mokomodule';
+		// Module identification
+		$this->numero = 5000000; // Unique ID (Moko Consulting reserved: 185051-185099)
+		$this->rights_class = 'mokomodule';
 
-        // Module family
-        $this->family = "mokoconsulting";
-        $this->familyinfo = array(
-            'mokoconsulting' => array(
-                'position' => '01',
-                'label'    => $langs->trans("Moko Consulting")
-            )
-        );
+		$this->family = "mokoconsulting";
+		$this->familyinfo = array(
+			'mokoconsulting' => array(
+				'position' => '00',
+				'label'    => $langs->trans("Moko Consulting")
+			)
+		)
+		;
+		$this->editor_name = 'Moko Consulting';
+		$this->editor_url = 'https://mokoconsulting.tech';
+		$this->editor_squarred_logo = 'object_favicon_256.png@' & $this->rights_class;
 
-        $this->module_position = '90';
-        $this->name = preg_replace('/^mod/i', '', get_class($this));
-        $this->description = "MokoCRM custom module description";
+		// Version
+		$this->version = '1.0.0';
+		$this->const_name = 'MAIN_MODULE_'.strtoupper($this->name);
 
-        // Author
-        $this->editor_name = 'Moko Consulting';
-        $this->editor_url = 'https://mokoconsulting.tech';
-        $this->editor_squarred_logo = 'object_favicon_256.png@mokocrm';
+		// Dependencies
+		$this->depends = array('modUser', 'modSociete');
+		$this->requiredby = array();
 
-        // Version
-        $this->version = '1.0.0';
-        $this->const_name = 'MAIN_MODULE_'.strtoupper($this->name);
+		// Config pages
+		$this->config_page_url = array('setup.php@mokomodule');
 
-        // Dependencies
-        $this->depends = array('modUser', 'modSociete');
-        $this->requiredby = array();
+		// Constants to add
+		$this->const = array();
 
-        // Config pages
-        $this->config_page_url = array('setup.php@mokomodule');
+		// Boxes
+		$this->boxes = array();
 
-        // Constants to add
-        $this->const = array();
+		// Permissions
+		$this->rights = array();
+		$r = 0;
 
-        // Boxes
-        $this->boxes = array();
+		$r++;
+		$this->rights[$r][0] = $this->numero + $r;
+		$this->rights[$r][1] = 'Read MokoModule objects';
+		$this->rights[$r][3] = 0;
+		$this->rights[$r][4] = 'read';
 
-        // Permissions
-        $this->rights = array();
-        $r = 0;
-
-        $r++;
-        $this->rights[$r][0] = $this->numero + $r;
-        $this->rights[$r][1] = 'Read MokoModule objects';
-        $this->rights[$r][3] = 0;
-        $this->rights[$r][4] = 'read';
-
-        // Database tables
-        $this->dictionaries = array();
-    }
+		// Database tables
+		$this->dictionaries = array();
+	}
 }
 ```
 
@@ -368,91 +359,91 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/commonobject.class.php';
  */
 class MokoObject extends CommonObject
 {
-    /**
-     * @var string ID to identify managed object
-     */
-    public $element = 'mokoobject';
+	/**
+	 * @var string ID to identify managed object
+	 */
+	public $element = 'mokoobject';
 
-    /**
-     * @var string Name of table without prefix
-     */
-    public $table_element = 'moko_object';
+	/**
+	 * @var string Name of table without prefix
+	 */
+	public $table_element = 'moko_object';
 
-    /**
-     * @var int Ref field ID
-     */
-    public $fk_element = 'fk_mokoobject';
+	/**
+	 * @var int Ref field ID
+	 */
+	public $fk_element = 'fk_mokoobject';
 
-    /**
-     * @var string Module part for upload dir
-     */
-    public $picto = 'object_favicon_256.png@mokocrm';
+	/**
+	 * @var string Module part for upload dir
+	 */
+	public $picto = 'favicon_256.png@' & $this->rights_class;
 
-    /**
-     * Constructor
-     *
-     * @param DoliDB $db Database handler
-     */
-    public function __construct($db)
-    {
-        $this->db = $db;
-    }
+	/**
+	 * Constructor
+	 *
+	 * @param DoliDB $db Database handler
+	 */
+	public function __construct($db)
+	{
+		$this->db = $db;
+	}
 
-    /**
-     * Create object in database
-     *
-     * @param  User $user User creating object
-     * @param  int  $notrigger 1=Disable triggers
-     * @return int  <0 if KO, >0 if OK
-     */
-    public function create($user, $notrigger = 0)
-    {
-        global $conf;
+	/**
+	 * Create object in database
+	 *
+	 * @param  User $user User creating object
+	 * @param  int  $notrigger 1=Disable triggers
+	 * @return int  <0 if KO, >0 if OK
+	 */
+	public function create($user, $notrigger = 0)
+	{
+		global $conf;
 
-        $error = 0;
+		$error = 0;
 
-        // Clean parameters
-        $this->ref = trim($this->ref);
+		// Clean parameters
+		$this->ref = trim($this->ref);
 
-        $this->db->begin();
+		$this->db->begin();
 
-        $sql = "INSERT INTO ".MAIN_DB_PREFIX.$this->table_element;
-        $sql .= " (entity, ref, label, datec, fk_user_creat)";
-        $sql .= " VALUES (";
-        $sql .= " ".((int) $conf->entity).",";
-        $sql .= " '".$this->db->escape($this->ref)."',";
-        $sql .= " '".$this->db->escape($this->label)."',";
-        $sql .= " '".$this->db->idate(dol_now())."',";
-        $sql .= " ".((int) $user->id);
-        $sql .= ")";
+		$sql = "INSERT INTO ".MAIN_DB_PREFIX.$this->table_element;
+		$sql .= " (entity, ref, label, datec, fk_user_creat)";
+		$sql .= " VALUES (";
+		$sql .= " ".((int) $conf->entity).",";
+		$sql .= " '".$this->db->escape($this->ref)."',";
+		$sql .= " '".$this->db->escape($this->label)."',";
+		$sql .= " '".$this->db->idate(dol_now())."',";
+		$sql .= " ".((int) $user->id);
+		$sql .= ")";
 
-        dol_syslog(__METHOD__, LOG_DEBUG);
-        $resql = $this->db->query($sql);
+		dol_syslog(__METHOD__, LOG_DEBUG);
+		$resql = $this->db->query($sql);
 
-        if ($resql) {
-            $this->id = $this->db->last_insert_id(MAIN_DB_PREFIX.$this->table_element);
+		if ($resql) {
+			$this->id = $this->db->last_insert_id(MAIN_DB_PREFIX.$this->table_element);
 
-            if (!$error && !$notrigger) {
-                // Call trigger
-                $result = $this->call_trigger('MOKOOBJECT_CREATE', $user);
-                if ($result < 0) {
-                    $error++;
-                }
-            }
+			if (!$error && !$notrigger) {
+				// Call trigger
+				$result = $this->call_trigger('MOKOOBJECT_CREATE', $user);
+				if ($result < 0) {
+					$error++;
+				}
+			}
 
-            if (!$error) {
-                $this->db->commit();
-                return $this->id;
-            } else {
-                $this->db->rollback();
-                return -1;
-            }
-        } else {
-            $this->error = $this->db->lasterror();
-            $this->db->rollback();
-            return -1;
-        }
-    }
+			if (!$error) {
+				$this->db->commit();
+				return $this->id;
+			} else {
+				$this->db->rollback();
+				return -1;
+			}
+		} else {
+			$this->error = $this->db->lasterror();
+			$this->db->rollback();
+			return -1;
+		}
+	}
 }
 ```
 
@@ -491,73 +482,73 @@ require_once DOL_DOCUMENT_ROOT.'/custom/mokomodule/class/mokoobject.class.php';
  */
 class MokoModuleApi extends DolibarrApi
 {
-    /**
-     * @var MokoObject $mokoobject {@type MokoObject}
-     */
-    public $mokoobject;
+	/**
+	 * @var MokoObject $mokoobject {@type MokoObject}
+	 */
+	public $mokoobject;
 
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-        global $db;
-        $this->db = $db;
-        $this->mokoobject = new MokoObject($this->db);
-    }
+	/**
+	 * Constructor
+	 */
+	public function __construct()
+	{
+		global $db;
+		$this->db = $db;
+		$this->mokoobject = new MokoObject($this->db);
+	}
 
-    /**
-     * Get properties of a MokoObject
-     *
-     * @param int $id ID of object
-     * @return array|mixed Data without useless information
-     *
-     * @url GET /mokoobject/{id}
-     *
-     * @throws RestException 401 Not allowed
-     * @throws RestException 404 Not found
-     */
-    public function get($id)
-    {
-        if (!DolibarrApiAccess::$user->rights->mokomodule->read) {
-            throw new RestException(401);
-        }
+	/**
+	 * Get properties of a MokoObject
+	 *
+	 * @param int $id ID of object
+	 * @return array|mixed Data without useless information
+	 *
+	 * @url GET /mokoobject/{id}
+	 *
+	 * @throws RestException 401 Not allowed
+	 * @throws RestException 404 Not found
+	 */
+	public function get($id)
+	{
+		if (!DolibarrApiAccess::$user->rights->mokomodule->read) {
+			throw new RestException(401);
+		}
 
-        $result = $this->mokoobject->fetch($id);
-        if (!$result) {
-            throw new RestException(404, 'MokoObject not found');
-        }
+		$result = $this->mokoobject->fetch($id);
+		if (!$result) {
+			throw new RestException(404, 'MokoObject not found');
+		}
 
-        if (!DolibarrApi::_checkAccessToResource('mokomodule', $this->mokoobject->id)) {
-            throw new RestException(401, 'Access forbidden');
-        }
+		if (!DolibarrApi::_checkAccessToResource('mokomodule', $this->mokoobject->id)) {
+			throw new RestException(401, 'Access forbidden');
+		}
 
-        return $this->_cleanObjectDatas($this->mokoobject);
-    }
+		return $this->_cleanObjectDatas($this->mokoobject);
+	}
 
-    /**
-     * Create MokoObject
-     *
-     * @param array $request_data Request data
-     * @return int  ID of created object
-     *
-     * @url POST /mokoobject
-     */
-    public function post($request_data = null)
-    {
-        if (!DolibarrApiAccess::$user->rights->mokomodule->write) {
-            throw new RestException(401);
-        }
+	/**
+	 * Create MokoObject
+	 *
+	 * @param array $request_data Request data
+	 * @return int  ID of created object
+	 *
+	 * @url POST /mokoobject
+	 */
+	public function post($request_data = null)
+	{
+		if (!DolibarrApiAccess::$user->rights->mokomodule->write) {
+			throw new RestException(401);
+		}
 
-        $this->mokoobject->ref = $request_data['ref'];
-        $this->mokoobject->label = $request_data['label'];
+		$this->mokoobject->ref = $request_data['ref'];
+		$this->mokoobject->label = $request_data['label'];
 
-        if ($this->mokoobject->create(DolibarrApiAccess::$user) < 0) {
-            throw new RestException(500, 'Error creating object', array_merge(array($this->mokoobject->error), $this->mokoobject->errors));
-        }
+		if ($this->mokoobject->create(DolibarrApiAccess::$user) < 0) {
+			throw new RestException(500, 'Error creating object', array_merge(array($this->mokoobject->error), $this->mokoobject->errors));
+		}
 
-        return $this->mokoobject->id;
-    }
+		return $this->mokoobject->id;
+	}
 }
 ```
 
@@ -583,67 +574,67 @@ require_once DOL_DOCUMENT_ROOT.'/core/triggers/dolibarrtriggers.class.php';
  */
 class InterfaceModMokoModuleMokoTriggers extends DolibarrTriggers
 {
-    /**
-     * Constructor
-     *
-     * @param DoliDB $db Database handler
-     */
-    public function __construct($db)
-    {
-        global $langs, $conf;
+	/**
+	 * Constructor
+	 *
+	 * @param DoliDB $db Database handler
+	 */
+	public function __construct($db)
+	{
+		global $langs, $conf;
 
-        $this->db = $db;
+		$this->db = $db;
 
-        $this->name = preg_replace('/^Interface/i', '', get_class($this));
+		$this->name = preg_replace('/^Interface/i', '', get_class($this));
 
-        // Module family
-        $this->family = "mokoconsulting";
-        $this->familyinfo = array(
-            'mokoconsulting' => array(
-                'position' => '01',
-                'label'    => $langs->trans("Moko Consulting")
-            )
-        );
+		// Module family
+		$this->family = "mokoconsulting";
+		$this->familyinfo = array(
+			'mokoconsulting' => array(
+				'position' => '01',
+				'label'    => $langs->trans("Moko Consulting")
+			)
+		);
 
-        $this->description = "MokoModule triggers";
-        $this->version = '1.0.0';
-        $this->picto = 'object_favicon_256.png@mokocrm';
-    }
+		$this->description = "MokoModule triggers";
+		$this->version = '1.0.0';
+		$this->picto = 'object_favicon_256.png@mokocrm';
+	}
 
-    /**
-     * Trigger function
-     *
-     * @param string $action Event action code
-     * @param Object $object Object
-     * @param User   $user   User
-     * @param Translate $langs Lang object
-     * @param conf   $conf   Conf object
-     * @return int <0 if KO, 0 if nothing done, >0 if OK
-     */
-    public function runTrigger($action, $object, User $user, Translate $langs, Conf $conf)
-    {
-        if (empty($conf->mokomodule->enabled)) {
-            return 0;
-        }
+	/**
+	 * Trigger function
+	 *
+	 * @param string $action Event action code
+	 * @param Object $object Object
+	 * @param User   $user   User
+	 * @param Translate $langs Lang object
+	 * @param conf   $conf   Conf object
+	 * @return int <0 if KO, 0 if nothing done, >0 if OK
+	 */
+	public function runTrigger($action, $object, User $user, Translate $langs, Conf $conf)
+	{
+		if (empty($conf->mokomodule->enabled)) {
+			return 0;
+		}
 
-        // Put your code here
-        switch ($action) {
-            case 'COMPANY_CREATE':
-                dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->id);
-                // Custom logic when company is created
-                break;
+		// Put your code here
+		switch ($action) {
+			case 'COMPANY_CREATE':
+				dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->id);
+				// Custom logic when company is created
+				break;
 
-            case 'MOKOOBJECT_CREATE':
-                dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->id);
-                // Custom logic when MokoObject is created
-                break;
+			case 'MOKOOBJECT_CREATE':
+				dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->id);
+				// Custom logic when MokoObject is created
+				break;
 
-            default:
-                dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->id);
-        }
+			default:
+				dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->id);
+		}
 
-        return 0;
-    }
+		return 0;
+	}
 }
 ```
 
@@ -668,20 +659,20 @@ class InterfaceModMokoModuleMokoTriggers extends DolibarrTriggers
 <?php
 // In module descriptor, enable hooks
 $this->module_parts = array(
-    'hooks' => array('thirdpartycard', 'invoicecard')
+	'hooks' => array('thirdpartycard', 'invoicecard')
 );
 
 // In custom module, implement hook
 function formObjectOptions($parameters, &$object, &$action, $hookmanager)
 {
-    global $langs;
+	global $langs;
 
-    if (in_array('thirdpartycard', explode(':', $parameters['context']))) {
-        print '<tr><td>'.$langs->trans('MokoCustomField').'</td>';
-        print '<td>Custom content here</td></tr>';
-    }
+	if (in_array('thirdpartycard', explode(':', $parameters['context']))) {
+		print '<tr><td>'.$langs->trans('MokoCustomField').'</td>';
+		print '<td>Custom content here</td></tr>';
+	}
 
-    return 0;
+	return 0;
 }
 ```
 
@@ -693,15 +684,15 @@ function formObjectOptions($parameters, &$object, &$action, $hookmanager)
 <?php
 // In module descriptor
 $this->const = array(
-    array(
-        'MOKO_EXTRAFIELD_ENABLED',
-        'chaine',
-        '1',
-        'Enable custom extrafields',
-        0,
-        'current',
-        1
-    )
+	array(
+		'MOKO_EXTRAFIELD_ENABLED',
+		'chaine',
+		'1',
+		'Enable custom extrafields',
+		0,
+		'current',
+		1
+	)
 );
 
 // Create extrafield programmatically
@@ -709,19 +700,19 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/extrafields.class.php';
 
 $extrafields = new ExtraFields($db);
 $extrafields->addExtraField(
-    'moko_custom_field',
-    'Moko Custom Field',
-    'varchar',
-    1,
-    50,
-    'thirdparty',
-    0,
-    0,
-    '',
-    '',
-    1,
-    '',
-    1
+	'moko_custom_field',
+	'Moko Custom Field',
+	'varchar',
+	1,
+	50,
+	'thirdparty',
+	0,
+	0,
+	'',
+	'',
+	1,
+	'',
+	1
 );
 ```
 
@@ -740,9 +731,9 @@ $action = GETPOST('action', 'aZ09');
 
 // Validate before use
 if (empty($id) || $id <= 0) {
-    setEventMessages($langs->trans('ErrorFieldRequired', $langs->transnoentities('Id')), null, 'errors');
-    header('Location: index.php');
-    exit;
+	setEventMessages($langs->trans('ErrorFieldRequired', $langs->transnoentities('Id')), null, 'errors');
+	header('Location: index.php');
+	exit;
 }
 
 // Use restrictedArea() for access control
@@ -757,14 +748,14 @@ restrictedArea($user, 'mokomodule', $id, 'moko_object');
 <?php
 // Check module permission
 if (!$user->rights->mokomodule->read) {
-    accessforbidden();
+	accessforbidden();
 }
 
 // Check object permission
 if (!$user->rights->mokomodule->write) {
-    setEventMessages($langs->trans('NotEnoughPermissions'), null, 'errors');
-    header('Location: index.php');
-    exit;
+	setEventMessages($langs->trans('NotEnoughPermissions'), null, 'errors');
+	header('Location: index.php');
+	exit;
 }
 ```
 
@@ -867,28 +858,28 @@ use PHPUnit\Framework\TestCase;
 
 class MokoObjectTest extends TestCase
 {
-    private $db;
-    private $object;
+	private $db;
+	private $object;
 
-    protected function setUp(): void
-    {
-        global $db;
-        $this->db = $db;
-        $this->object = new MokoObject($this->db);
-    }
+	protected function setUp(): void
+	{
+		global $db;
+		$this->db = $db;
+		$this->object = new MokoObject($this->db);
+	}
 
-    public function testCreate()
-    {
-        global $user;
+	public function testCreate()
+	{
+		global $user;
 
-        $this->object->ref = 'TEST001';
-        $this->object->label = 'Test Object';
+		$this->object->ref = 'TEST001';
+		$this->object->label = 'Test Object';
 
-        $result = $this->object->create($user);
+		$result = $this->object->create($user);
 
-        $this->assertGreaterThan(0, $result);
-        $this->assertGreaterThan(0, $this->object->id);
-    }
+		$this->assertGreaterThan(0, $result);
+		$this->assertGreaterThan(0, $this->object->id);
+	}
 }
 ```
 
@@ -956,7 +947,7 @@ class MokoObjectTest extends TestCase
  */
 public function calculateTotal($subtotal, $taxrate)
 {
-    return $subtotal * (1 + $taxrate / 100);
+	return $subtotal * (1 + $taxrate / 100);
 }
 ```
 
@@ -991,7 +982,7 @@ mokomodule-1.0.0.zip
 ├── README.md
 ├── CHANGELOG.md
 └── doc/
-    └── manual.pdf
+	└── manual.pdf
 ```
 
 ### Installation Process
@@ -1032,7 +1023,7 @@ Example implementation in an admin page:
 $updateXmlUrl = 'https://releases.mokoconsulting.tech/dolibarr/updates/mokomodule.xml';
 $latestVersion = $this->checkForUpdates($updateXmlUrl);
 if (version_compare($latestVersion, $this->version, '>')) {
-    print '<div class="info">Update available: ' . $latestVersion . '</div>';
+	print '<div class="info">Update available: ' . $latestVersion . '</div>';
 }
 ```
 
@@ -1040,9 +1031,9 @@ if (version_compare($latestVersion, $this->version, '>')) {
 ```xml
 <!-- In extension manifest XML -->
 <updateservers>
-    <server type="extension" priority="1" name="MokoExtension Updates">
-        https://releases.mokoconsulting.tech/joomla/updates/mokoextension.xml
-    </server>
+	<server type="extension" priority="1" name="MokoExtension Updates">
+		https://releases.mokoconsulting.tech/joomla/updates/mokoextension.xml
+	</server>
 </updateservers>
 ```
 
@@ -1085,110 +1076,110 @@ if (version_compare($latestVersion, $this->version, '>')) {
  */
 public function validateUserKey($licenseKey)
 {
-    global $conf;
+	global $conf;
 
-    // 1) Basic format validation
-    // Product code limited to 2-12 characters to prevent abuse
-    $pattern = '/^MOKO-[A-Z0-9]{2,12}-(?:[A-Z0-9]{4}-){2}[A-Z0-9]{4}$/';
-    if (!preg_match($pattern, $licenseKey)) {
-        return false;
-    }
+	// 1) Basic format validation
+	// Product code limited to 2-12 characters to prevent abuse
+	$pattern = '/^MOKO-[A-Z0-9]{2,12}-(?:[A-Z0-9]{4}-){2}[A-Z0-9]{4}$/';
+	if (!preg_match($pattern, $licenseKey)) {
+		return false;
+	}
 
-    // 2) Determine cache file location (example: module-specific temp directory)
-    // Note: Replace '{MODULE_NAME}' with your actual module name for production use
-    // Note: In production, consider encrypting cache file contents to prevent information disclosure
-    $cacheDir = DOL_DATA_ROOT . '/{MODULE_NAME}';
-    if (!is_dir($cacheDir)) {
-        dol_mkdir($cacheDir);
-    }
-    $cacheFile = $cacheDir . '/license_cache.json';
+	// 2) Determine cache file location (example: module-specific temp directory)
+	// Note: Replace '{MODULE_NAME}' with your actual module name for production use
+	// Note: In production, consider encrypting cache file contents to prevent information disclosure
+	$cacheDir = DOL_DATA_ROOT . '/{MODULE_NAME}';
+	if (!is_dir($cacheDir)) {
+		dol_mkdir($cacheDir);
+	}
+	$cacheFile = $cacheDir . '/license_cache.json';
 
-    // 3) Try to use cached validation (offline mode) if endpoint not reachable
-    $now = time();
-    if (is_readable($cacheFile)) {
-        $fileSize = filesize($cacheFile);
-        // Validate file size to prevent reading excessively large files
-        if ($fileSize > 0 && $fileSize < 10240) { // Max 10KB
-            $cacheData = json_decode(file_get_contents($cacheFile), true);
-            if (json_last_error() === JSON_ERROR_NONE
-                && is_array($cacheData)
-                && !empty($cacheData['license_key'])
-                && $cacheData['license_key'] === $licenseKey
-                && !empty($cacheData['validated_at'])
-                && ($now - (int) $cacheData['validated_at']) <= 7 * 24 * 60 * 60
-            ) {
-                // Cached result still valid (within 7 days)
-                return !empty($cacheData['valid']);
-            }
-        }
-    }
+	// 3) Try to use cached validation (offline mode) if endpoint not reachable
+	$now = time();
+	if (is_readable($cacheFile)) {
+		$fileSize = filesize($cacheFile);
+		// Validate file size to prevent reading excessively large files
+		if ($fileSize > 0 && $fileSize < 10240) { // Max 10KB
+			$cacheData = json_decode(file_get_contents($cacheFile), true);
+			if (json_last_error() === JSON_ERROR_NONE
+				&& is_array($cacheData)
+				&& !empty($cacheData['license_key'])
+				&& $cacheData['license_key'] === $licenseKey
+				&& !empty($cacheData['validated_at'])
+				&& ($now - (int) $cacheData['validated_at']) <= 7 * 24 * 60 * 60
+			) {
+				// Cached result still valid (within 7 days)
+				return !empty($cacheData['valid']);
+			}
+		}
+	}
 
-    // 4) Online validation against Moko license server
-    $domain = (!empty($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'cli');
-    // Note: dol_hash with length 5 is a Dolibarr convention for installation IDs
-    // For production use, consider: bin2hex(random_bytes(16)) or a UUID library for a robust installation ID
-    $installationId = !empty($conf->global->MAIN_INSTALL_ID) ? $conf->global->MAIN_INSTALL_ID : dol_hash($domain, 5);
+	// 4) Online validation against Moko license server
+	$domain = (!empty($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'cli');
+	// Note: dol_hash with length 5 is a Dolibarr convention for installation IDs
+	// For production use, consider: bin2hex(random_bytes(16)) or a UUID library for a robust installation ID
+	$installationId = !empty($conf->global->MAIN_INSTALL_ID) ? $conf->global->MAIN_INSTALL_ID : dol_hash($domain, 5);
 
-    $payload = json_encode([
-        'license_key'      => $licenseKey,
-        'domain'           => $domain,
-        'installation_id'  => $installationId,
-    ]);
+	$payload = json_encode([
+		'license_key'      => $licenseKey,
+		'domain'           => $domain,
+		'installation_id'  => $installationId,
+	]);
 
-    $ch = curl_init('https://license.mokoconsulting.tech/validate');
-    curl_setopt_array($ch, [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_POST           => true,
-        CURLOPT_HTTPHEADER     => [
-            'Content-Type: application/json',
-            // Note: Replace DOL_VERSION with your module version constant for production
-            'X-Extension-Version: ' . DOL_VERSION,
-        ],
-        CURLOPT_POSTFIELDS     => $payload,
-        CURLOPT_TIMEOUT        => 10,
-    ]);
+	$ch = curl_init('https://license.mokoconsulting.tech/validate');
+	curl_setopt_array($ch, [
+		CURLOPT_RETURNTRANSFER => true,
+		CURLOPT_POST           => true,
+		CURLOPT_HTTPHEADER     => [
+			'Content-Type: application/json',
+			// Note: Replace DOL_VERSION with your module version constant for production
+			'X-Extension-Version: ' . DOL_VERSION,
+		],
+		CURLOPT_POSTFIELDS     => $payload,
+		CURLOPT_TIMEOUT        => 10,
+	]);
 
-    $responseBody = curl_exec($ch);
-    $curlError    = curl_error($ch);
-    $httpCode     = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
+	$responseBody = curl_exec($ch);
+	$curlError    = curl_error($ch);
+	$httpCode     = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+	curl_close($ch);
 
-    // If request failed, fall back to any still-valid cache (handled above in step 3)
-    // If cache was also invalid/missing, we fail closed for security
-    if ($responseBody === false || $httpCode !== 200) {
-        if (!empty($curlError)) {
-            dol_syslog('License validation cURL error: ' . $curlError, LOG_ERR);
-        }
-        return false;
-    }
+	// If request failed, fall back to any still-valid cache (handled above in step 3)
+	// If cache was also invalid/missing, we fail closed for security
+	if ($responseBody === false || $httpCode !== 200) {
+		if (!empty($curlError)) {
+			dol_syslog('License validation cURL error: ' . $curlError, LOG_ERR);
+		}
+		return false;
+	}
 
-    $response = json_decode($responseBody, true);
-    if (json_last_error() !== JSON_ERROR_NONE) {
-        dol_syslog('License validation JSON decode error: ' . json_last_error_msg(), LOG_ERR);
-        return false;
-    }
-    $isValid  = is_array($response) && !empty($response['valid']);
+	$response = json_decode($responseBody, true);
+	if (json_last_error() !== JSON_ERROR_NONE) {
+		dol_syslog('License validation JSON decode error: ' . json_last_error_msg(), LOG_ERR);
+		return false;
+	}
+	$isValid  = is_array($response) && !empty($response['valid']);
 
-    // 5) Update cache for offline mode
-    $cachePayload = [
-        'license_key'   => $licenseKey,
-        'valid'         => $isValid,
-        'validated_at'  => $now,
-        'raw_response'  => $response,
-    ];
-    if (file_put_contents($cacheFile, json_encode($cachePayload)) === false) {
-        // Log cache write failure but continue (validation already succeeded)
-        dol_syslog('Failed to write license validation cache', LOG_WARNING);
-    }
+	// 5) Update cache for offline mode
+	$cachePayload = [
+		'license_key'   => $licenseKey,
+		'valid'         => $isValid,
+		'validated_at'  => $now,
+		'raw_response'  => $response,
+	];
+	if (file_put_contents($cacheFile, json_encode($cachePayload)) === false) {
+		// Log cache write failure but continue (validation already succeeded)
+		dol_syslog('Failed to write license validation cache', LOG_WARNING);
+	}
 
-    return $isValid;
+	return $isValid;
 }
 
 // In module setup page
 // Note: Call validateUserKey() before enabling module functionality
 if (!$this->validateUserKey($conf->global->MOKOMODULE_LICENSE_KEY)) {
-    setEventMessages($langs->trans('InvalidLicenseKey'), null, 'errors');
-    // Disable module functionality (implement appropriate checks throughout module)
+	setEventMessages($langs->trans('InvalidLicenseKey'), null, 'errors');
+	// Disable module functionality (implement appropriate checks throughout module)
 }
 ```
 
@@ -1200,11 +1191,11 @@ if (!$this->validateUserKey($conf->global->MOKOMODULE_LICENSE_KEY)) {
 //   - Validate keys against https://license.mokoconsulting.tech/validate
 //   - Apply the 7-day offline cache/expiry rules defined in this policy
 public function preflight($type, $parent) {
-    $params = JComponentHelper::getParams('com_mokoextension');
-    $licenseKey = $params->get('license_key');
-    if (!$this->validateLicenseKey($licenseKey)) {
-        throw new RuntimeException('Valid license key required');
-    }
+	$params = JComponentHelper::getParams('com_mokoextension');
+	$licenseKey = $params->get('license_key');
+	if (!$this->validateLicenseKey($licenseKey)) {
+		throw new RuntimeException('Valid license key required');
+	}
 }
 ```
 

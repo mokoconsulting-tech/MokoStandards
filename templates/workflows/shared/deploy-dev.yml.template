@@ -30,7 +30,8 @@
 name: Deploy to Dev Server (SFTP)
 
 # Deploys the contents of the src/ directory to the development server via SFTP.
-# Triggers on pushes/merges to main branches and supports manual dispatch.
+# Triggers on every pull_request to development branches (so the dev server always
+# reflects the latest PR state) and on push/merge to main branches.
 #
 # Required org-level variables:  DEV_FTP_HOST, DEV_FTP_PATH, DEV_FTP_USERNAME
 # Optional org-level variable:   DEV_FTP_PORT (auto-detected from host or defaults to 22)
@@ -58,7 +59,7 @@ on:
     paths:
       - 'src/**'
   pull_request:
-    types: [closed]
+    types: [opened, synchronize, reopened, closed]
     branches:
       - main
       - master
@@ -67,16 +68,6 @@ on:
       - development
   workflow_dispatch:
     inputs:
-      source_dir:
-        description: 'Source directory to deploy'
-        required: false
-        default: 'src'
-        type: string
-      dry_run:
-        description: 'Dry run — list files without uploading'
-        required: false
-        default: false
-        type: boolean
       clear_remote:
         description: 'Delete all files inside the remote destination folder before uploading'
         required: false
@@ -85,6 +76,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
   check-permission:
@@ -115,11 +107,15 @@ jobs:
   deploy:
     name: SFTP Deploy → Dev
     runs-on: ubuntu-latest
-    needs: check-permission
+    needs: [check-permission]
     if: >-
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
-      (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+      (github.event_name == 'pull_request' &&
+        (github.event.action == 'opened' ||
+         github.event.action == 'synchronize' ||
+         github.event.action == 'reopened' ||
+         github.event.pull_request.merged == true))
 
     steps:
       - name: Checkout repository
@@ -128,16 +124,85 @@ jobs:
       - name: Resolve source directory
         id: source
         run: |
-          SRC="${{ inputs.source_dir || 'src' }}"
+          SRC="src"
           if [ ! -d "$SRC" ]; then
-            echo "⚠️ Source directory '${SRC}' not found — skipping deployment"
+            echo "⚠️ No src/ directory found — skipping deployment"
             echo "skip=true" >> "$GITHUB_OUTPUT"
           else
-            COUNT=$(find "$SRC" -type f | wc -l)
-            echo "✅ Source: ${SRC}/ (${COUNT} files)"
+            COUNT=$(find "$SRC" -maxdepth 0 -type d > /dev/null && find "$SRC" -type f | wc -l)
+            echo "✅ Source: src/ (${COUNT} file(s))"
             echo "skip=false" >> "$GITHUB_OUTPUT"
             echo "dir=${SRC}"  >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Preview files to deploy
+        if: steps.source.outputs.skip == 'false'
+        env:
+          SOURCE_DIR: ${{ steps.source.outputs.dir }}
+          FTP_IGNORE: ${{ vars.FTP_IGNORE }}
+        run: |
+          # ── Parse FTP_IGNORE ─────────────────────────────────────────────────
+          IGNORE_PATTERNS=()
+          if [ -n "$FTP_IGNORE" ]; then
+            while IFS= read -r -d ',' token; do
+              pattern=$(printf '%s' "$token" | sed 's/^[[:space:]]*"//;s/"[[:space:]]*$//')
+              [ -n "$pattern" ] && IGNORE_PATTERNS+=("$pattern")
+            done <<< "${FTP_IGNORE},"
+          fi
+
+          # ── Walk src/ and classify every file ────────────────────────────────
+          WILL_UPLOAD=()
+          IGNORED_FILES=()
+          while IFS= read -r -d '' file; do
+            rel="${file#${SOURCE_DIR}/}"
+            SKIP=false
+            for pat in "${IGNORE_PATTERNS[@]}"; do
+              if echo "$rel" | grep -qE "$pat" 2>/dev/null; then
+                IGNORED_FILES+=("$rel | FTP_IGNORE \`$pat\`")
+                SKIP=true; break
+              fi
+            done
+            $SKIP && continue
+            if [ -f ".gitignore" ] && git check-ignore -q "$rel" 2>/dev/null; then
+              IGNORED_FILES+=("$rel | .gitignore")
+              continue
+            fi
+            WILL_UPLOAD+=("$rel")
+          done < <(find "$SOURCE_DIR" -type f -print0 | sort -z)
+
+          UPLOAD_COUNT="${#WILL_UPLOAD[@]}"
+          IGNORE_COUNT="${#IGNORED_FILES[@]}"
+
+          echo "ℹ️  ${UPLOAD_COUNT} file(s) will be uploaded, ${IGNORE_COUNT} ignored"
+
+          # ── Write deployment preview to step summary ──────────────────────────
+          {
+            echo "## 📋 Deployment Preview"
+            echo ""
+            echo "| Field | Value |"
+            echo "|---|---|"
+            echo "| Source | \`${SOURCE_DIR}/\` |"
+            echo "| Files to upload | **${UPLOAD_COUNT}** |"
+            echo "| Files ignored | **${IGNORE_COUNT}** |"
+            echo ""
+            if [ "${UPLOAD_COUNT}" -gt 0 ]; then
+              echo "### 📂 Files that will be uploaded"
+              echo '```'
+              printf '%s\n' "${WILL_UPLOAD[@]}"
+              echo '```'
+              echo ""
+            fi
+            if [ "${IGNORE_COUNT}" -gt 0 ]; then
+              echo "### ⏭️ Files excluded"
+              echo "| File | Reason |"
+              echo "|---|---|"
+              for entry in "${IGNORED_FILES[@]}"; do
+                f="${entry% | *}"; r="${entry##* | }"
+                echo "| \`${f}\` | ${r} |"
+              done
+              echo ""
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Resolve SFTP host and port
         if: steps.source.outputs.skip == 'false'
@@ -243,8 +308,7 @@ jobs:
       - name: Clear remote destination folder
         if: >-
           steps.source.outputs.skip == 'false' &&
-          inputs.clear_remote == true &&
-          (inputs.dry_run != true)
+          inputs.clear_remote == true
         env:
           SFTP_HOST:      ${{ steps.conn.outputs.host }}
           SFTP_PORT:      ${{ steps.conn.outputs.port }}
@@ -358,7 +422,6 @@ jobs:
           HAS_PASSWORD:    ${{ steps.auth.outputs.has_password }}
           REMOTE_PATH:     ${{ steps.remote.outputs.path }}
           SOURCE_DIR:      ${{ steps.source.outputs.dir }}
-          DRY_RUN:         ${{ inputs.dry_run || 'false' }}
           FTP_IGNORE:      ${{ vars.FTP_IGNORE }}
         run: |
           cat > /tmp/moko_deploy.php << 'PHPEOF'
@@ -377,7 +440,6 @@ jobs:
           $hasPassword   = getenv('HAS_PASSWORD')   === 'true';
           $remotePath    = rtrim((string) getenv('REMOTE_PATH'), '/');
           $sourceDir     = (string) getenv('SOURCE_DIR');
-          $dryRun        = getenv('DRY_RUN') === 'true';
 
           // ── FTP_IGNORE: comma-delimited, each pattern enclosed in double quotes ──
           // Example:  "\.git*", "\.DS_Store", "configuration\.php", "\.ps1"
@@ -447,10 +509,6 @@ jobs:
           } else {
               echo "Connecting to {$host}:{$port} as {$username} via SFTP (password auth)\n";
           }
-          if ($dryRun) {
-              echo "DRY RUN — no files will be uploaded\n";
-          }
-
           $sftp = new SFTP($host, $port);
 
           // ── Authentication ────────────────────────────────────────────────────
@@ -498,7 +556,6 @@ jobs:
 
           // ── Upload ────────────────────────────────────────────────────────────
           $uploaded = 0;
-          $skipped  = 0;
           $ignored  = 0;
 
           $iterator = new RecursiveIteratorIterator(
@@ -517,9 +574,7 @@ jobs:
               $remote = $remotePath . '/' . $rel;
 
               if ($localPath->isDir()) {
-                  if (!$dryRun) {
-                      sftpMakedirs($sftp, $remote);
-                  }
+                  sftpMakedirs($sftp, $remote);
                   continue;
               }
 
@@ -528,22 +583,13 @@ jobs:
                   continue;
               }
 
-              if ($dryRun) {
-                  echo "  [dry-run] {$rel} → {$remote}\n";
-                  $skipped++;
-              } else {
-                  sftpMakedirs($sftp, dirname($remote));
-                  $sftp->put($remote, (string) $localPath, SFTP::SOURCE_LOCAL_FILE);
-                  echo "  ✅ {$rel} → {$remote}\n";
-                  $uploaded++;
-              }
+              sftpMakedirs($sftp, dirname($remote));
+              $sftp->put($remote, (string) $localPath, SFTP::SOURCE_LOCAL_FILE);
+              echo "  ✅ {$rel} → {$remote}\n";
+              $uploaded++;
           }
 
-          if ($dryRun) {
-              echo "\nDry run complete — {$skipped} file(s) would be uploaded, {$ignored} ignored\n";
-          } else {
-              echo "\nDeployment complete — {$uploaded} file(s) uploaded, {$ignored} ignored\n";
-          }
+          echo "\nDeployment complete — {$uploaded} file(s) uploaded, {$ignored} ignored\n";
           PHPEOF
           php /tmp/moko_deploy.php
 
@@ -555,16 +601,17 @@ jobs:
             echo "" >> "$GITHUB_STEP_SUMMARY"
             echo "No \`src/\` directory found in this repository." >> "$GITHUB_STEP_SUMMARY"
           elif [ "${{ job.status }}" == "success" ]; then
+            echo "" >> "$GITHUB_STEP_SUMMARY"
             echo "### ✅ Dev Deployment Successful" >> "$GITHUB_STEP_SUMMARY"
             echo "" >> "$GITHUB_STEP_SUMMARY"
             echo "| Field | Value |" >> "$GITHUB_STEP_SUMMARY"
             echo "|-------|-------|" >> "$GITHUB_STEP_SUMMARY"
             echo "| Host | \`${{ steps.conn.outputs.host }}:${{ steps.conn.outputs.port }}\` |" >> "$GITHUB_STEP_SUMMARY"
             echo "| Remote path | \`${{ steps.remote.outputs.path }}\` |" >> "$GITHUB_STEP_SUMMARY"
-            echo "| Source | \`${{ steps.source.outputs.dir }}/\` |" >> "$GITHUB_STEP_SUMMARY"
+            echo "| Source | \`src/\` |" >> "$GITHUB_STEP_SUMMARY"
+            echo "| Trigger | ${{ github.event_name }} |" >> "$GITHUB_STEP_SUMMARY"
             echo "| Auth | ${{ steps.auth.outputs.method }} |" >> "$GITHUB_STEP_SUMMARY"
             echo "| Clear remote | ${{ inputs.clear_remote || 'false' }} |" >> "$GITHUB_STEP_SUMMARY"
-            echo "| Dry run | ${{ inputs.dry_run || 'false' }} |" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "### ❌ Dev Deployment Failed" >> "$GITHUB_STEP_SUMMARY"
             echo "" >> "$GITHUB_STEP_SUMMARY"

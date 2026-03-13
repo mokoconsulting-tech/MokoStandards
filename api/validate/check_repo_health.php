@@ -295,7 +295,7 @@ class RepoHealthChecker extends CliFramework
 
         // Expand max_points now that we can run API checks.
         // CUSTOM_FOLDER (2 pts) is not applicable to MokoStandards or .github-private.
-        [, $repoName] = explode('/', $repo, 2) + ['', ''];
+        [, $repoName] = array_pad(explode('/', $repo, 2), 2, '');
         $checkCustomFolder = !in_array($repoName, self::CUSTOM_FOLDER_EXEMPT, true);
         $this->results['categories'][$category]['max_points'] += $checkCustomFolder ? 12 : 10;
 

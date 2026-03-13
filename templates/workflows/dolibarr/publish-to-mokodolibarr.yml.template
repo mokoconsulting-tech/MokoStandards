@@ -57,6 +57,91 @@ jobs:
           echo "✅ src/ contains ${COUNT} file(s)"
           echo "count=${COUNT}" >> "$GITHUB_OUTPUT"
 
+      - name: Dry-run — preview files that will be published
+        id: dryrun
+        env:
+          CUSTOM_FOLDER: ${{ vars.CUSTOM_FOLDER }}
+          FTP_IGNORE:    ${{ vars.FTP_IGNORE }}
+        run: |
+          DEST="htdocs/custom/${CUSTOM_FOLDER}"
+
+          # ── Parse FTP_IGNORE patterns ─────────────────────────────────────────
+          IGNORE_PATTERNS=()
+          if [ -n "$FTP_IGNORE" ]; then
+            while IFS= read -r -d ',' token; do
+              pattern=$(echo "$token" | sed 's/^[[:space:]]*"//;s/"[[:space:]]*$//')
+              [ -n "$pattern" ] && IGNORE_PATTERNS+=("$pattern")
+            done <<< "${FTP_IGNORE},"
+          fi
+
+          # ── Collect files, applying FTP_IGNORE and .gitignore ────────────────
+          WOULD_PUBLISH=()
+          IGNORED_FILES=()
+          while IFS= read -r -d '' file; do
+            rel="${file#module/src/}"
+
+            # Check FTP_IGNORE
+            SKIP=false
+            for pat in "${IGNORE_PATTERNS[@]}"; do
+              if echo "$rel" | grep -qE "$pat" 2>/dev/null; then
+                IGNORED_FILES+=("$rel (FTP_IGNORE: $pat)")
+                SKIP=true
+                break
+              fi
+            done
+            $SKIP && continue
+
+            # Check .gitignore
+            if [ -f "module/.gitignore" ] && git -C module check-ignore -q "$rel" 2>/dev/null; then
+              IGNORED_FILES+=("$rel (.gitignore)")
+              continue
+            fi
+
+            WOULD_PUBLISH+=("$rel")
+          done < <(find module/src -type f -print0 | sort -z)
+
+          PUBLISH_COUNT="${#WOULD_PUBLISH[@]}"
+          IGNORE_COUNT="${#IGNORED_FILES[@]}"
+
+          echo "publish_count=${PUBLISH_COUNT}" >> "$GITHUB_OUTPUT"
+          echo "ignore_count=${IGNORE_COUNT}"   >> "$GITHUB_OUTPUT"
+
+          # ── Write step summary ────────────────────────────────────────────────
+          {
+            echo "## 🔍 Publish Dry-Run Summary"
+            echo ""
+            echo "| Field | Value |"
+            echo "|---|---|"
+            echo "| Destination | \`${DEST}/\` |"
+            echo "| Would publish | **${PUBLISH_COUNT}** file(s) |"
+            echo "| Ignored | **${IGNORE_COUNT}** file(s) |"
+            echo ""
+
+            if [ "${PUBLISH_COUNT}" -gt 0 ]; then
+              echo "### 📂 Files that would be published"
+              echo ""
+              echo '```'
+              printf '%s\n' "${WOULD_PUBLISH[@]}"
+              echo '```'
+              echo ""
+            fi
+
+            if [ "${IGNORE_COUNT}" -gt 0 ]; then
+              echo "### ⏭️ Files excluded"
+              echo ""
+              echo "| File | Reason |"
+              echo "|---|---|"
+              for entry in "${IGNORED_FILES[@]}"; do
+                file="${entry% (*}"
+                reason="${entry##* (}"; reason="${reason%)}"
+                echo "| \`${file}\` | ${reason} |"
+              done
+              echo ""
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          echo "✅ Dry-run complete: ${PUBLISH_COUNT} would publish, ${IGNORE_COUNT} ignored"
+
       - name: Checkout mokodolibarr repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:

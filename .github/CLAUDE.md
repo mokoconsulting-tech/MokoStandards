@@ -14,11 +14,11 @@ MokoStandards/
 │   ├── lib/              # PHP enterprise library source (13 classes under lib/Enterprise/)
 │   ├── maintenance/      # Housekeeping scripts
 │   ├── release/          # Release automation
-│   ├── run/              # Shell runner helpers (git_helper.sh, etc.)
+│   ├── run/              # Runtime helpers
 │   ├── src/              # Additional PHP source (autoload, bootstrap)
 │   ├── tests/            # PHPUnit test suite
 │   ├── validate/         # Validation scripts (check_repo_health.php, scan_drift.php, etc.)
-│   └── wrappers/         # PowerShell and Bash wrappers around PHP scripts
+│   └── wrappers/         # PHP wrapper scripts — one per CLI script; add logging and repo-root detection
 ├── docs/                 # All documentation (never executable code)
 │   ├── guide/            # How-to guides for contributors and maintainers
 │   ├── policy/           # Binding policy documents (enforcement, coding style, file headers, etc.)
@@ -38,7 +38,6 @@ MokoStandards/
 ├── phpcs.xml             # PHP_CodeSniffer ruleset (PSR-12 + project rules)
 ├── phpstan.neon          # PHPStan static analysis config (level 5)
 ├── psalm.xml             # Psalm type-checker config
-├── pyproject.toml        # Python tooling config (black, isort, mypy, pytest)
 ├── composer.json         # PHP dependency manifest
 ├── CONTRIBUTING.md       # Contributor workflow and code standards
 ├── CHANGELOG.md          # Full version history
@@ -132,16 +131,13 @@ Binary files, JSON (no comment syntax), auto-generated files (mark with `// @gen
 
 | File type | Style | Width |
 |-----------|-------|-------|
-| Default (PHP, Markdown, shell, etc.) | **Tabs** | 2 |
+| Default (PHP, Markdown, etc.) | **Tabs** | 2 |
 | YAML (`.yml`, `.yaml`) | Spaces | 2 |
-| Python (`.py`) | Spaces | 4 |
 | JSON | Spaces | 2 |
-| PowerShell (`.ps1`) | Tabs | 2, CRLF line endings |
 
 ## Line length
 
 - **PHP**: warn at 120 chars, hard limit 150 (from `phpcs.xml`)
-- **Python**: 100 chars (from `pyproject.toml` / `black`)
 - **Markdown**: no limit (`.editorconfig` sets `max_line_length = off`)
 
 ## Naming conventions
@@ -153,18 +149,11 @@ Binary files, JSON (no comment syntax), auto-generated files (mark with `// @gen
 - Constants: `UPPER_SNAKE_CASE` — `DEFAULT_THRESHOLD`
 - Files: `PascalCase.php` for classes, `snake_case.php` for scripts
 
-**Python:**
-- Classes: `PascalCase`
-- Functions / variables: `snake_case`
-- Constants: `UPPER_SNAKE_CASE`
-- Private helpers: prefix `_`
-- Files: `snake_case.py`
-
 **YAML workflow files:** `kebab-case.yml`
 
 ## Primary language for new code
 
-**PHP 8.1+** is the primary language for all new automation scripts, validators, and library classes in `api/`. Python tooling exists (`pyproject.toml`) but the codebase is PHP-only. Do not add new Python scripts to `api/` without explicit agreement.
+**PHP 8.1+** is the exclusive language for all automation scripts, validators, wrappers, and library classes in `api/`. No Python or shell scripts exist in this repository.
 
 # Language-Specific Requirements
 
@@ -220,37 +209,6 @@ public function check(string $path, bool $dry = false): int
 
 **Forbidden:** `eval()`, `create_function()`, `var_dump()`, `print_r()` (enforced by `phpcs.xml`).
 
-## Python (automation tooling only)
-
-**100% type hints required** on all function signatures. Use Google-style docstrings.
-
-**Script structure:**
-```python
-#!/usr/bin/env python3
-"""
-Brief one-line description.
-
-Usage:
-    python script_name.py [options]
-"""
-import argparse
-import sys
-from pathlib import Path
-from typing import List, Optional
-
-DEFAULT_VALUE: str = "value"
-
-def main() -> int:
-    parser = argparse.ArgumentParser(description="…")
-    parser.add_argument("--path", help="Target path")
-    args = parser.parse_args()
-    return 0
-
-if __name__ == "__main__":
-    sys.exit(main())
-```
-
-**Error handling:** print to `sys.stderr`; `sys.exit(1)` on failure; never bare `except:`.
 
 # Commit Message Format
 
@@ -315,8 +273,6 @@ php api/validate/check_repo_health.php --path .
 # Version consistency check
 php api/validate/check_version_consistency.php --path .
 
-# Python syntax (if touching any .py files)
-find . -name "*.py" -not -path "*/vendor/*" -exec python3 -m py_compile {} +
 ```
 
 # Contribution Workflow
@@ -333,7 +289,6 @@ find . -name "*.py" -not -path "*/vendor/*" -exec python3 -m py_compile {} +
 4. **Install dependencies:**
    ```bash
    composer install
-   pip install -r requirements.txt   # only if modifying Python tooling
    ```
 5. **Make changes** following all standards above.
 6. **Validate** — run the full validation suite (see above).
@@ -372,7 +327,6 @@ Whenever you make code changes, update the corresponding documentation in the sa
 - [ ] No hardcoded version numbers in body text (use badge or file-info header)
 - [ ] `declare(strict_types=1)` in all new PHP files
 - [ ] PHPDoc on all public PHP methods
-- [ ] 100% type hints on all Python function signatures (if applicable)
 - [ ] `phpcs` passes with zero errors
 - [ ] `phpstan` passes at level 5
 - [ ] PHPUnit tests pass; new logic has test coverage
@@ -387,12 +341,12 @@ Whenever you make code changes, update the corresponding documentation in the sa
 
 - **Never commit directly to `main`** — all changes go through a PR.
 - **Never use `feature/` or `hotfix/` branch prefixes** — they are rejected; use `dev/` or `patch/`.
-- **Never add Python scripts to `api/`** — the runtime is PHP-only.
+- **Never write Python or shell scripts** — the codebase is PHP-only; no `.py`, `.sh`, `.ps1` files.
 - **Never hardcode `04.00.04`** (or any specific version) in document body text — use the version badge and FILE INFORMATION header only.
 - **Never commit `.env`, secret keys, API tokens, or credentials** — the `templates/configs/gitignore` template covers common patterns but double-check before pushing.
 - **Never modify files under `vendor/`** — managed by Composer.
 - **Never skip the FILE INFORMATION block** on a new source file — it is required by policy and checked in CI.
-- **Never use bare `except:` in Python** or catch `\Throwable` silently in PHP without re-throwing or logging.
+- **Never catch `\Throwable` silently in PHP** without re-throwing or logging.
 - **Never prefix a branch with `mokostandards`** — that namespace is reserved for automated workflows.
 - **Never mix tabs and spaces within a file** — follow `.editorconfig` exactly.
 
@@ -403,7 +357,7 @@ Whenever you make code changes, update the corresponding documentation in the sa
 | `docs/policy/file-header-standards.md` | Full copyright-header rules for every file type |
 | `docs/enforcement-levels.md` | Six-tier enforcement system reference |
 | `docs/policy/coding-style-guide.md` | Universal naming and formatting conventions |
-| `docs/policy/scripting-standards.md` | PHP and Python script requirements in detail |
+| `docs/policy/scripting-standards.md` | PHP-only scripting requirements in detail |
 | `docs/policy/branching-strategy.md` | Branch naming, hierarchy, and release workflow |
 | `docs/policy/merge-strategy.md` | Squash-merge policy and PR title/body conventions |
 | `docs/policy/changelog-standards.md` | How and when to update CHANGELOG.md |

@@ -9,15 +9,15 @@
 # DEFGROUP: MokoStandards.Wrappers.Bash
 # INGROUP: MokoStandards.Wrappers
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
-# PATH: /api/wrappers/bash/check_repo_health.sh
+# PATH: /api/wrappers/bash/update_sha_hashes.sh
 # VERSION: 04.00.15
-# BRIEF: Bash wrapper for api/validate/check_repo_health.php
+# BRIEF: Bash wrapper for api/maintenance/update_sha_hashes.php
 
 set -euo pipefail
 
-SCRIPT_NAME="check_repo_health"
-SCRIPT_PATH="api/validate/check_repo_health.php"
-SCRIPT_CATEGORY="validate"
+SCRIPT_NAME="update_sha_hashes"
+SCRIPT_PATH="api/maintenance/update_sha_hashes.php"
+SCRIPT_CATEGORY="maintenance"
 
 RED='\033[0;31m'; GREEN='\033[0;32m'; BLUE='\033[0;34m'; NC='\033[0m'
 

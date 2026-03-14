@@ -7,7 +7,6 @@ This index provides navigation to documentation within this folder.
 ## Subfolders
 
 - [bash/](./bash/index.md)
-- [powershell/](./powershell/index.md)
 
 ## Documents
 

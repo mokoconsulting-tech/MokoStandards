@@ -151,31 +151,9 @@ class BulkSync extends CLIApp
      */
     private function initializeComponents(): bool
     {
+        // Token resolved by Config::load() — env vars first, then gh auth token fallback
         $config = Config::load();
-        $token = $config->getString('github.token', getenv('GH_TOKEN') ?: getenv('GITHUB_TOKEN') ?: '');
-
-        // Fall back to `gh auth token` when running locally without env vars set.
-        // proc_open with an argument array avoids shell interpretation entirely.
-        // stdin is redirected from the null device so gh runs non-interactively.
-        if (empty($token)) {
-            $nullDevice = PHP_OS_FAMILY === 'Windows' ? 'NUL' : '/dev/null';
-            $proc = proc_open(
-                ['gh', 'auth', 'token'],
-                [0 => ['file', $nullDevice, 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
-                $pipes
-            );
-            if (is_resource($proc)) {
-                $ghToken = trim(stream_get_contents($pipes[1]));
-                fclose($pipes[1]);
-                fclose($pipes[2]);
-                proc_close($proc);
-                // Validate output looks like a GitHub token before trusting it
-                if (preg_match('/^(ghp_|github_pat_|gho_|ghu_|ghs_)\S+$/', $ghToken)) {
-                    $token = $ghToken;
-                    $this->log("ℹ️  Using token from gh CLI", 'INFO');
-                }
-            }
-        }
+        $token = $config->getString('github.token', '');
 
         if (empty($token)) {
             $this->log("❌ GitHub token not configured", 'ERROR');

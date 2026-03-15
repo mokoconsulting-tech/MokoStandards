@@ -14,7 +14,7 @@ VERSION: 04.00.05
 BRIEF: Guide for installing the MokoStandards enterprise library in governed PHP repositories
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.05-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Installing the MokoStandards Package
 

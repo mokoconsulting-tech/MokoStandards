@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Guide
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/guide/terraform-override-files.md
-VERSION: 04.00.04
+VERSION: 04.00.15
 BRIEF: Guide for using override.config.tf files to control bulk sync behavior
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Terraform Override Files - Complete Guide
 
@@ -117,7 +117,7 @@ With an override file, you can:
 
 ### Available Enterprise Features
 
-#### 1. Enterprise Libraries (scripts/lib/Enterprise/)
+#### 1. Enterprise Libraries (api/lib/Enterprise/)
 - **EnterpriseAudit.php** - Transaction tracking and security event logging
 - **ApiClient.php** - Rate limiting, circuit breaker, and response caching
 - **ErrorRecovery.php** - Automatic retry, checkpointing, and state recovery

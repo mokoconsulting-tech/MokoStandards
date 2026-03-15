@@ -5,11 +5,11 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 # FILE INFORMATION
 PATH: /docs/products/mokocrm/glossary.md
-VERSION: 04.00.04
+VERSION: 04.00.15
 BRIEF: MokoCRM terminology and definitions glossary
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # MokoCRM Glossary
 

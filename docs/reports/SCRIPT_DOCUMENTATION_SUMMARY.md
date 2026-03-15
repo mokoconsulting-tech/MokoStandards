@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Script Documentation Implementation Summary
 
@@ -25,29 +25,29 @@ Successfully established comprehensive documentation infrastructure for all 36 s
 Complete index.md files in every `/scripts/` subdirectory:
 - ✅ `/scripts/index.md` - Root index
 - ✅ `/scripts/analysis/index.md` - 2.4KB
-- ✅ `/scripts/automation/index.md` - 5.6KB with PowerShell notes
+- ✅ `/api/automation/index.md` - 5.6KB with PowerShell notes
 - ✅ `/scripts/build/index.md` - 2.9KB
 - ✅ `/scripts/lib/index.md` - 7.2KB with usage patterns
-- ✅ `/scripts/maintenance/index.md` - 6.7KB
-- ✅ `/scripts/tests/index.md` - 6.9KB with testing patterns
+- ✅ `/api/maintenance/index.md` - 6.7KB
+- ✅ `/api/tests/index.md` - 6.9KB with testing patterns
 - ✅ `/scripts/docs/index.md` - Existing
-- ✅ `/scripts/fix/index.md` - Existing
+- ✅ `/api/fix/index.md` - Existing
 - ✅ `/scripts/release/index.md` - Existing
 - ✅ `/scripts/run/index.md` - Existing
-- ✅ `/scripts/validate/index.md` - Existing
+- ✅ `/api/validate/index.md` - Existing
 
 #### 3. Documentation Navigation Indexes (6 files, 14KB)
 Navigation guides in `/docs/scripts/` subdirectories:
 - ✅ `/docs/scripts/index.md` - Main docs navigation
-- ✅ `/docs/scripts/automation/index.md` - 2.6KB with auth guide
+- ✅ `/docs/api/automation/index.md` - 2.6KB with auth guide
 - ✅ `/docs/scripts/lib/index.md` - 1.9KB with usage patterns
-- ✅ `/docs/scripts/maintenance/index.md` - 1.9KB with workflow examples
+- ✅ `/docs/api/maintenance/index.md` - 1.9KB with workflow examples
 - ✅ `/docs/scripts/release/index.md` - 1.8KB with workflow examples
-- ✅ `/docs/scripts/validate/index.md` - 2.5KB with status tracking
+- ✅ `/docs/api/validate/index.md` - 2.5KB with status tracking
 
 #### 4. Comprehensive Script Guides (2 files, 23.5KB)
 Full documentation for critical scripts:
-- ✅ `/docs/scripts/validate/no-secrets-py.md` - 10.5KB
+- ✅ `/docs/api/validate/no-secrets-py.md` - 10.5KB
   - Complete usage guide with examples
   - CI/CD integration patterns
   - Error handling and troubleshooting

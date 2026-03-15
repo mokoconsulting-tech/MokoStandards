@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 > **⚠️ DEPRECATED DOCUMENTATION**  
 > **Status**: This document describes a Python-based automation system that is not currently implemented.  
@@ -59,12 +59,12 @@ Security fix            → PATCH (x.y.Z)
 
 **Detect version bump:**
 ```bash
-./scripts/automation/detect_version_bump.py --file pr_template.md
+./api/automation/detect_version_bump.py --file pr_template.md
 ```
 
 **Apply version bump:**
 ```bash
-./scripts/automation/detect_version_bump.py \
+./api/automation/detect_version_bump.py \
   --text "New feature" \
   --apply \
   --stats
@@ -83,7 +83,7 @@ Security fix            → PATCH (x.y.Z)
 ### CLI Reference
 
 ```bash
-./scripts/automation/detect_version_bump.py [OPTIONS]
+./api/automation/detect_version_bump.py [OPTIONS]
 
 Input Sources:
   --file FILE              Read from file
@@ -110,17 +110,17 @@ Options:
 
 **List old branches:**
 ```bash
-./scripts/maintenance/clean_old_branches.py --days 90 --list
+./api/maintenance/clean_old_branches.py --days 90 --list
 ```
 
 **Delete with dry-run:**
 ```bash
-./scripts/maintenance/clean_old_branches.py --days 90 --delete --dry-run
+./api/maintenance/clean_old_branches.py --days 90 --delete --dry-run
 ```
 
 **Actually delete:**
 ```bash
-./scripts/maintenance/clean_old_branches.py --days 90 --delete --yes
+./api/maintenance/clean_old_branches.py --days 90 --delete --yes
 ```
 
 **Protected Branches** (never deleted):
@@ -130,12 +130,12 @@ Options:
 
 **Create release:**
 ```bash
-./scripts/maintenance/release_version.py --version 1.3.0 --yes
+./api/maintenance/release_version.py --version 1.3.0 --yes
 ```
 
 **Update CHANGELOG only:**
 ```bash
-./scripts/maintenance/release_version.py --version 1.3.0 --changelog-only
+./api/maintenance/release_version.py --version 1.3.0 --changelog-only
 ```
 
 **What it does:**
@@ -189,7 +189,7 @@ Options:
 
 **Automatic:**
 ```bash
-./scripts/automation/bulk_update_repos.php --yes --set-standards
+./api/automation/bulk_update_repos.php --yes --set-standards
 ```
 
 **Manual:**
@@ -228,14 +228,14 @@ ls -la .version_bump_backup/
 cp -r .version_bump_backup/* ./
 
 # Retry
-./scripts/automation/detect_version_bump.py --text "Fix" --apply
+./api/automation/detect_version_bump.py --text "Fix" --apply
 ```
 
 ### Debug Mode
 
 ```bash
 # Verbose output
-./scripts/automation/detect_version_bump.py --verbose --text "..."
+./api/automation/detect_version_bump.py --verbose --text "..."
 
 # Check logs
 cat logs/automation/version_bump_*.json | jq '.'
@@ -261,7 +261,7 @@ jobs:
       
       - name: Apply Version Bump
         run: |
-          ./scripts/automation/detect_version_bump.py \
+          ./api/automation/detect_version_bump.py \
             --text "${{ github.event.pull_request.body }}" \
             --apply \
             --stats
@@ -274,7 +274,7 @@ jobs:
 # .git/hooks/pre-commit
 
 if git diff --cached --name-only | grep -qE '(\.py|\.md)$'; then
-    ./scripts/automation/detect_version_bump.py --validate || {
+    ./api/automation/detect_version_bump.py --validate || {
         echo "❌ Version inconsistency"
         exit 1
     }

@@ -20,7 +20,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-use MokoStandards\Enterprise\{
+use MokoEnterprise\{
     AuditLogger,
     CliFramework,
     SecurityValidator,
@@ -55,7 +55,7 @@ class EnterpriseReadinessChecker extends CliFramework
         
         $this->logger = new AuditLogger('enterprise_readiness');
         $this->securityValidator = new SecurityValidator();
-        $metrics = new \MokoStandards\Enterprise\MetricsCollector();
+        $metrics = new \MokoEnterprise\MetricsCollector();
         $this->pluginFactory = new PluginFactory($this->logger, $metrics);
         
         $this->log('Enterprise readiness checker initialized with plugin system');

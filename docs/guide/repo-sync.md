@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Guide
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/guide/repo-sync.md
-VERSION: 04.00.04
+VERSION: 04.00.15
 BRIEF: Guide for the definition-driven bulk repository sync system
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Repository Sync Guide
 

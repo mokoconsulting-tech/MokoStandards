@@ -1,6 +1,6 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
-# Docs Index: /docs/scripts/validate
+# Docs Index: /docs/api/validate
 
 ## Purpose
 

@@ -17,7 +17,7 @@
 
 declare(strict_types=1);
 
-namespace MokoStandards\Enterprise;
+namespace MokoEnterprise;
 
 use Exception;
 use RuntimeException;
@@ -137,7 +137,7 @@ class RepositorySynchronizer
                 $this->logger->logInfo("Repository {$repo} has override file, parsing configuration");
                 // Override file exists - in full implementation would parse it
                 // For now, skip repos with overrides
-                $this->metrics->incrementCounter('repos_with_overrides');
+                $this->metrics->increment('repos_with_overrides');
                 $txn->end('success');
                 return false;
             }
@@ -152,7 +152,7 @@ class RepositorySynchronizer
             $result = $this->synchronizeRepository($org, $repo, $force);
             
             if ($result) {
-                $this->metrics->incrementCounter('repos_synced');
+                $this->metrics->increment('repos_synced');
                 $txn->end('success');
             } else {
                 $txn->end('failure');
@@ -357,7 +357,7 @@ HCL;
 
             file_put_contents($defFilePath, $definition);
             $this->logger->logInfo("Wrote sync tracking definition: {$defFilePath}");
-            $this->metrics->incrementCounter('definitions_generated');
+            $this->metrics->increment('definitions_generated');
 
             return true;
 
@@ -645,16 +645,16 @@ HCL;
                     
                     if ($updated) {
                         $results['success']++;
-                        $this->metrics->incrementCounter('repos_updated_total', ['status' => 'success']);
+                        $this->metrics->increment('repos_updated_total', ['status' => 'success']);
                         $results['repositories'][$repoName] = 'updated';
                     } else {
                         $results['skipped']++;
-                        $this->metrics->incrementCounter('repos_updated_total', ['status' => 'skipped']);
+                        $this->metrics->increment('repos_updated_total', ['status' => 'skipped']);
                         $results['repositories'][$repoName] = 'skipped';
                     }
                 } catch (Exception $e) {
                     $results['failed']++;
-                    $this->metrics->incrementCounter('repos_updated_total', ['status' => 'failed']);
+                    $this->metrics->increment('repos_updated_total', ['status' => 'failed']);
                     $results['repositories'][$repoName] = 'failed: ' . $e->getMessage();
                 }
                 

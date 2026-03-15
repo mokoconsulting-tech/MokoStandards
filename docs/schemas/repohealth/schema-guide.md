@@ -83,7 +83,7 @@ Every file entry can now include explicit source and destination information:
   <requirement-status>suggested</requirement-status>
 
   <!-- SOURCE: Where to get the file -->
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
   <source>
     <path>templates/workflows/generic</path>

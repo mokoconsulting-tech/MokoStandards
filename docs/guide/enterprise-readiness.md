@@ -67,16 +67,16 @@ Use this checklist to assess and track enterprise readiness:
 ### Core Infrastructure (40 points)
 
 - [ ] **Enterprise Libraries** (10 points)
-  - [ ] `scripts/lib/Enterprise/EnterpriseAudit.php` - Audit logging framework
-  - [ ] `scripts/lib/Enterprise/AuditLogger.php` - Structured audit logs
-  - [ ] `scripts/lib/Enterprise/ValidationFramework.php` - Validation infrastructure
-  - [ ] `scripts/lib/Enterprise/UnifiedValidation.php` - Unified validation APIs
-  - [ ] `scripts/lib/Enterprise/ConfigManager.php` - Configuration management
-  - [ ] `scripts/lib/Enterprise/SecurityValidator.php` - Security validation
-  - [ ] `scripts/lib/Enterprise/ErrorRecovery.php` - Error handling and recovery
-  - [ ] `scripts/lib/Enterprise/TransactionManager.php` - Transaction management
-  - [ ] `scripts/lib/Enterprise/CliFramework.php` - CLI framework
-  - [ ] `scripts/lib/Enterprise/Common.php` - Common utilities
+  - [ ] `api/lib/Enterprise/EnterpriseAudit.php` - Audit logging framework
+  - [ ] `api/lib/Enterprise/AuditLogger.php` - Structured audit logs
+  - [ ] `api/lib/Enterprise/ValidationFramework.php` - Validation infrastructure
+  - [ ] `api/lib/Enterprise/UnifiedValidation.php` - Unified validation APIs
+  - [ ] `api/lib/Enterprise/ConfigManager.php` - Configuration management
+  - [ ] `api/lib/Enterprise/SecurityValidator.php` - Security validation
+  - [ ] `api/lib/Enterprise/ErrorRecovery.php` - Error handling and recovery
+  - [ ] `api/lib/Enterprise/TransactionManager.php` - Transaction management
+  - [ ] `api/lib/Enterprise/CliFramework.php` - CLI framework
+  - [ ] `api/lib/Enterprise/Common.php` - Common utilities
 
 - [ ] **Enterprise Workflows** (10 points)
   - [ ] `.github/workflows/audit-log-archival.yml` - Audit log management
@@ -86,8 +86,8 @@ Use this checklist to assess and track enterprise readiness:
   - [ ] `.github/workflows/integration-tests.yml` - Integration testing
 
 - [ ] **Terraform Scripts** (10 points)
-  - [ ] `scripts/automation/install_terraform.sh` - Terraform installer (shell)
-  - [ ] `scripts/automation/install_terraform.py` - Terraform installer (Python)
+  - [ ] `api/automation/install_terraform.sh` - Terraform installer (shell)
+  - [ ] `api/automation/install_terraform.py` - Terraform installer (Python)
 
 - [ ] **Version Documentation** (10 points)
   - [ ] README.md has version badge (04.00.04)
@@ -134,7 +134,7 @@ Use this checklist to assess and track enterprise readiness:
 
 ### 1. Enterprise Libraries (10 Required)
 
-Located in `scripts/lib/Enterprise/`, these provide core enterprise functionality:
+Located in `api/lib/Enterprise/`, these provide core enterprise functionality:
 
 #### `EnterpriseAudit.php`
 Comprehensive audit logging with:
@@ -236,7 +236,7 @@ Located in `.github/workflows/`, these automate enterprise operations:
 
 ### 3. Terraform Scripts (2 Required)
 
-Located in `scripts/automation/`:
+Located in `api/automation/`:
 
 #### `install_terraform.sh`
 Shell script for Terraform installation:
@@ -308,10 +308,10 @@ The MokoStandards bulk update system can help distribute enterprise components a
 
 ```bash
 # Dry run to preview changes
-./scripts/automation/bulk_update_repos.php --dry-run
+./api/automation/bulk_update_repos.php --dry-run
 
 # Update specific repositories
-./scripts/automation/bulk_update_repos.php --repos your-repo --yes
+./api/automation/bulk_update_repos.php --repos your-repo --yes
 ```
 
 For full bulk update documentation, see [Bulk Repository Updates Guide](bulk-repository-updates.md).
@@ -325,7 +325,7 @@ For fine-grained control or learning purposes, you can set up components manuall
 ### Step 1: Create Directory Structure
 
 ```bash
-mkdir -p scripts/lib/Enterprise
+mkdir -p api/lib/Enterprise
 mkdir -p .github/workflows
 mkdir -p var/logs/audit
 mkdir -p var/logs/metrics
@@ -344,10 +344,10 @@ From MokoStandards repository:
 
 ```bash
 # Copy all enterprise libraries
-cp -r MokoStandards/scripts/lib/Enterprise src/
+cp -r MokoStandards/api/lib/Enterprise src/
 
 # Set appropriate permissions
-chmod -R 755 scripts/lib/Enterprise/
+chmod -R 755 api/lib/Enterprise/
 ```
 
 ### Step 3: Copy Enterprise Workflows
@@ -364,9 +364,9 @@ cp MokoStandards/.github/workflows/integration-tests.yml .github/workflows/
 ### Step 4: Copy Terraform Scripts
 
 ```bash
-cp MokoStandards/scripts/automation/install_terraform.sh scripts/automation/
-cp MokoStandards/scripts/automation/install_terraform.py scripts/automation/
-chmod +x scripts/automation/install_terraform.*
+cp MokoStandards/api/automation/install_terraform.sh api/automation/
+cp MokoStandards/api/automation/install_terraform.py api/automation/
+chmod +x api/automation/install_terraform.*
 ```
 
 ### Step 5: Create Override Configuration
@@ -468,7 +468,7 @@ After setup (automated or manual), verify enterprise readiness:
 ### Run Enterprise Readiness Checker
 
 ```bash
-python scripts/validate/check_enterprise_readiness.py
+python api/validate/check_enterprise_readiness.py
 ```
 
 **Expected output:**
@@ -522,7 +522,7 @@ Detailed Checks:
 For detailed information:
 
 ```bash
-python scripts/validate/check_enterprise_readiness.py --verbose
+python api/validate/check_enterprise_readiness.py --verbose
 ```
 
 ### JSON Output
@@ -530,7 +530,7 @@ python scripts/validate/check_enterprise_readiness.py --verbose
 For programmatic use:
 
 ```bash
-python scripts/validate/check_enterprise_readiness.py --json
+python api/validate/check_enterprise_readiness.py --json
 ```
 
 ### Exit Codes
@@ -548,7 +548,7 @@ python scripts/validate/check_enterprise_readiness.py --json
 **Solution:** Run checker with verbose output:
 
 ```bash
-php scripts/validate/check_enterprise_readiness.php --verbose
+php api/validate/check_enterprise_readiness.php --verbose
 ```
 
 Review recommendations and address each missing component manually or use the bulk update system.
@@ -592,7 +592,7 @@ jobs:
       
       - name: Run enterprise readiness check
         run: |
-          php scripts/validate/check_enterprise_readiness.php --json > report.json
+          php api/validate/check_enterprise_readiness.php --json > report.json
           cat report.json
       
       - name: Verify minimum score
@@ -641,7 +641,7 @@ find . -type f -name "*.md" -exec sed -i 's/03\.01\.00/04.00.04/g' {} +
 find . -type f -name "*.tf" -exec sed -i 's/03\.01\.00/04.00.04/g' {} +
 
 # Verify
-python scripts/validate/check_enterprise_readiness.py
+python api/validate/check_enterprise_readiness.py
 ```
 
 ---

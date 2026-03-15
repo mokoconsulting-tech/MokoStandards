@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Training
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: docs/training/session-7-terraform-infrastructure.md
-VERSION: 04.00.04
+VERSION: 04.00.15
 BRIEF: Training Session 7 - Terraform Infrastructure and Configuration Management
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Session 7: Terraform Infrastructure and Configuration Management
 
@@ -90,7 +90,7 @@ All terraform files in MokoStandards follow a consistent structure:
 # INGROUP: MokoStandards.Terraform
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /infrastructure/terraform/main.tf
-# VERSION: 04.00.04
+# VERSION: 04.00.15
 # BRIEF: Main terraform configuration
 
 locals {
@@ -147,7 +147,7 @@ cat > infrastructure/terraform/modules/example-module/main.tf << 'EOF'
 # INGROUP: MokoStandards.Terraform
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /infrastructure/terraform/modules/example-module/main.tf
-# VERSION: 04.00.04
+# VERSION: 04.00.15
 # BRIEF: Example terraform module
 
 locals {
@@ -310,10 +310,10 @@ enforcement_levels = {
 
 **FORCED Files** (Defined in Code):
 1. `.github/workflows/standards-compliance.yml`
-2. `scripts/validate/check_version_consistency.php`
-3. `scripts/validate/check_enterprise_readiness.php`
-4. `scripts/validate/check_repo_health.php`
-5. `scripts/maintenance/validate_script_registry.py`
+2. `api/validate/check_version_consistency.php`
+3. `api/validate/check_enterprise_readiness.php`
+4. `api/validate/check_repo_health.php`
+5. `api/maintenance/validate_script_registry.py`
 6. `scripts/.script-registry.json`
 
 **Example**:
@@ -519,10 +519,10 @@ These 6 files are **ALWAYS** synced, regardless of config.tf:
 # These cannot be excluded or protected
 ALWAYS_FORCE_OVERRIDE_FILES = [
   ".github/workflows/standards-compliance.yml",    # 27 validation checks
-  "scripts/validate/check_version_consistency.php", # Version validator
-  "scripts/validate/check_enterprise_readiness.php", # Enterprise patterns
-  "scripts/validate/check_repo_health.php",        # Health checker
-  "scripts/maintenance/validate_script_registry.py", # Script integrity
+  "api/validate/check_version_consistency.php", # Version validator
+  "api/validate/check_enterprise_readiness.php", # Enterprise patterns
+  "api/validate/check_repo_health.php",        # Health checker
+  "api/maintenance/validate_script_registry.py", # Script integrity
   "scripts/.script-registry.json"                  # SHA-256 hashes
 ]
 ```
@@ -681,7 +681,7 @@ Summary:
 
 2. **Bulk Sync with Enforcement**
    ```bash
-   php scripts/automation/bulk_update_repos.php \
+   php api/automation/bulk_update_repos.php \
      --org mokoconsulting-tech \
      --repo my-api-service
    ```
@@ -795,7 +795,7 @@ Validation: PASSED ✓
 # INGROUP: [Project].Configuration
 # REPO: https://github.com/mokoconsulting-tech/[repo]
 # PATH: /.github/config.tf
-# VERSION: 04.00.04
+# VERSION: 04.00.15
 # BRIEF: Repository-specific override configuration
 
 locals {
@@ -908,7 +908,7 @@ cat > .github/config.tf << 'EOF'
 # INGROUP: WebApp.Configuration
 # REPO: https://github.com/mokoconsulting-tech/webapp
 # PATH: /.github/config.tf
-# VERSION: 04.00.04
+# VERSION: 04.00.15
 # BRIEF: Web application override configuration
 
 locals {
@@ -973,7 +973,7 @@ Test bulk sync with your override configuration:
 
 ```bash
 # Run bulk sync in dry-run mode
-php scripts/automation/bulk_update_repos.php \
+php api/automation/bulk_update_repos.php \
   --org mokoconsulting-tech \
   --repo webapp \
   --dry-run
@@ -1014,26 +1014,26 @@ php scripts/automation/bulk_update_repos.php \
 
 ```bash
 # Basic usage - sync all repos
-php scripts/automation/bulk_update_repos.php \
+php api/automation/bulk_update_repos.php \
   --org mokoconsulting-tech
 
 # Specific repository
-php scripts/automation/bulk_update_repos.php \
+php api/automation/bulk_update_repos.php \
   --org mokoconsulting-tech \
   --repo myproject
 
 # Dry run (no changes)
-php scripts/automation/bulk_update_repos.php \
+php api/automation/bulk_update_repos.php \
   --org mokoconsulting-tech \
   --dry-run
 
 # Skip archived repositories
-php scripts/automation/bulk_update_repos.php \
+php api/automation/bulk_update_repos.php \
   --org mokoconsulting-tech \
   --skip-archived
 
 # Force update (emergency)
-php scripts/automation/bulk_update_repos.php \
+php api/automation/bulk_update_repos.php \
   --org mokoconsulting-tech \
   --force-override
 ```
@@ -1079,7 +1079,7 @@ Processing repository: mokoconsulting-tech/example
 export GH_TOKEN="ghp_your_token_here"
 
 # 2. Run sync on test repository
-php scripts/automation/bulk_update_repos.php \
+php api/automation/bulk_update_repos.php \
   --org mokoconsulting-tech \
   --repo test-repo \
   --dry-run
@@ -1138,7 +1138,7 @@ yamllint config.tf 2>/dev/null || echo "YAML lint not applicable to .tf files"
 
 ```bash
 # Test sync with dry-run
-php scripts/automation/bulk_update_repos.php \
+php api/automation/bulk_update_repos.php \
   --org mokoconsulting-tech \
   --repo test-repo \
   --dry-run \
@@ -1365,7 +1365,7 @@ terraform validate
 
 # Test bulk sync (dry-run)
 cd ../../..
-php /path/to/MokoStandards/scripts/automation/bulk_update_repos.php \
+php /path/to/MokoStandards/api/automation/bulk_update_repos.php \
   --org mokoconsulting-tech \
   --repo my-api-project \
   --dry-run

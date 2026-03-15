@@ -171,7 +171,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-use MokoStandards\Enterprise\{AuditLogger, CliFramework, MetricsCollector};
+use MokoEnterprise\{AuditLogger, CliFramework, MetricsCollector};
 
 class MyScript extends CliFramework
 {

@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 ---
 TITLE: Help Flag Implementation Pattern
@@ -6,7 +6,7 @@ DESCRIPTION: Standard pattern for adding --help documentation flags to all scrip
 AUTHOR: Moko Consulting LLC
 COPYRIGHT: 2025-2026 Moko Consulting LLC
 LICENSE: MIT
-VERSION: 04.00.04
+VERSION: 04.00.15
 CREATED: 2026-01-29
 UPDATED: 2026-01-29
 CATEGORY: Development
@@ -68,8 +68,8 @@ def main():
 
 Place documentation in `docs/{category}/{script-name}.md`:
 
-- `scripts/validate/check_repo_health.py` → `docs/validate/check-repo-health.md`
-- `scripts/automation/bulk_update_repos.php` → `docs/automation/bulk-update-repos.md`
+- `api/validate/check_repo_health.py` → `docs/validate/check-repo-health.md`
+- `api/automation/bulk_update_repos.php` → `docs/automation/bulk-update-repos.md`
 - `scripts/run/load_demo_data.py` → `docs/demo/demo-data-loader.md`
 
 ## PowerShell Scripts
@@ -197,7 +197,7 @@ DESCRIPTION: Brief description
 AUTHOR: Moko Consulting LLC
 COPYRIGHT: 2025-2026 Moko Consulting LLC
 LICENSE: MIT
-VERSION: 04.00.04
+VERSION: 04.00.15
 CREATED: YYYY-MM-DD
 UPDATED: YYYY-MM-DD
 CATEGORY: Category

@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Terraform Schema Definitions
 
@@ -320,36 +320,36 @@ thresholds = reader.get_thresholds()
 
 ### Repository Health Checker
 
-**File**: `scripts/validate/check_repo_health.py`
+**File**: `api/validate/check_repo_health.py`
 
 Validates repository against health standards.
 
 ```bash
 # Check repository health
-python3 scripts/validate/check_repo_health.py --repo-path .
+python3 api/validate/check_repo_health.py --repo-path .
 
 # Verbose output
-python3 scripts/validate/check_repo_health.py --repo-path . --verbose
+python3 api/validate/check_repo_health.py --repo-path . --verbose
 
 # JSON output
-python3 scripts/validate/check_repo_health.py --repo-path . --output json
+python3 api/validate/check_repo_health.py --repo-path . --output json
 ```
 
 ### Repository Structure Validator
 
-**File**: `scripts/validate/validate_structure_terraform.py`
+**File**: `api/validate/validate_structure_terraform.py`
 
 Validates repository structure against Terraform definitions.
 
 ```bash
 # Validate current directory
-python3 scripts/validate/validate_structure_terraform.py .
+python3 api/validate/validate_structure_terraform.py .
 
 # Validate specific repository type
-python3 scripts/validate/validate_structure_terraform.py . --repo-type library
+python3 api/validate/validate_structure_terraform.py . --repo-type library
 
 # Verbose output
-python3 scripts/validate/validate_structure_terraform.py . --verbose
+python3 api/validate/validate_structure_terraform.py . --verbose
 ```
 
 ## Terraform Operations

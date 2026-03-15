@@ -10,11 +10,11 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Status
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/reports/ENTERPRISE_READINESS_STATUS.md
-VERSION: 04.00.04
+VERSION: 04.00.15
 BRIEF: Current status of enterprise readiness implementation
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Enterprise Readiness Status
 
@@ -58,9 +58,9 @@ All high priority security and compliance requirements have been implemented:
 |---------|--------|----------|
 | Repository Templates Documentation | ✅ Complete | [docs/reference/repository-templates.md](../reference/repository-templates.md) |
 | Platform-Aware Testing (Joomla/Dolibarr) | ✅ Complete | [.github/workflows/reusable-platform-testing.yml](../../.github/workflows/reusable-platform-testing.yml) |
-| Schema-Based Health Checking | ✅ Complete | [scripts/validate/schema_aware_health_check.py](../../scripts/validate/schema_aware_health_check.py) |
+| Schema-Based Health Checking | ✅ Complete | [api/validate/schema_aware_health_check.py](../../api/validate/schema_aware_health_check.py) |
 | Unified Repository Schema | ✅ Complete | [schemas/unified-repository-schema.json](../../schemas/unified-repository-schema.json) |
-| Dolibarr Changelog Sync | ✅ Complete | [scripts/automation/sync_dolibarr_changelog.py](../../scripts/automation/sync_dolibarr_changelog.py) |
+| Dolibarr Changelog Sync | ✅ Complete | [api/automation/sync_dolibarr_changelog.py](../../api/automation/sync_dolibarr_changelog.py) |
 | Core Structure Standards | ✅ Complete | [docs/policy/core-structure.md](../policy/core-structure.md) |
 | Installation Documentation Standard | ✅ Complete | [templates/docs/required/template-INSTALLATION.md](../../templates/docs/required/template-INSTALLATION.md) |
 

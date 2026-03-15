@@ -8,11 +8,11 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Security
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/security/security-scanning-guide.md
-VERSION: 04.00.04
+VERSION: 04.00.15
 BRIEF: Guide for implementing security scanning in org repositories
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Security Scanning Implementation Guide
 
@@ -36,18 +36,18 @@ cp templates/workflows/codeql-analysis.yml.template .github/workflows/codeql-ana
 
 #### 2. Scripts
 ```bash
-mkdir -p scripts/validate scripts/lib
-cp scripts/validate/security_scan.py scripts/validate/
-cp scripts/validate/no_secrets.py scripts/validate/
-cp scripts/validate/validate_codeql_config.py scripts/validate/
-chmod +x scripts/validate/*.py
+mkdir -p api/validate scripts/lib
+cp api/validate/security_scan.py api/validate/
+cp api/validate/no_secrets.py api/validate/
+cp api/validate/validate_codeql_config.py api/validate/
+chmod +x api/validate/*.py
 ```
 
 #### 3. Documentation (IMPORTANT!)
 ```bash
 mkdir -p docs/security docs/policy
 cp docs/security/security-scanning-guide.md docs/security/
-cp scripts/validate/SECURITY_SCANNING.md docs/security/
+cp api/validate/SECURITY_SCANNING.md docs/security/
 cp docs/policy/security-scanning.md docs/policy/  # If applicable
 ```
 
@@ -65,13 +65,13 @@ matrix:
 ### Step 2: Validate Configuration
 
 ```bash
-python3 scripts/validate/validate_codeql_config.py
+python3 api/validate/validate_codeql_config.py
 ```
 
 ### Step 3: Test Security Scanning
 
 ```bash
-python3 scripts/validate/security_scan.py --verbose
+python3 api/validate/security_scan.py --verbose
 ```
 
 ## Documentation Structure
@@ -108,13 +108,13 @@ See [SECURITY_SCANNING.md](./SECURITY_SCANNING.md) in your repository for:
 
 ```bash
 # Run comprehensive scan
-python3 scripts/validate/security_scan.py
+python3 api/validate/security_scan.py
 
 # Validate CodeQL config
-python3 scripts/validate/validate_codeql_config.py
+python3 api/validate/validate_codeql_config.py
 
 # Scan for secrets
-python3 scripts/validate/no_secrets.py .
+python3 api/validate/no_secrets.py .
 ```
 
 ## Maintenance
@@ -123,7 +123,7 @@ Update from MokoStandards periodically:
 
 ```bash
 # Update scripts
-cp /path/to/MokoStandards/scripts/validate/security_scan.py scripts/validate/
+cp /path/to/MokoStandards/api/validate/security_scan.py api/validate/
 
 # Update workflows
 cp /path/to/MokoStandards/templates/workflows/codeql-analysis.yml.template \
@@ -131,7 +131,7 @@ cp /path/to/MokoStandards/templates/workflows/codeql-analysis.yml.template \
 
 # Update documentation
 cp /path/to/MokoStandards/docs/security/security-scanning-guide.md docs/security/
-cp /path/to/MokoStandards/scripts/validate/SECURITY_SCANNING.md docs/security/
+cp /path/to/MokoStandards/api/validate/SECURITY_SCANNING.md docs/security/
 ```
 
 ## Support

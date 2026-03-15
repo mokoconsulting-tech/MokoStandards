@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Guides
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: docs/guides/version-badge-guide.md
-VERSION: 04.00.04
+VERSION: 04.00.15
 BRIEF: Comprehensive guide for MokoStandards version compliance badges
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Version Badge Documentation
 
@@ -55,18 +55,18 @@ Version badges serve to:
 ### Standard Badge
 
 ```markdown
-![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)
+![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)
 ```
 
-**Renders as**: ![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)
+**Renders as**: ![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)
 
 ### Badge with Link
 
 ```markdown
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 ```
 
-**Renders as**: [![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+**Renders as**: [![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 ### Badge Parameters
 
@@ -95,7 +95,7 @@ Version badges serve to:
 
 ![Build](https://img.shields.io/badge/build-passing-brightgreen)
 ![Tests](https://img.shields.io/badge/tests-100%25-brightgreen)
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 ## Description
 This project...
@@ -146,7 +146,7 @@ All organization repositories MUST include:
 
 ### Automated Version Detection
 
-**Script**: `scripts/validate/check_standards_compliance.py`
+**Script**: `api/validate/check_standards_compliance.py`
 
 Checks:
 - Badge exists in README.md
@@ -156,16 +156,16 @@ Checks:
 
 ### Bulk Update Script
 
-**Script**: `scripts/automation/update_version_badges.py`
+**Script**: `api/automation/update_version_badges.py`
 
 Updates all repository badges to specified version:
 
 ```bash
 # Update single repository
-./scripts/automation/update_version_badges.py --repo myrepo --version 03.02.00
+./api/automation/update_version_badges.py --repo myrepo --version 03.02.00
 
 # Update all org repositories
-./scripts/automation/update_version_badges.py --org mokoconsulting-tech --version 03.02.00
+./api/automation/update_version_badges.py --org mokoconsulting-tech --version 03.02.00
 ```
 
 ### CI/CD Integration
@@ -205,7 +205,7 @@ jobs:
 ### Current Compliance (Blue)
 
 ```markdown
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 ```
 Use when: Compliant with current MokoStandards version
 
@@ -254,7 +254,7 @@ Use when: Version unknown or not yet compliant
 ### Custom Style
 
 ```markdown
-![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue?style=flat-square)
+![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue?style=flat-square)
 ```
 
 Styles: `flat`, `flat-square`, `plastic`, `for-the-badge`, `social`
@@ -276,7 +276,7 @@ Use bulk update script for organization-wide updates:
 
 ```bash
 # After new MokoStandards release
-./scripts/automation/update_version_badges.py \
+./api/automation/update_version_badges.py \
   --org mokoconsulting-tech \
   --version 03.03.00 \
   --filter compliant
@@ -310,7 +310,7 @@ For individual repositories:
 Run validation script:
 
 ```bash
-./scripts/validate/check_standards_compliance.py --repo .
+./api/validate/check_standards_compliance.py --repo .
 ```
 
 Expected output:
@@ -393,7 +393,7 @@ Track badge compliance across organization:
 ### MokoStandards (This Repository)
 
 ```markdown
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 ```
 
 ### Typical Repository
@@ -403,7 +403,7 @@ Track badge compliance across organization:
 
 ![Build](https://img.shields.io/github/workflow/status/mokoconsulting-tech/myproject/CI)
 ![License](https://img.shields.io/badge/license-GPL--3.0-blue)
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 Modern web application following MokoStandards...
 ```
@@ -446,4 +446,4 @@ sed -i 's/MokoStandards-[0-9.]*-/MokoStandards-03.02.00-/' README.md
 
 **Current MokoStandards Version**: 03.02.00  
 **Badge Generation**: https://shields.io/  
-**Validation Script**: `scripts/validate/check_standards_compliance.py`
+**Validation Script**: `api/validate/check_standards_compliance.py`

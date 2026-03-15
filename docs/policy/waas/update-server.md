@@ -14,7 +14,7 @@ VERSION: 04.00.05
 BRIEF: Policy for the Joomla extension update server (update.xml) in all MokoWaaS repositories
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.05-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Joomla Extension Update Server Policy
 

@@ -1,250 +1,296 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+<!--
+Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+
+This file is part of a Moko Consulting project.
+
+SPDX-License-Identifier: GPL-3.0-or-later
+
+# FILE INFORMATION
+DEFGROUP: MokoStandards.Scripts
+INGROUP: MokoStandards.Documentation
+REPO: https://github.com/mokoconsulting-tech/MokoStandards
+PATH: docs/scripts/README.md
+VERSION: 04.00.15
+BRIEF: Overview and quick reference for all PHP CLI scripts in MokoStandards
+-->
+
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # MokoStandards Scripts Documentation
 
+**Version**: 04.00.15 | **Status**: Active | **Last Updated**: 2026-03-15
+
 ## Overview
 
-This directory contains comprehensive documentation for all scripts in the MokoStandards repository. Each script has a dedicated guide that explains its purpose, usage, requirements, and integration points.
+All scripts in MokoStandards are **PHP 8.1+ CLI scripts**. There are no Python, shell, PowerShell, or Bash scripts. Every script extends `CliFramework` for consistent argument parsing, help output, and exit codes.
+
+Scripts are organized under `api/` into functional subdirectories. Corresponding wrapper scripts live in `api/wrappers/`.
+
+---
+
+## Script Requirements
+
+| Requirement | Specification |
+|-------------|---------------|
+| Language | PHP 8.1+ only |
+| Base class | `MokoEnterprise\CliFramework` |
+| Autoloader | `vendor/autoload.php` via Composer |
+| Strict types | `declare(strict_types=1);` required |
+| Coding style | PSR-12 |
+| Autoloading | PSR-4 |
+
+---
 
 ## Quick Reference
 
 ### Script Categories
 
-| Category | Description | Script Count |
-|----------|-------------|--------------|
-| [Analysis](#analysis) | Analysis and reporting scripts | 2 |
-| [Automation](#automation) | Repository automation and bulk operations | 4 |
-| [Build](#build) | Build system and Makefile tools | 1 |
-| [Docs](#documentation) | Documentation generation and maintenance | 1 |
-| [Fix](#fix) | Automated fix and repair scripts | 0 |
-| [Lib](#libraries) | Shared libraries and utility functions | 4 |
-| [Maintenance](#maintenance) | Repository maintenance and updates | 5 |
-| [Release](#release) | Release management and packaging | 4 |
-| [Run](#run) | Runtime and setup scripts | 1 |
-| [Tests](#tests) | Test scripts and validation tests | 2 |
-| [Validate](#validate) | Validation and quality checks | 12 |
+| Category | Path | Description | Scripts |
+|----------|------|-------------|---------|
+| [Automation](#automation) | `api/automation/` | Bulk operations and sync | 1 |
+| [Deploy](#deploy) | `api/deploy/` | SFTP deployment | 1 |
+| [Fix](#fix) | `api/fix/` | Automated file fixes | 4 |
+| [Maintenance](#maintenance) | `api/maintenance/` | Repository housekeeping | 3 |
+| [Tests](#tests) | `api/tests/` | Test scripts | 2 |
+| [Validate](#validate) | `api/validate/` | Validation and quality checks | 14 |
+| [Wrappers](#wrappers) | `api/wrappers/` | One wrapper per CLI script | — |
 
-**Total Scripts Documented:** 36
-
-## Version Requirements Policy
-
-All scripts in the MokoStandards repository follow these version requirements:
-
-### Python Scripts
-- **Minimum Version:** Python 3.7+
-- **Recommended:** Python 3.9+ for optimal performance
-- **Standard:** All Python scripts use `#!/usr/bin/env python3` shebang
-
-### Shell Scripts
-- **Bash Version:** Bash 4.0+ required
-- **Features Used:** `set -euo pipefail`, `[[  ]]` conditionals, parameter expansion
-- **Compatibility:** POSIX-compliant where possible
-
-### PowerShell Scripts
-- **Version:** PowerShell 7.0+ (PowerShell Core)
-- **Cross-platform:** Works on Windows, Linux, and macOS
-- **Note:** Currently, no PowerShell scripts exist in the repository, but future scripts will follow this standard
-
-## Analysis
-
-Analysis scripts for repository metrics, PR conflicts, and configuration analysis.
-
-| Script | Purpose | Guide |
-|--------|---------|-------|
-| `analyze_pr_conflicts.py` | Analyze pull request conflicts across repositories | [Guide](analysis/analyze-pr-conflicts-py.md) |
-| `generate_canonical_config.py` | Generate canonical configuration files | [Guide](analysis/generate-canonical-config-py.md) |
-
-[📂 View all analysis documentation](analysis/)
+---
 
 ## Automation
 
-Automation scripts for bulk repository operations and GitHub integrations.
+Bulk operations and repository synchronization.
 
-| Script | Purpose | Guide |
-|--------|---------|-------|
-| `auto_create_org_projects.py` | Automatically create GitHub Projects for all org repos | [Guide](automation/auto-create-org-projects-py.md) |
-| `bulk_update_repos.php` | Bulk update workflows and configs across repositories | [Guide](automation/bulk-update-repos-py.md) |
-| `create_repo_project.py` | Create a GitHub Project for a specific repository | [Guide](automation/create-repo-project-py.md) |
-| `sync_file_to_project.py` | Sync documentation files to GitHub Project tasks | [Guide](automation/sync-file-to-project-py.md) |
+| Script | Purpose |
+|--------|---------|
+| `api/automation/bulk_sync.php` | Bulk sync repositories against MokoStandards templates |
 
-[📂 View all automation documentation](automation/)
+---
 
-## Build
+## Deploy
 
-Build system scripts for Makefile resolution and build automation.
+SFTP deployment scripts.
 
-| Script | Purpose | Guide |
-|--------|---------|-------|
-| `resolve_makefile.py` | Resolve and process Makefile includes | [Guide](build/resolve-makefile-py.md) |
+| Script | Purpose |
+|--------|---------|
+| `api/deploy/deploy-sftp.php` | Upload release ZIP packages to SFTP server via phpseclib3 |
 
-[📂 View all build documentation](build/)
+See the [SFTP Deployment Guide](../deployment/sftp.md) for full configuration details.
 
-## Documentation
-
-Scripts for documentation generation and maintenance.
-
-| Script | Purpose | Guide |
-|--------|---------|-------|
-| `rebuild_indexes.py` | Rebuild documentation index files | [Guide](docs/rebuild-indexes-py.md) |
-
-[📂 View all docs scripts documentation](docs/)
+---
 
 ## Fix
 
-Automated fix and repair scripts (currently empty).
+Automated file repair scripts. Each accepts `--path` (repository root) and `--dry-run`.
 
-[📂 View all fix documentation](fix/)
+| Script | Purpose |
+|--------|---------|
+| `api/fix/fix_line_endings.php` | Normalize line endings to LF |
+| `api/fix/fix_permissions.php` | Correct file and directory permissions |
+| `api/fix/fix_tabs.php` | Convert tabs to spaces (configurable width) |
+| `api/fix/fix_trailing_spaces.php` | Strip trailing whitespace from source files |
 
-## Libraries
-
-Shared library scripts providing common utilities and functions.
-
-| Script | Purpose | Guide |
-|--------|---------|-------|
-| `common.py` | Common Python utilities for MokoStandards scripts | [Guide](lib/common-py.md) |
-| `common.sh` | Common Bash utilities for shell scripts | [Guide](lib/common-sh.md) |
-| `extension_utils.py` | Extension platform detection utilities | [Guide](lib/extension-utils-py.md) |
-| `joomla_manifest.py` | Joomla manifest parsing utilities | [Guide](lib/joomla-manifest-py.md) |
-
-[📂 View all library documentation](lib/)
+---
 
 ## Maintenance
 
-Repository maintenance scripts for updates, versioning, and health checks.
+Repository housekeeping and versioning scripts.
 
-| Script | Purpose | Guide |
-|--------|---------|-------|
-| `release_version.py` | Update version numbers across repository files | [Guide](maintenance/release-version-py.md) |
-| `setup-labels.sh` | Configure GitHub repository labels | [Guide](maintenance/setup-labels-sh.md) |
-| `update_changelog.py` | Update CHANGELOG.md with new entries | [Guide](maintenance/update-changelog-py.md) |
-| `update_gitignore_patterns.sh` | Update .gitignore patterns across repositories | [Guide](maintenance/update-gitignore-patterns-sh.md) |
-| `validate_file_headers.py` | Validate copyright headers in source files | [Guide](maintenance/validate-file-headers-py.md) |
+| Script | Purpose |
+|--------|---------|
+| `api/maintenance/setup_labels.php` | Configure standard GitHub repository labels |
+| `api/maintenance/sync_dolibarr_readmes.php` | Sync README content across Dolibarr module repos |
+| `api/maintenance/update_version_from_readme.php` | Propagate version number from README to manifest files |
 
-[📂 View all maintenance documentation](maintenance/)
-
-## Release
-
-Release management scripts for packaging, versioning, and deployment.
-
-| Script | Purpose | Guide |
-|--------|---------|-------|
-| `detect_platform.py` | Detect extension platform (Joomla/Dolibarr) | [Guide](release/detect-platform-py.md) |
-| `dolibarr_release.py` | Create Dolibarr module release packages | [Guide](release/dolibarr-release-py.md) |
-| `package_extension.py` | Package Joomla/Dolibarr extensions as ZIP | [Guide](release/package-extension-py.md) |
-| `update_dates.sh` | Normalize release dates in CHANGELOG and manifests | [Guide](release/update-dates-sh.md) |
-
-[📂 View all release documentation](release/)
-
-## Run
-
-Runtime and setup scripts for project initialization.
-
-| Script | Purpose | Guide |
-|--------|---------|-------|
-| `setup_github_project_v2.py` | Setup GitHub Projects v2 with custom fields | [Guide](run/setup-github-project-v2-py.md) |
-
-[📂 View all run documentation](run/)
+---
 
 ## Tests
 
-Test scripts for validating script functionality.
+Validation test scripts.
 
-| Script | Purpose | Guide |
-|--------|---------|-------|
-| `test_bulk_update_repos.php` | Test bulk repository update functionality | [Guide](tests/test-bulk-update-repos-py.md) |
-| `test_dry_run.py` | Test dry-run mode across scripts | [Guide](tests/test-dry-run-py.md) |
+| Script | Purpose |
+|--------|---------|
+| `api/tests/test_circuit_breaker_handling.php` | Test circuit breaker behaviour in `ApiClient` |
+| `api/tests/test_enterprise_libraries.php` | Smoke tests for the full Enterprise library suite |
 
-[📂 View all test documentation](tests/)
+---
 
 ## Validate
 
-Validation scripts for code quality, security, and compliance checks.
+Quality, compliance, and structural validation scripts. All accept `--path` (repository root) and `--dry-run`.
 
-| Script | Purpose | Guide |
-|--------|---------|-------|
-| `check_repo_health.py` | Check repository health against standards | [Guide](validate/check-repo-health-py.md) |
-| `generate_stubs.py` | Generate type stubs for validation | [Guide](validate/generate-stubs-py.md) |
-| `manifest.py` | Validate extension manifest files | [Guide](validate/manifest-py.md) |
-| `no_secrets.py` | Scan for accidentally committed secrets | [Guide](validate/no-secrets-py.md) |
-| `paths.py` | Validate file paths and conventions | [Guide](validate/paths-py.md) |
-| `php_syntax.py` | Validate PHP syntax | [Guide](validate/php-syntax-py.md) |
-| `tabs.py` | Check for tab characters in source files | [Guide](validate/tabs-py.md) |
-| `validate_codeql_config.py` | Validate CodeQL configuration files | [Guide](validate/validate-codeql-config-py.md) |
-| `validate_repo_health.py` | Validate repository health metrics | [Guide](validate/validate-repo-health-py.md) |
-| `validate_structure.py` | Validate repository structure against schema | [Guide](validate/validate-structure-py.md) |
-| `workflows.py` | Validate GitHub Actions workflows | [Guide](validate/workflows-py.md) |
-| `xml_wellformed.py` | Validate XML file well-formedness | [Guide](validate/xml-wellformed-py.md) |
+| Script | Purpose |
+|--------|---------|
+| `api/validate/auto_detect_platform.php` | Detect repository platform (Joomla, Dolibarr, generic…) |
+| `api/validate/check_changelog.php` | Validate CHANGELOG.md format and entry structure |
+| `api/validate/check_dolibarr_module.php` | Validate Dolibarr module file structure |
+| `api/validate/check_enterprise_readiness.php` | Score repository enterprise-readiness (100-point scale) |
+| `api/validate/check_joomla_manifest.php` | Validate Joomla extension XML manifest |
+| `api/validate/check_language_structure.php` | Validate language file structure and key conventions |
+| `api/validate/check_license_headers.php` | Verify GPL license headers on source files |
+| `api/validate/check_no_secrets.php` | Scan for accidentally committed credentials |
+| `api/validate/check_paths.php` | Validate file path conventions |
+| `api/validate/check_php_syntax.php` | Lint PHP files for syntax errors |
+| `api/validate/check_repo_health.php` | 100-point repository health check |
+| `api/validate/check_structure.php` | Validate repository directory structure against schema |
+| `api/validate/check_tabs.php` | Detect tab characters in source files |
+| `api/validate/check_xml_wellformed.php` | Validate XML files for well-formedness |
+| `api/validate/scan_drift.php` | Detect configuration drift from MokoStandards templates |
 
-[📂 View all validation documentation](validate/)
+---
+
+## Wrappers
+
+Every CLI script has a corresponding wrapper in `api/wrappers/`. Wrappers are thin PHP scripts that:
+
+1. Set up the environment (autoloader, environment variables)
+2. Forward all arguments to the underlying script
+3. Exit with the script's exit code
+
+Wrappers are generated by `api/wrappers/gen_wrappers.php` and should not be edited manually.
+
+---
 
 ## Common Patterns
 
+### Running a Script
+
+```bash
+# Direct execution
+php api/validate/check_repo_health.php --path /path/to/repo
+
+# Via wrapper
+php api/wrappers/check_repo_health.php --path /path/to/repo
+
+# Dry-run mode (no changes written)
+php api/fix/fix_tabs.php --path /path/to/repo --dry-run
+
+# Verbose output
+php api/validate/check_enterprise_readiness.php --path /path/to/repo --verbose
+```
+
+### Standard Exit Codes
+
+| Code | Meaning |
+|------|---------|
+| `0` | Success |
+| `1` | Validation failure or error |
+| `2` | Usage / argument error |
+
 ### Authentication
 
-Many automation scripts require GitHub authentication:
+Scripts that call the GitHub API read `GITHUB_TOKEN` from the environment:
 
-- **GitHub CLI (`gh`)**: Most scripts use `gh` CLI for authentication
-  - Install: `gh auth login`
-  - Scopes needed: `repo`, `project`, `read:org`
-
-- **Personal Access Token (PAT)**: Some scripts require `GH_PAT` environment variable
-  - Create at: https://github.com/settings/tokens
-  - Required scopes: `repo`, `project`, `read:org`
-
-### Dry Run Mode
-
-Most automation scripts support `--dry-run` flag:
 ```bash
-# Preview changes without making them
-php scripts/automation/bulk_update_repos.php --dry-run
+export GITHUB_TOKEN="ghp_..."
+php api/maintenance/setup_labels.php --repo mokoconsulting-tech/MyRepo
 ```
 
-### Verbose Output
+In GitHub Actions workflows, use `${{ secrets.GITHUB_TOKEN }}` or a PAT with appropriate scopes (`repo`, `read:org`).
 
-Enable detailed logging with `--verbose` or `-v`:
-```bash
-python3 scripts/validate/check_repo_health.py --verbose
+---
+
+## Writing New Scripts
+
+All new scripts must:
+
+1. Extend `MokoEnterprise\CliFramework`
+2. Implement `configure()` (define arguments and description)
+3. Implement `execute(): int` (return exit code)
+4. Include the FILE INFORMATION header block
+5. Use `declare(strict_types=1);`
+
+### Minimal Template
+
+```php
+<?php
+declare(strict_types=1);
+
+/*
+ * FILE INFORMATION
+ * DEFGROUP: MokoStandards.Validate
+ * INGROUP: MokoStandards.Api
+ * PATH: api/validate/my_check.php
+ * VERSION: 04.00.15
+ * BRIEF: One-line description of what this script does
+ */
+
+require_once __DIR__ . '/../../vendor/autoload.php';
+
+use MokoEnterprise\CliFramework;
+
+class MyCheck extends CliFramework
+{
+	protected function configure(): void
+	{
+		$this->setDescription('What this script does');
+		$this->addArgument('--path', 'Repository path to check', '.');
+	}
+
+	protected function execute(): int
+	{
+		$path = $this->getArgument('path');
+		// Implementation
+		return 0;
+	}
+}
+
+$script = new MyCheck();
+exit($script->run());
 ```
+
+After creating the script, run `php api/wrappers/gen_wrappers.php` to generate the corresponding wrapper.
+
+---
 
 ## Integration Points
 
 ### CI/CD Workflows
 
-Scripts integrate with GitHub Actions workflows:
+Scripts run inside GitHub Actions as steps:
 
-- **Validation**: Pre-commit and PR checks use validation scripts
-- **Release**: Automated release workflows call packaging scripts
-- **Maintenance**: Scheduled workflows run maintenance scripts
+```yaml
+- name: Validate PHP syntax
+  run: php api/validate/check_php_syntax.php --path .
 
-See [workflows documentation](../workflows/) for integration details.
+- name: Check enterprise readiness
+  run: php api/validate/check_enterprise_readiness.php --path . --verbose
+```
 
-### Dependencies
+### Composer
 
-Common dependencies across scripts:
+Dependencies (including phpseclib3) are managed via Composer:
 
-- **Python Libraries**: `argparse`, `pathlib`, `json`, `subprocess`
-- **External Tools**: `gh` CLI, `git`, `jq` (for JSON processing)
-- **Custom Libraries**: Scripts in `/scripts/lib/` provide shared utilities
+```bash
+composer install --no-dev --optimize-autoloader
+```
+
+---
 
 ## Contributing
 
-When adding new scripts:
+When adding a new script:
 
-1. Create the script in the appropriate `/scripts/` subdirectory
-2. Add corresponding documentation in `/docs/scripts/` with matching hierarchy
-3. Include Python/PowerShell/Bash version requirements
-4. Update this README with a quick reference entry
-5. Follow the [documentation template](../templates/script-guide-template.md)
+1. Place it in the correct `api/<category>/` subdirectory
+2. Add it to this README under the appropriate category table
+3. Run `php api/wrappers/gen_wrappers.php` to generate its wrapper
+4. Add documentation in `docs/api/<category>/` if detailed guidance is needed
+5. Follow the [PHP-Only Architecture guide](../guide/php-only-architecture.md)
+
+---
+
+## See Also
+
+- [PHP-Only Architecture](../guide/php-only-architecture.md)
+- [SFTP Deployment Guide](../deployment/sftp.md)
+- [Scripting Standards Policy](../policy/scripting-standards.md)
+- [Enterprise Libraries Overview](api/index.md)
+
+---
 
 ## Revision History
 
-| Date | Change | Author |
-|------|--------|--------|
-| 2026-01-15 | Initial comprehensive script documentation | GitHub Copilot |
-
-## Related Documentation
-
-- [Contributing Guide](../../CONTRIBUTING.md)
-- [Workflows Documentation](../workflows/)
-- [Development Guide](../guide/development.md)
-- [Build System Documentation](../build-system/)
+| Date | Version | Changes |
+|------|---------|---------|
+| 2026-03-15 | 04.00.15 | Full rewrite: PHP-only scripts, accurate script inventory, updated patterns |
+| 2026-01-15 | 01.00.00 | Initial comprehensive script documentation |

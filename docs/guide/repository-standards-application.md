@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Standards
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/guide/repository-standards-application.md
-VERSION: 04.00.04
+VERSION: 04.00.15
 BRIEF: Guidance on applying MokoStandards to repositories
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Repository Standards Application
 

@@ -32,12 +32,12 @@ The system consists of the following components:
   - `waas-component.tf` - MokoWaaS (Joomla) component structure
 
 ### 3. Validation Tool
-- **File**: `scripts/validate/validate_structure.py`
+- **File**: `api/validate/validate_structure.py`
 - **Purpose**: Validates an existing repository against a structure definition
 - **Output**: List of errors, warnings, and info messages
 
 ### 4. Stub Generation Tool
-- **File**: `scripts/validate/generate_stubs.py`
+- **File**: `api/validate/generate_stubs.py`
 - **Purpose**: Generates missing files and directories based on a structure definition
 - **Features**: Dry-run mode, force overwrite, template substitution
 
@@ -222,10 +222,10 @@ Defines the standard structure for MokoWaaS (Joomla) components.
 
 ```bash
 # Validate current directory
-python scripts/validate/validate_structure.py scripts/definitions/crm-module.tf
+python api/validate/validate_structure.py scripts/definitions/crm-module.tf
 
 # Validate specific directory
-python scripts/validate/validate_structure.py scripts/definitions/crm-module.tf /path/to/repo
+python api/validate/validate_structure.py scripts/definitions/crm-module.tf /path/to/repo
 
 # Use with make (from project root)
 make validate-structure
@@ -297,16 +297,16 @@ Total issues: 6
 
 ```bash
 # Dry run (preview)
-python scripts/validate/generate_stubs.py scripts/definitions/crm-module.tf --dry-run
+python api/validate/generate_stubs.py scripts/definitions/crm-module.tf --dry-run
 
 # Generate stubs in current directory
-python scripts/validate/generate_stubs.py scripts/definitions/crm-module.tf
+python api/validate/generate_stubs.py scripts/definitions/crm-module.tf
 
 # Generate stubs in specific directory
-python scripts/validate/generate_stubs.py scripts/definitions/crm-module.tf /path/to/repo
+python api/validate/generate_stubs.py scripts/definitions/crm-module.tf /path/to/repo
 
 # Force overwrite existing files
-python scripts/validate/generate_stubs.py scripts/definitions/crm-module.tf --force
+python api/validate/generate_stubs.py scripts/definitions/crm-module.tf --force
 
 # Use with make (from project root)
 make generate-stubs STRUCTURE=crm-module
@@ -369,7 +369,7 @@ Total actions: 12
 
 Next steps:
   1. Review generated files and update TODO sections
-  2. Run validation: python scripts/validate/validate_structure.py
+  2. Run validation: python api/validate/validate_structure.py
   3. Commit changes to version control
 ```
 
@@ -383,7 +383,7 @@ mkdir my-new-module
 cd my-new-module
 
 # 2. Generate structure stubs
-python ../MokoStandards/scripts/validate/generate_stubs.py \
+python ../MokoStandards/api/validate/generate_stubs.py \
     ../MokoStandards/scripts/definitions/crm-module.tf
 
 # 3. Review generated files
@@ -393,7 +393,7 @@ ls -la
 # Edit README.md, src/README.md, etc.
 
 # 5. Validate structure
-python ../MokoStandards/scripts/validate/validate_structure.py \
+python ../MokoStandards/api/validate/validate_structure.py \
     ../MokoStandards/scripts/definitions/crm-module.tf
 
 # 6. Initialize git and commit
@@ -407,13 +407,13 @@ git commit -m "Initial commit with standard structure"
 ```bash
 # Validate against CRM module structure
 cd existing-module
-python ../MokoStandards/scripts/validate/validate_structure.py \
+python ../MokoStandards/api/validate/validate_structure.py \
     ../MokoStandards/scripts/definitions/crm-module.tf
 
 # Fix any errors reported
 
 # Validate again
-python ../MokoStandards/scripts/validate/validate_structure.py \
+python ../MokoStandards/api/validate/validate_structure.py \
     ../MokoStandards/scripts/definitions/crm-module.tf
 ```
 
@@ -422,7 +422,7 @@ python ../MokoStandards/scripts/validate/validate_structure.py \
 ```bash
 # Generate stubs without overwriting existing files
 cd partially-complete-module
-python ../MokoStandards/scripts/validate/generate_stubs.py \
+python ../MokoStandards/api/validate/generate_stubs.py \
     ../MokoStandards/scripts/definitions/crm-module.tf
 
 # This will create only missing files
@@ -456,7 +456,7 @@ jobs:
 
       - name: Validate Structure
         run: |
-          python MokoStandards/scripts/validate/validate_structure.py \
+          python MokoStandards/api/validate/validate_structure.py \
             MokoStandards/scripts/definitions/crm-module.tf .
 ```
 
@@ -534,7 +534,7 @@ Create a new XML file in `scripts/definitions/`:
 
   <structure>
     <!-- Define your structure here -->
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
   </structure>
 </repository-structure>
@@ -604,12 +604,12 @@ xmllint --noout --schema schemas/repository-structure.xsd \
     scripts/definitions/your-structure.xml
 
 # Test stub generation
-python scripts/validate/generate_stubs.py \
+python api/validate/generate_stubs.py \
     scripts/definitions/your-structure.xml \
     /tmp/test-repo --dry-run
 
 # Test validation
-python scripts/validate/validate_structure.py \
+python api/validate/validate_structure.py \
     scripts/definitions/your-structure.xml \
     /tmp/test-repo
 ```
@@ -634,17 +634,17 @@ STRUCTURE_TYPE ?= crm-module
 
 .PHONY: validate-structure
 validate-structure:
-	python $(MOKOSTANDARDS_ROOT)/scripts/validate/validate_structure.py \
+	python $(MOKOSTANDARDS_ROOT)/api/validate/validate_structure.py \
 		$(MOKOSTANDARDS_ROOT)/scripts/definitions/$(STRUCTURE_TYPE).xml .
 
 .PHONY: generate-stubs
 generate-stubs:
-	python $(MOKOSTANDARDS_ROOT)/scripts/validate/generate_stubs.py \
+	python $(MOKOSTANDARDS_ROOT)/api/validate/generate_stubs.py \
 		$(MOKOSTANDARDS_ROOT)/scripts/definitions/$(STRUCTURE_TYPE).xml .
 
 .PHONY: validate-structure-dry
 validate-structure-dry:
-	python $(MOKOSTANDARDS_ROOT)/scripts/validate/generate_stubs.py \
+	python $(MOKOSTANDARDS_ROOT)/api/validate/generate_stubs.py \
 		$(MOKOSTANDARDS_ROOT)/scripts/definitions/$(STRUCTURE_TYPE).xml . --dry-run
 ```
 
@@ -682,7 +682,7 @@ jobs:
 
       - name: Validate Repository Structure
         run: |
-          python .mokostandards/scripts/validate/validate_structure.py \
+          python .mokostandards/api/validate/validate_structure.py \
             .mokostandards/scripts/definitions/crm-module.tf .
 ```
 

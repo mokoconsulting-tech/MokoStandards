@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Security Documentation Index
 
@@ -32,9 +32,9 @@ When deploying to a new repository, copy these files:
 ### Required Files
 
 - [ ] `.github/workflows/codeql-analysis.yml` - CodeQL workflow
-- [ ] `scripts/validate/security_scan.py` - Orchestration script
-- [ ] `scripts/validate/no_secrets.py` - Secret scanner
-- [ ] `scripts/validate/validate_codeql_config.py` - Config validator
+- [ ] `api/validate/security_scan.py` - Orchestration script
+- [ ] `api/validate/no_secrets.py` - Secret scanner
+- [ ] `api/validate/validate_codeql_config.py` - Config validator
 
 ### Documentation Files (Copy These!)
 
@@ -49,15 +49,15 @@ When deploying to a new repository, copy these files:
 cp templates/workflows/codeql-analysis.yml.template .github/workflows/codeql-analysis.yml
 
 # Copy scripts
-cp scripts/validate/{security_scan,no_secrets,validate_codeql_config}.py scripts/validate/
+cp api/validate/{security_scan,no_secrets,validate_codeql_config}.py api/validate/
 
 # Copy documentation
 mkdir -p docs/security
 cp docs/security/{security-scanning-guide,SECURITY_SCANNING}.md docs/security/
 
 # Validate and test
-python3 scripts/validate/validate_codeql_config.py
-python3 scripts/validate/security_scan.py --verbose
+python3 api/validate/validate_codeql_config.py
+python3 api/validate/security_scan.py --verbose
 ```
 
 ## Related Documentation

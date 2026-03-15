@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Automatic Platform Detection and Validation
 
@@ -45,23 +45,23 @@ If neither Joomla nor Dolibarr patterns are detected, the repository is classifi
 
 ```bash
 # Auto-detect and validate current repository
-php scripts/validate/auto_detect_platform.php
+php api/validate/auto_detect_platform.php
 
 # Validate specific repository
-php scripts/validate/auto_detect_platform.php --repo-path /path/to/repo
+php api/validate/auto_detect_platform.php --repo-path /path/to/repo
 ```
 
 ### Advanced Usage
 
 ```bash
 # Verbose output with detection details
-php scripts/validate/auto_detect_platform.php --verbose
+php api/validate/auto_detect_platform.php --verbose
 
 # Custom output directory for reports
-php scripts/validate/auto_detect_platform.php --output-dir ./my-reports
+php api/validate/auto_detect_platform.php --output-dir ./my-reports
 
 # Specify schema directory location
-php scripts/validate/auto_detect_platform.php --schema-dir /path/to/schemas/structures
+php api/validate/auto_detect_platform.php --schema-dir /path/to/schemas/structures
 ```
 
 ## Generated Documentation Files
@@ -101,7 +101,7 @@ Contains overall status, quick facts table, links to reports, and action items.
 
 - [Layered Documentation Guide](../layered-documentation.md)
 - [Repository Startup Guide](../../quickstart/repository-startup-guide.md)
-- [Validation Scripts](../../../scripts/validate/)
+- [Validation Scripts](../../../api/validate/)
 
 ## Metadata
 

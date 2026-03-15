@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Training
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: docs/training/README.md
-VERSION: 04.00.04
+VERSION: 04.00.15
 BRIEF: Training program index for MokoStandards enterprise libraries
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # MokoStandards Enterprise Libraries Training Program
 
@@ -339,12 +339,12 @@ Each training session includes:
 - **[PHP-Only Architecture](../guide/php-only-architecture.md)**: Complete architecture guide
 - **[Automation Guide](../automation/README.md)**: Complete automation documentation
 - **[Planning Roadmap](../planning/README.md)**: Implementation roadmap and future plans
-- **[Library Source Code](../../scripts/lib/Enterprise/)**: Full source code for all 13 PHP libraries
+- **[Library Source Code](../../api/lib/Enterprise/)**: Full source code for all 13 PHP libraries
 - **[Integration Tests](../../.github/workflows/integration-tests.yml)**: Test examples
 
 ### Code Examples
 - **[Sample PHP Scripts](../../scripts/)**: Production-ready PHP automation scripts
-- **[PHP Enterprise Libraries](../../scripts/lib/Enterprise/)**: 13 enterprise-grade PHP classes
+- **[PHP Enterprise Libraries](../../api/lib/Enterprise/)**: 13 enterprise-grade PHP classes
 - **[Web Interface](../../web/)**: Material Design 3 web dashboard
 - **[Composer Configuration](../../composer.json)**: Dependency management setup
 
@@ -480,7 +480,7 @@ We continuously improve this training program based on participant feedback.
 | **Policy Documents** | [docs/policy/](../policy/index.md) |
 | **Security Policies** | [docs/policy/security/](../policy/security/index.md) |
 | **Quality Policies** | [docs/policy/quality/](../policy/quality/index.md) |
-| **PHP Libraries** | [scripts/lib/Enterprise/](../../scripts/lib/Enterprise/) |
+| **PHP Libraries** | [api/lib/Enterprise/](../../api/lib/Enterprise/) |
 | **PHP Architecture** | [docs/guide/php-only-architecture.md](../guide/php-only-architecture.md) |
 | **Automation Guide** | [docs/automation/README.md](../automation/README.md) |
 | **Web Interface** | [web/index.php](../../web/index.php) |

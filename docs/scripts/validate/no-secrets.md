@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # no_secrets.py Script Guide
 
@@ -8,7 +8,7 @@ The `no_secrets.py` script scans source code repositories for accidentally commi
 
 ## Location
 
-- **Path**: `/scripts/validate/no_secrets.py`
+- **Path**: `/api/validate/no_secrets.py`
 - **Type**: Python script
 - **Category**: Validation / Security
 
@@ -35,13 +35,13 @@ This script performs security validation by detecting potentially sensitive info
 
 ```bash
 # Scan default 'src' directory
-python3 scripts/validate/no_secrets.py
+python3 api/validate/no_secrets.py
 
 # Scan specific directory
-python3 scripts/validate/no_secrets.py --src-dir /path/to/source
+python3 api/validate/no_secrets.py --src-dir /path/to/source
 
 # Scan current directory
-python3 scripts/validate/no_secrets.py --src-dir .
+python3 api/validate/no_secrets.py --src-dir .
 ```
 
 ### Options and Arguments
@@ -52,17 +52,17 @@ python3 scripts/validate/no_secrets.py --src-dir .
 
 ```bash
 # Example 1: Scan entire project
-python3 scripts/validate/no_secrets.py --src-dir .
+python3 api/validate/no_secrets.py --src-dir .
 
 # Example 2: Scan specific module
-python3 scripts/validate/no_secrets.py --src-dir src/authentication
+python3 api/validate/no_secrets.py --src-dir src/authentication
 
 # Example 3: Set source directory via environment variable
 export src=/path/to/code
-python3 scripts/validate/no_secrets.py
+python3 api/validate/no_secrets.py
 
 # Example 4: Use in Git pre-commit hook
-python3 scripts/validate/no_secrets.py --src-dir $(git rev-parse --show-toplevel)
+python3 api/validate/no_secrets.py --src-dir $(git rev-parse --show-toplevel)
 ```
 
 ## Requirements
@@ -186,7 +186,7 @@ for file_path in walk_directory(src_dir):
 
 ```bash
 # Check exit code in shell
-python3 scripts/validate/no_secrets.py
+python3 api/validate/no_secrets.py
 if [ $? -eq 0 ]; then
     echo "✅ No secrets found"
 else
@@ -217,7 +217,7 @@ jobs:
           python-version: '3.9'
 
       - name: Scan for secrets
-        run: python3 scripts/validate/no_secrets.py --src-dir .
+        run: python3 api/validate/no_secrets.py --src-dir .
 ```
 
 **Integration in MokoStandards:**
@@ -234,9 +234,9 @@ jobs:
 **Workflow Integration:**
 ```bash
 # Complete security validation
-python3 scripts/validate/no_secrets.py --src-dir src
-python3 scripts/validate/validate_file_headers.py --path src
-python3 scripts/validate/check_repo_health.py --repo-path .
+python3 api/validate/no_secrets.py --src-dir src
+python3 api/validate/validate_file_headers.py --path src
+python3 api/validate/check_repo_health.py --repo-path .
 ```
 
 ### Pre-commit Hooks
@@ -248,7 +248,7 @@ repos:
     hooks:
       - id: no-secrets
         name: Check for secrets
-        entry: python3 scripts/validate/no_secrets.py --src-dir
+        entry: python3 api/validate/no_secrets.py --src-dir
         language: system
         pass_filenames: false
         always_run: true
@@ -287,7 +287,7 @@ WARNING: Truncated results to first 50 matches
 
 Enable debug mode:
 ```bash
-DEBUG=1 python3 scripts/validate/no_secrets.py --src-dir .
+DEBUG=1 python3 api/validate/no_secrets.py --src-dir .
 ```
 
 ## Best Practices
@@ -319,8 +319,8 @@ If secrets are found:
 ```bash
 # Fail fast in CI
 set -e
-python3 scripts/validate/no_secrets.py --src-dir .
-python3 scripts/validate/validate_structure.py structure.xml .
+python3 api/validate/no_secrets.py --src-dir .
+python3 api/validate/validate_structure.py structure.xml .
 # Continue with build only if validation passes
 ```
 

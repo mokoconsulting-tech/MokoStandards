@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # common.py Library Guide
 
@@ -200,7 +200,7 @@ Get relative path from repository root or current working directory.
 ```python
 # From repo root
 rel_path = common.get_relative_path(__file__)
-# Output: "scripts/validate/no_secrets.py"
+# Output: "api/validate/no_secrets.py"
 
 # From current directory
 rel_path = common.get_relative_path(__file__, from_root=False)
@@ -252,7 +252,7 @@ def generate_python_header(
 **Example:**
 ```python
 header = common.generate_python_header(
-    file_path="scripts/validate/new_validator.py",
+    file_path="api/validate/new_validator.py",
     brief="Validate new feature implementation",
     defgroup="MokoStandards.Validation",
     note="Requires Python 3.9+"
@@ -268,7 +268,7 @@ Generate standard GPL-3.0 file header for shell scripts.
 **Example:**
 ```python
 header = common.generate_shell_header(
-    file_path="scripts/maintenance/cleanup.sh",
+    file_path="api/maintenance/cleanup.sh",
     brief="Clean up temporary files",
     version="01.00.00"
 )

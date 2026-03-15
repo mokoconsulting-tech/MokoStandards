@@ -14,7 +14,7 @@ VERSION: 04.00.05
 BRIEF: How-to guide for creating and maintaining the Joomla extension update.xml in MokoWaaS repos
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.05-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Joomla Update Server Guide
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace MokoStandards\Enterprise;
+namespace MokoEnterprise;
 
 /**
  * Plugin Factory - Factory for creating and managing plugin instances

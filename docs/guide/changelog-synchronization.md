@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Guide
 INGROUP: MokoStandards.Automation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/guide/changelog-synchronization.md
-VERSION: 04.00.04
+VERSION: 04.00.15
 BRIEF: Guide for automatic CHANGELOG synchronization in Dolibarr modules
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # CHANGELOG Synchronization for Dolibarr Modules
 
@@ -210,10 +210,10 @@ This workflow is included in the bulk repository update system and will be deplo
 
 ```bash
 # Deploy to all Dolibarr repos
-./scripts/automation/bulk_update_repos.php --repos dolibarr-* --yes
+./api/automation/bulk_update_repos.php --repos dolibarr-* --yes
 
 # Preview first
-./scripts/automation/bulk_update_repos.php --repos dolibarr-* --dry-run
+./api/automation/bulk_update_repos.php --repos dolibarr-* --dry-run
 ```
 
 ## Related Documentation

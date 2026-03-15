@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Guides
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: docs/guides/version-branching-guide.md
-VERSION: 04.00.04
+VERSION: 04.00.15
 BRIEF: Guide for version branch management and old version preservation
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Version Branching Guide
 
@@ -136,7 +136,7 @@ git push origin v03.03.00
 
 ```bash
 # Script automatically creates version branch AND release
-./scripts/maintenance/release_version.py --version 03.03.00
+./api/maintenance/release_version.py --version 03.03.00
 
 # Script will:
 # 1. Validate current version
@@ -170,7 +170,7 @@ git push origin version/03.02.00
 # 5. Create GitHub release for the old version
 gh release create v03.02.00 \
   --title "Release 03.02.00 - Enterprise Transformation Complete" \
-  --notes "$(./scripts/maintenance/generate_release_notes.sh 03.02.00)" \
+  --notes "$(./api/maintenance/generate_release_notes.sh 03.02.00)" \
   --target version/03.02.00 \
   --latest
 
@@ -239,7 +239,7 @@ git checkout -b hotfix/03.02.01-critical-fix
 git commit -m "Fix critical issue in 03.02.00"
 
 # 3. Test thoroughly
-./scripts/validate/run_tests.sh
+./api/validate/run_tests.sh
 
 # 4. Create PR to version/03.02.00
 gh pr create --base version/03.02.00 --head hotfix/03.02.01-critical-fix
@@ -319,7 +319,7 @@ v03.00.10
 **Version bump detector** automatically creates branches and releases:
 
 ```python
-# In scripts/maintenance/release_version.py
+# In api/maintenance/release_version.py
 
 def bump_version(old_version, new_version):
     """Bump version, create version branch, and publish release."""
@@ -408,7 +408,7 @@ jobs:
         id: notes
         run: |
           # Extract from CHANGELOG.md
-          NOTES=$(./scripts/maintenance/generate_release_notes.sh ${{ steps.version.outputs.version }})
+          NOTES=$(./api/maintenance/generate_release_notes.sh ${{ steps.version.outputs.version }})
           echo "notes<<EOF" >> $GITHUB_OUTPUT
           echo "$NOTES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -469,7 +469,7 @@ jobs:
 
 ```bash
 # Extract version section from CHANGELOG.md
-./scripts/maintenance/generate_release_notes.sh 03.02.00
+./api/maintenance/generate_release_notes.sh 03.02.00
 ```
 
 **Manual creation**:

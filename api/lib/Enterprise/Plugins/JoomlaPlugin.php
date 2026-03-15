@@ -17,9 +17,9 @@
 
 declare(strict_types=1);
 
-namespace MokoStandards\Enterprise\Plugins;
+namespace MokoEnterprise\Plugins;
 
-use MokoStandards\Enterprise\AbstractProjectPlugin;
+use MokoEnterprise\AbstractProjectPlugin;
 
 /**
  * Joomla Project Plugin

@@ -27,7 +27,7 @@
  BRIEF: Authoritative Moko Consulting brand identity system — foundation, visual identity, logo, colour palette, typography, and usage policy
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.05-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Moko Consulting Branding Policy
 

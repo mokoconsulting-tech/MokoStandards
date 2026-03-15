@@ -23,7 +23,7 @@ Scripts in `api/deploy/` upload repository source files to remote web servers vi
 ## deploy-sftp.php
 
 **Path:** `api/deploy/deploy-sftp.php`
-**Base class:** `CLIApp`
+**Base class:** `MokoEnterprise\CliFramework`
 
 Reads connection details from a `sftp-config.json` file and recursively uploads
 a repository's `src/` directory to the configured remote path.
@@ -138,12 +138,16 @@ absolute path (e.g. `J:/My Drive/Keys/jmiller_private.ppk`).
 
 ### Called by Workflows
 
-| Workflow | Trigger | Target |
-|----------|---------|--------|
-| `deploy-dev.yml` | `workflow_call`, `workflow_dispatch` | Dev server |
-| `deploy-release.yml` | `workflow_call`, `workflow_dispatch` | Production server (requires `production` environment approval) |
+| Workflow | Trigger | Target | Secrets prefix |
+|----------|---------|--------|----------------|
+| `deploy-dev.yml` | `workflow_call`, `workflow_dispatch` | Dev server | `DEV_FTP_` |
+| `deploy-release.yml` | `workflow_call`, `workflow_dispatch` | Production server (requires `production` environment approval) | `RS_FTP_` |
 
 See [Deploy Workflows](../../workflows/deploy-dev.md) for workflow usage.
+
+### GitHub Secrets and Variables Reference
+
+When called from CI, the script reads credentials from environment variables set by the workflow. See the [SFTP Deployment Guide](../../deployment/sftp.md#github-secrets-and-variables) for the full secrets/variables tables for both `DEV_FTP_*` and `RS_FTP_*` environments, including types (Secret vs. Variable) and scopes (Org vs. Repo).
 
 ---
 

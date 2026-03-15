@@ -19,7 +19,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-use MokoStandards\Enterprise\CliFramework;
+use MokoEnterprise\CliFramework;
 
 /**
  * Validates that the required directories and files exist in the repository root.

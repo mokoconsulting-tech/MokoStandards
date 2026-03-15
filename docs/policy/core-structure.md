@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Structure
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/core-structure.md
-VERSION: 04.00.04
+VERSION: 04.00.15
 BRIEF: Core organization structure for docs and scripts folders across all organization repositories
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Core Organization Structure
 
@@ -68,7 +68,7 @@ The README.md title **MUST** follow this format:
 
 **Example**:
 ```markdown
-# README - MokoStandards (VERSION: 04.00.04)
+# README - MokoStandards (VERSION: 04.00.15)
 ```
 
 **Purpose**: This format provides:
@@ -396,12 +396,12 @@ Repositories can be validated against this core structure using:
 
 ```bash
 # Validate repository structure
-python3 scripts/validate/validate_structure.py \
+python3 api/validate/validate_structure.py \
   --definition scripts/definitions/default-repository.tf \
   --target /path/to/repository
 
 # Generate missing structure elements
-python3 scripts/validate/generate_stubs.py \
+python3 api/validate/generate_stubs.py \
   --definition scripts/definitions/default-repository.tf \
   --target /path/to/repository \
   --dry-run
@@ -447,14 +447,14 @@ python3 scripts/docs/rebuild_script_indexes.py
 
 5. **Validate Structure**
    ```bash
-   python3 scripts/validate/validate_structure.py
+   python3 api/validate/validate_structure.py
    ```
 
 ### For New Repositories
 
 1. **Use Structure Definition**
    ```bash
-   python3 scripts/validate/generate_stubs.py \
+   python3 api/validate/generate_stubs.py \
      --definition scripts/definitions/default-repository.tf \
      --target /path/to/new-repo
    ```
@@ -466,7 +466,7 @@ python3 scripts/docs/rebuild_script_indexes.py
 
 3. **Validate**
    ```bash
-   python3 scripts/validate/validate_structure.py
+   python3 api/validate/validate_structure.py
    ```
 
 ## Best Practices
@@ -515,7 +515,7 @@ Add to repository CI pipeline:
 # .github/workflows/repo-health.yml
 - name: Validate repository structure
   run: |
-    python3 scripts/validate/validate_structure.py \
+    python3 api/validate/validate_structure.py \
       --definition scripts/definitions/default-repository.tf
 
 - name: Check index freshness

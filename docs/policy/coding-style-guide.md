@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Development
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/coding-style-guide.md
-VERSION: 04.00.12
+VERSION: 04.00.15
 BRIEF: Universal coding style standards across all programming languages
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.12-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Coding Style Guide
 

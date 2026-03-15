@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # MokoStandards Documentation Catalog
 
@@ -7,7 +7,7 @@ This is a comprehensive catalog of all documentation in the MokoStandards reposi
 ## Quick Links
 
 - [README](./README.md) - Documentation governance framework
-- [ROADMAP](./ROADMAP.md) - Documentation roadmap and future plans
+- [ROADMAP](./policy/roadmap.md) - Documentation roadmap and future plans
 
 ## Policies
 
@@ -46,6 +46,11 @@ Standards, requirements, and compliance documentation.
 
 - [incident-management](./policy/governance/incident-management.md)
 - [release-management](./policy/governance/release-management.md)
+
+### LEGAL
+
+- [intellectual-property-policy](./policy/legal/intellectual-property-policy.md)
+- [open-source-compliance](./policy/legal/open-source-compliance.md)
 
 ### OPERATIONS
 
@@ -173,7 +178,6 @@ Step-by-step tutorials and how-to documentation.
 - [ENTERPRISE_READINESS_SCRIPTS](./reports/ENTERPRISE_READINESS_SCRIPTS.md)
 - [ENTERPRISE_READINESS_STATUS](./reports/ENTERPRISE_READINESS_STATUS.md)
 - [ENTERPRISE_READINESS_SUMMARY](./reports/ENTERPRISE_READINESS_SUMMARY.md)
-- [IMPLEMENTATION_SUMMARY](./reports/IMPLEMENTATION_SUMMARY.md)
 - [SCRIPT_DOCUMENTATION_SUMMARY](./reports/SCRIPT_DOCUMENTATION_SUMMARY.md)
 - [SECURITY_NOTES_REPO_HEALTH](./reports/SECURITY_NOTES_REPO_HEALTH.md)
 

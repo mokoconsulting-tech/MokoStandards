@@ -68,6 +68,7 @@ scripts/sftp-config/
 scripts/keys/
 # Catch stray key or config files placed outside the above directories
 *.ppk
+sftp-*
 
 # ============================================================
 # Replit / cloud IDE

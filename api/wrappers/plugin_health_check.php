@@ -87,7 +87,7 @@ foreach ($read as $stream) {
 	}
 	$out = ($stream === $pipes[1]) ? STDOUT : STDERR;
 	fwrite($out, $chunk);
-	fwrite((resource) $log, $chunk);
+	fwrite($log, $chunk);
 }
 if (feof($pipes[1]) && feof($pipes[2])) {
 	break;
@@ -96,7 +96,7 @@ if (feof($pipes[1]) && feof($pipes[2])) {
 
 fclose($pipes[1]);
 fclose($pipes[2]);
-fclose((resource) $log);
+fclose($log);
 
 $exitCode = proc_close($process);
 

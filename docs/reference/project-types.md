@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Project Type Detection
 
@@ -84,10 +84,10 @@ When Joomla is detected, the following validations apply:
 
 | Requirement | Purpose | Validation Script |
 |---|---|---|
-| XML manifest present | Defines extension metadata | `scripts/validate/manifest.sh` |
-| XML well-formed | Ensures parseable manifests | `scripts/validate/xml_wellformed.sh` |
-| Version format | NN.NN.NN format enforced | `scripts/validate/version_alignment.sh` |
-| Joomla namespace | PSR-4 autoloading check | `scripts/validate/php_syntax.sh` |
+| XML manifest present | Defines extension metadata | `api/validate/manifest.sh` |
+| XML well-formed | Ensures parseable manifests | `api/validate/xml_wellformed.sh` |
+| Version format | NN.NN.NN format enforced | `api/validate/version_alignment.sh` |
+| Joomla namespace | PSR-4 autoloading check | `api/validate/php_syntax.sh` |
 | SQL install/update files | Database schema management | Manual review |
 
 ### Joomla Workflow Selection
@@ -205,11 +205,11 @@ When Dolibarr is detected, the following validations apply:
 
 | Requirement | Purpose | Validation Script |
 |---|---|---|
-| Module descriptor present | Defines module metadata | `scripts/validate/dolibarr_structure.sh` |
+| Module descriptor present | Defines module metadata | `api/validate/dolibarr_structure.sh` |
 | htdocs/ structure | Proper module organization | Manual review |
-| Database schema | SQL files for installation | `scripts/validate/sql_syntax.sh` |
+| Database schema | SQL files for installation | `api/validate/sql_syntax.sh` |
 | Module ID unique | Prevents conflicts | Module registry check |
-| Dolibarr API usage | Version compatibility | `scripts/validate/dolibarr_api.sh` |
+| Dolibarr API usage | Version compatibility | `api/validate/dolibarr_api.sh` |
 
 ### Dolibarr Workflow Selection
 

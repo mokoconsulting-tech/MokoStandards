@@ -24,7 +24,7 @@ declare(strict_types=1);
  * @license GPL-3.0-or-later
  */
 
-namespace MokoStandards\Enterprise;
+namespace MokoEnterprise;
 
 use RuntimeException;
 
@@ -188,9 +188,12 @@ class Config
      */
     private static function applyEnvironmentOverrides(array &$configData): void
     {
-        // GitHub configuration
-        // GitHub configuration — prefer GH_TOKEN (org secret), fall back to GITHUB_TOKEN
-        if ($token = getenv('GH_TOKEN') ?: getenv('GITHUB_TOKEN')) {
+        // GitHub token resolution (in priority order):
+        //   1. GH_TOKEN env var (GitHub Actions org/repo secret)
+        //   2. GITHUB_TOKEN env var (GitHub Actions built-in)
+        //   3. `gh auth token` from the gh CLI (local developer machines)
+        $token = getenv('GH_TOKEN') ?: getenv('GITHUB_TOKEN') ?: self::resolveGhCliToken();
+        if (!empty($token)) {
             $configData['github']['token'] = $token;
         }
         if ($org = getenv('GITHUB_ORG')) {
@@ -201,6 +204,34 @@ class Config
         if ($logLevel = getenv('LOG_LEVEL')) {
             $configData['logging']['level'] = $logLevel;
         }
+    }
+
+    /**
+     * Attempt to retrieve a GitHub token from the gh CLI.
+     *
+     * Runs `gh auth token` non-interactively (stdin from null device) and
+     * validates the output matches a known GitHub token prefix before returning
+     * it. Returns an empty string when gh is not installed, not authenticated,
+     * or the output is not a recognisable token.
+     */
+    private static function resolveGhCliToken(): string
+    {
+        $nullDevice = PHP_OS_FAMILY === 'Windows' ? 'NUL' : '/dev/null';
+        $proc = proc_open(
+            ['gh', 'auth', 'token'],
+            [0 => ['file', $nullDevice, 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
+            $pipes
+        );
+        if (!is_resource($proc)) {
+            return '';
+        }
+        $output = trim(stream_get_contents($pipes[1]));
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+        proc_close($proc);
+
+        // Accept only strings that look like a real GitHub token
+        return preg_match('/^(ghp_|github_pat_|gho_|ghu_|ghs_)\S+$/', $output) ? $output : '';
     }
 
     /**

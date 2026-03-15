@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /SUPPORT.md
-VERSION: 04.00.13
+VERSION: 04.00.15
 BRIEF: Support channels, expectations, and service levels
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.13-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Support
 

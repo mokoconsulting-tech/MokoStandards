@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Guide
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/guide/repository-organization.md
-VERSION: 04.00.04
+VERSION: 04.00.15
 BRIEF: Golden architecture pattern and repository organization guide
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Repository Organization Guide
 
@@ -496,13 +496,13 @@ MokoStandards provides automated validation:
 
 ```bash
 # Validate repository structure
-python scripts/validate/validate_structure.py
+python api/validate/validate_structure.py
 
 # Validate file headers
-python scripts/validate/validate_headers.py
+python api/validate/validate_headers.py
 
 # Run all compliance checks
-python scripts/validate/run_all_checks.py
+python api/validate/run_all_checks.py
 ```
 
 ### Manual Validation

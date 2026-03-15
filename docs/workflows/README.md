@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # GitHub Workflow Templates Documentation
 
@@ -215,7 +215,7 @@ on:
 
 **Usage**: Copy to `.github/workflows/flush-actions-cache.yml` to enable cache management.
 
-See [flush_actions_cache.py documentation](/docs/scripts/maintenance/flush-actions-cache-py.md) for detailed script usage.
+See [flush_actions_cache.py documentation](/docs/api/maintenance/flush-actions-cache-py.md) for detailed script usage.
 
 ### 6. CodeQL Analysis (`codeql-analysis.yml`)
 
@@ -477,8 +477,8 @@ Recommended workflows:
 ### CI Workflows Require
 
 **For Joomla**:
-- `scripts/validate/manifest.sh`
-- `scripts/validate/xml_wellformed.sh`
+- `api/validate/manifest.sh`
+- `api/validate/xml_wellformed.sh`
 - Joomla XML manifest file
 
 **For Dolibarr**:

@@ -1,0 +1,42 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -l \"FILE INFORMATION\" /d/Documents/Workspace/MokoStandards/api/plugin_*.php)",
+      "Bash(grep -l \"extends CliFramework\\\\|extends CliBase\" /d/Documents/Workspace/MokoStandards/api/validate/*.php /d/Documents/Workspace/MokoStandards/api/fix/*.php 2>/dev/null | head -10)",
+      "Bash(for f:*)",
+      "Bash(grep -r \"04\\\\.00\\\\.03\\\\|04\\\\.00\\\\.02\\\\|04\\\\.00\\\\.01\" /d/Documents/Workspace/MokoStandards --include=\"*.php\" --include=\"*.yml\" 2>/dev/null | grep -v \"CHANGELOG\" | head -10)",
+      "Bash(grep \"FILE INFORMATION\" /d/Documents/Workspace/MokoStandards/api/lib/Enterprise/*.php | wc -l)",
+      "Bash(cd \"/d/Documents/Workspace/MokoStandards\" && python3 api/wrappers/gen_php_wrappers.py)",
+      "Bash(cd \"/d/Documents/Workspace/MokoStandards\" && php api/wrappers/gen_wrappers.php)",
+      "Bash(cd \"/d/Documents/Workspace/MokoStandards\" && gh pr view 235 --json title,body,number 2>&1 | head -5)",
+      "Bash(gh pr:*)",
+      "Bash(git push:*)",
+      "Bash(python3 -c \"\nimport os, sys\nplugin_root = 'C:/Users/jmill/.claude/plugins/cache/claude-code-plugins/hookify/0.1.0'\nparent = os.path.dirname\\(plugin_root\\)\ngrandparent = os.path.dirname\\(parent\\)\nprint\\('plugin_root:', plugin_root\\)\nprint\\('parent:', parent\\)\nprint\\('grandparent:', grandparent\\)\nprint\\('exists hookify dir at grandparent?', os.path.isdir\\(grandparent + '/hookify'\\)\\)\nsys.path.insert\\(0, grandparent\\)\nsys.path.insert\\(0, parent\\)\nsys.path.insert\\(0, plugin_root\\)\ntry:\n    from hookify.core.config_loader import load_rules\n    print\\('Import succeeded'\\)\nexcept ImportError as e:\n    print\\('Import failed:', e\\)\n\")",
+      "Bash(python3 -c \"\nimport sys\nsys.path.insert\\(0, 'C:/Users/jmill/.claude/plugins/cache/claude-code-plugins'\\)\nfrom hookify.core.config_loader import load_rules\nprint\\('Import succeeded'\\)\n\")",
+      "Bash(python3 -c \"\nimport sys, os\nplugin_root = 'C:/Users/jmill/.claude/plugins/cache/claude-code-plugins/hookify/0.1.0'\nparent_dir = os.path.dirname\\(plugin_root\\)\nsys.path.insert\\(0, parent_dir\\)\nsys.path.insert\\(0, plugin_root\\)\nfrom hookify.core.config_loader import load_rules\nfrom hookify.core.rule_engine import RuleEngine\nprint\\('All imports succeeded'\\)\nprint\\('load_rules:', load_rules\\)\nprint\\('RuleEngine:', RuleEngine\\)\n\")",
+      "Bash(python3 -c \"\nimport sys, os\nplugin_root = 'C:/Users/jmill/.claude/plugins/cache/claude-code-plugins/hookify/0.1.0'\nparent_dir = os.path.dirname\\(plugin_root\\)\nsys.path.insert\\(0, parent_dir\\)\nsys.path.insert\\(0, plugin_root\\)\nengine = __import__\\('hookify.core.rule_engine', fromlist=['RuleEngine']\\).RuleEngine\ne = engine\\(\\)\nprint\\('RuleEngine instantiated:', e\\)\n\")",
+      "Bash(gh workflow:*)",
+      "Bash(gh run:*)",
+      "Bash(php api/wrappers/bulk_sync.php --help 2>&1)",
+      "Bash(python3 -c \"\ncontent = open\\('D:/Documents/Workspace/MokoStandards/api/wrappers/gen_wrappers.php', 'r', encoding='utf-8'\\).read\\(\\)\ncontent = content.replace\\('fwrite\\(\\(resource\\) \\\\$log, \\\\$chunk\\);', 'fwrite\\(\\\\$log, \\\\$chunk\\);'\\)\ncontent = content.replace\\('fclose\\(\\(resource\\) \\\\$log\\);', 'fclose\\(\\\\$log\\);'\\)\nopen\\('D:/Documents/Workspace/MokoStandards/api/wrappers/gen_wrappers.php', 'w', encoding='utf-8'\\).write\\(content\\)\nprint\\('done'\\)\n\")",
+      "Bash(python3 -c \"\ncontent = open\\('D:/Documents/Workspace/MokoStandards/api/wrappers/gen_wrappers.php', 'r', encoding='utf-8'\\).read\\(\\)\nprint\\(repr\\(content[content.find\\('fwrite\\(\\(resource\\)'\\):content.find\\('fwrite\\(\\(resource\\)'\\)+40]\\)\\)\n\")",
+      "Bash(php api/automation/bulk_sync.php --help 2>&1)",
+      "Bash(composer install:*)",
+      "Bash(grep -rn \"MokoStandards\\\\\\\\\\\\\\\\Enterprise\" api/ --include=\"*.php\" -l)",
+      "Bash(grep -rn \"MokoStandards\" api/ --include=\"*.php\" -l\ngrep -rn \"MokoStandards\" .github/ -l 2>/dev/null\ngrep -rn \"MokoStandards\" docs/ --include=\"*.md\" -l | head -10)",
+      "Bash(python3 << 'EOF'\nimport os\n\nNS_OLD_PLUGINS = r'namespace MokoStandards\\\\Enterprise\\\\Plugins;'\nNS_NEW_PLUGINS = r'namespace MokoEnterprise\\\\Plugins;'\nNS_OLD        = r'namespace MokoStandards\\\\Enterprise;'\nNS_NEW        = r'namespace MokoEnterprise;'\nUSE_OLD       = r'use MokoStandards\\\\Enterprise' + chr\\(92\\)\nUSE_NEW       = r'use MokoEnterprise' + chr\\(92\\)\nFQ_OLD        = r'MokoStandards\\\\Enterprise' + chr\\(92\\)\nFQ_NEW        = r'MokoEnterprise' + chr\\(92\\)\n\nchanged = []\nfor root, dirs, files in os.walk\\('.'\\):\n    dirs[:] = [d for d in dirs if d not in \\('vendor', '.git'\\)]\n    for fname in files:\n        if not fname.endswith\\('.php'\\):\n            continue\n        path = os.path.join\\(root, fname\\)\n        with open\\(path, 'r', encoding='utf-8', errors='replace'\\) as f:\n            orig = f.read\\(\\)\n        new = orig\n        new = new.replace\\(NS_OLD_PLUGINS, NS_NEW_PLUGINS\\)\n        new = new.replace\\(NS_OLD, NS_NEW\\)\n        new = new.replace\\(USE_OLD, USE_NEW\\)\n        new = new.replace\\(FQ_OLD, FQ_NEW\\)\n        if new != orig:\n            with open\\(path, 'w', encoding='utf-8'\\) as f:\n                f.write\\(new\\)\n            changed.append\\(path\\)\n\nfor p in sorted\\(changed\\):\n    print\\(' ', p\\)\nprint\\(f'\\\\n{len\\(changed\\)} PHP files updated'\\)\nEOF)",
+      "Bash(python3 << 'EOF'\npath = 'api/wrappers/gen_wrappers.php'\nwith open\\(path, 'r', encoding='utf-8'\\) as f:\n    content = f.read\\(\\)\n\nfwrite_old = 'fwrite\\(\\(resource\\) ' + chr\\(92\\) + '$log, ' + chr\\(92\\) + '$chunk\\);'\nfwrite_new = 'fwrite\\(' + chr\\(92\\) + '$log, ' + chr\\(92\\) + '$chunk\\);'\nfclose_old = 'fclose\\(\\(resource\\) ' + chr\\(92\\) + '$log\\);'\nfclose_new = 'fclose\\(' + chr\\(92\\) + '$log\\);'\n\nnew = content.replace\\(fwrite_old, fwrite_new\\).replace\\(fclose_old, fclose_new\\)\nif new != content:\n    with open\\(path, 'w', encoding='utf-8'\\) as f:\n        f.write\\(new\\)\n    print\\('Fixed gen_wrappers.php'\\)\nelse:\n    print\\('No match found — checking actual bytes:'\\)\n    idx = content.find\\('fwrite\\(\\(resource\\)'\\)\n    print\\(repr\\(content[idx:idx+50]\\) if idx >= 0 else 'not found'\\)\nEOF)",
+      "Bash(cd \"D:/Documents/Workspace/MokoStandards\" && php api/wrappers/gen_wrappers.php 2>&1)",
+      "Bash(php api/automation/bulk_sync.php --dry-run 2>&1)",
+      "Bash(composer dump-autoload:*)",
+      "Bash(php -r \"echo php_ini_loaded_file\\(\\);\")",
+      "Bash(grep -n \"incrementCounter\\\\|->increment\\\\b\" api/lib/Enterprise/RepositorySynchronizer.php | head -20\ngrep -n \"incrementCounter\" api/automation/bulk_sync.php api/lib/Enterprise/*.php)",
+      "Bash(winget upgrade:*)",
+      "Bash(cat:*)",
+      "Bash(grep:*)",
+      "Bash(cd:*)",
+      "Bash(python3:*)",
+      "Bash(git checkout:*)"
+    ]
+  }
+}

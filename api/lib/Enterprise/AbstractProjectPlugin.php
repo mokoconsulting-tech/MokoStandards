@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace MokoStandards\Enterprise;
+namespace MokoEnterprise;
 
 /**
  * Abstract base class for project type plugins

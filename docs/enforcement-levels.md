@@ -465,10 +465,10 @@ Avoid FORCED for:
 These files are hardcoded in the system:
 
 1. `.github/workflows/standards-compliance.yml` - Core compliance checking
-2. `scripts/validate/check_version_consistency.php` - Version validation
-3. `scripts/validate/check_enterprise_readiness.php` - Enterprise standards
-4. `scripts/validate/check_repo_health.php` - Repository health
-5. `scripts/maintenance/validate_script_registry.py` - Script integrity
+2. `api/validate/check_version_consistency.php` - Version validation
+3. `api/validate/check_enterprise_readiness.php` - Enterprise standards
+4. `api/validate/check_repo_health.php` - Repository health
+5. `api/maintenance/validate_script_registry.py` - Script integrity
 6. `scripts/.script-registry.json` - Script registry database
 
 #### Why These 6 Files?
@@ -486,10 +486,10 @@ These files are hardcoded in the system:
 
 private const ALWAYS_FORCE_OVERRIDE_FILES = [
     '.github/workflows/standards-compliance.yml',
-    'scripts/validate/check_version_consistency.php',
-    'scripts/validate/check_enterprise_readiness.php',
-    'scripts/validate/check_repo_health.php',
-    'scripts/maintenance/validate_script_registry.py',
+    'api/validate/check_version_consistency.php',
+    'api/validate/check_enterprise_readiness.php',
+    'api/validate/check_repo_health.php',
+    'api/maintenance/validate_script_registry.py',
     'scripts/.script-registry.json',
 ];
 ```
@@ -1452,7 +1452,7 @@ grep -r "filename" .github/config.tf docs/infrastructure/terraform/
 
 ### Code Location
 
-**Primary Implementation**: `scripts/automation/bulk_update_repos.php`
+**Primary Implementation**: `api/automation/bulk_update_repos.php`
 
 **Key Methods**:
 - `shouldSkipFile()` - Determines if file should be skipped
@@ -1633,7 +1633,7 @@ cat var/logs/MokoStandards/sync/sync-latest.log | grep "NOT_ALLOWED"
 
 # Check if file is FORCED
 # (check source code)
-grep -n "ALWAYS_FORCE_OVERRIDE_FILES" scripts/automation/bulk_update_repos.php
+grep -n "ALWAYS_FORCE_OVERRIDE_FILES" api/automation/bulk_update_repos.php
 ```
 
 ---
@@ -1658,7 +1658,7 @@ grep -n "ALWAYS_FORCE_OVERRIDE_FILES" scripts/automation/bulk_update_repos.php
 
 - **Standards-Compliance Workflow**: [.github/workflows/standards-compliance.yml](../.github/workflows/standards-compliance.yml)
   - Check #28: Terraform Validation
-- **Bulk Update Script**: [scripts/automation/bulk_update_repos.php](../scripts/automation/bulk_update_repos.php)
+- **Bulk Update Script**: [api/automation/bulk_update_repos.php](../api/automation/bulk_update_repos.php)
   - Implementation of enforcement logic
 
 ### Quick References

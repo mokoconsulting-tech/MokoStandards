@@ -16,7 +16,7 @@
 
 declare(strict_types=1);
 
-namespace MokoStandards\Enterprise;
+namespace MokoEnterprise;
 
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;

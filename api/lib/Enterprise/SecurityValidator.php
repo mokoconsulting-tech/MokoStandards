@@ -37,7 +37,7 @@ declare(strict_types=1);
  * @license GPL-3.0-or-later
  */
 
-namespace MokoStandards\Enterprise;
+namespace MokoEnterprise;
 
 use Exception;
 use RecursiveDirectoryIterator;

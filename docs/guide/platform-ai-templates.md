@@ -14,7 +14,7 @@ VERSION: 04.00.05
 BRIEF: Guide to the platform-specific AI template system — how Joomla, Dolibarr, and generic templates are selected and synced
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.05-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Platform-Specific AI Templates
 

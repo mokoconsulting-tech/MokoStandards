@@ -63,10 +63,10 @@ Different repositories have different needs:
 These **ALWAYS_FORCE_OVERRIDE** files ensure critical compliance infrastructure stays current:
 
 1. `.github/workflows/standards-compliance.yml`
-2. `scripts/validate/check_version_consistency.php`
-3. `scripts/validate/check_enterprise_readiness.php`
-4. `scripts/validate/check_repo_health.php`
-5. `scripts/maintenance/validate_script_registry.py`
+2. `api/validate/check_version_consistency.php`
+3. `api/validate/check_enterprise_readiness.php`
+4. `api/validate/check_repo_health.php`
+5. `api/maintenance/validate_script_registry.py`
 6. `scripts/.script-registry.json`
 
 Even if these are listed in `protected_files`, they will STILL be overwritten during bulk sync.
@@ -88,7 +88,7 @@ All override files must follow [Terraform File Standards](../policy/terraform-fi
 # INGROUP: [Parent.Group]
 # REPO: https://github.com/mokoconsulting-tech/[repo-name]
 # PATH: /.github/config.tf
-# VERSION: 04.00.04
+# VERSION: 04.00.15
 # BRIEF: Repository-specific override configuration
 
 locals {

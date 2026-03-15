@@ -13,7 +13,7 @@
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: /templates/scripts/common/CliBase.template.php
  * VERSION: 04.01.00
- * BRIEF: PHP CLI script template — extends MokoStandards\Enterprise\CliFramework
+ * BRIEF: PHP CLI script template — extends MokoEnterprise\CliFramework
  * NOTE: Copy this file as a starting point for new PHP CLI scripts in governed repos.
  *       Requires mokoconsulting/mokostandards installed via composer.
  *       Replace MyScript / my_script / description with the real script name.
@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-use MokoStandards\Enterprise\CliFramework;
+use MokoEnterprise\CliFramework;
 
 /**
  * Template CLI script — replace this docblock and class name.

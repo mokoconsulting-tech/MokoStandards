@@ -21,7 +21,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/../lib/Enterprise/CliFramework.php';
 
-use MokoStandards\Enterprise\{
+use MokoEnterprise\{
     ApiClient,
     AuditLogger,
     CheckpointManager,
@@ -151,12 +151,13 @@ class BulkSync extends CLIApp
      */
     private function initializeComponents(): bool
     {
+        // Token resolved by Config::load() — env vars first, then gh auth token fallback
         $config = Config::load();
-        $token = $config->getString('github.token', getenv('GH_TOKEN') ?: getenv('GITHUB_TOKEN') ?: '');
-        
+        $token = $config->getString('github.token', '');
+
         if (empty($token)) {
             $this->log("❌ GitHub token not configured", 'ERROR');
-            $this->log("Set GH_TOKEN or GITHUB_TOKEN environment variable", 'ERROR');
+            $this->log("Set GH_TOKEN or GITHUB_TOKEN, or run: gh auth login", 'ERROR');
             return false;
         }
         
@@ -263,9 +264,13 @@ class BulkSync extends CLIApp
         
         $handle = fopen("php://stdin", "r");
         $line = fgets($handle);
-        fclose($handle);
-        
-        return strtolower(trim($line)) === 'y';
+        if ($handle) {
+            fclose($handle);
+        }
+
+        // fgets() returns false when stdin is not a TTY (e.g. CI, piped input);
+        // treat that as a non-confirmation rather than crashing.
+        return is_string($line) && strtolower(trim($line)) === 'y';
     }
     
     /**
@@ -354,12 +359,14 @@ class BulkSync extends CLIApp
                 $this->log("  ✗ {$repoName} failed: " . $e->getMessage(), 'ERROR');
             }
             
-            // Save checkpoint
-            $this->checkpoints->saveCheckpoint('bulk_sync', [
-                'processed' => $progress,
-                'total' => $total,
-                'results' => $results,
-            ]);
+            // Save checkpoint (skipped in dry-run — no real state has changed)
+            if (!$this->dryRun) {
+                $this->checkpoints->saveCheckpoint('bulk_sync', [
+                    'processed' => $progress,
+                    'total' => $total,
+                    'results' => $results,
+                ]);
+            }
         }
         
         $duration = microtime(true) - $startTime;

@@ -19,7 +19,7 @@
  (./LICENSE).
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # File Headers Policy
 
@@ -160,17 +160,17 @@ or for HTML/XML:
 
 ### Automated Tool
 
-Use `scripts/fix/file_headers.py` to automatically apply the correct header format:
+Use `api/fix/file_headers.py` to automatically apply the correct header format:
 
 ```bash
 # Dry run to preview changes
-python3 scripts/fix/file_headers.py --dry-run
+python3 api/fix/file_headers.py --dry-run
 
 # Apply fixes to specific directory
-python3 scripts/fix/file_headers.py --dir .github/workflows --fix
+python3 api/fix/file_headers.py --dir .github/workflows --fix
 
 # Apply fixes to entire repository
-python3 scripts/fix/file_headers.py --fix
+python3 api/fix/file_headers.py --fix
 ```
 
 ### Manual Updates

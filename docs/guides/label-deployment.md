@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Label Deployment Guide
 
@@ -53,10 +53,10 @@ Deploy labels to a single repository:
 cd /path/to/repository
 
 # Run setup script
-./scripts/maintenance/setup-labels.sh
+./api/maintenance/setup-labels.sh
 
 # Preview changes first (dry run)
-./scripts/maintenance/setup-labels.sh --dry-run
+./api/maintenance/setup-labels.sh --dry-run
 ```
 
 ### Method 2: Bulk Deployment (Command Line)
@@ -65,21 +65,21 @@ Deploy labels to all repositories in an organization:
 
 ```bash
 # Preview deployment (recommended first)
-./scripts/automation/bulk_deploy_labels.sh \
+./api/automation/bulk_deploy_labels.sh \
   --org mokoconsulting-tech \
   --dry-run
 
 # Deploy to all repositories
-./scripts/automation/bulk_deploy_labels.sh \
+./api/automation/bulk_deploy_labels.sh \
   --org mokoconsulting-tech
 
 # Deploy only to repositories matching pattern
-./scripts/automation/bulk_deploy_labels.sh \
+./api/automation/bulk_deploy_labels.sh \
   --org mokoconsulting-tech \
   --filter "moko*"
 
 # Deploy in parallel (faster)
-./scripts/automation/bulk_deploy_labels.sh \
+./api/automation/bulk_deploy_labels.sh \
   --org mokoconsulting-tech \
   --parallel \
   --max-parallel 10
@@ -127,6 +127,6 @@ For actual deployment:
 ## See Also
 
 - [Label Configuration](../../.github/labeler.yml)
-- [Setup Labels Script](../../scripts/maintenance/setup-labels.sh)
-- [Bulk Deployment Script](../../scripts/automation/bulk_deploy_labels.sh)
+- [Setup Labels Script](../../api/maintenance/setup-labels.sh)
+- [Bulk Deployment Script](../../api/automation/bulk_deploy_labels.sh)
 - [Workflow](../../.github/workflows/bulk-label-deployment.yml)

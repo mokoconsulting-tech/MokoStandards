@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Workflows
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/workflow-standards.md
-VERSION: 04.00.04
+VERSION: 04.00.15
 BRIEF: Workflow governance and standards for GitHub Actions
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Workflow Standards Policy
 
@@ -502,9 +502,9 @@ jobs:
       - name: Run health check
         run: |
           if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
-            python3 scripts/validate/check_repo_health.py --dry-run
+            python3 api/validate/check_repo_health.py --dry-run
           else
-            python3 scripts/validate/check_repo_health.py
+            python3 api/validate/check_repo_health.py
           fi
 ```
 
@@ -638,10 +638,10 @@ The `standards-compliance.yml` workflow provides comprehensive validation across
 # - Manual trigger
 
 # Local validation before pushing:
-php scripts/validate/check_version_consistency.php --verbose
-python3 scripts/maintenance/validate_script_registry.py --priority critical
-php scripts/validate/check_enterprise_readiness.php --verbose
-php scripts/validate/check_repo_health.php --verbose
+php api/validate/check_version_consistency.php --verbose
+python3 api/maintenance/validate_script_registry.py --priority critical
+php api/validate/check_enterprise_readiness.php --verbose
+php api/validate/check_repo_health.php --verbose
 ```
 
 **Compliance Scoring**:

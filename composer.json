@@ -1,5 +1,5 @@
 {
-    "name": "mokoconsulting/mokostandards",
+    "name": "mokoconsulting-tech/enterprise",
     "description": "MokoStandards - Enterprise standards and automation framework (PHP implementation)",
     "type": "library",
     "version": "04.00.04",
@@ -43,7 +43,7 @@
     "autoload": {
         "psr-4": {
             "MokoStandards\\": "api/src/",
-            "MokoStandards\\Enterprise\\": "api/lib/Enterprise/",
+            "MokoEnterprise\\": "api/lib/Enterprise/",
             "MokoStandards\\Plugins\\Joomla\\": "api/lib/plugins/Joomla/"
         },
         "files": [

@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Checklist
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/checklist/repository-setup.md
-VERSION: 04.00.04
+VERSION: 04.00.15
 BRIEF: Comprehensive checklist for setting up MokoStandards-compliant repositories
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Repository Setup Checklist
 
@@ -87,7 +87,7 @@ This checklist ensures new and existing repositories are properly configured to 
 - [ ] `scripts/` directory created with subdirectories
 - [ ] `scripts/build/` directory created
 - [ ] `scripts/checks/` directory created
-- [ ] `scripts/validate/` directory created
+- [ ] `api/validate/` directory created
 - [ ] `tests/` directory created
 - [ ] `templates/` directory created (if standards repository)
 - [ ] `schemas/` directory created (if applicable)
@@ -416,17 +416,17 @@ This checklist ensures new and existing repositories are properly configured to 
 
 - [ ] Run structure validation:
   ```bash
-  python scripts/validate/validate_structure.py
+  python api/validate/validate_structure.py
   ```
 
 - [ ] Run file header validation:
   ```bash
-  python scripts/validate/validate_headers.py
+  python api/validate/validate_headers.py
   ```
 
 - [ ] Run standards compliance:
   ```bash
-  python scripts/validate/run_all_checks.py
+  python api/validate/run_all_checks.py
   ```
 
 - [ ] Run repository health check (if applicable):
@@ -525,7 +525,7 @@ Use this checklist for manual validation, or use the automated tools for faster 
 ### Tools
 
 - [MokoStandards Repository](https://github.com/mokoconsulting-tech/MokoStandards)
-- [Validation Scripts](../../scripts/validate/)
+- [Validation Scripts](../../api/validate/)
 - [Workflow Templates](../../templates/workflows/)
 
 ### Getting Help

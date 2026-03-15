@@ -126,7 +126,7 @@ mental context.
  * DEFGROUP: MokoStandards.Scripts
  * INGROUP:  MokoStandards.Automation
  * REPO:     https://github.com/mokoconsulting-tech/MokoStandards
- * PATH:     /scripts/maintenance/my_script.php
+ * PATH:     /api/maintenance/my_script.php
  * VERSION:  04.00.12
  * BRIEF:    Brief description of what this script does
  */
@@ -166,16 +166,16 @@ No legacy exceptions remain. All new scripts must be PHP.
  * DEFGROUP: MokoStandards.Scripts
  * INGROUP:  MokoStandards.Automation
  * REPO:     https://github.com/mokoconsulting-tech/MokoStandards
- * PATH:     /scripts/maintenance/my_script.php
+ * PATH:     /api/maintenance/my_script.php
  * VERSION:  04.00.12
  * BRIEF:    Script that does XYZ for ABC
  *
  * Usage:
- *   php scripts/maintenance/my_script.php [arguments]
+ *   php api/maintenance/my_script.php [arguments]
  *
  * Examples:
- *   php scripts/maintenance/my_script.php --input file.txt
- *   php scripts/maintenance/my_script.php --verbose --output result.json
+ *   php api/maintenance/my_script.php --input file.txt
+ *   php api/maintenance/my_script.php --verbose --output result.json
  *
  * Requirements:
  *   PHP 8.1+
@@ -566,7 +566,7 @@ function runCommandUnsafe(string $userInput): void
 
 ```php
 <?php
-// In script: scripts/maintenance/my_script.php
+// In script: api/maintenance/my_script.php
 declare(strict_types=1);
 
 function calculatePriority(string $docType): string
@@ -693,7 +693,7 @@ $priority = 'High';
  * DEFGROUP: MokoStandards.Scripts
  * INGROUP:  MokoStandards.Automation
  * REPO:     https://github.com/mokoconsulting-tech/MokoStandards
- * PATH:     /scripts/maintenance/my_script.php
+ * PATH:     /api/maintenance/my_script.php
  * VERSION:  04.00.12
  * BRIEF:    Brief description of script purpose
  */

@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Guide
 INGROUP: MokoStandards.WaaS
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/guide/waas/joomla-development-guide.md
-VERSION: 04.00.04
+VERSION: 04.00.15
 BRIEF: Practical guide for developing custom extensions for Joomla/MokoWaaS
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Joomla Development Guide
 

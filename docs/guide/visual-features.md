@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Visual Features Guide
 
@@ -413,5 +413,5 @@ main();
 
 ## See Also
 
-- `scripts/lib/Enterprise/VisualHelper.php` - PHP implementation
+- `api/lib/Enterprise/VisualHelper.php` - PHP implementation
 - Web-based interfaces for GUI operations

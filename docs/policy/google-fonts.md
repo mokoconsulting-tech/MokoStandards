@@ -27,7 +27,7 @@
  BRIEF: Policy governing the use of Google Fonts across all Moko Consulting web projects
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.05-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Google Fonts Policy
 

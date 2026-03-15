@@ -10,17 +10,17 @@ DEFGROUP: MokoStandards.Guide
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: docs/guide/php-only-architecture.md
-VERSION: 04.00.04
+VERSION: 04.00.15
 BRIEF: Guide to MokoStandards PHP-only architecture
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # PHP-Only Architecture
 
-**Version**: 1.0.0  
-**Status**: Active  
-**Last Updated**: 2026-02-14
+**Version**: 04.00.15
+**Status**: Active
+**Last Updated**: 2026-03-15
 
 ## Table of Contents
 
@@ -38,11 +38,11 @@ MokoStandards is a **100% PHP-only system** providing enterprise-grade libraries
 
 ### Key Facts
 
-✅ **13 PHP Enterprise Libraries** - All operational  
-✅ **PHP 8.1+** - Modern PHP with strict types  
-✅ **Web-Based** - Full browser management interface  
-✅ **Composer** - Professional dependency management  
-✅ **PSR Standards** - Following PHP-FIG recommendations  
+✅ **28+ PHP Enterprise Library Classes** — All operational
+✅ **PHP 8.1+** — Modern PHP with strict types
+✅ **CLI-first** — All scripts extend `CliFramework` for consistent argument parsing and exit codes
+✅ **Composer** — Professional dependency management
+✅ **PSR Standards** — PSR-4 autoloading, PSR-12 coding style  
 
 ---
 
@@ -79,80 +79,72 @@ MokoStandards is a **100% PHP-only system** providing enterprise-grade libraries
 
 ## PHP Enterprise Libraries
 
-MokoStandards includes **13 production-ready enterprise libraries** located in `scripts/lib/Enterprise/`:
+MokoStandards includes **28+ production-ready enterprise library classes** located in `api/lib/Enterprise/`:
 
-### Core Libraries (4)
+### Core Classes
 
-1. **ApiClient.php** - GitHub API integration
-   - Rate limiting and retry logic
-   - OAuth token management
-   - Circuit breaker pattern
+| Class | Purpose |
+|-------|---------|
+| `CliFramework.php` | Base class for all CLI scripts — argument parsing, help, exit codes |
+| `ApiClient.php` | GitHub API integration with rate limiting and circuit breaker |
+| `AuditLogger.php` | Structured logging and audit trail generation |
+| `Config.php` | Environment variable and YAML/JSON configuration management |
 
-2. **AuditLogger.php** - Transaction tracking
-   - Structured logging
-   - Audit trail generation
-   - Compliance reporting
+### Validation Classes
 
-3. **CliFramework.php** - CLI application base
-   - Argument parsing
-   - Help generation
-   - Exit code management
+| Class | Purpose |
+|-------|---------|
+| `InputValidator.php` | Input sanitization; XSS and injection prevention |
+| `SecurityValidator.php` | Credential scanning and security policy enforcement |
+| `UnifiedValidation.php` | Rule-based validation framework with custom validators |
+| `EnterpriseReadinessValidator.php` | Repository enterprise-readiness compliance scoring |
+| `ProjectConfigValidator.php` | Validates project configuration against schema |
 
-4. **Config.php** - Configuration management
-   - Environment variable handling
-   - YAML/JSON configuration
-   - Default value management
+### Operations Classes
 
-### Validation Libraries (4)
+| Class | Purpose |
+|-------|---------|
+| `RepositorySynchronizer.php` | Bulk repository sync with checkpoint recovery |
+| `CheckpointManager.php` | Persistent checkpoint storage for long-running operations |
+| `TransactionManager.php` | Atomic operations with rollback support |
+| `ErrorRecovery.php` | Retry logic with exponential backoff |
+| `RecoveryManager.php` | High-level recovery orchestration |
+| `RetryHelper.php` | Configurable retry helper for transient failures |
+| `PackageBuilder.php` | Extension package (ZIP) assembly |
 
-5. **InputValidator.php** - Input sanitization
-   - XSS prevention
-   - SQL injection protection
-   - Data type validation
+### Monitoring and Metrics Classes
 
-6. **SecurityValidator.php** - Security scanning
-   - Credential detection
-   - Vulnerability scanning
-   - Security policy enforcement
+| Class | Purpose |
+|-------|---------|
+| `MetricsCollector.php` | Prometheus-format metrics (counters, gauges, histograms) |
+| `RepositoryHealthChecker.php` | 100-point repository health scoring |
+| `ProjectMetricsCollector.php` | GitHub Project-level metrics aggregation |
 
-7. **UnifiedValidation.php** - Validation framework
-   - Rule-based validation
-   - Custom validators
-   - Error message formatting
+### Plugin System Classes
 
-8. **EnterpriseReadinessValidator.php** - Compliance checking
-   - Enterprise library verification
-   - Documentation requirements
-   - Security compliance
+| Class | Purpose |
+|-------|---------|
+| `AbstractProjectPlugin.php` | Base class for all project-type plugins |
+| `ProjectPluginInterface.php` | Interface contract for project plugins |
+| `PluginFactory.php` | Instantiates the correct plugin for a repository type |
+| `PluginRegistry.php` | Registry of all available project plugins |
+| `ProjectTypeDetector.php` | Detects repository type (Joomla / Dolibarr / generic / etc.) |
+| `DefinitionParser.php` | Parses `.tf`-format repository definition files |
 
-### Operations Libraries (3)
+### Plugin Implementations (`api/lib/Enterprise/Plugins/`)
 
-9. **ErrorRecovery.php** - Retry and checkpointing
-   - Exponential backoff
-   - State persistence
-   - Transaction rollback
-
-10. **TransactionManager.php** - ACID transactions
-    - Atomic operations
-    - Rollback support
-    - Transaction logging
-
-11. **RepositorySynchronizer.php** - Repository sync
-    - Bulk operations
-    - Checkpoint recovery
-    - Progress tracking
-
-### Monitoring Libraries (2)
-
-12. **MetricsCollector.php** - Prometheus metrics
-    - Counter, gauge, histogram
-    - Label management
-    - Export formatting
-
-13. **RepositoryHealthChecker.php** - Health validation
-    - 100-point scoring system
-    - Category-based checks
-    - Threshold comparison
+| Class | Platform |
+|-------|---------|
+| `JoomlaPlugin.php` | Joomla extensions |
+| `DolibarrPlugin.php` | Dolibarr modules |
+| `WordPressPlugin.php` | WordPress plugins |
+| `ApiPlugin.php` | REST API projects |
+| `NodeJsPlugin.php` | Node.js projects |
+| `PythonPlugin.php` | Python projects |
+| `TerraformPlugin.php` | Terraform modules |
+| `MobilePlugin.php` | Mobile applications |
+| `DocumentationPlugin.php` | Documentation-only repositories |
+| `GenericPlugin.php` | Fallback for unrecognized types |
 
 ---
 
@@ -185,17 +177,20 @@ composer lint
 ```
 MokoStandards/
 ├── src/
-│   └── Enterprise/          # 13 PHP libraries
-├── scripts/
-│   ├── automation/          # PHP CLI scripts
-│   └── validate/            # PHP validation scripts
-├── web/
-│   └── index.php            # Web dashboard entry point
+│   └── Enterprise/          # 28+ PHP enterprise library classes
+│       └── Plugins/         # Project-type plugin implementations
+├── api/
+│   ├── automation/          # Bulk-sync and automation scripts
+│   ├── deploy/              # SFTP deployment scripts
+│   ├── fix/                 # Automated fix scripts
+│   ├── maintenance/         # Repository housekeeping scripts
+│   ├── validate/            # Validation and quality-check scripts
+│   └── wrappers/            # Wrapper scripts (one per CLI script)
+├── templates/               # Files synced to governed repositories
 ├── .github/
-│   ├── workflows/           # 17 PHP/bash workflows
-│   └── codeql/              # CodeQL configuration (JavaScript)
+│   └── workflows/           # Workflows governing THIS repository
 ├── composer.json            # PHP dependencies
-└── docs/                    # Documentation
+└── docs/                    # Documentation (never executable code)
 ```
 
 ---
@@ -225,8 +220,9 @@ MokoStandards/
 4. **Use Composer Autoloading**
    ```php
    require_once __DIR__ . '/vendor/autoload.php';
-   
-   use MokoStandards\Enterprise\ApiClient;
+
+   use MokoEnterprise\ApiClient;
+   use MokoEnterprise\CliFramework;
    ```
 
 5. **Error Handling**
@@ -244,27 +240,30 @@ MokoStandards/
 Use the `CliFramework` base class for all CLI tools:
 
 ```php
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
-namespace MokoStandards\Scripts;
+require_once __DIR__ . '/../../vendor/autoload.php';
 
-use MokoStandards\Enterprise\CliFramework;
+use MokoEnterprise\CliFramework;
 
 class MyScript extends CliFramework
 {
-    protected function run(): int
-    {
-        $this->log('Starting script...');
-        
-        // Your logic here
-        
-        return 0; // Exit code
-    }
+	protected function configure(): void
+	{
+		$this->setDescription('What this script does');
+		$this->addArgument('--path', 'Repository path', '.');
+	}
+
+	protected function execute(): int
+	{
+		// Your logic here
+		return 0;
+	}
 }
 
-// Execute
 $script = new MyScript();
-exit($script->execute());
+exit($script->run());
 ```
 
 ### Security
@@ -276,7 +275,7 @@ exit($script->execute());
 
 2. **Validate All Input**
    ```php
-   use MokoStandards\Enterprise\InputValidator;
+   use MokoEnterprise\InputValidator;
    
    $validator = new InputValidator();
    $clean = $validator->sanitize($_POST['input']);
@@ -284,7 +283,7 @@ exit($script->execute());
 
 3. **Use SecurityValidator**
    ```php
-   use MokoStandards\Enterprise\SecurityValidator;
+   use MokoEnterprise\SecurityValidator;
    
    $security = new SecurityValidator($logger);
    $results = $security->scanCredentials('/path/to/repo');

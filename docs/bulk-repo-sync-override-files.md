@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Guide
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/bulk-repo-sync-override-files.md
-VERSION: 04.00.04
+VERSION: 04.00.15
 BRIEF: Complete guide to terraform override files for bulk repository synchronization
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Terraform Override Files for Bulk Repository Sync
 
@@ -326,7 +326,7 @@ When manually triggering the bulk sync workflow:
 When running the script directly:
 
 ```bash
-php scripts/automation/bulk_update_repos.php \
+php api/automation/bulk_update_repos.php \
   --force-override \
   --repos target-repo
 ```
@@ -353,7 +353,7 @@ When force override is enabled:
 **Best Practice:** Always use `--dry-run` first to preview what will be overwritten:
 
 ```bash
-php scripts/automation/bulk_update_repos.php \
+php api/automation/bulk_update_repos.php \
   --force-override \
   --dry-run \
   --repos target-repo
@@ -473,7 +473,7 @@ locals {
       reason = "Multi-stage deployment with manual approvals"
     },
     {
-      path   = "scripts/validate/custom_checks.py"
+      path   = "api/validate/custom_checks.py"
       reason = "Application-specific validation logic"
     }
   ]
@@ -708,7 +708,7 @@ Before committing changes to your override file:
 
 ```bash
 # Test locally with bulk sync script
-php scripts/automation/bulk_update_repos.php \
+php api/automation/bulk_update_repos.php \
   --dry-run \
   --repos your-repo-name
 ```
@@ -827,7 +827,7 @@ Before committing your override file:
 ### Support Resources
 
 - **[MokoStandards Issues](https://github.com/mokoconsulting-tech/MokoStandards/issues)** - Report bugs or request features
-- **[Bulk Sync Script Source](../scripts/automation/bulk_update_repos.php)** - Review implementation
+- **[Bulk Sync Script Source](../api/automation/bulk_update_repos.php)** - Review implementation
 - **[Workflow Source](.github/workflows/bulk-repo-sync.yml)** - Review workflow code
 
 ---

@@ -318,7 +318,7 @@ mkdir -p language/en-GB
 # Create documentation and scripts
 mkdir -p docs
 mkdir -p scripts/build
-mkdir -p scripts/validate
+mkdir -p api/validate
 
 # Create tests structure
 mkdir -p tests/unit
@@ -403,7 +403,7 @@ cat > site/manifest.xml << 'EOF'
     <description>COM_YOURCOMPONENT_XML_DESCRIPTION</description>
 
     <!-- Site files -->
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
     <files folder="site">
         <filename>controller.php</filename>
@@ -559,7 +559,7 @@ mkdir -p src/img
 # Create documentation and scripts
 mkdir -p docs
 mkdir -p scripts/build
-mkdir -p scripts/validate
+mkdir -p api/validate
 
 # Create tests structure
 mkdir -p tests/unit
@@ -859,7 +859,7 @@ ls -la src/core/
 **Solution:**
 ```bash
 # Run local validation (if validation scripts available)
-python3 ~/MokoStandards/scripts/validate/validate_structure.py
+python3 ~/MokoStandards/api/validate/validate_structure.py
 
 # Check for missing required files
 ls -la README.md LICENSE CHANGELOG.md CONTRIBUTING.md SECURITY.md

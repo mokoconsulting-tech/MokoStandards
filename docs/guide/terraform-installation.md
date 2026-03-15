@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Guide
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: docs/guide/terraform-installation.md
-VERSION: 04.00.04
+VERSION: 04.00.15
 BRIEF: Guide for installing and using Terraform across organization repositories
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Terraform Installation Guide
 
@@ -96,7 +96,7 @@ As part of the enterprise transformation (version 04.00.04), Terraform is now di
 cd /path/to/your/repo
 
 # Run the installation script
-./scripts/automation/install_terraform.sh
+./api/automation/install_terraform.sh
 
 # Verify installation
 terraform version
@@ -112,16 +112,16 @@ terraform version
 
 ```bash
 # Using Python script
-./scripts/automation/install_terraform.py
+./api/automation/install_terraform.py
 
 # With custom version
-./scripts/automation/install_terraform.py --version 1.7.5
+./api/automation/install_terraform.py --version 1.7.5
 
 # With custom install directory
-./scripts/automation/install_terraform.py --install-dir ~/bin
+./api/automation/install_terraform.py --install-dir ~/bin
 
 # Verbose output
-./scripts/automation/install_terraform.py --verbose
+./api/automation/install_terraform.py --verbose
 ```
 
 **Features:**
@@ -172,8 +172,8 @@ Download directly from HashiCorp:
 Terraform installation scripts are automatically distributed to all organization repositories via the bulk repository sync system:
 
 1. **Files Distributed:**
-   - `scripts/automation/install_terraform.sh` - Bash installation script
-   - `scripts/automation/install_terraform.py` - Python installation script
+   - `api/automation/install_terraform.sh` - Bash installation script
+   - `api/automation/install_terraform.py` - Python installation script
    - `.github/workflows/terraform-setup.yml` - Reusable workflow
 
 2. **Distribution Mechanism:**
@@ -190,7 +190,7 @@ Terraform installation scripts are automatically distributed to all organization
 
 ```bash
 # Check if Terraform installation files exist
-ls -la scripts/automation/install_terraform.*
+ls -la api/automation/install_terraform.*
 ls -la .github/workflows/terraform-setup.yml
 
 # If files are missing, trigger bulk sync
@@ -315,10 +315,10 @@ jobs:
 **Solution:**
 ```bash
 # Use custom install directory
-./scripts/automation/install_terraform.py --install-dir ~/bin
+./api/automation/install_terraform.py --install-dir ~/bin
 
 # Or run with sudo (Bash script will prompt)
-sudo ./scripts/automation/install_terraform.sh
+sudo ./api/automation/install_terraform.sh
 ```
 
 #### 2. Terraform Command Not Found
@@ -347,12 +347,12 @@ sudo ln -s ~/bin/terraform /usr/local/bin/terraform
 terraform version
 
 # Reinstall specific version
-./scripts/automation/install_terraform.sh
+./api/automation/install_terraform.sh
 # Answer 'y' when prompted to upgrade/downgrade
 
 # Or specify version explicitly
 export TERRAFORM_VERSION=1.7.4
-./scripts/automation/install_terraform.sh
+./api/automation/install_terraform.sh
 ```
 
 #### 4. Download Fails
@@ -382,7 +382,7 @@ curl -L https://releases.hashicorp.com/infrastructure/terraform/1.7.4/terraform_
 gh workflow run bulk-repo-sync.yml -f target_repos="$(basename $(pwd))"
 
 # Or manually copy files from MokoStandards
-cp /path/to/MokoStandards/scripts/automation/install_terraform.* scripts/automation/
+cp /path/to/MokoStandards/api/automation/install_terraform.* api/automation/
 cp /path/to/MokoStandards/.github/workflows/terraform-setup.yml .github/workflows/
 ```
 

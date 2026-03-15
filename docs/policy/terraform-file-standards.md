@@ -51,7 +51,7 @@ All Terraform files (`.tf`) MUST follow this structure:
 # INGROUP: [Parent.Group]
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /path/to/file.tf
-# VERSION: 04.00.04
+# VERSION: 04.00.15
 # BRIEF: [Brief one-line description]
 ```
 
@@ -202,7 +202,7 @@ When bulk sync detects a legacy override file:
 # INGROUP: MokoStandards.Configuration
 # REPO: https://github.com/mokoconsulting-tech/MokoStandards
 # PATH: /infrastructure/terraform/main.tf
-# VERSION: 04.00.04
+# VERSION: 04.00.15
 # BRIEF: Main Terraform configuration for MokoStandards
 
 # This is the primary Terraform configuration file that loads
@@ -345,10 +345,10 @@ required_files = [{
 
 **Forced Files**:
 1. `.github/workflows/standards-compliance.yml`
-2. `scripts/validate/check_version_consistency.php`
-3. `scripts/validate/check_enterprise_readiness.php`
-4. `scripts/validate/check_repo_health.php`
-5. `scripts/maintenance/validate_script_registry.py`
+2. `api/validate/check_version_consistency.php`
+3. `api/validate/check_enterprise_readiness.php`
+4. `api/validate/check_repo_health.php`
+5. `api/maintenance/validate_script_registry.py`
 6. `scripts/.script-registry.json`
 
 **Rationale**: These files implement the 28-check validation system that ensures security, quality, and compliance across all repositories.
@@ -542,7 +542,7 @@ The bulk sync operation (via `bulk_update_repos.php`) includes comprehensive Ter
 3. **Testing**:
    ```bash
    # Dry run to see what would be synced
-   php scripts/automation/bulk_update_repos.php --dry-run --repo myrepo
+   php api/automation/bulk_update_repos.php --dry-run --repo myrepo
    ```
 
 ### Maintaining Terraform Files

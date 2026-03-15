@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-use MokoStandards\Enterprise\MetricsCollector;
-use MokoStandards\Enterprise\SecurityValidator;
-use MokoStandards\Enterprise\Transaction;
-use MokoStandards\Enterprise\TransactionManager;
-use MokoStandards\Enterprise\UnifiedValidator;
-use MokoStandards\Enterprise\PathValidatorPlugin;
-use MokoStandards\Enterprise\CLIApp;
+use MokoEnterprise\MetricsCollector;
+use MokoEnterprise\SecurityValidator;
+use MokoEnterprise\Transaction;
+use MokoEnterprise\TransactionManager;
+use MokoEnterprise\UnifiedValidator;
+use MokoEnterprise\PathValidatorPlugin;
+use MokoEnterprise\CLIApp;
 
 echo "Testing MokoStandards Enterprise Libraries\n";
 echo str_repeat('=', 60) . "\n\n";

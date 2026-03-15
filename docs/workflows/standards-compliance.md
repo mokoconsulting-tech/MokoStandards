@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Standards Compliance Workflow
 
@@ -195,12 +195,12 @@ phpcs --standard=PSR12 src/
 - All references must match exactly
 - No version drift across repository
 
-**Validator**: `scripts/validate/check_version_consistency.php`
+**Validator**: `api/validate/check_version_consistency.php`
 
 **Remediation**:
 ```bash
 # Check current status
-php scripts/validate/check_version_consistency.php --verbose
+php api/validate/check_version_consistency.php --verbose
 
 # Update all version references (if mismatches found)
 # Manually update files or use bulk search/replace
@@ -218,15 +218,15 @@ php scripts/validate/check_version_consistency.php --verbose
 - Critical priority scripts cannot have mismatches
 - Changes to scripts must update registry
 
-**Validator**: `scripts/maintenance/validate_script_registry.py`
+**Validator**: `api/maintenance/validate_script_registry.py`
 
 **Remediation**:
 ```bash
 # Validate current hashes
-python3 scripts/maintenance/validate_script_registry.py --priority critical
+python3 api/maintenance/validate_script_registry.py --priority critical
 
 # Update registry after legitimate changes
-python3 scripts/maintenance/generate_script_registry.py --update
+python3 api/maintenance/generate_script_registry.py --update
 
 # Or use auto-update workflow
 # .github/workflows/auto-update-sha.yml
@@ -250,7 +250,7 @@ python3 scripts/maintenance/generate_script_registry.py --update
 - Test coverage
 - Security controls
 
-**Validator**: `scripts/validate/check_enterprise_readiness.php`
+**Validator**: `api/validate/check_enterprise_readiness.php`
 
 **Note**: This check is **informational only** and does not block merges. It provides recommendations for improving enterprise readiness.
 
@@ -271,7 +271,7 @@ python3 scripts/maintenance/generate_script_registry.py --update
 - Security vulnerabilities
 - Community engagement
 
-**Validator**: `scripts/validate/check_repo_health.php`
+**Validator**: `api/validate/check_repo_health.php`
 
 **Note**: This check is **informational only** and does not block merges. It provides insights for continuous improvement.
 
@@ -337,16 +337,16 @@ Run individual validators locally before pushing:
 
 ```bash
 # Check version consistency
-php scripts/validate/check_version_consistency.php --verbose
+php api/validate/check_version_consistency.php --verbose
 
 # Validate script integrity
-python3 scripts/maintenance/validate_script_registry.py --priority critical --verbose
+python3 api/maintenance/validate_script_registry.py --priority critical --verbose
 
 # Check enterprise readiness
-php scripts/validate/check_enterprise_readiness.php --verbose
+php api/validate/check_enterprise_readiness.php --verbose
 
 # Check repository health
-php scripts/validate/check_repo_health.php --verbose
+php api/validate/check_repo_health.php --verbose
 
 # Lint YAML files
 yamllint .github/workflows/*.yml
@@ -367,7 +367,7 @@ phpcs --standard=PSR12 src/
 grep '"version"' composer.json
 
 # 2. Find mismatches
-php scripts/validate/check_version_consistency.php
+php api/validate/check_version_consistency.php
 
 # 3. Update all references to match
 # Use sed or manually update files listed in output
@@ -377,7 +377,7 @@ php scripts/validate/check_version_consistency.php
 
 ```bash
 # If changes are legitimate:
-python3 scripts/maintenance/generate_script_registry.py --update
+python3 api/maintenance/generate_script_registry.py --update
 
 # If changes are NOT authorized:
 git checkout HEAD -- scripts/
@@ -522,7 +522,7 @@ if: ${{ github.event_name != 'pull_request' }}  # Skip on PRs
 
 **Fix**:
 1. Identify canonical version: `grep '"version"' composer.json`
-2. Find mismatches: `php scripts/validate/check_version_consistency.php`
+2. Find mismatches: `php api/validate/check_version_consistency.php`
 3. Update all references to match canonical version
 
 ### Script Integrity Violations
@@ -530,7 +530,7 @@ if: ${{ github.event_name != 'pull_request' }}  # Skip on PRs
 **Legitimate Changes**:
 ```bash
 # Update registry after modifying scripts
-python3 scripts/maintenance/generate_script_registry.py --update
+python3 api/maintenance/generate_script_registry.py --update
 git add scripts/.script-registry.json
 git commit -m "chore: update script registry"
 ```

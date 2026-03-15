@@ -19,7 +19,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-use MokoStandards\Enterprise\CLIApp;
+use MokoEnterprise\CLIApp;
 use phpseclib3\Net\SFTP;
 use phpseclib3\Crypt\PublicKeyLoader;
 

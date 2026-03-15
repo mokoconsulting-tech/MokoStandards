@@ -23,7 +23,7 @@ declare(strict_types=1);
  * @license GPL-3.0-or-later
  */
 
-namespace MokoStandards\Enterprise;
+namespace MokoEnterprise;
 
 use InvalidArgumentException;
 use RuntimeException;
@@ -51,7 +51,7 @@ class ValidationError extends RuntimeException
  *
  * Example:
  * ```php
- * use MokoStandards\Enterprise\InputValidator;
+ * use MokoEnterprise\InputValidator;
  *
  * $path = InputValidator::validatePath('/tmp/file.txt');
  * $email = InputValidator::validateEmail('user@example.com');

@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace MokoStandards\Enterprise;
+namespace MokoEnterprise;
 
-use MokoStandards\Enterprise\Plugins\JoomlaPlugin;
-use MokoStandards\Enterprise\Plugins\DolibarrPlugin;
-use MokoStandards\Enterprise\Plugins\GenericPlugin;
-use MokoStandards\Enterprise\Plugins\DocumentationPlugin;
-use MokoStandards\Enterprise\Plugins\NodeJsPlugin;
-use MokoStandards\Enterprise\Plugins\PythonPlugin;
-use MokoStandards\Enterprise\Plugins\TerraformPlugin;
-use MokoStandards\Enterprise\Plugins\WordPressPlugin;
-use MokoStandards\Enterprise\Plugins\MobilePlugin;
-use MokoStandards\Enterprise\Plugins\ApiPlugin;
+use MokoEnterprise\Plugins\JoomlaPlugin;
+use MokoEnterprise\Plugins\DolibarrPlugin;
+use MokoEnterprise\Plugins\GenericPlugin;
+use MokoEnterprise\Plugins\DocumentationPlugin;
+use MokoEnterprise\Plugins\NodeJsPlugin;
+use MokoEnterprise\Plugins\PythonPlugin;
+use MokoEnterprise\Plugins\TerraformPlugin;
+use MokoEnterprise\Plugins\WordPressPlugin;
+use MokoEnterprise\Plugins\MobilePlugin;
+use MokoEnterprise\Plugins\ApiPlugin;
 
 /**
  * Plugin Registry - Central registry for all project type plugins

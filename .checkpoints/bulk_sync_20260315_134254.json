@@ -1,0 +1,15 @@
+{
+    "processed": 3,
+    "total": 43,
+    "results": {
+        "total": 43,
+        "success": 3,
+        "skipped": 0,
+        "failed": 0,
+        "repositories": {
+            ".github-private": "success",
+            "MokoCassiopeia": "success",
+            "DoliMods": "success"
+        }
+    }
+}

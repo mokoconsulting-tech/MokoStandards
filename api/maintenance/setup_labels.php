@@ -21,7 +21,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-use MokoStandards\Enterprise\CliFramework;
+use MokoEnterprise\CliFramework;
 
 /**
  * Deploys the standard set of GitHub repository labels required by MokoStandards.

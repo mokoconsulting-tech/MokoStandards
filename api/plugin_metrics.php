@@ -20,9 +20,9 @@ declare(strict_types=1);
 // Autoload dependencies
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use MokoStandards\Enterprise\PluginFactory;
-use MokoStandards\Enterprise\AuditLogger;
-use MokoStandards\Enterprise\MetricsCollector;
+use MokoEnterprise\PluginFactory;
+use MokoEnterprise\AuditLogger;
+use MokoEnterprise\MetricsCollector;
 
 /**
  * Display usage information

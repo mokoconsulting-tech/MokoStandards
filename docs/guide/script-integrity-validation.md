@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Comprehensive Script Integrity Validation System
 
@@ -22,7 +22,7 @@ Central registry containing SHA-256 hashes for all tracked scripts.
   },
   "scripts": [
     {
-      "path": "scripts/validate/validate_codeql_config.py",
+      "path": "api/validate/validate_codeql_config.py",
       "sha256": "b79bf71adc8968805fac1a36a764ffde543099d110a93593767bdc9fa890673d",
       "category": "validate",
       "priority": "critical",
@@ -37,23 +37,23 @@ Central registry containing SHA-256 hashes for all tracked scripts.
 }
 ```
 
-### 2. Registry Generator (`scripts/maintenance/generate_script_registry.py`)
+### 2. Registry Generator (`api/maintenance/generate_script_registry.py`)
 
 Generates and updates the script registry.
 
 **Usage:**
 ```bash
 # Generate initial registry
-python3 scripts/maintenance/generate_script_registry.py
+python3 api/maintenance/generate_script_registry.py
 
 # Update existing registry and show changes
-python3 scripts/maintenance/generate_script_registry.py --update
+python3 api/maintenance/generate_script_registry.py --update
 
 # Include low-priority scripts (wrappers, libs)
-python3 scripts/maintenance/generate_script_registry.py --include-low-priority
+python3 api/maintenance/generate_script_registry.py --include-low-priority
 
 # Custom output location
-python3 scripts/maintenance/generate_script_registry.py --output my-registry.json
+python3 api/maintenance/generate_script_registry.py --output my-registry.json
 ```
 
 **Features:**
@@ -63,23 +63,23 @@ python3 scripts/maintenance/generate_script_registry.py --output my-registry.jso
 - Change tracking (added, modified, removed)
 - Summary statistics
 
-### 3. Registry Validator (`scripts/maintenance/validate_script_registry.py`)
+### 3. Registry Validator (`api/maintenance/validate_script_registry.py`)
 
 Validates all scripts against the registry.
 
 **Usage:**
 ```bash
 # Validate all scripts
-python3 scripts/maintenance/validate_script_registry.py
+python3 api/maintenance/validate_script_registry.py
 
 # Validate only critical priority scripts
-python3 scripts/maintenance/validate_script_registry.py --priority critical
+python3 api/maintenance/validate_script_registry.py --priority critical
 
 # Strict mode (fail on any discrepancy)
-python3 scripts/maintenance/validate_script_registry.py --strict
+python3 api/maintenance/validate_script_registry.py --strict
 
 # Detailed output
-python3 scripts/maintenance/validate_script_registry.py --verbose
+python3 api/maintenance/validate_script_registry.py --verbose
 ```
 
 **Features:**
@@ -107,23 +107,23 @@ Automated validation on every PR and push.
 
 ### Critical Priority
 **Scripts that affect security, validation, and core maintenance:**
-- `scripts/validate/` - All validation scripts
-- `scripts/maintenance/` - Maintenance and integrity scripts
+- `api/validate/` - All validation scripts
+- `api/maintenance/` - Maintenance and integrity scripts
 - Security-related scripts
 
 ### High Priority
 **Scripts that affect builds, releases, and automation:**
-- `scripts/automation/` - Automation scripts
+- `api/automation/` - Automation scripts
 - `scripts/release/` - Release management
 - `scripts/build/` - Build scripts
-- `scripts/fix/` - Fixing utilities
+- `api/fix/` - Fixing utilities
 
 ### Medium Priority
 **Scripts for analysis, documentation, and testing:**
 - `scripts/analysis/` - Analysis tools
 - `scripts/docs/` - Documentation generators
 - `scripts/run/` - Runtime utilities
-- `scripts/tests/` - Test scripts
+- `api/tests/` - Test scripts
 
 ### Low Priority
 **Generated wrappers and supporting libraries:**
@@ -174,7 +174,7 @@ Commits changes
 1. **Create your script**
 2. **Update the registry:**
    ```bash
-   python3 scripts/maintenance/generate_script_registry.py --update
+   python3 api/maintenance/generate_script_registry.py --update
    ```
 3. **Commit both the script and registry:**
    ```bash
@@ -188,7 +188,7 @@ Commits changes
 2. **Test the script**
 3. **Update the registry:**
    ```bash
-   python3 scripts/maintenance/generate_script_registry.py --update
+   python3 api/maintenance/generate_script_registry.py --update
    ```
 4. **Commit both:**
    ```bash
@@ -200,10 +200,10 @@ Commits changes
 
 ```bash
 # Check what would change
-python3 scripts/maintenance/generate_script_registry.py --update
+python3 api/maintenance/generate_script_registry.py --update
 
 # Validate all scripts are legitimate
-python3 scripts/maintenance/validate_script_registry.py --verbose
+python3 api/maintenance/validate_script_registry.py --verbose
 
 # If all good, proceed with commit
 git add scripts/.script-registry.json
@@ -214,16 +214,16 @@ git commit -m "chore: update script registry"
 
 ```bash
 # 1. Review what changed
-python3 scripts/maintenance/validate_script_registry.py --verbose
+python3 api/maintenance/validate_script_registry.py --verbose
 
 # 2. If unauthorized, restore from git
 git checkout HEAD -- scripts/path/to/modified-script.py
 
 # 3. Re-validate
-python3 scripts/maintenance/validate_script_registry.py
+python3 api/maintenance/validate_script_registry.py
 
 # 4. If legitimate, update registry
-python3 scripts/maintenance/generate_script_registry.py --update
+python3 api/maintenance/generate_script_registry.py --update
 git add scripts/.script-registry.json
 git commit -m "chore: update registry after legitimate changes"
 ```
@@ -232,7 +232,7 @@ git commit -m "chore: update registry after legitimate changes"
 
 ### Excluding Scripts from Tracking
 
-Edit `scripts/maintenance/generate_script_registry.py` and update `should_track_script()`:
+Edit `api/maintenance/generate_script_registry.py` and update `should_track_script()`:
 
 ```python
 def should_track_script(script_path: Path) -> bool:
@@ -284,17 +284,17 @@ CATEGORY_PRIORITIES = {
 
 ```bash
 # Generate the registry
-python3 scripts/maintenance/generate_script_registry.py
+python3 api/maintenance/generate_script_registry.py
 ```
 
 ### "Multiple scripts modified"
 
 ```bash
 # Review changes
-python3 scripts/maintenance/validate_script_registry.py --verbose
+python3 api/maintenance/validate_script_registry.py --verbose
 
 # If legitimate, update registry
-python3 scripts/maintenance/generate_script_registry.py --update
+python3 api/maintenance/generate_script_registry.py --update
 ```
 
 ### "Workflow failing on PR"
@@ -302,7 +302,7 @@ python3 scripts/maintenance/generate_script_registry.py --update
 1. Check which scripts were modified
 2. Update the registry in your PR:
    ```bash
-   python3 scripts/maintenance/generate_script_registry.py --update
+   python3 api/maintenance/generate_script_registry.py --update
    git add scripts/.script-registry.json
    git commit --amend --no-edit
    git push --force-with-lease
@@ -311,7 +311,7 @@ python3 scripts/maintenance/generate_script_registry.py --update
 ### "Want to check only critical scripts"
 
 ```bash
-python3 scripts/maintenance/validate_script_registry.py --priority critical
+python3 api/maintenance/validate_script_registry.py --priority critical
 ```
 
 ## Security Considerations
@@ -335,7 +335,7 @@ Potential improvements:
 ## Related Documentation
 
 - [SHA Auto-Update](sha-auto-update.md) - Single-file auto-update system
-- [Security Scanning](../scripts/validate/SECURITY_SCANNING.md) - General security practices
+- [Security Scanning](../api/validate/SECURITY_SCANNING.md) - General security practices
 - [Script Architecture](../scripts/docs/ARCHITECTURE.md) - Overall script structure
 
 ## Support

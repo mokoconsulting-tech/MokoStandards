@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Security Considerations for Repository Health System
 
@@ -8,7 +8,7 @@ This document outlines security considerations and potential improvements for th
 
 ### URL Handling in Scripts
 
-**Files**: `scripts/validate/validate_repo_health.py`, `scripts/validate/check_repo_health.py`
+**Files**: `api/validate/validate_repo_health.py`, `api/validate/check_repo_health.py`
 
 **Current Behavior**: Scripts use `urllib.request.urlopen()` to fetch XML configurations from remote URLs without validation.
 
@@ -84,7 +84,7 @@ def safe_url_fetch(url: str, timeout: int = 10, max_size: int = 5*1024*1024) -> 
 ```yaml
 - name: Download and verify health checker
   run: |
-    SCRIPT_URL="https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/scripts/validate/check_repo_health.py"
+    SCRIPT_URL="https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/api/validate/check_repo_health.py"
     EXPECTED_SHA256="abc123..." # Update when script changes
 
     curl -sSL "${SCRIPT_URL}" -o check_repo_health.py
@@ -105,12 +105,12 @@ env:
 
 - name: Download health checker
   run: |
-    curl -sSL "https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/${MOKOSTANDARDS_VERSION}/scripts/validate/check_repo_health.py" -o check_repo_health.py
+    curl -sSL "https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/${MOKOSTANDARDS_VERSION}/api/validate/check_repo_health.py" -o check_repo_health.py
 ```
 
 ### Threshold Configuration Duplication
 
-**Files**: `templates/workflows/repo_health_xml.yml`, `scripts/validate/check_repo_health.py`
+**Files**: `templates/workflows/repo_health_xml.yml`, `api/validate/check_repo_health.py`
 
 **Current Behavior**: Health threshold (70.0) is defined in script constant but duplicated in workflow.
 

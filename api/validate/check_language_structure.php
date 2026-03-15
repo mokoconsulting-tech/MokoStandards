@@ -19,7 +19,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-use MokoStandards\Enterprise\CliFramework;
+use MokoEnterprise\CliFramework;
 
 /**
  * Validates that all tracked INI language files follow the KEY=value format.

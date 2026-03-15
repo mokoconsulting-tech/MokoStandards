@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Training
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: docs/training/session-0-standards-foundation.md
-VERSION: 04.00.04
+VERSION: 04.00.15
 BRIEF: Session 0 - Standards Foundation prerequisite training materials
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Session 0: Standards Foundation (Prerequisite)
 
@@ -87,17 +87,24 @@ MokoStandards/
 │   ├── training/                  # Training materials (this file!)
 │   ├── automation/                # Automation documentation
 │   └── workflows/                 # Workflow documentation
-├── scripts/lib/Enterprise/                # 13 PHP enterprise libraries
+├── api/lib/Enterprise/            # 28+ PHP enterprise library classes
+│   └── Plugins/                   # Project-type plugin implementations
+├── api/                           # All automation scripts (PHP only)
+│   ├── automation/                # Bulk-sync scripts
+│   ├── deploy/                    # SFTP deployment scripts
+│   ├── validate/                  # Validation scripts
+│   ├── fix/                       # Fix scripts
+│   ├── maintenance/               # Maintenance scripts
+│   └── wrappers/                  # Wrapper scripts
 ├── templates/                     # Standard templates
 │   ├── github/                    # GitHub templates (issues, PRs)
 │   ├── docs/                      # Documentation templates
 │   ├── workflows/                 # GitHub Actions workflows
-│   └── security/                  # Security templates
-├── scripts/                       # Automation scripts
-└── tests/                         # Test suite
+│   └── configs/                   # Linter configs, .gitignore, etc.
+└── api/tests/                     # PHPUnit test suite
 
-Total Documents: 221 markdown files
-Core Policies: 31 policy documents in docs/policy/
+Total Documents: 221+ markdown files
+Core Policies: 31+ policy documents in docs/policy/
 ```
 
 ### Why Standards Matter
@@ -593,7 +600,7 @@ After completing Session 0, you're ready for:
 ### Tools
 - **[Automation Scripts](../../scripts/)**: Compliance automation tools
 - **[Templates](../../templates/)**: Standard templates
-- **[Enterprise Libraries](../../scripts/lib/Enterprise/)**: PHP libraries implementing standards
+- **[Enterprise Libraries](../../api/lib/Enterprise/)**: PHP libraries implementing standards
 
 ### Support
 - **GitHub Issues**: Report standards questions or issues

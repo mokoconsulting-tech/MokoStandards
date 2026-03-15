@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Security
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/security-scanning.md
-VERSION: 04.00.04
+VERSION: 04.00.15
 BRIEF: Security scanning policy and automated vulnerability detection standards
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Security Scanning Policy
 
@@ -122,7 +122,7 @@ To prevent CI failures from misconfigured languages, validate your CodeQL config
 
 ```bash
 # Download and run the validation script
-curl -sSL https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/scripts/validate/validate_codeql_config.py -o validate_codeql_config.py
+curl -sSL https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/api/validate/validate_codeql_config.py -o validate_codeql_config.py
 python3 validate_codeql_config.py
 ```
 

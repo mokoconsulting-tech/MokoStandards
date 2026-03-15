@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # flush_actions_cache.py Script Guide
 
@@ -8,7 +8,7 @@ The `flush_actions_cache.py` script manages GitHub Actions caches by providing f
 
 ## Location
 
-- **Path**: `/scripts/maintenance/flush_actions_cache.py`
+- **Path**: `/api/maintenance/flush_actions_cache.py`
 - **Type**: Python script
 - **Category**: Maintenance / GitHub Actions
 
@@ -37,19 +37,19 @@ GitHub Actions caches are automatically used by workflows to speed up builds by 
 
 ```bash
 # Flush all caches for current repository
-python3 scripts/maintenance/flush_actions_cache.py
+python3 api/maintenance/flush_actions_cache.py
 
 # Flush all caches for a specific repository
-python3 scripts/maintenance/flush_actions_cache.py --repo owner/repo
+python3 api/maintenance/flush_actions_cache.py --repo owner/repo
 
 # Flush caches for a specific branch
-python3 scripts/maintenance/flush_actions_cache.py --branch main
+python3 api/maintenance/flush_actions_cache.py --branch main
 
 # Flush caches matching a key pattern
-python3 scripts/maintenance/flush_actions_cache.py --key composer
+python3 api/maintenance/flush_actions_cache.py --key composer
 
 # Dry run to see what would be deleted
-python3 scripts/maintenance/flush_actions_cache.py --dry-run
+python3 api/maintenance/flush_actions_cache.py --dry-run
 ```
 
 ### Options and Arguments
@@ -64,25 +64,25 @@ python3 scripts/maintenance/flush_actions_cache.py --dry-run
 
 ```bash
 # Example 1: Flush all caches for current repository
-python3 scripts/maintenance/flush_actions_cache.py
+python3 api/maintenance/flush_actions_cache.py
 
 # Example 2: Flush caches for specific repository
-python3 scripts/maintenance/flush_actions_cache.py --repo mokoconsulting-tech/MokoStandards
+python3 api/maintenance/flush_actions_cache.py --repo mokoconsulting-tech/MokoStandards
 
 # Example 3: Flush only main branch caches
-python3 scripts/maintenance/flush_actions_cache.py --branch main
+python3 api/maintenance/flush_actions_cache.py --branch main
 
 # Example 4: Flush only Composer caches
-python3 scripts/maintenance/flush_actions_cache.py --key composer
+python3 api/maintenance/flush_actions_cache.py --key composer
 
 # Example 5: Combine filters with dry run
-python3 scripts/maintenance/flush_actions_cache.py --branch dev --key node --dry-run
+python3 api/maintenance/flush_actions_cache.py --branch dev --key node --dry-run
 
 # Example 6: Flush all Node.js caches
-python3 scripts/maintenance/flush_actions_cache.py --key node
+python3 api/maintenance/flush_actions_cache.py --key node
 
 # Example 7: Preview what would be deleted
-python3 scripts/maintenance/flush_actions_cache.py --dry-run
+python3 api/maintenance/flush_actions_cache.py --dry-run
 ```
 
 ## Requirements
@@ -208,7 +208,7 @@ The script provides detailed output including:
 When caches are corrupted or you want a clean slate:
 
 ```bash
-python3 scripts/maintenance/flush_actions_cache.py
+python3 api/maintenance/flush_actions_cache.py
 ```
 
 ### Clear Branch-Specific Caches
@@ -216,7 +216,7 @@ python3 scripts/maintenance/flush_actions_cache.py
 When a branch's caches need refreshing:
 
 ```bash
-python3 scripts/maintenance/flush_actions_cache.py --branch feature/new-feature
+python3 api/maintenance/flush_actions_cache.py --branch feature/new-feature
 ```
 
 ### Clear Dependency-Specific Caches
@@ -225,10 +225,10 @@ When dependency caches are stale:
 
 ```bash
 # Clear Composer caches
-python3 scripts/maintenance/flush_actions_cache.py --key composer
+python3 api/maintenance/flush_actions_cache.py --key composer
 
 # Clear npm caches
-python3 scripts/maintenance/flush_actions_cache.py --key node
+python3 api/maintenance/flush_actions_cache.py --key node
 ```
 
 ### Preview Before Deletion
@@ -236,7 +236,7 @@ python3 scripts/maintenance/flush_actions_cache.py --key node
 Always recommended before flushing:
 
 ```bash
-python3 scripts/maintenance/flush_actions_cache.py --dry-run
+python3 api/maintenance/flush_actions_cache.py --dry-run
 ```
 
 ## Troubleshooting
@@ -308,7 +308,7 @@ gh auth status
 | Jurisdiction   | Tennessee, USA                                   |
 | Owner          | Moko Consulting                                          |
 | Repo           | https://github.com/mokoconsulting-tech/                                      |
-| Path           | /docs/scripts/maintenance/flush-actions-cache-py.md                                      |
+| Path           | /docs/api/maintenance/flush-actions-cache-py.md                                      |
 | Version        | 03.00.00                                 |
 | Status         | Active                                         |
 | Last Reviewed  | 2026-01-28                                  |

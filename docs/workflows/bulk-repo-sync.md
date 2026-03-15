@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Workflow
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/workflows/bulk-repo-sync.md
-VERSION: 04.00.04
+VERSION: 04.00.15
 BRIEF: Comprehensive documentation for the bulk repository sync workflow
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 ![Enterprise Ready](https://img.shields.io/badge/enterprise-ready-green)
 ![Security Validated](https://img.shields.io/badge/security-validated-green)
 
@@ -85,7 +85,7 @@ The **Bulk Repository Sync** workflow is MokoStandards' automated system for dep
 ### Workflow Location
 
 - **File**: `.github/workflows/bulk-repo-sync.yml`
-- **Script**: `scripts/automation/bulk_sync.php`
+- **Script**: `api/automation/bulk_sync.php`
 - **Version**: 5.0 (Rebuilt using Enterprise library)
 - **Status**: ✅ **ENTERPRISE READY** - Fully integrated with enterprise security, audit logging, and metrics
 
@@ -457,7 +457,7 @@ The bulk sync workflow synchronizes the following file types:
 
 #### 5. **Validation Scripts** (All Repositories)
 
-- `scripts/validate/auto_detect_platform.php` - Platform detection
+- `api/validate/auto_detect_platform.php` - Platform detection
 - Schema definition files (required by validators)
 
 ### What DOESN'T Get Synced
@@ -560,7 +560,7 @@ The sync tool has three cleanup modes (configured in override):
 **Solutions**:
 1. Add `override.config.tf` with explicit `repository_type`
 2. Verify repository structure matches expected patterns
-3. Check auto-detection script works: `php scripts/validate/auto_detect_platform.php`
+3. Check auto-detection script works: `php api/validate/auto_detect_platform.php`
 
 #### Issue 5: Dry Run Shows No Changes
 
@@ -714,9 +714,9 @@ Sync PRs respect branch protection:
 
 ### Script Documentation
 
-- **Script Source**: `scripts/automation/bulk_update_repos.php`
-- **Platform Detection**: `scripts/validate/auto_detect_platform.php`
-- **Run Help**: `php scripts/automation/bulk_update_repos.php --help`
+- **Script Source**: `api/automation/bulk_update_repos.php`
+- **Platform Detection**: `api/validate/auto_detect_platform.php`
+- **Run Help**: `php api/automation/bulk_update_repos.php --help`
 
 ---
 
@@ -733,8 +733,8 @@ Sync PRs respect branch protection:
 
 **Updating the Script**:
 
-1. Modify `scripts/automation/bulk_update_repos.php`
-2. Test locally: `php scripts/automation/bulk_update_repos.php --dry-run --repos test-repo`
+1. Modify `api/automation/bulk_update_repos.php`
+2. Test locally: `php api/automation/bulk_update_repos.php --dry-run --repos test-repo`
 3. Verify changes work as expected
 4. Commit and push to MokoStandards
 5. Next sync uses updated script

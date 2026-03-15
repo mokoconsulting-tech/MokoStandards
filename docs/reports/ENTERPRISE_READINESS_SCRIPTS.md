@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # MokoStandards Scripts: Enterprise Readiness & Consolidation Strategy
 
@@ -87,7 +87,7 @@ This document outlines the enterprise readiness assessment and consolidation str
 **Current State:** 12 independent validators with duplicated logic
 
 ```
-scripts/validate/
+api/validate/
 ├── check_repo_health.py       (XML-based scoring, 500 LOC)
 ├── validate_repo_health.py    (XML validation, 300 LOC)
 ├── validate_structure.py      (Directory structure, 400 LOC)

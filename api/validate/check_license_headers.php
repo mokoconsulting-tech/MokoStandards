@@ -19,7 +19,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-use MokoStandards\Enterprise\CliFramework;
+use MokoEnterprise\CliFramework;
 
 /**
  * Checks that tracked PHP, JS, CSS and Shell files contain an SPDX license identifier.

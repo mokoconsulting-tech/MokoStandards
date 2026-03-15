@@ -20,7 +20,7 @@ This document tracks all TODO items found in the MokoStandards repository. TODOs
 
 ### ✅ RepositorySynchronizer Implementation
 **Status**: ✅ COMPLETED (2026-02-27)
-- **Location**: `scripts/lib/Enterprise/RepositorySynchronizer.php`
+- **Location**: `api/lib/Enterprise/RepositorySynchronizer.php`
 - **Issue**: Previously threw `SynchronizationNotImplementedException`
 - **Resolution**: Full implementation completed with GitHub API integration
 - **Verification**: Bulk sync workflow operational, circuit breaker reset implemented
@@ -111,7 +111,7 @@ All files under `docs/training/` contain exercise TODOs:
 Multiple files reference TODOs in documentation about code standards:
 - `docs/policy/code-review-guidelines.md` - Guidelines mention using TODO comments
 - `scripts/docs/NEW_SCRIPTS.md` - Documents find_todos.py script
-- `scripts/validate/README.md` - Documents TODO finding functionality
+- `api/validate/README.md` - Documents TODO finding functionality
 
 **Status**: ✅ DOCUMENTATION ONLY
 - Action: None required (these describe how to use TODOs, not actual TODOs)
@@ -128,7 +128,7 @@ The following are project management status labels, not code TODOs:
 - These are configuration values and examples, not actual TODOs
 
 ## Security Validator Keywords
-**Location**: `scripts/lib/Enterprise/SecurityValidator.php:223`
+**Location**: `api/lib/Enterprise/SecurityValidator.php:223`
 **Context**: Array of keywords to detect: `'todo'` (lowercase)
 **Status**: ✅ SECURITY FEATURE
 - Purpose: Detect placeholder credentials
@@ -158,7 +158,7 @@ The following are project management status labels, not code TODOs:
 ## References
 
 - Standards Compliance Workflow: `.github/workflows/standards-compliance.yml`
-- TODO Finding Script: `scripts/validate/find_todos.py` (if exists)
+- TODO Finding Script: `api/validate/find_todos.py` (if exists)
 - Code Review Guidelines: `docs/policy/code-review-guidelines.md`
 
 ## Changelog

@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Security Scanning Guide
 
@@ -38,7 +38,7 @@ Note: The template currently includes Python. Adjust based on your repository co
 Run the validation script to ensure your CodeQL configuration matches your codebase:
 
 ```bash
-python3 scripts/validate/validate_codeql_config.py --repo-path .
+python3 api/validate/validate_codeql_config.py --repo-path .
 ```
 
 ### 4. Run Complete Security Scan
@@ -46,7 +46,7 @@ python3 scripts/validate/validate_codeql_config.py --repo-path .
 Execute the comprehensive security scan:
 
 ```bash
-python3 scripts/validate/security_scan.py
+python3 api/validate/security_scan.py
 ```
 
 ## Security Scan Components
@@ -85,7 +85,7 @@ The security scanning infrastructure includes four main components:
 
 **How to run**:
 ```bash
-python3 scripts/validate/no_secrets.py .
+python3 api/validate/no_secrets.py .
 ```
 
 ### 3. Dependency Checking
@@ -116,7 +116,7 @@ pip-audit --desc
 
 **How to run**:
 ```bash
-python3 scripts/validate/validate_codeql_config.py
+python3 api/validate/validate_codeql_config.py
 ```
 
 ## Comprehensive Security Scan
@@ -127,16 +127,16 @@ The `security_scan.py` script orchestrates all security checks:
 
 ```bash
 # Scan current directory
-python3 scripts/validate/security_scan.py
+python3 api/validate/security_scan.py
 
 # Scan specific repository
-python3 scripts/validate/security_scan.py --repo-path /path/to/repo
+python3 api/validate/security_scan.py --repo-path /path/to/repo
 
 # Verbose output
-python3 scripts/validate/security_scan.py --verbose
+python3 api/validate/security_scan.py --verbose
 
 # Generate JSON report
-python3 scripts/validate/security_scan.py --json-output security-report.json
+python3 api/validate/security_scan.py --json-output security-report.json
 ```
 
 ### Exit Codes
@@ -196,7 +196,7 @@ Add to `.git/hooks/pre-commit`:
 ```bash
 #!/bin/bash
 # Run secret scanning before commit
-python3 scripts/validate/no_secrets.py . || exit 1
+python3 api/validate/no_secrets.py . || exit 1
 ```
 
 ### Pre-push Hook
@@ -206,7 +206,7 @@ Add to `.git/hooks/pre-push`:
 ```bash
 #!/bin/bash
 # Run comprehensive security scan before push
-python3 scripts/validate/security_scan.py || exit 1
+python3 api/validate/security_scan.py || exit 1
 ```
 
 ## Vulnerability Response
@@ -242,7 +242,7 @@ Only dismiss alerts with:
 
 **Solution**: Run validation script and adjust language matrix:
 ```bash
-python3 scripts/validate/validate_codeql_config.py
+python3 api/validate/validate_codeql_config.py
 # Update .github/workflows/codeql-analysis.yml with detected languages
 ```
 
@@ -250,7 +250,7 @@ python3 scripts/validate/validate_codeql_config.py
 
 **Problem**: Secret scanner flags example code or test data
 
-**Solution**: Add exclusion to `scripts/validate/no_secrets.py` or update patterns
+**Solution**: Add exclusion to `api/validate/no_secrets.py` or update patterns
 
 ### Dependency Scanner: Tool Not Found
 
@@ -268,7 +268,7 @@ npm install -g npm-audit
 
 Always run security scans locally before pushing:
 ```bash
-python3 scripts/validate/security_scan.py --verbose
+python3 api/validate/security_scan.py --verbose
 ```
 
 ### 2. Keep Dependencies Updated
@@ -326,7 +326,7 @@ For questions or issues with security scanning:
 | Field | Value |
 |-------|-------|
 | Document | Security Scanning Guide |
-| Path | /scripts/validate/SECURITY_SCANNING.md |
+| Path | /api/validate/SECURITY_SCANNING.md |
 | Version | 01.00.00 |
 | Status | Active |
 | Last Updated | 2026-01-28 |

@@ -23,7 +23,7 @@ declare(strict_types=1);
  * @deprecated Individual class files should be used instead
  */
 
-namespace MokoStandards\Enterprise;
+namespace MokoEnterprise;
 
 use Throwable;
 

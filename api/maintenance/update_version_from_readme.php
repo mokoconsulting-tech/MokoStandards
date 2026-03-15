@@ -22,7 +22,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-use MokoStandards\Enterprise\{AuditLogger, CliFramework};
+use MokoEnterprise\{AuditLogger, CliFramework};
 
 /**
  * Propagates the version from README.md FILE INFORMATION block to every

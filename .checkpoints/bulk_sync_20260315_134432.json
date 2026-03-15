@@ -1,0 +1,31 @@
+{
+    "processed": 19,
+    "total": 43,
+    "results": {
+        "total": 43,
+        "success": 18,
+        "skipped": 1,
+        "failed": 0,
+        "repositories": {
+            ".github-private": "success",
+            "MokoCassiopeia": "success",
+            "DoliMods": "success",
+            "Copy-PortablePath": "success",
+            "MokoDoliChimp": "success",
+            "MokoStandards": "skipped",
+            "MokoDoliMulti": "success",
+            "MokoDoliSign": "success",
+            "MokoDoliTools": "success",
+            "MokoDoliForm": "success",
+            "MokoTesting": "success",
+            "MokoDoliG": "success",
+            "MokoDoliRelease": "success",
+            "MokoWaaSBrand": "success",
+            "MokoDoliHRM": "success",
+            "MokoDoliOffline": "success",
+            "MokoDoliAuth": "success",
+            "MokoStandards-Template-Generic": "success",
+            "MokoStandards-Template-Dolibarr": "success"
+        }
+    }
+}

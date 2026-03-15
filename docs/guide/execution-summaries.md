@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Execution Summaries
 
@@ -346,7 +346,7 @@ jobs:
 
 See these files for complete examples:
 
-- `scripts/lib/Enterprise/ExecutionSummary.php` - PHP implementation
+- `api/lib/Enterprise/ExecutionSummary.php` - PHP implementation
 - `.github/workflows/standards-compliance.yml` - Workflow example
 
 ## Benefits

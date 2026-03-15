@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Summary
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /ENTERPRISE_READINESS_SUMMARY.md
-VERSION: 04.00.04
+VERSION: 04.00.15
 BRIEF: Summary of enterprise-ready enhancements and security improvements
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Enterprise Readiness Summary
 

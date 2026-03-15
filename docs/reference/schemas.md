@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # MokoStandards Schemas
 
@@ -33,13 +33,13 @@ See the [Terraform README](../../infrastructure/terraform/README.md) for complet
 
 ```bash
 # Check repository health using Terraform configuration
-python scripts/validate/check_repo_health.py --repo-path .
+python api/validate/check_repo_health.py --repo-path .
 
 # Verbose output
-python scripts/validate/check_repo_health.py --repo-path . --verbose
+python api/validate/check_repo_health.py --repo-path . --verbose
 
 # JSON output
-python scripts/validate/check_repo_health.py --repo-path . --output json
+python api/validate/check_repo_health.py --repo-path . --output json
 ```
 
 The health checker now reads configuration from Terraform instead of XML.
@@ -50,10 +50,10 @@ Structure definitions in `scripts/definitions/` still use XML format:
 
 ```bash
 # Validate repository structure
-python scripts/validate/validate_structure.py scripts/definitions/crm-module.tf .
+python api/validate/validate_structure.py scripts/definitions/crm-module.tf .
 
 # Generate stubs for new project
-python scripts/validate/generate_stubs.py scripts/definitions/crm-module.tf /path/to/new/project --dry-run
+python api/validate/generate_stubs.py scripts/definitions/crm-module.tf /path/to/new/project --dry-run
 ```
 
 **Note**: These XML definitions will be migrated to Terraform in a future release.
@@ -230,19 +230,19 @@ Supported validation rule types:
 ### Repository Structure Tools
 
 #### Validation Tool
-- **Location**: `scripts/validate/validate_structure.py`
+- **Location**: `api/validate/validate_structure.py`
 - **Purpose**: Validate existing repositories against structure schemas
 - **Exit Codes**: 0 = pass, 1 = fail (errors found)
 
 #### Stub Generation Tool
-- **Location**: `scripts/validate/generate_stubs.py`
+- **Location**: `api/validate/generate_stubs.py`
 - **Purpose**: Generate missing files and directories
 - **Modes**: Normal, dry-run, force-overwrite
 
 ### Repository Health Tools
 
 #### Health Configuration Validator
-- **Location**: `scripts/validate/validate_repo_health.py`
+- **Location**: `api/validate/validate_repo_health.py`
 - **Purpose**: Validate health configuration XML against schema
 - **Features**:
   - Local file and remote URL support
@@ -253,14 +253,14 @@ Supported validation rule types:
 **Usage**:
 ```bash
 # Validate local config
-python scripts/validate/validate_repo_health.py schemas/repo-health-default.xml
+python api/validate/validate_repo_health.py schemas/repo-health-default.xml
 
 # Validate remote config
-python scripts/validate/validate_repo_health.py https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/schemas/repo-health-default.xml
+python api/validate/validate_repo_health.py https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/schemas/repo-health-default.xml
 ```
 
 #### Health Checker
-- **Location**: `scripts/validate/check_repo_health.py`
+- **Location**: `api/validate/check_repo_health.py`
 - **Purpose**: Perform health checks on repositories based on XML configuration
 - **Features**:
   - Loads configuration from local files or remote URLs
@@ -272,13 +272,13 @@ python scripts/validate/validate_repo_health.py https://raw.githubusercontent.co
 **Usage**:
 ```bash
 # Check current repository with remote config
-python scripts/validate/check_repo_health.py --repo-path .
+python api/validate/check_repo_health.py --repo-path .
 
 # Check with custom config
-python scripts/validate/check_repo_health.py --config custom-health.xml --repo-path /path/to/repo
+python api/validate/check_repo_health.py --config custom-health.xml --repo-path /path/to/repo
 
 # Output as JSON
-python scripts/validate/check_repo_health.py --output json > health-report.json
+python api/validate/check_repo_health.py --output json > health-report.json
 ```
 
 ## Integration
@@ -289,17 +289,17 @@ python scripts/validate/check_repo_health.py --output json > health-report.json
 
 ```makefile
 validate-structure:
-	python scripts/validate/validate_structure.py schemas/structures/crm-module.tf .
+	python api/validate/validate_structure.py schemas/structures/crm-module.tf .
 
 generate-stubs:
-	python scripts/validate/generate_stubs.py schemas/structures/crm-module.tf .
+	python api/validate/generate_stubs.py schemas/structures/crm-module.tf .
 ```
 
 #### GitHub Actions
 
 ```yaml
 - name: Validate Structure
-  run: python .mokostandards/scripts/validate/validate_structure.py \
+  run: python .mokostandards/api/validate/validate_structure.py \
          .mokostandards/schemas/structures/crm-module.tf .
 ```
 
@@ -309,10 +309,10 @@ generate-stubs:
 
 ```makefile
 check-health:
-	python scripts/validate/check_repo_health.py --repo-path .
+	python api/validate/check_repo_health.py --repo-path .
 
 validate-health-config:
-	python scripts/validate/validate_repo_health.py schemas/repo-health-default.xml
+	python api/validate/validate_repo_health.py schemas/repo-health-default.xml
 ```
 
 #### GitHub Actions
@@ -321,7 +321,7 @@ validate-health-config:
 - name: Check Repository Health
   run: |
     # Download health checker script
-    curl -sSL https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/scripts/validate/check_repo_health.py -o check_repo_health.py
+    curl -sSL https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/api/validate/check_repo_health.py -o check_repo_health.py
 
     # Run health check with remote config (default)
     python3 check_repo_health.py --repo-path . --output json > health-report.json
@@ -354,7 +354,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Download health checker
-        run: curl -sSL https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/scripts/validate/check_repo_health.py -o check_repo_health.py
+        run: curl -sSL https://raw.githubusercontent.com/mokoconsulting-tech/MokoStandards/main/api/validate/check_repo_health.py -o check_repo_health.py
 
       - name: Run health check
         run: python3 check_repo_health.py --config "${{ github.event.inputs.config_url }}" --repo-path . --output json

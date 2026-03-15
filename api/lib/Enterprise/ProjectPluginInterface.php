@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace MokoStandards\Enterprise;
+namespace MokoEnterprise;
 
 /**
  * Interface for project type-specific enterprise plugins

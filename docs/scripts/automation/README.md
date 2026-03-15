@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Automation Scripts
 
@@ -12,28 +12,28 @@ Bulk update organization repositories with workflows, scripts, and configuration
 **Usage:**
 ```bash
 # Dry run to preview changes
-./scripts/automation/bulk_update_repos.php --dry-run
+./api/automation/bulk_update_repos.php --dry-run
 
 # Update all repositories
-./scripts/automation/bulk_update_repos.php --yes
+./api/automation/bulk_update_repos.php --yes
 
 # Update specific repositories
-./scripts/automation/bulk_update_repos.php --repos repo1 repo2
+./api/automation/bulk_update_repos.php --repos repo1 repo2
 
 # Exclude specific repositories
-./scripts/automation/bulk_update_repos.php --exclude legacy-repo
+./api/automation/bulk_update_repos.php --exclude legacy-repo
 
 # Update only workflow files
-./scripts/automation/bulk_update_repos.php --files-only
+./api/automation/bulk_update_repos.php --files-only
 
 # Update only scripts
-./scripts/automation/bulk_update_repos.php --scripts-only
+./api/automation/bulk_update_repos.php --scripts-only
 
 # Set missing standards options (repository variables)
-./scripts/automation/bulk_update_repos.php --set-standards
+./api/automation/bulk_update_repos.php --set-standards
 
 # Combine options: update files and set standards
-./scripts/automation/bulk_update_repos.php --yes --set-standards
+./api/automation/bulk_update_repos.php --yes --set-standards
 ```
 
 **Standards Options:**

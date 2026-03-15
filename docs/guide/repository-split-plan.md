@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Architecture
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/guide/repository-split-plan.md
-VERSION: 04.00.04
+VERSION: 04.00.15
 BRIEF: Architecture plan for splitting public and private repository content
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Repository Split Plan: MokoStandards Public vs Private
 
@@ -162,7 +162,7 @@ This document defines the recommended split between the public **mokoconsulting-
 
 #### Scripts (scripts/)
 ```
-✅ scripts/validate/ - Public validation scripts
+✅ api/validate/ - Public validation scripts
 ✅ scripts/setup/ - Public setup scripts
 ✅ scripts/README.md - Public script documentation
 

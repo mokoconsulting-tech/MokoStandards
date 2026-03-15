@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Guide
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/guide/copilot-sync-standards.md
-VERSION: 04.00.04
+VERSION: 04.00.15
 BRIEF: Comprehensive guide for using GitHub Copilot to sync standards across repositories
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # GitHub Copilot Standards Synchronization Guide
 
@@ -109,7 +109,7 @@ Deploy standard GitHub labels to this repository following MokoStandards.
 
 Requirements:
 1. Fetch the label configuration from mokoconsulting-tech/MokoStandards
-2. Use the setup-labels.sh script from scripts/maintenance/setup-labels.sh
+2. Use the setup-labels.sh script from api/maintenance/setup-labels.sh
 3. Create all standard labels with correct colors and descriptions
 4. Labels should include:
    - Project types: joomla, dolibarr, generic
@@ -123,14 +123,14 @@ Requirements:
 5. Use GitHub CLI (gh) for label creation
 6. Run in dry-run mode first to preview changes
 
-Reference: https://github.com/mokoconsulting-tech/MokoStandards/blob/main/scripts/maintenance/setup-labels.sh
+Reference: https://github.com/mokoconsulting-tech/MokoStandards/blob/main/api/maintenance/setup-labels.sh
 
 Implementation steps:
-- Copy the setup-labels.sh script to scripts/maintenance/ in this repo
+- Copy the setup-labels.sh script to api/maintenance/ in this repo
 - Ensure GitHub CLI is authenticated
-- Run: ./scripts/maintenance/setup-labels.sh --dry-run
+- Run: ./api/maintenance/setup-labels.sh --dry-run
 - Review the output
-- Run: ./scripts/maintenance/setup-labels.sh (to apply)
+- Run: ./api/maintenance/setup-labels.sh (to apply)
 - Verify labels are created in repository settings
 ```
 
@@ -140,12 +140,12 @@ After running the Copilot-generated solution:
 
 1. **Check script exists**:
    ```bash
-   ls -la scripts/maintenance/setup-labels.sh
+   ls -la api/maintenance/setup-labels.sh
    ```
 
 2. **Run dry-run**:
    ```bash
-   ./scripts/maintenance/setup-labels.sh --dry-run
+   ./api/maintenance/setup-labels.sh --dry-run
    ```
 
 3. **Verify GitHub CLI authentication**:
@@ -155,7 +155,7 @@ After running the Copilot-generated solution:
 
 4. **Apply labels**:
    ```bash
-   ./scripts/maintenance/setup-labels.sh
+   ./api/maintenance/setup-labels.sh
    ```
 
 5. **Check labels in GitHub**:
@@ -224,7 +224,7 @@ Process:
 Reference: https://github.com/mokoconsulting-tech/MokoStandards/blob/main/docs/policy/metadata-standards.md
 
 For automated processing, you can also use:
-https://github.com/mokoconsulting-tech/MokoStandards/blob/main/scripts/maintenance/add_terraform_metadata.py
+https://github.com/mokoconsulting-tech/MokoStandards/blob/main/api/maintenance/add_terraform_metadata.py
 ```
 
 ### Verification Steps
@@ -439,8 +439,8 @@ var/logs/
 
 3. **Test key scripts**:
    ```bash
-   python3 scripts/validate/validate_repo_health.py --help
-   ./scripts/maintenance/setup-labels.sh --help
+   python3 api/validate/validate_repo_health.py --help
+   ./api/maintenance/setup-labels.sh --help
    ```
 
 4. **Check Python dependencies**:
@@ -537,7 +537,7 @@ Steps to execute:
 Reference: https://github.com/mokoconsulting-tech/MokoStandards
 
 Use the bulk_update_repos.php script for multiple repositories:
-https://github.com/mokoconsulting-tech/MokoStandards/blob/main/scripts/automation/bulk_update_repos.php
+https://github.com/mokoconsulting-tech/MokoStandards/blob/main/api/automation/bulk_update_repos.php
 
 Create a summary report including:
 - Files created
@@ -706,7 +706,7 @@ You can create repository-specific variations of these prompts:
 For bulk operations across multiple repositories, use:
 
 ```bash
-./scripts/automation/bulk_deploy_labels.sh \
+./api/automation/bulk_deploy_labels.sh \
   --org mokoconsulting-tech \
   --filter "project-prefix*" \
   --parallel

@@ -8,11 +8,11 @@ DEFGROUP: MokoStandards.Documentation
 INGROUP: MokoStandards.Workflows
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/workflows/workflow-inventory.md
-VERSION: 04.00.04
+VERSION: 04.00.15
 BRIEF: Complete inventory of GitHub Actions workflows for migration planning
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # GitHub Actions Workflow Inventory
 
@@ -1169,7 +1169,7 @@ jobs:
 - Required and optional validations
 
 **Dependencies:**
-- Scripts in `scripts/validate/`
+- Scripts in `api/validate/`
 - Python 3.x
 - ShellCheck
 
@@ -1445,10 +1445,10 @@ jobs:
 
 | Script | Used By | Migration Action |
 |--------|---------|------------------|
-| `scripts/validate/*` | ci.yml | Keep in repository (repo-specific) |
+| `api/validate/*` | ci.yml | Keep in repository (repo-specific) |
 | `scripts/docs/rebuild_indexes.py` | rebuild_docs_indexes.yml | Keep in repository |
 | `scripts/setup_project_v2.py` | setup_project_v2.yml | Evaluate for centralization |
-| `scripts/automation/sync_file_to_project.py` | sync_docs_to_project.yml | Keep in repository |
+| `api/automation/sync_file_to_project.py` | sync_docs_to_project.yml | Keep in repository |
 
 ## Migration Priority Matrix
 

@@ -1,0 +1,18 @@
+{
+    "processed": 6,
+    "total": 43,
+    "results": {
+        "total": 43,
+        "success": 5,
+        "skipped": 1,
+        "failed": 0,
+        "repositories": {
+            ".github-private": "success",
+            "MokoCassiopeia": "success",
+            "DoliMods": "success",
+            "Copy-PortablePath": "success",
+            "MokoDoliChimp": "success",
+            "MokoStandards": "skipped"
+        }
+    }
+}

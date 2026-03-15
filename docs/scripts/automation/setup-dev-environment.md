@@ -23,13 +23,13 @@ DEFGROUP: Scripts.Utility
 INGROUP: WorkstationProvisioning
 REPO: https://github.com/mokoconsulting-tech/
 FILE: dev-workstation-provisioner.md
-VERSION: 04.00.04
+VERSION: 04.00.15
 BRIEF: Operational guide for provisioning a Windows development workstation with Winget and optional WSL Ubuntu integration.
-PATH: /docs/scripts/automation/dev-workstation-provisioner.md
+PATH: /docs/api/automation/dev-workstation-provisioner.md
 NOTE:
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Dev Workstation Provisioner Guide
 
@@ -201,7 +201,7 @@ Recommended operational sequence:
 | Jurisdiction   | Tennessee, USA                                   |
 | Owner          | Moko Consulting                                          |
 | Repo           | https://github.com/mokoconsulting-tech/                                      |
-| Path           | /docs/scripts/automation/dev-workstation-provisioner.md                                      |
+| Path           | /docs/api/automation/dev-workstation-provisioner.md                                      |
 | Version        | 03.00.00                                 |
 | Status         | Active                                         |
 | Last Reviewed  | 2026-01-28                                  |

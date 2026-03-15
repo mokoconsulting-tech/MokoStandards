@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Development
 INGROUP: MokoStandards.CRM
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/development/crm/module-registry.md
-VERSION: 04.00.04
+VERSION: 04.00.15
 BRIEF: Dolibarr module number registry for Moko Consulting
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Dolibarr Module Number Registry
 

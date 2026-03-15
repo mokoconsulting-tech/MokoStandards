@@ -206,10 +206,10 @@ Processing required file: CONTRIBUTING.md
 // In bulk_update_repos.php
 private const ALWAYS_FORCE_OVERRIDE_FILES = [
     '.github/workflows/standards-compliance.yml',
-    'scripts/validate/check_version_consistency.php',
-    'scripts/validate/check_enterprise_readiness.php',
-    'scripts/validate/check_repo_health.php',
-    'scripts/maintenance/validate_script_registry.py',
+    'api/validate/check_version_consistency.php',
+    'api/validate/check_enterprise_readiness.php',
+    'api/validate/check_repo_health.php',
+    'api/maintenance/validate_script_registry.py',
     'scripts/.script-registry.json',
 ];
 ```
@@ -226,7 +226,7 @@ enforcement_levels = {
       # These files ALWAYS sync regardless of config
     },
     {
-      path   = "scripts/validate/check_version_consistency.php"
+      path   = "api/validate/check_version_consistency.php"
       reason = "Critical: Version consistency validation"
     }
   ]

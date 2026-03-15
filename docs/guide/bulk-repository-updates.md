@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Bulk Repository Update Script
 
@@ -35,7 +35,7 @@ This script helps maintain consistency across all organization repositories by:
 Update all non-archived repositories in the organization that begin with "Moko":
 
 ```bash
-./scripts/automation/bulk_update_repos.php
+./api/automation/bulk_update_repos.php
 ```
 
 Note: Only repositories with names starting with "Moko" (e.g., MokoStandards, MokoCRM, MokoDoliTools) will be processed. Other repositories are automatically excluded.
@@ -45,43 +45,43 @@ Note: Only repositories with names starting with "Moko" (e.g., MokoStandards, Mo
 Preview what would be updated without making changes:
 
 ```bash
-./scripts/automation/bulk_update_repos.php --dry-run
+./api/automation/bulk_update_repos.php --dry-run
 ```
 
 ### Update Specific Repositories
 
 ```bash
-./scripts/automation/bulk_update_repos.php --repos repo1 repo2 repo3
+./api/automation/bulk_update_repos.php --repos repo1 repo2 repo3
 ```
 
 ### Exclude Specific Repositories
 
 ```bash
-./scripts/automation/bulk_update_repos.php --exclude MokoStandards legacy-repo
+./api/automation/bulk_update_repos.php --exclude MokoStandards legacy-repo
 ```
 
 ### Sync Only Workflows (No Scripts)
 
 ```bash
-./scripts/automation/bulk_update_repos.php --files-only
+./api/automation/bulk_update_repos.php --files-only
 ```
 
 ### Sync Only Scripts (No Workflows)
 
 ```bash
-./scripts/automation/bulk_update_repos.php --scripts-only
+./api/automation/bulk_update_repos.php --scripts-only
 ```
 
 ### Custom Branch Name
 
 ```bash
-./scripts/automation/bulk_update_repos.php --branch feature/update-workflows
+./api/automation/bulk_update_repos.php --branch feature/update-workflows
 ```
 
 ### Different Organization
 
 ```bash
-./scripts/automation/bulk_update_repos.php --org my-other-org
+./api/automation/bulk_update_repos.php --org my-other-org
 ```
 
 ## What Gets Synced
@@ -103,9 +103,9 @@ Preview what would be updated without making changes:
 
 ### Scripts (Default)
 
-- `scripts/maintenance/validate_file_headers.py`
-- `scripts/maintenance/update_changelog.py`
-- `scripts/maintenance/release_version.py`
+- `api/maintenance/validate_file_headers.py`
+- `api/maintenance/update_changelog.py`
+- `api/maintenance/release_version.py`
 
 ## Workflow
 
@@ -143,7 +143,7 @@ For each repository, the script:
 
 ```bash
 # Preview changes for specific repositories
-./scripts/automation/bulk_update_repos.php \
+./api/automation/bulk_update_repos.php \
   --repos MyJoomlaExtension MyDolibarrModule \
   --dry-run
 ```
@@ -154,21 +154,21 @@ To sync only the Dependabot configuration, you can customize the script or manua
 
 ```bash
 # Sync all files including Dependabot config
-./scripts/automation/bulk_update_repos.php --files-only
+./api/automation/bulk_update_repos.php --files-only
 ```
 
 ### Example 3: Update All Except Archived
 
 ```bash
 # Update all active repositories
-./scripts/automation/bulk_update_repos.php \
+./api/automation/bulk_update_repos.php \
   --exclude MokoStandards-archive old-project deprecated-repo
 ```
 
 ### Example 4: Custom PR Message
 
 ```bash
-./scripts/automation/bulk_update_repos.php \
+./api/automation/bulk_update_repos.php \
   --pr-title "feat: Add monthly Dependabot updates" \
   --pr-body "This PR adds monthly Dependabot configuration and updated CI workflows."
 ```
@@ -205,8 +205,8 @@ The script supports three cleanup modes, configured via the `override.config.tf`
 The following directories are cleaned during sync (in conservative/aggressive modes):
 
 - `.github/workflows/` - Workflow files
-- `scripts/maintenance/` - Maintenance scripts
-- `scripts/validate/` - Validation scripts
+- `api/maintenance/` - Maintenance scripts
+- `api/validate/` - Validation scripts
 - `scripts/release/` - Release scripts
 - `scripts/definitions/` - Definition files
 
@@ -228,7 +228,7 @@ locals {
       reason = "Replaced by unified-ci.yml"
     },
     {
-      path   = "scripts/maintenance/deprecated_script.py"
+      path   = "api/maintenance/deprecated_script.py"
       reason = "Functionality moved to common library"
     }
   ]
@@ -269,7 +269,7 @@ Processing repository: mokoconsulting-tech/MokoProject
   Creating branch: chore/sync-mokostandards-updates
   Cleaning up obsolete files (mode: conservative)...
     🗑  Removed obsolete: .github/workflows/old-ci.yml
-    🗑  Removed obsolete: scripts/validate/deprecated.py
+    🗑  Removed obsolete: api/validate/deprecated.py
     Removed 2 obsolete file(s)
   Placing override configuration file...
   Copying files...
@@ -321,13 +321,13 @@ The `--force-override` flag allows the bulk sync to override protected files in 
 
 ```bash
 # Preview what will be overridden (always do this first)
-php scripts/automation/bulk_update_repos.php \
+php api/automation/bulk_update_repos.php \
   --force-override \
   --dry-run \
   --repos target-repo
 
 # Apply the force override
-php scripts/automation/bulk_update_repos.php \
+php api/automation/bulk_update_repos.php \
   --force-override \
   --yes \
   --repos target-repo
@@ -374,7 +374,7 @@ git commit -m "fix: Critical security vulnerability in workflow"
 git push
 
 # Step 2: Test force override on one repository
-php scripts/automation/bulk_update_repos.php \
+php api/automation/bulk_update_repos.php \
   --force-override \
   --dry-run \
   --repos test-repo
@@ -382,7 +382,7 @@ php scripts/automation/bulk_update_repos.php \
 # Step 3: Review output and verify it looks correct
 
 # Step 4: Apply to all repositories
-php scripts/automation/bulk_update_repos.php \
+php api/automation/bulk_update_repos.php \
   --force-override \
   --yes \
   --exclude archived-repo deprecated-repo
@@ -523,7 +523,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Sync to org repos
         run: |
-          ./scripts/automation/bulk_update_repos.php --yes
+          ./api/automation/bulk_update_repos.php --yes
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 ```

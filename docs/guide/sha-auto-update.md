@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # SHA-256 Auto-Update Automation
 
@@ -8,7 +8,7 @@ This automation ensures that SHA-256 verification hashes in workflow files stay 
 
 ## Components
 
-### 1. Update Script: `scripts/maintenance/update_sha_hashes.php`
+### 1. Update Script: `api/maintenance/update_sha_hashes.php`
 
 PHP script that:
 - Calculates SHA-256 hashes of tracked files in the script registry
@@ -19,16 +19,16 @@ PHP script that:
 **Usage:**
 ```bash
 # Check what would be updated (dry run)
-php scripts/maintenance/update_sha_hashes.php --dry-run --verbose
+php api/maintenance/update_sha_hashes.php --dry-run --verbose
 
 # Actually update the hashes
-php scripts/maintenance/update_sha_hashes.php
+php api/maintenance/update_sha_hashes.php
 
 # Show detailed output
-php scripts/maintenance/update_sha_hashes.php --verbose
+php api/maintenance/update_sha_hashes.php --verbose
 
 # Show help
-php scripts/maintenance/update_sha_hashes.php --help
+php api/maintenance/update_sha_hashes.php --help
 ```
 
 **How It Works:**
@@ -122,7 +122,7 @@ The script automatically tracks all files listed in `scripts/.script-registry.js
 
 3. **Test the update script**:
    ```bash
-   php scripts/maintenance/update_sha_hashes.php --dry-run --verbose
+   php api/maintenance/update_sha_hashes.php --dry-run --verbose
    ```
 
 ## Manual Updates
@@ -131,10 +131,10 @@ If you need to update hashes manually:
 
 ```bash
 # Check current status
-php scripts/maintenance/update_sha_hashes.php --dry-run
+php api/maintenance/update_sha_hashes.php --dry-run
 
 # Update all hashes
-php scripts/maintenance/update_sha_hashes.php
+php api/maintenance/update_sha_hashes.php
 
 # Commit the changes
 git add scripts/.script-registry.json
@@ -170,7 +170,7 @@ Common issues:
 
 ## Related Files
 
-- `scripts/maintenance/update_sha_hashes.php` - Main update script
+- `api/maintenance/update_sha_hashes.php` - Main update script
 - `.github/workflows/auto-update-sha.yml` - Automation workflow
 - `scripts/.script-registry.json` - Script registry with SHA-256 hashes
 - `.github/workflows/validate-script-integrity.yml` - Validates script hashes

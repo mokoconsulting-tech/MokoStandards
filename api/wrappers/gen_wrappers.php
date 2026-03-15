@@ -163,7 +163,7 @@ function renderWrapper(string $name, string $scriptPath, string $category): stri
 			}
 			\$out = (\$stream === \$pipes[1]) ? STDOUT : STDERR;
 			fwrite(\$out, \$chunk);
-			fwrite((resource) \$log, \$chunk);
+			fwrite(\$log, \$chunk);
 		}
 		if (feof(\$pipes[1]) && feof(\$pipes[2])) {
 			break;
@@ -172,7 +172,7 @@ function renderWrapper(string $name, string $scriptPath, string $category): stri
 
 	fclose(\$pipes[1]);
 	fclose(\$pipes[2]);
-	fclose((resource) \$log);
+	fclose(\$log);
 
 	\$exitCode = proc_close(\$process);
 

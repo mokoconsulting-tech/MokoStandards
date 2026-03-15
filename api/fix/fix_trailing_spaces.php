@@ -20,7 +20,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../lib/CliBase.php';
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-use MokoStandards\Enterprise\FileFixUtility;
+use MokoEnterprise\FileFixUtility;
 
 /**
  * CLI wrapper that delegates trailing-space removal to FileFixUtility.

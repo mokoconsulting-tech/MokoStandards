@@ -1,4 +1,4 @@
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Release Workflow
 
@@ -157,7 +157,7 @@ git commit -m "docs: Update README [skip release]"
 ## Related Files
 
 - Workflow: `.github/workflows/auto-release.yml`
-- Script: `scripts/maintenance/release_version.py`
+- Script: `api/maintenance/release_version.py`
 - Policy: `docs/policy/changelog-standards.md`
 
 ## See Also

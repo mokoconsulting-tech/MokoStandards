@@ -27,7 +27,7 @@ VERSION: 04.00.05
 BRIEF: Governance policy for AI coding tools in all MokoStandards-governed repositories
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.05-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # AI Tool Governance Policy
 

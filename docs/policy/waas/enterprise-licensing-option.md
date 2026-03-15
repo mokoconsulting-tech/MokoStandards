@@ -10,11 +10,11 @@
  INGROUP: Policy.EnterpriseLicensing
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  PATH: /docs/policy/waas/enterprise-licensing-option.md
- VERSION: 04.00.04
+ VERSION: 04.00.15
  BRIEF: Enterprise option defining enhanced licensing, site key governance, and centralized control for WaaS deployments.
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # MokoStandard: Enterprise Licensing and Site Key Option
 

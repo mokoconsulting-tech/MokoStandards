@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Training
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: docs/training/session-2-integration-workshop.md
-VERSION: 04.00.04
+VERSION: 04.00.15
 BRIEF: Session 2 - Practical Integration Workshop training materials
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Session 2: Practical Integration Workshop
 
@@ -1437,7 +1437,7 @@ Reference: Production script from the repository.
 - Error Recovery for checkpointing batch updates
 - Metrics for tracking update statistics
 
-**Code Walkthrough**: See `scripts/automation/bulk_update_repos.php`
+**Code Walkthrough**: See `api/automation/bulk_update_repos.php`
 
 ---
 

@@ -23,12 +23,12 @@
  INGROUP: MokoStandards
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  FILE: docs/guide/branch-synchronization.md
- VERSION: 04.00.04
+ VERSION: 04.00.15
  BRIEF: Guide for synchronizing local branches with remote counterparts
  PATH: /docs/guide/branch-synchronization.md
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Branch Synchronization Guide
 

@@ -10,11 +10,11 @@
  INGROUP: Policy.Documentation
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  PATH: /docs/policy/changelog-standards.md
- VERSION: 04.00.04
+ VERSION: 04.00.15
  BRIEF: Policy defining changelog format and maintenance standards for MokoStandards repositories.
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.04-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # MokoStandards: Changelog Standards Policy
 
@@ -33,7 +33,7 @@ This policy defines the standard format and maintenance requirements for CHANGEL
 
 **Example:**
 ```markdown
-# CHANGELOG - MokoStandards (VERSION: 04.00.04)
+# CHANGELOG - MokoStandards (VERSION: 04.00.15)
 ```
 
 **Rules:**
@@ -103,7 +103,7 @@ Within each version section, changes are organized by category using H3:
 ## Complete Example
 
 ```markdown
-# CHANGELOG - MokoStandards (VERSION: 04.00.04)
+# CHANGELOG - MokoStandards (VERSION: 04.00.15)
 
 All notable changes to this project will be documented in this file.
 
@@ -144,7 +144,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Scripts
 
-- **scripts/maintenance/update_changelog.py**: Add entries to [Unreleased] section
+- **api/maintenance/update_changelog.py**: Add entries to [Unreleased] section
 - **.github/workflows/auto-update-changelog.yml**: Automated changelog maintenance
 - **.github/workflows/standards-compliance.yml**: Validates changelog format
 
@@ -198,7 +198,7 @@ The standards compliance workflow checks:
 
 ```bash
 # Add a change to [Unreleased]
-python3 scripts/maintenance/update_changelog.py --category Changed --message "Updated script organization"
+python3 api/maintenance/update_changelog.py --category Changed --message "Updated script organization"
 
 # Validate changelog format
 # (runs automatically in CI)

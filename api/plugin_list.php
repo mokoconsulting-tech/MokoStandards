@@ -1,16 +1,21 @@
 #!/usr/bin/env php
 <?php
+/* Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+ *
+ * This file is part of a Moko Consulting project.
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ *
+ * FILE INFORMATION
+ * DEFGROUP: MokoStandards.Scripts.Plugin
+ * INGROUP: MokoStandards
+ * REPO: https://github.com/mokoconsulting-tech/MokoStandards
+ * PATH: /api/plugin_list.php
+ * VERSION: 04.00.15
+ * BRIEF: List all available project-type plugins and their capabilities
+ */
 
 declare(strict_types=1);
-
-/**
- * Plugin List Script
- * 
- * Lists all available plugins and their information
- *
- * @package MokoStandards\Enterprise
- * @version 1.0.0
- */
 
 // Autoload dependencies
 require_once __DIR__ . '/../vendor/autoload.php';

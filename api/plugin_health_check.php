@@ -1,16 +1,21 @@
 #!/usr/bin/env php
 <?php
+/* Copyright (C) 2026 Moko Consulting <hello@mokoconsulting.tech>
+ *
+ * This file is part of a Moko Consulting project.
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ *
+ * FILE INFORMATION
+ * DEFGROUP: MokoStandards.Scripts.Plugin
+ * INGROUP: MokoStandards
+ * REPO: https://github.com/mokoconsulting-tech/MokoStandards
+ * PATH: /api/plugin_health_check.php
+ * VERSION: 04.00.15
+ * BRIEF: Run health checks on a project using the auto-detected or specified plugin
+ */
 
 declare(strict_types=1);
-
-/**
- * Plugin Health Check Script
- * 
- * Runs health checks on a project using the appropriate plugin
- *
- * @package MokoStandards\Enterprise
- * @version 1.0.0
- */
 
 // Autoload dependencies
 require_once __DIR__ . '/../vendor/autoload.php';

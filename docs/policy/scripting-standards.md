@@ -23,11 +23,11 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Development
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/scripting-standards.md
-VERSION: 04.00.12
+VERSION: 04.00.15
 BRIEF: Standards and requirements for automation scripts and tooling
 -->
 
-[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.12-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
+[![MokoStandards](https://img.shields.io/badge/MokoStandards-04.00.15-blue)](https://github.com/mokoconsulting-tech/MokoStandards)
 
 # Scripting Standards Policy
 
@@ -134,62 +134,22 @@ mental context.
 declare(strict_types=1);
 ```
 
-### Secondary Language: Python (Exception Only)
-
-Python may only be used when **all** of the following conditions are met:
-
-1. No PHP equivalent exists in the standard library or Composer ecosystem
-2. The task is intrinsically tied to a Python-only tool (e.g., ML inference, specific
-   data-science pipeline)
-3. The exception is documented in the script header
-4. Maintainer approval has been granted and recorded
-
-> **Guideline**: If you are uncertain whether a PHP equivalent exists, ask before writing
-> Python. In almost all cases a PHP solution is available.
-
-**Migration obligation**: Existing Python scripts (`scripts/maintenance/*.py`) are
-classified as legacy. They must be migrated to PHP when they are next modified for a
-functional reason. Do not write new functionality in these files; open a migration ticket
-instead.
-
 ### Prohibited Languages for New Scripts
 
 The following languages are prohibited for new automation scripts without explicit
 maintainer approval:
 
-- **Python** (without approved exception — see above)
-- **Shell scripts** (bash, sh, zsh): Platform-specific, poor error handling
+- **Python** (.py) — all existing scripts migrated to PHP
+- **Shell scripts** (bash, sh, zsh): Platform-specific, poor error handling — all existing scripts removed
 - **Batch files** (.bat, .cmd): Windows-only, limited functionality
-- **PowerShell** (.ps1): Windows-focused, inconsistent cross-platform
+- **PowerShell** (.ps1) — removed; PHP wrappers replace all .ps1 files
 - **Perl**: Declining ecosystem, poor readability
 - **Ruby**: Not part of the Moko Consulting tech stack
 
-### Exceptions for Existing Scripts
+### No Legacy Exceptions
 
-**Legacy Python Scripts** in `scripts/maintenance/`:
-- Existing Python scripts (`.py`) are **grandfathered**
-- May remain as Python until their next functional modification
-- When a functional change is required, migrate the entire script to PHP
-- Do not add new functionality to existing Python scripts; migrate first
-
-**Legacy Bash Validation Scripts** in `scripts/lib/validate/`:
-- Existing bash scripts (`.sh`) are **grandfathered**
-- May remain as bash for backward compatibility
-- Should not be rewritten unless functional changes are needed
-- New validation scripts must use PHP
-
-**Minimal Wrapper Scripts**:
-- Simple CI/CD entry points (< 10 lines) may use bash
-- Must only call PHP scripts (`php script.php`) or system commands
-- Require maintainer approval
-
-**Exception Process**:
-1. Document technical justification
-2. Confirm no PHP equivalent exists
-3. Get Security Owner approval for privileged operations
-4. Get maintainer approval
-5. Document exception and approval in script header
-6. Set a migration target date
+All Python and shell scripts have been migrated to PHP or deleted as of version 04.00.15.
+No legacy exceptions remain. All new scripts must be PHP.
 
 ## PHP Coding Standards
 
@@ -789,7 +749,7 @@ declare(strict_types=1);
 **All scripts require code review:**
 
 **Review Checklist**:
-- [ ] Written in PHP (Python only with approved exception)
+- [ ] Written in PHP
 - [ ] `declare(strict_types=1)` present
 - [ ] Follows naming conventions
 - [ ] Has PHP type declarations
@@ -885,7 +845,7 @@ This policy depends on:
 | Owner | Moko Consulting |
 | Repo | https://github.com/mokoconsulting-tech/ |
 | Path | /docs/policy/scripting-standards.md |
-| Version | 04.00.12 |
+| Version | 04.00.15 |
 | Status | Active |
 | Last Reviewed | 2026-03-11 |
 | Reviewed By | Moko Consulting |
@@ -894,5 +854,6 @@ This policy depends on:
 
 | Date | Author | Change | Notes |
 | ---- | ------ | ------ | ----- |
+| 2026-03-14 | Moko Consulting | Removed all Python and shell script exceptions; PHP-only policy now fully enforced; all legacy .py and .sh files deleted | Supersedes all legacy exception clauses |
 | 2026-03-11 | Moko Consulting | Established PHP as the primary scripting language; Python permitted only with approved exception; existing `.py` scripts classified as legacy pending migration | Supersedes Python-primary policy |
 | 2026-01-28 | Moko Consulting | Standardized metadata and revision history | Updated to version 03.00.00 with all required fields |

@@ -263,9 +263,13 @@ class BulkSync extends CLIApp
         
         $handle = fopen("php://stdin", "r");
         $line = fgets($handle);
-        fclose($handle);
-        
-        return strtolower(trim($line)) === 'y';
+        if ($handle) {
+            fclose($handle);
+        }
+
+        // fgets() returns false when stdin is not a TTY (e.g. CI, piped input);
+        // treat that as a non-confirmation rather than crashing.
+        return is_string($line) && strtolower(trim($line)) === 'y';
     }
     
     /**
@@ -354,12 +358,14 @@ class BulkSync extends CLIApp
                 $this->log("  ✗ {$repoName} failed: " . $e->getMessage(), 'ERROR');
             }
             
-            // Save checkpoint
-            $this->checkpoints->saveCheckpoint('bulk_sync', [
-                'processed' => $progress,
-                'total' => $total,
-                'results' => $results,
-            ]);
+            // Save checkpoint (skipped in dry-run — no real state has changed)
+            if (!$this->dryRun) {
+                $this->checkpoints->saveCheckpoint('bulk_sync', [
+                    'processed' => $progress,
+                    'total' => $total,
+                    'results' => $results,
+                ]);
+            }
         }
         
         $duration = microtime(true) - $startTime;

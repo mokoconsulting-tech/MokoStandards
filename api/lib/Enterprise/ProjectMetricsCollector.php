@@ -11,7 +11,7 @@
  * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: /api/lib/Enterprise/ProjectMetricsCollector.php
- * VERSION: 04.00.04
+ * VERSION: 04.00.15
  * BRIEF: Enterprise library for collecting project-specific metrics
  */
 

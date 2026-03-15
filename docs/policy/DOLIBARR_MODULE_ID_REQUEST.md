@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/DOLIBARR_MODULE_ID_REQUEST.md
-VERSION: 04.00.11
+VERSION: 04.00.15
 BRIEF: Policy for requesting and managing unique Dolibarr module IDs within the Moko Consulting organisation
 -->
 

@@ -11,7 +11,7 @@
  * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: /api/validate/check_tabs.php
- * VERSION: XX.YY.ZZ
+ * VERSION: 04.00.15
  * BRIEF: Validates that no literal tab characters exist in source files
  */
 

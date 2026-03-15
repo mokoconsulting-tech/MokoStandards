@@ -10,7 +10,7 @@
  * INGROUP: MokoStandards.Lib
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: /api/lib/Enterprise/FileFixUtility.php
- * VERSION: XX.YY.ZZ
+ * VERSION: 04.00.15
  * BRIEF: Utility class for fixing file formatting issues (line endings, permissions, tabs, trailing spaces)
  */
 

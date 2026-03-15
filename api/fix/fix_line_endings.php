@@ -11,7 +11,7 @@
  * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: /api/fix/fix_line_endings.php
- * VERSION: XX.YY.ZZ
+ * VERSION: 04.00.15
  * BRIEF: CLI script to fix line endings (CRLF → LF) in tracked files
  */
 

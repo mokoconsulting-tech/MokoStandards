@@ -10,7 +10,7 @@ DEFGROUP: MokoStandards.Guide
 INGROUP: MokoStandards
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/guide/package-installation.md
-VERSION: 04.00.05
+VERSION: 04.00.15
 BRIEF: Guide for installing the MokoStandards enterprise library in governed PHP repositories
 -->
 

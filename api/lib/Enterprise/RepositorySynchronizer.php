@@ -11,7 +11,7 @@
  * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: /api/lib/Enterprise/RepositorySynchronizer.php
- * VERSION: 04.00.05
+ * VERSION: 04.00.15
  * BRIEF: Repository synchronization enterprise library
  */
 

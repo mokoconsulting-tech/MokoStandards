@@ -11,7 +11,7 @@
  * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: /api/validate/check_php_syntax.php
- * VERSION: XX.YY.ZZ
+ * VERSION: 04.00.15
  * BRIEF: Validates PHP syntax for all tracked PHP files using php -l
  */
 

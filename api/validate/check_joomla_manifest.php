@@ -11,7 +11,7 @@
  * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: /api/validate/check_joomla_manifest.php
- * VERSION: XX.YY.ZZ
+ * VERSION: 04.00.15
  * BRIEF: Validates Joomla XML manifest structure and required elements
  */
 

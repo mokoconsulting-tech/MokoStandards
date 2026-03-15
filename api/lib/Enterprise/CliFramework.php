@@ -10,7 +10,7 @@
  * INGROUP: MokoStandards.Enterprise
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: /api/lib/Enterprise/CliFramework.php
- * VERSION: 04.01.00
+ * VERSION: 04.00.15
  * BRIEF: CLI base classes — CLIApp (legacy) and CliFramework (current)
  * NOTE: All new scripts must extend CliFramework, not CLIApp.
  *       CLIApp remains for backward-compatibility with existing scripts.

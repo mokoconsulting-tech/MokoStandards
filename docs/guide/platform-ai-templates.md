@@ -10,7 +10,7 @@ DEFGROUP: MokoStandards.Guide
 INGROUP: MokoStandards
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/guide/platform-ai-templates.md
-VERSION: 04.00.05
+VERSION: 04.00.15
 BRIEF: Guide to the platform-specific AI template system — how Joomla, Dolibarr, and generic templates are selected and synced
 -->
 

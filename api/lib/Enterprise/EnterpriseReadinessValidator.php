@@ -11,7 +11,7 @@
  * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: /api/lib/Enterprise/EnterpriseReadinessValidator.php
- * VERSION: 04.00.04
+ * VERSION: 04.00.15
  * BRIEF: Enterprise readiness validation library
  */
 

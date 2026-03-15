@@ -12,7 +12,7 @@
  * INGROUP: MokoStandards.Scripts
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: /api/automation/bulk_sync.php
- * VERSION: 05.00.01
+ * VERSION: 04.00.15
  * BRIEF: Enterprise-grade bulk repository synchronization
  */
 
@@ -55,7 +55,7 @@ class BulkSync extends CLIApp
      * Script version number
      * Public to allow script instantiation with class constants
      */
-    public const VERSION = '05.00.00';
+    public const VERSION = '04.00.15';
     
     private ApiClient $api;
     private RepositorySynchronizer $synchronizer;

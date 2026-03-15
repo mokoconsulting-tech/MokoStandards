@@ -119,7 +119,7 @@ DEFGROUP: [Group.Subgroup]
 INGROUP: [Parent.Group]
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /path/to/file.md
-VERSION: XX.YY.ZZ
+VERSION: 04.00.15
 BRIEF: Brief description of file purpose
 -->
 ```
@@ -156,7 +156,7 @@ DEFGROUP: [Group.Subgroup]
 INGROUP: [Parent.Group]
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /path/to/file.md
-VERSION: XX.YY.ZZ
+VERSION: 04.00.15
 BRIEF: Brief description of file purpose
 -->
 ```
@@ -177,7 +177,7 @@ DEFGROUP: [Group.Subgroup]
 INGROUP: [Parent.Group]
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /path/to/file.py
-VERSION: XX.YY.ZZ
+VERSION: 04.00.15
 BRIEF: Brief description of file purpose
 """
 ```
@@ -211,7 +211,7 @@ DEFGROUP: [Group.Subgroup]
 INGROUP: [Parent.Group]
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /path/to/file.py
-VERSION: XX.YY.ZZ
+VERSION: 04.00.15
 BRIEF: Brief description of file purpose
 """
 ```

@@ -12,7 +12,7 @@
  * INGROUP: MokoStandards.Templates
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: /templates/scripts/common/CliBase.template.php
- * VERSION: 04.01.00
+ * VERSION: 04.00.15
  * BRIEF: PHP CLI script template — extends MokoEnterprise\CliFramework
  * NOTE: Copy this file as a starting point for new PHP CLI scripts in governed repos.
  *       Requires mokoconsulting/mokostandards installed via composer.

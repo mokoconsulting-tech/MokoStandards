@@ -23,7 +23,7 @@
  INGROUP: MokoStandards.Design
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  PATH: /docs/policy/google-fonts.md
- VERSION: 04.00.05
+ VERSION: 04.00.15
  BRIEF: Policy governing the use of Google Fonts across all Moko Consulting web projects
 -->
 

@@ -12,7 +12,7 @@
  * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: /api/maintenance/pin_action_shas.php
- * VERSION: 04.00.04
+ * VERSION: 04.00.15
  * BRIEF: Pin GitHub Actions to immutable commit SHAs in workflow files
  * NOTE: Resolves tag/branch refs to commit SHAs via the GitHub API to satisfy
  *       the CodeQL "Unpinned tag for a non-immutable Action" security rule.

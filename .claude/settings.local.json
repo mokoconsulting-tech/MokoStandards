@@ -36,7 +36,8 @@
       "Bash(grep:*)",
       "Bash(cd:*)",
       "Bash(python3:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(find:*)"
     ]
   }
 }

@@ -11,7 +11,7 @@
  * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: /api/lib/Enterprise/DefinitionParser.php
- * VERSION: 04.00.05
+ * VERSION: 04.00.15
  * BRIEF: Parses Terraform HCL repository definition files into a flat sync-file list
  */
 

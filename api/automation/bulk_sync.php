@@ -156,10 +156,12 @@ class BulkSync extends CLIApp
 
         // Fall back to `gh auth token` when running locally without env vars set.
         // proc_open with an argument array avoids shell interpretation entirely.
+        // stdin is redirected from the null device so gh runs non-interactively.
         if (empty($token)) {
+            $nullDevice = PHP_OS_FAMILY === 'Windows' ? 'NUL' : '/dev/null';
             $proc = proc_open(
                 ['gh', 'auth', 'token'],
-                [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
+                [0 => ['file', $nullDevice, 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
                 $pipes
             );
             if (is_resource($proc)) {
@@ -167,7 +169,8 @@ class BulkSync extends CLIApp
                 fclose($pipes[1]);
                 fclose($pipes[2]);
                 proc_close($proc);
-                if (!empty($ghToken)) {
+                // Validate output looks like a GitHub token before trusting it
+                if (preg_match('/^(ghp_|github_pat_|gho_|ghu_|ghs_)\S+$/', $ghToken)) {
                     $token = $ghToken;
                     $this->log("ℹ️  Using token from gh CLI", 'INFO');
                 }

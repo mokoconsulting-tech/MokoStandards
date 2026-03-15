@@ -10,7 +10,7 @@ DEFGROUP: MokoStandards.Guide.WaaS
 INGROUP: MokoStandards.WaaS
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/guide/waas/update-server-guide.md
-VERSION: 04.00.05
+VERSION: 04.00.15
 BRIEF: How-to guide for creating and maintaining the Joomla extension update.xml in MokoWaaS repos
 -->
 

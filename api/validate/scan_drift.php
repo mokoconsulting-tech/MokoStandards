@@ -12,7 +12,7 @@
  * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: /api/validate/scan_drift.php
- * VERSION: 04.00.04
+ * VERSION: 04.00.15
  * BRIEF: Standards drift detection - scans repositories for divergence from templates
  */
 

@@ -54,6 +54,12 @@ Icon?
 *.orig
 
 # ============================================================
+# Runtime / generated data
+# ============================================================
+# Checkpoint files written by bulk_sync.php and other long-running scripts
+.checkpoints/
+
+# ============================================================
 # Dev scripts and scratch
 # ============================================================
 TODO.md

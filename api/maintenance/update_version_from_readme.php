@@ -11,7 +11,7 @@
  * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: /api/maintenance/update_version_from_readme.php
- * VERSION: XX.YY.ZZ
+ * VERSION: 04.00.15
  * BRIEF: Reads VERSION from README.md FILE INFORMATION block and propagates it to all badges and FILE INFORMATION headers
  * NOTE: README.md is the single source of truth for the repository version.
  *       Version format is zero-padded semver: XX.YY.ZZ (e.g. 04.00.04). All regex patterns

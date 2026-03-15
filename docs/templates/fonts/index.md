@@ -23,7 +23,7 @@
  INGROUP: MokoStandards
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  PATH: /docs/templates/fonts/index.md
- VERSION: 04.00.06
+ VERSION: 04.00.15
  BRIEF: Catalogue of locally bundled font assets in templates/fonts/ and Google Fonts usage guidance
 -->
 

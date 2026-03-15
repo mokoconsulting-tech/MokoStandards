@@ -10,7 +10,7 @@
  * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: /api/lib/Common.php
- * VERSION: XX.YY.ZZ
+ * VERSION: 04.00.15
  * BRIEF: Common utility functions for api/ scripts
  * NOTE: Version format used throughout is zero-padded semver: XX.YY.ZZ (e.g. 04.00.04).
  *       All version regex patterns enforce exactly two digits per component by design.

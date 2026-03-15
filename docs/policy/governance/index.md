@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Policy.Governance
 INGROUP: MokoStandards.Policy
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/governance/index.md
-VERSION: 04.00.11
+VERSION: 04.00.15
 BRIEF: Index of governance policy documents
 -->
 

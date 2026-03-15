@@ -10,7 +10,7 @@ DEFGROUP: MokoStandards.Policy.WaaS
 INGROUP: MokoStandards.WaaS
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/waas/update-server.md
-VERSION: 04.00.05
+VERSION: 04.00.15
 BRIEF: Policy for the Joomla extension update server (update.xml) in all MokoWaaS repositories
 -->
 

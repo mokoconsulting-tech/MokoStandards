@@ -11,7 +11,7 @@
  * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: /api/lib/Enterprise/SynchronizationException.php
- * VERSION: 05.00.00
+ * VERSION: 04.00.15
  * BRIEF: Custom exception for repository synchronization errors
  */
 

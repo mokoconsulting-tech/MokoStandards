@@ -10,7 +10,7 @@
  * INGROUP: MokoStandards.Lib
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: /api/lib/Enterprise/PackageBuilder.php
- * VERSION: XX.YY.ZZ
+ * VERSION: 04.00.15
  * BRIEF: Builds release packages for generic, Dolibarr module, and Joomla component projects
  */
 

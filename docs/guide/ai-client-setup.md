@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Guide
 INGROUP: MokoStandards.Documentation
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/guide/ai-client-setup.md
-VERSION: XX.YY.ZZ
+VERSION: 04.00.15
 BRIEF: How to set up AI coding agent context files for all major AI clients in governed repositories
 -->
 

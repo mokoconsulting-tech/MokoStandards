@@ -23,7 +23,7 @@ DEFGROUP: MokoStandards.Policy
 INGROUP: MokoStandards.Governance
 REPO: https://github.com/mokoconsulting-tech/MokoStandards
 PATH: /docs/policy/ai-tool-governance.md
-VERSION: 04.00.05
+VERSION: 04.00.15
 BRIEF: Governance policy for AI coding tools in all MokoStandards-governed repositories
 -->
 

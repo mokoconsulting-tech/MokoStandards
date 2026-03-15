@@ -11,7 +11,7 @@
  * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: /api/fix/fix_permissions.php
- * VERSION: XX.YY.ZZ
+ * VERSION: 04.00.15
  * BRIEF: CLI script to fix file permissions (dirs 755, files 644, scripts 755)
  */
 

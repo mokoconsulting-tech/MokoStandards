@@ -13,7 +13,7 @@
  * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: /api/maintenance/setup_labels.php
- * VERSION: XX.YY.ZZ
+ * VERSION: 04.00.15
  * BRIEF: REQUIRED label deployment script for all MokoStandards-governed repositories
  */
 

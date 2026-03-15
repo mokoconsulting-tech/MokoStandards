@@ -23,7 +23,7 @@
  INGROUP: MokoStandards
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  PATH: /docs/templates/images/index.md
- VERSION: 04.00.05
+ VERSION: 04.00.15
  BRIEF: Catalogue of all image assets in templates/images/ and their usage guidance
 -->
 

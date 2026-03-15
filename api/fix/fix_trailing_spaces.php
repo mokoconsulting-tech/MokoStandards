@@ -11,7 +11,7 @@
  * INGROUP: MokoStandards
  * REPO: https://github.com/mokoconsulting-tech/MokoStandards
  * PATH: /api/fix/fix_trailing_spaces.php
- * VERSION: XX.YY.ZZ
+ * VERSION: 04.00.15
  * BRIEF: CLI script to remove trailing whitespace from tracked source files
  */
 

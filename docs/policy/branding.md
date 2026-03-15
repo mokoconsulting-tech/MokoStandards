@@ -23,7 +23,7 @@
  INGROUP: MokoStandards.Design
  REPO: https://github.com/mokoconsulting-tech/MokoStandards
  PATH: /docs/policy/branding.md
- VERSION: 04.00.05
+ VERSION: 04.00.15
  BRIEF: Authoritative Moko Consulting brand identity system — foundation, visual identity, logo, colour palette, typography, and usage policy
 -->
 
